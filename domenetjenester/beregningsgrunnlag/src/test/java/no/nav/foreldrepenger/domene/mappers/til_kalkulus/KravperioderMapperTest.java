@@ -163,12 +163,12 @@ class KravperioderMapperTest {
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
         assertThat(kravperioder.get(0).getInnsendingsdato()).isEqualTo(førsteInnsendingstidspunkt);
-        assertThat(kravperioder.get(0).getPerioder().get(0).beløp()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
+        assertThat(kravperioder.get(0).getPerioder().get(0).beløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
 
         assertThat(kravperioder.get(1).getPerioder()).hasSize(1);
         assertThat(kravperioder.get(1).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(1).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-        assertThat(kravperioder.get(1).getPerioder().get(0).beløp()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
+        assertThat(kravperioder.get(1).getPerioder().get(0).beløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
         assertThat(kravperioder.get(1).getInnsendingsdato()).isEqualTo(STP);
 
         assertThat(krav.getSisteSøktePerioder()).hasSize(1);
@@ -202,7 +202,7 @@ class KravperioderMapperTest {
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
         assertThat(kravperioder.get(0).getInnsendingsdato()).isEqualTo(førsteInnsendingstidspunkt);
-        assertThat(kravperioder.get(0).getPerioder().get(0).beløp()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
+        assertThat(kravperioder.get(0).getPerioder().get(0).beløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(500_000));
 
         assertThat(kravperioder.get(1).getPerioder()).hasSize(1);
 
@@ -210,7 +210,7 @@ class KravperioderMapperTest {
         assertThat(kravperioder.get(1).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
 
         assertThat(kravperioder.get(1).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-        assertThat(kravperioder.get(1).getPerioder().get(0).beløp()).isEqualByComparingTo(BigDecimal.valueOf(350_000));
+        assertThat(kravperioder.get(1).getPerioder().get(0).beløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(350_000));
         assertThat(kravperioder.get(1).getInnsendingsdato()).isEqualTo(nyStartdato);
 
         assertThat(krav.getSisteSøktePerioder()).hasSize(1);
@@ -228,7 +228,7 @@ class KravperioderMapperTest {
         assertThat(mappetKrav.getPerioder()).hasSize(1);
         assertThat(mappetKrav.getPerioder()).hasSize(1);
         assertThat(mappetKrav.getPerioder().get(0).getPerioder()).hasSize(1);
-        assertThat(mappetKrav.getPerioder().get(0).getPerioder().get(0).beløp()).isEqualByComparingTo(BigDecimal.valueOf(beløp));
+        assertThat(mappetKrav.getPerioder().get(0).getPerioder().get(0).beløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(beløp));
         assertThat(mappetKrav.getPerioder().get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(fom);
         assertThat(mappetKrav.getPerioder().get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(tom);
     }

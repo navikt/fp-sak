@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Aktivitetsgrad;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -128,7 +129,7 @@ public class BeregningUttakTjeneste {
     }
 
     private AndelGradering.Gradering mapGradering(PeriodeMedGradering periodeMedGradering) {
-        return new AndelGradering.Gradering(periodeMedGradering.fom, periodeMedGradering.tom, periodeMedGradering.arbeidsprosent);
+        return new AndelGradering.Gradering(periodeMedGradering.fom, periodeMedGradering.tom, Aktivitetsgrad.fra(periodeMedGradering.arbeidsprosent));
     }
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {

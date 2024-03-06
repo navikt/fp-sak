@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregat
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -47,10 +49,10 @@ public final class KalkulusTilBGMapper {
         var builder = new BeregningsgrunnlagPeriode.Builder();
 
         // med
-        builder.medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr());
+        builder.medAvkortetPrÅr(mapBeløp(fraKalkulus.getAvkortetPrÅr()));
         builder.medBeregningsgrunnlagPeriode(fraKalkulus.getBeregningsgrunnlagPeriodeFom(), fraKalkulus.getBeregningsgrunnlagPeriodeTom());
-        builder.medBruttoPrÅr(fraKalkulus.getBruttoPrÅr());
-        builder.medRedusertPrÅr(fraKalkulus.getRedusertPrÅr());
+        builder.medBruttoPrÅr(mapBeløp(fraKalkulus.getBruttoPrÅr()));
+        builder.medRedusertPrÅr(mapBeløp(fraKalkulus.getRedusertPrÅr()));
         regelSporingerPeriode.forEach(rs -> builder.medRegelEvaluering(rs.regelInput(), rs.regelEvaluering(),
             BeregningsgrunnlagPeriodeRegelType.fraKode(rs.regelType().getKode())));
 
@@ -65,7 +67,7 @@ public final class KalkulusTilBGMapper {
     public static SammenligningsgrunnlagPrStatus.Builder mapSammenligningsgrunnlagMedStatus(SammenligningsgrunnlagPrStatusDto fraKalkulus) {
         var builder = new SammenligningsgrunnlagPrStatus.Builder();
         builder.medAvvikPromille(fraKalkulus.getAvvikPromilleNy());
-        builder.medRapportertPrÅr(fraKalkulus.getRapportertPrÅr());
+        builder.medRapportertPrÅr(mapBeløp(fraKalkulus.getRapportertPrÅr()));
         builder.medSammenligningsgrunnlagType(mapSammenligningstype(fraKalkulus.getSammenligningsgrunnlagType()));
         builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(), fraKalkulus.getSammenligningsperiodeTom());
 
@@ -101,21 +103,20 @@ public final class KalkulusTilBGMapper {
             .medAndelsnr(fraKalkulus.getAndelsnr())
             .medArbforholdType(
                 fraKalkulus.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(fraKalkulus.getArbeidsforholdType().getKode()))
-            .medAvkortetBrukersAndelPrÅr(fraKalkulus.getAvkortetBrukersAndelPrÅr())
-            .medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr())
-            .medAvkortetRefusjonPrÅr(fraKalkulus.getAvkortetRefusjonPrÅr())
-            .medBeregnetPrÅr(fraKalkulus.getBeregnetPrÅr())
-            .medBesteberegningPrÅr(fraKalkulus.getBesteberegningPrÅr())
+            .medAvkortetBrukersAndelPrÅr(mapBeløp(fraKalkulus.getAvkortetBrukersAndelPrÅr()))
+            .medAvkortetPrÅr(mapBeløp(fraKalkulus.getAvkortetPrÅr()))
+            .medAvkortetRefusjonPrÅr(mapBeløp(fraKalkulus.getAvkortetRefusjonPrÅr()))
+            .medBeregnetPrÅr(mapBeløp(fraKalkulus.getBeregnetPrÅr()))
+            .medBesteberegningPrÅr(mapBeløp(fraKalkulus.getBesteberegningPrÅr()))
             .medFastsattAvSaksbehandler(fraKalkulus.getFastsattAvSaksbehandler())
-            .medOverstyrtPrÅr(fraKalkulus.getOverstyrtPrÅr())
-            .medFordeltPrÅr(fraKalkulus.getFordeltPrÅr())
-            .medManueltFordeltPrÅr(fraKalkulus.getManueltFordeltPrÅr())
-            .medRedusertPrÅr(fraKalkulus.getRedusertPrÅr())
-            .medRedusertBrukersAndelPrÅr(fraKalkulus.getRedusertBrukersAndelPrÅr())
-            .medMaksimalRefusjonPrÅr(fraKalkulus.getMaksimalRefusjonPrÅr())
-            .medRedusertRefusjonPrÅr(fraKalkulus.getRedusertRefusjonPrÅr())
-            .medÅrsbeløpFraTilstøtendeYtelse(
-                fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
+            .medOverstyrtPrÅr(mapBeløp(fraKalkulus.getOverstyrtPrÅr()))
+            .medFordeltPrÅr(mapBeløp(fraKalkulus.getFordeltPrÅr()))
+            .medManueltFordeltPrÅr(mapBeløp(fraKalkulus.getManueltFordeltPrÅr()))
+            .medRedusertPrÅr(mapBeløp(fraKalkulus.getRedusertPrÅr()))
+            .medRedusertBrukersAndelPrÅr(mapBeløp(fraKalkulus.getRedusertBrukersAndelPrÅr()))
+            .medMaksimalRefusjonPrÅr(mapBeløp(fraKalkulus.getMaksimalRefusjonPrÅr()))
+            .medRedusertRefusjonPrÅr(mapBeløp(fraKalkulus.getRedusertRefusjonPrÅr()))
+            .medÅrsbeløpFraTilstøtendeYtelse(mapBeløp(fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse()))
             .medNyIArbeidslivet(erNyIarbeidslivet(fraKalkulus, faktaAktør).orElse(null))
             .medInntektskategori(inntektskategoriErSatt(fraKalkulus)
                 && fraKalkulus.getFastsattInntektskategori().getInntektskategori() != null ? Inntektskategori.fraKode(
@@ -135,7 +136,7 @@ public final class KalkulusTilBGMapper {
         }
 
         if (fraKalkulus.getPgiSnitt() != null) {
-            builder.medPgi(fraKalkulus.getPgiSnitt(), List.of(fraKalkulus.getPgi1(), fraKalkulus.getPgi2(), fraKalkulus.getPgi3()));
+            builder.medPgi(mapBeløp(fraKalkulus.getPgiSnitt()), List.of(mapBeløp(fraKalkulus.getPgi1()), mapBeløp(fraKalkulus.getPgi2()), mapBeløp(fraKalkulus.getPgi3())));
         }
 
         fraKalkulus.getBgAndelArbeidsforhold()
@@ -188,17 +189,21 @@ public final class KalkulusTilBGMapper {
             .ifPresent(fakta -> builder.medLønnsendringIBeregningsperioden(mapVurdering(fakta)));
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getErTidsbegrenset)
             .ifPresent(fakta -> builder.medTidsbegrensetArbeidsforhold(mapVurdering(fakta)));
-        builder.medRefusjonskravPrÅr(fraKalkulus.getInnvilgetRefusjonskravPrÅr());
-        builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
-        builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
-        fraKalkulus.getRefusjon().ifPresent(ref -> builder.medManueltFordeltRefusjonPrÅr(ref.getManueltFordeltRefusjonPrÅr()));
+        builder.medRefusjonskravPrÅr(mapBeløp(fraKalkulus.getInnvilgetRefusjonskravPrÅr()));
+        builder.medSaksbehandletRefusjonPrÅr(mapBeløp(fraKalkulus.getSaksbehandletRefusjonPrÅr()));
+        builder.medFordeltRefusjonPrÅr(mapBeløp(fraKalkulus.getFordeltRefusjonPrÅr()));
+        fraKalkulus.getRefusjon().ifPresent(ref -> builder.medManueltFordeltRefusjonPrÅr(mapBeløp(ref.getManueltFordeltRefusjonPrÅr())));
         fraKalkulus.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
-        fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
-        fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);
+        fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(nat -> builder.medNaturalytelseBortfaltPrÅr(mapBeløp(nat)));
+        fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(nat -> builder.medNaturalytelseTilkommetPrÅr(mapBeløp(nat)));
         return builder;
     }
 
     private static Boolean mapVurdering(FaktaVurdering faktaVurdering) {
         return faktaVurdering == null ? null : faktaVurdering.getVurdering();
+    }
+
+    private static BigDecimal mapBeløp(Beløp beløp) {
+        return Beløp.safeVerdi(beløp);
     }
 }
