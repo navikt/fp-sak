@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
     private static final Logger LOG = LoggerFactory.getLogger(Stillingsprosent.class);
 
-    private static final RoundingMode AVRUNDINGSMODUS = RoundingMode.HALF_EVEN;
     private static final BigDecimal MAX_VERDI = new BigDecimal(500);
 
     public static final Stillingsprosent ZERO = new Stillingsprosent(0);
@@ -100,19 +99,6 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
         if (verdi.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Prosent må være >= 0");
         }
-    }
-
-    public static BigDecimal normaliserData(BigDecimal verdi) {
-        if (verdi == null) {
-            return null;
-        }
-        if (verdi.compareTo(BigDecimal.ZERO) < 0) {
-            verdi = verdi.abs();
-        }
-        while (verdi.compareTo(BigDecimal.valueOf(100)) > 0) {
-            verdi = verdi.divide(BigDecimal.TEN, 2, AVRUNDINGSMODUS);
-        }
-        return verdi;
     }
 
     private BigDecimal fiksNegativOgMax(BigDecimal verdi) {

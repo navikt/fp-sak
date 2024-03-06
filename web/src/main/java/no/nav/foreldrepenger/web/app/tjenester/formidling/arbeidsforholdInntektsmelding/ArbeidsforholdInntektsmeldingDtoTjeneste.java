@@ -50,18 +50,20 @@ public class ArbeidsforholdInntektsmeldingDtoTjeneste {
             .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
             .orElse(Collections.emptyList());
         var stillingsprosent = alleAktivitetsavtaler.stream()
+            .filter(a -> !a.erAnsettelsesPeriode())
             .filter(aa -> aa.getProsentsats() != null)
             .filter(aa -> aa.getPeriode().inkluderer(stp))
             .max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()))
             .map(AktivitetsAvtale::getProsentsats)
             .map(Stillingsprosent::getVerdi);
-        return stillingsprosent.map(Stillingsprosent::normaliserData).orElse(BigDecimal.ZERO);
+        return stillingsprosent.orElse(BigDecimal.ZERO);
     }
 
     private static boolean mangerInntektsmelding(Arbeidsgiver arbeidsgiver,
                                                  InternArbeidsforholdRef id,
                                                  Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende) {
-        return alleManglende.entrySet().stream()
-            .anyMatch(entry -> entry.getKey().equals(arbeidsgiver) && entry.getValue().contains(id));
+        return alleManglende.entrySet()
+            .stream()
+            .anyMatch(entry -> entry.getKey().equals(arbeidsgiver) && entry.getValue().stream().anyMatch(ref -> ref.gjelderFor(id)));
     }
 }
