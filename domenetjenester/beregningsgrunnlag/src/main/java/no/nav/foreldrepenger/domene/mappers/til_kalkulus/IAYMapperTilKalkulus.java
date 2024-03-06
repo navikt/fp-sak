@@ -338,15 +338,15 @@ public class IAYMapperTilKalkulus {
     }
 
     private static Stillingsprosent mapTilProsent(no.nav.foreldrepenger.domene.typer.Stillingsprosent prosent) {
-        return prosent == null ? null : new Stillingsprosent(prosent.getVerdi());
+        return prosent == null ? null : Stillingsprosent.fra(prosent.getVerdi());
     }
 
     private static no.nav.folketrygdloven.kalkulator.modell.typer.Beløp mapTilBeløp(BigDecimal verdi) {
-        return verdi == null ? null : new no.nav.folketrygdloven.kalkulator.modell.typer.Beløp(verdi);
+        return no.nav.folketrygdloven.kalkulator.modell.typer.Beløp.fra(verdi);
     }
 
     private static no.nav.folketrygdloven.kalkulator.modell.typer.Beløp mapTilBeløp(Beløp beløp) {
-        return beløp == null || beløp.getVerdi() == null ? null : new no.nav.folketrygdloven.kalkulator.modell.typer.Beløp(beløp.getVerdi());
+        return beløp == null ? null : no.nav.folketrygdloven.kalkulator.modell.typer.Beløp.fra(beløp.getVerdi());
     }
 
 }

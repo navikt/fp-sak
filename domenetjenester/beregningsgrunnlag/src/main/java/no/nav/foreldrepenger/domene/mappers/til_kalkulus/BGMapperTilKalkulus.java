@@ -139,11 +139,11 @@ public class BGMapperTilKalkulus {
     }
 
     private static Beløp mapTilBeløp(BigDecimal verdi) {
-        return verdi == null ? null : new Beløp(verdi);
+        return Beløp.fra(verdi);
     }
 
-    private static Beløp mapTilBeløp(no.nav.foreldrepenger.domene.typer.Beløp belp) {
-        return belp == null || belp.getVerdi() == null ? null : new Beløp(belp.getVerdi());
+    private static Beløp mapTilBeløp(no.nav.foreldrepenger.domene.typer.Beløp beløp) {
+        return beløp == null ? null : Beløp.fra(beløp.getVerdi());
     }
 
 }

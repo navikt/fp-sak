@@ -18,6 +18,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørArbeidDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Aktivitetsgrad;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 
@@ -96,8 +97,8 @@ public class UgyldigGraderingUtleder {
     private static List<ArbeidGraderingMap> mapTilStartGraderingArbeidsforholdRef(AndelGradering andelGradering) {
         var startdatoerGradering = andelGradering.getGraderinger()
             .stream()
-            .filter(grad -> grad.getArbeidstidProsent() != null && grad.getArbeidstidProsent().verdi().compareTo(BigDecimal.ZERO) > 0
-                && grad.getArbeidstidProsent().verdi().compareTo(BigDecimal.valueOf(100)) < 0)
+            .filter(grad -> grad.getArbeidstidProsent() != null && grad.getArbeidstidProsent().compareTo(Aktivitetsgrad.ZERO) > 0
+                && grad.getArbeidstidProsent().compareTo(Aktivitetsgrad.HUNDRE) < 0)
             .map(grad -> grad.getPeriode().getFomDato())
             .collect(Collectors.toSet());
         return startdatoerGradering.stream()

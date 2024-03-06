@@ -38,7 +38,7 @@ public final class BesteberegningMapper {
             .stream()
             .map(BesteberegningMapper::mapBesteberegningMåned)
             .forEach(builder::leggTilMånedsgrunnlag);
-        builder.medAvvik(beløpEllerNull(besteberegningVurderingGrunnlag.getAvvikFraFørsteLedd()));
+        builder.medAvvik(Beløp.safeVerdi(besteberegningVurderingGrunnlag.getAvvikFraFørsteLedd()));
         return builder.build();
     }
 
@@ -61,18 +61,14 @@ public final class BesteberegningMapper {
                     == null ? OpptjeningAktivitetType.ARBEID : OpptjeningAktivitetType.fraKode(
                     inntekt.getOpptjeningAktivitetType().getKode()))
                 .medArbeidsforholdRef(KalkulusTilIAYMapper.mapArbeidsforholdRef(inntekt.getArbeidsforholdRef()))
-                .medInntekt(beløpEllerNull(inntekt.getInntekt()))
+                .medInntekt(Beløp.safeVerdi(inntekt.getInntekt()))
                 .build();
         }
         return BesteberegningInntektEntitet.ny()
             .medOpptjeningAktivitetType(inntekt.getOpptjeningAktivitetType()
                 == null ? OpptjeningAktivitetType.DAGPENGER : OpptjeningAktivitetType.fraKode(
                 inntekt.getOpptjeningAktivitetType().getKode()))
-            .medInntekt(beløpEllerNull(inntekt.getInntekt()))
+            .medInntekt(Beløp.safeVerdi(inntekt.getInntekt()))
             .build();
-    }
-
-    private static BigDecimal beløpEllerNull(Beløp inntekt) {
-        return inntekt == null ? null : inntekt.verdi();
     }
 }

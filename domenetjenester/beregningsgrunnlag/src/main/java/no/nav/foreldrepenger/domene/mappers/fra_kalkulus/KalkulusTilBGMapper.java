@@ -204,6 +204,6 @@ public final class KalkulusTilBGMapper {
     }
 
     private static BigDecimal mapBeløp(Beløp beløp) {
-        return beløp == null ? null : beløp.verdi();
+        return Beløp.safeVerdi(beløp);
     }
 }

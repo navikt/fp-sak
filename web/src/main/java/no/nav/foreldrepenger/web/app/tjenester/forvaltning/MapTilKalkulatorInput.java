@@ -119,7 +119,7 @@ class MapTilKalkulatorInput {
 
     private static PerioderForKrav mapSisteSøktePeriode(KravperioderPrArbeidsforholdDto k) {
         var refperiode = k.getSisteSøktePerioder().stream()
-            .map(p -> new Refusjonsperiode(mapPeriodeNullsafe(p), new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.ZERO)))
+            .map(p -> new Refusjonsperiode(mapPeriodeNullsafe(p), no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.ZERO))
             .toList();
         var innsending = refperiode.stream().map(p -> p.getPeriode().getFom()).min(Comparator.naturalOrder()).orElse(LocalDate.now());
         return new PerioderForKrav(innsending, refperiode);
@@ -259,7 +259,7 @@ class MapTilKalkulatorInput {
         if (ytelseDto == null) {
             return null;
         }
-        var vedtaksDagsats = ytelseDto.getVedtaksDagsats().map(Beløp::verdi).map(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp::new).orElse(null);
+        var vedtaksDagsats = ytelseDto.getVedtaksDagsats().map(b -> no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(b.verdi())).orElse(null);
         var ytelseAnvist = mapYtelseAnvistSet(ytelseDto.getYtelseAnvist());
         var relatertYtelseType = ytelseDto.getYtelseType();
         var periode = mapPeriode(ytelseDto.getPeriode());
@@ -503,14 +503,14 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.felles.v1.Beløp mapTilBeløp(Beløp beløp) {
-        return beløp == null ? null : new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(beløp.verdi());
+        return no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(beløp.verdi());
     }
 
     private static IayProsent mapTilIAYProsent(Stillingsprosent prosent) {
-        return prosent == null ? null : new IayProsent(prosent.verdi());
+        return prosent == null ? null : IayProsent.fra(prosent.verdi());
     }
 
     private static IayProsent mapTilIAYProsent(BigDecimal prosent) {
-        return prosent == null ? null : new IayProsent(prosent);
+        return IayProsent.fra(prosent);
     }
 }

@@ -181,7 +181,7 @@ public class KravperioderMapper {
             return new LocalDateSegment<>(interval, lhs.getValue());
         });
         return refusjonTidslinje.stream()
-            .map(r -> new RefusjonsperiodeDto(Intervall.fraOgMedTilOgMed(r.getFom(), r.getTom()), r.getValue() == null ? null : new Beløp(r.getValue())))
+            .map(r -> new RefusjonsperiodeDto(Intervall.fraOgMedTilOgMed(r.getFom(), r.getTom()),Beløp.fra(r.getValue())))
             .toList();
 
     }

@@ -43,7 +43,7 @@ public class BehandlingslagerTilKalkulusMapper {
         var builder = BeregningsgrunnlagDto.builder();
 
         //med
-        builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi() == null ? null : new Beløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi()));
+        builder.medGrunnbeløp(Beløp.fra(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi()));
         builder.medOverstyring(beregningsgrunnlagFraFpsak.isOverstyrt());
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
 

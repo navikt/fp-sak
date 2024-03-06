@@ -97,7 +97,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         return new BesteberegningVurderingGrunnlag(besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), mapTilBeløp(besteberegninggrunnlagEntitet.getAvvik().orElse(null)));
+            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), Beløp.fra(besteberegninggrunnlagEntitet.getAvvik().orElse(null)));
     }
 
     private static BesteberegningMånedGrunnlag mapTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
@@ -109,12 +109,8 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
         if (besteberegningInntektEntitet.getArbeidsgiver() != null) {
             return new Inntekt(mapArbeidsgiver(besteberegningInntektEntitet.getArbeidsgiver()),
                 mapArbeidsforholdRef(besteberegningInntektEntitet.getArbeidsforholdRef()),
-                mapTilBeløp(besteberegningInntektEntitet.getInntekt()));
+                Beløp.fra(besteberegningInntektEntitet.getInntekt()));
         }
-        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()), mapTilBeløp(besteberegningInntektEntitet.getInntekt()));
-    }
-
-    private static Beløp mapTilBeløp(BigDecimal verdi) {
-        return verdi == null ? null : new Beløp(verdi);
+        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()), Beløp.fra(besteberegningInntektEntitet.getInntekt()));
     }
 }
