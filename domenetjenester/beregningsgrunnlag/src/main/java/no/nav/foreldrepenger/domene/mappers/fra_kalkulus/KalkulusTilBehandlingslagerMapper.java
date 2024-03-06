@@ -53,7 +53,7 @@ public final class KalkulusTilBehandlingslagerMapper {
         var builder = BeregningsgrunnlagEntitet.ny();
 
         //med
-        builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
+        builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().verdi()));
         builder.medOverstyring(beregningsgrunnlagFraKalkulus.isOverstyrt());
         var regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::regelsporingerGrunnlag)
             .orElse(Collections.emptyList());
