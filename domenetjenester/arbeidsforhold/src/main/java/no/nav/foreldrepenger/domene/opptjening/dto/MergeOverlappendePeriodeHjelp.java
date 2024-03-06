@@ -20,10 +20,10 @@ class MergeOverlappendePeriodeHjelp {
 
     static List<FastsattOpptjeningDto.FastsattOpptjeningAktivitetDto> mergeOverlappenePerioder(List<OpptjeningAktivitet> opptjeningAktivitet) {
         var tidslinje = new LocalDateTimeline<OpptjeningAktivitetKlassifisering>(Collections.emptyList());
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, StandardCombinators::coalesceRightHandSide);
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, StandardCombinators::coalesceRightHandSide); // Skal foretrekkes
         tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE, MergeOverlappendePeriodeHjelp::mergeMellomliggende);
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT, StandardCombinators::coalesceLeftHandSide);
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST, StandardCombinators::coalesceLeftHandSide);
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT, StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST, StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
         return lagDtoer(tidslinje);
 
     }
