@@ -101,7 +101,7 @@ class BehandlingDtoTjenesteTest {
         var behandling = lagBehandling();
 
         tilbakekrevingRepository.lagre(behandling,
-                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "varsel"));
+                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
         var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
