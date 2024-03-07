@@ -153,7 +153,7 @@ class SimulerOppdragStegTest {
     void deaktiverer_eksisterende_tilbakekrevingValg_ved_hopp_over_bakover() {
         // Arrange
         tilbakekrevingRepository.lagre(behandling,
-                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD,
+                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING,
                         "varsel"));
         entityManager.flush();
         entityManager.clear();
