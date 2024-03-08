@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
 
@@ -190,7 +191,7 @@ public class BehandlingFormidlingDtoTjeneste {
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
             }
-
+            dto.leggTilFormidlingRessurs(get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 var svangerskapspengerUttakResultatEntitet = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
