@@ -32,13 +32,13 @@ class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     void skal_lagre_og_hente_tilbakekrevingsvalg() {
         var behandling = opprettBehandling();
 
-        var valg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varsel");
+        var valg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "Varsel");
         repository.lagre(behandling, valg);
 
         var lagretResultat = repository.hent(behandling.getId());
         assertThat(lagretResultat).isPresent();
         var resultat = lagretResultat.get();
-        assertThat(resultat.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD);
+        assertThat(resultat.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
         assertThat(resultat.getErTilbakekrevingVilkårOppfylt()).isNull();
         assertThat(resultat.getGrunnerTilReduksjon()).isNull();
     }
@@ -47,7 +47,7 @@ class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     void skal_oppdatere_tilbakekrevingsvalg() {
         var behandling = opprettBehandling();
 
-        var valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varseltekst");
+        var valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "Varseltekst");
         repository.lagre(behandling, valg1);
 
         var valg2 = TilbakekrevingValg.medMulighetForInntrekk(true, false, TilbakekrevingVidereBehandling.INNTREKK);

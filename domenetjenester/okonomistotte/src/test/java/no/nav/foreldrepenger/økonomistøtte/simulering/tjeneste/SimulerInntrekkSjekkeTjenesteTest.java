@@ -65,7 +65,7 @@ class SimulerInntrekkSjekkeTjenesteTest {
 
     @Test
     void sjekkIntrekk_når_Tilbakekreving_valg_ikke_inntrekk() {
-        when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD));
+        when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
         verify(simulerOppdragTjeneste, never()).hentOppdragskontrollForBehandling(anyLong());
