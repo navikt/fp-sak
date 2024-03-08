@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder;
     private ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
 
     public ArbeidsforholdInntektsmeldingMangelTjeneste() {
@@ -38,12 +41,14 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
                                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste,
                                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                                        ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder,
-                                                       ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste) {
+                                                       ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste,
+                                                       InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
         this.arbeidsforholdValgRepository = arbeidsforholdValgRepository;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsforholdInntektsmeldingsMangelUtleder = arbeidsforholdInntektsmeldingsMangelUtleder;
         this.arbeidInntektHistorikkinnslagTjeneste = arbeidInntektHistorikkinnslagTjeneste;
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
@@ -147,4 +152,19 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
             arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), informasjonBuilder);
         }
     }
+
+    /**
+     * finnManglendeInntektsmeldingerHensyntattVurdering
+     * For å finne alle arbeidsforhold saksbehandler krever inntektsmelding for, og om det er mottatt inntektsmelding eller ikke.
+     * Filtrerer vekk arbeidsforhold der saksbehandler har avklart at inntektsmelding ikke trengs.
+     * @param referanse OBS: Må inneholde skjæringstidspunkt
+     * @return
+     */
+    public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse) {
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, false);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse);
+        var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
+        return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);
+    }
+
 }

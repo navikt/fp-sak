@@ -19,8 +19,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -44,9 +44,9 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     public static final String INNTEKTSMELDING_STATUS_PATH = BASE_PATH + INNTEKTSMELDING_STATUS_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
-    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste() {
         // CDI
@@ -54,13 +54,13 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
 
     @Inject
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                                               InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
                                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                               ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     @GET
@@ -80,10 +80,9 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
         var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList());
-        var allePåkrevde = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(ref);
-        var alleManglende = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, false);
+        var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref);
 
-        var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(allePåkrevde, alleManglende,
+        var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser,
             alleYrkesaktiviteter, ref.getUtledetSkjæringstidspunkt());
 
         var responseBuilder = Response.ok(arbeidsforholdInntektsmeldinger);
