@@ -103,7 +103,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, new FinnEksternReferanse());
 
-        return filtrerInntektsmeldingerBasertPåAAreg(referanse, påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
     }
 
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
@@ -129,7 +129,7 @@ public class InntektsmeldingRegisterTjeneste {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
-        return filtrerInntektsmeldingerBasertPåGrunnlag(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
 
     /**
@@ -146,7 +146,8 @@ public class InntektsmeldingRegisterTjeneste {
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
 
-        return filtrerInntektsmeldingerBasertPåGrunnlag(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        var filtrert = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, filtrert);
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
@@ -279,16 +280,16 @@ public class InntektsmeldingRegisterTjeneste {
      * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
      * av endringer i arkivet.
      */
-    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerBasertPåAAreg(BehandlingReferanse referanse,
-                                                                                Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
+                                                                            Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
         return filter.filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
     }
 
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerBasertPåGrunnlag(BehandlingReferanse referanse,
-                                                                                                     Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
