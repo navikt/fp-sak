@@ -23,7 +23,7 @@ public class InntektsmeldingStatusMapper {
         List<ArbeidsforholdInntektsmeldingStatus> inntektsmeldingerMedStatus = new ArrayList<>();
         allePåkrevde.forEach((arbeidsgiver, arbeidsforholdIdListe) -> {
             var inntektsmeldingerMedStatusForArbeidsgiver = arbeidsforholdIdListe.stream().map(id -> {
-                var inntektsmeldingMangler = mangerInntektsmelding(arbeidsgiver, id, alleManglende);
+                var inntektsmeldingMangler = manglerInntektsmelding(arbeidsgiver, id, alleManglende);
                 var vurdering = finnSaksbehandlervalg(arbeidsgiver, id, avklartearbeidsforholdvalg);
                 var avklartFortsettUtenIM = inntektsmeldingMangler && vurdering.map(v -> vurdering.equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)).orElse(false);
                 if (inntektsmeldingMangler) {
@@ -45,9 +45,9 @@ public class InntektsmeldingStatusMapper {
             .map(ArbeidsforholdValg::getVurdering);
     }
 
-    private static boolean mangerInntektsmelding(Arbeidsgiver arbeidsgiver,
-                                                 InternArbeidsforholdRef id,
-                                                 Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende) {
+    private static boolean manglerInntektsmelding(Arbeidsgiver arbeidsgiver,
+                                                  InternArbeidsforholdRef id,
+                                                  Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende) {
         return alleManglende.entrySet()
             .stream()
             .anyMatch(entry -> entry.getKey().equals(arbeidsgiver) && entry.getValue().stream().anyMatch(ref -> ref.gjelderFor(id)));

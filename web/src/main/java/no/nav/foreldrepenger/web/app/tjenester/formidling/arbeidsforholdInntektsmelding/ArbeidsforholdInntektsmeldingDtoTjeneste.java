@@ -28,9 +28,9 @@ public class ArbeidsforholdInntektsmeldingDtoTjeneste {
             .filter(arb -> !arb.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD))
             .map(arb -> {
                 var stillingsprosent = finnStillingsprosent(arb.arbeidsgiver(), arb.ref(), alleYrkesaktiviteter, stp);
-                var erIMottatt = arb.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+                var imErMottatt = arb.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
                 return new ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto(arb.arbeidsgiver().getIdentifikator(),
-                    stillingsprosent, erIMottatt);
+                    stillingsprosent, imErMottatt);
             })
             .toList();
         return new ArbeidsforholdInntektsmeldingerDto(inntektsmeldingerMedStatus);
