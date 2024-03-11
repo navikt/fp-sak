@@ -1963,7 +1963,26 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3)).isEqualTo(oppgittePerioder.get(3));
         assertThat(justertePerioder.get(4)).isEqualTo(oppgittePerioder.get(4));
         assertThat(justertePerioder.get(5)).isEqualTo(oppgittePerioder.get(5));
+    }
 
+    @Test
+    void utsettelse_mellom_fødsel_og_termin_skal_ikke_føre_til_at_perioder_som_var_etter_termin_blir_skyvet_forbi_fødsel_pga_utsettelse_ved_fødsel_før_termin() {
+        var termindato = LocalDate.of(2024, 3, 13);
+
+        var fpff1 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusWeeks(2).minusDays(1));
+        var utsettelse = lagUtsettelse(termindato.minusWeeks(2), termindato.minusWeeks(1).minusDays(1));
+        var fpff2 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(1), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(12).minusDays(1));
+
+        var fødselsdato = utsettelse.getTom();
+        var oppgittePerioder = List.of(fpff1, utsettelse, fpff2, mødrekvote);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0)).isEqualTo(fpff1);
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(utsettelse.getTom().plusDays(1)).isNotEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mødrekvote.getTom());
     }
 
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
