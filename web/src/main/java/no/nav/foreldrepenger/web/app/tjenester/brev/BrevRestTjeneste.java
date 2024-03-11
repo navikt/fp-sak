@@ -16,24 +16,27 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
-import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentKvittering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -64,6 +67,7 @@ public class BrevRestTjeneste {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -73,11 +77,13 @@ public class BrevRestTjeneste {
     public BrevRestTjeneste(DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste,
                             DokumentBestillerTjeneste dokumentBestillerTjeneste,
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                            BehandlingRepository behandlingRepository) {
+                            BehandlingRepository behandlingRepository,
+                            ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.dokumentForhåndsvisningTjeneste = dokumentForhåndsvisningTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     @POST
@@ -86,8 +92,8 @@ public class BrevRestTjeneste {
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
-        var behandlingId = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid()).getId();
-        LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandlingId);
+        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
+        LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
 
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
@@ -96,8 +102,23 @@ public class BrevRestTjeneste {
             .medFritekst(bestillBrevDto.fritekst())
             .build();
 
+        if (bestillBrevDto.brevmalkode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING)) {
+            validerFinnesManglendeInntektsmelding(behandling);
+        }
+
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
-        oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandlingId);
+        oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandling.getId());
+    }
+
+    private void validerFinnesManglendeInntektsmelding(Behandling behandling) {
+        var statuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse.fra(behandling));
+        var finnesManglendeIM = statuser.stream()
+            .anyMatch(st -> st.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        if (!finnesManglendeIM) {
+            throw new IllegalStateException(
+                "Det er ikke tillatt å bestille etterlys inntektsmeldingsbrev på en behandling som ikke mangler inntektsmelding. BehandlingId: "
+                    + behandling.getId());
+        }
     }
 
     @POST

@@ -13,6 +13,8 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +36,7 @@ class BrevRestTjenesteTest {
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @BeforeEach
     public void setUp() {
@@ -41,10 +44,11 @@ class BrevRestTjenesteTest {
         dokumentForhåndsvisningTjenesteMock = mock(DokumentForhåndsvisningTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
+        arbeidsforholdInntektsmeldingMangelTjeneste = mock(ArbeidsforholdInntektsmeldingMangelTjeneste.class);
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste);
     }
 
     @Test
