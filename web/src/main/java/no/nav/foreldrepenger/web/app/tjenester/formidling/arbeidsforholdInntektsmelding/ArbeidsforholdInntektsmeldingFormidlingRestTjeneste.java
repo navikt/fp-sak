@@ -46,6 +46,7 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste() {
         // CDI
@@ -54,10 +55,12 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     @Inject
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                               ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                                               ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @GET
@@ -78,8 +81,9 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
             .orElse(Collections.emptyList());
         var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref);
 
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt();
         var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser,
-            alleYrkesaktiviteter, ref.getUtledetSkjæringstidspunkt());
+            alleYrkesaktiviteter, stp);
 
         var responseBuilder = Response.ok(arbeidsforholdInntektsmeldinger);
         return responseBuilder.build();
