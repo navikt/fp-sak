@@ -5,17 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -24,7 +20,7 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
 
     @Test
-    public void skal_teste_alle_im_mottatt() {
+    void skal_teste_alle_im_mottatt() {
         LocalDate stp = LocalDate.of(2024, 3, 1);
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -50,7 +46,7 @@ class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
     }
 
     @Test
-    public void skal_teste_im_mangler() {
+    void skal_teste_im_mangler() {
         LocalDate stp = LocalDate.of(2024, 3, 1);
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -77,7 +73,7 @@ class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
     }
 
     @Test
-    public void skal_teste_en_im_mangler_en_er_mottatt() {
+    void skal_teste_en_im_mangler_en_er_mottatt() {
         LocalDate stp = LocalDate.of(2024, 3, 1);
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref1 = InternArbeidsforholdRef.nyRef();

@@ -14,41 +14,38 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 class InntektsmeldingStatusMapperTest {
 
     @Test
-    public void skal_teste_alle_im_mottatt() {
+    void skal_teste_alle_im_mottatt() {
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforholdInntektsmeldinger = InntektsmeldingStatusMapper.mapInntektsmeldingStatus(Map.of(ag, Set.of(ref)), Map.of(), Collections.emptyList());
 
-        assertThat(arbeidsforholdInntektsmeldinger).isNotNull();
-        assertThat(arbeidsforholdInntektsmeldinger).hasSize(1);
+        assertThat(arbeidsforholdInntektsmeldinger).isNotNull().hasSize(1);
         assertThat(arbeidsforholdInntektsmeldinger.getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
         assertThat(arbeidsforholdInntektsmeldinger.getFirst().arbeidsgiver()).isEqualTo(ag);
     }
 
     @Test
-    public void skal_teste_im_mangler() {
+    void skal_teste_im_mangler() {
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforholdInntektsmeldinger = InntektsmeldingStatusMapper.mapInntektsmeldingStatus(Map.of(ag, Set.of(ref)), Map.of(ag, Set.of(ref)), Collections.emptyList());
 
-        assertThat(arbeidsforholdInntektsmeldinger).isNotNull();
-        assertThat(arbeidsforholdInntektsmeldinger).hasSize(1);
+        assertThat(arbeidsforholdInntektsmeldinger).isNotNull().hasSize(1);
         assertThat(arbeidsforholdInntektsmeldinger.getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
         assertThat(arbeidsforholdInntektsmeldinger.getFirst().arbeidsgiver()).isEqualTo(ag);
     }
 
     @Test
-    public void skal_teste_en_im_mangler_en_er_mottatt() {
+    void skal_teste_en_im_mangler_en_er_mottatt() {
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforholdInntektsmeldinger = InntektsmeldingStatusMapper.mapInntektsmeldingStatus(Map.of(ag, Set.of(ref1, ref2)), Map.of(ag, Set.of(ref2)), Collections.emptyList());
 
-        assertThat(arbeidsforholdInntektsmeldinger).isNotNull();
-        assertThat(arbeidsforholdInntektsmeldinger).hasSize(2);
+        assertThat(arbeidsforholdInntektsmeldinger).isNotNull().hasSize(2);
         var mottattIM = arbeidsforholdInntektsmeldinger.stream()
             .filter(ai -> ai.ref().gjelderFor(ref1))
             .findFirst()
