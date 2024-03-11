@@ -45,7 +45,6 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste() {
@@ -55,11 +54,9 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     @Inject
     public ArbeidsforholdInntektsmeldingFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
@@ -75,8 +72,7 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
             var responseBuilder = Response.noContent();
             return responseBuilder.build();
         }
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.get().getId());
-        var ref = BehandlingReferanse.fra(behandling.get(), skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling.get());
         var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList());

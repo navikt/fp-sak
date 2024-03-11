@@ -46,6 +46,10 @@
 		</dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>skjaeringstidspunkt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>person</artifactId>
         </dependency>
 
