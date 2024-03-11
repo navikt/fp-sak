@@ -31,10 +31,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>arbeidsforhold</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>inngangsvilkar-regelmodell</artifactId>
         </dependency>
         <dependency>

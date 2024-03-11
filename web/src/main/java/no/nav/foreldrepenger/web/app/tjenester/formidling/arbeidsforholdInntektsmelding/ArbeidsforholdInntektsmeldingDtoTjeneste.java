@@ -2,15 +2,13 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntekt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -23,20 +21,18 @@ public class ArbeidsforholdInntektsmeldingDtoTjeneste {
         // Skjuler default konstruktør
     }
 
-    public static ArbeidsforholdInntektsmeldingerDto mapInntektsmeldingStatus(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> allePåkrevde,
-                                                                              Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende,
+    public static ArbeidsforholdInntektsmeldingerDto mapInntektsmeldingStatus(List<ArbeidsforholdInntektsmeldingStatus> arbeidsforholdInntektsmeldingStatuser,
                                                                               Collection<Yrkesaktivitet> alleYrkesaktiviteter,
                                                                               LocalDate stp) {
-        List<ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto> inntektsmeldingerMedStatus = new ArrayList<>();
-        allePåkrevde.forEach((arbeidsgiver, arbeidsforholdIdListe) -> {
-            var inntektsmeldingerMedStatusForArbeidsgiver = arbeidsforholdIdListe.stream().map(id -> {
-                var inntektsmeldingMangler = mangerInntektsmelding(arbeidsgiver, id, alleManglende);
-                var stillingsprosent = finnStillingsprosent(arbeidsgiver, id, alleYrkesaktiviteter, stp);
-                return new ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto(arbeidsgiver.getIdentifikator(), stillingsprosent,
-                    !inntektsmeldingMangler);
-            }).toList();
-            inntektsmeldingerMedStatus.addAll(inntektsmeldingerMedStatusForArbeidsgiver);
-        });
+        var inntektsmeldingerMedStatus = arbeidsforholdInntektsmeldingStatuser.stream()
+            .filter(arb -> !arb.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD))
+            .map(arb -> {
+                var stillingsprosent = finnStillingsprosent(arb.arbeidsgiver(), arb.ref(), alleYrkesaktiviteter, stp);
+                var imErMottatt = arb.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+                return new ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto(arb.arbeidsgiver().getIdentifikator(),
+                    stillingsprosent, imErMottatt);
+            })
+            .toList();
         return new ArbeidsforholdInntektsmeldingerDto(inntektsmeldingerMedStatus);
     }
 
@@ -57,13 +53,5 @@ public class ArbeidsforholdInntektsmeldingDtoTjeneste {
             .map(AktivitetsAvtale::getProsentsats)
             .map(Stillingsprosent::getVerdi);
         return stillingsprosent.orElse(BigDecimal.ZERO);
-    }
-
-    private static boolean mangerInntektsmelding(Arbeidsgiver arbeidsgiver,
-                                                 InternArbeidsforholdRef id,
-                                                 Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende) {
-        return alleManglende.entrySet()
-            .stream()
-            .anyMatch(entry -> entry.getKey().equals(arbeidsgiver) && entry.getValue().stream().anyMatch(ref -> ref.gjelderFor(id)));
     }
 }
