@@ -195,7 +195,7 @@ public class StønadsstatistikkTjeneste {
             .medBehandlingId(behandlingId);
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            var rettigheter = utledRettigheter(behandling, familiehendelse);
+            var rettigheter = utledRettigheter(behandling, familiehendelse, vedtakstidspunkt);
             rettigheter.ifPresent(f -> {
                 var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, f.rettighetType());
                 builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(f);
@@ -405,12 +405,13 @@ public class StønadsstatistikkTjeneste {
         return FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
-    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
+    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling,
+                                                                 FamilieHendelseEntitet familiehendelse,
+                                                                 LocalDateTime vedtakstidspunkt) {
         if (familiehendelse == null) { //Avslått papirsøknad der fagsakrel er opprettet i senere behandlinger skaper trøbbel
             return Optional.empty();
         }
-        var fagsak = fagsakTjeneste.finnEksaktFagsak(behandling.getFagsakId());
-        var fr = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        var fr = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), vedtakstidspunkt);
         return fr.map(fagsakRelasjon -> {
             var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
@@ -431,7 +432,7 @@ public class StønadsstatistikkTjeneste {
                 .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
                 .orElse(null);
 
-            var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
+            var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi();
             return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
         });
     }

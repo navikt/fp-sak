@@ -13,14 +13,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -71,6 +74,8 @@ class StønadsstatistikkTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
+    @Inject
+    private EntityManager entityManager;
 
     @Test
     void mor_foreldrepenger() {
@@ -90,6 +95,8 @@ class StønadsstatistikkTjenesteTest {
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning());
+        settOpprettetTidspunktPåFagsakRel(behandling, søknadsdato.atStartOfDay());
+
         var bruttoPrÅr = BigDecimal.valueOf(400000);
         var avkortetPrÅr = BigDecimal.valueOf(300000);
         var redusertPrÅr = BigDecimal.valueOf(200000);
@@ -183,6 +190,12 @@ class StønadsstatistikkTjenesteTest {
             var validated = factory.getValidator().validate(vedtak);
             assertThat(validated).isEmpty();
         }
+    }
+
+    private void settOpprettetTidspunktPåFagsakRel(Behandling behandling, LocalDateTime opprettetTidspunkt) {
+        var fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak());
+        fagsakRelasjon.setOpprettetTidspunkt(opprettetTidspunkt);
+        entityManager.persist(fagsakRelasjon);
     }
 
     @Test
