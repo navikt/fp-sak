@@ -148,6 +148,14 @@ public class FagsakRepository {
         entityManager.flush();
     }
 
+    public void oppdaterBrukerMedAktørId(AktørId utgåttAktørId, AktørId nyAktørId) {
+        var query = entityManager.createNativeQuery("UPDATE BRUKER SET AKTOER_ID = :ny WHERE AKTOER_ID=:gammel");
+        query.setParameter("gammel", utgåttAktørId.getId());
+        query.setParameter("ny", nyAktørId.getId());
+        query.executeUpdate();
+        entityManager.flush();
+    }
+
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {
         var query = entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class);
         query.setParameter("saksnummer", saksnummer);

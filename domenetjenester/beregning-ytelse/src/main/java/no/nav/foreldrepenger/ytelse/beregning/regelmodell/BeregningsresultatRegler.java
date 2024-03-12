@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.KontoRegelFeil;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.fastsett.RegelFastsettBeregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.RegelBeregnFeriepenger;
@@ -45,6 +44,12 @@ public final class BeregningsresultatRegler {
             return JsonOutput.asJson(grunnlag);
         } catch (NareJsonException e) {
             throw new KontoRegelFeil("Kunne ikke serialisere regelinput for beregning av tilkjent/feriepenger.", e);
+        }
+    }
+
+    public static class KontoRegelFeil extends RuntimeException {
+        public KontoRegelFeil(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }

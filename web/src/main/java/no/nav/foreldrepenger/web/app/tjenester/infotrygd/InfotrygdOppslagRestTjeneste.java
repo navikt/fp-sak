@@ -35,7 +35,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPSak;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpSak;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.pdl.HentIdenterQueryRequest;
@@ -46,9 +48,10 @@ import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.ArbeidskategoriKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.InfotrygdKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
+import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.InfotrygdSak;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -69,9 +72,14 @@ public class InfotrygdOppslagRestTjeneste {
     private static final String INFOTRYGD_SOK_PART_PATH = "/sok";
     public static final String INFOTRYGD_SOK_PATH = BASE_PATH + INFOTRYGD_SOK_PART_PATH;
 
+    private static final String INFOTRYGD_SAK_PART_PATH = "/sak";
+
     private Persondata pdlKlient;
     private InfotrygdFPGrunnlag foreldrepenger;
     private InfotrygdSvpGrunnlag svangerskapspenger;
+
+    private InfotrygdFPSak foreldrepengerSak;
+    private InfotrygdSvpSak svangerskapspengerSak;
 
     public InfotrygdOppslagRestTjeneste() {
         // For Rest-CDI
@@ -80,10 +88,14 @@ public class InfotrygdOppslagRestTjeneste {
     @Inject
     public InfotrygdOppslagRestTjeneste(Persondata pdlKlient,
                                         InfotrygdFPGrunnlag foreldrepenger,
-                                        InfotrygdSvpGrunnlag svangerskapspenger) {
+                                        InfotrygdSvpGrunnlag svangerskapspenger,
+                                        InfotrygdFPSak foreldrepengerSak,
+                                        InfotrygdSvpSak svangerskapspengerSak) {
         this.pdlKlient = pdlKlient;
         this.foreldrepenger = foreldrepenger;
         this.svangerskapspenger = svangerskapspenger;
+        this.foreldrepengerSak = foreldrepengerSak;
+        this.svangerskapspengerSak = svangerskapspengerSak;
     }
 
     @POST
@@ -114,6 +126,39 @@ public class InfotrygdOppslagRestTjeneste {
 
         var unikeGrunnlag = grunnlagene.stream().distinct().toList();
         return Response.ok(mapTilVedtakDto(unikeGrunnlag)).build();
+    }
+
+    @POST
+    @Path(INFOTRYGD_SAK_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Søk etter saker i Infotrygd for fødselsnummer", tags = "infotrygd",
+        summary = "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.",
+        responses = {@ApiResponse(responseCode = "200", description = "Returnerer grunnlag",
+            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = InfotrygdSak.class))}),})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response hentInfotrygdSaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+                                 @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
+        var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
+        var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;
+        if (!PersonIdent.erGyldigFnr(ident)) {
+            return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
+        }
+        Set<String> identer = new HashSet<>(finnAlleHistoriskeFødselsnummer(ident));
+        identer.add(ident);
+
+        LOG.info("FPSAK INFOTRYGD SAK"); // Sjekke bruksfrekvens ...
+        var infotrygdRequest = new GrunnlagRequest(new ArrayList<>(identer), FOM, LocalDate.now());
+        List<InfotrygdSak> sakene = new ArrayList<>();
+        // Ser på Dtos senere. Først må vi utforske litt innhold via swagger. Kanskje også fail-hard-utgaven etter litt LOGGING
+        sakene.addAll(foreldrepengerSak.hentSakerFailSoft(infotrygdRequest));
+        sakene.addAll(svangerskapspengerSak.hentSakerFailSoft(infotrygdRequest));
+
+        var unikeSaker = sakene.stream().distinct()
+            .map(s -> new InfotrygdSakDto(s.iverksatt(), mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), s.mottatt(),
+                mapSakTermnavn(s.type()), s.vedtatt(), mapSakTermnavn(s.valg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
+            .sorted(Comparator.comparing(InfotrygdSakDto::registrert)).toList();
+        return Response.ok(unikeSaker).build();
     }
 
     private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {
@@ -192,8 +237,8 @@ public class InfotrygdOppslagRestTjeneste {
     private static InfotrygdVedtakDto.Vedtak mapTilVedtakDtoGrunnlag(Grunnlag grunnlag) {
         var utbetaling = mapTilUtbetaling(grunnlag).stream().sorted(Comparator.comparing(p -> p.periode().fom())).toList();
         var arbeidsforhold = mapTilArbeidsforhold(grunnlag);
-        var btema = grunnlag.behandlingstema() != null ? mapKode(grunnlag.behandlingstema().kode(), grunnlag.behandlingstema().termnavn()) : null;
-        var arbKat = grunnlag.kategori() != null ? mapArbKat(grunnlag.kategori().kode(), grunnlag.kategori().termnavn()) : null;
+        var btema = mapKode(grunnlag.behandlingstema());
+        var arbKat = mapKode(grunnlag.kategori());
         var dekning = grunnlag.dekningsgrad() != null ? grunnlag.dekningsgrad().prosent() : null;
         var periode = grunnlag.periode() != null ? mapPeriode(grunnlag.periode()) : null;
         return new InfotrygdVedtakDto.Vedtak(btema, grunnlag.identdato(), grunnlag.opphørFom(), grunnlag.opprinneligIdentdato(), periode,
@@ -204,7 +249,7 @@ public class InfotrygdOppslagRestTjeneste {
     private static List<InfotrygdVedtakDto.Arbeidsforhold> mapTilArbeidsforhold(Grunnlag grunnlag) {
         return grunnlag.arbeidsforhold() == null ? List.of() : grunnlag.arbeidsforhold().stream()
             .map(a -> new InfotrygdVedtakDto.Arbeidsforhold(a.orgnr() != null ? a.orgnr().orgnr() : null, a.inntekt(),
-                a.inntektsperiode() != null ? mapKode(a.inntektsperiode().kode(), a.inntektsperiode().termnavn()) : null,
+                mapKode(a.inntektsperiode()),
                 a.refusjon(), a.refusjonTom(), grunnlag.identdato(), grunnlag.opprinneligIdentdato()))
             .toList();
     }
@@ -220,12 +265,12 @@ public class InfotrygdOppslagRestTjeneste {
         return periode != null ? new InfotrygdVedtakDto.Periode(periode.fom(), periode.tom()) : null;
     }
 
-    private static InfotrygdVedtakDto.InfotrygdKode mapKode(Enum<?> enumCls, String termnavn) {
-        return new InfotrygdVedtakDto.InfotrygdKode(enumCls != null ? enumCls.name() : null, termnavn);
+    private static InfotrygdVedtakDto.InfotrygdKode mapKode(InfotrygdKode kode) {
+        return kode != null ? new InfotrygdVedtakDto.InfotrygdKode(kode.getKode(), kode.termnavn()) : null;
     }
 
-    private static InfotrygdVedtakDto.InfotrygdKode mapArbKat(ArbeidskategoriKode kode, String termnavn) {
-        return new InfotrygdVedtakDto.InfotrygdKode(kode != null ? kode.getKode() : null, termnavn);
+    private static String mapSakTermnavn(InfotrygdSak.InfotrygdKode kode) {
+        return kode != null ? kode.termnavn() : null;
     }
 
 
