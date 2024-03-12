@@ -20,6 +20,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 
 public class KodeverkTilKalkulusMapper {
@@ -348,6 +350,24 @@ public class KodeverkTilKalkulusMapper {
             case DAGPENGER_NÆRING -> InntektYtelseType.DAGPENGER_NÆRING;
             case LOTT_KUN_TRYGDEAVGIFT -> InntektYtelseType.LOTT_KUN_TRYGDEAVGIFT;
             case KOMPENSASJON_FOR_TAPT_PERSONINNTEKT -> InntektYtelseType.KOMPENSASJON_FOR_TAPT_PERSONINNTEKT;
+        };
+    }
+
+    public static YtelseType mapYtelsetype(RelatertYtelseType relatertYtelseType) {
+        return switch (relatertYtelseType) {
+            case ENSLIG_FORSØRGER -> YtelseType.ENSLIG_FORSØRGER;
+            case SYKEPENGER -> YtelseType.SYKEPENGER;
+            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
+            case ENGANGSTØNAD -> YtelseType.ENGANGSTØNAD;
+            case FRISINN -> YtelseType.FRISINN;
+            case PLEIEPENGER_SYKT_BARN -> YtelseType.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> YtelseType.PLEIEPENGER_NÆRSTÅENDE;
+            case OMSORGSPENGER -> YtelseType.OMSORGSPENGER;
+            case OPPLÆRINGSPENGER -> YtelseType.OPPLÆRINGSPENGER;
+            case ARBEIDSAVKLARINGSPENGER -> YtelseType.ARBEIDSAVKLARINGSPENGER;
+            case DAGPENGER -> YtelseType.DAGPENGER;
+            case UDEFINERT -> YtelseType.UDEFINERT;
         };
     }
 }
