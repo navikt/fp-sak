@@ -57,7 +57,7 @@ public class ArbeidsforholdValgRepository {
 
     private Optional<ArbeidsforholdValg> hentEksaktValg(Long behandlingId, String arbeidsgiverIdent, InternArbeidsforholdRef internRef) {
         var arbeidsforholdValgs = hentAlleValgForArbeidsgiver(behandlingId, arbeidsgiverIdent);
-        return arbeidsforholdValgs.stream().filter(valg -> valg.getArbeidsforholdRef().gjelderFor(internRef)).findFirst();
+        return arbeidsforholdValgs.stream().filter(valg -> Objects.equals(valg.getArbeidsforholdRef(), internRef)).findFirst();
     }
 
     private List<ArbeidsforholdValg> hentAlleValgForArbeidsgiver(Long behandlingId, String arbeidsgiverIdent) {

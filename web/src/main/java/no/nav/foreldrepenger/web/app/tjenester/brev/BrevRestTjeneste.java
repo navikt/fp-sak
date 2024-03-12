@@ -102,7 +102,7 @@ public class BrevRestTjeneste {
             .medFritekst(bestillBrevDto.fritekst())
             .build();
 
-        if (bestillBrevDto.brevmalkode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING)) {
+        if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
             validerFinnesManglendeInntektsmelding(behandling);
         }
 
@@ -137,6 +137,11 @@ public class BrevRestTjeneste {
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
+
+        if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(forhåndsvisDto.dokumentMal())) {
+            var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
+            validerFinnesManglendeInntektsmelding(behandling);
+        }
 
         var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
         if (dokument != null && dokument.length != 0) {
