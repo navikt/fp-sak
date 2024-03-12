@@ -34,7 +34,7 @@ public class StønadsstatistikkKafkaProducer {
     }
 
     public void sendJson(String nøkkel, String json) {
-        if (ENV.isLocal()) {
+        if (ENV.isLocal() || ENV.isDev()) {
             return;
         }
         LOG.info("Sender stønadsstatistikk vedtak med nøkkel {} på topic='{}'", nøkkel, topicName);
