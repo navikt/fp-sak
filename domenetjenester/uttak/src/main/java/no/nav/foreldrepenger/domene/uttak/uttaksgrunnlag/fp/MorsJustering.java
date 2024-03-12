@@ -304,11 +304,16 @@ class MorsJustering implements ForelderFødselJustering {
         while (i < antallVirkedagerSomSkalSkyves) {
             nyFom = minusVirkedag(nyFom);
             if (periodeSomIkkeErMødrekvoteEllerForeldrepengerHavnerInnenforUkeneForbeholdtMorEtterFødsel(oppgittPeriode, nyFom)) {
-                return sisteLedigVirkedag;
+                return sisteLedigVirkedag; // Sjekkes først siden vi ikke ønsker å justere lenger inn i perioden forbeholdt mor
             }
+
             if (erLedigVirkedager(ikkeFlyttbarePerioder, nyFom)) {
                 i++;
                 sisteLedigVirkedag = nyFom;
+            }
+
+            if (nyFom.isEqual(nyFamiliehendelse)) { // Må være etter erLedigVirkedager for å få med siste ledige virkedag i forskyvningen
+                return sisteLedigVirkedag;
             }
         }
         return sisteLedigVirkedag;

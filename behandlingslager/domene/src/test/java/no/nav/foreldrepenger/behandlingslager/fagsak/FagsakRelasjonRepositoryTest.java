@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +25,11 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository relasjonRepository;
+    private EntityManager entityManager;
 
     @BeforeEach
     void setUp() {
-        var entityManager = getEntityManager();
+        entityManager = getEntityManager();
         fagsakRepository = new FagsakRepository(entityManager);
         relasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
             new FagsakLåsRepository(entityManager));
@@ -201,4 +204,28 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         assertThat(fagsakRelasjon2.getAvsluttningsdato()).isEqualTo(LocalDate.now());
     }
 
+    @Test
+    void skal_hente_fagsakrel_aktiv_på_tidspunkt() {
+        var bruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        fagsakRepository.opprettNy(fagsak);
+        var rel1 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100).orElseThrow();
+        rel1.setOpprettetTidspunkt(LocalDate.of(2023, 1, 1).atStartOfDay());
+        entityManager.persist(rel1);
+
+        var rel2 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.of(rel1), Dekningsgrad._80).orElseThrow();
+        rel2.setOpprettetTidspunkt(LocalDate.of(2024, 1, 1).atStartOfDay());
+        entityManager.persist(rel2);
+
+        var rel3 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.of(rel2), Dekningsgrad._100).orElseThrow();
+        rel3.setOpprettetTidspunkt(LocalDate.of(2025, 1, 1).atStartOfDay());
+        entityManager.persist(rel3);
+
+        entityManager.flush();
+
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2020, 1, 1).atStartOfDay())).isEmpty();
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2023, 1, 1).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel1.getId());
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2024, 6, 6).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel2.getId());
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2025, 6, 6).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel3.getId());
+    }
 }

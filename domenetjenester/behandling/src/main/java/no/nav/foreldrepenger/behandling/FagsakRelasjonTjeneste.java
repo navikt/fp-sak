@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,6 +68,10 @@ public class FagsakRelasjonTjeneste {
 
     public Optional<FagsakRelasjon> finnRelasjonForHvisEksisterer(long fagsakId) {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
+    }
+
+    public Optional<FagsakRelasjon> finnRelasjonForHvisEksisterer(long fagsakId, LocalDateTime aktivPåTidspunkt) {
+        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId, aktivPåTidspunkt);
     }
 
     public void lagre(long fagsakId, FagsakRelasjon fagsakRelasjon, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
