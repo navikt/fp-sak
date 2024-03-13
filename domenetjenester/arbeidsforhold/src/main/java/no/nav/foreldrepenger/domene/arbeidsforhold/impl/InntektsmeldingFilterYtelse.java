@@ -18,6 +18,7 @@ public interface InntektsmeldingFilterYtelse {
     <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde);
 
     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
-                                                                                            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                            Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde);
+                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                             Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
+                                                                                             boolean taHensynTilPermisjon);
 }
