@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.function.Function;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -32,16 +34,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -248,7 +253,7 @@ public class ForvaltningFagsakRestTjeneste {
     }
 
     @POST
-    @Path("/fagsak/oppdaterAktoerId")
+    @Path("/fagsak/oppdaterAktoerIdFraPdl")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Henter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {
@@ -258,7 +263,7 @@ public class ForvaltningFagsakRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+    public Response oppdaterAktoerIdFraPdl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
@@ -282,4 +287,43 @@ public class ForvaltningFagsakRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/fagsak/oppdaterAktoerId")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Setter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
+        @ApiResponse(responseCode = "400", description = "AktørId er uendret."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = ByttAktørRequestAbacDataSupplier.class)
+                                         @NotNull @BeanParam @Valid ByttAktørRequestDto dto) {
+        if (dto.gyldigAktør().equals(dto.utgåttAktør())) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        fagsakRepository.oppdaterBrukerMedAktørId(dto.utgåttAktør(), dto.gyldigAktør());
+        personopplysningRepository.oppdaterAktørIdFor(dto.utgåttAktør(), dto.gyldigAktør());
+        return Response.ok().build();
+    }
+
+    /**
+     * Input request for å bytte en utgått aktørid med en aktiv
+     */
+    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktør, @NotNull @Valid AktørId gyldigAktør) { }
+
+    public static class ByttAktørRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        public ByttAktørRequestAbacDataSupplier() {
+            // Jackson
+        }
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (ByttAktørRequestDto) obj;
+            return AbacDataAttributter.opprett()
+                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.utgåttAktør().getId())
+                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.gyldigAktør().getId());
+        }
+    }
 }
