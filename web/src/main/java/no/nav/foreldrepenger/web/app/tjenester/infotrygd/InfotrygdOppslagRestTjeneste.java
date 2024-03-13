@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.infotrygd;
 
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -53,6 +54,7 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.InfotrygdK
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.saker.v1.respons.InfotrygdSak;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -240,7 +242,8 @@ public class InfotrygdOppslagRestTjeneste {
         var btema = mapKode(grunnlag.behandlingstema());
         var arbKat = mapKode(grunnlag.kategori());
         var dekning = grunnlag.dekningsgrad() != null ? grunnlag.dekningsgrad().prosent() : null;
-        var periode = grunnlag.periode() != null ? mapPeriode(grunnlag.periode()) : null;
+        var periode = grunnlag.periode() != null ? mapPeriode(grunnlag.periode()) :
+            utledPeriode(grunnlag.iverksatt(), grunnlag.opphørFom(), grunnlag.registrert());
         return new InfotrygdVedtakDto.Vedtak(btema, grunnlag.identdato(), grunnlag.opphørFom(), grunnlag.opprinneligIdentdato(), periode,
             grunnlag.registrert(), grunnlag.saksbehandlerId(), arbKat, arbeidsforhold, dekning, grunnlag.fødselsdatoBarn(),
             grunnlag.gradering(), utbetaling);
@@ -263,6 +266,25 @@ public class InfotrygdOppslagRestTjeneste {
 
     private static InfotrygdVedtakDto.Periode mapPeriode(Periode periode) {
         return periode != null ? new InfotrygdVedtakDto.Periode(periode.fom(), periode.tom()) : null;
+    }
+
+    private static InfotrygdVedtakDto.Periode utledPeriode(LocalDate iverksatt, LocalDate opphoerFomDato, LocalDate registrert) {
+        if (opphoerFomDato != null) {
+            LocalDate tomFraOpphørFom = opphoerFomDato.minusDays(1);
+            if (tomFraOpphørFom.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue()) {
+                tomFraOpphørFom = opphoerFomDato.with(DayOfWeek.FRIDAY);
+            }
+            if (tomFraOpphørFom.isAfter(iverksatt)) {
+                return new InfotrygdVedtakDto.Periode(iverksatt, tomFraOpphørFom);
+            } else {
+                return new InfotrygdVedtakDto.Periode(iverksatt, iverksatt);
+            }
+        } else {
+            if (iverksatt != null) {
+                return new InfotrygdVedtakDto.Periode(iverksatt, Tid.TIDENES_ENDE);
+            }
+            return new InfotrygdVedtakDto.Periode(registrert, registrert);
+        }
     }
 
     private static InfotrygdVedtakDto.InfotrygdKode mapKode(InfotrygdKode kode) {
