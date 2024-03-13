@@ -324,7 +324,7 @@ public class IAYMapperTilKalkulus {
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
         ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(b -> builder.medVedtaksDagsats(mapTilBeløp(b)));
         builder.medPeriode(mapDatoIntervall(ytelse.getPeriode()));
-        builder.medYtelseType(YtelseType.fraKode(ytelse.getRelatertYtelseType().getKode()));
+        builder.medYtelseType(KodeverkTilKalkulusMapper.mapYtelsetype(ytelse.getRelatertYtelseType()));
         return builder;
     }
 

@@ -95,7 +95,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
                 BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG));
         var beregningsgrunnlag = beregningResultatAggregat.getBeregningsgrunnlagGrunnlag()
-            .getBeregningsgrunnlag()
+            .getBeregningsgrunnlagHvisFinnes()
             .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
                 beregningsgrunnlagFraKalkulus,
                 beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),

@@ -78,7 +78,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
             .map(KalkulusTilBehandlingslagerMapper::mapRefusjonOverstyring)
             .ifPresent(builder::medRefusjonOverstyring);
 
-        fraKalkulus.getBeregningsgrunnlag()
+        fraKalkulus.getBeregningsgrunnlagHvisFinnes()
             .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
                 beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat(), Optional.empty()))
             .ifPresent(builder::medBeregningsgrunnlag);
