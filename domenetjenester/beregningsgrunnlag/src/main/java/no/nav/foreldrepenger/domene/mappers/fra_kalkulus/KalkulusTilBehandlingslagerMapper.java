@@ -175,7 +175,7 @@ public final class KalkulusTilBehandlingslagerMapper {
                                                                 Optional<RegelSporingAggregat> regelSporingAggregat) {
         var oppdatere = BeregningsgrunnlagGrunnlagBuilder.nytt();
 
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag()
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagHvisFinnes()
             .ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(
                 mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat(),
                     regelSporingAggregat)));

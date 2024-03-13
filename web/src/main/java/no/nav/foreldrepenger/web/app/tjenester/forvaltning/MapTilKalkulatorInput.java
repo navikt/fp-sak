@@ -71,7 +71,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektPeriodeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
@@ -272,16 +271,13 @@ class MapTilKalkulatorInput {
                 var ytelsefordelinger = yg.getFordeling().stream()
                     .map(MapTilKalkulatorInput::mapYtelseFordeling)
                     .toList();
-                return new YtelseGrunnlagDto(Arbeidskategori.fraKode(yg.getArbeidskategori()), ytelsefordelinger);
+                return new YtelseGrunnlagDto(Arbeidskategori.fraKode(yg.getArbeidskategori() == null ? null : yg.getArbeidskategori().getKode()), ytelsefordelinger);
             });
     }
 
     private static no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto mapYtelseFordeling(YtelseFordelingDto yf) {
         var ag = mapArbeidsgiverNullsafe(yf.getArbeidsgiver());
-        var periodeType = yf.getHyppighet() == null
-            ? null
-            :  InntektPeriodeType.fraKode(yf.getHyppighet().getKode());
-        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, periodeType, mapTilBeløp(yf.getBeløp()), yf.getErRefusjon());
+        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, yf.getHyppighet(), mapTilBeløp(yf.getBeløp()), yf.getErRefusjon());
     }
 
     private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvistSet(Collection<YtelseAnvistDto> ytelseAnvist) {
