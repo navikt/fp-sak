@@ -54,7 +54,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
         return arbeidsforholdFraSøknad.stream()
                 .anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false));
     }
-//TODO-Anja burde ikke man her hentet de tilretteleggingen som skal brukes, og ikke alle?
+
     private List<SvpTilretteleggingEntitet> getArbeidsforholdSøktTilretteleggingI(BehandlingReferanse referanse) {
         return svangerskapspengerRepository.hentGrunnlag(referanse.behandlingId())
             .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
@@ -64,9 +64,10 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
 
     @Override
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
-            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-            Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
-        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse);
+                                                                                                    Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                                    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
+                                                                                                    boolean taHensynTilPermisjon) {
+        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, true);
 
         // Legger inn alle arbeidsforhold det er søkt tilrettelegging i
         var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);

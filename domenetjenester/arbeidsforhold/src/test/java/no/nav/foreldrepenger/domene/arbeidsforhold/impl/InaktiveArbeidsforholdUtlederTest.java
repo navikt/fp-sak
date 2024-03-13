@@ -175,10 +175,11 @@ class InaktiveArbeidsforholdUtlederTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
 
         // Assert
-        assertThat(aktiveArbeidsforhold.values()).contains(Set.of(internRef1, internRef2));
+        assertThat(aktiveArbeidsforhold).hasSize(1)
+            .containsValue((Set.of(internRef1, internRef2)));
     }
 
     @Test
@@ -197,11 +198,12 @@ class InaktiveArbeidsforholdUtlederTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
 
         // Assert
-        assertThat(aktiveArbeidsforhold).hasSize(1);
-        assertThat(aktiveArbeidsforhold.values()).contains(Set.of(internRef1));
+        assertThat(aktiveArbeidsforhold)
+            .hasSize(1)
+            .containsValue((Set.of(internRef1)));
     }
 
     @Test
@@ -220,10 +222,33 @@ class InaktiveArbeidsforholdUtlederTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
 
         // Assert
         assertThat(aktiveArbeidsforhold).isEmpty();
+    }
+
+    @Test
+    void Skal_ikke_ta_hensynt_til_at_alle_arbeidsforhold_er_inaktive_pga_permisjon() {
+        // Arrange
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
+        var internRef2MedPermisjon = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef1MedPermisjon);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef2MedPermisjon);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, false);
+
+        // Assert
+        assertThat(aktiveArbeidsforhold).hasSize(1);
+        assertThat(aktiveArbeidsforhold.values().stream()).containsExactly(Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
     }
 
     @Test
@@ -245,7 +270,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
 
         // Assert
         assertThat(aktiveArbeidsforhold).hasSize(1);
