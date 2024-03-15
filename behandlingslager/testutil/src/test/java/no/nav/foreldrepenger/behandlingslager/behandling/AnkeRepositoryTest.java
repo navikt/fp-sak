@@ -48,8 +48,7 @@ class AnkeRepositoryTest extends EntityManagerAwareTest {
             .medAnkeResultat(ankeResultat);
 
         // Act
-        var ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
-        assertThat(ankeVurderingResultatId).isNotNull();
+        ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
         var hentetAnkeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(ankeBehandling.getId());
 
         // Assert
