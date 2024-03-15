@@ -8,24 +8,30 @@ import java.util.Set;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
 
 @Dependent
 public class BrevmalTjeneste {
     private DokumentBehandlingTjeneste dokumentTjeneste;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     BrevmalTjeneste() {
         // for cdi proxy
     }
 
     @Inject
-    public BrevmalTjeneste(DokumentBehandlingTjeneste dokumentTjeneste) {
+    public BrevmalTjeneste(DokumentBehandlingTjeneste dokumentTjeneste,
+                           ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.dokumentTjeneste = dokumentTjeneste;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     public List<BrevmalDto> hentBrevmalerFor(Behandling behandling) {
@@ -81,9 +87,16 @@ public class BrevmalTjeneste {
     boolean sjekkOmDokumentSkalVæreTilgjengeligForSaksbehandler(Behandling behandling, DokumentMalType dokumentMal) {
         return switch (dokumentMal) {
             case VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL -> erÅpenBehandlingOgDokumentIkkeBestilt(behandling, dokumentMal);
-            case ETTERLYS_INNTEKTSMELDING, FORLENGET_SAKSBEHANDLINGSTID -> erÅpenBehandling(behandling);
+            case FORLENGET_SAKSBEHANDLINGSTID -> erÅpenBehandling(behandling);
+            case ETTERLYS_INNTEKTSMELDING -> erÅpenBehandling(behandling) && manglerInntektsmelding(behandling);
             default -> true;
         };
+    }
+
+    private boolean manglerInntektsmelding(Behandling behandling) {
+        var arbeidsforhold = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(
+            BehandlingReferanse.fra(behandling));
+        return arbeidsforhold.stream().anyMatch(af -> ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT.equals(af.inntektsmeldingStatus()));
     }
 
     private boolean erÅpenBehandling(Behandling behandling) {
