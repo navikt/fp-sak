@@ -74,8 +74,6 @@ public class InfotrygdOppslagRestTjeneste {
     private static final String INFOTRYGD_SOK_PART_PATH = "/sok";
     public static final String INFOTRYGD_SOK_PATH = BASE_PATH + INFOTRYGD_SOK_PART_PATH;
 
-    private static final String INFOTRYGD_SAK_PART_PATH = "/sak";
-
     private Persondata pdlKlient;
     private InfotrygdFPGrunnlag foreldrepenger;
     private InfotrygdSvpGrunnlag svangerskapspenger;
@@ -125,42 +123,14 @@ public class InfotrygdOppslagRestTjeneste {
         // Ser på Dtos senere. Først må vi utforske litt innhold via swagger. Kanskje også fail-hard-utgaven etter litt LOGGING
         grunnlagene.addAll(foreldrepenger.hentGrunnlagFailSoft(infotrygdRequest));
         grunnlagene.addAll(svangerskapspenger.hentGrunnlagFailSoft(infotrygdRequest));
-
-        var unikeGrunnlag = grunnlagene.stream().distinct().toList();
-        return Response.ok(mapTilVedtakDto(unikeGrunnlag)).build();
-    }
-
-    @POST
-    @Path(INFOTRYGD_SAK_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Søk etter saker i Infotrygd for fødselsnummer", tags = "infotrygd",
-        summary = "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.",
-        responses = {@ApiResponse(responseCode = "200", description = "Returnerer grunnlag",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = InfotrygdSak.class))}),})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentInfotrygdSaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
-                                 @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
-        var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;
-        if (!PersonIdent.erGyldigFnr(ident)) {
-            return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
-        }
-        Set<String> identer = new HashSet<>(finnAlleHistoriskeFødselsnummer(ident));
-        identer.add(ident);
-
-        LOG.info("FPSAK INFOTRYGD SAK"); // Sjekke bruksfrekvens ...
-        var infotrygdRequest = new GrunnlagRequest(new ArrayList<>(identer), FOM, LocalDate.now());
         List<InfotrygdSak> sakene = new ArrayList<>();
         // Ser på Dtos senere. Først må vi utforske litt innhold via swagger. Kanskje også fail-hard-utgaven etter litt LOGGING
         sakene.addAll(foreldrepengerSak.hentSakerFailSoft(infotrygdRequest));
         sakene.addAll(svangerskapspengerSak.hentSakerFailSoft(infotrygdRequest));
 
-        var unikeSaker = sakene.stream().distinct()
-            .map(s -> new InfotrygdSakDto(s.iverksatt(), mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), s.mottatt(),
-                mapSakTermnavn(s.type()), s.vedtatt(), mapSakTermnavn(s.valg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
-            .sorted(Comparator.comparing(InfotrygdSakDto::registrert)).toList();
-        return Response.ok(unikeSaker).build();
+        var unikeSaker = sakene.stream().distinct().toList();
+        var unikeGrunnlag = grunnlagene.stream().distinct().toList();
+        return Response.ok(mapTilVedtakDto(unikeSaker, unikeGrunnlag)).build();
     }
 
     private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {
@@ -201,10 +171,14 @@ public class InfotrygdOppslagRestTjeneste {
         }
     }
 
-    static InfotrygdVedtakDto mapTilVedtakDto(List<Grunnlag> grunnlagene) {
-        if (grunnlagene.isEmpty()) {
-            return new InfotrygdVedtakDto(List.of());
+    static InfotrygdVedtakDto mapTilVedtakDto(List<InfotrygdSak> saker, List<Grunnlag> grunnlagene) {
+        if (saker.isEmpty() && grunnlagene.isEmpty()) {
+            return new InfotrygdVedtakDto(List.of(), List.of());
         }
+        var mappedSaker = saker.stream()
+            .map(s -> new InfotrygdVedtakDto.SakDto(mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), mapSakTermnavn(s.type()), s.vedtatt(), mapSakTermnavn(s.valg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
+            .sorted(Comparator.comparing(InfotrygdVedtakDto.SakDto::registrert))
+            .toList();
         var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilVedtakDtoGrunnlag)
             .collect(Collectors.groupingBy(InfotrygdOppslagRestTjeneste::grunnlagKey));
         List<InfotrygdVedtakDto.VedtakKjede> sortertListe = new ArrayList<>();
@@ -214,7 +188,7 @@ public class InfotrygdOppslagRestTjeneste {
             .filter(l -> !l.isEmpty())
             .map(liste -> new InfotrygdVedtakDto.VedtakKjede(liste.getFirst().identdato(), liste.getFirst().behandlingstema(), liste))
             .forEach(sortertListe::add);
-        return new InfotrygdVedtakDto(sortertListe);
+        return new InfotrygdVedtakDto(mappedSaker, sortertListe);
     }
 
     private static List<InfotrygdVedtakDto.Vedtak> sorterVedtak(List<InfotrygdVedtakDto.Vedtak> vedtak) {
