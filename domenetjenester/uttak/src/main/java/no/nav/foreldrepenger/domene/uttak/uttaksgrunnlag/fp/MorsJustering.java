@@ -163,7 +163,7 @@ class MorsJustering implements ForelderFødselJustering {
 
         var antallTapteFFF = antallVirkedager(opprinneligeFFFperioder) - antallVirkedager(justerteFFFPerioder);
         if (antallTapteFFF > 0) {
-            LOG.warn("Justering ved fødsel før termin førte til at mor tapte {} dager med FFF", antallTapteFFF);
+            LOG.info("Justering ved fødsel før termin førte til at mor tapte {} dager med FFF", antallTapteFFF);
         }
 
         var resultat = new ArrayList<>(justertePerioder);
@@ -509,7 +509,7 @@ class MorsJustering implements ForelderFødselJustering {
     private static OppgittPeriodeEntitet mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(List<OppgittPeriodeEntitet> justertePerioder) {
         return justertePerioder.stream()
             .filter(MorsJustering::erPeriodeFlyttbar)
-            .filter(p -> p.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE) || p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER))
+            .filter(p -> Set.of(UttakPeriodeType.MØDREKVOTE, UttakPeriodeType.FORELDREPENGER).contains(p.getPeriodeType()))
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .orElseGet(() -> mødrekvoteFraFlyttbarFellesperiode(justertePerioder));
     }
@@ -634,10 +634,6 @@ class MorsJustering implements ForelderFødselJustering {
             return p;
         }).toList();
     }
-
-
-
-
 
     private static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
         return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode)

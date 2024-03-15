@@ -1994,7 +1994,7 @@ class JusterFordelingTjenesteTest {
      *  fff- |mmmmmmmmmmmmmmm (skal fylle uke 3 før fødsel med fellesperiode! Vil da gå ut til manuell behandling og vurdering gjøres av saksbehandler)
      */
     @Test
-    void mer_fellesperiode_havner_innenfor_3_uker_før_fødsel_enn_det_er_søkt_om() {
+    void fyller_fra_ventre_til_høyre_med_FFF_og_fyller_resten_med_fellesperiode() {
         var termindato = LocalDate.of(2022, 7,12);
         var fellesperiode = lagPeriode(FELLESPERIODE, termindato.minusWeeks(8), termindato.minusWeeks(5).minusDays(1));
         // Hull
@@ -2019,8 +2019,8 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
-    private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate termin, LocalDate fødselsdato) {
-        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, fødselsdato, RelasjonsRolleType.MORA,
+    private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
+        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA,
             false);
     }
 
