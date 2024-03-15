@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.infotrygd;
 import java.time.LocalDate;
 import java.util.List;
 
-public record InfotrygdVedtakDto(List<VedtakKjede> vedtakKjeder) {
+public record InfotrygdVedtakDto(List<SakDto> saker, List<VedtakKjede> vedtakKjeder) {
 
     public record VedtakKjede(LocalDate opprinneligIdentdato, InfotrygdKode behandlingstema, List<Vedtak> vedtak) {}
 
@@ -35,4 +35,7 @@ public record InfotrygdVedtakDto(List<VedtakKjede> vedtakKjeder) {
 
     public record Periode(LocalDate fom, LocalDate tom) { }
 
+    public record SakDto(String resultat, LocalDate registrert, String sakId, String type, LocalDate vedtatt, String valg, String undervalg, String nivaa) {
+
+    }
 }
