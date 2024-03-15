@@ -2,8 +2,11 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
@@ -12,16 +15,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResul
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioAnkeEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
-class AnkeRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(JpaExtension.class)
+class AnkeRepositoryTest  {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private AnkeRepository ankeRepository;
 
     @BeforeEach
-    void setup() {
-        var entityManager = getEntityManager();
+    void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         ankeRepository = new AnkeRepository(entityManager);
     }
@@ -41,7 +44,7 @@ class AnkeRepositoryTest extends EntityManagerAwareTest {
     void skal_lagre_og_hente_ankevurderingResultat() {
         // Arrange
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioFarSøkerEngangsstønad.forAdopsjon());
-        var ankeBehandling = scenario.lagre(repositoryProvider);
+        var ankeBehandling = scenario.lagre(repositoryProvider, true);
 
         var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
         var ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
