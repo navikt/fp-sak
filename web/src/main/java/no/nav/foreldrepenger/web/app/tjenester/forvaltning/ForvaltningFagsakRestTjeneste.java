@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -299,7 +298,7 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = ByttAktørRequestAbacDataSupplier.class)
-                                         @NotNull @BeanParam @Valid ByttAktørRequestDto dto) {
+                                         @NotNull @Valid ByttAktørRequestDto dto) {
         if (dto.gyldigAktørId().equals(dto.utgåttAktørId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -311,8 +310,8 @@ public class ForvaltningFagsakRestTjeneste {
     /**
      * Input request for å bytte en utgått aktørid med en aktiv
      */
-    public record ByttAktørRequestDto(@NotNull @Parameter(description = "utgåttAktørId") @QueryParam("utgåttAktørId") @Valid AktørId utgåttAktørId,
-                                      @NotNull @Parameter(description = "gyldigAktørId") @QueryParam("gyldigAktørId") @Valid AktørId gyldigAktørId) { }
+    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktørId,
+                                      @NotNull @Valid AktørId gyldigAktørId) { }
 
     public static class ByttAktørRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 

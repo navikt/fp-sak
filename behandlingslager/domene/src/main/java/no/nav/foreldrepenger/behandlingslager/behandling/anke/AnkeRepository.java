@@ -74,11 +74,10 @@ public class AnkeRepository {
         entityManager.flush();
     }
 
-    public Long lagreVurderingsResultat(Long ankeBehandlingId, AnkeVurderingResultatEntitet ankeVurderingResultat) {
+    public void lagreVurderingsResultat(Long ankeBehandlingId, AnkeVurderingResultatEntitet ankeVurderingResultat) {
         hentAnkeVurderingResultat(ankeBehandlingId).ifPresent(entityManager::remove);
         entityManager.persist(ankeVurderingResultat);
         entityManager.flush();
-        return ankeVurderingResultat.getId();
     }
 
     public Optional<AnkeVurderingResultatEntitet> hentAnkeVurderingResultat(Long ankeBehandlingId) {
