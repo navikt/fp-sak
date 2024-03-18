@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,8 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.konfig.Cluster;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
@@ -147,22 +144,12 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
         return aktørIder;
     }
-    
+
     private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {
         if (aktørId == null || aktørId.isEmpty()) {
             return Collections.emptySet();
         }
         return aktørId.stream().map(AktørId::new).collect(Collectors.toSet());
-    }
-
-    private static final Cluster CLUSTER = Environment.current().getCluster();
-
-    private static final List<String> INTERNAL_CLUSTER_NAMESPACE = List.of(CLUSTER.clusterName() + ":k9saksbehandling",
-        CLUSTER.clusterName() + ":teamforeldrepenger");
-
-    @Override
-    public boolean internAzureConsumer(String azpName) {
-        return INTERNAL_CLUSTER_NAMESPACE.stream().anyMatch(azpName::startsWith);
     }
 
 }
