@@ -430,16 +430,16 @@ public class StønadsstatistikkTjeneste {
             var rettighetType = utledRettighetType(yfa, konti);
             var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
             var dekningsgradEkstradager = dekningsgrad.isÅtti() ? Dekningsgrad.DEKNINGSGRAD_80 : Dekningsgrad.DEKNINGSGRAD_100;
-            var ekstradager = new HashSet<ForeldrepengerRettigheter.Ekstradager>();
+            var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
             var stønadsdager = Stønadsdager.instance(null);
             var flerbarnsdager = stønadsdager.ekstradagerFlerbarn(familiehendelse.getSkjæringstidspunkt(), familiehendelse.getAntallBarn(), dekningsgradEkstradager);
             if (flerbarnsdager > 0) {
-                ekstradager.add(new ForeldrepengerRettigheter.Ekstradager(StønadsstatistikkVedtak.EkstrastønadsdagerType.FLERBARNSDAGER, new ForeldrepengerRettigheter.Trekkdager(fbd)));
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER, new ForeldrepengerRettigheter.Trekkdager(flerbarnsdager)));
             }
             var prematurdager = familiehendelse.getGjelderAdopsjon() ? 0 :
                 stønadsdager.ekstradagerPrematur(familiehendelse.getFødselsdato().orElse(null), familiehendelse.getTermindato().orElse(null));
             if (prematurdager > 0) {
-                ekstradager.add(new ForeldrepengerRettigheter.Ekstradager(StønadsstatistikkVedtak.EkstrastønadsdagerType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(fbd)));
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
             }
 
             return new ForeldrepengerRettigheter(dekningsgrad.getVerdi(), rettighetType, konti, ekstradager);

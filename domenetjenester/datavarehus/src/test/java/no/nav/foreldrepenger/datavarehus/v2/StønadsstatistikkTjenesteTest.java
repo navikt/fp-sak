@@ -20,6 +20,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -154,7 +156,7 @@ class StønadsstatistikkTjenesteTest {
 
         assertThat(vedtak.getForeldrepengerRettigheter().rettighetType()).isEqualTo(RettighetType.BEGGE_RETT);
         assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(100);
-        assertThat(vedtak.getForeldrepengerRettigheter().flerbarnsdager()).isNull();
+        assertThat(vedtak.getForeldrepengerRettigheter().stønadsutvidelser()).isEmpty();
         assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).hasSize(4);
         assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).contains(
             new ForeldrepengerRettigheter.Stønadskonto(StønadsstatistikkVedtak.StønadskontoType.MØDREKVOTE,
@@ -185,6 +187,80 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getUtbetalingssperioder().getFirst().dagsats()).isEqualTo(beregningsresultatPeriode.getDagsats());
         assertThat(vedtak.getUtbetalingssperioder().getFirst().inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
         assertThat(vedtak.getUtbetalingssperioder().getFirst().mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.BRUKER);
+
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var validated = factory.getValidator().validate(vedtak);
+            assertThat(validated).isEmpty();
+        }
+    }
+
+    @Test
+    void mor_foreldrepenger_prematur_flerbarn() {
+        var fødselsdato = LocalDate.of(2023, 12, 5);
+        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        var periodeVirkedager = 65;
+        var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
+        var søknadsdato = fødselsdato.minusWeeks(3);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(søktPeriode), true))
+            .medDefaultOppgittDekningsgrad()
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
+            .medSøknadDato(søknadsdato)
+            .medUttak(uttak);
+        scenario.medBekreftetHendelse()
+            .medFødselsDato(fødselsdato, 2)
+            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+                .medTermindato(fødselsdato.plusWeeks(8)).medUtstedtDato(fødselsdato));
+        scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
+        var behandling = scenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegningUtvidet());
+        settOpprettetTidspunktPåFagsakRel(behandling, søknadsdato.atStartOfDay());
+
+        var bruttoPrÅr = BigDecimal.valueOf(400000);
+        var avkortetPrÅr = BigDecimal.valueOf(300000);
+        var redusertPrÅr = BigDecimal.valueOf(200000);
+        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(fødselsdato.minusYears(1),
+            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr);
+        var grunnbeløp = Beløp.av(100000);
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medSkjæringstidspunkt(fødselsdato)
+            .medGrunnbeløp(grunnbeløp)
+            .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .build();
+        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        var uttaksperiode = uttak.getPerioder().getFirst();
+        var beregningsresultat = lagBeregningsresultatMedAndel(uttaksperiode);
+        repositoryProvider.getBeregningsresultatRepository().lagre(behandling, beregningsresultat);
+        var beregningsresultatPeriode = beregningsresultat.getBeregningsresultatPerioder().getFirst();
+        var andel = beregningsresultatPeriode.getBeregningsresultatAndelList().getFirst();
+
+
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+
+        assertThat(vedtak.getFamilieHendelse().hendelseType()).isEqualTo(HendelseType.FØDSEL);
+        assertThat(vedtak.getFamilieHendelse().adopsjonsdato()).isNull();
+        assertThat(vedtak.getFamilieHendelse().antallBarn()).isEqualTo(2);
+        assertThat(vedtak.getFamilieHendelse().termindato()).isEqualTo(fødselsdato.plusWeeks(8));
+        assertThat(vedtak.getFamilieHendelse().barn()).hasSize(2);
+        assertThat(vedtak.getFamilieHendelse().barn().getFirst().fødselsdato()).isEqualTo(fødselsdato);
+        assertThat(vedtak.getFamilieHendelse().barn().getFirst().dødsdato()).isNull();
+
+        assertThat(vedtak.getForeldrepengerRettigheter().rettighetType()).isEqualTo(RettighetType.BEGGE_RETT);
+        assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(100);
+        assertThat(vedtak.getForeldrepengerRettigheter().stønadsutvidelser()).contains(
+            new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER,
+                    new ForeldrepengerRettigheter.Trekkdager(85)));
+        assertThat(vedtak.getForeldrepengerRettigheter().stønadsutvidelser()).contains(
+            new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER,
+                new ForeldrepengerRettigheter.Trekkdager(40)));
+        assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).hasSize(4);
+        assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).contains(
+            new ForeldrepengerRettigheter.Stønadskonto(StønadsstatistikkVedtak.StønadskontoType.FELLESPERIODE,
+                new ForeldrepengerRettigheter.Trekkdager(205), new ForeldrepengerRettigheter.Trekkdager(205),
+                new ForeldrepengerRettigheter.Trekkdager(0)));
 
         try (var factory = Validation.buildDefaultValidatorFactory()) {
             var validated = factory.getValidator().validate(vedtak);
@@ -345,6 +421,22 @@ class StønadsstatistikkTjenesteTest {
             .medStønadskonto(mødrekvote)
             .medStønadskonto(fellesperiode)
             .medStønadskonto(fedrekvote)
+            .medRegelInput("regelinput")
+            .medRegelEvaluering("regeleval")
+            .build();
+    }
+
+    private static Stønadskontoberegning stønadskontoberegningUtvidet() {
+        var fpff = new Stønadskonto.Builder().medMaxDager(5 * 3).medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL).build();
+        var mødrekvote = new Stønadskonto.Builder().medMaxDager(5 * 15).medStønadskontoType(StønadskontoType.MØDREKVOTE).build();
+        var fellesperiode = new Stønadskonto.Builder().medMaxDager(5 * 16 + 5 * 17 + 5 * 8).medStønadskontoType(StønadskontoType.FELLESPERIODE).build();
+        var fedrekvote = new Stønadskonto.Builder().medMaxDager(5 * 15).medStønadskontoType(StønadskontoType.FEDREKVOTE).build();
+        var flerbarn = new Stønadskonto.Builder().medMaxDager(5 * 17).medStønadskontoType(StønadskontoType.FLERBARNSDAGER).build();
+        return new Stønadskontoberegning.Builder().medStønadskonto(fpff)
+            .medStønadskonto(mødrekvote)
+            .medStønadskonto(fellesperiode)
+            .medStønadskonto(fedrekvote)
+            .medStønadskonto(flerbarn)
             .medRegelInput("regelinput")
             .medRegelEvaluering("regeleval")
             .build();
