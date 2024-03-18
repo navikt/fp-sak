@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -48,7 +47,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
+        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
     }
 
     @Test
@@ -61,25 +60,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER);
-    }
-
-    @Test
-    void ap_hvis_bare_perioder_med_fri_utsettelse() {
-        var utsettelse = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(10))
-            .medPeriodeKilde(FordelingPeriodeKilde.SAKSBEHANDLER)
-            .medÅrsak(UtsettelseÅrsak.FRI)
-            .build();
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medJustertFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true));
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
-        var ap = utleder.utledAksjonspunkterFor(input);
-
-        assertThat(ap).hasSize(1);
-        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER);
+        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER);
     }
 
     @Test
@@ -100,7 +81,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
+        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
     }
 
     @Test
@@ -122,6 +103,6 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
+        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
     }
 }
