@@ -94,7 +94,7 @@ final class JusterFordelingTjeneste {
     private static List<OppgittPeriodeEntitet> fjernHelgerFraStartOgSlutt(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
             .filter(p -> !erHelg(p))
-            .map(p -> kopier(p, flyttFraHelgTilMandag(p.getFom()), flyttFraHelgTilFredag(p.getTom())))
+            .map(p -> kopier(p, p.getFom(), p.getTom()))
             .toList();
     }
 
