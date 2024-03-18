@@ -180,7 +180,8 @@ class FastsettePerioderTjenesteTest {
     private UttakInput lagInput(Behandling behandling, LocalDate fødselsdato) {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
-            .medKreverSammenhengendeUttak(false).build());
+            .medKreverSammenhengendeUttak(false)
+            .medUtenMinsterett(true).build());
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -606,7 +607,7 @@ class FastsettePerioderTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medSøknadHendelse(familieHendelse));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).build()),
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build()),
             iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag)
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
         tjeneste().fastsettePerioder(input);

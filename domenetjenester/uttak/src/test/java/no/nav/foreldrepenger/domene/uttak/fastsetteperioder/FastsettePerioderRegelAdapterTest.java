@@ -272,6 +272,7 @@ class FastsettePerioderRegelAdapterTest {
         var utledetStp = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusMonths(3);
         var stp = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(kreverSammenhengendeUttak)
+            .medUtenMinsterett(utledetStp.isBefore(LocalDate.of(2022,8,2)))
             //Stp ikke relevant for testene, må bare være fom første søkte periode
             .medUtledetSkjæringstidspunkt(utledetStp)
             .build();
@@ -289,6 +290,46 @@ class FastsettePerioderRegelAdapterTest {
     @Test
     void skalReturnereManuellBehandlingForPlanMedForTidligOppstartAvFedrekvote() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
+        var startDato = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusWeeks(3);
+        var sluttDato = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).plusWeeks(1);
+
+        // Arrange
+        var virksomhet = virksomhet();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+            .medPeriode(startDato, sluttDato)
+            .medArbeidsgiver(virksomhet)
+            .medSamtidigUttak(false)
+            .build();
+
+        var behandling = setupFar(oppgittPeriode, virksomhet, startDato, sluttDato);
+        var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
+
+        // Act
+
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
+        // Assert
+        var uttakResultatPerioder = resultat.getPerioder();
+        assertThat(uttakResultatPerioder).hasSize(2);
+
+        var periode1 = uttakResultatPerioder.get(0);
+        assertThat(periode1.getFom()).isEqualTo(startDato);
+        assertThat(periode1.getTom()).isEqualTo(fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1));
+        assertThat(periode1.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(periode1.getManuellBehandlingÅrsak().getKode()).isEqualTo(
+            String.valueOf(Manuellbehandlingårsak.UGYLDIG_STØNADSKONTO.getId()));
+
+        var periode2 = uttakResultatPerioder.get(1);
+        assertThat(periode2.getFom()).isEqualTo(fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense));
+        assertThat(periode2.getTom()).isEqualTo(sluttDato);
+        assertThat(periode2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+    }
+
+    @Test
+    void skalReturnereManuellBehandlingForPlanMedForTidligFedrekvoteRundtFødsel() {
+        var fødselsdato = LocalDate.of(2023, 6, 22);
         var startDato = fødselsdato.minusWeeks(3);
         var sluttDato = fødselsdato.plusWeeks(1);
 
@@ -782,7 +823,7 @@ class FastsettePerioderRegelAdapterTest {
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).build());
+        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build());
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(farBehandling.getId(), fødselsdato.atStartOfDay()))
