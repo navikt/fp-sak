@@ -200,6 +200,11 @@ public class StønadsstatistikkVedtak {
         FEDREKVOTE
     }
 
+    enum EkstrastønadsdagerType {
+        FLERBARNSDAGER,
+        PREMATURDAGER
+    }
+
     enum Saksrolle {
         MOR, FAR, MEDMOR, UKJENT
     }
@@ -255,12 +260,16 @@ public class StønadsstatistikkVedtak {
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull Set<@Valid Stønadskonto> stønadskonti,
-                                     @Valid Trekkdager flerbarnsdager) {
+                                     @Valid Set<Ekstradager> ekstradager) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
                             @NotNull @Valid Trekkdager maksdager,
                             @NotNull @Valid Trekkdager restdager,
                             @Valid Trekkdager minsterett) {
+        }
+
+        record Ekstradager(@NotNull EkstrastønadsdagerType type,
+                            @Valid Trekkdager dager) {
         }
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
