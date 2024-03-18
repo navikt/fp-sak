@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehan
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 /**
  * Default test scenario builder for Anke Engangssøknad. Kan opprettes for gitt
@@ -53,17 +54,19 @@ public class ScenarioAnkeEngangsstønad {
         return this;
     }
 
-    public Behandling lagre(BehandlingRepositoryProvider repositoryProvider) {
+    public Behandling lagre(BehandlingRepositoryProvider repositoryProvider, boolean lås) {
         if (ankeBehandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        abstractTestScenario.buildAvsluttet(repositoryProvider);
-        return buildAnke(repositoryProvider);
+        var behandling = abstractTestScenario.buildAvsluttet(repositoryProvider);
+        if (lås) {
+            var flås = repositoryProvider.getFagsakLåsRepository().taLås(behandling.getFagsak());
+            repositoryProvider.getFagsakLåsRepository().oppdaterLåsVersjon(flås);
+        }
+        return buildAnke(repositoryProvider, behandling.getFagsak());
     }
 
-    private Behandling buildAnke(BehandlingRepositoryProvider repositoryProvider) {
-        var fagsak = abstractTestScenario.getFagsak();
-
+    private Behandling buildAnke(BehandlingRepositoryProvider repositoryProvider, Fagsak fagsak) {
         // oppprett og lagre behandling
         var builder = Behandling.forAnke(fagsak);
 
@@ -104,7 +107,7 @@ public class ScenarioAnkeEngangsstønad {
         // pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
         startSteg = null;
         var repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
-        lagre(repositoryProvider);
+        lagre(repositoryProvider, false);
         ankeBehandling.setId(AbstractTestScenario.nyId());
         return ankeBehandling;
     }

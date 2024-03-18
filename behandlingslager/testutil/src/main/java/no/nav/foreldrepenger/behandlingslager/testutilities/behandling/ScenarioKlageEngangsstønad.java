@@ -312,14 +312,13 @@ public class ScenarioKlageEngangsstønad {
             }
 
             @Override
-            public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
+            public void lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
                 var vurderingResultat = klageVurderingResultatBuilder.medKlageResultat(klageResultat).build();
                 if (vurderingResultat.getKlageVurdertAv() == KlageVurdertAv.NFP) {
                     klageVurderingResultatNfp = vurderingResultat;
                 } else {
                     klageVurderingResultatKa = vurderingResultat;
                 }
-                return vurderingResultat.getId();
             }
 
             @Override

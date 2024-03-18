@@ -298,19 +298,20 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = ByttAktørRequestAbacDataSupplier.class)
-                                         @NotNull @BeanParam @Valid ByttAktørRequestDto dto) {
-        if (dto.gyldigAktør().equals(dto.utgåttAktør())) {
+                                         @NotNull @Valid ByttAktørRequestDto dto) {
+        if (dto.gyldigAktørId().equals(dto.utgåttAktørId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        fagsakRepository.oppdaterBrukerMedAktørId(dto.utgåttAktør(), dto.gyldigAktør());
-        personopplysningRepository.oppdaterAktørIdFor(dto.utgåttAktør(), dto.gyldigAktør());
+        fagsakRepository.oppdaterBrukerMedAktørId(dto.utgåttAktørId(), dto.gyldigAktørId());
+        personopplysningRepository.oppdaterAktørIdFor(dto.utgåttAktørId(), dto.gyldigAktørId());
         return Response.ok().build();
     }
 
     /**
      * Input request for å bytte en utgått aktørid med en aktiv
      */
-    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktør, @NotNull @Valid AktørId gyldigAktør) { }
+    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktørId,
+                                      @NotNull @Valid AktørId gyldigAktørId) { }
 
     public static class ByttAktørRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
@@ -322,8 +323,8 @@ public class ForvaltningFagsakRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (ByttAktørRequestDto) obj;
             return AbacDataAttributter.opprett()
-                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.utgåttAktør().getId())
-                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.gyldigAktør().getId());
+                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.utgåttAktørId().getId())
+                .leggTil(StandardAbacAttributtType.AKTØR_ID, req.gyldigAktørId().getId());
         }
     }
 }

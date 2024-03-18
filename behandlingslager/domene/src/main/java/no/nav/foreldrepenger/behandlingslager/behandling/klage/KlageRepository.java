@@ -131,20 +131,18 @@ public class KlageRepository {
         entityManager.flush();
     }
 
-    public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
+    public void lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
         klageVurderingResultatBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling.getId()));
         var nyKlageVurderingResultat = klageVurderingResultatBuilder.build();
         hentKlageVurderingResultat(klageBehandling.getId(), nyKlageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(nyKlageVurderingResultat);
         entityManager.flush();
-        return nyKlageVurderingResultat.getId();
     }
 
-    public Long lagreVurderingsResultat(Long klageBehandlingId, KlageVurderingResultat klageVurderingResultat) {
+    public void lagreVurderingsResultat(Long klageBehandlingId, KlageVurderingResultat klageVurderingResultat) {
                 hentKlageVurderingResultat(klageBehandlingId, klageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(klageVurderingResultat);
         entityManager.flush();
-        return klageVurderingResultat.getId();
     }
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
