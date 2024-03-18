@@ -15,8 +15,8 @@ public class ØkonomioppdragJmsProducerKonfig extends FellesJmsKonfig {
     }
 
     @Inject
-    public ØkonomioppdragJmsProducerKonfig(@KonfigVerdi("mq.username") String bruker,
-                                           @KonfigVerdi("mq.password") String passord,
+    public ØkonomioppdragJmsProducerKonfig(@KonfigVerdi("systembruker.username") String bruker,
+                                           @KonfigVerdi("systembruker.password") String passord,
                                            @KonfigVerdi("mqGateway02.hostname") String host,
                                            @KonfigVerdi("mqGateway02.port") int port,
                                            @KonfigVerdi("mqGateway02.name") String managerName,
