@@ -214,11 +214,7 @@ public class RegisterdataInnhenter {
     }
 
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        var innhentRegisterdataRequest = lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType);
-        innhentRegisterdataRequest.setCallbackUrl(abakusTjeneste.getCallbackUrl());
-        innhentRegisterdataRequest.setCallbackScope(FpApplication.scopesFor(FpApplication.FPSAK));
-
-        abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
+        abakusTjeneste.innhentRegisterdata(lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType));
     }
 
     private InnhentRegisterdataRequest lagInnhentIAYRequest(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {

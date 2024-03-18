@@ -43,7 +43,6 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.request.VedtakForPeriodeRequest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -67,7 +66,6 @@ public class AbakusTjeneste {
     private URI innhentRegisterdata;
     private RestClient restClient;
     private RestConfig restConfig;
-    private URI callbackUrl;
     private URI endpointArbeidsforholdIPeriode;
     private URI endpointGrunnlag;
     private URI endpointMottaInntektsmeldinger;
@@ -80,15 +78,10 @@ public class AbakusTjeneste {
     private URI endpointLagreOverstyrtOppgittOpptjening;
     private URI endpointLagreOppgittOpptjeningNullstillOverstyring;
 
-    AbakusTjeneste() {
-        // for CDI
-    }
-
     @Inject
-    public AbakusTjeneste(@KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
+    public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
-        this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
@@ -125,10 +118,6 @@ public class AbakusTjeneste {
         } catch (IOException e) {
             throw feilVedKallTilAbakus(e.getMessage());
         }
-    }
-
-    public String getCallbackUrl() {
-        return callbackUrl.toString();
     }
 
     public InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
