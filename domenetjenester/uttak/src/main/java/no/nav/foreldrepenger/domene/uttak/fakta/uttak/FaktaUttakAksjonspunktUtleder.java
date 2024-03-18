@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
@@ -51,7 +50,7 @@ public class FaktaUttakAksjonspunktUtleder {
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
 
         var list = new ArrayList<AksjonspunktDefinisjon>();
-        if (perioder.stream().filter(p -> !UtsettelseÅrsak.FRI.equals(p.getÅrsak())).findAny().isEmpty()) {
+        if (perioder.isEmpty()) {
             list.add(FAKTA_UTTAK_INGEN_PERIODER);
         }
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
