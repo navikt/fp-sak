@@ -82,7 +82,7 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.Stønadsdager;
+import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
