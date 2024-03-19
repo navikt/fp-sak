@@ -6,7 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -22,7 +22,7 @@ import no.nav.vedtak.konfig.Tid;
 public class YtelseFordelingDtoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
@@ -32,11 +32,11 @@ public class YtelseFordelingDtoTjeneste {
 
     @Inject
     public YtelseFordelingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                      DekningsgradTjeneste dekningsgradTjeneste,
                                       UføretrygdRepository uføretrygdRepository,
                                       ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -52,8 +52,8 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
-        fagsakRelasjon.ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
+        var fagsdekningsgradkRelasjon = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
+        fagsdekningsgradkRelasjon.ifPresent(d -> dtoBuilder.medGjeldendeDekningsgrad(d.getVerdi()));
         return Optional.of(dtoBuilder.build());
     }
 

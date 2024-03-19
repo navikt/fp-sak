@@ -77,9 +77,9 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
-        var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
-        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, fagsakRelasjon);
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input);
 
+        var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
         var endringerVedReberegning = utledEndringer(eksiterendeKontoer, nyeKontoer);
         if (!endringerVedReberegning.isEmpty()) {
             var saksnummer1 = fagsakRelasjon.getFagsakNrEn().getSaksnummer().getVerdi();

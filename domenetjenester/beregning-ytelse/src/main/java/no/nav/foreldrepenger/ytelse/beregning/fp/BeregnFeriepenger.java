@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -28,8 +29,9 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     public BeregnFeriepenger(BehandlingRepositoryProvider repositoryProvider,
                              MapInputFraVLTilRegelGrunnlag inputTjeneste,
                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                             DekningsgradTjeneste dekningsgradTjeneste,
                              @KonfigVerdi(value = "fp.antall.dager.feriepenger", defaultVerdi = "60") int antallDagerFeriepenger) {
-        super(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, antallDagerFeriepenger);
+        super(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste, antallDagerFeriepenger);
     }
 
     @Override

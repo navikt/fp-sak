@@ -31,7 +31,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -95,7 +94,6 @@ public class StønadsstatistikkTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private FagsakTjeneste fagsakTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private FagsakRepository fagsakRepository;
@@ -116,7 +114,6 @@ public class StønadsstatistikkTjeneste {
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                     FagsakTjeneste fagsakTjeneste,
                                      BehandlingVedtakRepository behandlingVedtakRepository,
                                      FagsakEgenskapRepository fagsakEgenskapRepository,
                                      FagsakRepository fagsakRepository,
@@ -135,7 +132,6 @@ public class StønadsstatistikkTjeneste {
                                      MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.fagsakTjeneste = fagsakTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.fagsakRepository = fagsakRepository;
@@ -428,7 +424,7 @@ public class StønadsstatistikkTjeneste {
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             var rettighetType = utledRettighetType(yfa, konti);
-            var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
+            var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
             var dekningsgradEkstradager = dekningsgrad.isÅtti() ? Dekningsgrad.DEKNINGSGRAD_80 : Dekningsgrad.DEKNINGSGRAD_100;
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
             var stønadsdager = Stønadsdager.instance(null);

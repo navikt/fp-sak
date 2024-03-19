@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresult
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegl
 public abstract class BeregnFeriepengerTjeneste {
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private MapInputFraVLTilRegelGrunnlag inputTjeneste;
@@ -32,12 +34,14 @@ public abstract class BeregnFeriepengerTjeneste {
     protected BeregnFeriepengerTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                         MapInputFraVLTilRegelGrunnlag inputTjeneste,
                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                        DekningsgradTjeneste dekningsgradTjeneste,
                                         int antallDagerFeriepenger) {
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         if (antallDagerFeriepenger == 0) {
             throw new IllegalStateException(
                 "Injeksjon av antallDagerFeriepenger feilet. antallDagerFeriepenger kan ikke være 0.");
         }
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.inputTjeneste = inputTjeneste;
@@ -53,8 +57,7 @@ public abstract class BeregnFeriepengerTjeneste {
             .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
             annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
-        var gjeldendeDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
-            .getGjeldendeDekningsgrad();
+        var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
 
         var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
             arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
@@ -77,8 +80,7 @@ public abstract class BeregnFeriepengerTjeneste {
             .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
             annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
-        var gjeldendeDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
-            .getGjeldendeDekningsgrad();
+        var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
 
         var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
             arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
