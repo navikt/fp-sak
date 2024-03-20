@@ -130,8 +130,15 @@ public class AbakusTjeneste {
         return hentFraAbakus(endpoint, responseHandler, json);
     }
 
+    public List<ArbeidsforholdDto> hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(AktørDatoRequest request) {
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdMedPermisjonerIPeriode);
+    }
+
     public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
-        var endpoint = endpointArbeidsforholdIPeriode;
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdIPeriode);
+    }
+
+    private List<ArbeidsforholdDto> hentArbeidsforholdFraEndepunkt(AktørDatoRequest request, URI endpoint) {
         var responseHandler = new AbakusResponseHandler<ArbeidsforholdDto[]>(arbeidsforholdReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);

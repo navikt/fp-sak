@@ -60,7 +60,7 @@ public class ArbeidsforholdTjeneste {
     public List<ArbeidsforholdMedPermisjon> hentArbeidsforholdInfoForEnPeriode(AktørId ident, LocalDate fradato, LocalDate tildato, FagsakYtelseType ytelseType) {
         var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
         var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(fradato, tildato), ytelse);
-        return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
+        return abakusTjeneste.hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(request).stream()
             .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
             .map(ArbeidsforholdTjeneste::mapArbeidsforholdMedPermisjon)
             .toList();
