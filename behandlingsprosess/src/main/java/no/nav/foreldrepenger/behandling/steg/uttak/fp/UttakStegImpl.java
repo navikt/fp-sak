@@ -89,7 +89,7 @@ public class UttakStegImpl implements UttakSteg {
         try {
             loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(input);
         } catch (Exception e){
-            LOG.warn("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID", e );
+            LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på saksnummer {}", input.getBehandlingReferanse().saksnummer(), e);
         }
 
         beregnStønadskontoTjeneste.beregnStønadskontoer(input);

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class LoggInfoOmArbeidsforholdAktivitetskravTest {
 
@@ -31,6 +32,7 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
         var fraDato = LocalDate.of(2020, 1, 1);
         var tilDato = LocalDate.of(2021, 1, 1);
         var harAnnenForelderRett = true;
+        var saksnummer = new Saksnummer("123");
 
         var periode = OppgittPeriodeBuilder.ny()
             .medPeriode(fraDato, tilDato)
@@ -57,7 +59,7 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
         );
         var arbeidsforholdInfo = List.of(arbeidsforholdUtenPerminsjon, arbeidsforholdMedPermisjon);
 
-        assertThatCode(() -> loggInfoOmArbeidsforhold(fraDato, tilDato, harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo))
+        assertThatCode(() -> loggInfoOmArbeidsforhold(fraDato, tilDato, saksnummer, harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo))
             .doesNotThrowAnyException();
     }
 

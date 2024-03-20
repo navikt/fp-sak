@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -64,24 +65,22 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
 
         var harAnnenForelderRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty());
 
-        loggInfoOmArbeidsforhold(fraDato, tilDato, harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo);
+        loggInfoOmArbeidsforhold(fraDato, tilDato, behandlingReferanse.saksnummer(), harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo);
     }
 
     static void loggInfoOmArbeidsforhold(LocalDate fraDato, LocalDate tilDato,
-                                         boolean harAnnenForelderRett,
+                                         Saksnummer saksnummer, boolean harAnnenForelderRett,
                                          List<OppgittPeriodeEntitet> aktuellePerioder,
                                          List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
-
-        var logInfo = harAnnenForelderRett ? "INFO-AKTIVITETSKRAV: BEGGE_RETT" : "INFO-AKTIVITETSKRAV: BARE_FAR_RETT";
-
         var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo, fraDato, tilDato);
         var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo, fraDato, tilDato);
-
         var grunnlagTidslinje = stillingsprosentTidslinje
             .crossJoin(permisjonProsentTidslinje, bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
             .compress();
 
-        aktuellePerioder.forEach(periode -> vurderOgLogg(periode, grunnlagTidslinje, logInfo));
+        var loggPrefiks = String.format("INFO-AKTIVITETSKRAV: %s (%s)", harAnnenForelderRett ? "BEGGE_RETT" : "BARE_FAR_RETT", saksnummer);
+
+        aktuellePerioder.forEach(periode -> vurderOgLogg(periode, grunnlagTidslinje, loggPrefiks));
     }
 
     private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, AktivitetskravVurderingGrunnlag> bigDecimalTilAktivitetskravVurderingGrunnlagCombinator() {
@@ -89,16 +88,20 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
             new AktivitetskravVurderingGrunnlag(stillingsprosent.getValue(), permisjonsprosent.getValue()));
     }
 
-    private static void vurderOgLogg(OppgittPeriodeEntitet periode, LocalDateTimeline<AktivitetskravVurderingGrunnlag> grunnlagTidslinje, String logInfo) {
+    private static void vurderOgLogg(OppgittPeriodeEntitet periode, LocalDateTimeline<AktivitetskravVurderingGrunnlag> grunnlagTidslinje, String loggPrefiks) {
         var vurderinger = grunnlagTidslinje.intersection(new LocalDateInterval(periode.getFom(), periode.getTom()))
             .stream()
             .map(segment -> vurderPeriode(segment.getValue()))
             .toList();
-        var loggPrefix = logInfo + " for periode: " + periode.getFom() +" - " + periode.getTom() + (periode.getDokumentasjonVurdering().erGodkjent() ? " GODKJENT AV SAKSBEHANDLER " : " IKKE GODKJENT AV SAKSBEHANDLER " + " RESULTAT FPSAK: ");
+        loggPrefiks = String.format("%s for periode: [%s-%s] %s av saksbehandler",
+            loggPrefiks,
+            periode.getFom(),
+            periode.getTom(),
+            periode.getDokumentasjonVurdering().erGodkjent() ? "GODKJENT" : "IKKE GODKJENT");
         if (vurderinger.size() == 1) {
-            LOG.info("{}, vurderingen: {}", loggPrefix, vurderinger.getFirst());
+            LOG.info("{}, vurderingen: {}", loggPrefiks, vurderinger.getFirst());
         } else {
-            LOG.info("{}, flere vurderinger: {}", loggPrefix, vurderinger);
+            LOG.info("{}, flere vurderinger: {}", loggPrefiks, vurderinger);
         }
     }
 
