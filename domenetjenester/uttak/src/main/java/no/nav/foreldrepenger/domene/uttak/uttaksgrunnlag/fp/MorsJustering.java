@@ -1,8 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.kopier;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.sorterEtterFom;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager.beregnAntallVirkedager;
 
@@ -11,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -42,7 +48,7 @@ class MorsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var justertePerioder = flyttPerioderTilHøyre(oppgittePerioder);
-        justertePerioder = fyllHullSomOppstårMellomTerminOgFødsel(oppgittePerioder, justertePerioder);
+        justertePerioder = fyllHullSomOppstårPgaJustering(oppgittePerioder, justertePerioder);
         justertePerioder = fjernPerioderEtterSisteSøkteDato(justertePerioder, oppgittePerioder.getLast().getTom());
         return justertePerioder;
     }
@@ -50,157 +56,165 @@ class MorsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var justertePerioder = flyttPerioderTilVenstre(oppgittePerioder);
+
         if (justertePerioder.isEmpty()) {
             throw new IllegalStateException("Må ha minst en justert periode");
         }
-        if (justertePerioder.stream().noneMatch(MorsJustering::erPeriodeFlyttbar) || justertePerioder.stream().allMatch(p -> p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL))) {
+        if (justertePerioder.stream().noneMatch(MorsJustering::erPeriodeFlyttbar) || justertePerioder.stream().allMatch(p -> p.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL))) {
             return justertePerioder;
         }
-
-        justertePerioder = fyllHullSomOppstårFørFødselMedFellesperiodeEllerForeldrepenger(justertePerioder, oppgittePerioder);
-        justertePerioder = fyllHullSomOppstårMellomFødselOgTerminMedMødrekvoteEllerForeldrepenger(justertePerioder);
-        justertePerioder = fyllHullSomOppstårEtterTerminSomErForbeholdMorEtterFødselMedMødrekvoteEllerForeldrepenger(justertePerioder, oppgittePerioder);
-        justertePerioder = fyllResterendeHullOgBeholdSluttdato(justertePerioder, oppgittePerioder);
+        justertePerioder = fyllHullSomOppstårPgaJustering(oppgittePerioder, justertePerioder);
+        justertePerioder = fyllHullSomOppstårFørFørsteOpprinneligeUttaksdatoOgFødsel(oppgittePerioder, justertePerioder);
         return justertePerioder;
     }
 
-    private List<OppgittPeriodeEntitet> fyllHullSomOppstårEtterTerminSomErForbeholdMorEtterFødselMedMødrekvoteEllerForeldrepenger(List<OppgittPeriodeEntitet> justertePerioder,
-                                                                                                                                  List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var tomForbeholdtMorEtterFødsel = TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse);
-        if (tomForbeholdtMorEtterFødsel.isBefore(gammelFamiliehendelse)) {
+    private List<OppgittPeriodeEntitet> fyllHullSomOppstårFørFørsteOpprinneligeUttaksdatoOgFødsel(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                                                  List<OppgittPeriodeEntitet> justertePerioder) {
+        var førsteOpprinneligeUttaksdato = oppgittePerioder.getFirst().getFom();
+        if (!førsteOpprinneligeUttaksdato.isAfter(nyFamiliehendelse)) {
             return justertePerioder;
         }
 
-        var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
+        var kopierbarMødrekvote = førsteFlyttbarePeriode(oppgittePerioder);
+        var intervallMellomFødselOgFørsteOpprinneligeUttaksdato = new LocalDateTimeline<>(nyFamiliehendelse, førsteOpprinneligeUttaksdato.minusDays(1), kopierbarMødrekvote);
         var justertTimeline = tilLocalDateTimeLine(justertePerioder);
-        var intervalFraTerminTil6UkerEtterFødsel = new LocalDateInterval(gammelFamiliehendelse, tomForbeholdtMorEtterFødsel);
-        var fylteHull = oppgittTimeline.intersection(intervalFraTerminTil6UkerEtterFødsel).disjoint(justertTimeline).stream()
-            .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-            .map(seg -> kopier(mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
+        var fylteHull = intervallMellomFødselOgFørsteOpprinneligeUttaksdato.disjoint(justertTimeline).stream()
+            .filter(MorsJustering::harVirkedager)
+            .map(seg -> kopier(seg.getValue(), seg.getFom(), seg.getTom()))
             .toList();
-
-        var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(fylteHull);
-        return resultat;
-    }
-
-    private List<OppgittPeriodeEntitet> fyllHullSomOppstårMellomFødselOgTerminMedMødrekvoteEllerForeldrepenger(List<OppgittPeriodeEntitet> justertePerioder) {
-        var justertTimeline = tilLocalDateTimeLine(justertePerioder);
-        var intervalMellomFødselOgTermin = new LocalDateTimeline<>(nyFamiliehendelse, gammelFamiliehendelse.minusDays(1), true);
-        var fylteHull = intervalMellomFødselOgTermin.disjoint(justertTimeline).stream()
-            .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-            .map(seg -> kopier(mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
-            .toList();
-
-        if (fylteHull.isEmpty()) {
-            return justertePerioder;
-        }
 
         var resultat = new ArrayList<>(justertePerioder);
         resultat.addAll(fylteHull);
         return sorterEtterFom(resultat);
     }
 
+    private static OppgittPeriodeEntitet førsteFlyttbarePeriode(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        return førsteFlyttbarePeriodeAvType(oppgittePerioder, Set.of(MØDREKVOTE, FORELDREPENGER))
+            .orElseGet(() -> førsteFlyttbarePeriodeAvType(oppgittePerioder, Set.of(FELLESPERIODE))
+                .map(p -> OppgittPeriodeBuilder.fraEksisterende(p).medPeriodeType(MØDREKVOTE).build())
+                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fødselsjustering prøver å fylle periode mellom fødsel og første opprinnelig uttaksdato uten flyttbare perioder")));
+    }
 
-    private List<OppgittPeriodeEntitet> fyllHullSomOppstårFørFødselMedFellesperiodeEllerForeldrepenger(List<OppgittPeriodeEntitet> justertePerioder,
-                                                                                                       List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var intervalFørFødsel = new LocalDateInterval(LocalDateInterval.TIDENES_BEGYNNELSE, nyFamiliehendelse.minusDays(1));
+    private List<OppgittPeriodeEntitet> fyllHullSomOppstårPgaJustering(List<OppgittPeriodeEntitet> oppgittePerioder, List<OppgittPeriodeEntitet> justertePerioder) {
         var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
         var justertTimeline = tilLocalDateTimeLine(justertePerioder);
-        var fylteHullFørFødsel = oppgittTimeline.disjoint(justertTimeline).intersection(intervalFørFødsel).stream()
-            .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-            .map(seg -> kopier(fellesperiodeEllerForeldrepengerFørTermin(oppgittePerioder), seg.getFom(), seg.getTom()))// Hvis det finnes hull her så vet vi at det eksisterer enten fellesperiode eller foreldrepenger før termin i de opprinnelige periodene
-            .toList();
-
-        if (fylteHullFørFødsel.isEmpty()) {
+        var hullSomHarOppstått = oppgittTimeline.disjoint(justertTimeline);
+        if (hullSomHarOppstått.isEmpty()) {
             return justertePerioder;
         }
 
         var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(fylteHullFørFødsel);
-        return sorterEtterFom(resultat);
-    }
 
-    private OppgittPeriodeEntitet fellesperiodeEllerForeldrepengerFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return oppgittePerioder.stream()
-            .filter(p -> Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER).contains(p.getPeriodeType()))
-            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .orElseThrow(() -> new IllegalStateException("Forventer fellesperiode eller foreldrepenger før termin ved fødselsjustering"));
-    }
-
-    private List<OppgittPeriodeEntitet> leggTilFFFkonto(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var opprinneligeFFFperioder = oppgittePerioder.stream()
-            .filter(p -> p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL))
+        // 1) Før fødsel fylles alltid med fellesperiode eller foreldrepenger (arv fra segment)
+        var intervallFørFødsel = new LocalDateInterval(LocalDateInterval.TIDENES_BEGYNNELSE, nyFamiliehendelse.minusDays(1));
+        var hullFørFødsel = hullSomHarOppstått.intersection(intervallFørFødsel).stream()
+            .filter(MorsJustering::harVirkedager)
+            .map(segment -> nyPeriodeFraFørsteFlyttbarePeriode(segment, oppgittePerioder, Set.of(FELLESPERIODE, FORELDREPENGER)))
             .toList();
-        if (opprinneligeFFFperioder.isEmpty()) {
-            return justertePerioder;
-        }
+        resultat.addAll(hullFørFødsel);
 
-        var antallTilgjengeligeFFFDager = antallVirkedager(opprinneligeFFFperioder);
-        var intervalForbeholdMorForeldrepengerFørFødsel = new LocalDateInterval(TidsperiodeForbeholdtMor.fraOgMed(nyFamiliehendelse), nyFamiliehendelse.minusDays(1));
-        var oppgittTimelineUtenUtsettelserOgOpphold = tilLocalDateTimeLine(oppgittePerioder.stream().filter(p -> !(p.isUtsettelse() || p.isOpphold())).toList());
-        var perioderHvorFFFKanFlyttesTil = oppgittTimelineUtenUtsettelserOgOpphold.intersection(intervalForbeholdMorForeldrepengerFørFødsel);
+        // 2) Etter fødsel og frem til 6 uker etter fødsel (eventuelt frem til termin om det er lenger) fylles med MK eller FOR
+        var forbeholdtMorEtterFødselTom = TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse);
+        var etterFødselTom = forbeholdtMorEtterFødselTom.isAfter(gammelFamiliehendelse) ? forbeholdtMorEtterFødselTom : gammelFamiliehendelse.minusDays(1);
+        var intervallForbeholdtMorEtterFødsel = new LocalDateInterval(nyFamiliehendelse, etterFødselTom);
+        var hullForboldtMorEtterFødsel = hullSomHarOppstått.intersection(intervallForbeholdtMorEtterFødsel).stream()
+            .filter(MorsJustering::harVirkedager)
+            .map(segment -> nyPeriodeFraFørsteFlyttbarePeriode(segment, oppgittePerioder, Set.of(MØDREKVOTE, FORELDREPENGER)))
+            .toList();
+        resultat.addAll(hullForboldtMorEtterFødsel);
 
-        var justerteFFFPerioder = new ArrayList<OppgittPeriodeEntitet>();
-        for (var seg : perioderHvorFFFKanFlyttesTil.stream().sorted(Comparator.comparing(LocalDateSegment::getFom, Comparator.reverseOrder())).toList()) { // Fyller på fra venstre til høyre til enten det er brukt opp eller ikke plass lenger
-            if (antallTilgjengeligeFFFDager == 0) {
-                break;
-            }
-
-            if (beregnAntallVirkedager(seg.getFom(), seg.getTom()) <= antallTilgjengeligeFFFDager) {
-                antallTilgjengeligeFFFDager -= beregnAntallVirkedager(seg.getFom(), seg.getTom());
-                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
-                    .medPeriode(flyttFraHelgTilMandag(seg.getFom()), flyttFraHelgTilFredag(seg.getTom()))
-                    .build());
-            } else {
-                // Ikke nok tilgjengelige dager for FFF for å fylle hele perioden
-                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
-                    .medPeriode(minusVirkedager(seg.getTom(), antallTilgjengeligeFFFDager), seg.getTom())
-                    .build());
-                antallTilgjengeligeFFFDager = 0;
-            }
-        }
-
-        var antallTapteFFF = antallVirkedager(opprinneligeFFFperioder) - antallVirkedager(justerteFFFPerioder);
-        if (antallTapteFFF > 0) {
-            LOG.info("Justering ved fødsel før termin førte til at mor tapte {} dager med FFF", antallTapteFFF);
-        }
-
-        var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(justerteFFFPerioder);
+        // 3) Etter fødsel og etter 6 fylles med siste flyttbare periode.
+        var intervallEtterUkeneForbeholdtMor = new LocalDateInterval(etterFødselTom.plusDays(1), LocalDateInterval.TIDENES_ENDE);
+        var hullEtterUkeneForbeholdtMor = hullSomHarOppstått.intersection(intervallEtterUkeneForbeholdtMor).stream()
+            .filter(MorsJustering::harVirkedager)
+            .map(segment -> nyPeriodeFraSisteFlyttbarePeriode(segment, oppgittePerioder))
+            .toList();
+        resultat.addAll(hullEtterUkeneForbeholdtMor);
         return sorterEtterFom(resultat);
+    }
+
+    private static OppgittPeriodeEntitet nyPeriodeFraSisteFlyttbarePeriode(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, List<OppgittPeriodeEntitet> oppgittePerioder) {
+        return sisteFlyttbarePeriode(oppgittePerioder)
+            .map(p -> nyPeriodeFra(manglendeSegment, p))
+            .orElse(nyPeriode(manglendeSegment, oppgittePerioder, Set.of()));
+    }
+
+    private static OppgittPeriodeEntitet nyPeriodeFraFørsteFlyttbarePeriode(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, List<OppgittPeriodeEntitet> oppgittePerioder, Set<UttakPeriodeType> tillatteTyper) {
+        return førsteFlyttbarePeriodeAvType(oppgittePerioder, tillatteTyper)
+            .map(p -> nyPeriodeFra(manglendeSegment, p))
+            .orElse(nyPeriode(manglendeSegment, oppgittePerioder, tillatteTyper));
+    }
+
+    private static Optional<OppgittPeriodeEntitet> førsteFlyttbarePeriodeAvType(List<OppgittPeriodeEntitet> perioder, Set<UttakPeriodeType> type) {
+        return perioder.stream()
+            .filter(MorsJustering::erPeriodeFlyttbar)
+            .filter(p -> type.contains(p.getPeriodeType()))
+            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+    }
+
+    private static Optional<OppgittPeriodeEntitet> sisteFlyttbarePeriode(List<OppgittPeriodeEntitet> justerte) {
+        return justerte.stream()
+            .filter(MorsJustering::erPeriodeFlyttbar)
+            .filter(p -> !p.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL))
+            .max(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+    }
+
+    private static OppgittPeriodeEntitet nyPeriodeFra(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, OppgittPeriodeEntitet eksisterendePeriode) {
+        return OppgittPeriodeBuilder.fraEksisterende(eksisterendePeriode)
+            .medPeriode(flyttFraHelgTilMandag(manglendeSegment.getFom()), flyttFraHelgTilFredag(manglendeSegment.getTom()))
+            .medMottattDato(manglendeSegment.getValue().getMottattDato())
+            .medTidligstMottattDato(manglendeSegment.getValue().getTidligstMottattDato().orElse(eksisterendePeriode.getTidligstMottattDato().orElse(null)))
+            .build();
+    }
+
+    private static OppgittPeriodeEntitet nyPeriode(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, List<OppgittPeriodeEntitet> oppgittePerioder, Set<UttakPeriodeType> tillatteTyper) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriodeType(finnUttakPeriodeType(oppgittePerioder, tillatteTyper))
+            .medPeriode(flyttFraHelgTilMandag(manglendeSegment.getFom()), flyttFraHelgTilFredag(manglendeSegment.getTom()))
+            .medMottattDato(manglendeSegment.getValue().getMottattDato())
+            .medTidligstMottattDato(manglendeSegment.getValue().getTidligstMottattDato().orElse(null))
+            .build();
+    }
+
+    private static UttakPeriodeType finnUttakPeriodeType(List<OppgittPeriodeEntitet> oppgittePerioder, Set<UttakPeriodeType> tillatteTyper) {
+        if (oppgittePerioder.stream().map(OppgittPeriodeEntitet::getPeriodeType).anyMatch(FORELDREPENGER::equals)) {
+            return FORELDREPENGER;
+        }
+        return tillatteTyper.stream()
+            .filter(type -> !FORELDREPENGER.equals(type))
+            .findFirst()
+            .orElse(FELLESPERIODE);
+    }
+
+    private static boolean harVirkedager(LocalDateSegment<OppgittPeriodeEntitet> p) {
+        return beregnAntallVirkedager(p.getFom(), p.getTom()) > 0;
     }
 
     private static int antallVirkedager(List<OppgittPeriodeEntitet> opprinneligeFFFperioder) {
         return opprinneligeFFFperioder.stream().mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom())).sum();
     }
 
-    private static LocalDate minusVirkedager(LocalDate dato, int virkedager) {
-        while(virkedager > 0) {
-            dato = minusVirkedag(dato);
-            --virkedager;
-        }
-        return dato;
-    }
-
     private List<OppgittPeriodeEntitet> flyttPerioderTilHøyre(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var oppgittePerioderMedHull = fyllHull(oppgittePerioder);
-        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioderMedHull);
+        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
         var justertePerioder = new ArrayList<OppgittPeriodeEntitet>();
-        for (var oppgittPeriode : oppgittePerioderMedHull) {
+        var antallDagerTilgjengeligForReduksjon = 0;
+        for (var oppgittPeriode : oppgittePerioder) {
+            if (antallDagerTilgjengeligForReduksjon > 0 && erPeriodeFlyttbar(oppgittPeriode)) {
+                var antallDagerSkøvetInnIHullFørDato = Math.min(antallDagerSkøvetInnIHullFørDato(oppgittPeriode.getFom(), justertePerioder, ikkeFlyttbarePerioder), antallDagerTilgjengeligForReduksjon);
+                antallDagerTilgjengeligForReduksjon -= antallDagerSkøvetInnIHullFørDato;
+                virkedagerSomSkalSkyves -= antallDagerSkøvetInnIHullFørDato;
+            }
+
             if (virkedagerSomSkalSkyves > 0 && erPeriodeFlyttbar(oppgittPeriode)) {
                 var justert = flyttPeriodeHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-
-                if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && kanFellesperiodenReduseres(oppgittPeriode, justert)) {
+                if (oppgittPeriode.getPeriodeType().equals(FELLESPERIODE) && kanFellesperiodenReduseres(justert)) {
                     var justertFellesperiode = reduserJusterteFellesperioder(justert, virkedagerSomSkalSkyves);
                     virkedagerSomSkalSkyves -= antallDagerFellesperiodeErRedusert(justert, justertFellesperiode);
                     justert = justertFellesperiode;
                 }
-
+                antallDagerTilgjengeligForReduksjon += antallSpisteVirkedagerIHull(justert, ikkeFlyttbarePerioder);
                 justertePerioder.addAll(justert);
-            } else if (oppgittPeriode instanceof JusterPeriodeHull) { // Hull brukes bare til justering og reduksjon av forskyvning. Skal ikke legge til i justeringen
-                virkedagerSomSkalSkyves -= antallSpisteVirkedagerIHull(oppgittPeriode, justertePerioder);
             } else {
                 justertePerioder.add(oppgittPeriode);
             }
@@ -208,17 +222,25 @@ class MorsJustering implements ForelderFødselJustering {
         return justertePerioder.stream().toList();
     }
 
-    private static int antallSpisteVirkedagerIHull(OppgittPeriodeEntitet oppgittPeriode, List<OppgittPeriodeEntitet> justertePerioder) {
+    private static int antallDagerSkøvetInnIHullFørDato(LocalDate fom, List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
+        var ikkeFlyttbarTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
         var tidligereJustertePerioder = tilLocalDateTimeLine(justertePerioder);
-        var gjeldende = new LocalDateTimeline<>(oppgittPeriode.getFom(), oppgittPeriode.getTom(), oppgittPeriode);
-        return gjeldende.intersection(tidligereJustertePerioder).stream()
+        var gjeldendeIntervall = new LocalDateInterval(LocalDateInterval.TIDENES_BEGYNNELSE, fom);
+        return ikkeFlyttbarTimeline.intersection(tidligereJustertePerioder).intersection(gjeldendeIntervall).stream()
             .mapToInt(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()))
             .sum();
     }
 
-    private boolean kanFellesperiodenReduseres(OppgittPeriodeEntitet oppgittPeriode, List<OppgittPeriodeEntitet> justertePerioder) {
-        return erPeriodeFlyttbar(oppgittPeriode) && justertePerioder.stream()
-            .anyMatch(p -> p.getTom().isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse)));
+    private static int antallSpisteVirkedagerIHull(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
+        var justertTimeline = tilLocalDateTimeLine(justertePerioder);
+        var ikkeFlyttbareTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
+        return ikkeFlyttbareTimeline.intersection(justertTimeline).stream()
+            .mapToInt(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()))
+            .sum();
+    }
+
+    private boolean kanFellesperiodenReduseres(List<OppgittPeriodeEntitet> justertePerioder) {
+        return justertePerioder.stream().anyMatch(p -> p.getTom().isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse)));
     }
 
     private static int antallDagerFellesperiodeErRedusert(List<OppgittPeriodeEntitet> justert, List<OppgittPeriodeEntitet> justertOgRedusert) {
@@ -298,19 +320,16 @@ class MorsJustering implements ForelderFødselJustering {
      *  6) Perioder beholdes uendret dersom de ikke er flyttbare eller om vi er ferdig med forskyvning (virkedagerSomSkalSkyves==0)
      */
     private List<OppgittPeriodeEntitet> flyttPerioderTilVenstre(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var oppgittePerioderMedHull = fyllHullEtterTermin(oppgittePerioder);
-        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioderMedHull);
+        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = Virkedager.beregnAntallVirkedager(nyFamiliehendelse, gammelFamiliehendelse) - 1;
         var justertePerioder = new ArrayList<OppgittPeriodeEntitet>();
-        for (var oppgittPeriode : oppgittePerioderMedHull) {
-            if (oppgittPeriode instanceof JusterPeriodeHull) {
-                // Ignorere hull
-            } else if (!erPeriodeFlyttbar(oppgittPeriode) || virkedagerSomSkalSkyves == 0) {
+        for (var oppgittPeriode : oppgittePerioder) {
+            if (!erPeriodeFlyttbar(oppgittPeriode) || virkedagerSomSkalSkyves == 0) {
                 // 6) Perioder beholdes uendret dersom de ikke er flyttbare eller om vi er ferdig med forskyvning (virkedagerSomSkalSkyves==0)
                 justertePerioder.add(oppgittPeriode);
             } else {
                 // 1) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
-                if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)) {
+                if (oppgittPeriode.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL)) {
                     // Legges til etterpå
                 }
 
@@ -343,7 +362,7 @@ class MorsJustering implements ForelderFødselJustering {
         return sorterEtterFom(resultat);
     }
 
-    private int differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleJusteres(OppgittPeriodeEntitet oppgittPeriode,
+    private static int differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleJusteres(OppgittPeriodeEntitet oppgittPeriode,
                                                                                            List<OppgittPeriodeEntitet> justert,
                                                                                            List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
                                                                                            int virkedagerSomSkalSkyves) {
@@ -357,68 +376,76 @@ class MorsJustering implements ForelderFødselJustering {
         return virkedagerSomSkalSkyves - antallVirkedagerSomBleForskøvet;
     }
 
-    private static List<OppgittPeriodeEntitet> fyllHull(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var hull = hullPerioder(oppgittePerioder);
-        return sorterEtterFom(Stream.concat(oppgittePerioder.stream(), hull.stream()).toList());
+    private List<OppgittPeriodeEntitet> leggTilFFFkonto(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
+        var opprinneligeFFFperioder = oppgittePerioder.stream()
+            .filter(p -> p.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL))
+            .toList();
+        if (opprinneligeFFFperioder.isEmpty()) {
+            return justertePerioder;
+        }
+
+        var antallTilgjengeligeFFFDager = antallVirkedager(opprinneligeFFFperioder);
+        var intervalForbeholdMorForeldrepengerFørFødsel = new LocalDateInterval(TidsperiodeForbeholdtMor.fraOgMed(nyFamiliehendelse), nyFamiliehendelse.minusDays(1));
+        var oppgittTimelineUtenUtsettelserOgOpphold = tilLocalDateTimeLine(oppgittePerioder.stream().filter(p -> !(p.isUtsettelse() || p.isOpphold())).toList());
+        var perioderHvorFFFKanFlyttesTil = oppgittTimelineUtenUtsettelserOgOpphold.intersection(intervalForbeholdMorForeldrepengerFørFødsel);
+
+        var justerteFFFPerioder = new ArrayList<OppgittPeriodeEntitet>();
+        for (var seg : perioderHvorFFFKanFlyttesTil.stream().sorted(Comparator.comparing(LocalDateSegment::getFom, Comparator.reverseOrder())).toList()) { // Fyller på fra venstre til høyre til enten det er brukt opp eller ikke plass lenger
+            if (antallTilgjengeligeFFFDager == 0) {
+                break;
+            }
+
+            if (beregnAntallVirkedager(seg.getFom(), seg.getTom()) <= antallTilgjengeligeFFFDager) {
+                antallTilgjengeligeFFFDager -= beregnAntallVirkedager(seg.getFom(), seg.getTom());
+                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
+                    .medPeriode(flyttFraHelgTilMandag(seg.getFom()), flyttFraHelgTilFredag(seg.getTom()))
+                    .build());
+            } else {
+                // Ikke nok tilgjengelige dager for FFF for å fylle hele perioden
+                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
+                    .medPeriode(minusVirkedager(seg.getTom(), antallTilgjengeligeFFFDager), seg.getTom())
+                    .build());
+                antallTilgjengeligeFFFDager = 0;
+            }
+        }
+
+        var antallTapteFFF = antallVirkedager(opprinneligeFFFperioder) - antallVirkedager(justerteFFFPerioder);
+        if (antallTapteFFF > 0) {
+            LOG.info("Justering ved fødsel før termin førte til at mor tapte {} dager med FFF", antallTapteFFF);
+        }
+
+        var resultat = new ArrayList<>(justertePerioder);
+        resultat.addAll(justerteFFFPerioder);
+        return sorterEtterFom(resultat);
     }
 
-    private List<OppgittPeriodeEntitet> fyllHullEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var hull = hullPerioderEtterTermin(oppgittePerioder);
-        return sorterEtterFom(Stream.concat(oppgittePerioder.stream(), hull.stream())
-            .toList());
+    private static LocalDate minusVirkedager(LocalDate dato, int virkedager) {
+        while(virkedager > 0) {
+            dato = minusVirkedag(dato);
+            --virkedager;
+        }
+        return dato;
     }
 
-    private static List<OppgittPeriodeEntitet> hullPerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
+    private static LocalDate minusVirkedag(LocalDate dato) {
+        var resultat = dato;
+        var dager = 1;
+        while (dager > 0 || erHelg(resultat)) {
+            if (!erHelg(resultat)) {
+                dager--;
+            }
+            resultat = resultat.minusDays(1);
+        }
+        return resultat;
+    }
+
+    private static List<OppgittPeriodeEntitet> hullFra(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
         var sjekkPeriode = new LocalDateTimeline<>(oppgittTimeline.getMinLocalDate(), oppgittTimeline.getMaxLocalDate(), true);
         return sjekkPeriode.disjoint(oppgittTimeline).stream()
             .map(seg -> new JusterPeriodeHull(seg.getFom(), seg.getTom()))
             .map(OppgittPeriodeEntitet.class::cast)
             .toList();
-    }
-
-    private List<OppgittPeriodeEntitet> hullPerioderEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
-        if (oppgittTimeline.getMaxLocalDate().isBefore(gammelFamiliehendelse)) {
-            return List.of();
-        }
-        var gjeldendeIntervall = new LocalDateTimeline<>(gammelFamiliehendelse, oppgittTimeline.getMaxLocalDate(), true);
-        return gjeldendeIntervall.disjoint(oppgittTimeline).stream()
-            .map(seg -> new JusterPeriodeHull(seg.getFom(), seg.getTom()))
-            .map(OppgittPeriodeEntitet.class::cast)
-            .toList();
-    }
-
-    private static List<OppgittPeriodeEntitet> fyllHullSomOppstårMellomTerminOgFødsel(List<OppgittPeriodeEntitet> oppgittePerioder,
-                                                                                      List<OppgittPeriodeEntitet> justertePerioder) {
-        var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
-        var justertTimeline = tilLocalDateTimeLine(justertePerioder);
-        var periodeSomSkalPaddes = new LocalDateInterval(oppgittTimeline.getMinLocalDate(), justertTimeline.getMinLocalDate());
-
-        var padding = oppgittTimeline.disjoint(justertTimeline)
-            .intersection(periodeSomSkalPaddes)
-            .stream()
-            .filter(p -> beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
-            .map(s -> OppgittPeriodeBuilder.ny()
-                .medPeriodeType(finnUttakPeriodeType(justertePerioder))
-                .medPeriode(flyttFraHelgTilMandag(s.getFom()), flyttFraHelgTilFredag(s.getTom()))
-                .medMottattDato(s.getValue().getMottattDato())
-                .medTidligstMottattDato(s.getValue().getTidligstMottattDato().orElse(null))
-                .build())
-            .toList();
-
-        var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(padding);
-        return sorterEtterFom(resultat);
-    }
-
-    private static UttakPeriodeType finnUttakPeriodeType(List<OppgittPeriodeEntitet> oppgittPerioder) {
-        for (var oppgittPeriode : oppgittPerioder) {
-            if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER)) {
-                return UttakPeriodeType.FORELDREPENGER;
-            }
-        }
-        return UttakPeriodeType.FELLESPERIODE;
     }
 
     private List<OppgittPeriodeEntitet> flyttPeriodeVenstre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
@@ -466,7 +493,7 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private boolean periodeSomIkkeErMødrekvoteEllerForeldrepengerHavnerInnenforUkeneForbeholdtMorEtterFødsel(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom) {
-        if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE) || oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER)) {
+        if (oppgittPeriode.getPeriodeType().equals(MØDREKVOTE) || oppgittPeriode.getPeriodeType().equals(FORELDREPENGER)) {
             return false;
         }
 
@@ -506,47 +533,8 @@ class MorsJustering implements ForelderFødselJustering {
         return nyFom;
     }
 
-    private static OppgittPeriodeEntitet mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(List<OppgittPeriodeEntitet> justertePerioder) {
-        return justertePerioder.stream()
-            .filter(MorsJustering::erPeriodeFlyttbar)
-            .filter(p -> Set.of(UttakPeriodeType.MØDREKVOTE, UttakPeriodeType.FORELDREPENGER).contains(p.getPeriodeType()))
-            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .orElseGet(() -> mødrekvoteFraFlyttbarFellesperiode(justertePerioder));
-    }
-
-    private static OppgittPeriodeEntitet mødrekvoteFraFlyttbarFellesperiode(List<OppgittPeriodeEntitet> justertePerioder) {
-        return justertePerioder.stream()
-            .filter(MorsJustering::erPeriodeFlyttbar)
-            .filter(p -> p.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE))
-            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .map(p -> OppgittPeriodeBuilder.fraEksisterende(p).medPeriodeType(UttakPeriodeType.MØDREKVOTE).build())
-            .orElseThrow(() -> new IllegalStateException("Forventer minst en flyttbar periode som kan fylle hull før termin!"));
-    }
-
-    private List<OppgittPeriodeEntitet> fyllResterendeHullOgBeholdSluttdato(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
-
-        var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
-        var justertTimeline = tilLocalDateTimeLine(justertePerioder);
-        var periodeMedHull = oppgittTimeline.disjoint(justertTimeline).stream()
-            .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-            .map(seg -> kopier(sisteFlyttbarePeriode(justertePerioder), seg.getFom(), seg.getTom()))
-            .toList();
-
-        var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(periodeMedHull);
-        return sorterEtterFom(resultat);
-    }
-
     private static LocalDateTimeline<OppgittPeriodeEntitet> tilLocalDateTimeLine(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return new LocalDateTimeline<>(oppgittePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList());
-    }
-
-    private static OppgittPeriodeEntitet sisteFlyttbarePeriode(List<OppgittPeriodeEntitet> justerte) {
-        return justerte.stream()
-            .filter(MorsJustering::erPeriodeFlyttbar)
-            .filter(p -> !p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL))
-            .max(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .orElseThrow(() -> new IllegalStateException("Forventer minst en flyttbar periode å fylle hull med!"));
     }
 
     private int beregnAntallLedigeVirkedager(LocalDate dato1, LocalDate dato2, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
@@ -580,18 +568,6 @@ class MorsJustering implements ForelderFødselJustering {
         return nyTom;
     }
 
-    private static LocalDate minusVirkedag(LocalDate dato) {
-        var resultat = dato;
-        var dager = 1;
-        while (dager > 0 || erHelg(resultat)) {
-            if (!erHelg(resultat)) {
-                dager--;
-            }
-            resultat = resultat.minusDays(1);
-        }
-        return resultat;
-    }
-
     private static boolean erLedigVirkedager(List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder, LocalDate nyDato) {
         return !overlapper(nyDato, ikkeFlyttbarePerioder);
     }
@@ -604,7 +580,6 @@ class MorsJustering implements ForelderFødselJustering {
         return hullSomOverlapperMedPeriodeForbeholdMorEtterFødselsjustering(ikkeFlyttbarePerioder).stream()
             .anyMatch(d -> d.getLocalDateInterval().contains(nyDato));
     }
-
 
     private LocalDateTimeline<Boolean> hullSomOverlapperMedPeriodeForbeholdMorEtterFødselsjustering(List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         LocalDate fraDato;
@@ -623,7 +598,22 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return oppgittePerioder.stream().filter(periode -> !erPeriodeFlyttbar(periode)).toList();
+        var hull = hullFra(oppgittePerioder);
+        if (nyFamiliehendelse.isBefore(gammelFamiliehendelse)) {
+            var hullTidslinje = tilLocalDateTimeLine(hull);
+            var intervallEtterTermin = new LocalDateInterval(gammelFamiliehendelse, LocalDateInterval.TIDENES_ENDE);
+            hull = hullTidslinje.intersection(intervallEtterTermin).stream()
+                .filter(MorsJustering::harVirkedager)
+                .map(seg -> kopier(seg.getValue(), seg.getFom(), seg.getTom()))
+                .toList();
+        }
+
+        var ikkeFlyttbarePerioderFraOppgittePerioder = oppgittePerioder.stream()
+            .filter(periode -> !erPeriodeFlyttbar(periode))
+            .toList();
+        return Stream.concat(hull.stream(), ikkeFlyttbarePerioderFraOppgittePerioder.stream())
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .toList();
     }
 
     private List<OppgittPeriodeEntitet> fjernPerioderEtterSisteSøkteDato(List<OppgittPeriodeEntitet> justertePerioder, LocalDate sisteSøkteDato) {
@@ -635,12 +625,6 @@ class MorsJustering implements ForelderFødselJustering {
         }).toList();
     }
 
-    private static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
-        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode)
-            .medPeriode(flyttFraHelgTilMandag(nyFom), flyttFraHelgTilFredag(nyTom))
-            .build();
-    }
-
 
     /**
      * Sjekk om perioden er flyttbar. Perioden er ikke flyttbar dersom det er en utsettelse, opphold, en gradert periode
@@ -650,16 +634,12 @@ class MorsJustering implements ForelderFødselJustering {
      * @return true dersom perioden kan flyttes, ellers false.
      */
     private static boolean erPeriodeFlyttbar(OppgittPeriodeEntitet periode) {
-        //Perioder opprettet i interlogikk
-        if (periode instanceof JusterPeriodeHull) {
-            return false;
-        }
         if (periode.isUtsettelse() || periode.isOpphold() || periode.isGradert()) {
             return false;
         }
         if (periode.isSamtidigUttak()) {
             //Mødrekvote med samtidig uttak skal flyttes
-            return UttakPeriodeType.MØDREKVOTE.equals(periode.getPeriodeType());
+            return MØDREKVOTE.equals(periode.getPeriodeType());
         }
         return true;
     }

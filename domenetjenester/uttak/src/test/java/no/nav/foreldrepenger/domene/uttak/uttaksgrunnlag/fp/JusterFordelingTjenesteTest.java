@@ -320,6 +320,20 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
+    void ingen_flyttbare_perioder_fører_til_hull_og_skal_ikke_fylles_ved_fødsel_før_termin() {
+        var termin = LocalDate.of(2019, 8, 20);
+        var gradering = lagGradering(MØDREKVOTE, termin, termin.plusWeeks(15).minusDays(1), BigDecimal.TEN);
+
+        var oppgittePerioder = List.of(gradering);
+
+        var fødsel = termin.minusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.getFirst()).isEqualTo(gradering);
+    }
+
+    @Test
     void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_de_to_siste_periodene_ikke_er_flyttbare() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 23));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 26), LocalDate.of(2019, 8, 26), ARBEID);
@@ -1136,9 +1150,8 @@ class JusterFordelingTjenesteTest {
 
         var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
 
-        assertThat(justertePerioder).hasSize(2);
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom().plusWeeks(1));
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.getFirst()).isEqualTo(oppgittePerioder.getFirst());
     }
 
     @Test //Unntak: Skal justere mødrekvote
