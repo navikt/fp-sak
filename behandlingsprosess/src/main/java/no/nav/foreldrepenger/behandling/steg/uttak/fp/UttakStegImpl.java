@@ -52,8 +52,8 @@ public class UttakStegImpl implements UttakSteg {
     private final FagsakRepository fagsakRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierUttaktjeneste;
-    private LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private final LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo;
+    private final YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public UttakStegImpl(BehandlingRepositoryProvider repositoryProvider,
@@ -89,7 +89,7 @@ public class UttakStegImpl implements UttakSteg {
         try {
             loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(input);
         } catch (Exception e){
-            LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på saksnummer {}", input.getBehandlingReferanse().saksnummer(), e);
+            LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på {}", input.getBehandlingReferanse().saksnummer(), e);
         }
 
         beregnStønadskontoTjeneste.beregnStønadskontoer(input);

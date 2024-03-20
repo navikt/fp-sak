@@ -31,10 +31,13 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 @ApplicationScoped
 public class LoggInfoOmArbeidsforholdAktivitetskrav {
     private static final Logger LOG = LoggerFactory.getLogger(LoggInfoOmArbeidsforholdAktivitetskrav.class);
-    private final RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private final PersonopplysningTjeneste personopplysningTjeneste;
-    private final ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
+    private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
 
+    LoggInfoOmArbeidsforholdAktivitetskrav() {
+        //CDI
+    }
 
     @Inject
     public LoggInfoOmArbeidsforholdAktivitetskrav(RelatertBehandlingTjeneste relatertBehandlingTjeneste,
@@ -134,23 +137,22 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
         return new LocalDateTimeline<>(arbeidsforholdInfo.stream()
             .flatMap(a -> a.permisjoner().stream())
             .map(permisjon -> new LocalDateSegment<>(permisjon.periode().getFomDato(), permisjon.periode().getFomDato(), permisjon.prosent()))
-            .toList(), lagBigDesimalSum())
+            .toList(), bigDesimalSum())
             .crossJoin(lagTidslinjeMedNull(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide);
     }
 
-    private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, BigDecimal> lagBigDesimalSum() {
+    private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, BigDecimal> bigDesimalSum() {
         return StandardCombinators::sum;
     }
 
     private static LocalDateTimeline<BigDecimal> stillingsprosentTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo,
                                                                            LocalDate fraDato,
                                                                            LocalDate tilDato) {
-
         return new LocalDateTimeline<>(arbeidsforholdInfo.stream()
             .flatMap(a -> a.aktivitetsavtaler().stream())
             .map(aktivitetAvtale -> new LocalDateSegment<>(aktivitetAvtale.periode().getFomDato(), aktivitetAvtale.periode().getFomDato(),
                 aktivitetAvtale.stillingsprosent()))
-            .toList(), lagBigDesimalSum())
+            .toList(), bigDesimalSum())
             .crossJoin(lagTidslinjeMedNull(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide);
     }
 

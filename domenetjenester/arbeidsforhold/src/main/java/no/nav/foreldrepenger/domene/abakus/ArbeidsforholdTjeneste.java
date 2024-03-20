@@ -50,7 +50,7 @@ public class ArbeidsforholdTjeneste {
 
         return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
                 .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
-                .collect(Collectors.groupingBy(this::mapTilArbeidsgiver,
+                .collect(Collectors.groupingBy(ArbeidsforholdTjeneste::mapTilArbeidsgiver,
                         flatMapping(
                                 im -> Stream.of(EksternArbeidsforholdRef
                                         .ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)),
@@ -59,15 +59,14 @@ public class ArbeidsforholdTjeneste {
 
     public List<ArbeidsforholdMedPermisjon> hentArbeidsforholdInfoForEnPeriode(AktørId ident, LocalDate fradato, LocalDate tildato, FagsakYtelseType ytelseType) {
         var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
-        var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(tildato, fradato), ytelse);
-
+        var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(fradato, tildato), ytelse);
         return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
             .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
-            .map(this::mapArbeidsforholdMedPermisjon)
+            .map(ArbeidsforholdTjeneste::mapArbeidsforholdMedPermisjon)
             .toList();
     }
 
-    private Arbeidsgiver mapTilArbeidsgiver(ArbeidsforholdDto arbeidsforhold) {
+    private static Arbeidsgiver mapTilArbeidsgiver(ArbeidsforholdDto arbeidsforhold) {
         var arbeidsgiver = arbeidsforhold.getArbeidsgiver();
         if (arbeidsgiver.getErOrganisasjon()) {
             return Arbeidsgiver.virksomhet(arbeidsgiver.getIdent());
@@ -78,16 +77,34 @@ public class ArbeidsforholdTjeneste {
         throw new IllegalArgumentException("Arbeidsgiver er verken person eller organisasjon");
     }
 
-    private  ArbeidsforholdMedPermisjon mapArbeidsforholdMedPermisjon(ArbeidsforholdDto dto) {
-        return new ArbeidsforholdMedPermisjon(mapTilArbeidsgiver(dto), no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.fraKode(dto.getType().getKode()), EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId().getEksternReferanse()),
-            dto.getArbeidsavtaler().stream().map(this::mapTilAktivitetsavtale).toList(), dto.getPermisjoner().stream().map(this::mapTilPermisjon).toList());
+    private static ArbeidsforholdMedPermisjon mapArbeidsforholdMedPermisjon(ArbeidsforholdDto dto) {
+        return new ArbeidsforholdMedPermisjon(
+            mapTilArbeidsgiver(dto),
+            no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.fraKode(dto.getType().getKode()),
+            EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId().getEksternReferanse()),
+            tilAktivitetsavtale(dto.getArbeidsavtaler()),
+            tilPermisjoner(dto.getPermisjoner()));
     }
 
-    private Permisjon mapTilPermisjon(PermisjonDto permisjonDto) {
+    private static List<Permisjon> tilPermisjoner(List<PermisjonDto> permisjoner) {
+        if (permisjoner == null) {
+            return List.of();
+        }
+        return permisjoner.stream().map(ArbeidsforholdTjeneste::mapTilPermisjon).toList();
+    }
+
+    private static List<AktivitetAvtale> tilAktivitetsavtale(List<ArbeidsavtaleDto> arbeidsavtaler) {
+        if (arbeidsavtaler == null) {
+            return List.of();
+        }
+        return arbeidsavtaler.stream().map(ArbeidsforholdTjeneste::mapTilAktivitetsavtale).toList();
+    }
+
+    private static Permisjon mapTilPermisjon(PermisjonDto permisjonDto) {
         return new Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(permisjonDto.getPeriode().getFom(), permisjonDto.getPeriode().getTom()), PermisjonsbeskrivelseType.fraKode(permisjonDto.getType().getKode()), permisjonDto.getProsentsats());
     }
 
-    private AktivitetAvtale mapTilAktivitetsavtale(ArbeidsavtaleDto arbeidsavtaleDto) {
+    private static AktivitetAvtale mapTilAktivitetsavtale(ArbeidsavtaleDto arbeidsavtaleDto) {
         return new AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsavtaleDto.periode().getFom(), arbeidsavtaleDto.periode().getTom()), arbeidsavtaleDto.stillingsprosent());
     }
 
