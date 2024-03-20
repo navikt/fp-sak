@@ -75,10 +75,11 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
                                          Saksnummer saksnummer, boolean harAnnenForelderRett,
                                          List<OppgittPeriodeEntitet> aktuellePerioder,
                                          List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
-        var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo, fraDato, tilDato);
-        var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo, fraDato, tilDato);
+        var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo);
+        var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo);
         var grunnlagTidslinje = stillingsprosentTidslinje
             .crossJoin(permisjonProsentTidslinje, bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
+            .crossJoin(lagTidslinjeMed0(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide)
             .compress();
 
         var loggPrefiks = String.format("INFO-AKTIVITETSKRAV: %s (%s)", harAnnenForelderRett ? "BEGGE_RETT" : "BARE_FAR_RETT", saksnummer);
@@ -88,7 +89,10 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
 
     private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, AktivitetskravVurderingGrunnlag> bigDecimalTilAktivitetskravVurderingGrunnlagCombinator() {
         return (localDateInterval, stillingsprosent, permisjonsprosent) -> new LocalDateSegment<>(localDateInterval,
-            new AktivitetskravVurderingGrunnlag(stillingsprosent.getValue(), permisjonsprosent.getValue()));
+            new AktivitetskravVurderingGrunnlag(
+                stillingsprosent != null ? stillingsprosent.getValue() : BigDecimal.ZERO,
+                permisjonsprosent != null ? permisjonsprosent.getValue() : BigDecimal.ZERO)
+        );
     }
 
     private static void vurderOgLogg(OppgittPeriodeEntitet periode, LocalDateTimeline<AktivitetskravVurderingGrunnlag> grunnlagTidslinje, String loggPrefiks) {
@@ -130,34 +134,28 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
             .orElseThrow();
     }
 
-    private static LocalDateTimeline<BigDecimal> permisjonTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo,
-                                                                    LocalDate fraDato,
-                                                                    LocalDate tilDato) {
+    private static LocalDateTimeline<BigDecimal> permisjonTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
         //sørger for at hull blir 0% og at de permisjonene som overlapper  per arbeidsforhold summeres
         return new LocalDateTimeline<>(arbeidsforholdInfo.stream()
             .flatMap(a -> a.permisjoner().stream())
-            .map(permisjon -> new LocalDateSegment<>(permisjon.periode().getFomDato(), permisjon.periode().getFomDato(), permisjon.prosent()))
-            .toList(), bigDesimalSum())
-            .crossJoin(lagTidslinjeMedNull(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide);
+            .map(permisjon -> new LocalDateSegment<>(permisjon.periode().getFomDato(), permisjon.periode().getTomDato(), permisjon.prosent()))
+            .toList(), bigDesimalSum());
     }
 
     private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, BigDecimal> bigDesimalSum() {
         return StandardCombinators::sum;
     }
 
-    private static LocalDateTimeline<BigDecimal> stillingsprosentTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo,
-                                                                           LocalDate fraDato,
-                                                                           LocalDate tilDato) {
+    private static LocalDateTimeline<BigDecimal> stillingsprosentTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
         return new LocalDateTimeline<>(arbeidsforholdInfo.stream()
             .flatMap(a -> a.aktivitetsavtaler().stream())
-            .map(aktivitetAvtale -> new LocalDateSegment<>(aktivitetAvtale.periode().getFomDato(), aktivitetAvtale.periode().getFomDato(),
+            .map(aktivitetAvtale -> new LocalDateSegment<>(aktivitetAvtale.periode().getFomDato(), aktivitetAvtale.periode().getTomDato(),
                 aktivitetAvtale.stillingsprosent()))
-            .toList(), bigDesimalSum())
-            .crossJoin(lagTidslinjeMedNull(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide);
+            .toList(), bigDesimalSum());
     }
 
-    private static LocalDateTimeline<BigDecimal> lagTidslinjeMedNull(LocalDate fraDato, LocalDate tilDato) {
-        return new LocalDateTimeline<>(fraDato, tilDato, BigDecimal.ZERO);
+    private static LocalDateTimeline<AktivitetskravVurderingGrunnlag> lagTidslinjeMed0(LocalDate fraDato, LocalDate tilDato) {
+        return new LocalDateTimeline<>(fraDato, tilDato, new AktivitetskravVurderingGrunnlag(BigDecimal.ZERO, BigDecimal.ZERO));
     }
 
     private static AktivitetskravVurdering vurderPeriode(AktivitetskravVurderingGrunnlag aktivitetskravVurderingGrunnlag) {
