@@ -28,7 +28,7 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
 
 
     @Test
-    void en_periode_med_ett_arbeidsforhold_aktivitetskrav_ok() {
+    void en_periode_med_to_arbeidsforhold_aktivitetskrav_ikke_ok() {
         var fraDato = LocalDate.of(2020, 1, 1);
         var tilDato = LocalDate.of(2021, 1, 1);
         var harAnnenForelderRett = true;
@@ -47,27 +47,28 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
             Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
             ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
             null,
-            List.of(arbeidsavtale(fraDato, tilDato, 100)),
+            List.of(arbeidsavtale(tilDato.minusMonths(1), tilDato, 100)),
             List.of()
         );
         var arbeidsforholdMedPermisjon = new ArbeidsforholdMedPermisjon(
             Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
             ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
             null,
-            List.of(arbeidsavtale(fraDato, tilDato, 50)),
-            List.of(permisjon(fraDato, tilDato, 100))
+            List.of(arbeidsavtale(fraDato.minusMonths(2), fraDato.plusMonths(1), 50)),
+            List.of(permisjon(tilDato.minusMonths(1), tilDato, 50))
         );
+
         var arbeidsforholdInfo = List.of(arbeidsforholdUtenPerminsjon, arbeidsforholdMedPermisjon);
 
         assertThatCode(() -> loggInfoOmArbeidsforhold(fraDato, tilDato, saksnummer, harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo))
             .doesNotThrowAnyException();
     }
 
-    private static ArbeidsforholdTjeneste.AktivitetAvtale arbeidsavtale(LocalDate fraDato, LocalDate tilDato, int stillingsprosent) {
+    private static ArbeidsforholdTjeneste.AktivitetAvtale arbeidsavtale(LocalDate fraDato, LocalDate tilDato, Integer stillingsprosent) {
         return new ArbeidsforholdTjeneste.AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), BigDecimal.valueOf(stillingsprosent));
     }
 
-    private static ArbeidsforholdTjeneste.Permisjon permisjon(LocalDate fraDato, LocalDate tilDato, int permisjonsprosent) {
-        return new ArbeidsforholdTjeneste.Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), PermisjonsbeskrivelseType.PERMISJON, BigDecimal.valueOf(permisjonsprosent));
+    private static ArbeidsforholdTjeneste.Permisjon permisjon(LocalDate fraDato, LocalDate tilDato, Integer permisjonsprosent) {
+        return new ArbeidsforholdTjeneste.Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), PermisjonsbeskrivelseType.PERMISJON, permisjonsprosent == null ? null :BigDecimal.valueOf(permisjonsprosent));
     }
 }
