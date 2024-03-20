@@ -77,12 +77,14 @@ public class AbakusTjeneste {
     private URI endpointOverstyring;
     private URI endpointLagreOverstyrtOppgittOpptjening;
     private URI endpointLagreOppgittOpptjeningNullstillOverstyring;
+    private URI endpointArbeidsforholdMedPermisjonerIPeriode;
 
     @Inject
     public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
+        this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
