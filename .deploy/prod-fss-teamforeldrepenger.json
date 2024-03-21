@@ -73,6 +73,11 @@
       "app": "fpoversikt",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "saf",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "prod-fss"
     }
   ]
 }
