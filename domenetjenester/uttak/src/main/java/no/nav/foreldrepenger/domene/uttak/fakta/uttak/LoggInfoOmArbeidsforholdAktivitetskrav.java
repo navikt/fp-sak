@@ -163,7 +163,9 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
         var sumPermisjonsprosent = aktivitetskravVurderingGrunnlag.sumPermisjonsProsent();
         var arbeidsprosent = sumStillingsprosent.subtract(sumPermisjonsprosent);
 
-        if (sumStillingsprosent.compareTo(BigDecimal.valueOf(75)) > 0) {
+        if (sumStillingsprosent.compareTo(BigDecimal.valueOf(75)) >= 0 && sumPermisjonsprosent.compareTo(BigDecimal.ZERO) > 0) {
+            return new AktivitetskravVurdering(VurderingForklaring.OK_OVER_75_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
+        } else if (sumStillingsprosent.compareTo(BigDecimal.valueOf(75)) >= 0) {
             return new AktivitetskravVurdering(VurderingForklaring.OK_OVER_75_PROSENT, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
         } else if (sumStillingsprosent.compareTo(BigDecimal.ZERO) <= 0 && sumPermisjonsprosent.compareTo(BigDecimal.ZERO) > 0) {
             return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_0_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
@@ -176,6 +178,7 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
 
     private enum VurderingForklaring {
         OK_OVER_75_PROSENT,
+        OK_OVER_75_PROSENT_MED_PERMISJON,
         IKKE_OK_UNDER_75_PROSENT,
         IKKE_OK_0_PROSENT,
         IKKE_OK_PERMISJON,
