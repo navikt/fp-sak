@@ -106,7 +106,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
-        vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
+        vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer("topic", fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
             taskTjeneste, mottakRepository);
     }
 

@@ -16,9 +16,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OppdaterPersonoversiktTask;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.hendelser.behandling.BehandlingHendelse;
@@ -30,10 +33,13 @@ import no.nav.vedtak.log.util.LoggerUtils;
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
-public class BehandlingHendelseHåndterer {
+public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaStringMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingHendelseHåndterer.class);
+    private static final Environment ENV = Environment.current();
+    private static final String PROD_GROUP_ID = "fpsak-behandling-hendelse";  // Hold konstant pga offset commit !!
 
+    private String topicName;
     private FagsakTjeneste fagsakTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private OppdaterFagsakStatusTjeneste fagsakStatusTjeneste;
@@ -42,25 +48,28 @@ public class BehandlingHendelseHåndterer {
     }
 
     @Inject
-    public BehandlingHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
+    public BehandlingHendelseHåndterer(@KonfigVerdi(value = "kafka.behandlinghendelse.topic", defaultVerdi = "teamforeldrepenger.behandling-hendelse-v1") String topicName,
+                                       FagsakTjeneste fagsakTjeneste,
                                        ProsessTaskTjeneste taskTjeneste,
                                        OppdaterFagsakStatusTjeneste fagsakStatusTjeneste) {
+        this.topicName = topicName;
         this.fagsakTjeneste = fagsakTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.fagsakStatusTjeneste = fagsakStatusTjeneste;
     }
 
-    void handleMessage(String key, String payload) {
+    @Override
+    public void handleRecord(String key, String value) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            var mottattHendelse = StandardJsonConfig.fromJson(payload, BehandlingHendelse.class);
+            var mottattHendelse = StandardJsonConfig.fromJson(value, BehandlingHendelse.class);
             if (Kildesystem.FPTILBAKE.equals(mottattHendelse.getKildesystem()) && mottattHendelse instanceof BehandlingHendelseV1 hendelseV1) {
                 handleMessageIntern(hendelseV1);
             }
         } catch (VLException e) {
-            LOG.warn("FP-328773 Behandling-Hendelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
+            LOG.warn("FP-328773 Behandling-Hendelse Feil under parsing av vedtak. key={} payload={}", key, value, e);
         } catch (Exception e) {
-            LOG.warn("Behandling-Hendelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
+            LOG.warn("Behandling-Hendelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(value), e);
         }
     }
 
@@ -110,4 +119,16 @@ public class BehandlingHendelseHåndterer {
         taskTjeneste.lagre(prosessTaskData);
     }
 
+    @Override
+    public String topic() {
+        return topicName;
+    }
+
+    @Override
+    public String groupId() {
+        if (!ENV.isProd()) {
+            return PROD_GROUP_ID + (ENV.isDev() ? "-dev" : "-vtp");
+        }
+        return PROD_GROUP_ID;
+    }
 }
