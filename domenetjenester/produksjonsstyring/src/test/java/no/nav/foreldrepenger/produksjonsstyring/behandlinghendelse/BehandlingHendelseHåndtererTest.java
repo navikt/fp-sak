@@ -61,7 +61,7 @@ class BehandlingHendelseHåndtererTest {
 
         when(fagsakTjeneste.finnFagsakGittSaksnummer(any(), anyBoolean())).thenReturn(Optional.of(fagsak));
 
-        håndterer = new BehandlingHendelseHåndterer(fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
+        håndterer = new BehandlingHendelseHåndterer("topic", fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
 
         var hendelse = new BehandlingHendelseV1.Builder()
             .medHendelseUuid(UUID.randomUUID())
@@ -77,7 +77,7 @@ class BehandlingHendelseHåndtererTest {
 
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        håndterer.handleMessage("key", StandardJsonConfig.toJson(hendelse));
+        håndterer.handleRecord("key", StandardJsonConfig.toJson(hendelse));
 
         verify(fagsakStatusTjeneste).oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
 
@@ -97,7 +97,7 @@ class BehandlingHendelseHåndtererTest {
 
         when(fagsakTjeneste.finnFagsakGittSaksnummer(any(), anyBoolean())).thenReturn(Optional.of(fagsak));
 
-        håndterer = new BehandlingHendelseHåndterer(fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
+        håndterer = new BehandlingHendelseHåndterer("topic", fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
 
         var hendelse = new BehandlingHendelseV1.Builder()
             .medHendelseUuid(UUID.randomUUID())
@@ -113,7 +113,7 @@ class BehandlingHendelseHåndtererTest {
 
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        håndterer.handleMessage("key", StandardJsonConfig.toJson(hendelse));
+        håndterer.handleRecord("key", StandardJsonConfig.toJson(hendelse));
 
         verify(fagsakStatusTjeneste).lagBehandlingAvsluttetTask(fagsak, null);
 
