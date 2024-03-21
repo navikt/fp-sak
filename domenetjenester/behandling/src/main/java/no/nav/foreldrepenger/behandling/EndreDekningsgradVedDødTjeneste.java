@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -18,8 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -27,6 +23,7 @@ public class EndreDekningsgradVedDødTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(EndreDekningsgradVedDødTjeneste.class);
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private HistorikkRepository historikkRepository;
@@ -38,10 +35,13 @@ public class EndreDekningsgradVedDødTjeneste {
 
     @Inject
     public EndreDekningsgradVedDødTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                           DekningsgradTjeneste dekningsgradTjeneste,
                                            BehandlingsresultatRepository behandlingsresultatRepository,
                                            BehandlingRepository behandlingRepository,
-                                           HistorikkRepository historikkRepository, BehandlingLåsRepository behandlingLåsRepository) {
+                                           HistorikkRepository historikkRepository,
+                                           BehandlingLåsRepository behandlingLåsRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.historikkRepository = historikkRepository;
@@ -50,11 +50,8 @@ public class EndreDekningsgradVedDødTjeneste {
 
     public void endreDekningsgradTil100(BehandlingReferanse ref) {
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        var nåværendeDekningsgrad = finnDekningsgrad(ref.saksnummer());
-        if (nåværendeDekningsgrad.isEmpty()) {
-            throw new IllegalStateException("Prøver å endre dekningsgrad uten at denne er satt.");
-        }
-        if (nåværendeDekningsgrad.get().equals(Dekningsgrad._100)) {
+        var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        if (gjeldendeDekningsgrad.equals(Dekningsgrad._100)) {
             // Eneste kjente case for å endre dekningsgrad er ved barnets død, som alltid skal ha dekningsgrad på 100.
             // Om denne allerede er satt trenger vi ikke endre
             return;
@@ -75,10 +72,6 @@ public class EndreDekningsgradVedDødTjeneste {
             .medBegrunnelse("Dekningsgraden er endret fra 80% til 100% grunnet opplysninger om død");
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
-    }
-
-    private Optional<Dekningsgrad> finnDekningsgrad(Saksnummer saksnummer) {
-        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer).map(FagsakRelasjon::getGjeldendeDekningsgrad);
     }
 
     private void oppdaterFagsakRelasjon(Behandling behandling, Dekningsgrad nyDekningsgrad) {

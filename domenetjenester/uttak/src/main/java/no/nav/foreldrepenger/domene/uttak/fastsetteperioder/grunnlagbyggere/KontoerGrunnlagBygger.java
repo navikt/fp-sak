@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -26,11 +27,15 @@ public class KontoerGrunnlagBygger {
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     @Inject
-    public KontoerGrunnlagBygger(FagsakRelasjonTjeneste fagsakRelasjonTjeneste, RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger) {
+    public KontoerGrunnlagBygger(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                 RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger,
+                                 DekningsgradTjeneste dekningsgradTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.rettOgOmsorgGrunnlagBygger = rettOgOmsorgGrunnlagBygger;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     KontoerGrunnlagBygger() {
@@ -83,7 +88,7 @@ public class KontoerGrunnlagBygger {
 
         var bareFarHarRett = rettOgOmsorg.getFarHarRett() && !rettOgOmsorg.getMorHarRett();
         var morHarUføretrygd = rettOgOmsorg.getMorUføretrygd();
-        var dekningsgrad = UttakEnumMapper.map(fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad().getVerdi());
+        var dekningsgrad = UttakEnumMapper.map(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref).getVerdi());
 
         var antallBarn = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAntallBarn();
         var flerbarnsdager = stønadskontoer.stream()

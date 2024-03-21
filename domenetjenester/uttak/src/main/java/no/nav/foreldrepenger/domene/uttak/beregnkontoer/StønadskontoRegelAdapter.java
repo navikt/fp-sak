@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -25,21 +25,21 @@ public class StønadskontoRegelAdapter {
 
     public Stønadskontoberegning beregnKontoer(BehandlingReferanse ref,
                                                YtelseFordelingAggregat ytelseFordelingAggregat,
-                                               FagsakRelasjon fagsakRelasjon,
+                                               Dekningsgrad dekningsgrad,
                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, fagsakRelasjon,
+        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
             annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
         return konverterTilStønadskontoberegning(resultat);
     }
 
     public StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                         FagsakRelasjon fagsakRelasjon,
+                                                         Dekningsgrad dekningsgrad,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat,
-            fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref);
+            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref);
 
         return stønadskontoRegel.beregnKontoer(grunnlag);
     }

@@ -7,7 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlTjeneste {
 
     private ObjectFactory beregningObjectFactory;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     public BeregningsgrunnlagXmlTjenesteImpl() {
@@ -44,9 +44,9 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     }
 
     @Inject
-    public BeregningsgrunnlagXmlTjenesteImpl(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+    public BeregningsgrunnlagXmlTjenesteImpl(DekningsgradTjeneste dekningsgradTjeneste,
                                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningObjectFactory = new ObjectFactory();
     }
@@ -61,7 +61,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlag, beregningsgrunnlagDomene.getAktivitetStatuser());
-            long dekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi();
+            var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(behandling).getVerdi();
             beregningsgrunnlag.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
             VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt()).ifPresent(beregningsgrunnlag::setSkjaeringstidspunkt);
             setBeregningsgrunnlagPerioder(beregningsgrunnlag, beregningsgrunnlagDomene.getBeregningsgrunnlagPerioder());
