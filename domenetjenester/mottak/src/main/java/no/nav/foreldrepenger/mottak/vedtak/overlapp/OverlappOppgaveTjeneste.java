@@ -53,9 +53,10 @@ public class OverlappOppgaveTjeneste {
     }
 
     private void håndterOverlappSykepenger(Gruppering gruppering, List<OverlappVedtak> overlappListe, Behandling behandling) {
-        if (Fagsystem.INFOTRYGD.equals(gruppering.fagsystem()) || overlappListe.isEmpty()) { // Utelat Infotrygd inntil det er avtalt
+        if (overlappListe.isEmpty()) { // Utelat Infotrygd inntil det er avtalt
             return;
         }
+        var system = Fagsystem.INFOTRYGD.equals(gruppering.fagsystem()) ? "Infotrygd" : "Speil";
         var minFom = overlappListe.stream()
             .map(periode -> periode.getPeriode().getFomDato())
             .min(Comparator.naturalOrder()).orElseThrow();
@@ -68,8 +69,8 @@ public class OverlappOppgaveTjeneste {
             .max(Comparator.naturalOrder()).orElse(100L);
 
         // Beskrivelse må tilpasses dersom / når det skal opprettes oppgaver ved overlapp mot Infotrygd
-        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i Speil. Vurder konsekvens for ytelse.",
-            foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom );
+        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i %s. Vurder konsekvens for ytelse.",
+            foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom, system );
         oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
 
     }
