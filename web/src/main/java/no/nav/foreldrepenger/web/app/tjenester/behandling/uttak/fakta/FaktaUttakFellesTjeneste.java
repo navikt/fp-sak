@@ -10,6 +10,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -37,6 +40,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.Ytelse
 
 @ApplicationScoped
 class FaktaUttakFellesTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FaktaUttakFellesTjeneste.class);
 
     private UttakInputTjeneste uttakInputtjeneste;
     private FaktaUttakAksjonspunktUtleder utleder;
@@ -136,7 +141,8 @@ class FaktaUttakFellesTjeneste {
         var perioder = hentGjeldendeFordeling(behandlingId);
         var reutlededAp = utleder.utledAksjonspunkterFor(input, perioder);
         if (!reutlededAp.isEmpty()) {
-            throw new IllegalStateException("Lagrede perioder fører til at aksjonspunkt reutledes " + reutlededAp + " - "  + behandlingId);
+            LOG.info("Lagrede perioder fører til at aksjonspunkt reutledes {}", reutlededAp);
+            throw new FaktaOmUttakReutledetAksjonspunkt();
         }
     }
 

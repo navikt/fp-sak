@@ -7,7 +7,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGru
 public class StønadskontoRegelOversetter {
 
     public BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                FagsakRelasjon fagsakRelasjon,
+                                                Dekningsgrad dekningsgrad,
                                                 Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag,
                                                 BehandlingReferanse ref) {
@@ -27,7 +27,7 @@ public class StønadskontoRegelOversetter {
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .antallBarn(familieHendelse.getAntallBarn())
-            .dekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
+            .dekningsgrad(map(dekningsgrad.getVerdi()));
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
 

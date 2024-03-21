@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -45,8 +46,11 @@ class MaksDatoUttakTjenesteImplTest {
 
     {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
-            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()))), fagsakRelasjonTjeneste);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var kontoerGrunnlagBygger = new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            dekningsgradTjeneste);
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, kontoerGrunnlagBygger, fagsakRelasjonTjeneste);
         maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
             repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste);
     }

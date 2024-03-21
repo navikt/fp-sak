@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -89,11 +90,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private FpUttakRepository fpUttakRepository;
-    private StønadskontoRegelAdapter stønadskontoRegelAdapter;
-    private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private SaldoerDtoTjeneste tjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -106,14 +103,17 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
-            new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository))), fagsakRelasjonTjeneste);
-        stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
-        tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
+            new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository)), dekningsgradTjeneste),
+            fagsakRelasjonTjeneste);
+        var stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
+        var tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
-        uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, stønadskontoRegelAdapter, new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), uttakTjeneste,
-            tapteDagerFpffTjeneste, fagsakRelasjonTjeneste);
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
+        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, stønadskontoRegelAdapter,
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), uttakTjeneste, tapteDagerFpffTjeneste,
+            dekningsgradTjeneste);
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
     }
 

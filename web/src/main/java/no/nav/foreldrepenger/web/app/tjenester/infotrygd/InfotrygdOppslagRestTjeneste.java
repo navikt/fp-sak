@@ -68,7 +68,7 @@ public class InfotrygdOppslagRestTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdOppslagRestTjeneste.class);
 
-    private static final LocalDate FOM = LocalDate.of(2000, 1,1);
+    private static final LocalDate FOM = LocalDate.of(2007, 1,1);
 
     static final String BASE_PATH = "/infotrygd";
     private static final String INFOTRYGD_SOK_PART_PATH = "/sok";
@@ -176,7 +176,8 @@ public class InfotrygdOppslagRestTjeneste {
             return new InfotrygdVedtakDto(List.of(), List.of());
         }
         var mappedSaker = saker.stream()
-            .map(s -> new InfotrygdVedtakDto.SakDto(mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), mapSakTermnavn(s.type()), s.vedtatt(), mapSakTermnavn(s.valg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
+            .map(s -> new InfotrygdVedtakDto.SakDto(mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), mapSakTermnavn(s.type()),
+                s.vedtatt(), mapSakStønad(s.valg(), s.undervalg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
             .sorted(Comparator.comparing(InfotrygdVedtakDto.SakDto::registrert))
             .toList();
         var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilVedtakDtoGrunnlag)
@@ -189,6 +190,14 @@ public class InfotrygdOppslagRestTjeneste {
             .map(liste -> new InfotrygdVedtakDto.VedtakKjede(liste.getFirst().identdato(), liste.getFirst().behandlingstema(), liste))
             .forEach(sortertListe::add);
         return new InfotrygdVedtakDto(mappedSaker, sortertListe);
+    }
+
+    private static String mapSakStønad(InfotrygdSak.InfotrygdKode valg, InfotrygdSak.InfotrygdKode undervalg) {
+        var tvalg = Optional.ofNullable(mapSakTermnavn(valg)).orElse("");
+        var tundervalg = Optional.ofNullable(mapSakTermnavn(undervalg))
+            .filter(v -> !v.isEmpty() && !v.isBlank())
+            .map(v -> tvalg.isEmpty() ? v : " " + v).orElse("");
+        return tvalg + tundervalg;
     }
 
     private static List<InfotrygdVedtakDto.Vedtak> sorterVedtak(List<InfotrygdVedtakDto.Vedtak> vedtak) {

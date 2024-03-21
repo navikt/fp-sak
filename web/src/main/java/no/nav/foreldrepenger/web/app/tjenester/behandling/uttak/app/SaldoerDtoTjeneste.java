@@ -19,7 +19,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -52,9 +52,9 @@ public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     public SaldoerDtoTjeneste() {
         //For CDI
@@ -66,13 +66,13 @@ public class SaldoerDtoTjeneste {
                               YtelseFordelingTjeneste ytelseFordelingTjeneste,
                               ForeldrepengerUttakTjeneste uttakTjeneste,
                               TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
-                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                              DekningsgradTjeneste dekningsgradTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.tapteDagerFpffTjeneste = tapteDagerFpffTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     public SaldoerDto lagStønadskontoerDto(UttakInput input) {
@@ -227,8 +227,8 @@ public class SaldoerDtoTjeneste {
             return Optional.empty();
         }
         var yfAggregat = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId());
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
-        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, fagsakRelasjon, annenpart, fpGrunnlag);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, dekningsgrad, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();
 

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 import static java.time.LocalDate.of;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -272,7 +273,7 @@ class PleiepengerJusteringTest {
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
         assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval.getFomDato());
-        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval.getTomDato());
+        assertThat(resultat.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(pleiepengerInterval.getTomDato()));
     }
 
     @Test

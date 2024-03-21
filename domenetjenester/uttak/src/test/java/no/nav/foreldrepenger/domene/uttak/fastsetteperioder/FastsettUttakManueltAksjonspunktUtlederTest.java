@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -35,9 +36,15 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
         new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-    private final KontoerGrunnlagBygger kontoerGrunnlagBygger = new KontoerGrunnlagBygger(
-        new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository()),
-        rettOgOmsorgGrunnlagBygger);
+    private final KontoerGrunnlagBygger kontoerGrunnlagBygger;
+
+    {
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null,
+            repositoryProvider.getFagsakRelasjonRepository());
+        kontoerGrunnlagBygger = new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
+            rettOgOmsorgGrunnlagBygger, new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository()));
+    }
+
     private final FastsettUttakManueltAksjonspunktUtleder utleder = new FastsettUttakManueltAksjonspunktUtleder(repositoryProvider,
         kontoerGrunnlagBygger);
 

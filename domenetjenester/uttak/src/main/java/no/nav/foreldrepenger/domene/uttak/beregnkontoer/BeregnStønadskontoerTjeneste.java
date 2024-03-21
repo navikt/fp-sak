@@ -6,11 +6,11 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -28,15 +28,18 @@ public class BeregnStønadskontoerTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
 
     @Inject
     public BeregnStønadskontoerTjeneste(UttakRepositoryProvider repositoryProvider,
                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                        ForeldrepengerUttakTjeneste uttakTjeneste) {
+                                        ForeldrepengerUttakTjeneste uttakTjeneste,
+                                        DekningsgradTjeneste dekningsgradTjeneste) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -47,8 +50,8 @@ public class BeregnStønadskontoerTjeneste {
 
     public void opprettStønadskontoer(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
+        var stønadskontoberegning = beregn(uttakInput);
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
-        var stønadskontoberegning = beregn(uttakInput, fagsakRelasjon);
         fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, ref.behandlingId(), stønadskontoberegning);
     }
 
@@ -56,19 +59,20 @@ public class BeregnStønadskontoerTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         var eksisterende = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
-        var ny = beregn(uttakInput, fagsakRelasjon);
+        var ny = beregn(uttakInput);
         if (inneholderEndringer(eksisterende, ny)) {
             fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), ny);
             oppdaterBehandlingsresultat(ref.behandlingId());
         }
     }
 
-    public Stønadskontoberegning beregn(UttakInput uttakInput, FagsakRelasjon fagsakRelasjon) {
+    public Stønadskontoberegning beregn(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
-        return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, fpGrunnlag);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag);
     }
 
     public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {

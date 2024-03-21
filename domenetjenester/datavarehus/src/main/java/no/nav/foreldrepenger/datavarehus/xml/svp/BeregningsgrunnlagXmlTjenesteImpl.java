@@ -8,7 +8,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -37,7 +37,7 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlTjeneste {
 
     private ObjectFactory beregningObjectFactory;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     public BeregningsgrunnlagXmlTjenesteImpl() {
@@ -45,11 +45,11 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     }
 
     @Inject
-    public BeregningsgrunnlagXmlTjenesteImpl(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+    public BeregningsgrunnlagXmlTjenesteImpl(DekningsgradTjeneste dekningsgradTjeneste,
                                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningObjectFactory = new ObjectFactory();
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     @Override
@@ -63,9 +63,9 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlagSvangerskapspenger, beregningsgrunnlagDomene.getAktivitetStatuser());
-            var fagsakRelasjonOptional = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(behandling.getFagsak().getSaksnummer());
-            if (fagsakRelasjonOptional.isPresent()) {
-                long dekningsgrad = fagsakRelasjonOptional.get().getGjeldendeDekningsgrad().getVerdi();
+            var dekningsgradOptional = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
+            if (dekningsgradOptional.isPresent()) {
+                var dekningsgrad = dekningsgradOptional.get().getVerdi();
                 beregningsgrunnlagSvangerskapspenger.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
             }
             VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt()).ifPresent(beregningsgrunnlagSvangerskapspenger::setSkjaeringstidspunkt);

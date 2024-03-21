@@ -77,12 +77,14 @@ public class AbakusTjeneste {
     private URI endpointOverstyring;
     private URI endpointLagreOverstyrtOppgittOpptjening;
     private URI endpointLagreOppgittOpptjeningNullstillOverstyring;
+    private URI endpointArbeidsforholdMedPermisjonerIPeriode;
 
     @Inject
     public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
+        this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
@@ -128,8 +130,15 @@ public class AbakusTjeneste {
         return hentFraAbakus(endpoint, responseHandler, json);
     }
 
+    public List<ArbeidsforholdDto> hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(AktørDatoRequest request) {
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdMedPermisjonerIPeriode);
+    }
+
     public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
-        var endpoint = endpointArbeidsforholdIPeriode;
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdIPeriode);
+    }
+
+    private List<ArbeidsforholdDto> hentArbeidsforholdFraEndepunkt(AktørDatoRequest request, URI endpoint) {
         var responseHandler = new AbakusResponseHandler<ArbeidsforholdDto[]>(arbeidsforholdReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);
