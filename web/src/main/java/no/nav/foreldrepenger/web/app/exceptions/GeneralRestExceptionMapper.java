@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.KanIkkeUtledeGjeldende
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingEndretException;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaOmUttakReutledetAksjonspunkt;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningException;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragForventetNedetidException;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -51,6 +52,9 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         }
         if (feil instanceof OppdragForventetNedetidException) {
             return oppdragNedetid(getExceptionMelding(feil));
+        }
+        if (feil instanceof FaktaOmUttakReutledetAksjonspunkt) {
+            return faktaUttakReutledetAksjonspunkt(getExceptionMelding(feil));
         }
         loggTilApplikasjonslogg(feil);
         return serverError(getExceptionFullFeilmelding(feil));
@@ -102,6 +106,14 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
             .status(Response.Status.BAD_REQUEST)
             .entity(new FeilDto("Det oppstod valideringsfeil på felt " + feltNavn
                 + ". Vennligst kontroller at alle feltverdier er korrekte.", valideringsfeil.getFeltFeil()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response faktaUttakReutledetAksjonspunkt(String exceptionMelding) {
+        return Response
+            .status(Response.Status.BAD_REQUEST)
+            .entity(new FeilDto(FeilType.GENERELL_FEIL, exceptionMelding))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
