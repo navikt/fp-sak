@@ -15,24 +15,29 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
+/**
+ * @deprecated Fjernes etter BestillDokumentTask tar over.
+ */
+@Deprecated(forRemoval = true)
 @ApplicationScoped
 @ProsessTask("dokumentbestiller.bestilldokument")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class DokumentBestillerTask implements ProsessTaskHandler {
 
     public static final String DOKUMENT_MAL_TYPE = "dokumentMalType";
+    public static final String OPPRINNELIG_DOKUMENT_MAL = "opprinneligDokumentMal";
     public static final String REVURDERING_VARSLING_ÅRSAK = "revurderingVarslingAarsak";
     public static final String BESTILLING_UUID = "bestillingUuid";
 
     private BehandlingRepository behandlingRepository;
-    private Brev brev;
+    private Dokument brev;
 
     DokumentBestillerTask() {
         // for CDI proxy
     }
 
     @Inject
-    public DokumentBestillerTask(BehandlingRepository behandlingRepository, Brev brev) {
+    public DokumentBestillerTask(BehandlingRepository behandlingRepository, Dokument brev) {
         this.behandlingRepository = behandlingRepository;
         this.brev = brev;
     }
@@ -44,6 +49,7 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
 
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
+
         return new DokumentbestillingV2Dto(
             behandling.getUuid(),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),

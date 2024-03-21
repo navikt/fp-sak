@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilKalkul
 import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegTilstand;
 import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegUtTilstand;
 
+import java.math.BigDecimal;
 import java.time.MonthDay;
 import java.util.Comparator;
 import java.util.List;
@@ -137,6 +138,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
             vurderVilkårInput = førsteFastsatteGrunnlagEntitet.get().getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi)
+                .map(no.nav.folketrygdloven.kalkulator.modell.typer.Beløp::fra)
                 .map(vurderVilkårInput::medUregulertGrunnbeløp)
                 .orElse(vurderVilkårInput);
         }
@@ -152,6 +154,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
                 .getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi)
+                .map(no.nav.folketrygdloven.kalkulator.modell.typer.Beløp::fra)
                 .map(vurderRefusjonBeregningsgrunnlagInput::medUregulertGrunnbeløp)
                 .orElse(vurderRefusjonBeregningsgrunnlagInput);
         }
@@ -204,6 +207,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
                 .getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi)
+                .map(no.nav.folketrygdloven.kalkulator.modell.typer.Beløp::fra)
                 .map(fordelBeregningsgrunnlagInput::medUregulertGrunnbeløp)
                 .orElse(fordelBeregningsgrunnlagInput);
         }
@@ -218,6 +222,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
                 .getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi)
+                .map(no.nav.folketrygdloven.kalkulator.modell.typer.Beløp::fra)
                 .map(fullføreBeregningsgrunnlagInput::medUregulertGrunnbeløp)
                 .orElse(fullføreBeregningsgrunnlagInput);
         }
@@ -264,5 +269,4 @@ public class KalkulatorStegProsesseringInputTjeneste {
             behandling.getId(), behandling.getOriginalBehandlingId(),
             forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), beregningsgrunnlagTilstand);
     }
-
 }

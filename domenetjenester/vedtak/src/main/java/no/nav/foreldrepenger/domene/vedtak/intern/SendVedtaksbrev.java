@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -58,6 +57,12 @@ public class SendVedtaksbrev {
             return;
         }
         var behandlingVedtak = behandlingVedtakOpt.get();
+
+        if (Vedtaksbrev.INGEN.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev())) {
+            LOG.info("Sender ikke vedtaksbrev om det er eksplisit markert med INGEN: {}", behandlingId);
+            return;
+        }
+
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (BehandlingType.ANKE.equals(behandling.getType())) {
@@ -80,17 +85,20 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (behandlingVedtak.isBeslutningsvedtak()) {
-            if (harSendtVarselOmRevurdering(behandlingId) || harFritekstBrev(behandlingVedtak)) {
+        if (Boolean.TRUE.equals(behandlingVedtak.isBeslutningsvedtak())) { // Beslutningsvedtak betyr at vedtaket er innvilget men har ingen konsekvens for ytelsen.
+            if (Boolean.TRUE.equals(harSendtVarselOmRevurdering(behandlingId)) || harFritekstBrev(behandlingVedtak)) {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
+                // Dette her håndteres videre i dokumentMalUtleder
             } else {
                 LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}", behandlingId);
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
             LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId);
-        } else {
+        } else if (gjelderForeldrepenger(behandling)){
             LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
+        } else {
+            LOG.info("Sender vedtaksbrev({}) for svangerskapspenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
         dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
     }
@@ -100,7 +108,10 @@ public class SendVedtaksbrev {
     }
 
     private boolean gjelderEngangsstønad(Behandling behandling) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType());
+        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType());
+    }
+    private boolean gjelderForeldrepenger(Behandling behandling) {
+        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType());
     }
 
     private boolean skalSendeVedtaksbrevIKlagebehandling(Behandling behandling) {

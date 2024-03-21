@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,12 +12,12 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -53,8 +53,8 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(new FagsakRelasjonTjeneste(repositoryProvider), repositoryProvider.getBehandlingsresultatRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -84,8 +84,8 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(new FagsakRelasjonTjeneste(repositoryProvider), repositoryProvider.getBehandlingsresultatRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -155,9 +155,8 @@ class StartpunktUtlederFamilieHendelseTest {
         var g1 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(originalBehandling.getId());
         var g2 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(revurdering.getId());
 
-        var relasjonTjeneste = mock(FagsakRelasjonTjeneste.class);
-        when(relasjonTjeneste.finnRelasjonForHvisEksisterer(anyLong())).thenReturn(Optional.of(new FagsakRelasjon(originalBehandling.getFagsak(), null,
-            null, null, Dekningsgrad._80, null, fødselsdato.plusYears(3))));
+        var dekningsgradTjeneste = mock(DekningsgradTjeneste.class);
+        when(dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(any(BehandlingReferanse.class))).thenReturn(Optional.of(Dekningsgrad._80));
 
         // Act/Assert
         var familieHendelseTjeneste = mock(FamilieHendelseTjeneste.class);
@@ -166,7 +165,7 @@ class StartpunktUtlederFamilieHendelseTest {
         when(familieHendelseTjeneste.hentGrunnlagPåId(1L)).thenReturn(g1);
         when(familieHendelseTjeneste.hentGrunnlagPåId(2L)).thenReturn(g2);
 
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(StartpunktType.BEREGNING);
     }
 
@@ -196,9 +195,8 @@ class StartpunktUtlederFamilieHendelseTest {
         var g1 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(originalBehandling.getId());
         var g2 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(revurdering.getId());
 
-        var relasjonTjeneste = mock(FagsakRelasjonTjeneste.class);
-        when(relasjonTjeneste.finnRelasjonForHvisEksisterer(anyLong())).thenReturn(Optional.of(new FagsakRelasjon(originalBehandling.getFagsak(), null,
-            null, null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
+        var dekningsgradTjeneste = mock(DekningsgradTjeneste.class);
+        when(dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(any(BehandlingReferanse.class))).thenReturn(Optional.of(Dekningsgrad._100));
 
         // Act/Assert
         var familieHendelseTjeneste = mock(FamilieHendelseTjeneste.class);
@@ -207,7 +205,7 @@ class StartpunktUtlederFamilieHendelseTest {
         when(familieHendelseTjeneste.hentGrunnlagPåId(1L)).thenReturn(g1);
         when(familieHendelseTjeneste.hentGrunnlagPåId(2L)).thenReturn(g2);
 
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
     }
 
@@ -237,9 +235,10 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
 
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(relasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -271,9 +270,10 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(relasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
 
-        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 

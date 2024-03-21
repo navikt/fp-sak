@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -40,6 +41,7 @@ public class OverstyrDekningsgradTjeneste {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private HistorikkRepository historikkRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
@@ -58,7 +60,8 @@ public class OverstyrDekningsgradTjeneste {
                                         @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
                                         UttakInputTjeneste uttakInputTjeneste,
-                                        FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                        FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                        DekningsgradTjeneste dekningsgradTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -68,6 +71,7 @@ public class OverstyrDekningsgradTjeneste {
         this.revurderingTjeneste = revurderingTjeneste;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     Response overstyr(@Parameter(description = "Saksnummer") @NotNull @Valid String saksnummer,
@@ -86,7 +90,7 @@ public class OverstyrDekningsgradTjeneste {
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
-        var fraVerdi = fagsakRelasjon.orElseThrow().getGjeldendeDekningsgrad();
+        var fraVerdi = dekningsgradTjeneste.finnGjeldendeDekningsgrad(fagsak.getSaksnummer());
         var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();

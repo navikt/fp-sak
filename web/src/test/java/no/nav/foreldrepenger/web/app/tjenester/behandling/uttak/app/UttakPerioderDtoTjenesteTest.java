@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -151,7 +152,8 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakPerioderDtoTjeneste tjeneste() {
-        return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider),
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
             repositoryProvider.getYtelsesFordelingRepository(),
             inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());
     }

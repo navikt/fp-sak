@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -45,7 +45,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private BehandlingRepository behandlingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
@@ -71,13 +71,13 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, behandlingsoppretter,
-                kompletthetskontroller, repositoryProvider, fpUttakTjeneste);
+                kompletthetskontroller, repositoryProvider.getBehandlingRepository(), behandlingRevurderingTjeneste, fpUttakTjeneste);
 
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
@@ -90,7 +90,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
+        behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
@@ -115,7 +115,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
+        behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.LEGEERKLÆRING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
@@ -142,7 +142,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
+        behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
@@ -168,7 +168,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
+        behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
@@ -186,6 +186,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
 
     private void avsluttBehandling(Behandling behandling, VedtakResultatType avslag) {
         behandling.avsluttBehandling();
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
 

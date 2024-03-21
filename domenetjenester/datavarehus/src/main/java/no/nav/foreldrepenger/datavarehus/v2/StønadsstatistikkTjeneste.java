@@ -19,7 +19,9 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,10 +30,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -46,6 +50,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -55,7 +61,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
@@ -76,6 +81,8 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
+import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -86,8 +93,7 @@ public class StønadsstatistikkTjeneste {
     private static final LocalDateTime SVP_ALLTID_100_PROSENT = LocalDate.of(2023, 3, 24).atStartOfDay();
 
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FagsakTjeneste fagsakTjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private FagsakRepository fagsakRepository;
@@ -103,11 +109,11 @@ public class StønadsstatistikkTjeneste {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private SøknadRepository søknadRepository;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
-                                     FagsakRelasjonRepository fagsakRelasjonRepository,
-                                     FagsakTjeneste fagsakTjeneste,
+                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                      BehandlingVedtakRepository behandlingVedtakRepository,
                                      FagsakEgenskapRepository fagsakEgenskapRepository,
                                      FagsakRepository fagsakRepository,
@@ -122,10 +128,10 @@ public class StønadsstatistikkTjeneste {
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                      SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
-                                     SøknadRepository søknadRepository) {
+                                     SøknadRepository søknadRepository,
+                                     MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
-        this.fagsakTjeneste = fagsakTjeneste;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.fagsakRepository = fagsakRepository;
@@ -141,6 +147,7 @@ public class StønadsstatistikkTjeneste {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.søknadRepository = søknadRepository;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -164,7 +171,7 @@ public class StønadsstatistikkTjeneste {
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
-        var søknadsdato = finnSøknadsdato(behandlingReferanse);
+        var søknadsdato = finnSøknadsdato(behandlingReferanse).orElse(behandling.getOpprettetDato().toLocalDate());
 
         var builder = new Builder()
             .medLovVersjon(lovVersjon)
@@ -174,6 +181,7 @@ public class StønadsstatistikkTjeneste {
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
+            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling))
             .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
             .medVedtakstidspunkt(vedtakstidspunkt)
@@ -186,7 +194,7 @@ public class StønadsstatistikkTjeneste {
             .medBehandlingId(behandlingId);
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            var rettigheter = utledRettigheter(behandling);
+            var rettigheter = utledRettigheter(behandling, familiehendelse, vedtakstidspunkt);
             rettigheter.ifPresent(f -> {
                 var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, f.rettighetType());
                 builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(f);
@@ -201,8 +209,19 @@ public class StønadsstatistikkTjeneste {
         return builder.build();
     }
 
-    private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
-        return søknadRepository.hentSøknad(behandlingReferanse.behandlingId()).getSøknadsdato();
+    private Optional<LocalDate> finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
+        return Optional.ofNullable(søknadRepository.hentSøknad(behandlingReferanse.behandlingId()))
+            .map(SøknadEntitet::getSøknadsdato)
+            .or(() -> mottatteDokumentRepository.hentMottatteDokument(behandlingReferanse.behandlingId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()))
+            .or(() -> mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()));
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
@@ -224,7 +243,7 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
-        return StønadsstatistikkBeregningMapper.mapBeregning(beregningsgrunnlag, iayGrunnlag);
+        return StønadsstatistikkBeregningMapper.mapBeregning(behandling, beregningsgrunnlag, iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
@@ -278,7 +297,11 @@ public class StønadsstatistikkTjeneste {
         if (familiehendelse.getGjelderFødsel()) {
             return HendelseType.FØDSEL;
         }
-        return familiehendelse.getType().equals(FamilieHendelseType.ADOPSJON) ? HendelseType.ADOPSJON : HendelseType.OMSORGSOVERTAKELSE;
+        if (FamilieHendelseType.OMSORG.equals(familiehendelse.getType())) {
+            return HendelseType.OMSORGSOVERTAKELSE;
+        }
+        var stebarnsAdopsjon = familiehendelse.getAdopsjon().filter(a -> Objects.equals(a.getErEktefellesBarn(), Boolean.TRUE)).isPresent();
+        return stebarnsAdopsjon ? HendelseType.STEBARNSADOPSJON : HendelseType.ADOPSJON;
     }
 
     private static List<FamilieHendelse.Barn> hentBarn(List<UidentifisertBarn> barna) {
@@ -292,7 +315,7 @@ public class StønadsstatistikkTjeneste {
     }
 
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
             .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
                 .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
@@ -331,7 +354,7 @@ public class StønadsstatistikkTjeneste {
 
     private static UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
         return switch (fagsakMarkering) {
-            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING -> UtlandsTilsnitt.NASJONAL;
+            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING, PRAKSIS_UTSETTELSE -> UtlandsTilsnitt.NASJONAL;
             case EØS_BOSATT_NORGE -> UtlandsTilsnitt.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> UtlandsTilsnitt.BOSATT_UTLAND;
         };
@@ -381,9 +404,13 @@ public class StønadsstatistikkTjeneste {
         return FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
-    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling) {
-        var fagsak = fagsakTjeneste.finnEksaktFagsak(behandling.getFagsakId());
-        var fr = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling,
+                                                                 FamilieHendelseEntitet familiehendelse,
+                                                                 LocalDateTime vedtakstidspunkt) {
+        if (familiehendelse == null) { //Avslått papirsøknad der fagsakrel er opprettet i senere behandlinger skaper trøbbel
+            return Optional.empty();
+        }
+        var fr = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), vedtakstidspunkt);
         return fr.map(fagsakRelasjon -> {
             var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
@@ -397,15 +424,21 @@ public class StønadsstatistikkTjeneste {
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             var rettighetType = utledRettighetType(yfa, konti);
-            var flerbarnsdager = gjeldendeStønadskontoberegning.stream()
-                .flatMap(b -> b.getStønadskontoer().stream())
-                .filter(sk -> sk.getStønadskontoType() == StønadskontoType.FLERBARNSDAGER)
-                .findFirst()
-                .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
-                .orElse(null);
+            var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
+            var dekningsgradEkstradager = dekningsgrad.isÅtti() ? Dekningsgrad.DEKNINGSGRAD_80 : Dekningsgrad.DEKNINGSGRAD_100;
+            var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
+            var stønadsdager = Stønadsdager.instance(null);
+            var flerbarnsdager = stønadsdager.ekstradagerFlerbarn(familiehendelse.getSkjæringstidspunkt(), familiehendelse.getAntallBarn(), dekningsgradEkstradager);
+            if (flerbarnsdager > 0) {
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER, new ForeldrepengerRettigheter.Trekkdager(flerbarnsdager)));
+            }
+            var prematurdager = familiehendelse.getGjelderAdopsjon() ? 0 :
+                stønadsdager.ekstradagerPrematur(familiehendelse.getFødselsdato().orElse(null), familiehendelse.getTermindato().orElse(null));
+            if (prematurdager > 0) {
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
+            }
 
-            var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
-            return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
+            return new ForeldrepengerRettigheter(dekningsgrad.getVerdi(), rettighetType, konti, ekstradager);
         });
     }
 
@@ -467,4 +500,48 @@ public class StønadsstatistikkTjeneste {
     private static StønadsstatistikkVedtak.Saksnummer mapSaksnummer(Saksnummer saksnummer) {
         return new StønadsstatistikkVedtak.Saksnummer(saksnummer.getVerdi());
     }
+
+    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
+        if (!behandling.erRevurdering()) {
+            return null;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerEtterKlageBehandling())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.KLAGE;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForEtterkontroll())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ETTERKONTROLL;
+        }
+        if (behandling.erManueltOpprettet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.UTTAKMANUELL;
+        }
+        if (behandling.erManueltOpprettet()) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForRelatertVedtak())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ANNENFORELDER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.NYSAK;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.PLEIEPENGER;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilPdl())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.FOLKEREGISTER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.INNTEKTSMELDING;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.REGULERING;
+        }
+        return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+    }
+
 }

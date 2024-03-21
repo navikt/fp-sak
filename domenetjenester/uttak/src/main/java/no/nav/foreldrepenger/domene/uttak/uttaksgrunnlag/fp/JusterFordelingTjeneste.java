@@ -44,8 +44,10 @@ final class JusterFordelingTjeneste {
             gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
             nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
             if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
-                justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType,
-                    ønskerJustertVedFødsel);
+                if (oppgittePerioder.isEmpty()) {
+                    throw new IllegalStateException("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør)! Termin og fødsel er på forskjellig dager.");
+                }
+                justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel);
             }
             exceptionHvisOverlapp(justert);
         }
@@ -68,8 +70,9 @@ final class JusterFordelingTjeneste {
                                                               boolean ønskerJustertVedFødsel) {
         var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
         var splitetPåFødsel = splitPåDato(gammelFamiliehendelse, fjernetHelgerFraStartOgSluttAvPerioder);
-        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ? new MorsJustering(gammelFamiliehendelse,
-            nyFamiliehendelse) : new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
+        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ?
+            new MorsJustering(gammelFamiliehendelse, nyFamiliehendelse) :
+            new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
             return justering.justerVedFødselEtterTermin(splitetPåFødsel);
         }
@@ -91,7 +94,7 @@ final class JusterFordelingTjeneste {
     private static List<OppgittPeriodeEntitet> fjernHelgerFraStartOgSlutt(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
             .filter(p -> !erHelg(p))
-            .map(p -> kopier(p, flyttFraHelgTilMandag(p.getFom()), flyttFraHelgTilFredag(p.getTom())))
+            .map(p -> kopier(p, p.getFom(), p.getTom()))
             .toList();
     }
 

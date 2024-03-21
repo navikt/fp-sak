@@ -220,8 +220,8 @@ public class Yrkesaktivitet implements IndexKey {
                 '}';
     }
 
-    void fjernPeriode(DatoIntervallEntitet aktivitetsPeriode) {
-        aktivitetsAvtale.removeIf(aa -> aa.matcherPeriode(aktivitetsPeriode));
+    void fjernAnsettelsesPeriode(DatoIntervallEntitet aktivitetsPeriode) {
+        aktivitetsAvtale.removeIf(aa -> aa.erAnsettelsesPeriode() && aa.matcherPeriode(aktivitetsPeriode));
     }
 
 }

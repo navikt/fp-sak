@@ -36,13 +36,7 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektYtelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -69,8 +63,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -131,7 +123,7 @@ public class IAYMapperTilKalkulus {
     private static OppgittOpptjeningDtoBuilder.EgenNæringBuilder mapEgenNæring(OppgittEgenNæring oppgittEgenNæring) {
         var egenNæringBuilder = OppgittOpptjeningDtoBuilder.EgenNæringBuilder.ny()
             .medPeriode(mapDatoIntervall(oppgittEgenNæring.getPeriode()))
-            .medBruttoInntekt(oppgittEgenNæring.getBruttoInntekt())
+            .medBruttoInntekt(mapTilBeløp(oppgittEgenNæring.getBruttoInntekt()))
             .medEndringDato(oppgittEgenNæring.getEndringDato())
             .medNyIArbeidslivet(oppgittEgenNæring.getNyIArbeidslivet())
             .medVirksomhetType(KodeverkTilKalkulusMapper.mapVirksomhetstype(oppgittEgenNæring.getVirksomhetType()))
@@ -156,11 +148,9 @@ public class IAYMapperTilKalkulus {
         arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(), arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
         builder.medHandling(KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling()));
         builder.medArbeidsgiver(mapArbeidsgiver(arbeidsforholdOverstyring.getArbeidsgiver()));
-        builder.medAngittArbeidsgiverNavn(arbeidsforholdOverstyring.getArbeidsgiverNavn());
         builder.medAngittStillingsprosent(arbeidsforholdOverstyring.getStillingsprosent() == null ? null : new Stillingsprosent(arbeidsforholdOverstyring.getStillingsprosent().getVerdi()));
         builder.medArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef()));
         builder.medNyArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef()));
-        builder.medBeskrivelse(arbeidsforholdOverstyring.getBegrunnelse());
 
         return builder;
     }
@@ -183,8 +173,8 @@ public class IAYMapperTilKalkulus {
         var builder = InntektsmeldingDtoBuilder.builder();
         builder.medArbeidsgiver(mapArbeidsgiver(inntektsmelding.getArbeidsgiver()));
         builder.medArbeidsforholdId(mapArbeidsforholdRef(inntektsmelding.getArbeidsforholdRef()));
-        builder.medRefusjon(inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(), inntektsmelding.getRefusjonOpphører());
-        builder.medBeløp(inntektsmelding.getInntektBeløp().getVerdi());
+        builder.medRefusjon(mapTilBeløp(inntektsmelding.getRefusjonBeløpPerMnd()), inntektsmelding.getRefusjonOpphører());
+        builder.medBeløp(mapTilBeløp(inntektsmelding.getInntektBeløp()));
         inntektsmelding.getNaturalYtelser().stream().map(IAYMapperTilKalkulus::mapNaturalYtelse).forEach(builder::leggTil);
         inntektsmelding.getStartDatoPermisjon().ifPresent(builder::medStartDatoPermisjon);
         inntektsmelding.getEndringerRefusjon().forEach(refusjon -> builder.leggTil(mapRefusjon(refusjon)));
@@ -192,11 +182,11 @@ public class IAYMapperTilKalkulus {
     }
 
     private static NaturalYtelseDto mapNaturalYtelse(NaturalYtelse naturalYtelse) {
-        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(), naturalYtelse.getBeloepPerMnd().getVerdi(), KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType()));
+        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(), mapTilBeløp(naturalYtelse.getBeloepPerMnd()), KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType()));
     }
 
     private static RefusjonDto mapRefusjon(Refusjon refusjon) {
-        return new RefusjonDto(refusjon.getRefusjonsbeløp().getVerdi(), refusjon.getFom());
+        return new RefusjonDto(mapTilBeløp(refusjon.getRefusjonsbeløp()), refusjon.getFom());
     }
 
     private static AktivitetsAvtaleDtoBuilder mapAktivitetsAvtale(AktivitetsAvtale aktivitetsAvtale) {
@@ -244,7 +234,7 @@ public class IAYMapperTilKalkulus {
 
     private static PermisjonDtoBuilder mapPermisjon(Permisjon perm) {
         return PermisjonDtoBuilder.ny()
-            .medProsentsats(perm.getProsentsats().getVerdi())
+            .medProsentsats(mapTilProsent(perm.getProsentsats()))
             .medPeriode(mapDatoIntervall(perm.getPeriode()))
             .medPermisjonsbeskrivelseType(mapPermisjontype(perm.getPermisjonsbeskrivelseType()));
     }
@@ -281,7 +271,7 @@ public class IAYMapperTilKalkulus {
 
     private static InntektspostDtoBuilder mapInntektspost(Inntektspost inntektspost) {
         var builder = InntektspostDtoBuilder.ny();
-        builder.medBeløp(inntektspost.getBeløp().getVerdi());
+        builder.medBeløp(mapTilBeløp(inntektspost.getBeløp()));
         builder.medInntektspostType(KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()));
         builder.medPeriode(inntektspost.getPeriode().getFomDato(), inntektspost.getPeriode().getTomDato());
         builder.medSkatteOgAvgiftsregelType(inntektspost.getSkatteOgAvgiftsregelType() == null ? null : KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
@@ -289,6 +279,7 @@ public class IAYMapperTilKalkulus {
 
         return builder;
     }
+
 
     private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid,
                                                                                         List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
@@ -331,45 +322,31 @@ public class IAYMapperTilKalkulus {
     private static YtelseDtoBuilder mapYtelse(Ytelse ytelse) {
         var builder = YtelseDtoBuilder.ny();
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
-        ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(builder::medVedtaksDagsats);
+        ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(b -> builder.medVedtaksDagsats(mapTilBeløp(b)));
         builder.medPeriode(mapDatoIntervall(ytelse.getPeriode()));
-        builder.medYtelseType(YtelseType.fraKode(ytelse.getRelatertYtelseType().getKode()));
+        builder.medYtelseType(KodeverkTilKalkulusMapper.mapYtelsetype(ytelse.getRelatertYtelseType()));
         return builder;
     }
 
     private static YtelseAnvistDto mapYtelseAnvist(YtelseAnvist ytelseAnvist) {
         var builder = YtelseAnvistDtoBuilder.ny();
         builder.medAnvistPeriode(Intervall.fraOgMedTilOgMed(ytelseAnvist.getAnvistFOM(), ytelseAnvist.getAnvistTOM()));
-        ytelseAnvist.getBeløp().ifPresent(beløp -> builder.medBeløp(beløp.getVerdi()));
-        ytelseAnvist.getDagsats().ifPresent(dagsats -> builder.medDagsats(dagsats.getVerdi()));
-        ytelseAnvist.getUtbetalingsgradProsent().ifPresent(stillingsprosent -> builder.medUtbetalingsgradProsent(stillingsprosent.getVerdi()));
+        ytelseAnvist.getBeløp().ifPresent(beløp -> builder.medBeløp(mapTilBeløp(beløp.getVerdi())));
+        ytelseAnvist.getDagsats().ifPresent(dagsats -> builder.medDagsats(mapTilBeløp(dagsats.getVerdi())));
+        ytelseAnvist.getUtbetalingsgradProsent().ifPresent(stillingsprosent -> builder.medUtbetalingsgradProsent(mapTilProsent(stillingsprosent)));
         return builder.build();
     }
 
-    static no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType mapInntektspostType(InntektspostType type) {
-        return switch (type) {
-            case UDEFINERT -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.UDEFINERT;
-            case LØNN -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.LØNN;
-            case YTELSE -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.YTELSE;
-            case VANLIG -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.VANLIG;
-            case SELVSTENDIG_NÆRINGSDRIVENDE -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE;
-            case NÆRING_FISKE_FANGST_FAMBARNEHAGE -> no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE;
-            case null -> null;
-        };
+    private static Stillingsprosent mapTilProsent(no.nav.foreldrepenger.domene.typer.Stillingsprosent prosent) {
+        return prosent == null ? null : Stillingsprosent.fra(prosent.getVerdi());
     }
 
-
-    static no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType mapSkatteOgAvgitsregelType(SkatteOgAvgiftsregelType type) {
-        return switch (type) {
-            case SÆRSKILT_FRADRAG_FOR_SJØFOLK -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.SÆRSKILT_FRADRAG_FOR_SJØFOLK;
-            case SVALBARD -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.SVALBARD;
-            case SKATTEFRI_ORGANISASJON -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.SKATTEFRI_ORGANISASJON;
-            case NETTOLØNN_FOR_SJØFOLK -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.NETTOLØNN_FOR_SJØFOLK;
-            case NETTOLØNN -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.NETTOLØNN;
-            case KILDESKATT_PÅ_PENSJONER -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.KILDESKATT_PÅ_PENSJONER;
-            case JAN_MAYEN_OG_BILANDENE -> no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType.JAN_MAYEN_OG_BILANDENE;
-            case UDEFINERT -> null;
-            case null -> null;
-        };
+    private static no.nav.folketrygdloven.kalkulator.modell.typer.Beløp mapTilBeløp(BigDecimal verdi) {
+        return no.nav.folketrygdloven.kalkulator.modell.typer.Beløp.fra(verdi);
     }
+
+    private static no.nav.folketrygdloven.kalkulator.modell.typer.Beløp mapTilBeløp(Beløp beløp) {
+        return beløp == null ? null : no.nav.folketrygdloven.kalkulator.modell.typer.Beløp.fra(beløp.getVerdi());
+    }
+
 }

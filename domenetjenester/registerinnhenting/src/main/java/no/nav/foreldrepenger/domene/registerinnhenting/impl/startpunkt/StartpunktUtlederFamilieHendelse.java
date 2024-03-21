@@ -4,13 +4,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
@@ -23,18 +22,19 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     StartpunktUtlederFamilieHendelse() {
         // For CDI
     }
 
     @Inject
-    StartpunktUtlederFamilieHendelse(SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, FamilieHendelseTjeneste familieHendelseTjeneste,
-                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    StartpunktUtlederFamilieHendelse(SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     FamilieHendelseTjeneste familieHendelseTjeneste,
+                                     DekningsgradTjeneste dekningsgradTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     @Override
@@ -105,8 +105,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var dødfødsel1 = grunnlag1.getGjeldendeBekreftetVersjon().filter(FamilieHendelseEntitet::getInnholderDøfødtBarn).isPresent();
         var dødfødsel2 = grunnlag2.getGjeldendeBekreftetVersjon().filter(FamilieHendelseEntitet::getInnholderDøfødtBarn).isPresent();
 
-        return dødfødsel1 != dødfødsel2 && fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(referanse.fagsakId())
-            .map(FagsakRelasjon::getGjeldendeDekningsgrad)
+        return dødfødsel1 != dødfødsel2 && dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(referanse)
             .filter(Dekningsgrad._80::equals)
             .isPresent();
 

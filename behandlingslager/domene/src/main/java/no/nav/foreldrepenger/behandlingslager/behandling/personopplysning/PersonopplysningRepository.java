@@ -122,6 +122,8 @@ public class PersonopplysningRepository {
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);
         utførUpdate(entityManager.createNativeQuery("UPDATE SO_ANNEN_PART SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE GR_UFORETRYGD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PSB_INNLAGT_PERIODE SET PLEIETRENGENDE_AKTOER_ID = :gjeldende WHERE PLEIETRENGENDE_AKTOER_ID = :gammel"), gammel, gjeldende);
         entityManager.flush();
     }
 

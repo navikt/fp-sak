@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,10 +18,10 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_AVSLAG("AVSFOR"),
     FORELDREPENGER_OPPHØR("OPPFOR"),
     FORELDREPENGER_ANNULLERT("ANUFOR"),
-    FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF"),
     SVANGERSKAPSPENGER_INNVILGELSE("INVSVP"),
     SVANGERSKAPSPENGER_OPPHØR("OPPSVP"),
     SVANGERSKAPSPENGER_AVSLAG("AVSSVP"),
+    FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF"),
     INNHENTE_OPPLYSNINGER("INNOPP"),
     VARSEL_OM_REVURDERING("VARREV"),
     INFO_OM_HENLEGGELSE("IOHENL"),
@@ -37,6 +36,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
     ENDRING_UTBETALING ("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
+    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
 
     // Må gjeninnføre for å flytte anker
     @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
@@ -116,11 +116,6 @@ public enum DokumentMalType implements Kodeverdi {
         return KLAGE_VEDTAKSBREV.contains(brev);
     }
 
-    public static String utledDokumentTittel(String malKode) {
-        Objects.requireNonNull(malKode);
-        return utledDokumentTittel(fraKode(malKode));
-    }
-
     public static boolean erOversendelsesBrev(DokumentMalType brev) {
         return Set.of(DokumentMalType.KLAGE_OVERSENDT, KLAGE_OVERSENDT_DOK, KLAGE_OVERSENDT_FRITEKST).contains(brev);
     }
@@ -164,6 +159,7 @@ public enum DokumentMalType implements Kodeverdi {
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Melding om ny vurdering av tidligere avslag";
         };
     }
 }

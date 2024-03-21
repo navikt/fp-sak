@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -250,11 +249,13 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private boolean harRefusjonskrav(Behandling behandling) {
-        return !FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling() &&
-            inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId())).stream()
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
+            return false;
+        }
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()));
+        return !inntektsmeldinger.isEmpty() && inntektsmeldinger.stream()
             .map(Inntektsmelding::getRefusjonBeløpPerMnd)
-            .filter(Objects::nonNull)
-            .anyMatch(beløp -> beløp.compareTo(Beløp.ZERO) > 0);
+            .allMatch(beløp -> beløp != null && beløp.compareTo(Beløp.ZERO) > 0);
     }
 
     public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
@@ -270,6 +271,7 @@ public class LosBehandlingDtoTjeneste {
             case SAMMENSATT_KONTROLL -> LosFagsakEgenskaperDto.FagsakMarkering.SAMMENSATT_KONTROLL;
             case DØD_DØDFØDSEL -> LosFagsakEgenskaperDto.FagsakMarkering.DØD;
             case SELVSTENDIG_NÆRING -> LosFagsakEgenskaperDto.FagsakMarkering.NÆRING;
+            case PRAKSIS_UTSETTELSE -> LosFagsakEgenskaperDto.FagsakMarkering.PRAKSIS_UTSETTELSE;
         };
     }
 

@@ -41,6 +41,10 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingskontroll</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandling-revurdering</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>produksjonsstyring</artifactId>
@@ -49,6 +53,10 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>uttak</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandling-prosessering</artifactId>
+        </dependency>
 
 		<!-- Infrastrukturtjeneste avhengigheter -->
 		<dependency>
@@ -74,5 +82,5 @@
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
-	</dependencies>
+    </dependencies>
 </project>

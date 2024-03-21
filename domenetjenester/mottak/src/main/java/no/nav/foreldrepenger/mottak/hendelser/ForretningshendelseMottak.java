@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -60,14 +60,14 @@ public class ForretningshendelseMottak {
         ForretningshendelseType.UTFLYTTING, f -> new UtflyttingForretningshendelse(mapToAktørIds(f), ((UtflyttingHendelseDto)f).getUtflyttingsdato(), getEndringstype(f))
     );
 
-    private Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(ForretningshendelseMottak.class);
 
     private ForretningshendelseHåndtererProvider håndtererProvider;
     private ForretningshendelseSaksvelgerProvider saksvelgerProvider;
     private FagsakRepository fagsakRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingRevurderingRepository revurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private KøKontroller køKontroller;
     private boolean isProd;
@@ -80,6 +80,7 @@ public class ForretningshendelseMottak {
     public ForretningshendelseMottak(ForretningshendelseHåndtererProvider håndtererProvider,
                                      ForretningshendelseSaksvelgerProvider saksvelgerProvider,
                                      BehandlingRepositoryProvider repositoryProvider,
+                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                      FagsakEgenskapRepository fagsakEgenskapRepository,
                                      ProsessTaskTjeneste taskTjeneste,
                                      KøKontroller køKontroller) {
@@ -87,7 +88,7 @@ public class ForretningshendelseMottak {
         this.saksvelgerProvider = saksvelgerProvider;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.taskTjeneste = taskTjeneste;
         this.køKontroller = køKontroller;
@@ -125,7 +126,7 @@ public class ForretningshendelseMottak {
         var håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());
 
         // Hent siste ytelsebehandling
-        var sisteYtelsebehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsakId).orElse(null);
+        var sisteYtelsebehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsakId).orElse(null);
 
         // Case 1: Ingen ytelsesbehandling er opprettet på fagsak - hendelse skal ikke opprette noen behandling
         if (sisteYtelsebehandling == null) {

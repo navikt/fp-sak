@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -46,7 +47,7 @@ class VurderFagsystemTjenesteImplTest {
 
     public static final long FAGSAK_EN_ID = 111L;
     public static final long FAGSAK_TO_ID = 222L;
-    private static AktørId BRUKER_ID = AktørId.dummy();
+    private static final AktørId BRUKER_ID = AktørId.dummy();
 
     private VurderFagsystemFellesTjeneste tjeneste;
     @Mock
@@ -68,7 +69,9 @@ class VurderFagsystemTjenesteImplTest {
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
-        var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null,
+            fagsakRelasjonTjeneste);
         var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, behandlingRepository, svangerskapspengerRepository);
         tjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(svpTjeneste));
     }

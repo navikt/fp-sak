@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
@@ -91,6 +92,18 @@ class SendVedtaksbrevTest {
 
         // Assert
         verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
+    }
+
+    @Test
+    void test_ingen_brev_om_vedtaksbrev_INGEN() {
+        when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.INGEN);
+
+        // Act
+        sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
+
+        // Assert
+        verify(behandlingRepository, never()).hentBehandling(behandling.getId());
+        verify(dokumentBestillerTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test

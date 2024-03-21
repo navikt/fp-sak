@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -58,7 +60,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtleder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(JpaExtension.class)
@@ -74,10 +76,11 @@ class ErEndringIUttakTest {
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private FpUttakRepository fpUttakRepository;
-    private final EndringsdatoRevurderingUtlederImpl datoRevurderingUtlederImpl = mock(
-            EndringsdatoRevurderingUtlederImpl.class);
+    private final EndringsdatoRevurderingUtleder datoRevurderingUtlederImpl = mock(
+            EndringsdatoRevurderingUtleder.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
@@ -90,12 +93,14 @@ class ErEndringIUttakTest {
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
     }
 
     private Behandling opprettRevurdering(Behandling behandlingSomSkalRevurderes) {
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
                 behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         var dato = LocalDate.now().minusMonths(3);

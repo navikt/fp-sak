@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.ARBEID;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.FERIE;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -16,12 +20,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class JusterFordelingTjenesteTest {
 
@@ -41,26 +48,20 @@ class JusterFordelingTjenesteTest {
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
     }
 
-    private List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
-        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
-            false);
-    }
-
     @Test
     void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel() {
-        var fødselsdato = LocalDate.of(2019, 1, 1);
-        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
+        var termindato = LocalDate.of(2019, 1, 1);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var oppgittePerioder = List.of(fpff);
 
         //Føder en dag før termin
-        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.minusDays(1));
+        var fødselsdato = termindato.minusDays(1);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
         //Periode skal flyttes 1 dag tidligere, men ikke før første uttak
         assertThat(justertePerioder).hasSize(1);
-        var justertFpff = justertePerioder.get(0);
-        assertThat(justertFpff.getFom()).isEqualTo(fpff.getFom());
-        //flyttes fra mandag til fredag
-        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1).minusDays(3));
+        assertThat(justertePerioder.getFirst().getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.getFirst().getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.minusDays(1))); //flyttes fra mandag til fredag
     }
 
     @Test
@@ -80,6 +81,72 @@ class JusterFordelingTjenesteTest {
         assertThat(justertFpff.getFom()).isEqualTo(fpff1.getFom());
         assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusWeeks(3));
     }
+
+    @Test
+    void normal_case_fødsel_7_uker_før_første_opprinnelige_uttaksdato() {
+        var termin = LocalDate.of(2021, 8, 11);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, termin, termin.plusWeeks(15).minusDays(1));
+        var fp = lagPeriode(FELLESPERIODE, termin.plusWeeks(15), termin.plusWeeks(31).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mk, fp);
+
+        var fødsel = termin.minusWeeks(10);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødsel.plusWeeks(15).minusDays(1));
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødsel.plusWeeks(15));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fp.getTom());
+    }
+
+    @Test
+    void normal_case_fødsel_7_uker_før_første_opprinnelige_uttaksdato_aleneomsorg() {
+        var termin = LocalDate.of(2021, 8, 11);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var fp = lagPeriode(FORELDREPENGER, termin, termin.plusWeeks(46).minusDays(1));
+        var oppgittePerioder = List.of(fpff, fp);
+
+        var fødsel = termin.minusWeeks(10);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+    }
+
+    /**
+     * F: FORELDREPENGER, U: utsettelse
+     *              ---|FFFFUU
+     *      |FFFF           UU   (Etter flytting av perioder)
+     *      |FFFFFF         UU   (Siste 2 ukene med F blir fylt på med riktig kvote)
+     *      |FFFFFFFFFF          (Fyller perioden etter dette med siste justerbare periode)
+     *      |FFFFFFFFFFFFFFFUU   (Fyller opprinnelige søkte periode) = Resultat
+     */
+    @Test
+    void fødsel_før_termin_aleneomsorg_hvor_bruker_søkt_om_utsettelse_innenfor_ukene_forbeholdt_mor_fylles_med_foreldrepenger_og_utsettelse_beholds_etter_termin() {
+        var termin = LocalDate.of(2021, 8, 11);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var fp = lagPeriode(FORELDREPENGER, termin, termin.plusWeeks(4).minusDays(1));
+        var utsettelse = lagUtsettelse(termin.plusWeeks(4), termin.plusWeeks(6).minusDays(1));
+        var oppgittePerioder = List.of(fpff, fp, utsettelse);
+
+        var fødsel = termin.minusWeeks(10);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
+
+        // Perioden mellom fødsel og fødsel + 6 uker fylles med FORELDREPENGER
+        // Perioden mellom 6 uker etter fødsl og frem til termin fylles med FORELDREPENGER
+        // Perioden etter termin som var i opprinnelig søknad fylles med siste flyttbare periode (FORELDREPENGER)
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
+    }
+
+
 
     @Test
     void antall_virkedager_for_periode_skal_være_det_samme_etter_justering() {
@@ -253,6 +320,20 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
+    void ingen_flyttbare_perioder_fører_til_hull_og_skal_ikke_fylles_ved_fødsel_før_termin() {
+        var termin = LocalDate.of(2019, 8, 20);
+        var gradering = lagGradering(MØDREKVOTE, termin, termin.plusWeeks(15).minusDays(1), BigDecimal.TEN);
+
+        var oppgittePerioder = List.of(gradering);
+
+        var fødsel = termin.minusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.getFirst()).isEqualTo(gradering);
+    }
+
+    @Test
     void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_de_to_siste_periodene_ikke_er_flyttbare() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 23));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 26), LocalDate.of(2019, 8, 26), ARBEID);
@@ -278,13 +359,21 @@ class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse1, fellesperiode, utsettelse2);
 
-        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
+        var termin = mødrekvote.getFom();
+        var fødselsdato = termin.minusDays(5);
+        var justertePerioder = juster(oppgittePerioder, termin, fødselsdato);
 
-        assertThat(justertePerioder).hasSize(5);
+        assertThat(justertePerioder).hasSize(4);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødrekvote.getTom()); // Fyller hull som oppstår innenfor de 6 første ukene etter termin hvis det er søkt om.
+        // Beholder ikke justerbare perioder etter termin
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse1);
+        assertThat(justertePerioder.get(2)).isEqualTo(fellesperiode);
+        assertThat(justertePerioder.get(3)).isEqualTo(utsettelse2);
     }
 
     @Test
-    void skal_fylle_hull_skapt_av_justering_med_siste_flyttbare_periode_før_hullet() {
+    void skal_fylle_hull_skapt_innenfor_ukene_forbeholdt_mor_med_flyttbar_mødrekvote() {
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 16), LocalDate.of(2019, 8, 16));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var mødrekvote2 = lagPeriode(FELLESPERIODE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
@@ -293,12 +382,19 @@ class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote1, utsettelse1, mødrekvote2, fellesperiode, utsettelse2);
 
-        var justertePerioder = juster(oppgittePerioder, mødrekvote1.getFom(), mødrekvote1.getFom().minusDays(7));
+        var termin = mødrekvote1.getFom();
+        var fødselsdato = termin.minusDays(7);
+        var justertePerioder = juster(oppgittePerioder, termin, fødselsdato);
 
-        assertThat(justertePerioder).hasSize(6);
-        assertThat(justertePerioder.get(4).getFom()).isEqualTo(mødrekvote2.getFom());
-        assertThat(justertePerioder.get(4).getPeriodeType()).isEqualTo(MØDREKVOTE);
-        assertThat(justertePerioder.get(4).getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder).hasSize(5);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødrekvote1.getTom()); // Fremdeles innenfor de 6 første ukene etter fødsel forbeholdt mor
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse1);
+        assertThat(justertePerioder.get(2)).isEqualTo(mødrekvote2);
+        assertThat(justertePerioder.get(3)).isEqualTo(fellesperiode);
+        assertThat(justertePerioder.get(4)).isEqualTo(utsettelse2);
     }
 
     @Test
@@ -309,10 +405,15 @@ class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse, fellesperiode);
 
-        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
+        var fødselsdato = mødrekvote.getFom().minusDays(5);
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), fødselsdato);
 
-        assertThat(justertePerioder).hasSize(4);
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(LocalDate.of(2019, 8, 16));
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødrekvote.getTom()); // Fredag
+
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
+        assertThat(justertePerioder.get(2)).isEqualTo(fellesperiode);
     }
 
     @Test
@@ -323,10 +424,15 @@ class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse, fellesperiode);
 
-        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
+        var fødselsdato = mødrekvote.getFom().minusDays(5);
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), fødselsdato);
 
-        assertThat(justertePerioder).hasSize(4);
-        assertThat(justertePerioder.get(3).getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder).hasSize(3);
+
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødrekvote.getTom()); // Fredag
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
+        assertThat(justertePerioder.get(2)).isEqualTo(fellesperiode);
     }
 
     @Test
@@ -395,23 +501,24 @@ class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel fredag
-        var justertePerioder = juster(oppgittePerioder, termin, termin.minusDays(1));
+        var fødsel = termin.minusDays(1);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
 
         assertThat(justertePerioder).hasSize(3);
-
         var justertFpff = justertePerioder.get(0);
+        var justertMødrekvote = justertePerioder.get(1);
+        var justertFellesperiode = justertePerioder.get(2);
+
         //Skal starte på fredag
         assertThat(justertFpff.getFom()).isEqualTo(fpff.getFom());
-        assertThat(justertFpff.getTom()).isEqualTo(fpff.getTom().minusDays(1));
+        assertThat(justertFpff.getTom()).isEqualTo(fødsel.minusDays(1));
 
-        var justertMødrekvote = justertePerioder.get(1);
         //Skal starte på fredag
-        assertThat(justertMødrekvote.getFom()).isEqualTo(mødrekvote.getFom().minusDays(1));
-        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom().minusDays(1));
+        assertThat(justertMødrekvote.getFom()).isEqualTo(fødsel);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom());
 
-        var justertFellesperiode = justertePerioder.get(2);
-        //Skal starte på fredag
-        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom().minusDays(1));
+        // Fellesperioden skal ikke justeres til venstre. Siden fellesperiode starter i utgangspunktet på en lørdag så endres fom til førstkommende mandag
+        assertThat(justertFellesperiode.getFom()).isEqualTo(Virkedager.justerHelgTilMandag(fellesperiode.getFom()));
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
 
@@ -461,27 +568,28 @@ class JusterFordelingTjenesteTest {
         //starter torsdag, avslutter fredag
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(1));
         //starter mandag, avslutter fredag
+        // hull
         var fellesperiode = lagPeriode(FELLESPERIODE, termin.plusDays(4), termin.plusDays(8));
 
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel lørdag
-        var justertFamilehendelse = termin.minusDays(5);
-        var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
+        var fødsel = termin.minusDays(5);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
 
         assertThat(justertePerioder).hasSize(3);
 
         var justertFpff = justertePerioder.get(0);
         assertThat(justertFpff.getFom()).isEqualTo(fpff.getFom());
-        assertThat(justertFpff.getTom()).isEqualTo(justertFamilehendelse.minusDays(1));
+        assertThat(justertFpff.getTom()).isEqualTo(fødsel.minusDays(1));
 
         var justertMødrekvote = justertePerioder.get(1);
         //mandag til tirsag
-        assertThat(justertMødrekvote.getFom()).isEqualTo(justertFamilehendelse.plusDays(2));
-        assertThat(justertMødrekvote.getTom()).isEqualTo(justertFamilehendelse.plusDays(3));
+        assertThat(justertMødrekvote.getFom()).isEqualTo(Virkedager.justerHelgTilMandag(fødsel));
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom()); // Innenfor ukene forbehold mor etter fødsel
 
         var justertFellesperiode = justertePerioder.get(2);
-        assertThat(justertFellesperiode.getFom()).isEqualTo(justertFamilehendelse.plusDays(4));
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom());
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
 
@@ -537,24 +645,16 @@ class JusterFordelingTjenesteTest {
         var justertFamilehendelse = termin.minusDays(4);
         var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
 
-        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder).hasSize(2);
+        var justertMødrekvote = justertePerioder.get(0);
+        var justertFellesperiode = justertePerioder.get(1);
 
-        var mødrekvoteFørHull = justertePerioder.get(0);
-        //torsdag til tirsdag
-        assertThat(mødrekvoteFørHull.getFom()).isEqualTo(justertFamilehendelse);
-        assertThat(mødrekvoteFørHull.getTom()).isEqualTo(justertFamilehendelse.plusDays(5));
+        // Justere perioden og fyller frem til mødrekvote tom (reste ikke søkt om)
+        assertThat(justertMødrekvote.getFom()).isEqualTo(justertFamilehendelse);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom());
 
-        var fellesperiodeFørHull = justertePerioder.get(1);
-        //onsdag til torsdag
-        assertThat(fellesperiodeFørHull.getFom()).isEqualTo(justertFamilehendelse.plusDays(6));
-        assertThat(fellesperiodeFørHull.getTom()).isEqualTo(justertFamilehendelse.plusDays(7));
-
-        //fredag til tirsdag fortsatt hull
-
-        //onsdag til fredag
-        var fellesperiodeEtterHull = justertePerioder.get(2);
-        assertThat(fellesperiodeEtterHull.getFom()).isEqualTo(justertFamilehendelse.plusWeeks(2).minusDays(1));
-        assertThat(fellesperiodeEtterHull.getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom()); // Er innenfor ukene forbehold mor. Skal ikke justeres lenger inn.
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
 
     @Test
@@ -711,32 +811,75 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(4).getTom()).isEqualTo(LocalDate.of(2019, 1, 25));
     }
 
+    /**
+     *   -  | mmmmmmm
+     *   -|mm mmmmmmm
+     */
     @Test
-    void tidlig_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
+    void tidlig_fødsel_der_familiehendelse_flyttes_innad_i_hull_hvor_hull_før_fødsel_fylles_og_hull_etter_beholdes() {
         var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
-        //hull mellom fpff og mødrekvote
-        var mk = lagPeriode(MØDREKVOTE, termin.plusDays(1), termin.plusWeeks(7).minusDays(3));
+        // Hull 2 uker mellom FFF og Termin
+        // Hull 1 uke mellom termin og mødrekvote
+        var mk = lagPeriode(MØDREKVOTE, termin.plusWeeks(1), termin.plusWeeks(7).minusDays(3));
         var oppgittePerioder = List.of(fpff, mk);
 
-        //Føder 5 dager før termin. Familehendelsedato blir flyttet innad i hullet
-        //Skal føre til at det ikke blir en endring i søknadsperiodene
-        var faktiskFødselsdato = termin.minusDays(4);
+        // Føder 1 uke før termin. Familehendelsedato blir flyttet innad i hullet
+        var faktiskFødselsdato = termin.minusWeeks(1);
         var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
-        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder).hasSize(3);
 
         assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fpff.getFom());
         assertThat(justertePerioder.get(0).getTom()).isEqualTo(fpff.getTom());
 
+        // Bevarer hull mellom fff og fødsel
+        // Bevarer IKKE hull etter fødsel, men før termin
+
         assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom());
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(faktiskFødselsdato);
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(minusVirkedag(termin));
+
+        // Bevarer hull etter termin
+
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(mk.getFom());
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
     }
 
     @Test
-    void tidlig_fødsel_der_familiehendelse_flyttes_til_ett_i_hull_ingen_virkedager_i_mellom() {
+    void hull_hvor_foreldrepenger_før_fødsel_er_eneste_tidligere_periode_fylles_med_mødrekvoten_fra_perioden_etter_og_ikke_FFF_som_eneste_periode_før_hullet() {
+        var termin = LocalDate.of(2018, 10, 1);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        // Hull 1 uke mellom termin og mødrekvote
+        var mk = lagPeriode(MØDREKVOTE, termin.plusWeeks(1), termin.plusWeeks(7).minusDays(3));
+        var oppgittePerioder = List.of(fpff, mk);
+
+        // Føder 1 uke før termin. Familehendelsedato blir flyttet innad i hullet
+        // Skal føre til at det ikke blir en endring i søknadsperiodene
+        var faktiskFødselsdato = termin.minusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(faktiskFødselsdato.minusDays(1)));
+
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(faktiskFødselsdato));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(termin.minusDays(1)));
+
+        // Hull 1 uke mellom termin og opprinnelig mødrekvote beholdes
+
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(mk.getFom());
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
+    }
+
+    @Test
+    void tidlig_fødsel_der_familiehendelse_flyttes_til_ett_i_hull_ingen_virkedager_i_mellom_skal_behold_dager_og_skyve_tilsvarende() {
         var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
         //hull mellom fpff og mødrekvote
@@ -751,10 +894,10 @@ class JusterFordelingTjenesteTest {
 
         assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fpff.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fpff.getTom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fpff.getTom()); // Skal beholde hull før fødsel
 
         assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom());
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(faktiskFødselsdato); // Skal ikke beholde hull etter fødsel som havner innenfor de ukene forbehold mor
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
     }
 
@@ -953,7 +1096,7 @@ class JusterFordelingTjenesteTest {
         var justertFpff = justertePerioder.get(0);
         assertThat(justertFpff.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
         assertThat(justertFpff.getFom()).isEqualTo(fpff.getFom());
-        assertThat(justertFpff.getTom()).isEqualTo(justertFødselsdato.minusDays(3));
+        assertThat(justertFpff.getTom()).isEqualTo(flyttFraHelgTilFredag(justertFødselsdato.minusDays(1)));
 
         var justertMk = justertePerioder.get(1);
         assertThat(justertMk.getPeriodeType()).isEqualTo(MØDREKVOTE);
@@ -1007,13 +1150,12 @@ class JusterFordelingTjenesteTest {
 
         var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
 
-        assertThat(justertePerioder).hasSize(2);
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom().plusWeeks(1));
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.getFirst()).isEqualTo(oppgittePerioder.getFirst());
     }
 
     @Test //Unntak: Skal justere mødrekvote
-    public void ikke_justere_perioder_med_samtidig_uttak() {
+    void ikke_justere_perioder_med_samtidig_uttak() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15).minusDays(1));
         var fpMedSamtidigUttak = OppgittPeriodeBuilder.ny()
@@ -1118,6 +1260,231 @@ class JusterFordelingTjenesteTest {
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
 
+    /**
+     * ---|---.---  -   ------.-----
+     * ----.---|------| -.-----.-----
+     */
+    @Test
+    void skal_fylle_alle_hull_som_oppstår_innefor_periode_etter_fødsel_forbeholdt_mor_fødsel_etter_termin() {
+        var termindato = LocalDate.of(2023, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(6).minusDays(1));
+        //Hull fra uke 6-7
+        var mødrekvoteEtterHull = lagPeriode(MØDREKVOTE, termindato.plusWeeks(7), termindato.plusWeeks(8).minusDays(1));
+        // Hull fra uke 8-11
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(11), termindato.plusWeeks(21).minusDays(1));
+        // Hull fra uke 12-21
+        var mødrekvoteEtterFellesperiode = lagPeriode(MØDREKVOTE, termindato.plusWeeks(21), termindato.plusWeeks(29).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, mødrekvoteEtterHull, fellesperiode, mødrekvoteEtterFellesperiode);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.plusWeeks(4);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(6);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvoteForbeholdtMor = justertePerioder.get(2);
+        var justertMødrekvoteEtterHull = justertePerioder.get(3);
+        var justertFellesperiode = justertePerioder.get(4);
+        var justertMødrekvoteSlutt = justertePerioder.get(5);
+
+        assertThat(fellesperiodeFørFødsel.getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvoteForbeholdtMor.getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertMødrekvoteForbeholdtMor.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvoteForbeholdtMor.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+
+        assertThat(justertMødrekvoteEtterHull.getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertMødrekvoteEtterHull.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertMødrekvoteEtterHull.getTom()).isEqualTo(fellesperiode.getFom().plusWeeks(1).minusDays(1));
+
+        assertThat(justertFellesperiode.getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom().plusWeeks(1));
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+
+        assertThat(justertMødrekvoteSlutt.getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertMødrekvoteSlutt.getFom()).isEqualTo(mødrekvoteEtterFellesperiode.getFom());
+        assertThat(justertMødrekvoteSlutt.getTom()).isEqualTo(mødrekvoteEtterFellesperiode.getTom());
+    }
+
+    /**
+     * f   ---|mmmmmmmmmm
+     * - |mmmmmmmmmm
+     */
+    @Test
+    void skal_fylle_alle_hull_før_termin_og_mellom_fødsel_som_er_forbehold_mor_ved_fødsel_før_termin() {
+        var termindato = LocalDate.of(2023, 11, 9);
+        var fellesperiodeStart = lagPeriode(FELLESPERIODE, termindato.minusWeeks(6), termindato.minusWeeks(5).minusDays(1));
+        // Hull T-5 til T-3
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(10).minusDays(1));
+        var oppgittePerioder = List.of(fellesperiodeStart, fpff, mødrekvote);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.minusWeeks(5);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(2);
+        var justertFFF = justertePerioder.get(0);
+        var justertMødrekvote = justertePerioder.get(1);
+
+        assertThat(justertFFF.getFom()).isEqualTo(fellesperiodeStart.getFom());
+        assertThat(justertFFF.getTom()).isEqualTo(fellesperiodeStart.getTom());
+        assertThat(justertFFF.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+
+        assertThat(justertMødrekvote.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom());
+        assertThat(justertMødrekvote.getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    /**
+     *  ---|mmm     ffffffffff
+     *  |mmm        ffffffffff (justering .. bare flytting.. ikke legge til noe nytt)
+     *  |mmmmmm     ffffffffff (spesialregel.. legg til noe hun i utgangspunktet har søkt)
+     */
+    @Test
+    void fellesperiode_skal_ikke_flyttes_mer_inn_periode_forbeholdt_mor_etter_fødsel_men_fylles_etterpå() {
+        var termindato = LocalDate.of(2023, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(3).minusDays(1));
+        // Hull 3 til 10
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(10), termindato.plusWeeks(20).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.minusWeeks(3);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(2);
+        var justertMødrekvot = justertePerioder.get(0);
+        var justertFellesperiode = justertePerioder.get(1);
+
+        assertThat(justertMødrekvot.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvot.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+    }
+
+    /**
+     *  ---|mm     ffffffffff
+     *  -|mmmm     ffffffffff (resultat fra justering)
+     *  Uttaksreglene vil legge inn manglende søkt periode her =>
+     *  -|mmmmXX   ffffffffff (resultat fastsetting av uttaksperioder)
+     */
+    @Test
+    void skal_skyves_inn_i_hull_forbeholdt_mor_men_ikke_fylle_der_hvor_mor_ikke_har_søkt() {
+        var termindato = LocalDate.of(2023, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(2).minusDays(1));
+        // Hull 3 til 10
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(10), termindato.plusWeeks(20).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.minusWeeks(2);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        var justertFPFF = justertePerioder.get(0);
+        var justertMødrekvot = justertePerioder.get(1);
+        var justertFellesperiode = justertePerioder.get(2);
+
+        assertThat(justertFPFF.getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertFPFF.getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertFPFF.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+
+        assertThat(justertMødrekvot.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvot.getTom())
+            .isEqualTo(mødrekvote.getTom())
+            .isNotEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+        assertThat(justertMødrekvot.getPeriodeType()).isEqualTo(MØDREKVOTE);
+
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertFellesperiode.getPeriodeType()).isEqualTo(FELLESPERIODE);
+    }
+
+    /**
+     *  ---|mmmmffffff
+     *  --|mmmmmffffff (fyller med mødrekvote. Fellesperiode flyttes ikke på selv om den er innenfor de 6 første ukene)
+     */
+    @Test
+    void fellesperiode_som_allerede_er_i_periode_forbehold_mor_etter_fødsel_justeres_ikke_men_skal_ikke_flyttes_lenger_inn() {
+        var termindato = LocalDate.of(2023, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(4).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(4), termindato.plusWeeks(10).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.minusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        var justertFFF = justertePerioder.get(0);
+        var justertMødrekvot = justertePerioder.get(1);
+        var justertFellesperiode = justertePerioder.get(2);
+
+        assertThat(justertFFF.getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertFFF.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvot.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvot.getTom()).isEqualTo(mødrekvote.getTom());
+
+        assertThat(justertFellesperiode).isEqualTo(fellesperiode);
+    }
+
+
+    @Test
+    void skal_fylle_hull_forbehold_mor_etter_fødsel_og_skyve_rest_forbi_når_det_er_flere_mødrekvoter_og_fellesperiode_etter_fødsel_reduseres() {
+        var termindato = LocalDate.of(2022, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(7).minusDays(1));
+        //Hull fra uke 7-10
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(10), termindato.plusWeeks(20).minusDays(1));
+        var mødrekvoteEtter = lagPeriode(MØDREKVOTE, termindato.plusWeeks(20), termindato.plusWeeks(28).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode, mødrekvoteEtter);
+
+        //Føder to dag etter termin
+        var fødselsdato = termindato.plusWeeks(2);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(6);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvoteFørHull = justertePerioder.get(2);
+        var justertMødrekvoteEtterHull = justertePerioder.get(3);
+        var justertFellesperiode = justertePerioder.get(4);
+        var justertMødrekvoteSlutt = justertePerioder.get(5);
+
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvoteFørHull.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvoteFørHull.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+
+        assertThat(justertMødrekvoteEtterHull.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertMødrekvoteEtterHull.getTom()).isEqualTo(fellesperiode.getFom().plusWeeks(1).minusDays(1));
+
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom().plusWeeks(1));
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+
+        assertThat(justertMødrekvoteSlutt.getFom()).isEqualTo(mødrekvoteEtter.getFom());
+        assertThat(justertMødrekvoteSlutt.getTom()).isEqualTo(mødrekvoteEtter.getTom());
+    }
+
+
     @Test
     void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_fyller_hele_hullet() {
         var termindato = LocalDate.of(2022, 11, 9);
@@ -1147,6 +1514,162 @@ class JusterFordelingTjenesteTest {
 
         assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom().plusWeeks(1));
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+    }
+
+    @Test
+    void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_mens_resten_skyves_til_etter_oppholdet() {
+        var termindato = LocalDate.of(2022, 11, 9);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(7).minusDays(1));
+        //Hull fra uke 7-10
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(10), termindato.plusWeeks(26).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        //Føder to uker etter termin
+        var fødselsdato = termindato.plusWeeks(2);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(5);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvote = justertePerioder.get(2);
+        var justertMødrekvoteEtterOpphold = justertePerioder.get(3);
+        var justertFellesperiode = justertePerioder.get(4);
+
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvote.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+
+        assertThat(justertMødrekvoteEtterOpphold.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertMødrekvoteEtterOpphold.getTom()).isEqualTo(fellesperiode.getFom().plusWeeks(1).minusDays(1));
+
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom().plusWeeks(1));
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+    }
+
+    @Test
+    void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_men_bevare_eventuelle_utsettesler_eller_ikke_søkte_perioder() {
+        var termindato = LocalDate.of(2023, 1, 4); // mandag
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvoteFørUtsettelse = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(2).minusDays(1));
+        var utsettelse = lagUtsettelse(termindato.plusWeeks(2), termindato.plusWeeks(3).minusDays(1));
+        var mødrekvoteEtterUtsettelse = lagPeriode(MØDREKVOTE, termindato.plusWeeks(3), termindato.plusWeeks(4).minusDays(1));
+        // hull fra uke 4-5
+        var mødrekvoteEtterHull = lagPeriode(MØDREKVOTE, termindato.plusWeeks(5), termindato.plusWeeks(6).minusDays(1));
+        //Hull fra uke 6-10
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(10), termindato.plusWeeks(26).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvoteFørUtsettelse, utsettelse, mødrekvoteEtterUtsettelse, mødrekvoteEtterHull, fellesperiode);
+
+        //Føder to uker etter termin
+        var fødselsdato = termindato.plusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(7);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvoteFørUtsettelse = justertePerioder.get(2);
+        var justertUtsettelse = justertePerioder.get(3);
+        var justertmødrekvoteEtterUtsettelse = justertePerioder.get(4);
+        var justertmødrekvoteEtterHull = justertePerioder.get(5);
+        var justertFellesperiode = justertePerioder.get(6);
+
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvoteFørUtsettelse.getFom()).isEqualTo(Virkedager.plusVirkedager(mødrekvoteFørUtsettelse.getFom(), 5));
+        assertThat(justertMødrekvoteFørUtsettelse.getTom()).isEqualTo(utsettelse.getFom().minusDays(1));
+
+        assertThat(justertUtsettelse.getFom()).isEqualTo(utsettelse.getFom());
+        assertThat(justertUtsettelse.getTom()).isEqualTo(utsettelse.getTom());
+
+        assertThat(justertmødrekvoteEtterUtsettelse.getFom()).isEqualTo(utsettelse.getTom().plusDays(1));
+        assertThat(justertmødrekvoteEtterUtsettelse.getTom()).isEqualTo(termindato.plusWeeks(4).minusDays(1)); // Frem til hull
+
+        assertThat(justertmødrekvoteEtterHull.getFom()).isEqualTo(mødrekvoteEtterHull.getFom()); // Starter etter hull
+        assertThat(justertmødrekvoteEtterHull.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+
+        assertThat(justertFellesperiode.getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
+    }
+
+    @Test
+    void fellesperiode_blir_spist_opp_fordi_perioden_mellom_fødsel_og_termin_er_større_enn_fellesperiode() {
+        var termindato = LocalDate.of(2023, 1, 4); // mandag
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvoteFørFellesperiode = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(7).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(7), termindato.plusWeeks(10).minusDays(1));
+        var mødrekvoteEtterFellesperiode = lagPeriode(MØDREKVOTE, termindato.plusWeeks(10), termindato.plusWeeks(14).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvoteFørFellesperiode, fellesperiode, mødrekvoteEtterFellesperiode);
+
+        //Føder to uker etter termin
+        var fødselsdato = termindato.plusWeeks(3); // Tilsvarer størrelsen på fellesperioden
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvote = justertePerioder.get(2);
+
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        assertThat(justertMødrekvote.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvoteEtterFellesperiode.getTom());
+    }
+
+    @Test
+    void første_fellesperiode_blir_spist_opp_mens_andre_fellesperiode_blir_delvis_spist_opp_slik_at_siste_mødrekvote_ikke_forskyves() {
+        var termindato = LocalDate.of(2023, 1, 4); // mandag
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvoteFørFørsteFellesperiode = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(7).minusDays(1));
+        var fellesperiode1 = lagPeriode(FELLESPERIODE, termindato.plusWeeks(7), termindato.plusWeeks(8).minusDays(1));
+        var mødrekvoteMellomFellesperiode = lagPeriode(MØDREKVOTE, termindato.plusWeeks(8), termindato.plusWeeks(14).minusDays(1));
+        var fellesperiode2 = lagPeriode(FELLESPERIODE, termindato.plusWeeks(14), termindato.plusWeeks(20).minusDays(1));
+        var mødrekvoteSlutt = lagPeriode(MØDREKVOTE, termindato.plusWeeks(20), termindato.plusWeeks(25).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvoteFørFørsteFellesperiode, fellesperiode1, mødrekvoteMellomFellesperiode, fellesperiode2, mødrekvoteSlutt);
+
+        //Føder to uker etter termin
+        var fødselsdato = termindato.plusWeeks(3); // Tilsvarer størrelsen på fellesperioden
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(5);
+        var fellesperiodeFørFødsel = justertePerioder.get(0);
+        var justertFpff = justertePerioder.get(1);
+        var justertMødrekvote = justertePerioder.get(2);
+        var justertFellesperiode2 = justertePerioder.get(3);
+        var justertMødrekvoteSlutt = justertePerioder.get(4);
+
+        assertThat(fellesperiodeFørFødsel.getFom()).isEqualTo(fpff.getFom());
+        assertThat(fellesperiodeFørFødsel.getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertFpff.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertFpff.getTom()).isEqualTo(fødselsdato.minusDays(1));
+
+        // Fellesperiode i mellom er spist opp (1 uke). Forskyvning er derfor redusert fra 3 til 2 videre til neste fellesperiode.
+
+        assertThat(justertMødrekvote.getFom()).isEqualTo(fødselsdato);
+        assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvoteMellomFellesperiode.getTom().plusWeeks(2));
+
+        assertThat(justertFellesperiode2.getFom()).isEqualTo(fellesperiode2.getFom().plusWeeks(2));
+        assertThat(justertFellesperiode2.getTom()).isEqualTo(fellesperiode2.getTom()); // Justert og redusert med 2 uker
+
+        // Fellesperiode spiser opp 2 uker. Ny forskyvning blir da 0.
+
+        assertThat(justertMødrekvoteSlutt.getFom()).isEqualTo(mødrekvoteSlutt.getFom());
+        assertThat(justertMødrekvoteSlutt.getTom()).isEqualTo(mødrekvoteSlutt.getTom());
+
+
     }
 
     @Test
@@ -1201,10 +1724,14 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder).hasSize(3);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode.getFom());
         assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
         assertThat(justertePerioder.get(1).getFom()).isEqualTo(fpff.getFom());
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
         assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
         assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+
     }
 
     @Test
@@ -1220,11 +1747,14 @@ class JusterFordelingTjenesteTest {
 
         assertThat(justertePerioder).hasSize(3);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode.getTom());
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato.minusWeeks(3));
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
         assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
         assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
     @Test
@@ -1250,54 +1780,67 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
-    void flere_perioder_fellesperiode_før_fødsel_fødsel_før_termin() {
+    void fellesperiode_før_fødsel_skal_ikke_redusers_ved_fødsel_etter_termin() {
         var termindato = LocalDate.of(2022, 11, 30);
-        var fellesperiode1 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(10), termindato.minusWeeks(9).minusDays(1));
-        var fellesperiode2 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(5), termindato.minusWeeks(3).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.minusWeeks(5), termindato.minusWeeks(3).minusDays(1));
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
-        var oppgittePerioder = List.of(fellesperiode1, fellesperiode2, fpff, mk);
+        var oppgittePerioder = List.of(fellesperiode, fpff, mk);
 
-        var fødselsdato = termindato.minusWeeks(4);
+        var fødselsdato = termindato.plusWeeks(1);
         var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
         assertThat(justertePerioder).hasSize(3);
-        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode1.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode1.getTom());
-        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fellesperiode2.getFom());
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode.getTom().plusWeeks(1));
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fpff.getFom().plusWeeks(1));
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
-        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
-        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
         assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
         assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
     }
 
+
     @Test
-    void flere_perioder_fellesperiode_før_fødsel_fødsel_før_termin_hele_fpff_blir_borte() {
+    void flere_perioder_fellesperiode_før_fødsel_fødsel_før_termin_deler_av_FFF_beholdes() {
         var termindato = LocalDate.of(2022, 11, 30);
         var fellesperiode1 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(10), termindato.minusWeeks(9).minusDays(1));
+        // Hull uke 9-5
         var fellesperiode2 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(5), termindato.minusWeeks(3).minusDays(1));
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
         var oppgittePerioder = List.of(fellesperiode1, fellesperiode2, fpff, mk);
 
-        var fødselsdato = termindato.minusWeeks(1);
+        var fødselsdato = termindato.minusWeeks(3);
         var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
-        assertThat(justertePerioder).hasSize(4);
-        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode1.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode1.getTom());
-        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0)).isEqualTo(fellesperiode1);
         assertThat(justertePerioder.get(1).getFom()).isEqualTo(fellesperiode2.getFom());
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fellesperiode2.getTom());
-        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
-        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fpff.getFom());
-        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fødselsdato.minusDays(1));
-        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(justertePerioder.get(3).getPeriodeType()).isEqualTo(MØDREKVOTE);
-        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fødselsdato);
-        assertThat(justertePerioder.get(3).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    @Test
+    void flere_perioder_fellesperiode_før_fødsel_fødsel_før_termin_hele_fpff_blir_borte_fordi_perioden_havner_i_hull() {
+        var termindato = LocalDate.of(2022, 11, 30);
+        var fellesperiode1 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(10), termindato.minusWeeks(9).minusDays(1));
+        // Hull uke 9-5
+        var fellesperiode2 = lagPeriode(FELLESPERIODE, termindato.minusWeeks(5), termindato.minusWeeks(3).minusDays(1));
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
+        var oppgittePerioder = List.of(fellesperiode1, fellesperiode2, fpff, mk);
+
+        var fødselsdato = termindato.minusWeeks(5);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(0)).isEqualTo(fellesperiode1);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
     @Test
@@ -1330,8 +1873,7 @@ class JusterFordelingTjenesteTest {
         var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
         assertThat(justertePerioder).hasSize(1);
-        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fp.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+        assertThat(justertePerioder.getFirst()).isEqualTo(fp);
     }
 
     @Test
@@ -1344,8 +1886,7 @@ class JusterFordelingTjenesteTest {
         var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
         assertThat(justertePerioder).hasSize(1);
-        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fp.getFom());
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+        assertThat(justertePerioder.getFirst()).isEqualTo(fp);
     }
 
     @Test
@@ -1385,8 +1926,127 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
+    @Test
+    void overføringFedrekvote() {
+        var termindato = LocalDate.of(2024, 3, 26);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(15), termindato.plusWeeks(31).minusDays(1));
+        var overføring = lagOverføring(termindato.plusWeeks(31), termindato.plusWeeks(46).minusDays(1));
+        var fødselsdato = LocalDate.of(2024, 2, 26);
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode, overføring);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(15).minusDays(1)));
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato.plusWeeks(15));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(31).minusDays(1)));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato.plusWeeks(31));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(overføring.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FEDREKVOTE);
+    }
+
+    @Test
+    void fødselFørTerminJusterePeriodeSomKnekkesOppTilFlereGangerPgaHull() {
+        var termindato = LocalDate.of(2024, 3, 9);
+        var fødselsdato = LocalDate.of(2024, 2, 27);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
+        var fellesperiode1 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,6,24), LocalDate.of(2024,7,5));
+        var fellesperiode2 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,7,22), LocalDate.of(2024,7,26));
+        var fellesperiode3 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,8,12), LocalDate.of(2024,10,4));
+        var fellesperiode4 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,10,21), LocalDate.of(2024,11,22));
+
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode1, fellesperiode2, fellesperiode3, fellesperiode4);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSameSizeAs(oppgittePerioder);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fpff.getFom()));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.minusDays(1)));
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(15).minusDays(1)));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato.plusWeeks(15)));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fellesperiode1.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(3)).isEqualTo(oppgittePerioder.get(3));
+        assertThat(justertePerioder.get(4)).isEqualTo(oppgittePerioder.get(4));
+        assertThat(justertePerioder.get(5)).isEqualTo(oppgittePerioder.get(5));
+    }
+
+    @Test
+    void utsettelse_mellom_fødsel_og_termin_skal_ikke_føre_til_at_perioder_som_var_etter_termin_blir_skyvet_forbi_fødsel_pga_utsettelse_ved_fødsel_før_termin() {
+        var termindato = LocalDate.of(2024, 3, 13);
+
+        var fpff1 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusWeeks(2).minusDays(1));
+        var utsettelse = lagUtsettelse(termindato.minusWeeks(2), termindato.minusWeeks(1).minusDays(1));
+        var fpff2 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(1), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(12).minusDays(1));
+
+        var fødselsdato = utsettelse.getTom();
+        var oppgittePerioder = List.of(fpff1, utsettelse, fpff2, mødrekvote);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0)).isEqualTo(fpff1);
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(utsettelse.getTom().plusDays(1)).isNotEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mødrekvote.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    /**
+     *  ffff       -|mmmmmmmm
+     *  ff - |mmmmmmmmmmmmmmm
+     *  fff- |mmmmmmmmmmmmmmm (skal fylle uke 3 før fødsel med fellesperiode! Vil da gå ut til manuell behandling og vurdering gjøres av saksbehandler)
+     */
+    @Test
+    void fyller_fra_ventre_til_høyre_med_FFF_og_fyller_resten_med_fellesperiode() {
+        var termindato = LocalDate.of(2022, 7,12);
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.minusWeeks(8), termindato.minusWeeks(5).minusDays(1));
+        // Hull
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(1), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(12).minusDays(1));
+
+        var fødselsdato = fellesperiode.getTom().plusWeeks(1).minusDays(1);
+        var oppgittePerioder = List.of(fellesperiode, fpff, mødrekvote);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertePerioder.get(0).getTom())
+            .isEqualTo(flyttFraHelgTilFredag(fødselsdato.minusWeeks(2).minusDays(1)))
+            .isNotEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato.minusWeeks(2)));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mødrekvote.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
+        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA,
+            false);
+    }
+
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
+    }
+
+    static OppgittPeriodeEntitet lagOverføring(LocalDate fom, LocalDate tom) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriode(fom, tom)
+            .medPeriodeType(FEDREKVOTE)
+            .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
+            .build();
     }
 
     static OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom) {
@@ -1403,6 +2063,7 @@ class JusterFordelingTjenesteTest {
             .medPeriodeType(uttakPeriodeType)
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
             .medArbeidsprosent(arbeidsprosent)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
     }
 
@@ -1422,6 +2083,18 @@ class JusterFordelingTjenesteTest {
             }
         }
         return true;
+    }
+
+    private static LocalDate minusVirkedag(LocalDate dato) {
+        var resultat = dato;
+        var dager = 1;
+        while (dager > 0 || erHelg(resultat)) {
+            if (!erHelg(resultat)) {
+                dager--;
+            }
+            resultat = resultat.minusDays(1);
+        }
+        return resultat;
     }
 
 }

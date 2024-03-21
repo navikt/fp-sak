@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -73,7 +73,7 @@ public class DokumentmottakTestUtil {
     }
 
     static Fagsak byggFagsak(AktørId aktørId, RelasjonsRolleType rolle, NavBrukerKjønn kjønn, Saksnummer saksnummer,
-                             FagsakRepository fagsakRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
+                             FagsakRepository fagsakRepository, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         var navBruker = new NavBrukerBuilder()
             .medAktørId(aktørId)
             .medKjønn(kjønn)
@@ -82,7 +82,7 @@ public class DokumentmottakTestUtil {
             .medSaksnummer(saksnummer)
             .medBruker(navBruker).build();
         fagsakRepository.opprettNy(fagsak);
-        fagsakRelasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         return fagsak;
     }
 

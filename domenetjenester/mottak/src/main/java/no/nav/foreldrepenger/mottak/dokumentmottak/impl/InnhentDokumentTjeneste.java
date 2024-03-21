@@ -98,8 +98,7 @@ public class InnhentDokumentTjeneste {
     }
 
     private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
-        return DokumentTypeId.UDEFINERT.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokumentKategori) && DokumentTypeId.ANNET.equals(
-            dokumentTypeId);
+        return DokumentTypeId.UDEFINERT.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokumentKategori) && dokumentTypeId.erAnnenDokType();
     }
 
     private Dokumentmottaker finnMottaker(DokumentGruppe dokumentGruppe, FagsakYtelseType fagsakYtelseType) {

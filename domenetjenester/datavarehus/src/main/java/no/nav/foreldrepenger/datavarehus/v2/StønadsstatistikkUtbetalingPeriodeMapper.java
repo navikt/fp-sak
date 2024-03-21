@@ -33,7 +33,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
             .map(ldt -> ldt.compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer, StandardCombinators::leftOnly))
             .flatMap(LocalDateTimeline::stream)
             .map(s -> new StønadsstatistikkUtbetalingPeriode(s.getFom(), s.getTom(), s.getValue().inntektskategori(), s.getValue().arbeidsgiver(),
-                s.getValue().mottaker(), s.getValue().dagsats(), s.getValue().dagsatsFraBeregningsgrunnlag(), s.getValue().utbetalingsgrad()))
+                s.getValue().mottaker(), s.getValue().dagsats(), s.getValue().utbetalingsgrad()))
             .toList();
     }
 
@@ -52,14 +52,13 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
                                                                              List<UtbetalingSammenlign> utbetalinger) {
         var any = utbetalinger.stream().findFirst().orElseThrow();
         var sumDagsats = utbetalinger.stream().map(UtbetalingSammenlign::dagsats).reduce(0, Integer::sum);
-        var sumDagsatsFraBeregningsgrunnlag = utbetalinger.stream().map(UtbetalingSammenlign::dagsatsFraBeregningsgrunnlag).reduce(0, Integer::sum);
         return new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(),
-            new UtbetalingSammenlign(any, sumDagsats, sumDagsatsFraBeregningsgrunnlag));
+            new UtbetalingSammenlign(any, sumDagsats));
     }
 
     private static UtbetalingSammenlign mapTilkjentAndel(BeregningsresultatAndel andel) {
         return new UtbetalingSammenlign(mapInntektskategori(andel), andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
-            mapMottaker(andel), andel.getDagsats(), andel.getDagsatsFraBg(), andel.getUtbetalingsgrad());
+            mapMottaker(andel), andel.getDagsats(), andel.getUtbetalingsgrad());
     }
 
     // Bruker int for å slippe hash-problematikk rundt BigDecimal
@@ -72,9 +71,9 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
     }
 
     private record UtbetalingSammenlign(StønadsstatistikkUtbetalingPeriode.Inntektskategori inntektskategori, String arbeidsgiver,
-                                        StønadsstatistikkUtbetalingPeriode.Mottaker mottaker, int dagsats, int dagsatsFraBeregningsgrunnlag, BigDecimal utbetalingsgrad) {
-        UtbetalingSammenlign(UtbetalingSammenlign utbetaling, int dagsats, int dagsatsFraBeregningsgrunnlag) {
-            this(utbetaling.inntektskategori(), utbetaling.arbeidsgiver(), utbetaling.mottaker(), dagsats, dagsatsFraBeregningsgrunnlag, utbetaling.utbetalingsgrad());
+                                        StønadsstatistikkUtbetalingPeriode.Mottaker mottaker, int dagsats, BigDecimal utbetalingsgrad) {
+        UtbetalingSammenlign(UtbetalingSammenlign utbetaling, int dagsats) {
+            this(utbetaling.inntektskategori(), utbetaling.arbeidsgiver(), utbetaling.mottaker(), dagsats, utbetaling.utbetalingsgrad());
         }
     }
 

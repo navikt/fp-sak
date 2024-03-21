@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -56,8 +55,6 @@ class ForeslåVedtakRevurderingStegImplTest {
     @Mock
     private BehandleStegResultat behandleStegResultat;
     @Mock
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
     private BehandlingRepository behandlingRepository;
@@ -78,7 +75,6 @@ class ForeslåVedtakRevurderingStegImplTest {
     @BeforeEach
     public void before() {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
 
         orginalBehandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
@@ -152,13 +148,6 @@ class ForeslåVedtakRevurderingStegImplTest {
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
-    }
-
-    @Test
-    void test_tilbakehopp() {
-        foreslåVedtakRevurderingStegForeldrepenger.vedHoppOverBakover(kontekstRevurdering, null, null, null);
-        revurdering = behandlingRepository.hentBehandling(revurdering.getId());
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).isEmpty();
     }
 
     private BeregningsgrunnlagGrunnlag buildBeregningsgrunnlag(Long bruttoPerÅr) {

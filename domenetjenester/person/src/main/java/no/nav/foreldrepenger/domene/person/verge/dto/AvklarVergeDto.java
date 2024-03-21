@@ -19,7 +19,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class AvklarVergeDto extends BekreftetAksjonspunktDto {
 
     @Size(max = 100)
-    @Pattern(regexp = InputValideringRegex.NAVN)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navn;
     @Digits(integer = 11, fraction = 0)
     private String fnr;

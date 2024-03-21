@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -43,7 +43,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RevurderingTjeneste revurderingTjeneste;
 
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     EtterkontrollTjenesteImpl() {
         // for CDI proxy
@@ -51,7 +51,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     @Inject
     public EtterkontrollTjenesteImpl(HistorikkRepository historikkRepository,
-            BehandlingRevurderingRepository behandlingRevurderingRepository,
+            BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
@@ -59,7 +59,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.revurderingTjeneste = revurderingTjeneste;
-        this.behandlingRevurderingRepository = behandlingRevurderingRepository;
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
@@ -79,10 +79,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         var fagsak = behandling.getFagsak();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
-        var behandlingMedforelder = behandlingRevurderingRepository
+        var behandlingMedforelder = behandlingRevurderingTjeneste
             .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
-        var åpenBehandlingMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(behandling.getFagsak())
-            .flatMap(fmf -> behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fmf.getId()))
+        var åpenBehandlingMedforelder = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(behandling.getFagsak())
+            .flatMap(fmf -> behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fmf.getId()))
             .isPresent();
 
         if (behandlingMedforelder.isPresent()) {

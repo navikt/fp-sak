@@ -702,7 +702,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return behandling;
     }
 
-    protected void buildAvsluttet(BehandlingRepositoryProvider repositoryProvider) {
+    protected Behandling buildAvsluttet(BehandlingRepositoryProvider repositoryProvider) {
         var behandlingBuilder = grunnBuild(repositoryProvider);
 
         behandling = behandlingBuilder.medAvsluttetDato(LocalDateTime.now()).build();
@@ -722,6 +722,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 .medAvslagsårsak(Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR).buildFor(behandling);
 
         behandlingRepo.lagre(behandling, lås);
+        return behandling;
     }
 
     private void lagrePersonopplysning(BehandlingRepositoryProvider repositoryProvider, Behandling behandling) {

@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -30,10 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -57,17 +56,17 @@ class BeregnFeriepengerTjenesteTest {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     private BeregnFeriepengerTjeneste tjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         Mockito.when(inputTjeneste.arbeidstakerVedSkjæringstidspunkt(any())).thenReturn(true);
-        tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, 60);
-        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
-                new FagsakLåsRepository(entityManager));
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste, 60);
     }
 
     @Test
@@ -76,8 +75,8 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
                 Inntektskategori.ARBEIDSTAKER);
 
@@ -95,8 +94,8 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
             Inntektskategori.ARBEIDSTAKER);
 
@@ -113,7 +112,7 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
@@ -130,7 +129,7 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
                 Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 

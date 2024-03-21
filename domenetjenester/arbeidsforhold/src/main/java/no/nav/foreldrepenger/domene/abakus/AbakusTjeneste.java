@@ -43,7 +43,6 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.request.VedtakForPeriodeRequest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -67,36 +66,36 @@ public class AbakusTjeneste {
     private URI innhentRegisterdata;
     private RestClient restClient;
     private RestConfig restConfig;
-    private URI callbackUrl;
     private URI endpointArbeidsforholdIPeriode;
     private URI endpointGrunnlag;
     private URI endpointMottaInntektsmeldinger;
     private URI endpointMottaOppgittOpptjening;
     private URI endpointKopierGrunnlag;
+    private URI endpointKopierGrunnlagBeholdIM;
     private URI endpointInntektsmeldinger;
     private URI endpointYtelser;
     private URI endpointOverstyring;
     private URI endpointLagreOverstyrtOppgittOpptjening;
-
-    AbakusTjeneste() {
-        // for CDI
-    }
+    private URI endpointLagreOppgittOpptjeningNullstillOverstyring;
+    private URI endpointArbeidsforholdMedPermisjonerIPeriode;
 
     @Inject
-    public AbakusTjeneste(@KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
+    public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
-        this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
+        this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
+        this.endpointKopierGrunnlagBeholdIM = toUri("/api/iay/grunnlag/v1/kopier-behold-im");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
         this.endpointLagreOverstyrtOppgittOpptjening = toUri("/api/iay/oppgitt/v1/overstyr");
+        this.endpointLagreOppgittOpptjeningNullstillOverstyring = toUri("/api/iay/oppgitt/v1/motta-og-nullstill-overstyring");
     }
 
     private URI toUri(String relativeUri) {
@@ -123,10 +122,6 @@ public class AbakusTjeneste {
         }
     }
 
-    public String getCallbackUrl() {
-        return callbackUrl.toString();
-    }
-
     public InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
         var endpoint = endpointGrunnlag;
         var responseHandler = new AbakusResponseHandler<InntektArbeidYtelseGrunnlagDto>(iayGrunnlagReader);
@@ -135,8 +130,15 @@ public class AbakusTjeneste {
         return hentFraAbakus(endpoint, responseHandler, json);
     }
 
+    public List<ArbeidsforholdDto> hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(AktørDatoRequest request) {
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdMedPermisjonerIPeriode);
+    }
+
     public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
-        var endpoint = endpointArbeidsforholdIPeriode;
+        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdIPeriode);
+    }
+
+    private List<ArbeidsforholdDto> hentArbeidsforholdFraEndepunkt(AktørDatoRequest request, URI endpoint) {
         var responseHandler = new AbakusResponseHandler<ArbeidsforholdDto[]>(arbeidsforholdReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);
@@ -312,6 +314,27 @@ public class AbakusTjeneste {
         }
     }
 
+    public void lagreOppgittOpptjeningNullstillOverstyring(OppgittOpptjeningMottattRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointLagreOppgittOpptjeningNullstillOverstyring, restConfig).timeout(Duration.ofSeconds(30));
+
+        LOG.info("Lagre oppgitt opptjening og nullstill overstyrt (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre oppgitt opptjening og nullstille overstyrt for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getKoblingReferanse(), endpointLagreOppgittOpptjeningNullstillOverstyring, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+    }
+
+
     public void kopierGrunnlag(KopierGrunnlagRequest dto) throws IOException {
         var json = iayJsonWriter.writeValueAsString(dto);
 
@@ -332,6 +355,27 @@ public class AbakusTjeneste {
         }
 
     }
+
+    public void kopierGrunnlagUtenNyeInntektsmeldinger(KopierGrunnlagRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+
+        var request = RestRequest.newRequest(method, endpointKopierGrunnlagBeholdIM, restConfig);
+
+        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus. Uten nye inntektsmeldinger", dto.getGammelReferanse(), dto.getNyReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getGammelReferanse(), dto.getNyReferanse(), endpointKopierGrunnlagBeholdIM, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+    }
+
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding) {
         return new TekniskException("FP-018669", "Feil ved kall til Abakus: " + feilmelding);

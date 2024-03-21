@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -20,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -42,7 +42,7 @@ public class VurderOpphørAvYtelser {
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
 
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
@@ -57,8 +57,9 @@ public class VurderOpphørAvYtelser {
     public VurderOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  StønadsperiodeTjeneste stønadsperiodeTjeneste,
                                  ProsessTaskTjeneste taskTjeneste,
+                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                  FamilieHendelseRepository familieHendelseRepository) {
-        this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
@@ -169,7 +170,7 @@ public class VurderOpphørAvYtelser {
     }
 
     private boolean erSammeEllerKobletSak(Fagsak iverksatt, Fagsak sjekk) {
-        var kobletTilIverksatt = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(sjekk)
+        var kobletTilIverksatt = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(sjekk)
             .flatMap(fr -> fr.getRelatertFagsak(sjekk))
             .filter(f -> f.getSaksnummer().equals(iverksatt.getSaksnummer()))
             .isPresent();

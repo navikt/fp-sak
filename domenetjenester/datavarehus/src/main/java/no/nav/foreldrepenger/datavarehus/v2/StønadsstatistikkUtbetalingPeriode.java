@@ -10,8 +10,7 @@ record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom,
                                           @NotNull Inntektskategori inntektskategori,
                                           String arbeidsgiver,  // Orgnummer eller aktørId
                                           @NotNull Mottaker mottaker,
-                                          @NotNull Integer dagsats, //dagsatsFraBeregningsgrunnlag * utbetalingsgrad
-                                          @NotNull Integer dagsatsFraBeregningsgrunnlag, //TODO kan vi unngå?
+                                          @NotNull Integer dagsats,
                                           @NotNull BigDecimal utbetalingsgrad) {
 
     //Feriepenger ikke interessant - sier konsumenten

@@ -20,8 +20,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kodeverk.base.url", endpointDefault = "http://kodeverk.team-rocket",
-    scopesProperty = "kodeverk.scopes", scopesDefault = "api://prod-fss.team-rocket.kodeverk/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kodeverk.base.url", endpointDefault = "https://kodeverk-api.nav.no",
+    scopesProperty = "kodeverk.scopes", scopesDefault = "api://prod-gcp.team-rocket.kodeverk-api/.default")
 public class KodeverkTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(KodeverkTjeneste.class);

@@ -36,7 +36,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     private String overstyrtBrevFritekst;
 
     @Lob
-    @Column(name = "vedtak_fritekst")
+    @Column(name = "vedtak_fritekst") // bør hete utfyllende tekst
     private String vedtakFritekst;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "behandlingDokument", cascade = CascadeType.ALL)

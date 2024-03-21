@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.datavarehus.xml;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -13,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.v2.FagsakType;
@@ -25,7 +25,7 @@ public class VedtakXmlTjeneste {
     private SøknadRepository søknadRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
 
     VedtakXmlTjeneste() {
@@ -33,11 +33,11 @@ public class VedtakXmlTjeneste {
     }
 
     @Inject
-    public VedtakXmlTjeneste(BehandlingRepositoryProvider repositoryProvider) {
+    public VedtakXmlTjeneste(BehandlingRepositoryProvider repositoryProvider, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
     public void setVedtaksopplysninger(Vedtak vedtak, Fagsak fagsak, Behandling behandling) {
@@ -115,7 +115,7 @@ public class VedtakXmlTjeneste {
     }
 
     private void setFagsakAnnenForelder(Vedtak vedtak, Fagsak fagsak) {
-        fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak)
+        fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(fagsakRelasjon -> fagsakRelasjon.getRelatertFagsak(fagsak))
             .ifPresent(rf -> vedtak.setFagsakAnnenForelderId(rf.getId().toString()));
     }

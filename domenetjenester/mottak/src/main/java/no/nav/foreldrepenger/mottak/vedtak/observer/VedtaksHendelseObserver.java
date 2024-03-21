@@ -7,9 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
@@ -24,10 +21,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ApplicationScoped
 public class VedtaksHendelseObserver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseObserver.class);
-
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
-    private static final boolean isProd = Environment.current().isProd();
+    private static final Environment ENV = Environment.current();
 
     private ProsessTaskTjeneste taskTjeneste;
     public VedtaksHendelseObserver() {
@@ -59,17 +54,9 @@ public class VedtaksHendelseObserver {
 
         // Unngå gå i beina på på iverksettingstasker med sen respons fra OS
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            if (isProd) {
-                lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 2);
-                lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 5);
-            } else {
-                lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
-                lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 2);
-            }
-        } else { // SVP
-            lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 0);
+            lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), ENV.isLocal() ? 1 : 5);
         }
-
+        lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), ENV.isLocal() ? 2 : 40); // Kafka kan ta litt tid
     }
 
     void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {

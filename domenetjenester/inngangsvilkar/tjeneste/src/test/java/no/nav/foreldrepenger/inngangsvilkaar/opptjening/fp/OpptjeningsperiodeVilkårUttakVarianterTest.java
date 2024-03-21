@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -43,6 +44,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
     private UtsettelseBehandling2021 utsettelse2021;
@@ -55,6 +57,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
     }
 
     @Test
@@ -62,8 +65,8 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
@@ -109,8 +112,8 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
@@ -156,8 +159,8 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var fødselsdato = LocalDate.now().minusWeeks(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusMonths(1)), repositoryProvider);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
@@ -203,8 +206,8 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var fødselsdato = LocalDate.now();
         var termindato = LocalDate.now();
         var førsteUttaksdato = termindato.minusDays(3);
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusYears(1)), repositoryProvider);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.minusYears(1)), repositoryProvider);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(

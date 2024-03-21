@@ -16,7 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class ArbeidsforholdInntektsmeldingMangelTjeneste {
@@ -27,6 +29,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder;
     private ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
 
     public ArbeidsforholdInntektsmeldingMangelTjeneste() {
@@ -38,12 +42,16 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
                                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste,
                                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                                        ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder,
-                                                       ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste) {
+                                                       ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste,
+                                                       InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
+                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.arbeidsforholdValgRepository = arbeidsforholdValgRepository;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsforholdInntektsmeldingsMangelUtleder = arbeidsforholdInntektsmeldingsMangelUtleder;
         this.arbeidInntektHistorikkinnslagTjeneste = arbeidInntektHistorikkinnslagTjeneste;
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
@@ -147,4 +155,21 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
             arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), informasjonBuilder);
         }
     }
+
+    /**
+     * finnManglendeInntektsmeldingerHensyntattVurdering
+     * For å finne alle arbeidsforhold saksbehandler krever inntektsmelding for, og om det er mottatt inntektsmelding eller ikke.
+     * Filtrerer vekk arbeidsforhold der saksbehandler har avklart at inntektsmelding ikke trengs.
+     * @param referanse
+     * @return
+     */
+    public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse) {
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
+        var refMedStp = referanse.medSkjæringstidspunkt(skjæringstidspunkter);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(refMedStp, false);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(refMedStp);
+        var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(refMedStp.behandlingId());
+        return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);
+    }
+
 }

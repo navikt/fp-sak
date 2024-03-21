@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -30,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -49,7 +49,7 @@ public class UttakGrunnlagTjeneste {
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
 
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -63,9 +63,10 @@ public class UttakGrunnlagTjeneste {
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 FamilieHendelseTjeneste familieHendelseTjeneste) {
+                                 FamilieHendelseTjeneste familieHendelseTjeneste,
+                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
@@ -84,7 +85,7 @@ public class UttakGrunnlagTjeneste {
         var behandlingId = ref.behandlingId();
         var saksnummer = ref.saksnummer();
 
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer);
 
         var fhaOpt = familieHendelseTjeneste.finnAggregat(behandlingId);
         if (fhaOpt.isEmpty()) {
@@ -121,9 +122,7 @@ public class UttakGrunnlagTjeneste {
         var barna = familiehendelser.getGjeldendeFamilieHendelse().getBarna();
 
         var harDødsdatoPåBarn = barna.stream().anyMatch(barn -> barn.getDødsdato().isPresent());
-        var harBehandlingÅrsakMedDød = behandling.getBehandlingÅrsaker()
-            .stream()
-            .anyMatch(årsak -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(årsak.getBehandlingÅrsakType()));
+        var harBehandlingÅrsakMedDød = behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød());
         return harDødsdatoPåBarn || harBehandlingÅrsakMedDød || erOpplysningerOmDødEndretIPersonopplysninger(ref);
     }
 

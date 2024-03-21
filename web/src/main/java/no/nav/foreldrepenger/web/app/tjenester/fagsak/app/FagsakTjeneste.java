@@ -7,7 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
@@ -44,7 +43,7 @@ public class FagsakTjeneste {
     private BehandlingRepository behandlingRepository;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     protected FagsakTjeneste() {
@@ -56,12 +55,12 @@ public class FagsakTjeneste {
                           BehandlingRepository behandlingRepository,
                           ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                           PersoninfoAdapter personinfoAdapter,
-                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                          DekningsgradTjeneste dekningsgradTjeneste,
                           FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
     }
@@ -142,10 +141,8 @@ public class FagsakTjeneste {
         return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
     }
 
-    private Integer finnDekningsgrad(Saksnummer saksnummer) {
-        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer)
-            .map(FagsakRelasjon::getGjeldendeDekningsgrad)
-            .map(Dekningsgrad::getVerdi).orElse(null);
+    private Optional<Dekningsgrad> finnDekningsgrad(Saksnummer saksnummer) {
+        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(saksnummer);
     }
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi) {
@@ -158,7 +155,8 @@ public class FagsakTjeneste {
     }
 
     private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
-        return new FagsakBackendDto(fagsak, finnDekningsgrad(fagsak.getSaksnummer()));
+        return new FagsakBackendDto(fagsak, finnDekningsgrad(fagsak.getSaksnummer())
+            .map(Dekningsgrad::getVerdi).orElse(null));
     }
 
     private FagsakSøkDto mapFraFagsakTilFagsakSøkDto(Fagsak fagsak, PersoninfoBasis pi) {

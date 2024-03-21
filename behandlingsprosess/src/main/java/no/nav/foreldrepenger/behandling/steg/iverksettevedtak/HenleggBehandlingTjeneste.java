@@ -17,9 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -70,7 +70,7 @@ public class HenleggBehandlingTjeneste {
         if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
-            sendHenleggelsesbrev(behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
+            sendHenleggelsesbrev(behandling.getUuid());
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
 
@@ -103,9 +103,12 @@ public class HenleggBehandlingTjeneste {
         taskTjeneste.lagre(taskData);
     }
 
-    private void sendHenleggelsesbrev(UUID behandlingUuid, HistorikkAktør aktør) {
-        var bestillBrevDto = new BestillBrevDto(behandlingUuid, DokumentMalType.INFO_OM_HENLEGGELSE);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør);
+    private void sendHenleggelsesbrev(UUID behandlingUuid) {
+        var dokumentBestilling = DokumentBestilling.builder()
+            .medBehandlingUuid(behandlingUuid)
+            .medDokumentMal(DokumentMalType.INFO_OM_HENLEGGELSE)
+            .build();
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {

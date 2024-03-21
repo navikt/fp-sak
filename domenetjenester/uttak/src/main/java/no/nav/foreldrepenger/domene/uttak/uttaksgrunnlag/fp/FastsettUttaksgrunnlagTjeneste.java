@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -23,11 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagTjeneste.class);
     private final FpUttakRepository fpUttakRepository;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
     private final UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
@@ -61,6 +63,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().behandlingId(),
                     justertFordeling.getPerioder());
         }
+        LOG.info("Utledet endringsdato {}", endringsdato);
 
         if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || endringsdato == null || !eksisterendeEndringsdato.isEqual(endringsdato)) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
@@ -136,6 +139,9 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
+        if (oppgittePerioder.isEmpty()) {
+            LOG.info("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør, berørt, osv)");
+        }
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
         return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
                 familiehendelser.gjeldende(), relasjonsRolleType, ønskerJustertVedFødsel);

@@ -11,6 +11,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,12 +37,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerVurderingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -103,7 +102,7 @@ public class BehandlingDtoTjeneste {
     private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadRepository søknadRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -122,13 +121,16 @@ public class BehandlingDtoTjeneste {
     public BehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  BeregningTjeneste beregningTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingDokumentRepository behandlingDokumentRepository,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste, TotrinnTjeneste totrinnTjeneste,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 BehandlingDokumentRepository behandlingDokumentRepository,
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                 TotrinnTjeneste totrinnTjeneste,
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
-                                 FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
+                                 FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
+                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -149,7 +151,7 @@ public class BehandlingDtoTjeneste {
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeYtelsesBehandling(Saksnummer saksnummer) {
-        return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer)
+        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer)
             .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()))
             .map(Fagsak::getId)
             .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
@@ -179,7 +181,8 @@ public class BehandlingDtoTjeneste {
         }
 
         // Brev
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
+        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
 
         return dto;
     }
@@ -400,7 +403,7 @@ public class BehandlingDtoTjeneste {
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 var svangerskapspengerUttakResultatEntitet = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
-                var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+                var stønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
                 if (stønadskontoberegning.isPresent() && svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
@@ -423,7 +426,7 @@ public class BehandlingDtoTjeneste {
                     }
                 }
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-                var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+                var stønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
                 if (stønadskontoberegning.isPresent() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));

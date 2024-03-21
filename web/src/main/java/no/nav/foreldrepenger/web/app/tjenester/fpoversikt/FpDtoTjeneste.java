@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -25,9 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -43,7 +43,7 @@ public class FpDtoTjeneste {
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -58,9 +58,10 @@ public class FpDtoTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                          UføretrygdRepository uføretrygdRepository,
-                         DtoTjenesteFelles felles) {
+                         DtoTjenesteFelles felles,
+                         DekningsgradTjeneste dekningsgradTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -87,9 +88,9 @@ public class FpDtoTjeneste {
         var aksjonspunkt = felles.finnAksjonspunkt(ikkeHenlagteBehandlinger);
         var mottatteSøknader = felles.finnRelevanteSøknadsdokumenter(fagsak);
         var alleVedtak = felles.finnVedtakForFagsak(fagsak);
-        var vedtak = finnFpVedtak(fagsak, alleVedtak);
+        var vedtak = finnFpVedtak(alleVedtak);
         var oppgittAnnenPart = oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null);
-        var søknader = finnFpSøknader(åpenYtelseBehandling, mottatteSøknader, fagsak);
+        var søknader = finnFpSøknader(åpenYtelseBehandling, mottatteSøknader);
         var gjeldendeBehandling = finnGjeldendeBehandling(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
         var fødteBarn = gjeldendeBehandling.map(this::finnFødteBarn).orElse(Set.of());
         var rettigheter = finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
@@ -163,7 +164,7 @@ public class FpDtoTjeneste {
         };
     }
 
-    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader, Fagsak fagsak) {
+    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
         return mottatteSøknader.stream()
             .map(md -> {
                 var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
@@ -171,8 +172,9 @@ public class FpDtoTjeneste {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
                     return oppgittFordeling.getPerioder().stream().map(FpDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
-                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getDekningsgrad);
-                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekingsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
+                var behandling = behandlingRepository.hentBehandling(md.getBehandlingId());
+                var oppgittDekningsgrad = dekningsgradTjeneste.finnOppgittDekningsgrad(behandling);
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
             .collect(Collectors.toSet());
@@ -217,7 +219,7 @@ public class FpDtoTjeneste {
     }
 
     private static Gradering mapGradering(OppgittPeriodeEntitet periode) {
-        if (!erGradert(periode)) {
+        if (!periode.isGradert()) {
             return null;
         }
         var type = switch (periode.getGraderingAktivitetType()) {
@@ -228,10 +230,6 @@ public class FpDtoTjeneste {
         var arbeidsgiver = periode.getArbeidsgiver() == null ? null : new Arbeidsgiver(periode.getArbeidsgiver().getIdentifikator());
         var aktivitet = new UttakAktivitet(type, arbeidsgiver, null);
         return new Gradering(periode.getArbeidsprosent(), aktivitet);
-    }
-
-    private static boolean erGradert(OppgittPeriodeEntitet periode) {
-        return periode.isGradert() && periode.getGraderingAktivitetType() != null;
     }
 
     private static OverføringÅrsak finnOverføringÅrsak(Årsak årsak) {
@@ -287,13 +285,15 @@ public class FpDtoTjeneste {
         return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.getId());
     }
 
-    private Set<FpSak.Vedtak> finnFpVedtak(Fagsak fagsak, Stream<BehandlingVedtak> vedtak) {
-        return vedtak.map(v -> tilDto(v, fagsak)).collect(Collectors.toSet());
+    private Set<FpSak.Vedtak> finnFpVedtak(Stream<BehandlingVedtak> vedtak) {
+        return vedtak.map(this::tilDto).collect(Collectors.toSet());
     }
 
-    private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
-        var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
-        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getGjeldendeDekningsgrad);
+    private FpSak.Vedtak tilDto(BehandlingVedtak vedtak) {
+        var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
+        var uttaksperioder = finnUttaksperioder(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling);
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
     }
 
@@ -329,11 +329,7 @@ public class FpDtoTjeneste {
             return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId), konto,
                 trekkdager, arbeidstidsprosent);
         }).collect(Collectors.toSet());
-        var årsak = switch (periode.getResultatÅrsak()) {
-            case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
-            case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
-            default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
-        };
+        var årsak = tilResultatÅrsak(periode);
         var trekkerMinsterett = trekkerMinsterett(periode);
         var resultat = new FpSak.Uttaksperiode.Resultat(type, årsak, aktiviteter, trekkerMinsterett);
         var utsettelseÅrsak = switch (periode.getUtsettelseType()) {
@@ -365,6 +361,19 @@ public class FpDtoTjeneste {
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
             samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(),
             map(periode.getMorsAktivitet()), resultat);
+    }
+
+    private static FpSak.Uttaksperiode.Resultat.Årsak tilResultatÅrsak(ForeldrepengerUttakPeriode periode) {
+        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager() && periode.harRedusertUtbetaling()) {
+            return FpSak.Uttaksperiode.Resultat.Årsak.INNVILGET_UTTAK_AVSLÅTT_GRADERING_TILBAKE_I_TID;
+        }
+
+        return switch (periode.getResultatÅrsak()) {
+            case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
+            case AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID, AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
+            case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
+            default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
+        };
     }
 
     private boolean trekkerMinsterett(ForeldrepengerUttakPeriode periode) {

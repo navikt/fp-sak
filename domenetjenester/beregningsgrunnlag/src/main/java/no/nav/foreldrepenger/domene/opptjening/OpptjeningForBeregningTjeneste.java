@@ -54,7 +54,7 @@ public class OpptjeningForBeregningTjeneste {
         return aktiviteter.stream()
             .filter(oa -> oa.getPeriode().getFomDato().isBefore(behandlingReferanse.getUtledetSkjæringstidspunkt()))
             .filter(oa -> !oa.getPeriode().getTomDato().isBefore(opptjeningsperiodeFom))
-            .filter(oa -> opptjeningsaktiviteterPerYtelse.erRelevantAktivitet(oa.getOpptjeningAktivitetType(), iayGrunnlag))
+            .filter(oa -> opptjeningsaktiviteterPerYtelse.erRelevantAktivitet(oa.getOpptjeningAktivitetType()))
             .toList();
     }
 

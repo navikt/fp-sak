@@ -50,7 +50,6 @@ public class BehandlingRepositoryProvider {
     private OpptjeningRepository opptjeningRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
@@ -98,8 +97,6 @@ public class BehandlingRepositoryProvider {
 
         // Må gjøres til slutt pga deps
         this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
-        this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
-            søknadRepository, behandlingLåsRepository);
 
 
         // ********
@@ -174,10 +171,6 @@ public class BehandlingRepositoryProvider {
 
     public MottatteDokumentRepository getMottatteDokumentRepository() {
         return mottatteDokumentRepository;
-    }
-
-    public BehandlingRevurderingRepository getBehandlingRevurderingRepository() {
-        return behandlingRevurderingRepository;
     }
 
     public FagsakLåsRepository getFagsakLåsRepository() {

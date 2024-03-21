@@ -37,6 +37,12 @@ public class OppgaveTjeneste {
     private static final String NØS_ANSVARLIG_ENHETID = "4151";
     private static final String NØS_BEH_TEMA = "ab0273";
     private static final String NØS_TEMA = "STO";
+    private static final String SAMHANDLING_BS_FA_SP = "ae0119";
+    private static final String SYK_TEMA = "SYK";
+    private static final String SYK_ANSVARLIG_ENHETID = "4488";
+    private static final String OMS_TEMA = "OMS";
+    private static final String OMS_ANSVARLIG_ENHETID = "4487";
+    private static final String FEILMELDING = "Feil ved henting av oppgaver for oppgavetype=";
 
     private FagsakRepository fagsakRepository;
 
@@ -80,7 +86,7 @@ public class OppgaveTjeneste {
             LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_DOKUMENT.getKode());
             return oppgaver != null && !oppgaver.isEmpty();
         } catch (Exception e) {
-            throw new TekniskException("FP-395340", String.format("Feil ved henting av oppgaver for oppgavetype=%s.", Oppgavetype.VURDER_DOKUMENT.getKode()));
+            throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_DOKUMENT.getKode()));
         }
     }
 
@@ -90,7 +96,7 @@ public class OppgaveTjeneste {
             LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
             return oppgaver != null && !oppgaver.isEmpty();
         } catch (Exception e) {
-            throw new TekniskException("FP-395340", String.format("Feil ved henting av oppgaver for oppgavetype=%s.", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()));
+            throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()));
         }
     }
 
@@ -117,9 +123,28 @@ public class OppgaveTjeneste {
         return oppgave.id().toString();
     }
 
+    public void opprettVurderKonsekvensHosSykepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
+            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
+            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
+            .medTema(SYK_TEMA)
+            .medTildeltEnhetsnr(SYK_ANSVARLIG_ENHETID);
+        var oppgave = restKlient.opprettetOppgave(orequest.build());
+        LOG.info("FPSAK GOSYS opprettet SYK oppgave {}", oppgave.id());
+    }
+
+    public void opprettVurderKonsekvensHosPleiepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
+            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
+            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
+            .medTema(OMS_TEMA)
+            .medTildeltEnhetsnr(OMS_ANSVARLIG_ENHETID);
+        var oppgave = restKlient.opprettetOppgave(orequest.build());
+        LOG.info("FPSAK GOSYS opprettet OMS oppgave {}", oppgave.id());
+    }
+
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        var BESKRIVELSE = "Samordning arenaytelse. Vedtak foreldrepenger fra %s";
-        var beskrivelse = String.format(BESKRIVELSE, førsteUttaksdato);
+        var beskrivelse = String.format("Samordning arenaytelse. Vedtak foreldrepenger fra %s", førsteUttaksdato);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return opprettOkonomiSettPåVent(beskrivelse, behandling);
@@ -166,7 +191,7 @@ public class OppgaveTjeneste {
         try {
             return restKlient.finnÅpneOppgaver(List.of(), null, null, null);
         } catch (Exception e) {
-            throw new TekniskException("FP-395340", "Feil ved henting av alle åpne oppgaver.");
+            throw new TekniskException("FP-395341", "Feil ved henting av alle åpne oppgaver.");
         }
     }
 

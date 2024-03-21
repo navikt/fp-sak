@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -28,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -40,7 +40,7 @@ public class BehandlendeEnhetTjeneste {
 
     private EnhetsTjeneste enhetsTjeneste;
     private BehandlingEnhetEventPubliserer eventPubliserer;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -55,11 +55,12 @@ public class BehandlendeEnhetTjeneste {
     public BehandlendeEnhetTjeneste(EnhetsTjeneste enhetsTjeneste,
                                     BehandlingEnhetEventPubliserer eventPubliserer,
                                     BehandlingRepositoryProvider provider,
-                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                    FagsakEgenskapRepository fagsakEgenskapRepository,
+                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.enhetsTjeneste = enhetsTjeneste;
         this.eventPubliserer = eventPubliserer;
         this.personopplysningRepository = provider.getPersonopplysningRepository();
-        this.fagsakRelasjonRepository = provider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
         this.historikkRepository = provider.getHistorikkRepository();
@@ -134,7 +135,7 @@ public class BehandlendeEnhetTjeneste {
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak, OrganisasjonsEnhet enhet, AktørId hovedPerson, Set<AktørId> allePersoner) {
         allePersoner.add(hovedPerson);
 
-        var relasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+        var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
@@ -167,7 +168,7 @@ public class BehandlendeEnhetTjeneste {
     private OrganisasjonsEnhet sjekkMotKobletSak(Fagsak sak, OrganisasjonsEnhet enhet) {
         var merking = finnSaksmerking(sak);
         var flyttet = EnhetsTjeneste.velgEnhet(enhet, merking);
-        var relasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(sak).orElse(null);
+        var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(sak).orElse(null);
         if (relasjon == null || relasjon.getFagsakNrTo().isEmpty()) {
             return flyttet;
         }

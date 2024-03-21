@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
@@ -46,7 +46,7 @@ public class DokumentmottakerFelles {
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private Behandlingsoppretter behandlingsoppretter;
-    private BehandlingRevurderingRepository revurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @SuppressWarnings("unused")
     private DokumentmottakerFelles() {
@@ -55,6 +55,7 @@ public class DokumentmottakerFelles {
 
     @Inject
     public DokumentmottakerFelles(BehandlingRepositoryProvider repositoryProvider,
+                                  BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                   ProsessTaskTjeneste taskTjeneste,
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   HistorikkinnslagTjeneste historikkinnslagTjeneste,
@@ -69,7 +70,7 @@ public class DokumentmottakerFelles {
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
-        this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
     }
 
     void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsak) {
@@ -182,7 +183,7 @@ public class DokumentmottakerFelles {
     Behandling oppdatereViaHenleggelse(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
         var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
         opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, nyBehandling, mottattDokument);
-        var søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
+        var søknadsdato = behandlingRevurderingTjeneste.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         return nyBehandling;
     }
@@ -190,7 +191,7 @@ public class DokumentmottakerFelles {
     Behandling oppdatereViaHenleggelseEnkø(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
         var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
         opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, nyBehandling, mottattDokument);
-        var søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
+        var søknadsdato = behandlingRevurderingTjeneste.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         behandlingsoppretter.settSomKøet(nyBehandling);
         return nyBehandling;

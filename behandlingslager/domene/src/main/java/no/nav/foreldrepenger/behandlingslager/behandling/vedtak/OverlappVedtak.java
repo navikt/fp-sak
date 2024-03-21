@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -10,9 +11,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -64,6 +67,8 @@ public class OverlappVedtak extends BaseEntitet {
 
     @Column(name = "UTBETALINGSPROSENT", nullable = false)
     private long utbetalingsprosent;
+    @Transient
+    private long fpsakUtbetalingsprosent;
 
 
     protected OverlappVedtak() {
@@ -89,12 +94,16 @@ public class OverlappVedtak extends BaseEntitet {
         return hendelse;
     }
 
-    public String getFagsystem() {
-        return fagsystem;
+    public Fagsystem getFagsystem() {
+        return Fagsystem.fraKode(fagsystem);
     }
 
-    public String getYtelse() {
-        return ytelse;
+    public OverlappYtelseType getYtelse() {
+        return switch (ytelse) {
+            case "PSB", "PPN" -> OverlappYtelseType.PLEIEPENGER;
+            case "OMP" -> OverlappYtelseType.OMSORGSPENGER;
+            default -> OverlappYtelseType.valueOf(ytelse);
+        };
     }
 
     public String getReferanse() {
@@ -104,6 +113,12 @@ public class OverlappVedtak extends BaseEntitet {
     public long getUtbetalingsprosent() {
         return utbetalingsprosent;
     }
+    public long getFpsakUtbetalingsprosent() {
+        return fpsakUtbetalingsprosent;
+    }
+
+    public enum OverlappYtelseType { SP, BS, PLEIEPENGER, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN }
+
 
     @Override
     public boolean equals(Object o) {
@@ -157,13 +172,13 @@ public class OverlappVedtak extends BaseEntitet {
             return this;
         }
 
-        public Builder medFagsystem(String fagsystem) {
-            this.kladd.fagsystem = fagsystem;
+        public Builder medFagsystem(Fagsystem fagsystem) {
+            this.kladd.fagsystem = fagsystem.getKode();
             return this;
         }
 
-        public Builder medYtelse(String ytelse) {
-            this.kladd.ytelse = ytelse;
+        public Builder medYtelse(OverlappYtelseType ytelse) {
+            this.kladd.ytelse = ytelse.name();
             return this;
         }
 
@@ -173,7 +188,11 @@ public class OverlappVedtak extends BaseEntitet {
         }
 
         public Builder medUtbetalingsprosent(Long utbetalingsprosent) {
-            this.kladd.utbetalingsprosent = utbetalingsprosent;
+            this.kladd.utbetalingsprosent = Optional.ofNullable(utbetalingsprosent).orElse(0L);
+            return this;
+        }
+        public Builder medFpsakUtbetalingsprosent(Long fpsakUtbetalingsprosent) {
+            this.kladd.fpsakUtbetalingsprosent = Optional.ofNullable(fpsakUtbetalingsprosent).orElse(0L);
             return this;
         }
 

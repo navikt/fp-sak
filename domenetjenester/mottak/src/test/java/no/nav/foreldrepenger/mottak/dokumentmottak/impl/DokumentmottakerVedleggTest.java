@@ -18,6 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -50,6 +52,10 @@ class DokumentmottakerVedleggTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @Inject
     private Behandlingsoppretter behandlingsoppretter;
@@ -77,12 +83,12 @@ class DokumentmottakerVedleggTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         kompletthetskontroller = mock(Kompletthetskontroller.class);
-        dokumentmottaker = new DokumentmottakerVedlegg(repositoryProvider, dokumentmottakerFelles, kompletthetskontroller);
+        dokumentmottaker = new DokumentmottakerVedlegg(behandlingRevurderingTjeneste, dokumentmottakerFelles, kompletthetskontroller, repositoryProvider.getBehandlingRepository());
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -233,7 +239,7 @@ class DokumentmottakerVedleggTest {
     void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
         // Arrange - opprette fagsak uten behandling
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
+                repositoryProvider.getFagsakRepository(), fagsakRelasjonTjeneste);
 
         // Act - send inn endringssøknad
         var fagsakId = fagsak.getId();

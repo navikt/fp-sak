@@ -48,18 +48,19 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private UttakStegBeregnStønadskontoTjeneste tjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(uttakRepositoryProvider.getFagsakRelasjonRepository(),
-                null, uttakRepositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
-        tjeneste = new UttakStegBeregnStønadskontoTjeneste(uttakRepositoryProvider, beregnStønadskontoerTjeneste, dekningsgradTjeneste,
-                uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste);
+        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste,
+                uttakTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test
@@ -151,7 +152,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                 .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(morBehandling.getId(), LocalDateTime.now()));
@@ -177,7 +178,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                 .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
@@ -198,7 +199,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                 .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
@@ -245,11 +246,12 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettStønadskontoer(Behandling førsteBehandling) {
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getFagsakRelasjonRepository().lagre(førsteBehandling.getFagsak(), førsteBehandling.getId(), Stønadskontoberegning.builder()
-                .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
-                .medRegelEvaluering(" ")
-                .medRegelInput(" ")
-                .build());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
+        var stønadskontoberegning = Stønadskontoberegning.builder()
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
+            .medRegelEvaluering(" ")
+            .medRegelInput(" ")
+            .build();
+        fagsakRelasjonTjeneste.lagre(førsteBehandling.getFagsak().getId(), fagsakRelasjon, førsteBehandling.getId(), stønadskontoberegning);
     }
 }

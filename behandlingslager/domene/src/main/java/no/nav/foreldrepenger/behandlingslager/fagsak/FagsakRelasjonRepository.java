@@ -4,6 +4,8 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,6 +91,14 @@ public class FagsakRelasjonRepository {
             FagsakRelasjon.class);
         query.setParameter(FAGSAK_QP, fagsakId);
         return hentUniktResultat(query);
+    }
+
+    public Optional<FagsakRelasjon> finnRelasjonForHvisEksisterer(long fagsakId, LocalDateTime aktivPåTidspunkt) {
+        var query = entityManager.createQuery("from FagsakRelasjon where fagsakNrEn.id=:fagsak or fagsakNrTo.id=:fagsak", FagsakRelasjon.class);
+        query.setParameter(FAGSAK_QP, fagsakId);
+        return query.getResultStream()
+            .filter(fl -> !fl.getOpprettetTidspunkt().isAfter(aktivPåTidspunkt))
+            .max(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
     }
 
     public void lagre(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
@@ -332,7 +342,6 @@ public class FagsakRelasjonRepository {
         return new DiffEntity(traverser);
     }
 
-    @SuppressWarnings("unused")
     public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         Objects.requireNonNull(avsluttningsdato, "avsluttningsdato");
 

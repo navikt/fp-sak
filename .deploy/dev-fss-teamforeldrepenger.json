@@ -4,18 +4,17 @@
   "oracleconfig": "oracle/data/dev/config/fpsak_q1",
   "oraclefpsaksecret": "oracle/data/dev/creds/fpsak_q1-fpsak",
   "oracledvhsecret": "oracle/data/dev/creds/fpsak_q1-fpsak_hist",
-  "fpsakserviceuser": "serviceuser/data/dev/srvengangsstonad",
+  "fpsakserviceuser": "serviceuser/data/dev/srvfpsak",
   "ldapserviceuser": "serviceuser/data/dev/srvssolinux",
-  "mqserviceuser": "serviceuser/data/dev/srvfpsak",
   "minReplicas": "1",
   "maxReplicas": "3",
   "limits": {
-    "cpu": "2",
-    "mem": "2048Mi"
+    "cpu": "4",
+    "mem": "3072Mi"
   },
   "requests": {
-    "cpu": "200m",
-    "mem": "1024Mi"
+    "cpu": "500m",
+    "mem": "2816Mi"
   },
   "ingresses": [
     "https://fpsak-api.dev-fss-pub.nais.io",
@@ -74,6 +73,31 @@
       "app": "fpoversikt",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-gcp"
+    },
+    {
+      "app": "saf-q0",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "saf-q1",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "saf",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "saf-q4",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "saf-q5",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
     }
   ]
 }

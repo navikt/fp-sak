@@ -1,1 +1,0 @@
--- Ubrukt etter sletting av fpinfo

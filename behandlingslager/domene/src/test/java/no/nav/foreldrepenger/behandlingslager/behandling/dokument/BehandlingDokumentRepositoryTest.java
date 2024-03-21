@@ -71,6 +71,7 @@ class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
             .medBestillingUuid(bestillingUuid)
             .medDokumentMalType("TEST")
             .medBehandlingDokument(dokumenter)
+            .medOpprinneligDokumentMal("HMMM")
             .build());
 
         behandlingDokumentRepository.lagreOgFlush(dokumenter);

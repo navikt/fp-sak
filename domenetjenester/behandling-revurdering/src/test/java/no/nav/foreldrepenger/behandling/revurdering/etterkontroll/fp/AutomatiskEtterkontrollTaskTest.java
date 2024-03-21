@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -79,6 +80,7 @@ class AutomatiskEtterkontrollTaskTest {
     private ProsessTaskTjeneste taskTjenesteMock;
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     private EtterkontrollRepository etterkontrollRepository;
 
@@ -100,6 +102,7 @@ class AutomatiskEtterkontrollTaskTest {
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         this.historikkRepository = mock(HistorikkRepository.class);
+        this.fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
     }
 
     private Behandling lagBehandling(AktørId aktørId, RelasjonsRolleType relasjonsRolleType, Saksnummer saksnummer) {
@@ -121,7 +124,7 @@ class AutomatiskEtterkontrollTaskTest {
                 .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
                 .buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(vilkårResultat, lås);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getOpptjeningRepository()
                 .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         return behandling;
@@ -223,7 +226,7 @@ class AutomatiskEtterkontrollTaskTest {
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        repositoryProvider.getFagsakRelasjonRepository()
+        fagsakRelasjonTjeneste
                 .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
@@ -332,7 +335,7 @@ class AutomatiskEtterkontrollTaskTest {
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        repositoryProvider.getFagsakRelasjonRepository()
+        fagsakRelasjonTjeneste
             .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);

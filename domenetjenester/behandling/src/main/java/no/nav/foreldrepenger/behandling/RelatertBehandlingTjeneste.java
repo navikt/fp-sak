@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -24,7 +23,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class RelatertBehandlingTjeneste {
 
     private FagsakRepository fagsakRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -33,9 +32,9 @@ public class RelatertBehandlingTjeneste {
     }
 
     @Inject
-    public RelatertBehandlingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider) {
+    public RelatertBehandlingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
-        this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }
@@ -112,7 +111,7 @@ public class RelatertBehandlingTjeneste {
     }
 
     private Optional<Fagsak> hentAnnenPartsFagsak(Saksnummer saksnummer) {
-        return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer)
+        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer)
                 .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()));
     }
 }

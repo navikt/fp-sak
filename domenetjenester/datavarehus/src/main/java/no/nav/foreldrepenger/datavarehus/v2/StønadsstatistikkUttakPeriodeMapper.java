@@ -166,7 +166,7 @@ class StønadsstatistikkUttakPeriodeMapper {
                 .filter(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode)
                 .min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getUtbetalingsgrad))
                 .map(g -> new Gradering(mapArbeidType(g), new BigDecimal(100).subtract(g.getUtbetalingsgrad().decimalValue())))
-                .orElseThrow());
+                .orElse(null));
     }
 
     /**

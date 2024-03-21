@@ -70,6 +70,10 @@ public class InntektFilter {
         return copyWith(getAlleInntektPensjonsgivende(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
     }
 
+    public InntektFilter filterBeregning() {
+        return copyWith(getAlleInntektBeregningsgrunnlag(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
+    }
+
     public InntektFilter før(LocalDate skjæringstidspunkt) {
         return copyWith(this.inntekter, skjæringstidspunkt, true);
     }

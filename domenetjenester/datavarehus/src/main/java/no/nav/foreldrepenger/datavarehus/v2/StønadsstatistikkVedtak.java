@@ -30,6 +30,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
+    private RevurderingÅrsak revurderingÅrsak;
     @NotNull
     private LocalDate søknadsdato; //Siste søknadsdato for gjeldende vedtak
     private LocalDate skjæringstidspunkt;
@@ -85,6 +86,10 @@ public class StønadsstatistikkVedtak {
 
     public UUID getForrigeBehandlingUuid() {
         return forrigeBehandlingUuid;
+    }
+
+    public RevurderingÅrsak getRevurderingÅrsak() {
+        return revurderingÅrsak;
     }
 
     public LocalDate getSøknadsdato() {
@@ -155,7 +160,8 @@ public class StønadsstatistikkVedtak {
         return foreldrepengerRettigheter;
     }
 
-    record Beregning(@NotNull BigDecimal grunnbeløp, @NotNull BeregningÅrsbeløp årsbeløp, List<BeregningAndel> andeler, Set<String> næringOrgNr) {
+    record Beregning(@NotNull BigDecimal grunnbeløp, @NotNull BeregningÅrsbeløp årsbeløp, List<BeregningAndel> andeler, Set<String> næringOrgNr,
+                     @NotNull BeregningHjemmel hjemmel, @NotNull BeregningFastsatt fastsatt) {
         @Override
         public String toString() {
             return "Beregning{" + "grunnbeløp=" + grunnbeløp + ", årsbeløp=" + årsbeløp + '}';
@@ -183,7 +189,7 @@ public class StønadsstatistikkVedtak {
     }
 
     enum HendelseType {
-        FØDSEL, ADOPSJON, OMSORGSOVERTAKELSE
+        FØDSEL, ADOPSJON, STEBARNSADOPSJON, OMSORGSOVERTAKELSE
     }
 
     enum StønadskontoType {
@@ -192,6 +198,11 @@ public class StønadsstatistikkVedtak {
         MØDREKVOTE,
         FELLESPERIODE,
         FEDREKVOTE
+    }
+
+    enum StønadUtvidetType {
+        FLERBARNSDAGER,
+        PREMATURDAGER
     }
 
     enum Saksrolle {
@@ -212,15 +223,53 @@ public class StønadsstatistikkVedtak {
         YTELSE
     }
 
+    public enum RevurderingÅrsak {
+        MANUELL,
+        UTTAKMANUELL,
+        KLAGE,
+        ETTERKONTROLL,
+        SØKNAD,
+        INNTEKTSMELDING,
+        FOLKEREGISTER,
+        PLEIEPENGER,
+        NYSAK,
+        ANNENFORELDER,
+        REGULERING
+    }
+
+    public enum BeregningHjemmel {
+        ARBEID, // Ftl 14-7 første ledd, jf Ftl 8-28 og 8-30
+        NÆRING, // Ftl 14-7 første ledd, jf Ftl 8-35
+        FRILANS, // Ftl 14-7 første ledd, jf Ftl 8-38
+        ARBEID_FRILANS, // Ftl 14-7 første ledd, jf Ftl 8-40
+        ARBEID_NÆRING, // Ftl 14-7 første ledd, jf Ftl 8-41
+        NÆRING_FRILANS, // Ftl 14-7 første ledd, jf Ftl 8-42
+        ARBEID_NÆRING_FRILANS, // Ftl 14-7 første ledd, jf Ftl 8-43
+        DAGPENGER, // Ftl 14-7 første ledd, jf Ftl 8-49
+        ARBEIDSAVKLARINGSPENGER, // Ftl 14-7 andre ledd
+        BESTEBEREGNING, // Ftl 14-7 tredje ledd
+        MILITÆR_SIVIL, // Ftl 14-7 fjerde ledd
+        ANNEN // Annet innenfor Ftl 14-7, 14-4, 8
+    }
+
+    public enum BeregningFastsatt {
+        AUTOMATISK,
+        SKJØNN // Ftl 8-30, 8-35
+    }
+
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull Set<@Valid Stønadskonto> stønadskonti,
-                                     @Valid Trekkdager flerbarnsdager) {
+                                     @Valid Set<Stønadsutvidelse> stønadsutvidelser) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
                             @NotNull @Valid Trekkdager maksdager,
                             @NotNull @Valid Trekkdager restdager,
                             @Valid Trekkdager minsterett) {
+        }
+
+        record Stønadsutvidelse(@NotNull StønadsstatistikkVedtak.StønadUtvidetType type,
+                                @Valid Trekkdager dager) {
         }
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
@@ -243,7 +292,7 @@ public class StønadsstatistikkVedtak {
         private static final String VALID_REGEXP = "^\\d{13}$";
     }
 
-    record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+    public record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
                       @JsonValue String id) {
         private static final String VALID_REGEXP = "^[0-9]*$";
     }
@@ -311,6 +360,12 @@ public class StønadsstatistikkVedtak {
             kladd.forrigeBehandlingUuid = forrigeBehandlingUuid;
             return this;
         }
+
+        Builder medRevurderingÅrsak(RevurderingÅrsak revurderingÅrsak) {
+            kladd.revurderingÅrsak = revurderingÅrsak;
+            return this;
+        }
+
         Builder medSøknadsdato(LocalDate søknadsdato) {
             kladd.søknadsdato = søknadsdato;
             return this;

@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -7,11 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -25,16 +33,16 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     @Inject
-    public UttakStegBeregnStønadskontoTjeneste(UttakRepositoryProvider repositoryProvider,
-            BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
-            DekningsgradTjeneste dekningsgradTjeneste,
-            ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public UttakStegBeregnStønadskontoTjeneste(BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
+                                               DekningsgradTjeneste dekningsgradTjeneste,
+                                               ForeldrepengerUttakTjeneste uttakTjeneste,
+                                               FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
@@ -48,7 +56,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
      */
     BeregningingAvStønadskontoResultat beregnStønadskontoer(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
 
         // Trenger ikke behandlingslås siden stønadskontoer lagres på fagsakrelasjon.
@@ -69,12 +77,35 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
-        var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
-        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, fagsakRelasjon);
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input);
 
-        if (beregnStønadskontoerTjeneste.inneholderEndringer(eksiterendeKontoer, nyeKontoer)) {
-            LOG.info("Behandling ville ha endret stønadskontoer {} ", nyeKontoer);
+        var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
+        var endringerVedReberegning = utledEndringer(eksiterendeKontoer, nyeKontoer);
+        if (!endringerVedReberegning.isEmpty()) {
+            var saksnummer1 = fagsakRelasjon.getFagsakNrEn().getSaksnummer().getVerdi();
+            var saksnummer2 = fagsakRelasjon.getFagsakNrTo().map(fr -> fr.getSaksnummer().getVerdi()).orElse("");
+            LOG.info("Behandling ville ha endret stønadskontoer {} {} {} {} {}", saksnummer1, saksnummer2,
+                endringerVedReberegning, eksiterendeKontoer.getRegelInput(), nyeKontoer.getRegelInput());
         }
+    }
+
+    private static Set<KontoEndring> utledEndringer(Stønadskontoberegning eksiterendeKonti, Stønadskontoberegning nyeKonti) {
+        HashSet<StønadskontoType> alleTyper = new HashSet<>(Arrays.stream(StønadskontoType.values()).toList());
+
+        return alleTyper.stream().map(type -> {
+            var dagerEksisterende = finnMaksdagerForType(eksiterendeKonti, type);
+            var dagerNye = finnMaksdagerForType(nyeKonti, type);
+            return dagerNye.equals(dagerEksisterende) ? null : new KontoEndring(type, dagerEksisterende, dagerNye);
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    private static Integer finnMaksdagerForType(Stønadskontoberegning eksiterendeKonti, StønadskontoType type) {
+        return eksiterendeKonti.getStønadskontoer()
+            .stream()
+            .filter(s -> s.getStønadskontoType().equals(type))
+            .map(Stønadskonto::getMaxDager)
+            .findFirst()
+            .orElse(0);
     }
 
     private boolean oppfyllerPrematurUker(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -113,5 +144,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
         BEREGNET,
         OVERSTYRT,
         INGEN_BEREGNING
+    }
+
+    private record KontoEndring(StønadskontoType type, Integer dagerEksisterende, Integer dagerNye) {
     }
 }

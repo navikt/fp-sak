@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
@@ -62,6 +63,8 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     private Behandling revurdering;
     private Behandlingsresultat revurderingResultat;
@@ -80,7 +83,7 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         var revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
             behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
@@ -177,28 +180,6 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
         assertThat(oppfyllerIkkjeInngangsvilkår.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.OPPHØR);
         assertThat(oppfyllerIkkjeInngangsvilkår.getRettenTil()).isEqualTo(RettenTil.HAR_IKKE_RETT_TIL_FP);
         assertThat(oppfyllerIkkjeInngangsvilkår.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(
-                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
-    }
-
-    @Test
-    void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_som_skal_behandles_i_infotrygd() {
-        // Arrange
-        VilkårResultat.builder()
-                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT,
-                        Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN)
-                .buildFor(revurdering);
-
-        // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
-                revurdering, revurderingResultat);
-
-        // Assert
-        assertThat(oppfyllerIkkjeInngangsvilkår).isNotNull();
-        assertThat(oppfyllerIkkjeInngangsvilkår.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.OPPHØR);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getRettenTil()).isEqualTo(RettenTil.HAR_IKKE_RETT_TIL_FP);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getVedtaksbrev()).isEqualTo(Vedtaksbrev.INGEN);
         assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen()).hasSize(1);
         assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(
                 KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);

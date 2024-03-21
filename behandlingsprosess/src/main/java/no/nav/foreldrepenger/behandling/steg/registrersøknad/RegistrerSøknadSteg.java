@@ -91,6 +91,21 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
             return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
         }
 
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) &&
+            !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            if (henleggBehandling(behandling)) {
+                henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
+                    null);
+                return BehandleStegResultat.henlagtBehandling();
+            }
+            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
+                var ventefrist = LocalDate.now().plusMonths(2).atStartOfDay();
+
+                var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV, ventefrist);
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
+            }
+        }
+
         // OBS Dokumentmottak kan kopierere vedlegg fra tidligere behandlinger og disse
         // er "nyere" enn søknad som trigger ny 1gang/revurdering
         var nyesteSøknad = nyesteSøknad(mottatteDokumenterBehandling);

@@ -3,11 +3,10 @@ package no.nav.foreldrepenger.mottak.hendelser.fp;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
@@ -21,13 +20,13 @@ import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHån
 public class FødselForretningshendelseHåndtererImpl implements ForretningshendelseHåndterer {
 
     private final ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
-    private final BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private final BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @Inject
-    public FødselForretningshendelseHåndtererImpl(BehandlingRepositoryProvider repositoryProvider,
+    public FødselForretningshendelseHåndtererImpl(BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                                   ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
 
     }
 
@@ -50,7 +49,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingOpt = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         if (køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
             return;
         }

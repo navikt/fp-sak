@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -46,7 +46,7 @@ public class Behandlingsoppretter {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private BehandlingRevurderingRepository revurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private SøknadRepository søknadRepository;
@@ -57,11 +57,12 @@ public class Behandlingsoppretter {
 
     @Inject
     public Behandlingsoppretter(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                    BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                                    MottattDokumentPersisterer mottattDokumentPersisterer,
-                                    MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+                                BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+                                MottattDokumentPersisterer mottattDokumentPersisterer,
+                                MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;
@@ -69,7 +70,7 @@ public class Behandlingsoppretter {
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
-        this.revurderingRepository = behandlingRepositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
@@ -251,7 +252,7 @@ public class Behandlingsoppretter {
     }
 
     public Behandling opprettNyFørstegangsbehandlingFraTidligereSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling behandlingMedSøknad) {
-        var sisteYtelsesbehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).orElseThrow();
+        var sisteYtelsesbehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).orElseThrow();
         var harÅpenBehandling = !sisteYtelsesbehandling.erSaksbehandlingAvsluttet();
         var behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling, behandlingÅrsakType)
             : opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(behandlingMedSøknad));

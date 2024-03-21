@@ -6,21 +6,23 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private DekningsgradTjeneste dekningsgradTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
@@ -30,11 +32,11 @@ public class YtelseFordelingDtoTjeneste {
 
     @Inject
     public YtelseFordelingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                      FagsakRelasjonRepository fagsakRelasjonRepository,
+                                      DekningsgradTjeneste dekningsgradTjeneste,
                                       UføretrygdRepository uføretrygdRepository,
                                       ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -50,8 +52,8 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
-        fagsakRelasjon.ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
+        var fagsdekningsgradkRelasjon = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
+        fagsdekningsgradkRelasjon.ifPresent(d -> dtoBuilder.medGjeldendeDekningsgrad(d.getVerdi()));
         return Optional.of(dtoBuilder.build());
     }
 
@@ -79,17 +81,19 @@ public class YtelseFordelingDtoTjeneste {
     }
 
     private LocalDate finnFørsteUttaksdatoRevurdering(Behandling behandling) {
-        var revurderingId = behandling.getOriginalBehandlingId()
+        var originalBehandling = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurderingId);
-        var førsteUttaksdatoOriginalBehandling = uttak.isEmpty() ? finnFørsteUttaksdatoFørstegangsbehandling(behandling) : uttak.get()
-                .finnFørsteUttaksdato();
+        var uttakOriginal = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
+        var førsteUttakOriginal = uttakOriginal.flatMap(ForeldrepengerUttak::finnFørsteUttaksdatoHvisFinnes);
+        var førsteUttaksdatoTidligereBehandling = førsteUttakOriginal.orElse(Tid.TIDENES_ENDE);
 
         var førsteUttaksdatoSøkt = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
             .getOppgittFordeling()
             .finnFørsteUttaksdato();
 
-        return førsteUttaksdatoSøkt.filter(søktFom -> søktFom.isBefore(førsteUttaksdatoOriginalBehandling)).orElse(førsteUttaksdatoOriginalBehandling);
+        return førsteUttaksdatoSøkt.filter(søktFom -> søktFom.isBefore(førsteUttaksdatoTidligereBehandling)).orElse(førsteUttaksdatoTidligereBehandling);
     }
+
+
 
 }

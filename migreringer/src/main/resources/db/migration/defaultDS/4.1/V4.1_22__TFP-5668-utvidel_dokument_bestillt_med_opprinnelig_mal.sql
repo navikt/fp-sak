@@ -1,0 +1,2 @@
+ALTER TABLE BEHANDLING_DOKUMENT_BESTILT add OPPRINNELIG_DOKUMENT_MAL VARCHAR2(7 CHAR);
+COMMENT ON COLUMN BEHANDLING_DOKUMENT_BESTILT.OPPRINNELIG_DOKUMENT_MAL IS 'Lagrer den opprinnelige malen som ville blitt brukt dersom den ikke ble overstyrt med fritekstmalen.';

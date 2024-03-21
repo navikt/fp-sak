@@ -145,8 +145,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         return aktørIder;
     }
 
-
-
     private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {
         if (aktørId == null || aktørId.isEmpty()) {
             return Collections.emptySet();

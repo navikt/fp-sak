@@ -56,6 +56,7 @@ public final class Databaseskjemainitialisering {
                 .table("schema_version")
                 .baselineOnMigrate(true)
                 .cleanOnValidationError(true)
+                .cleanDisabled(false)
                 .load();
             try {
                 if (!ENV.isLocal()) {

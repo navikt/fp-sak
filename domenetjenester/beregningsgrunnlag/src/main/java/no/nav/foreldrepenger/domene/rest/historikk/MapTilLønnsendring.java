@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -115,7 +116,7 @@ public class MapTilLønnsendring {
             .filter(a -> !a.getNyAndel())
             .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(),
                 dtoAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg))
-            .toList();
+            .collect(Collectors.toList());
         var nyDagpengeAndel = dto.getBesteberegningAndeler().getNyDagpengeAndel();
         if (nyDagpengeAndel != null) {
             var lønnsendringForNyAndel = mapTilLønnsendring(AktivitetStatus.DAGPENGER,

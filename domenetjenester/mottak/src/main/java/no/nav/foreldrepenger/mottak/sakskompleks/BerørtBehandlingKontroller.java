@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -46,7 +46,7 @@ public class BerørtBehandlingKontroller {
 
     private static final Logger LOG = LoggerFactory.getLogger(BerørtBehandlingKontroller.class);
 
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingRepository behandlingRepository;
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -58,13 +58,14 @@ public class BerørtBehandlingKontroller {
 
     @Inject
     public BerørtBehandlingKontroller(BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                      BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                       BerørtBehandlingTjeneste berørtBehandlingTjeneste,
                                       Behandlingsoppretter behandlingsoppretter,
                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) BeregnFeriepenger beregnFeriepenger,
                                       KøKontroller køKontroller) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
-        this.behandlingRevurderingRepository = behandlingRepositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.berørtBehandlingTjeneste = berørtBehandlingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingsoppretter = behandlingsoppretter;
@@ -79,7 +80,7 @@ public class BerørtBehandlingKontroller {
 
     public void vurderNesteOppgaveIBehandlingskø(Long vedtattBehandlingId) {
         var vedtattBehandling = behandlingRepository.hentBehandling(vedtattBehandlingId);
-        var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(vedtattBehandling.getFagsak());
+        var fagsakPåMedforelder = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(vedtattBehandling.getFagsak());
         if (fagsakPåMedforelder.isPresent()) {
             håndterKøForMedforelder(fagsakPåMedforelder.get(), vedtattBehandling);
         } else {
@@ -162,7 +163,7 @@ public class BerørtBehandlingKontroller {
             .filter(SpesialBehandling::erJusterFeriepenger)
             .forEach(behandlingsoppretter::henleggBehandling);
 
-        var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId());
+        var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsakMedforelder.getId());
         var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker);
         køKontroller.submitBerørtBehandling(berørtBehandling, åpenBehandling);

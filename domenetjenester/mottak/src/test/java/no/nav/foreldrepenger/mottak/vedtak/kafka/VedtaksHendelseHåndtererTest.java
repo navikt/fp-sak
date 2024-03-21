@@ -68,6 +68,8 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.OverlappOppgaveTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -87,6 +89,8 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
     private BehandlingRepositoryProvider repositoryProvider;
+    @Mock
+    private OppgaveTjeneste oppgaveTjenesteMock;
     private static final int DAGSATS = 442;
 
     @BeforeEach
@@ -97,9 +101,10 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository), null);
+        var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
             null, null, null, null,
-            overlappInfotrygdRepository, behandlingRepository);
+            overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
             taskTjeneste, mottakRepository);
@@ -144,9 +149,9 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
-        assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(200);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+        assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
+        assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(200);
+        assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
@@ -191,9 +196,9 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
-        assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(120);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+        assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
+        assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(120);
+        assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
             ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
@@ -235,7 +240,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         assertThat(prosessTaskDataList.size()).isEqualTo(1);
 
-        var task = prosessTaskDataList.get(0);
+        var task = prosessTaskDataList.getFirst();
         assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
         assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
         assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());

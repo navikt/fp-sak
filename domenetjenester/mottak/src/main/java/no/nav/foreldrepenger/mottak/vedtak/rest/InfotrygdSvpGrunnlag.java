@@ -9,7 +9,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 // Brukes ikke av mottak, men av egen innsynsløsning / ui.
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpsak.it.sv.grunnlag.url",
-    endpointDefault = "http://fp-infotrygd-svangerskapspenger.teamforeldrepenger/grunnlag",
+    endpointDefault = "http://fp-infotrygd-svangerskapspenger/grunnlag",
     scopesProperty = "fpsak.it.sv.scopes", scopesDefault = "api://prod-fss.teamforeldrepenger.fp-infotrygd-svangerskapspenger/.default")
 public class InfotrygdSvpGrunnlag extends AbstractInfotrygdGrunnlag {
 

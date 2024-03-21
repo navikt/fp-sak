@@ -24,7 +24,7 @@ public class UttakPeriodeEndringDtoTjeneste {
         AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT, AksjonspunktDefinisjon.FASTSETT_UTTAK_ETTER_NESTE_SAK,
         AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS,
         AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE, AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST,
-        AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN, AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD,
+        AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD,
         AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
 
     private static final Set<AksjonspunktDefinisjon> FAKTA_UTTAK = Set.of(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK,

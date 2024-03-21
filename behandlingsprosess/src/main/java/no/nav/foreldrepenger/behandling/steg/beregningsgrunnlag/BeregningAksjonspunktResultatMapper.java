@@ -39,7 +39,7 @@ class BeregningAksjonspunktResultatMapper {
 
     private static Venteårsak mapTilVenteårsak(BeregningAvklaringsbehovResultat beregningResultat) {
         return switch(beregningResultat.getVenteårsak()) {
-            case VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> Venteårsak.VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
+            case VENT_PÅ_SISTE_AAP_MELDEKORT -> Venteårsak.VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
             case VENT_INNTEKT_RAPPORTERINGSFRIST -> Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST;
             default -> throw new IllegalStateException("Mottok ukjent venteårsak fra kalkulus " + beregningResultat.getVenteårsak());
         };

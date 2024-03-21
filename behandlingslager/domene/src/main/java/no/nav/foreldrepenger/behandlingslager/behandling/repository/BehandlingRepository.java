@@ -51,7 +51,7 @@ public class BehandlingRepository {
     }
 
     private static Optional<Behandling> optionalFirst(List<Behandling> behandlinger) {
-        return behandlinger.isEmpty() ? Optional.empty() : Optional.of(behandlinger.get(0));
+        return behandlinger.isEmpty() ? Optional.empty() : Optional.of(behandlinger.getFirst());
     }
 
     /**

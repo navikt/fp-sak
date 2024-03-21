@@ -9,8 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningT
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
 
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FpUttakRepository fpUttakRepository;
     private KontoerGrunnlagBygger kontoerGrunnlagBygger;
 
@@ -48,8 +48,8 @@ public class StønadskontoSaldoTjeneste {
     }
 
     @Inject
-    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger) {
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
@@ -129,7 +129,7 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
-        return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer())
+        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(ref.saksnummer())
             .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
             .map(Stønadskontoberegning::getStønadskontoer);
     }

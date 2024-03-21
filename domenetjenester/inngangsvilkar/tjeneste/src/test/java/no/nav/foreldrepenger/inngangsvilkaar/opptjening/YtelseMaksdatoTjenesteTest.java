@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -45,7 +46,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste;
+    private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
 
 
     @BeforeEach
@@ -53,15 +54,16 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
-        beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, relatertBehandlingTjeneste);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
+            repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     @Test
     void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
         assertThat(morsMaksdato).isEmpty();
     }
 
@@ -126,7 +128,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -189,7 +191,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -242,7 +244,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isEmpty();
