@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -136,7 +137,9 @@ public class FagsakFullTjeneste {
     }
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
-        return dekningsgradTjeneste.finnGjeldendeDekningsgrad(fagsak.getSaksnummer()).getVerdi();
+        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(fagsak.getSaksnummer())
+            .map(Dekningsgrad::getVerdi)
+            .orElse(null);
     }
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi) {
