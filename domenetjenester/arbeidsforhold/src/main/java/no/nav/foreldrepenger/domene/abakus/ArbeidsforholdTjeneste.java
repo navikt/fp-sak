@@ -81,7 +81,7 @@ public class ArbeidsforholdTjeneste {
         return new ArbeidsforholdMedPermisjon(
             mapTilArbeidsgiver(dto),
             no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.fraKode(dto.getType().getKode()),
-            EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId() != null ? dto.getArbeidsforholdId().getEksternReferanse() : EksternArbeidsforholdRef.nullRef().getReferanse()),
+            dto.getArbeidsforholdId() != null ? EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId().getEksternReferanse()) : EksternArbeidsforholdRef.nullRef(),
             tilAktivitetsavtale(dto.getArbeidsavtaler()),
             tilPermisjoner(dto.getPermisjoner()));
     }
