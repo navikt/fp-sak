@@ -40,14 +40,12 @@ import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
@@ -68,8 +66,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private static final List<Duration> SPOKELSE_TIMEOUTS = List.of(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(2500),
         Duration.ofMillis(12), Duration.ofSeconds(60));
-
-    private static final boolean IS_PROD = Environment.current().isProd();
 
     private BeregningTjeneste beregningTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -278,24 +274,17 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                     LocalDate førsteUttaksDatoFP,
                                     LocalDateTimeline<BigDecimal> perioderFp,
                                     List<OverlappVedtak.Builder> overlappene) {
-        try {
-            var request =  AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1),
-                Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE, Ytelser.OMSORGSPENGER, Ytelser.OPPLÆRINGSPENGER, Ytelser.FRISINN));
-            abakusTjeneste.hentVedtakForAktørId(request)
-                .stream()
-                .map(y -> (YtelseV1) y)
-                .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
-                .forEach(y -> {
-                    var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
-                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK,  mapAbakusYtelseType(y),
-                        y.getSaksnummer(), ytelseTidslinje));
-                });
-        } catch (Exception e) {
-            if (IS_PROD) {
-                throw new TekniskException("FP-180125", "Tjeneste abakus gir feil", e);
-            }
-            LOG.info("Noe gikk galt mot abakus", e);
-        }
+        var request =  AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1),
+            Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE, Ytelser.OMSORGSPENGER, Ytelser.OPPLÆRINGSPENGER, Ytelser.FRISINN));
+        abakusTjeneste.hentVedtakForAktørId(request)
+            .stream()
+            .map(y -> (YtelseV1) y)
+            .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
+            .forEach(y -> {
+                var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
+                overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK,  mapAbakusYtelseType(y),
+                    y.getSaksnummer(), ytelseTidslinje));
+            });
     }
 
     public void vurderOmOverlappSYK(PersonIdent ident,

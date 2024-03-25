@@ -85,7 +85,6 @@ class StønadsstatistikkUttakPeriodeMapper {
 
     private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode, String logContext) {
         if (periode.getResultatÅrsak().getUtfallType() != PeriodeResultatÅrsak.UtfallType.AVSLÅTT) {
-            // TODO ta med saksnummer + behandling ned i kontekst
             LOG.info("Stønadsstatistikk forventer periode med avslågsårsak {}. Fikk {} for periode {}", logContext, periode.getResultatÅrsak(), periode.getTidsperiode());
             return Forklaring.AVSLAG_ANNET;
         }

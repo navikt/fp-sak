@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.konfig.Cluster;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -35,7 +33,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class OppdaterPersonoversiktTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterPersonoversiktTask.class);
-    private static final Cluster CLUSTER = Environment.current().getCluster();
 
     public static String PH_REF_KEY = "behandlingRef";
     public static String PH_STATUS_KEY = "status";
@@ -69,35 +66,29 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        try {
-            var behandling = behandlingId != null ? behandlingRepository.hentBehandlingReadOnly(behandlingId) :
-                behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
-            if (behandling == null) {
-                return;
-            }
-            var behandlingRef = prosessTaskData.getPropertyValue(PH_REF_KEY);
-            var behandlingStatus = BehandlingStatus.fraKode(prosessTaskData.getPropertyValue(PH_STATUS_KEY));
-            var behandlingType = BehandlingType.fraKode(prosessTaskData.getPropertyValue(PH_TYPE_KEY));
-            var tidspunkt = LocalDateTime.parse(prosessTaskData.getPropertyValue(PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            var enhet = behandlingId != null ? behandling.getBehandlendeEnhet() : getBehandlendeEnhetForSak(behandling);
-            var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
-                .hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
-            var erAvsluttet = BehandlingStatus.AVSLUTTET.equals(behandlingStatus);
-            var hendelseTYpe = erAvsluttet ? "behandlingAvsluttet" : "behandlingOpprettet";
-
-            var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
-
-            LOG.info("OppdaterPersonoversikt sender behandlingsstatus {} for id {}", behandlingStatus.getKode(), behandlingRef);
-
-            var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
-            var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseTYpe, callId, behandling.getAktørId(),
-                tidspunkt, behandlingType, behandlingRef, behandlingTema, enhet, ident, erAvsluttet);
-            aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
-        } catch (Exception e) {
-            LOG.info("OppdaterPersonoversikt noe gikk feil for fagsak {}", fagsakId, e);
-            if (CLUSTER.isProd())
-                throw e;
+        var behandling = behandlingId != null ? behandlingRepository.hentBehandlingReadOnly(behandlingId) :
+            behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
+        if (behandling == null) {
+            return;
         }
+        var behandlingRef = prosessTaskData.getPropertyValue(PH_REF_KEY);
+        var behandlingStatus = BehandlingStatus.fraKode(prosessTaskData.getPropertyValue(PH_STATUS_KEY));
+        var behandlingType = BehandlingType.fraKode(prosessTaskData.getPropertyValue(PH_TYPE_KEY));
+        var tidspunkt = LocalDateTime.parse(prosessTaskData.getPropertyValue(PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        var enhet = behandlingId != null ? behandling.getBehandlendeEnhet() : getBehandlendeEnhetForSak(behandling);
+        var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
+            .hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
+        var erAvsluttet = BehandlingStatus.AVSLUTTET.equals(behandlingStatus);
+        var hendelseTYpe = erAvsluttet ? "behandlingAvsluttet" : "behandlingOpprettet";
+
+        var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
+
+        LOG.info("OppdaterPersonoversikt sender behandlingsstatus {} for id {}", behandlingStatus.getKode(), behandlingRef);
+
+        var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
+        var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseTYpe, callId, behandling.getAktørId(),
+            tidspunkt, behandlingType, behandlingRef, behandlingTema, enhet, ident, erAvsluttet);
+        aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
     }
 
     private String createUniqueKey(String behandlingsId, String event) {

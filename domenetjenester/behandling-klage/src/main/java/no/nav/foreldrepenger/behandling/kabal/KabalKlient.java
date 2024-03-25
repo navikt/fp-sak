@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class KabalKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KabalKlient.class);
-    private static boolean erDeployment = Environment.current().isProd() || Environment.current().isDev();
+    private static final boolean IS_LOCAL = Environment.current().isLocal();
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -30,7 +30,7 @@ public class KabalKlient {
     }
 
     public void sendTilKabal(TilKabalDto request) {
-        if (!erDeployment) return;
+        if (IS_LOCAL) return; // Har ikke laget kabal-mock i VTP
         try {
             var rrequest = RestRequest.newPOSTJson(request, restConfig.endpoint(), restConfig);
             restClient.sendExpectConflict(rrequest, String.class);

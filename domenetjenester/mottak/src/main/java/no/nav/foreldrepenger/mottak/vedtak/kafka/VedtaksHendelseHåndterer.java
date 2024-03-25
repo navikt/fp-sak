@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
@@ -55,8 +54,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStringMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
-    private static final Environment ENV = Environment.current();
-    private static final String PROD_GROUP_ID = "fpsak-vedtakfattet";  // Hold konstant pga offset commit !!
+    private static final String GROUP_ID = "fpsak-vedtakfattet";  // Hold konstant pga offset commit !!
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE);
@@ -229,9 +227,6 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
 
     @Override
     public String groupId() {
-        if (!ENV.isProd()) {
-            return PROD_GROUP_ID + (ENV.isDev() ? "-dev" : "-vtp");
-        }
-        return PROD_GROUP_ID;
+        return GROUP_ID;
     }
 }

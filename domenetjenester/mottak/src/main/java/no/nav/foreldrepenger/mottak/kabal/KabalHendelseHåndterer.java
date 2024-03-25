@@ -53,7 +53,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     }
 
     @Inject
-    public KabalHendelseHåndterer(@KonfigVerdi(value = "kafka.kabal.topic", defaultVerdi = "klage.behandling-events.v1") String topicName,
+    public KabalHendelseHåndterer(@KonfigVerdi(value = "kafka.kabal.topic") String topicName,
                                   ProsessTaskTjeneste taskTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   HendelsemottakRepository mottakRepository,

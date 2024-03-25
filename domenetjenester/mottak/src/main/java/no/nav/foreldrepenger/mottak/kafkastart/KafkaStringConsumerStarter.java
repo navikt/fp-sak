@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.kabal.KabalHendelseHåndterer;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseHåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.BehandlingHendelseHåndterer;
@@ -21,7 +20,6 @@ import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaStringConsumerStarter.class);
-    private static final boolean IS_LOCAL = Environment.current().isLocal();
 
     private KafkaConsumerManager<String, String> kcm;
 
@@ -31,8 +29,8 @@ public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Contro
     public KafkaStringConsumerStarter(VedtaksHendelseHåndterer vedtaksHendelseHåndterer,
                                       BehandlingHendelseHåndterer behandlingHendelseHåndterer,
                                       KabalHendelseHåndterer kabalHendelseHåndterer) {
-        this.kcm = IS_LOCAL ? new KafkaConsumerManager<>(List.of(vedtaksHendelseHåndterer, behandlingHendelseHåndterer)) :
-            new KafkaConsumerManager<>(List.of(vedtaksHendelseHåndterer, behandlingHendelseHåndterer, kabalHendelseHåndterer));
+        // Kan vurdere Any Instance<KafkaStringMessageHandler> som input - husk stream.toList som argument til new KCM
+        this.kcm = new KafkaConsumerManager<>(List.of(vedtaksHendelseHåndterer, behandlingHendelseHåndterer, kabalHendelseHåndterer));
     }
 
 

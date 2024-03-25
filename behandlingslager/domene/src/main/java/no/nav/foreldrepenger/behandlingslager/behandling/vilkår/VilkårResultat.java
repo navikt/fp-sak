@@ -202,12 +202,12 @@ public class VilkårResultat extends BaseEntitet {
     public static class Builder {
 
         private static final Logger LOG = LoggerFactory.getLogger(VilkårResultat.Builder.class);
-        private static final boolean PROD = Environment.current().isProd();
-        private static String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller årsak";
+        private static final boolean IS_PROD = Environment.current().isProd();
+        private static final String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller årsak";
 
-        private Map<VilkårType, Vilkår> vilkårene = new EnumMap<>(VilkårType.class);
+        private final Map<VilkårType, Vilkår> vilkårene = new EnumMap<>(VilkårType.class);
 
-        private VilkårResultat resultatKladd = new VilkårResultat();
+        private final VilkårResultat resultatKladd = new VilkårResultat();
         private VilkårResultat eksisterendeResultat;
         private VilkårResultatType vilkårResultatType;
         private boolean modifisert;
@@ -399,7 +399,7 @@ public class VilkårResultat extends BaseEntitet {
             if (vilkårResultatType != null) {
                 resultat.setVilkårResultatType(vilkårResultatType);
                 var utledetVilkårResultat = VilkårResultatType.utledInngangsvilkårUtfall(resultat.hentAlleGjeldendeVilkårsutfall(), false);
-                if (PROD && !resultat.getVilkårResultatType().equals(utledetVilkårResultat)) {
+                if (IS_PROD && !resultat.getVilkårResultatType().equals(utledetVilkårResultat)) {
                     // TODO: Vurder exception i prod
                     LOG.info("Vilkårbuilder: Mismatch mellom satt {} og utledet vilkårsresultattype {}", resultat.getVilkårResultatType(), utledetVilkårResultat);
                 }

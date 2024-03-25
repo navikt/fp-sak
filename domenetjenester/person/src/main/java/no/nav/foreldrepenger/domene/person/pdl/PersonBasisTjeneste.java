@@ -8,9 +8,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -40,10 +37,9 @@ import no.nav.pdl.PersonResponseProjection;
 @ApplicationScoped
 public class PersonBasisTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PersonBasisTjeneste.class);
+    private static final boolean IS_PROD = Environment.current().isProd();
 
     private PdlKlientLogCause pdlKlient;
-    private boolean isProd = Environment.current().isProd();
 
     PersonBasisTjeneste() {
         // CDI
@@ -82,7 +78,7 @@ public class PersonBasisTjeneste {
                 .map(Foedsel::getFoedselsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
-                .orElseGet(() -> isProd ? null : LocalDate.now().minusDays(1));
+                .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
         var dødsdato = person.getDoedsfall().stream()
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
@@ -141,7 +137,7 @@ public class PersonBasisTjeneste {
         return person.getNavn().stream()
             .map(PersonBasisTjeneste::mapNavn)
             .filter(Objects::nonNull)
-            .findFirst().orElseGet(() -> isProd ? null : "Navnløs i Folkeregister");
+            .findFirst().orElseGet(() -> IS_PROD ? null : "Navnløs i Folkeregister");
     }
 
     private static String mapNavn(Navn navn) {
