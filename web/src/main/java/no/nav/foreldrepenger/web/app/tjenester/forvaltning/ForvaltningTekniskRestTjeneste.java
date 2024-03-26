@@ -225,7 +225,7 @@ public class ForvaltningTekniskRestTjeneste {
             """;
 
         var tasks = entityManager.createNativeQuery(updateSql)
-            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 19, 0))
+            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 20, 0))
             .executeUpdate();
         return Response.ok(tasks).build();
     }
