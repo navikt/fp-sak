@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OppdaterPersonoversiktTask;
@@ -36,8 +35,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaStringMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingHendelseHåndterer.class);
-    private static final Environment ENV = Environment.current();
-    private static final String PROD_GROUP_ID = "fpsak-behandling-hendelse";  // Hold konstant pga offset commit !!
+    private static final String GROUP_ID = "fpsak-behandling-hendelse";  // Hold konstant pga offset commit !!
 
     private String topicName;
     private FagsakTjeneste fagsakTjeneste;
@@ -48,7 +46,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
     }
 
     @Inject
-    public BehandlingHendelseHåndterer(@KonfigVerdi(value = "kafka.behandlinghendelse.topic", defaultVerdi = "teamforeldrepenger.behandling-hendelse-v1") String topicName,
+    public BehandlingHendelseHåndterer(@KonfigVerdi(value = "kafka.behandlinghendelse.topic") String topicName,
                                        FagsakTjeneste fagsakTjeneste,
                                        ProsessTaskTjeneste taskTjeneste,
                                        OppdaterFagsakStatusTjeneste fagsakStatusTjeneste) {
@@ -126,9 +124,6 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
 
     @Override
     public String groupId() {
-        if (!ENV.isProd()) {
-            return PROD_GROUP_ID + (ENV.isDev() ? "-dev" : "-vtp");
-        }
-        return PROD_GROUP_ID;
+        return GROUP_ID;
     }
 }

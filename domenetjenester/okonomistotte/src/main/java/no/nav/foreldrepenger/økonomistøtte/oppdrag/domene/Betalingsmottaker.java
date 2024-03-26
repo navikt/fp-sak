@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 import java.util.Comparator;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 public interface Betalingsmottaker {
     Bruker BRUKER = new Bruker();
 
@@ -44,7 +42,7 @@ public interface Betalingsmottaker {
     }
 
     class ArbeidsgiverOrgnr implements Betalingsmottaker, Comparable<ArbeidsgiverOrgnr> {
-        private String orgnr;
+        private final String orgnr;
 
         private ArbeidsgiverOrgnr(String orgnr) {
             Objects.requireNonNull(orgnr, "orgnr kan ikke være null");
@@ -76,7 +74,7 @@ public interface Betalingsmottaker {
 
         @Override
         public String toString() {
-            return "orgnr='" + (Environment.current().isProd() ? "MASKERT" : orgnr);
+            return "orgnr=MASKERT";
         }
 
         @Override

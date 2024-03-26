@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -42,7 +43,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     static final String FOM_DATO_KEY = "fom";
     static final String TOM_DATO_KEY = "tom";
     private static final String FRA_FAGSAK_ID = "fraFagsakId";
-    private static final LocalDateTime MAKSTIDSPUNKT_VEDTAK = LocalDate.of(2024, 2, 1).atStartOfDay();
+    private static final LocalDateTime MAKSTIDSPUNKT_VEDTAK = LocalDate.of(2024, Month.APRIL, 1).atStartOfDay();
 
     private final BehandlingRepository behandlingRepository;
     private final StønadsstatistikkTjeneste stønadsstatistikkTjeneste;
