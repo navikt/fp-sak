@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
@@ -60,7 +59,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandl
 public class FastsettePerioderRegelResultatKonverterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(FastsettePerioderRegelResultatKonverterer.class);
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesfordelingRepository;
@@ -177,8 +175,7 @@ public class FastsettePerioderRegelResultatKonverterer {
 
     private void loggManueltSamtidigUttak(FastsettePeriodeResultat resultat, RegelGrunnlag grunnlag) {
         try {
-            if (!ER_PROD || !resultat.isManuellBehandling() ||
-                !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.uttakPeriode().getManuellbehandlingårsak())) {
+            if (!resultat.isManuellBehandling() || !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.uttakPeriode().getManuellbehandlingårsak())) {
                 return;
             }
             var periode = resultat.uttakPeriode();

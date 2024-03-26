@@ -35,12 +35,14 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
@@ -49,14 +51,16 @@ import no.nav.vedtak.log.util.LoggerUtils;
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
-public class VedtaksHendelseHåndterer {
+public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStringMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
+    private static final String GROUP_ID = "fpsak-vedtakfattet";  // Hold konstant pga offset commit !!
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE);
     private static final Set<Ytelser> EKSTERNE_LOGGES = Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER);
 
+    private String topicName;
     private FagsakTjeneste fagsakTjeneste;
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
@@ -68,11 +72,14 @@ public class VedtaksHendelseHåndterer {
     }
 
     @Inject
-    public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste, BeregningsresultatRepository tilkjentYtelseRepository,
+    public VedtaksHendelseHåndterer(@KonfigVerdi("kafka.fattevedtak.topic") String topicName,
+                                    FagsakTjeneste fagsakTjeneste,
+                                    BeregningsresultatRepository tilkjentYtelseRepository,
                                     BehandlingRepository behandlingRepository,
                                     LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger,
                                     ProsessTaskTjeneste taskTjeneste,
                                     HendelsemottakRepository mottakRepository) {
+        this.topicName = topicName;
         this.fagsakTjeneste = fagsakTjeneste;
         this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = behandlingRepository;
@@ -81,17 +88,18 @@ public class VedtaksHendelseHåndterer {
         this.mottakRepository = mottakRepository;
     }
 
-    void handleMessage(String key, String payload) {
+    @Override
+    public void handleRecord(String key, String value) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            var mottattVedtak = StandardJsonConfig.fromJson(payload, Ytelse.class);
+            var mottattVedtak = StandardJsonConfig.fromJson(value, Ytelse.class);
             if (mottattVedtak != null) {
                 handleMessageIntern((YtelseV1) mottattVedtak);
             }
         } catch (VLException e) {
-            LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
+            LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, value, e);
         } catch (Exception e) {
-            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
+            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(value), e);
         }
     }
 
@@ -212,4 +220,13 @@ public class VedtaksHendelseHåndterer {
         return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
     }
 
+    @Override
+    public String topic() {
+        return topicName;
+    }
+
+    @Override
+    public String groupId() {
+        return GROUP_ID;
+    }
 }

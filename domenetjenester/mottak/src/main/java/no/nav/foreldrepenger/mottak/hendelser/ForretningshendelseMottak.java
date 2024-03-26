@@ -15,11 +15,11 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -50,6 +50,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ApplicationScoped
 public class ForretningshendelseMottak {
 
+    private static final boolean IS_PROD = Environment.current().isProd();
     // Setter kjøring av mottak litt etter at Oppdrag har åpnet for business kl 06:00.
     private static final LocalTime OPPDRAG_VÅKNER = LocalTime.of(6, 30);
 
@@ -70,7 +71,6 @@ public class ForretningshendelseMottak {
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private KøKontroller køKontroller;
-    private boolean isProd;
 
     ForretningshendelseMottak() {
         //for CDI proxy
@@ -92,7 +92,6 @@ public class ForretningshendelseMottak {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.taskTjeneste = taskTjeneste;
         this.køKontroller = køKontroller;
-        this.isProd = Environment.current().isProd();
     }
 
     /**
@@ -164,7 +163,7 @@ public class ForretningshendelseMottak {
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());
         taskData.setCallIdFraEksisterende();
-        if (isProd && LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
+        if (IS_PROD && LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
             // Porsjoner utover neste 7 min
             taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
         }

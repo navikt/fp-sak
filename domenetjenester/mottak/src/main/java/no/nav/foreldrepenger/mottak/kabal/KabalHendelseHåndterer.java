@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.kabal;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,6 +10,7 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,19 +23,25 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-
+/*
+ * Dokumentasjon https://github.com/navikt/kabal-api/tree/main/docs/integrasjon
+ */
 @Transactional
 @ActivateRequestContext
 @ApplicationScoped
-public class KabalHendelseHåndterer {
+public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(KabalHendelseHåndterer.class);
+    private static final String GROUP_ID = "fpsak"; // Hold konstant pga offset commit !!
     private static final String KABAL = "KABAL";
 
+    private String topicName;
     private ProsessTaskTjeneste taskTjeneste;
     private HendelsemottakRepository mottakRepository;
     private BehandlingRepository behandlingRepository;
@@ -45,11 +53,13 @@ public class KabalHendelseHåndterer {
     }
 
     @Inject
-    public KabalHendelseHåndterer(ProsessTaskTjeneste taskTjeneste,
+    public KabalHendelseHåndterer(@KonfigVerdi(value = "kafka.kabal.topic") String topicName,
+                                  ProsessTaskTjeneste taskTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   HendelsemottakRepository mottakRepository,
                                   AnkeRepository ankeRepository,
                                   KlageRepository klageRepository) {
+        this.topicName = topicName;
         this.taskTjeneste = taskTjeneste;
         this.mottakRepository = mottakRepository;
         this.behandlingRepository = behandlingRepository;
@@ -57,12 +67,13 @@ public class KabalHendelseHåndterer {
         this.klageRepository = klageRepository;
     }
 
-    void handleMessage(String key, String payload) {
+    @Override
+    public void handleRecord(String key, String value) {
         KabalHendelse mottattHendelse;
         try {
-            mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+            mottattHendelse = StandardJsonConfig.fromJson(value, KabalHendelse.class);
         } catch (Exception e) {
-            LOG.error("KABAL har endret kontrakt uten forvarsel melding {}", payload, e);
+            LOG.error("KABAL har endret kontrakt uten forvarsel melding {}", value, e);
             return;
         }
         setCallIdForHendelse(mottattHendelse);
@@ -125,4 +136,18 @@ public class KabalHendelseHåndterer {
         }
     }
 
+    @Override
+    public String topic() {
+        return topicName;
+    }
+
+    @Override
+    public String groupId() {
+        return GROUP_ID;
+    }
+
+    @Override
+    public Optional<OffsetResetStrategy> autoOffsetReset() {
+        return Optional.of(OffsetResetStrategy.EARLIEST); // For sikkerhets skyld - dersom lavt ferievolum
+    }
 }
