@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -34,8 +33,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class OppdaterPersonoversiktTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterPersonoversiktTask.class);
-
-    private static final boolean IS_PROD = Environment.current().isProd();
 
     public static String PH_REF_KEY = "behandlingRef";
     public static String PH_STATUS_KEY = "status";
@@ -91,9 +88,6 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
         var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
         var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseType, callId, behandling.getAktørId(),
             tidspunkt, behandlingType, behandlingRef, behandlingTema, enhet, ident, erAvsluttet);
-        if (IS_PROD && BehandlingStatus.AVSLUTTET.equals(behandlingStatus)) { // Midlertidig
-            return;
-        }
         hendelseProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
     }
 

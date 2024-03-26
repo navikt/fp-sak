@@ -221,11 +221,11 @@ public class ForvaltningTekniskRestTjeneste {
             update PROSESS_TASK set status = 'KLAR', versjon=versjon+1, prioritet=100
             WHERE id in (select pid from (select id as pid from prosess_task
                where status = 'FERDIG' and task_type = 'oppgavebehandling.oppdaterpersonoversikt' and task_parametere like '%status=AVSLU%' and siste_kjoering_ts < :tidligst order by id
-               ) where rownum < 5000)
+               ) where rownum < 8000)
             """;
 
         var tasks = entityManager.createNativeQuery(updateSql)
-            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 21, 0))
+            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 19, 0))
             .executeUpdate();
         return Response.ok(tasks).build();
     }
