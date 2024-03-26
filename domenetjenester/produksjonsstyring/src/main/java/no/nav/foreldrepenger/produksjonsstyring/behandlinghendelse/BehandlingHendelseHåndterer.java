@@ -114,6 +114,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, hendelse.getTidspunkt().toString());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandlingType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
+        prosessTaskData.setPrioritet(100);
         taskTjeneste.lagre(prosessTaskData);
     }
 
