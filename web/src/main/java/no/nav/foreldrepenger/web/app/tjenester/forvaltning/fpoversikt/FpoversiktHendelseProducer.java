@@ -16,19 +16,17 @@ public class FpoversiktHendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(FpoversiktHendelseProducer.class);
 
     private KafkaSender producer;
-    private String topicName;
 
     public FpoversiktHendelseProducer() {
     }
 
     @Inject
     public FpoversiktHendelseProducer(@KonfigVerdi(value = "kafka.fpoversikt.migrering.topic") String topicName) {
-        this.topicName = topicName;
         this.producer = new KafkaSender(topicName);
     }
 
     public void sendJsonMedNøkkel(String nøkkel, String json) {
-        LOG.info("Sender melding om oversikt-migrering med nøkkel {} på topic='{}'", nøkkel, topicName);
+        LOG.info("Sender melding om oversikt-migrering med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
         LOG.info("Sendte melding om oversikt-migrering til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
     }
