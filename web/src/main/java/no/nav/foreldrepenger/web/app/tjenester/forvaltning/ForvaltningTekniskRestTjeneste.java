@@ -2,15 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -49,7 +45,6 @@ public class ForvaltningTekniskRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningTekniskRestTjeneste.class);
     private static final String MANGLER_AP = "Utvikler-feil: Har ikke aksjonspunkt av type: ";
 
-    private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -61,13 +56,11 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @Inject
-    public ForvaltningTekniskRestTjeneste(EntityManager entityManager,
-                                          BehandlingRepositoryProvider repositoryProvider,
+    public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                           FagsakProsessTaskRepository fagsakProsessTaskRepository,
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
-        this.entityManager = entityManager;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
