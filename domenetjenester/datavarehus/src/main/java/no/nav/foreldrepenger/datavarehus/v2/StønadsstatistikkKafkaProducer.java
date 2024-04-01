@@ -18,11 +18,9 @@ public class StønadsstatistikkKafkaProducer {
     private static final Environment ENV = Environment.current();
 
     private KafkaSender producer;
-    private String topicName;
 
     @Inject
     StønadsstatistikkKafkaProducer(@KonfigVerdi(value = "kafka.stonadsstatistikk.topic") String topicName) {
-        this.topicName = topicName;
         this.producer = new KafkaSender(topicName);
     }
 
@@ -33,7 +31,7 @@ public class StønadsstatistikkKafkaProducer {
         if (ENV.isLocal() || ENV.isDev()) { // TODO fjerne denne. Topic skal finnes i autotest
             return;
         }
-        LOG.info("Sender melding om stønadsstatistikkvedtak med nøkkel {} på topic='{}'", nøkkel, topicName);
+        LOG.info("Sender melding om stønadsstatistikkvedtak med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
         LOG.info("Sendte melding om stønadsstatistikkvedtak til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
 

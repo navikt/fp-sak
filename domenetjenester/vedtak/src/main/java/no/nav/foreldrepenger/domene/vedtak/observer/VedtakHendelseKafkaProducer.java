@@ -16,19 +16,17 @@ public class VedtakHendelseKafkaProducer {
     private static final Logger LOG = LoggerFactory.getLogger(VedtakHendelseKafkaProducer.class);
 
     private KafkaSender producer;
-    private String topicName;
 
     public VedtakHendelseKafkaProducer() {
     }
 
     @Inject
     public VedtakHendelseKafkaProducer(@KonfigVerdi("kafka.fattevedtak.topic") String topicName) {
-        this.topicName = topicName;
         this.producer = new KafkaSender(topicName);
     }
 
     void sendJson(String nøkkel, String json) {
-        LOG.info("Sender melding om vedtak med nøkkel {} på topic='{}'", nøkkel, topicName);
+        LOG.info("Sender melding om vedtak med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
         LOG.info("Sendte melding om vedtak til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
     }

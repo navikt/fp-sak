@@ -2,15 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -49,7 +45,6 @@ public class ForvaltningTekniskRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningTekniskRestTjeneste.class);
     private static final String MANGLER_AP = "Utvikler-feil: Har ikke aksjonspunkt av type: ";
 
-    private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -61,13 +56,11 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @Inject
-    public ForvaltningTekniskRestTjeneste(EntityManager entityManager,
-                                          BehandlingRepositoryProvider repositoryProvider,
+    public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                           FagsakProsessTaskRepository fagsakProsessTaskRepository,
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
-        this.entityManager = entityManager;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
@@ -167,67 +160,6 @@ public class ForvaltningTekniskRestTjeneste {
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
         return Response.ok().build();
-    }
-
-    @POST
-    @Path("/rekjor-sob")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Rekjøre SOB", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response rerunSoB() {
-        var updateSql = """
-            update PROSESS_TASK set status = 'KLAR' , versjon=versjon+1, prioritet=100
-            WHERE task_type = 'behandlingskontroll.oppdatersakogbehandling' and opprettet_tid > :tidligst
-            """;
-
-        var tasks = entityManager.createNativeQuery(updateSql)
-            .setParameter("tidligst", LocalDate.of(2023, Month.SEPTEMBER, 27).atStartOfDay())
-            .executeUpdate();
-        return Response.ok(tasks).build();
-    }
-
-    @POST
-    @Path("/rekjor-personopprettet")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Rekjøre PersonOversiktOpprettet", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response rerunPersonOversiktOpprettet() {
-        var updateSql = """
-            update PROSESS_TASK set status = 'KLAR', versjon=versjon+1, prioritet=100
-            WHERE id in (select pid from (select id as pid from prosess_task
-               where status = 'FERDIG' and task_type = 'oppgavebehandling.oppdaterpersonoversikt' and task_parametere like '%status=OPPRE%' and siste_kjoering_ts < :tidligst order by id
-               ) where rownum < 5000)
-            """;
-
-        var tasks = entityManager.createNativeQuery(updateSql)
-            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 16, 0))
-            .executeUpdate();
-        return Response.ok(tasks).build();
-    }
-
-    @POST
-    @Path("/rekjor-personavsluttet")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Rekjøre PersonOversiktAvsluttet", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response rerunPersonOversiktAvsluttet() {
-        var updateSql = """
-            update PROSESS_TASK set status = 'KLAR', versjon=versjon+1, prioritet=100
-            WHERE id in (select pid from (select id as pid from prosess_task
-               where status = 'FERDIG' and task_type = 'oppgavebehandling.oppdaterpersonoversikt' and task_parametere like '%status=AVSLU%' and siste_kjoering_ts < :tidligst order by id
-               ) where rownum < 8000)
-            """;
-
-        var tasks = entityManager.createNativeQuery(updateSql)
-            .setParameter("tidligst", LocalDateTime.of(2024, Month.MARCH, 26, 20, 0))
-            .executeUpdate();
-        return Response.ok(tasks).build();
     }
 
 }

@@ -16,19 +16,17 @@ public class PersonoversiktHendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(PersonoversiktHendelseProducer.class);
 
     private KafkaSender producer;
-    private String topicName;
 
     public PersonoversiktHendelseProducer() {
     }
 
     @Inject
     public PersonoversiktHendelseProducer(@KonfigVerdi(value = "kafka.personoversikt.topic") String topicName) {
-        this.topicName = topicName;
         this.producer = new KafkaSender(topicName);
     }
 
     public void sendJsonMedNøkkel(String nøkkel, String json) {
-        LOG.info("Sender melding om personoversikt-hendelse med nøkkel {} på topic='{}'", nøkkel, topicName);
+        LOG.info("Sender melding om personoversikt-hendelse med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
         LOG.info("Sendte melding om personoversikt-hendelse til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
     }
