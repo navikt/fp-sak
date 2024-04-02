@@ -63,6 +63,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -384,8 +385,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                              SøknadEntitet.Builder søknadBuilder) {
         var søknadMottattDato = skjemaWrapper.getSkjema().getMottattDato();
         if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
+            var oppgittDekningsgrad = oversettDekningsgrad(omYtelse);
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-                .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
+                .medOppgittDekningsgrad(oppgittDekningsgrad)
+                .medSøknadDekningsgrad(Dekningsgrad.grad(oppgittDekningsgrad.getDekningsgrad()))
                 .medOppgittFordeling(
                     oversettFordeling(behandling, omYtelse, søknadMottattDato));
             oversettRettighet(omYtelse).ifPresent(yfBuilder::medOppgittRettighet);

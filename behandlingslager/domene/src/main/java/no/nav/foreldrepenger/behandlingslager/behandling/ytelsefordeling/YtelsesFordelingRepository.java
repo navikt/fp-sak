@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -58,6 +59,10 @@ public class YtelsesFordelingRepository {
     private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {
         return YtelseFordelingAggregat.Builder.nytt()
             .medOppgittDekningsgrad(ytelseFordelingGrunnlagEntitet.getOppgittDekningsgrad())
+            .medSøknadDekningsgrad(ytelseFordelingGrunnlagEntitet.getSøknadDekningsgrad() == null ? null : Dekningsgrad.grad(
+                ytelseFordelingGrunnlagEntitet.getSøknadDekningsgrad()))
+            .medSakskompleksDekningsgrad(ytelseFordelingGrunnlagEntitet.getSakskompleksDekningsgrad() == null ? null : Dekningsgrad.grad(
+                ytelseFordelingGrunnlagEntitet.getSakskompleksDekningsgrad()))
             .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
             .medOverstyrtRettighet(ytelseFordelingGrunnlagEntitet.getOverstyrtRettighet())
             .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
@@ -125,6 +130,8 @@ public class YtelsesFordelingRepository {
         var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad());
+        grunnlag.setSøknadDekningsgrad(aggregat.getSøknadDekningsgrad() == null ? null : aggregat.getSøknadDekningsgrad().getVerdi());
+        grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSøknadDekningsgrad().getVerdi());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());

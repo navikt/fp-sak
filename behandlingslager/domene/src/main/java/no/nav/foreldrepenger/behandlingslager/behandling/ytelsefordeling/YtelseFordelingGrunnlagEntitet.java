@@ -13,6 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -58,6 +61,18 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @JoinColumn(name = "so_dekningsgrad_id", updatable = false, unique = true)
     @ChangeTracked
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
+
+    @Column(name = "oppgitt_dekningsgrad")
+    @Max(value = 100)
+    @Min(value = 0)
+    @ChangeTracked
+    private Integer søknadDekningsgrad;
+
+    @Column(name = "sakskompleks_dekningsgrad")
+    @Max(value = 100)
+    @Min(value = 0)
+    @ChangeTracked
+    private Integer sakskompleksDekningsgrad;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "overstyrt_omsorg")
@@ -110,6 +125,22 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setOppgittDekningsgrad(OppgittDekningsgradEntitet dekningsgrad) {
         this.oppgittDekningsgrad = dekningsgrad;
+    }
+
+    public Integer getSøknadDekningsgrad() {
+        return søknadDekningsgrad;
+    }
+
+    public void setSøknadDekningsgrad(Integer søknadDekningsgrad) {
+        this.søknadDekningsgrad = søknadDekningsgrad;
+    }
+
+    public Integer getSakskompleksDekningsgrad() {
+        return sakskompleksDekningsgrad;
+    }
+
+    public void setSakskompleksDekningsgrad(Integer sakskompleksDekningsgrad) {
+        this.sakskompleksDekningsgrad = sakskompleksDekningsgrad;
     }
 
     OppgittRettighetEntitet getOppgittRettighet() {
