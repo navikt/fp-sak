@@ -229,7 +229,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    void Skal_ikke_ta_hensynt_til_at_alle_arbeidsforhold_er_inaktive_pga_permisjon() {
+    void Skal_ikke_ta_hensynt_til_at_arbeidsforhold_er_inaktive_pga_permisjon() {
         // Arrange
         var arbeidsgiver = arbeidsgiver("999999999");
         var internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
