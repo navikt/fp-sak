@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.vedtak.exception.TekniskException;
 
 public class YtelseFordelingAggregat {
@@ -15,6 +16,8 @@ public class YtelseFordelingAggregat {
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
+    private Dekningsgrad søknadDekningsgrad;
+    private Dekningsgrad sakskompleksDekningsgrad;
     private Boolean overstyrtOmsorg;
 
     protected YtelseFordelingAggregat() {
@@ -100,6 +103,18 @@ public class YtelseFordelingAggregat {
         return getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
     }
 
+    public Dekningsgrad getSøknadDekningsgrad() {
+        return søknadDekningsgrad;
+    }
+
+    public Dekningsgrad getSakskompleksDekningsgrad() {
+        return sakskompleksDekningsgrad;
+    }
+
+    public Dekningsgrad getGjeldendeDekningsgrad() {
+        return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getSøknadDekningsgrad());
+    }
+
     public static class Builder {
         private final YtelseFordelingAggregat kladd;
 
@@ -164,6 +179,16 @@ public class YtelseFordelingAggregat {
 
         public Builder medAvklarteDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
             kladd.avklarteDatoer = avklarteUttakDatoer;
+            return this;
+        }
+
+        public Builder medSøknadDekningsgrad(Dekningsgrad dekningsgrad) {
+            kladd.søknadDekningsgrad = dekningsgrad;
+            return this;
+        }
+
+        public Builder medSakskompleksDekningsgrad(Dekningsgrad dekningsgrad) {
+            kladd.sakskompleksDekningsgrad = dekningsgrad;
             return this;
         }
 

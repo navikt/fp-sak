@@ -147,6 +147,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
                 var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
                     .medOppgittRettighet(yfa.getOppgittRettighet())
                     .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad())
+                    .medSøknadDekningsgrad(yfa.getSøknadDekningsgrad())
                     .medOppgittFordeling(revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
                 ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
             });
@@ -172,6 +173,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
             .medOppgittFordeling(ytelseFordelingAggregat.getOppgittFordeling())
             .medOppgittDekningsgrad(ytelseFordelingAggregat.getOppgittDekningsgrad())
+            .medSøknadDekningsgrad(ytelseFordelingAggregat.getSøknadDekningsgrad())
             .medOppgittRettighet(ytelseFordelingAggregat.getOppgittRettighet());
         ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
         var originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
