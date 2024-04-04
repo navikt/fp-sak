@@ -130,7 +130,8 @@ public class YtelsesFordelingRepository {
         var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad());
-        grunnlag.setSøknadDekningsgrad(aggregat.getSøknadDekningsgrad() == null ? null : aggregat.getSøknadDekningsgrad().getVerdi());
+        var søknadDekningsgrad = getSøknadDekningsgrad(aggregat);
+        grunnlag.setSøknadDekningsgrad(søknadDekningsgrad);
         grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSøknadDekningsgrad().getVerdi());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
@@ -140,6 +141,13 @@ public class YtelsesFordelingRepository {
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
         Optional.ofNullable(aggregat.getOverstyrtOmsorg()).ifPresent(grunnlag::setOverstyrtOmsorg);
         return grunnlag;
+    }
+
+    private static Integer getSøknadDekningsgrad(YtelseFordelingAggregat aggregat) {
+        if (aggregat.getSøknadDekningsgrad() == null && aggregat.getOppgittDekningsgrad() != null) {
+            return aggregat.getOppgittDekningsgrad().getDekningsgrad();
+        }
+        return aggregat.getSøknadDekningsgrad() == null ? null : aggregat.getSøknadDekningsgrad().getVerdi();
     }
 
     private void lagrePeriode(List<OppgittPeriodeEntitet> perioder) {
