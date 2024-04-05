@@ -129,7 +129,8 @@ public class InntektsmeldingRegisterTjeneste {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
-        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, false);
+        var filtrertHvisSvp = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
     }
 
     /**
