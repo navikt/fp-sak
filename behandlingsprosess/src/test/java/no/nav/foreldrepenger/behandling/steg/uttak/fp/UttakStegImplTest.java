@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -152,7 +151,7 @@ class UttakStegImplTest {
     void skal_ha_aksjonspunkt_når_resultat_må_manuelt_fastsettes_her_pga_tomt_på_konto() {
         var behandling = opprettBehandling();
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOverstyrtFordeling(søknad4ukerFPFF())
             .medOppgittDekningsgrad(dekningsgrad);
@@ -241,7 +240,7 @@ class UttakStegImplTest {
         var fødselsdato = LocalDate.of(2019, 2, 25);
         var fagsak = opprettFagsak();
         var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato,
-                fødselsdato, OppgittDekningsgradEntitet.bruk80());
+                fødselsdato, Dekningsgrad._80);
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
@@ -493,11 +492,11 @@ class UttakStegImplTest {
     }
 
     private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak, LocalDate fødselsdato, LocalDate mottattDato) {
-        return byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato, mottattDato, OppgittDekningsgradEntitet.bruk100());
+        return byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato, mottattDato, Dekningsgrad._100);
     }
 
     private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak, LocalDate fødselsdato, LocalDate mottattDato,
-            OppgittDekningsgradEntitet oppgittDekningsgrad) {
+            Dekningsgrad oppgittDekningsgrad) {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         behandling.setAnsvarligSaksbehandler("VL");

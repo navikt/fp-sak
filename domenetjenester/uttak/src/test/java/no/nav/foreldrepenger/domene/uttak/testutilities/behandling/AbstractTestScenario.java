@@ -16,9 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -53,7 +53,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
-    private OppgittDekningsgradEntitet oppgittDekningsgrad;
+    private Dekningsgrad oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
     private OppgittFordelingEntitet overstyrtFordeling;
@@ -219,7 +219,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medDefaultOppgittDekningsgrad() {
-        medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        medOppgittDekningsgrad(Dekningsgrad._100);
         return (S) this;
     }
 
@@ -245,7 +245,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     @SuppressWarnings("unchecked")
-    public S medOppgittDekningsgrad(OppgittDekningsgradEntitet oppgittDekningsgrad) {
+    public S medOppgittDekningsgrad(Dekningsgrad oppgittDekningsgrad) {
         this.oppgittDekningsgrad = oppgittDekningsgrad;
         return (S) this;
     }

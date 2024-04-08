@@ -26,7 +26,6 @@
     <sequence-generator name="SEQ_YF_FORDELING_PERIODE" allocation-size="50" sequence-name="SEQ_YF_FORDELING_PERIODE"/>
     <sequence-generator name="SEQ_YF_AVKLART_DATO" allocation-size="50" sequence-name="SEQ_YF_AVKLART_DATO"/>
     <sequence-generator name="SEQ_SO_RETTIGHET" allocation-size="50" sequence-name="SEQ_SO_RETTIGHET"/>
-    <sequence-generator name="SEQ_SO_DEKNINGSGRAD" allocation-size="50" sequence-name="SEQ_SO_DEKNINGSGRAD"/>
     <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODE" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODE"/>
     <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODER" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODER"/>
     <sequence-generator name="SEQ_YF_AKTIVITETSKRAV_PERIODE" allocation-size="50" sequence-name="SEQ_YF_AKTIVITETSKRAV_PERIODE"/>
@@ -53,7 +52,6 @@
 
     <!-- Grunnlag for ytelsesfordeling -->
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet"/>

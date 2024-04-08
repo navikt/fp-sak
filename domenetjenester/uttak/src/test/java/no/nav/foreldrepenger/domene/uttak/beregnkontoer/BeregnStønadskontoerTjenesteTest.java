@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -47,9 +46,9 @@ class BeregnStønadskontoerTjenesteTest {
         var termindato = LocalDate.now().plusMonths(4);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -88,9 +87,9 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -123,9 +122,9 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
@@ -155,9 +154,9 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
@@ -188,9 +187,9 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForFar(AktørId.dummy());
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))

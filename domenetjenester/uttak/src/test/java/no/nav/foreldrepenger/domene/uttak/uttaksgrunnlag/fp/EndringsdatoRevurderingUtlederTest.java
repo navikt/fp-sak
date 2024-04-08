@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -108,7 +107,7 @@ class EndringsdatoRevurderingUtlederTest {
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var oppgittDekningsgrad = Dekningsgrad._80;
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_OPPLYSNINGER_OM_DØD, opprinneligUttak,
             new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
         var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
@@ -141,7 +140,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build());
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
+            new OppgittFordelingEntitet(fordeling, true), Dekningsgrad._100);
         var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
 
@@ -164,7 +163,7 @@ class EndringsdatoRevurderingUtlederTest {
             baselineDato, baselineDato.plusWeeks(15)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var oppgittDekningsgrad = Dekningsgrad._80;
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
             new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
 
@@ -181,7 +180,7 @@ class EndringsdatoRevurderingUtlederTest {
             baselineDato, baselineDato.plusWeeks(15)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var oppgittDekningsgrad = Dekningsgrad._80;
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
             new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
 
@@ -607,7 +606,7 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, OppgittDekningsgradEntitet.bruk100());
+            nyFordeling, Dekningsgrad._100);
         uttakBeregningsandelTjeneste.leggTilSelvNæringdrivende(Arbeidsgiver.virksomhet("123"));
 
         // Act
@@ -634,7 +633,7 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, OppgittDekningsgradEntitet.bruk100());
+            nyFordeling, Dekningsgrad._100);
         uttakBeregningsandelTjeneste.leggTilSelvNæringdrivende(Arbeidsgiver.virksomhet("123"));
         uttakBeregningsandelTjeneste.leggTilFrilans();
 
@@ -663,7 +662,7 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, OppgittDekningsgradEntitet.bruk100());
+            nyFordeling, Dekningsgrad._100);
         uttakBeregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.nullRef());
         var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(RE_ENDRING_FRA_BRUKER));
 

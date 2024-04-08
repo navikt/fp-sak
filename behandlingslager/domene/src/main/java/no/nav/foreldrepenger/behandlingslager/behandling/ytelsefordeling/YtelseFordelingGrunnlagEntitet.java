@@ -57,16 +57,12 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private OppgittRettighetEntitet overstyrtRettighet;
 
-    @ManyToOne
-    @JoinColumn(name = "so_dekningsgrad_id", updatable = false, unique = true)
-    @ChangeTracked
-    private OppgittDekningsgradEntitet oppgittDekningsgrad;
 
     @Column(name = "oppgitt_dekningsgrad")
     @Max(value = 100)
     @Min(value = 0)
     @ChangeTracked
-    private Integer søknadDekningsgrad;
+    private Integer oppgittDekningsgrad;
 
     @Column(name = "sakskompleks_dekningsgrad")
     @Max(value = 100)
@@ -119,20 +115,12 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.justertFordeling = justertFordeling;
     }
 
-    OppgittDekningsgradEntitet getOppgittDekningsgrad() {
-        return oppgittDekningsgrad;
-    }
-
-    void setOppgittDekningsgrad(OppgittDekningsgradEntitet dekningsgrad) {
+    void setOppgittDekningsgrad(Integer dekningsgrad) {
         this.oppgittDekningsgrad = dekningsgrad;
     }
 
-    public Integer getSøknadDekningsgrad() {
-        return søknadDekningsgrad;
-    }
-
-    public void setSøknadDekningsgrad(Integer søknadDekningsgrad) {
-        this.søknadDekningsgrad = søknadDekningsgrad;
+    public Integer getOppgittDekningsgrad() {
+        return oppgittDekningsgrad;
     }
 
     public Integer getSakskompleksDekningsgrad() {

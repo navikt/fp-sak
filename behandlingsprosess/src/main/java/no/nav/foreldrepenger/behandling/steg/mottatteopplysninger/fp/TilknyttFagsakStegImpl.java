@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -119,10 +118,10 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves
             // dekningsgrad fra koblet sak.
             if (!behandling.erRevurdering()) {
-                int dekningsgradVerdi = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
-                        .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
-                        .map(OppgittDekningsgradEntitet::getDekningsgrad).orElse(Dekningsgrad._100.getVerdi());
-                kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, Dekningsgrad.grad(dekningsgradVerdi));
+                var dekningsgrad = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+                    .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
+                    .orElse(Dekningsgrad._100);
+                kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, dekningsgrad);
             }
             // Ingen kobling foretatt
             return;

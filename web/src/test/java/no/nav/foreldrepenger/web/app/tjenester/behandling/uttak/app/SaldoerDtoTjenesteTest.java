@@ -36,13 +36,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -502,7 +502,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioMor.medSøknadHendelse().medFødselsDato(fødseldato);
         scenarioMor.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        scenarioMor.medOppgittDekningsgrad(Dekningsgrad._100);
         scenarioMor.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenarioMor.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioMor.medUttak(uttakMor);
@@ -668,7 +668,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling avsluttetBehandlingMedUttak(AbstractTestScenario<?> scenarioMor,
                                                    UttakResultatPerioderEntitet uttak) {
         scenarioMor.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        scenarioMor.medOppgittDekningsgrad(Dekningsgrad._100);
         scenarioMor.medUttak(uttak);
         return lagAvsluttet(scenarioMor);
     }
