@@ -141,7 +141,7 @@ public class FagsakRelasjonRepository {
 
     private Dekningsgrad getDekningsgrad(Long behandlingId) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        return Dekningsgrad.grad(ytelseFordelingAggregat.getOppgittDekningsgrad().getDekningsgrad());
+        return ytelseFordelingAggregat.getOppgittDekningsgrad();
     }
 
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {

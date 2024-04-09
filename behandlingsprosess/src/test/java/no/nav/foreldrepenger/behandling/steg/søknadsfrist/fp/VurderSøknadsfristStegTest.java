@@ -19,11 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -88,7 +88,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
                 .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
                 .build();
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
@@ -131,7 +131,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
                 .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
                 .build();
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);

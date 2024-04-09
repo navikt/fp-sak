@@ -12,11 +12,10 @@ public class YtelseFordelingAggregat {
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
     private OppgittFordelingEntitet overstyrtFordeling;
-    private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
-    private Dekningsgrad søknadDekningsgrad;
+    private Dekningsgrad oppgittDekningsgrad;
     private Dekningsgrad sakskompleksDekningsgrad;
     private Boolean overstyrtOmsorg;
 
@@ -25,15 +24,6 @@ public class YtelseFordelingAggregat {
 
     public OppgittFordelingEntitet getOppgittFordeling() {
         return oppgittFordeling;
-    }
-
-    /**
-     * Skal ikke brukes.
-     * Bruk {@link no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository}
-     */
-    @Deprecated
-    public OppgittDekningsgradEntitet getOppgittDekningsgrad() {
-        return oppgittDekningsgrad;
     }
 
     public OppgittRettighetEntitet getOppgittRettighet() {
@@ -103,8 +93,8 @@ public class YtelseFordelingAggregat {
         return getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
     }
 
-    public Dekningsgrad getSøknadDekningsgrad() {
-        return søknadDekningsgrad;
+    public Dekningsgrad getOppgittDekningsgrad() {
+        return oppgittDekningsgrad;
     }
 
     public Dekningsgrad getSakskompleksDekningsgrad() {
@@ -112,7 +102,7 @@ public class YtelseFordelingAggregat {
     }
 
     public Dekningsgrad getGjeldendeDekningsgrad() {
-        return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getSøknadDekningsgrad());
+        return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getOppgittDekningsgrad());
     }
 
     public static class Builder {
@@ -157,11 +147,6 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medOppgittDekningsgrad(OppgittDekningsgradEntitet oppgittDekningsgrad) {
-            kladd.oppgittDekningsgrad = oppgittDekningsgrad;
-            return this;
-        }
-
         public Builder medOppgittRettighet(OppgittRettighetEntitet oppgittRettighet) {
             kladd.oppgittRettighet = oppgittRettighet;
             return this;
@@ -182,8 +167,8 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medSøknadDekningsgrad(Dekningsgrad dekningsgrad) {
-            kladd.søknadDekningsgrad = dekningsgrad;
+        public Builder medOppgittDekningsgrad(Dekningsgrad dekningsgrad) {
+            kladd.oppgittDekningsgrad = dekningsgrad;
             return this;
         }
 

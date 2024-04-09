@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
@@ -373,7 +373,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
             .medFørsteUttaksdato(fødselsdato.minusWeeks(3))
             .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
-        scenario.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        scenario.medOppgittDekningsgrad(Dekningsgrad._100);
         return scenario.lagre(repositoryProvider);
     }
 

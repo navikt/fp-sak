@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -54,7 +54,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(behandling, 15);
 
@@ -79,7 +79,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(behandling, 15);
 
@@ -105,7 +105,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(behandling, 15);
 
@@ -134,7 +134,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         var maksdager = 15;
         opprettFagsakRelasjon(behandling, maksdager);
@@ -163,7 +163,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
 
         opprettFagsakRelasjon(behandling, 15);
@@ -193,7 +193,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
 
         opprettFagsakRelasjon(behandling, 15);
@@ -235,7 +235,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(førstegangsBehandling, 15);
 
@@ -287,7 +287,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(førstegangsBehandling, 15);
 
@@ -343,7 +343,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFellesperiode, søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(førstegangsBehandling, 15);
 
@@ -401,7 +401,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFellesperiode, søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(førstegangsBehandling, 15);
 
@@ -445,7 +445,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(behandling, 15);
 
@@ -474,7 +474,7 @@ class TapteDagerFpffTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var behandling = scenario.lagre(repositoryProvider);
         opprettFagsakRelasjon(behandling, 15);
 

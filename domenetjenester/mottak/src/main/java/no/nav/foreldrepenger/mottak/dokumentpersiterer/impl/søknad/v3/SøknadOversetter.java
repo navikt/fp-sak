@@ -52,7 +52,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -269,7 +268,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             byggMedlemskap(wrapper, behandlingId, mottattDato);
         }
         lagreAnnenPart(wrapper, behandling);
-        byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
+        byggYtelsesSpesifikkeFelter(wrapper, behandling);
         byggOpptjeningsspesifikkeFelter(wrapper, behandling);
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             byggFamilieHendelseForSvangerskap(svangerskapspenger, hendelseBuilder);
@@ -381,25 +380,20 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void byggYtelsesSpesifikkeFelter(SøknadWrapper skjemaWrapper,
-                                             Behandling behandling,
-                                             SøknadEntitet.Builder søknadBuilder) {
+                                             Behandling behandling) {
         var søknadMottattDato = skjemaWrapper.getSkjema().getMottattDato();
         if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
-            var oppgittDekningsgrad = oversettDekningsgrad(omYtelse);
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-                .medOppgittDekningsgrad(oppgittDekningsgrad)
-                .medSøknadDekningsgrad(Dekningsgrad.grad(oppgittDekningsgrad.getDekningsgrad()))
-                .medOppgittFordeling(
-                    oversettFordeling(behandling, omYtelse, søknadMottattDato));
+                .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
+                .medOppgittFordeling(oversettFordeling(behandling, omYtelse, søknadMottattDato));
             oversettRettighet(omYtelse).ifPresent(yfBuilder::medOppgittRettighet);
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
-            oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, søknadBuilder, behandling, søknadMottattDato);
+            oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, behandling, søknadMottattDato);
         }
     }
 
     private void oversettOgLagreTilretteleggingOgVurderEksisterende(Svangerskapspenger svangerskapspenger,
-                                                                    SøknadEntitet.Builder søknadBuilder,
                                                                     Behandling behandling, LocalDate søknadMottattDato) {
 
         var brukMottattTidspunkt = Optional.ofNullable(søknadMottattDato)
@@ -638,14 +632,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom()) > 0;
     }
 
-    private OppgittDekningsgradEntitet oversettDekningsgrad(Foreldrepenger omYtelse) {
+    private Dekningsgrad oversettDekningsgrad(Foreldrepenger omYtelse) {
         var dekingsgrad = omYtelse.getDekningsgrad().getDekningsgrad();
-        if (Integer.toString(OppgittDekningsgradEntitet.ÅTTI_PROSENT).equalsIgnoreCase(dekingsgrad.getKode())) {
-            return OppgittDekningsgradEntitet.bruk80();
+        if (Integer.toString(Dekningsgrad._80.getVerdi()).equalsIgnoreCase(dekingsgrad.getKode())) {
+            return Dekningsgrad._80;
         }
-        if (Integer.toString(OppgittDekningsgradEntitet.HUNDRE_PROSENT)
-            .equalsIgnoreCase(dekingsgrad.getKode())) {
-            return OppgittDekningsgradEntitet.bruk100();
+        if (Integer.toString(Dekningsgrad._100.getVerdi()).equalsIgnoreCase(dekingsgrad.getKode())) {
+            return Dekningsgrad._100;
         }
         throw new IllegalArgumentException("Ukjent dekningsgrad " + dekingsgrad.getKode());
     }
