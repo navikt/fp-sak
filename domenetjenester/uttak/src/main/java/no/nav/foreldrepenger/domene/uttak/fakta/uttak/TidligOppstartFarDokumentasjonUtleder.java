@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -44,7 +43,7 @@ final class TidligOppstartFarDokumentasjonUtleder {
 
     private static boolean behandlingKanIkkeHaTidligOppstart(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat, FamilieHendelse familieHendelse) {
         return !familieHendelse.gjelderFødsel() || RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle())
-            || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+            || ytelseFordelingAggregat.harAleneomsorg();
     }
 
     private static boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode, UttakInput input) {

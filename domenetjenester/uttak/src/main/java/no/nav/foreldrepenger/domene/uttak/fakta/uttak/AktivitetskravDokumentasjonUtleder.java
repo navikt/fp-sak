@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
 import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID;
 import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
 import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_IKKE_OPPGITT;
@@ -23,8 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAkt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
@@ -49,7 +48,7 @@ public class AktivitetskravDokumentasjonUtleder {
         var behandlingReferanse = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle()) || harAleneomsorg(ytelseFordelingAggregat)
+        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle()) || ytelseFordelingAggregat.harAleneomsorg()
             || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet()) || MorsAktivitet.IKKE_OPPGITT.equals(periode.getMorsAktivitet())) {
             return Optional.empty();
         }
@@ -95,9 +94,12 @@ public class AktivitetskravDokumentasjonUtleder {
     }
 
     private boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var annenpart = ytelsespesifiktGrunnlag.getAnnenpart();
-        return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat,
-            annenpart.isEmpty() ? Optional.empty() : foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(
-                annenpart.get().gjeldendeVedtakBehandlingId()));
+        return ytelseFordelingAggregat.harAnnenForelderRett(annenpartHarForeldrepengerUtbetaling(ytelsespesifiktGrunnlag));
+    }
+
+    private boolean annenpartHarForeldrepengerUtbetaling(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+        return ytelsespesifiktGrunnlag.getAnnenpart()
+            .flatMap(a -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(a.gjeldendeVedtakBehandlingId()))
+            .stream().anyMatch(ForeldrepengerUttak::harUtbetaling);
     }
 }

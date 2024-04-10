@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
@@ -100,7 +99,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittAnnenForelderTilknytningEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .filter(UttakOmsorgUtil::oppgittAnnenForelderTilknytningEØS)
+            .filter(YtelseFordelingAggregat::oppgittAnnenForelderTilknytningEØS)
             .isPresent();
     }
 

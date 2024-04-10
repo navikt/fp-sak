@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -66,7 +64,7 @@ public class ForvaltningUttakTjeneste {
         if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null) {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
         }
-        if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
+        if (ytelseFordelingAggregat.harAnnenForelderRett(false) != harRett) {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null, ytelseFordelingAggregat.getMorUføretrygdAvklaring());
 
             var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";

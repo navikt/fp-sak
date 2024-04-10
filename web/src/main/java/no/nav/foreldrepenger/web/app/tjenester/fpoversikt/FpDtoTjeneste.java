@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -125,10 +124,10 @@ public class FpDtoTjeneste {
 
     private Optional<FpSak.Rettigheter> finnGjeldendeRettigheter(Long behandlingId) {
         return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).map(ytelseFordelingAggregat -> {
-            var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
-            var annenForelderRettEØS = UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+            var aleneomsorg = ytelseFordelingAggregat.harAleneomsorg();
+            var annenForelderRettEØS = ytelseFordelingAggregat.avklartAnnenForelderHarRettEØS();
             var uføretrygdGrunnlagEntitet = uføretrygdRepository.hentGrunnlag(behandlingId);
-            var morUføretrygd = UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, uføretrygdGrunnlagEntitet.orElse(null));
+            var morUføretrygd = ytelseFordelingAggregat.morMottarUføretrygd(uføretrygdGrunnlagEntitet.orElse(null));
             return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
         });
     }

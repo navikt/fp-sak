@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -42,7 +41,7 @@ public class RettOgOmsorgGrunnlagBygger {
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
         return new RettOgOmsorg.Builder()
-                .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
+                .aleneomsorg(ytelseFordelingAggregat.harAleneomsorg())
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
@@ -61,14 +60,10 @@ public class RettOgOmsorgGrunnlagBygger {
         return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
     }
 
-    private boolean aleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
-    }
-
     private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
         var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
-            return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsUttaksplan);
+            return ytelseFordelingAggregat.harAnnenForelderRett(annenpartsUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
         }
         if (RelasjonsRolleType.erFarEllerMedmor(relasjonsRolleType)) {
             return harSøkerRett(ref);
@@ -82,14 +77,14 @@ public class RettOgOmsorgGrunnlagBygger {
             return harSøkerRett(ref);
         }
         if (RelasjonsRolleType.erFarEllerMedmor(relasjonsRolleType)) {
-            return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsUttaksplan);
+            return ytelseFordelingAggregat.harAnnenForelderRett(annenpartsUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
         }
         throw new IllegalStateException("Uventet foreldrerolletype " + relasjonsRolleType);
     }
 
     private boolean morUføretrygd(UttakInput uttakInput, YtelseFordelingAggregat ytelseFordelingAggregat) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        return UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, fpGrunnlag.getUføretrygdGrunnlag().orElse(null));
+        return ytelseFordelingAggregat.morMottarUføretrygd(fpGrunnlag.getUføretrygdGrunnlag().orElse(null));
     }
 
     private boolean morOppgittUføretrygd(UttakInput uttakInput) {

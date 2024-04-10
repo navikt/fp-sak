@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 
 import static java.lang.Boolean.TRUE;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.annenForelderHarUttakMedUtbetaling;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -56,31 +54,34 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (!personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
-            return UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(ytelseFordelingAggregat) ? aksjonspunkt() : List.of();
+            return ytelseFordelingAggregat.oppgittAnnenForelderTilknytningEØS() ? aksjonspunkt() : List.of();
         }
 
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
 
         if (!oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
             !oppgittAleneomsorg(ytelseFordelingAggregat) &&
-            !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
+            !harUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             var harAnnenForelderInnvilgetES = fpGrunnlag.isOppgittAnnenForelderHarEngangsstønadForSammeBarn();
             var måAvklareMorUfør = ytelseFordelingAggregat.getMorUføretrygdAvklaring() == null && fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null && UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(
-                ytelseFordelingAggregat);
+            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null && ytelseFordelingAggregat.oppgittAnnenForelderTilknytningEØS();
             return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareAnnenForelderRettEØS ? aksjonspunkt() : List.of();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
             erFarMedmor(ref.relasjonRolle()) &&
-            !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
+            !harUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return aksjonspunkt();
         }
 
         return List.of();
+    }
+
+    private static boolean harUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
+        return annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent();
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {

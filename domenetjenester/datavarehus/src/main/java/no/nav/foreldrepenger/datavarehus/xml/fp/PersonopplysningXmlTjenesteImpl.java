@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
 import static no.nav.foreldrepenger.datavarehus.xml.fp.DvhPersonopplysningXmlTjenesteImpl.mapTilDokType;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -275,7 +274,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void leggTilPerioderMedAleneomsorg(YtelseFordelingAggregat aggregat,
                                                PersonopplysningerForeldrepenger.Dokumentasjonsperioder dokumentasjonsperioder) {
-        if (harAleneomsorg(aggregat)) {
+        if (aggregat.harAleneomsorg()) {
             dokumentasjonsperioder.getDokumentasjonperiode()
                 .addAll(lagEnkelDokumentasjonPeriode(UttakDokumentasjonType.ALENEOMSORG));
         }

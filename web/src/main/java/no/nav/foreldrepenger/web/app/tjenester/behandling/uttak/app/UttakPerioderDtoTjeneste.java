@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -21,7 +22,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
@@ -83,10 +83,10 @@ public class UttakPerioderDtoTjeneste {
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
         var filter = new UttakResultatPerioderDto.FilterDto(kreverSammenhengendeUttak, utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
-        var annenForelderHarRett = ytelseFordeling.map(yf -> UttakOmsorgUtil.harAnnenForelderRett(yf, annenpartUttak)).orElse(false);
-        var aleneomsorg = ytelseFordeling.map(UttakOmsorgUtil::harAleneomsorg).orElse(false);
-        var annenForelderRettEØS = ytelseFordeling.map(UttakOmsorgUtil::avklartAnnenForelderHarRettEØS).orElse(false);
-        var oppgittAnnenForelderRettEØS = ytelseFordeling.map(UttakOmsorgUtil::oppgittAnnenForelderRettEØS).orElse(false);
+        var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
+        var aleneomsorg = ytelseFordeling.map(YtelseFordelingAggregat::harAleneomsorg).orElse(false);
+        var annenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS).orElse(false);
+        var oppgittAnnenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::oppgittAnnenForelderRettEØS).orElse(false);
         return new UttakResultatPerioderDto(perioderSøker,
             annenpartUttaksperioder, annenForelderHarRett, aleneomsorg,
             annenForelderRettEØS, oppgittAnnenForelderRettEØS, filter);
