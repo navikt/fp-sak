@@ -166,22 +166,6 @@
             <artifactId>jetty-ee10-webapp</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_hotspot</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_common -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_common</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -217,8 +201,8 @@
 
         <!-- bean validation -->
         <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>

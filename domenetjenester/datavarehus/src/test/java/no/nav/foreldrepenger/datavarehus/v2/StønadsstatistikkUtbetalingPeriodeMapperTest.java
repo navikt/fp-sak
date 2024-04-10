@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -24,6 +25,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .build(new BeregningsresultatEntitet());
         var orgnr = "123";
         new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medDagsats(0)
             .medBrukerErMottaker(true)
@@ -33,6 +35,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .build(beregningsresultatPeriode);
         var andel2 = new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medDagsats(1000)
             .medBrukerErMottaker(false)
@@ -63,6 +66,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .build(new BeregningsresultatEntitet());
         var orgnr = "123";
         new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medDagsats(1000)
             .medBrukerErMottaker(true)
@@ -75,6 +79,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2023, 12, 18), LocalDate.of(2023, 12, 22))
             .build(new BeregningsresultatEntitet());
         var andel2 = new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medDagsats(1000)
             .medBrukerErMottaker(true)

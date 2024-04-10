@@ -7,6 +7,7 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -72,6 +73,7 @@ class TilkjentYtelseMapperTest {
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsats(100)
             .medDagsatsFraBg(100)
             .medUtbetalingsgrad(BigDecimal.valueOf(60))
@@ -81,6 +83,7 @@ class TilkjentYtelseMapperTest {
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsats(100)
             .medDagsatsFraBg(100)
             .medUtbetalingsgrad(BigDecimal.valueOf(50))
@@ -279,6 +282,7 @@ class TilkjentYtelseMapperTest {
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medInntektskategori(inntektskategori)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsats(dagsats)
             .medDagsatsFraBg(dagsats)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
@@ -291,6 +295,7 @@ class TilkjentYtelseMapperTest {
             .medBrukerErMottaker(false)
             .medArbeidsgiver(virksomhet)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsats(dagsats)
             .medDagsatsFraBg(dagsats)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))

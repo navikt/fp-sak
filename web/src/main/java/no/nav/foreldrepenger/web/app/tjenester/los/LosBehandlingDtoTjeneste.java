@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -87,6 +89,14 @@ public class LosBehandlingDtoTjeneste {
 
     public LosBehandlingDto lagLosBehandlingDto(Behandling behandling, boolean harInnhentetRegisterData) {
 
+        var faresignaler = harInnhentetRegisterData && mapFaresignaler(behandling);
+        var refusjonskrav = harRefusjonskravAlleIM(behandling);
+        var refusjonegenskap = refusjonskrav ? BehandlingEgenskap.REFUSJONSKRAV : BehandlingEgenskap.DIREKTE_UTBETALING;
+        List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
+        if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
+        var fpUttak = mapForeldrepengerUttak(behandling, behandlingsegenskaper);
+
+
         return new LosBehandlingDto(behandling.getUuid(),
             Kildesystem.FPSAK,
             behandling.getFagsak().getSaksnummer().getVerdi(),
@@ -100,10 +110,12 @@ public class LosBehandlingDtoTjeneste {
             behandling.getAnsvarligSaksbehandler(),
             mapAksjonspunkter(behandling),
             mapBehandlingsårsaker(behandling).stream().toList(),
-            harInnhentetRegisterData && mapFaresignaler(behandling),
-            harRefusjonskrav(behandling),
+            faresignaler,
+            refusjonskrav,
+            lagFagsakEgenskaperString(behandling.getFagsak()),
             lagFagsakEgenskaper(behandling.getFagsak()),
-            mapForeldrepengerUttak(behandling),
+            fpUttak,
+            behandlingsegenskaper,
             null);
     }
 
@@ -186,10 +198,18 @@ public class LosBehandlingDtoTjeneste {
                 risikovurderingTjeneste.skalVurdereFaresignaler(BehandlingReferanse.fra(behandling)));
     }
 
-    private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling) {
+    private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling, List<String> behandlingsegenskaper) {
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
+        if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() &&
+            aggregat.filter(a -> a.harAleneomsorg()).isEmpty() &&
+            aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
+            behandlingsegenskaper.add(BehandlingEgenskap.BARE_FAR_RETT.name());
+        }
         var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
+        if (vurderSykdom) {
+            behandlingsegenskaper.add(BehandlingEgenskap.SYKDOMSVURDERING.name());
+        }
         var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(OppgittPeriodeEntitet::isGradert);
         if (FagsakYtelseType.UDEFINERT.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling()) {
@@ -248,7 +268,7 @@ public class LosBehandlingDtoTjeneste {
         return utsettelseSykdom || overføringSykdom;
     }
 
-    private boolean harRefusjonskrav(Behandling behandling) {
+    private boolean harRefusjonskravAlleIM(Behandling behandling) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             return false;
         }
@@ -263,6 +283,13 @@ public class LosBehandlingDtoTjeneste {
         return new LosFagsakEgenskaperDto(markering);
     }
 
+    public List<String> lagFagsakEgenskaperString(Fagsak fagsak) {
+        return fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId())
+            .map(this::mapLokalMarkering)
+            .map(FagsakEgenskap::name)
+            .map(List::of).orElse(List.of());
+    }
+
     private LosFagsakEgenskaperDto.FagsakMarkering mapMarkering(FagsakMarkering markering) {
         return  switch (markering) {
             case NASJONAL -> LosFagsakEgenskaperDto.FagsakMarkering.NASJONAL;
@@ -275,5 +302,25 @@ public class LosBehandlingDtoTjeneste {
         };
     }
 
+    private FagsakEgenskap mapLokalMarkering(FagsakMarkering markering) {
+        return  switch (markering) {
+            case NASJONAL -> FagsakEgenskap.NASJONAL;
+            case EØS_BOSATT_NORGE -> FagsakEgenskap.EØS_BOSATT_NORGE;
+            case BOSATT_UTLAND -> FagsakEgenskap.BOSATT_UTLAND;
+            case SAMMENSATT_KONTROLL -> FagsakEgenskap.SAMMENSATT_KONTROLL;
+            case DØD_DØDFØDSEL -> FagsakEgenskap.DØD;
+            case SELVSTENDIG_NÆRING -> FagsakEgenskap.NÆRING;
+            case PRAKSIS_UTSETTELSE -> FagsakEgenskap.PRAKSIS_UTSETTELSE;
+        };
+    }
+
+    public enum FagsakEgenskap {
+        NASJONAL, EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
+
+    }
+
+    public enum BehandlingEgenskap {
+        SYKDOMSVURDERING, BARE_FAR_RETT, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+    }
 
 }

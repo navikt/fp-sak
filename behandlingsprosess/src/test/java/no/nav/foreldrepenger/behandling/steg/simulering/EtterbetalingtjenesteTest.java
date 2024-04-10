@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -171,6 +172,7 @@ class EtterbetalingtjenesteTest {
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsatsFraBg(dagsats)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .build(periode);

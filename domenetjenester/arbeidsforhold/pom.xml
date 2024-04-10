@@ -13,25 +13,6 @@
 	<name>FPSAK :: Domenetjenester - Arbeidsforhold</name>
 
 	<dependencies>
-		<!-- for Bean validation -->
-		<dependency>
-			<groupId>jakarta.validation</groupId>
-			<artifactId>jakarta.validation-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>jakarta.el</artifactId>
-		</dependency>
-		<dependency>
-			<!-- trengs for integrasjon mellom Weld og Javax.El -->
-			<groupId>org.jboss.weld.module</groupId>
-			<artifactId>weld-web</artifactId>
-		</dependency>
-
 
 		<!-- Modul interne avhengigheter -->
 		<dependency>

@@ -50,7 +50,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "OPPRETTET_DATO", nullable = false)
     private LocalDate opprettetDato;
 
-    @Column(name = "BEHANDLING_RESULTAT_TYPE", nullable = false)
+    @Column(name = "BEHANDLING_RESULTAT_TYPE")
     private String behandlingResultatType;
 
     @Column(name = "BEHANDLING_TYPE", nullable = false)

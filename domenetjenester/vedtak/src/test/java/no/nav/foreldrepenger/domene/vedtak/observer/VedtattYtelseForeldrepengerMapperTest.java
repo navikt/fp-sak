@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Inntektklasse;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -50,6 +51,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .medBrukerErMottaker(true)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
@@ -206,6 +208,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .medBrukerErMottaker(true)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.DAGPENGER)
+            .medAktivitetStatus(AktivitetStatus.DAGPENGER)
             .build(periode);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
@@ -233,6 +236,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .medBrukerErMottaker(false)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode);
 
         BeregningsresultatAndel.builder()
@@ -245,6 +249,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .medBrukerErMottaker(true)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode);
     }
 }

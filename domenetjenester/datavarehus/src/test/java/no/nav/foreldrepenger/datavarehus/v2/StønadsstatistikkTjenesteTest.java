@@ -20,8 +20,6 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -387,6 +385,7 @@ class StønadsstatistikkTjenesteTest {
         new BeregningsresultatAndel.Builder().medDagsats(1000)
             .medDagsatsFraBg(1000)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER)
             .medBrukerErMottaker(brukerErMottaker)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(100))

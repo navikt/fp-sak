@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -49,7 +50,11 @@ class LagOppdragTjenesteTest {
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
-        BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
+        BeregningsresultatAndel.builder().medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100))
+            .build(tyPeriode);
 
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
@@ -76,7 +81,7 @@ class LagOppdragTjenesteTest {
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
-        var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
+        var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
         var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
         BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger, andel);
 

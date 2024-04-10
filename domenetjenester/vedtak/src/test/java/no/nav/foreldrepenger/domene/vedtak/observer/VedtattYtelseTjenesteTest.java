@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -121,6 +122,7 @@ class VedtattYtelseTjenesteTest {
             .medStillingsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN))
             .medUtbetalingsgrad(utbetalingsgrad)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode);
     }
 
