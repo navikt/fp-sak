@@ -164,7 +164,8 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private static OppgittPeriodeEntitet nyPeriodeFra(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, OppgittPeriodeEntitet eksisterendePeriode) {
-        return OppgittPeriodeBuilder.fraEksisterende(eksisterendePeriode)
+        return OppgittPeriodeBuilder.fraEksisterende(manglendeSegment.getValue())
+            .medPeriodeType(eksisterendePeriode.getPeriodeType())
             .medPeriode(flyttFraHelgTilMandag(manglendeSegment.getFom()), flyttFraHelgTilFredag(manglendeSegment.getTom()))
             .medMottattDato(manglendeSegment.getValue().getMottattDato())
             .medTidligstMottattDato(manglendeSegment.getValue().getTidligstMottattDato().orElse(eksisterendePeriode.getTidligstMottattDato().orElse(null)))
