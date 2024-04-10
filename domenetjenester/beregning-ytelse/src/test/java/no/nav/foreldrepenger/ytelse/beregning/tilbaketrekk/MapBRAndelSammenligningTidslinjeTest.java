@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -135,6 +136,7 @@ class MapBRAndelSammenligningTidslinjeTest {
                 .medStillingsprosent(BigDecimal.valueOf(100))
                 .medUtbetalingsgrad(BigDecimal.valueOf(100))
                 .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
                 .medDagsats(900)
                 .medDagsatsFraBg(900)
                 .medArbeidsgiver(arbeidsgiver)

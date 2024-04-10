@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -151,24 +152,37 @@ public class LosBehandlingDtoTjeneste {
 
     private static Set<Behandlingsårsak> mapBehandlingsårsaker(Behandling behandling) {
         Set<Behandlingsårsak> årsaker = new HashSet<>();
-        behandling.getBehandlingÅrsaker().stream()
+        var opprinneligeÅrsaker = behandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
+            .collect(Collectors.toSet());
+        opprinneligeÅrsaker.stream()
             .map(LosBehandlingDtoTjeneste::mapBehandlingsårsak)
             .filter(behandlingsårsak -> !Behandlingsårsak.ANNET.equals(behandlingsårsak))
             .forEach(årsaker::add);
-        if (BehandlingType.REVURDERING.equals(behandling.getType())
-            && behandling.getBehandlingÅrsaker().stream().anyMatch(BehandlingÅrsak::erManueltOpprettet)) {
-            årsaker.add(Behandlingsårsak.MANUELL);
+        if (BehandlingType.REVURDERING.equals(behandling.getType())) {
+            if (behandling.getBehandlingÅrsaker().stream().anyMatch(BehandlingÅrsak::erManueltOpprettet)) {
+                årsaker.add(Behandlingsårsak.MANUELL);
+            }
+            if (opprinneligeÅrsaker.stream().allMatch(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING::equals)) {
+                årsaker.add(Behandlingsårsak.INNTEKTSMELDING);
+            }
+        } else if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            årsaker.add(Behandlingsårsak.SØKNAD);
         }
         return årsaker;
     }
 
     private static Behandlingsårsak mapBehandlingsårsak(BehandlingÅrsakType årsak) {
         return switch (årsak) {
-            case BERØRT_BEHANDLING -> Behandlingsårsak.BERØRT;
+            case BERØRT_BEHANDLING, REBEREGN_FERIEPENGER -> Behandlingsårsak.BERØRT;
             case RE_ENDRING_FRA_BRUKER -> Behandlingsårsak.SØKNAD;
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
+            case RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN -> Behandlingsårsak.ETTERKONTROLL;
+            case ETTER_KLAGE, RE_KLAGE_MED_END_INNTEKT, RE_KLAGE_UTEN_END_INNTEKT -> Behandlingsårsak.KLAGE_OMGJØRING;
             case KLAGE_TILBAKEBETALING -> Behandlingsårsak.KLAGE_TILBAKEBETALING;
+            case RE_SATS_REGULERING -> Behandlingsårsak.REGULERING;
+            case RE_UTSATT_START -> Behandlingsårsak.UTSATT_START;
+            case OPPHØR_YTELSE_NYTT_BARN -> Behandlingsårsak.OPPHØR_NY_SAK;
             default -> Behandlingsårsak.ANNET;
         };
     }
