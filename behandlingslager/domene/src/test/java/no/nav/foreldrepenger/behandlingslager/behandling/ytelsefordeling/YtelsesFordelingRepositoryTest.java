@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -85,7 +86,7 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
 
         var yf = repository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk80())
+            .medOppgittDekningsgrad(Dekningsgrad._80)
             .medOppgittFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2, periode_3), true))
             .build();
         repository.lagre(behandling.getId(), yf);

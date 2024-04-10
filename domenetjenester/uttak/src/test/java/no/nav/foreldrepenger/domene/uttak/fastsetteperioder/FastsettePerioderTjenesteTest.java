@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
@@ -143,7 +142,7 @@ class FastsettePerioderTjenesteTest {
             .medArbeidsgiver(virksomhet)
             .build();
 
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var fordeling = new OppgittFordelingEntitet(List.of(fedrekvote), true);
         var rettighet = OppgittRettighetEntitet.beggeRett();
 
@@ -821,7 +820,7 @@ class FastsettePerioderTjenesteTest {
     }
 
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {
-        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var dekningsgrad = Dekningsgrad._100;
         var fordeling = new OppgittFordelingEntitet(perioder, true);
         var rettighet = OppgittRettighetEntitet.beggeRett();
 

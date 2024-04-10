@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -75,7 +74,7 @@ public class UttakRevurderingTestUtil {
                 .build());
         }
         return opprettRevurdering(aktørId, behandlingÅrsakType, defaultUttaksresultat(),
-            new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
+            new OppgittFordelingEntitet(fordeling, true), Dekningsgrad._100);
     }
 
     public Behandling opprettEndringssøknadRevurdering(AktørId aktørId,
@@ -87,7 +86,7 @@ public class UttakRevurderingTestUtil {
             .medPeriode(VirkedagUtil.fomVirkedag(startDato), VirkedagUtil.tomVirkedag(startDato.plusDays(10)))
             .build());
         return opprettRevurdering(aktørId, behandlingÅrsakType, defaultUttaksresultat(),
-            new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
+            new OppgittFordelingEntitet(fordeling, true), Dekningsgrad._100);
     }
 
     private List<UttakResultatPeriodeEntitet> defaultUttaksresultat() {
@@ -100,7 +99,7 @@ public class UttakRevurderingTestUtil {
                                          BehandlingÅrsakType behandlingÅrsakType,
                                          List<UttakResultatPeriodeEntitet> opprinneligUttaksResultatPerioder,
                                          OppgittFordelingEntitet nyFordeling,
-                                         OppgittDekningsgradEntitet oppgittDekningsgrad) {
+                                         Dekningsgrad oppgittDekningsgrad) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         var førstegangsbehandling = byggFørstegangsbehandling(scenario, opprinneligUttaksResultatPerioder);
 
@@ -115,23 +114,13 @@ public class UttakRevurderingTestUtil {
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(revurdering.getFagsak(), map(oppgittDekningsgrad));
+            .opprettRelasjon(revurdering.getFagsak(), oppgittDekningsgrad);
         return revurdering;
     }
 
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
-    }
-
-    private Dekningsgrad map(OppgittDekningsgradEntitet oppgittDekningsgrad) {
-        if (oppgittDekningsgrad.getDekningsgrad() == 80) {
-            return Dekningsgrad._80;
-        }
-        if (oppgittDekningsgrad.getDekningsgrad() == 100) {
-            return Dekningsgrad._100;
-        }
-        throw new IllegalArgumentException("Ukjent dekningsgrad " + oppgittDekningsgrad.getDekningsgrad());
     }
 
     public Behandling opprettRevurderingAdopsjon() {

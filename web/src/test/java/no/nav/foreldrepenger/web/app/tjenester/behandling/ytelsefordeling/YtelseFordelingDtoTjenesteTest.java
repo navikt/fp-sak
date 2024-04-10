@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -235,7 +234,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(rettighet)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
+            .medOppgittDekningsgrad(Dekningsgrad._100)
             .medFordeling(fordeling);
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()

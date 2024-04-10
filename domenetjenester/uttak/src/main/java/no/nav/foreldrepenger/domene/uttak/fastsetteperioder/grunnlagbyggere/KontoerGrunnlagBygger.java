@@ -88,7 +88,7 @@ public class KontoerGrunnlagBygger {
 
         var bareFarHarRett = rettOgOmsorg.getFarHarRett() && !rettOgOmsorg.getMorHarRett();
         var morHarUføretrygd = rettOgOmsorg.getMorUføretrygd();
-        var dekningsgrad = UttakEnumMapper.map(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref).getVerdi());
+        var dekningsgrad = UttakEnumMapper.map(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
 
         var antallBarn = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAntallBarn();
         var flerbarnsdager = stønadskontoer.stream()

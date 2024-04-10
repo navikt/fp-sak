@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -1337,7 +1336,7 @@ class FastsettePerioderRegelAdapterTest {
         var revurdering = uttakRevurderingTestUtil.opprettRevurdering(UttakRevurderingTestUtil.AKTØR_ID_MOR,
             BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, List.of(opprinneligFpff, opprinneligMødrekvote),
             new OppgittFordelingEntitet(List.of(revurderingSøknadsperiodeFellesperiode), true),
-            OppgittDekningsgradEntitet.bruk100());
+            Dekningsgrad._100);
 
         var fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak(), Dekningsgrad._100);

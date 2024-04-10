@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -99,8 +98,8 @@ public final class UttakEnumMapper {
         }).orElse(null);
     }
 
-    public static Dekningsgrad map(int dekningsgrad) {
-        if (Objects.equals(dekningsgrad, OppgittDekningsgradEntitet.HUNDRE_PROSENT)) {
+    public static Dekningsgrad map(no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad dekningsgrad) {
+        if (Objects.equals(dekningsgrad, no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad._100)) {
             return Dekningsgrad.DEKNINGSGRAD_100;
         }
         return Dekningsgrad.DEKNINGSGRAD_80;

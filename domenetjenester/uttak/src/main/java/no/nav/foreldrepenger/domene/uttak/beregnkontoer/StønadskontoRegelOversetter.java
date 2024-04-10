@@ -27,7 +27,7 @@ public class StønadskontoRegelOversetter {
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .antallBarn(familieHendelse.getAntallBarn())
-            .dekningsgrad(map(dekningsgrad.getVerdi()));
+            .dekningsgrad(map(dekningsgrad));
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
 
