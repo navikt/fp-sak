@@ -379,7 +379,7 @@ class FastsettePerioderTjenesteTest {
     }
 
     private OppgittRettighetEntitet bareFarHarRett() {
-        return new OppgittRettighetEntitet(false, false, false, false, false);
+        return OppgittRettighetEntitet.bareSøkerRett();
     }
 
     @Test

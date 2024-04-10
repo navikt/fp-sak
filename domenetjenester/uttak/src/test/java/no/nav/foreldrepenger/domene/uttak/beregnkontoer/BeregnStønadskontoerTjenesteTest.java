@@ -159,7 +159,7 @@ class BeregnStønadskontoerTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
@@ -192,7 +192,7 @@ class BeregnStønadskontoerTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
