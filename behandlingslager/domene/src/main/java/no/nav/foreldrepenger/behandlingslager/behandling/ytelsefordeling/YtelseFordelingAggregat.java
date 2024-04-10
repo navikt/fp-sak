@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
+import static java.lang.Boolean.TRUE;
+
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.vedtak.exception.TekniskException;
@@ -20,6 +24,43 @@ public class YtelseFordelingAggregat {
     private Boolean overstyrtOmsorg;
 
     protected YtelseFordelingAggregat() {
+    }
+
+    public boolean harAleneomsorg() {
+        return Optional.ofNullable(getAleneomsorgAvklaring())
+            .orElseGet(() -> TRUE.equals(getOppgittRettighet().getHarAleneomsorgForBarnet()));
+    }
+
+    public boolean harAnnenForelderRett(boolean annenpartHarForeldrepengerUtbetaling) {
+        if (annenpartHarForeldrepengerUtbetaling || avklartAnnenForelderHarRettEØS()) {
+            return true;
+        }
+        return Optional.ofNullable(getAnnenForelderRettAvklaring())
+            .orElseGet(() -> {
+                var oppgittRettighet = getOppgittRettighet();
+                Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
+                return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
+            });
+    }
+
+    public boolean morMottarUføretrygd(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+        // Inntil videre er oppgittrettighet ikke komplett - derfor ser vi på om det finnes et UFO-grunnlag
+        return Optional.ofNullable(getMorUføretrygdAvklaring())
+            .orElseGet(() -> Optional.ofNullable(uføretrygdGrunnlag).filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd).isPresent());
+    }
+
+    public boolean avklartAnnenForelderHarRettEØS() {
+        return TRUE.equals(getAnnenForelderRettEØSAvklaring());
+    }
+
+    public boolean oppgittAnnenForelderTilknytningEØS() {
+        //Tidligere søknaden hadde ikke spørsmål om opphold, bare rett
+        return Objects.equals(getOppgittRettighet().getAnnenForelderOppholdEØS(), TRUE)
+            || oppgittAnnenForelderRettEØS();
+    }
+
+    public boolean oppgittAnnenForelderRettEØS() {
+        return getOppgittRettighet().getAnnenForelderRettEØS();
     }
 
     public OppgittFordelingEntitet getOppgittFordeling() {

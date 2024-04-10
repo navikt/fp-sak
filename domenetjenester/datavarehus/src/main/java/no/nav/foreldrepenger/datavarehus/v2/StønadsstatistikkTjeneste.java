@@ -75,7 +75,6 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -444,9 +443,9 @@ public class StønadsstatistikkTjeneste {
 
     private static RettighetType utledRettighetType(YtelseFordelingAggregat yfa, Set<ForeldrepengerRettigheter.Stønadskonto> konti) {
         if (konti.stream().anyMatch(k -> k.type().equals(StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER))) {
-            return UttakOmsorgUtil.harAleneomsorg(yfa) ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
+            return yfa.harAleneomsorg() ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
         }
-        return UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa) ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
+        return yfa.avklartAnnenForelderHarRettEØS() ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
     }
 
     private static ForeldrepengerRettigheter.Stønadskonto map(Stønadskonto stønadskonto, SaldoUtregning saldoUtregning) {

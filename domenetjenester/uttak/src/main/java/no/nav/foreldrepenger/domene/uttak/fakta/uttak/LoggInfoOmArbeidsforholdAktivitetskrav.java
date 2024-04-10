@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateSegmentCombinator;
@@ -66,7 +64,7 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
             return;
         }
 
-        var harAnnenForelderRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty());
+        var harAnnenForelderRett = ytelseFordelingAggregat.harAnnenForelderRett(false);
 
         loggInfoOmArbeidsforhold(fraDato, tilDato, behandlingReferanse.saksnummer(), harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo);
     }

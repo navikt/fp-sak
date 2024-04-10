@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
@@ -23,7 +22,7 @@ public class StønadskontoRegelOversetter {
                                                 BehandlingReferanse ref) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsGjeldendeUttaksplan);
+        var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .antallBarn(familieHendelse.getAntallBarn())
@@ -31,7 +30,7 @@ public class StønadskontoRegelOversetter {
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
 
-        var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+        var aleneomsorg = ytelseFordelingAggregat.harAleneomsorg();
         if (ref.relasjonRolle().equals(RelasjonsRolleType.MORA)) {
             return grunnlagBuilder.morRett(true).farRett(annenForeldreHarRett).morAleneomsorg(aleneomsorg).build();
         }

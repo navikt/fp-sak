@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -125,7 +125,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .filter(UttakOmsorgUtil::avklartAnnenForelderHarRettEØS)
+            .filter(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS)
             .map(yfa -> AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS);
     }
 

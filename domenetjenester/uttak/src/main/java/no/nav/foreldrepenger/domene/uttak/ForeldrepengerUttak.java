@@ -57,4 +57,8 @@ public class ForeldrepengerUttak {
     private List<ForeldrepengerUttakPeriode> sortByFom(List<ForeldrepengerUttakPeriode> perioder) {
         return perioder.stream().sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom)).toList();
     }
+
+    public boolean harUtbetaling() {
+        return getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harUtbetaling);
+    }
 }
