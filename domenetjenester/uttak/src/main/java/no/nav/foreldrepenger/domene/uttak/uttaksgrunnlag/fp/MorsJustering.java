@@ -139,13 +139,13 @@ class MorsJustering implements ForelderFødselJustering {
 
     private static OppgittPeriodeEntitet nyPeriodeFraSisteFlyttbarePeriode(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, List<OppgittPeriodeEntitet> oppgittePerioder) {
         return sisteFlyttbarePeriode(oppgittePerioder)
-            .map(p -> nyPeriodeFra(manglendeSegment, p))
+            .map(p -> nyPeriodeFra(manglendeSegment, p.getPeriodeType()))
             .orElse(nyPeriode(manglendeSegment, oppgittePerioder, Set.of()));
     }
 
     private static OppgittPeriodeEntitet nyPeriodeFraFørsteFlyttbarePeriode(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, List<OppgittPeriodeEntitet> oppgittePerioder, Set<UttakPeriodeType> tillatteTyper) {
         return førsteFlyttbarePeriodeAvType(oppgittePerioder, tillatteTyper)
-            .map(p -> nyPeriodeFra(manglendeSegment, p))
+            .map(p -> nyPeriodeFra(manglendeSegment, p.getPeriodeType()))
             .orElse(nyPeriode(manglendeSegment, oppgittePerioder, tillatteTyper));
     }
 
@@ -163,12 +163,10 @@ class MorsJustering implements ForelderFødselJustering {
             .max(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
-    private static OppgittPeriodeEntitet nyPeriodeFra(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, OppgittPeriodeEntitet eksisterendePeriode) {
+    private static OppgittPeriodeEntitet nyPeriodeFra(LocalDateSegment<OppgittPeriodeEntitet> manglendeSegment, UttakPeriodeType periodeType) {
         return OppgittPeriodeBuilder.fraEksisterende(manglendeSegment.getValue())
-            .medPeriodeType(eksisterendePeriode.getPeriodeType())
+            .medPeriodeType(periodeType)
             .medPeriode(flyttFraHelgTilMandag(manglendeSegment.getFom()), flyttFraHelgTilFredag(manglendeSegment.getTom()))
-            .medMottattDato(manglendeSegment.getValue().getMottattDato())
-            .medTidligstMottattDato(manglendeSegment.getValue().getTidligstMottattDato().orElse(eksisterendePeriode.getTidligstMottattDato().orElse(null)))
             .build();
     }
 
