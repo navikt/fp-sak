@@ -104,7 +104,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 

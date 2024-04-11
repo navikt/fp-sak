@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -63,7 +64,8 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste, ytelsesFordelingRepository));
     }
 
     @Test
@@ -103,7 +105,9 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
 
         // Oppsett
-        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste,
+            ytelsesFordelingRepository));
 
         var behandling = opprettBehandlingForFødselRegistrertITps(LocalDate.now(), 1, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
@@ -115,8 +119,10 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     @Test
     void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         // Oppsett
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
 
-        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
+        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste,
+            ytelsesFordelingRepository));
 
         var behandling = opprettBehandlingForFødselRegistrertITps(LocalDate.now(), 2, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
@@ -141,7 +147,9 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     void ingen_aksjonspunkter_dersom_løpende_arbeid() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, Tid.TIDENES_ENDE);
-        var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+
+        var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste, ytelsesFordelingRepository));
         //Act
         var param = lagInput(behandling);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
@@ -153,8 +161,10 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     @Test
     void ingen_aksjonspunkter_dersom_tidsavgrenset_arbforhold_over_stp() {
         //Arrange
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, LocalDate.now().plusMonths(6));
-        var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
+        var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste, ytelsesFordelingRepository));
         //Act
         var param = lagInput(behandling);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
@@ -193,7 +203,8 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
 
     private Behandling opprettBehandlingMedOppgittTerminOgArbeidsForhold(LocalDate termindato, LocalDate tilOgMed) {
         var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_AKTØR_ID);
+            .forFødselMedGittAktørId(GITT_AKTØR_ID)
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
             .medTermindato(termindato)
@@ -208,7 +219,8 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
 
     private Behandling opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate termindato) {
         var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_AKTØR_ID);
+            .forFødselMedGittAktørId(GITT_AKTØR_ID)
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
             .medTermindato(termindato)
