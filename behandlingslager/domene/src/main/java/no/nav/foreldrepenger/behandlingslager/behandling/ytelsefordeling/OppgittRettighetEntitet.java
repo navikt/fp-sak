@@ -75,6 +75,10 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return new OppgittRettighetEntitet(true, false, false, false, false);
     }
 
+    public static OppgittRettighetEntitet bareSøkerRett() {
+        return new OppgittRettighetEntitet(false, false, false, false, false);
+    }
+
     public Boolean getHarAleneomsorgForBarnet() {
         return harAleneomsorgForBarnet;
     }
