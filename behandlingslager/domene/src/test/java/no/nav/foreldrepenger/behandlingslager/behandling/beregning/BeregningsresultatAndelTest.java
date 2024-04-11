@@ -34,6 +34,7 @@ class BeregningsresultatAndelTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(80))
             .medDagsatsFraBg(450)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(null)
             .build(periode);
         assertThat(andel.erBrukerMottaker()).isTrue();
@@ -54,6 +55,7 @@ class BeregningsresultatAndelTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medDagsatsFraBg(450)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
             .build(periode);
         assertThat(andel.erBrukerMottaker()).isFalse();
@@ -74,6 +76,7 @@ class BeregningsresultatAndelTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(0))
             .medDagsatsFraBg(450)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
             .build(periode);
         assertThat(andel.erBrukerMottaker()).isTrue();
@@ -178,6 +181,7 @@ class BeregningsresultatAndelTest {
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(-1))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsatsFraBg(550)
             .medArbeidsgiver(null);
         assertThrows(IllegalStateException.class, () -> builder.build(periode));
@@ -191,6 +195,7 @@ class BeregningsresultatAndelTest {
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(101))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medDagsatsFraBg(550)
             .medArbeidsgiver(null);
         assertThrows(IllegalStateException.class, () -> builder.build(periode));
@@ -204,6 +209,7 @@ class BeregningsresultatAndelTest {
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.UDEFINERT)
+            .medAktivitetStatus(AktivitetStatus.UDEFINERT)
             .medDagsatsFraBg(550)
             .medArbeidsgiver(null);
         assertThrows(IllegalStateException.class, () -> builder.build(periode));

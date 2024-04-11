@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
@@ -42,9 +41,6 @@ public class ApplicationServiceStarter {
     }
 
     public void startServices() {
-        // Prometheus
-        DefaultExports.initialize();
-
         // Services
         LOGGER.info("Starter {} services", services.size());
         CompletableFuture.allOf(services.stream().map(service -> runAsync(service::start)).toArray(CompletableFuture[]::new)).join();

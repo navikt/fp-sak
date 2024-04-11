@@ -254,6 +254,7 @@ public class SatsReguleringUtil {
             .medDagsatsFraBg(1000)
             .medBrukerErMottaker(true)
             .medStillingsprosent(new BigDecimal(100))
+            .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
             .medUtbetalingsgrad(new BigDecimal(100))
             .build(brFPper);

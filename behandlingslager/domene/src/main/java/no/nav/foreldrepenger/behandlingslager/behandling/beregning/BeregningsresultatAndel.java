@@ -312,6 +312,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
+            Objects.requireNonNull(beregningsresultatAndelMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsresultatAndelMal.beregningsresultatPeriode, "beregningsresultatPeriode");
             Objects.requireNonNull(beregningsresultatAndelMal.brukerErMottaker, "brukerErMottaker");
             Objects.requireNonNull(beregningsresultatAndelMal.stillingsprosent, "stillingsprosent");
