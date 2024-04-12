@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkKafkaProducer;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaSender;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -86,7 +87,10 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
             .flatMap(bv -> lagDto(bv).stream())
             .toList();
 
-        dtos.forEach(v -> kafkaProducer.sendJson(v.getSaksnummer().id(), DefaultJsonMapper.toJson(v)));
+        dtos.forEach(v -> {
+            var header = new KafkaSender.KafkaHeader("stønadstype", v.getYtelseType().name().getBytes());
+            kafkaProducer.sendJson(header, v.getSaksnummer().id(), DefaultJsonMapper.toJson(v));
+        });
 
         var tomDato = LocalDate.parse(prosessTaskData.getPropertyValue(TOM_DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         vedtakPåDato.stream()
