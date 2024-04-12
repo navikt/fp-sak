@@ -494,6 +494,9 @@ class MapTilKalkulatorInput {
     }
 
     private static Aktør mapArbeidsgiver(Arbeidsgiver arbeidsgiver) {
+        if (arbeidsgiver == null) {
+            return null;
+        }
         return arbeidsgiver.getErVirksomhet() ? new Organisasjon(arbeidsgiver.getIdentifikator()) : new AktørIdPersonident(
             arbeidsgiver.getIdentifikator());
     }
