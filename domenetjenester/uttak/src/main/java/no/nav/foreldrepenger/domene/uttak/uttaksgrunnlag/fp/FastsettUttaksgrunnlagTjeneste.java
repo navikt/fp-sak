@@ -96,6 +96,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(),
                 fordeling.ønskerJustertVedFødsel());
+            LOG.info("Justerte perioder etter flytting ved endring i familiehendelse {}", justertePerioder);
         }
         if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
             justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
@@ -166,6 +167,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                              LocalDate endringsdato,
                                                                              Long forrigeBehandling,
                                                                              boolean kreverSammenhengendeUttak) {
+        LOG.info("Kopierer vedtaksperioder fom endringsdato {} {}", endringsdato, forrigeBehandling);
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
         return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, kreverSammenhengendeUttak);

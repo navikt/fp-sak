@@ -55,7 +55,9 @@ class MorsJustering implements ForelderFødselJustering {
 
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        LOG.info("Fødselsjusterer ved fødsel før termin {} {} {}", gammelFamiliehendelse, nyFamiliehendelse, oppgittePerioder);
         var justertePerioder = flyttPerioderTilVenstre(oppgittePerioder);
+        LOG.info("Flyttet perioder til venstre {}", justertePerioder);
 
         if (justertePerioder.isEmpty()) {
             throw new IllegalStateException("Må ha minst en justert periode");
@@ -64,7 +66,9 @@ class MorsJustering implements ForelderFødselJustering {
             return justertePerioder;
         }
         justertePerioder = fyllHullSomOppstårPgaJustering(oppgittePerioder, justertePerioder);
+        LOG.info("Flyttet perioder fylt hull oppstått pga justering {}", justertePerioder);
         justertePerioder = fyllHullSomOppstårFørFørsteOpprinneligeUttaksdatoOgFødsel(oppgittePerioder, justertePerioder);
+        LOG.info("Flyttet perioder fylt hull før første {}", justertePerioder);
         return justertePerioder;
     }
 

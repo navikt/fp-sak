@@ -350,6 +350,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
                 ", årsak=" + årsak +
                 ", dokumentasjonVurdering=" + dokumentasjonVurdering +
                 ", periode=" + periode +
+                ", samtidigUttaksprosent=" + samtidigUttaksprosent +
+                ", arbeidsprosent=" + arbeidsprosent +
                 '}';
     }
 }
