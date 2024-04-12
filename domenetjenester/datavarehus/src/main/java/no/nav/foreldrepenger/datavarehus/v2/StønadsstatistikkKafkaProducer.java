@@ -25,9 +25,9 @@ public class StønadsstatistikkKafkaProducer {
     StønadsstatistikkKafkaProducer() {
     }
 
-    public void sendJson(String nøkkel, String json) {
+    public void sendJson(KafkaSender.KafkaHeader header, String nøkkel, String json) {
         LOG.info("Sender melding om stønadsstatistikkvedtak med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
-        var recordMetadata = producer.send(nøkkel, json);
+        var recordMetadata = producer.send(header, nøkkel, json);
         LOG.info("Sendte melding om stønadsstatistikkvedtak til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
 
     }

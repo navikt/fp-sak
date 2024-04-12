@@ -331,7 +331,7 @@ public class StønadsstatistikkVedtak {
         INNVILGET, AVSLAG, OPPHØR
     }
 
-    enum YtelseType {
+    public enum YtelseType {
         FORELDREPENGER, SVANGERSKAPSPENGER, ENGANGSSTØNAD
     }
 

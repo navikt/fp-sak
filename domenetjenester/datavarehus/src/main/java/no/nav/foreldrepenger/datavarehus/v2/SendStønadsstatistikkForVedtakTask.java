@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.datavarehus.v2;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
@@ -12,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaSender;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -54,8 +54,8 @@ public class SendStønadsstatistikkForVedtakTask extends GenerellProsessTask {
         var vedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
 
         valider(vedtak);
-
-        kafkaProducer.sendJson(vedtak.getSaksnummer().id(), DefaultJsonMapper.toJson(vedtak));
+        var header = new KafkaSender.KafkaHeader("stønadstype", vedtak.getYtelseType().name().getBytes());
+        kafkaProducer.sendJson(header, vedtak.getSaksnummer().id(), DefaultJsonMapper.toJson(vedtak));
     }
 
     private void valider(StønadsstatistikkVedtak vedtak) {
