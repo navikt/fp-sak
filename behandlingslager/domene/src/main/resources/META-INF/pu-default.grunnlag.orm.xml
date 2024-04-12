@@ -13,6 +13,10 @@
 
     <sequence-generator name="SEQ_GR_NESTESAK" allocation-size="50" sequence-name="SEQ_GR_NESTESAK" />
 
+    <sequence-generator name="SEQ_GR_AKTIVITETSKRAV_ARBEID" allocation-size="50" sequence-name="SEQ_GR_AKTIVITETSKRAV_ARBEID" />
+    <sequence-generator name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODER" allocation-size="50" sequence-name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODER" />
+    <sequence-generator name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODE" allocation-size="50" sequence-name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODE" />
+
     <!-- Andre grunnlag -->
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet"/>
@@ -21,6 +25,10 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet"/>
 
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet"/>
+
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEnitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet"/>
 
 
 </entity-mappings>

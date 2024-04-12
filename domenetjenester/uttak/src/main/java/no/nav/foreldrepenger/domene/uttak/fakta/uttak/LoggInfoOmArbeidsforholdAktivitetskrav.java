@@ -13,8 +13,11 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -73,12 +76,22 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
                                          Saksnummer saksnummer, boolean harAnnenForelderRett,
                                          List<OppgittPeriodeEntitet> aktuellePerioder,
                                          List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
+        var orgnrListe = arbeidsforholdInfo.stream().map(ArbeidsforholdMedPermisjon::arbeidsgiver).map(Arbeidsgiver::getOrgnr).distinct().toList();
         var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo);
         var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo);
         var grunnlagTidslinje = stillingsprosentTidslinje
             .crossJoin(permisjonProsentTidslinje, bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
             .crossJoin(lagTidslinjeMed0(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide)
             .compress();
+        var builder = new AktivitetskravArbeidPerioderEntitet.Builder();
+        grunnlagTidslinje.forEach(dateSegment -> {
+            var aktivitetskravPeriodeBuilder = new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(dateSegment.getLocalDateInterval().getFomDato(), dateSegment.getLocalDateInterval().getTomDato())
+                .medOrganisasjonsnummer("11")
+                .medSumStillingsprosent(dateSegment.getValue().sumStillingsprosent())
+                .medSumPermisjonsprosent(dateSegment.getValue().sumPermisjonsProsent());
+            builder.leggTil(aktivitetskravPeriodeBuilder);
+        });
 
         var loggPrefiks = String.format("INFO-AKTIVITETSKRAV: %s (%s)", harAnnenForelderRett ? "BEGGE_RETT" : "BARE_FAR_RETT", saksnummer);
 
