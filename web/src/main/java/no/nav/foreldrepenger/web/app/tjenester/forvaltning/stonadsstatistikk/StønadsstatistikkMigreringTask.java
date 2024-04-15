@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,9 +39,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkMigreringTask.class);
     static final String FOM_DATO_KEY = "fom";
-    static final String TOM_DATO_KEY = "tom";
-    private static final String FRA_FAGSAK_ID = "fraFagsakId";
-    private static final LocalDateTime MAKSTIDSPUNKT_VEDTAK = LocalDate.of(2024, Month.APRIL, 1).atStartOfDay();
+    private static final String FRA_ID = "fraId";
 
     private final BehandlingRepository behandlingRepository;
     private final StønadsstatistikkTjeneste stønadsstatistikkTjeneste;
@@ -75,14 +70,13 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var sakOpprettetTid = LocalDate.parse(prosessTaskData.getPropertyValue(FOM_DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-        var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
-        var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
+        var vedtakFomDato = LocalDate.parse(prosessTaskData.getPropertyValue(FOM_DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+        var fraIdProperty = prosessTaskData.getPropertyValue(FRA_ID);
+        var fraId = fraIdProperty == null ? null : Long.valueOf(fraIdProperty);
 
-        var vedtakPåDato = finnAlleVedtakForSakerOpprettetDato(sakOpprettetTid, fraFagsakId);
-        LOG.info("Publiserer migreringshendelse for {} saker opprettet {}", vedtakPåDato.size(), sakOpprettetTid);
-        var dtos = vedtakPåDato.stream()
-            .flatMap(this::finnVedtakForSak)
+
+        var vedtakOpprettetFomDato = finnVedtakOpprettetFomDato(vedtakFomDato, fraId).toList();
+        var dtos = vedtakOpprettetFomDato.stream()
             .sorted(Comparator.comparing(BehandlingVedtak::getOpprettetTidspunkt))
             .flatMap(bv -> lagDto(bv).stream())
             .toList();
@@ -92,54 +86,34 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
             kafkaProducer.sendJson(header, v.getSaksnummer().id(), DefaultJsonMapper.toJson(v));
         });
 
-        var tomDato = LocalDate.parse(prosessTaskData.getPropertyValue(TOM_DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-        vedtakPåDato.stream()
+        vedtakOpprettetFomDato.stream()
+            .map(BehandlingVedtak::getId)
             .max(Long::compareTo)
-            .ifPresentOrElse(nesteId -> prosessTaskTjeneste.lagre(opprettTaskForDato(sakOpprettetTid, tomDato, nesteId)),
-                () -> {
-                    if (sakOpprettetTid.isBefore(tomDato)) {
-                        prosessTaskTjeneste.lagre(opprettTaskForDato(sakOpprettetTid.plusDays(1), tomDato, null));
-                    }
-                });
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettTaskForDato(vedtakFomDato, nesteId)));
 
     }
 
-    private List<Long> finnAlleVedtakForSakerOpprettetDato(LocalDate sakOpprettetTid, Long fraFagsakId) {
+    private Stream<BehandlingVedtak> finnVedtakOpprettetFomDato(LocalDate fomDato, Long fraId) {
         var sql ="""
-            select * from (select f.id from FAGSAK f
-            where trunc(f.OPPRETTET_TID) =:sakOpprettetTid
-            and f.id >:fraFagsakId
-            order by f.id)
-            where ROWNUM <= 20
-            """;
-
-        var query = entityManager.createNativeQuery(sql, Long.class)
-            .setParameter("sakOpprettetTid", sakOpprettetTid)
-            .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        return query.getResultList();
-    }
-
-    private Stream<BehandlingVedtak> finnVedtakForSak(Long fagsakId) {
-        var sql ="""
+            select * from (
             select bv.* from BEHANDLING_VEDTAK bv
             join BEHANDLING_RESULTAT br on br.id = bv.BEHANDLING_RESULTAT_ID
             join BEHANDLING b on b.id = br.BEHANDLING_ID
             where b.BEHANDLING_TYPE in ('BT-002','BT-004')
-            and b.FAGSAK_ID =:fagsakId
+            and trunc(bv.OPPRETTET_TID) >=:fomDato
+            and bv.ID >:fraId
+            order by bv.id)
+            where ROWNUM <= 20
             """;
 
         var query = entityManager.createNativeQuery(sql, BehandlingVedtak.class)
-            .setParameter("fagsakId", fagsakId)
+            .setParameter("fomDato", fomDato)
+            .setParameter("fraId", fraId == null ? 0 : fraId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultStream();
     }
 
     private Optional<StønadsstatistikkVedtak> lagDto(BehandlingVedtak vedtak) {
-        if (vedtak.getOpprettetTidspunkt().isAfter(MAKSTIDSPUNKT_VEDTAK)) {
-            LOG.info("Ignorerer vedtak {}. Fattet {}", vedtak.getId(), vedtak.getOpprettetTidspunkt());
-            return Optional.empty();
-        }
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -160,12 +134,11 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         return generertVedtak;
     }
 
-    public static ProsessTaskData opprettTaskForDato(LocalDate fomDato, LocalDate tomDato, Long fraVedtakId) {
+    public static ProsessTaskData opprettTaskForDato(LocalDate fomDato, Long fraVedtakId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(StønadsstatistikkMigreringTask.class);
 
         prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FOM_DATO_KEY, fomDato.toString());
-        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.TOM_DATO_KEY, tomDato.toString());
-        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FRA_FAGSAK_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
+        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
         return prosessTaskData;

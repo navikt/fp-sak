@@ -71,17 +71,17 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Oppretter task for migrering for fagsaker opprettet mellom fom og tom dato", tags = "FORVALTNING-stønadsstatistikk")
+    @Operation(description = "Oppretter task for migrering for vedtak opprettet etter fom dato", tags = "FORVALTNING-stønadsstatistikk")
     @Path("/opprettTaskForPeriode")
     @Consumes(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response opprettTaskForPeriode(@Valid MigreringTaskInput taskInput) {
-        var task = opprettTaskForDato(taskInput.fom, taskInput.tom, null);
+        var task = opprettTaskForDato(taskInput.fom, null);
         taskTjeneste.lagre(task);
         return Response.ok().build();
     }
 
-    record MigreringTaskInput(LocalDate fom, LocalDate tom) implements AbacDto {
+    record MigreringTaskInput(LocalDate fom) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {
