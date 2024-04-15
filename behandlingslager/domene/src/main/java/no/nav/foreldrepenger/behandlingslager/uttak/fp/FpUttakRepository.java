@@ -36,6 +36,11 @@ public class FpUttakRepository {
         // CDI proxy
     }
 
+    public void lagreStønadskontoberegning(Long behandlingId,
+                                           Stønadskontoberegning stønadskontoberegning) {
+        lagreUttaksresultat(behandlingId, builder -> builder.medStønadskontoberegning(stønadskontoberegning));
+    }
+
     public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         // Nullstilling er forventet - fjerner evt overstyring
@@ -55,6 +60,9 @@ public class FpUttakRepository {
         var builder = new UttakResultatEntitet.Builder(hentBehandlingsresultat(behandlingId));
         if (eksistrendeResultat.isPresent()) {
             var eksisterende = eksistrendeResultat.get();
+            if (eksisterende.getStønadskontoberegning() != null) {
+                builder.medStønadskontoberegning(eksisterende.getStønadskontoberegning());
+            }
             if (eksisterende.getOpprinneligPerioder() != null) {
                 builder.medOpprinneligPerioder(eksisterende.getOpprinneligPerioder());
             }
@@ -79,6 +87,10 @@ public class FpUttakRepository {
     }
 
     private void persistResultat(UttakResultatEntitet resultat) {
+        var kontoutregning = resultat.getStønadskontoberegning();
+        if (kontoutregning != null) {
+            persistKontoutregning(kontoutregning);
+        }
         var overstyrtPerioder = resultat.getOverstyrtPerioder();
         if (overstyrtPerioder != null) {
             persistPerioder(overstyrtPerioder);
@@ -88,6 +100,13 @@ public class FpUttakRepository {
             persistPerioder(opprinneligPerioder);
         }
         entityManager.persist(resultat);
+    }
+
+    private void persistKontoutregning(Stønadskontoberegning stønadskontoberegning) {
+        entityManager.persist(stønadskontoberegning);
+        for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
+            entityManager.persist(stønadskonto);
+        }
     }
 
     private void persistPerioder(UttakResultatPerioderEntitet perioder) {
