@@ -6,8 +6,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -25,8 +23,6 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 @ApplicationScoped
 public class DvhVedtakXmlTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DvhVedtakXmlTjeneste.class);
-
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private ObjectFactory factory;
@@ -35,7 +31,6 @@ public class DvhVedtakXmlTjeneste {
     private Instance<DvhPersonopplysningXmlTjeneste> personopplysningXmlTjenester;
     private BehandlingsresultatXmlTjeneste behandlingsresultatXmlTjenester;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private StønadsstatistikkTjeneste stønadsstatistikkTjeneste;
 
     DvhVedtakXmlTjeneste() {
         // for CDI proxy
@@ -57,7 +52,6 @@ public class DvhVedtakXmlTjeneste {
 
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.stønadsstatistikkTjeneste = stønadsstatistikkTjeneste;
         this.factory = new ObjectFactory();
     }
 
@@ -78,13 +72,6 @@ public class DvhVedtakXmlTjeneste {
 
         FagsakYtelseTypeRef.Lookup.find(oppdragXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setOppdrag(vedtak, behandling);
-        try {
-            if (stønadsstatistikkTjeneste != null) {
-                stønadsstatistikkTjeneste.genererVedtak(ref);
-            }
-        } catch (Exception e) {
-            LOG.info("STØNADSTAT feil for sak {} behandling {}", fagsak.getSaksnummer().getVerdi(), behandlingId, e);
-        }
 
         return genererXml(behandlingId, vedtak);
     }
