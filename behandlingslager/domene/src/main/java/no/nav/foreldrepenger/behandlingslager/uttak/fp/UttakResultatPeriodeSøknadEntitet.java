@@ -65,7 +65,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     }
 
     public UttakPeriodeType getUttakPeriodeType() {
-        return uttakPeriodeType;
+        return UttakPeriodeType.ANNET.equals(uttakPeriodeType) ? UttakPeriodeType.UDEFINERT : uttakPeriodeType;
     }
 
     public BigDecimal getGraderingArbeidsprosent() {

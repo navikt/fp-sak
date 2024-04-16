@@ -549,7 +549,7 @@ class FastsettePerioderRegelAdapterTest {
 
         // Angitt periode for annen forelder
         var opphold = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.ANNET)
+            .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(KVOTE_FELLESPERIODE_ANNEN_FORELDER)
             .medPeriode(startDatoOpphold, sluttDatoOpphold)
             .build();
@@ -632,7 +632,7 @@ class FastsettePerioderRegelAdapterTest {
 
         // Angitt periode for annen forelder
         var opphold = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.ANNET)
+            .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(FEDREKVOTE_ANNEN_FORELDER)
             .medPeriode(startDatoOpphold, sluttDatoOpphold)
             .build();
