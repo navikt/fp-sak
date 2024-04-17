@@ -186,7 +186,7 @@ public class BehandlingFormidlingDtoTjeneste {
             dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
         } else {
-            var beregningsgrunnlag = beregningTjeneste.hent(behandling.getId())
+            var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
                     .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));

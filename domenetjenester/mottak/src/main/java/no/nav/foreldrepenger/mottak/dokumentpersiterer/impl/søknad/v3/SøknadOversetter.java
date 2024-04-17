@@ -644,19 +644,15 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
-        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny().medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
         if (lukketPeriode instanceof final Uttaksperiode periode) {
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
         } else if (lukketPeriode instanceof Oppholdsperiode oppholdsperiode) {
-            oppgittPeriodeBuilder.medÅrsak(
-                OppholdÅrsak.fraKode(oppholdsperiode.getAarsak().getKode()));
-            oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(UttakPeriodeType.ANNET.getKode()));
+            oppgittPeriodeBuilder.medÅrsak(OppholdÅrsak.fraKode(oppholdsperiode.getAarsak().getKode()));
+            oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.UDEFINERT);
         } else if (lukketPeriode instanceof Overfoeringsperiode overfoeringsperiode) {
-            oppgittPeriodeBuilder.medÅrsak(
-                OverføringÅrsak.fraKode(overfoeringsperiode.getAarsak().getKode()));
-            oppgittPeriodeBuilder.medPeriodeType(
-                UttakPeriodeType.fraKode(((Overfoeringsperiode) lukketPeriode).getOverfoeringAv().getKode()));
+            oppgittPeriodeBuilder.medÅrsak(OverføringÅrsak.fraKode(overfoeringsperiode.getAarsak().getKode()));
+            oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(overfoeringsperiode.getOverfoeringAv().getKode()));
         } else if (lukketPeriode instanceof Utsettelsesperiode utsettelsesperiode) {
             oversettUtsettelsesperiode(oppgittPeriodeBuilder, utsettelsesperiode);
         } else {

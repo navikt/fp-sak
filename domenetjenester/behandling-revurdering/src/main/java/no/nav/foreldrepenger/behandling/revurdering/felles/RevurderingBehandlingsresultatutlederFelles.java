@@ -150,8 +150,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                 return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null), Vedtaksbrev.AUTOMATISK);
             }
         }
-        var revurderingsGrunnlagOpt = beregningTjeneste.hent(revurdering.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
-        var originalGrunnlagOpt = beregningTjeneste.hent(originalBehandling.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var revurderingsGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var originalGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(originalBehandling)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         var erEndringISkalHindreTilbaketrekk = erEndringISkalHindreTilbaketrekk(revurdering, originalBehandling);
         var erEndringIBeregning = ErEndringIBeregning.vurder(revurderingsGrunnlagOpt, originalGrunnlagOpt);

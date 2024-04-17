@@ -197,7 +197,7 @@ class FaktaUttakFellesTjeneste {
             builder = builder.medÅrsak(dto.overføringÅrsak());
         } else if (dto.oppholdÅrsak() != null) {
             builder = builder.medÅrsak(dto.oppholdÅrsak());
-            builder = builder.medPeriodeType(UttakPeriodeType.ANNET);
+            builder = builder.medPeriodeType(UttakPeriodeType.UDEFINERT);
         } else if (erGradering(dto)) {
             builder = builder.medArbeidsgiver(mapArbeidsgiver(dto.arbeidsforhold()))
                 .medGraderingAktivitetType(mapAktivitetType(dto.arbeidsforhold()))

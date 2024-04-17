@@ -169,7 +169,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
 
     private Optional<String> uttakPeriodeTypeTekst(OppgittPeriodeEntitet periode) {
         return Optional.ofNullable(periode.getPeriodeType())
-            .filter(t -> !UttakPeriodeType.UDEFINERT.equals(t) && !UttakPeriodeType.ANNET.equals(t))
+            .filter(t -> !UttakPeriodeType.UDEFINERT.equals(t))
             .map(UttakPeriodeType::getNavn);
     }
 

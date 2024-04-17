@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -23,8 +24,8 @@ public class BeregningFPSAK implements BeregningAPI {
     }
 
     @Override
-    public Optional<BeregningsgrunnlagGrunnlag> hent(Long behandlingId) {
-        var entitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+    public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
+        var entitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId());
         return entitet.map(FraEntitetTilBehandlingsmodellMapper::mapBeregningsgrunnlagGrunnlag);
     }
 }

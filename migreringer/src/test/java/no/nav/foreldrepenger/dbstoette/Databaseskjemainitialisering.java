@@ -11,7 +11,6 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -55,8 +54,6 @@ public final class Databaseskjemainitialisering {
                 .locations(getScriptLocation(schemaName))
                 .table("schema_version")
                 .baselineOnMigrate(true)
-                .cleanOnValidationError(true)
-                .cleanDisabled(false)
                 .load();
             try {
                 if (!ENV.isLocal()) {
@@ -66,14 +63,6 @@ public final class Databaseskjemainitialisering {
                 var connection = flyway.getConfiguration().getDataSource().getConnection();
                 if (!connection.isClosed()) {
                     connection.close();
-                }
-            } catch (FlywayException ex) {
-                try {
-                    // prøver igjen
-                    flyway.clean();
-                    flyway.migrate();
-                } catch (FlywayException fwe2) {
-                    throw new IllegalStateException("Migrering feiler", fwe2);
                 }
             } catch (SQLException sqlex) {
                 // nothing to do here
