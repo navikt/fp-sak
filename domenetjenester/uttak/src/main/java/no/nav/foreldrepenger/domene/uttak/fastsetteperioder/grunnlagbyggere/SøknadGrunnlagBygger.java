@@ -17,7 +17,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -73,16 +72,14 @@ public class SøknadGrunnlagBygger {
         var stønadskontotype = map(oppgittPeriodeType);
 
         final OppgittPeriode periode;
-        if (UttakPeriodeType.STØNADSPERIODETYPER.contains(oppgittPeriodeType)) {
-            if (oppgittPeriode.isUtsettelse()) {
-                periode = byggUtsettelseperiode(oppgittPeriode);
-            } else if (oppgittPeriode.isOverføring()) {
-                periode = byggOverføringPeriode(oppgittPeriode, stønadskontotype);
-            } else {
-                periode = byggStønadsperiode(oppgittPeriode, stønadskontotype, aktiviteter);
-            }
-        } else if (UttakPeriodeType.ANNET.equals(oppgittPeriodeType)) {
+        if (oppgittPeriode.isUtsettelse()) {
+            periode = byggUtsettelseperiode(oppgittPeriode);
+        } else if (oppgittPeriode.isOverføring()) {
+            periode = byggOverføringPeriode(oppgittPeriode, stønadskontotype);
+        } else if (oppgittPeriode.isOpphold()){
             periode = byggTilOppholdPeriode(oppgittPeriode);
+        } else if (stønadskontotype != null) {
+            periode = byggStønadsperiode(oppgittPeriode, stønadskontotype, aktiviteter);
         } else {
             throw new IllegalArgumentException("Ikke-støttet UttakPeriodeType: " + oppgittPeriodeType);
         }

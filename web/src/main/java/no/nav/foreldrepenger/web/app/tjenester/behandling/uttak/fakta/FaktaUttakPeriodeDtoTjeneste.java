@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriod
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -97,8 +96,7 @@ public class FaktaUttakPeriodeDtoTjeneste {
         var overføringÅrsak = periode.isOverføring() ? (OverføringÅrsak) periode.getÅrsak() : null;
         var arbeidsprosent = periode.getArbeidsprosent();
         var arbeidsforhold = arbeidsprosent != null ? mapArbeidsforhold(periode) : null;
-        var periodeType = periode.getPeriodeType() == null || Set.of(UttakPeriodeType.ANNET, UttakPeriodeType.UDEFINERT).contains(
-            periode.getPeriodeType()) ? null : periode.getPeriodeType();
+        var periodeType = periode.getPeriodeType() == null || UttakPeriodeType.UDEFINERT.equals(periode.getPeriodeType()) ? null : periode.getPeriodeType();
         var morsAktivitet = periode.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(periode.getMorsAktivitet()) ? null : periode.getMorsAktivitet();
         return new FaktaUttakPeriodeDto(periode.getFom(), periode.getTom(),
             periodeType, utsettelseÅrsak, overføringÅrsak, oppholdÅrsak, arbeidsprosent, arbeidsforhold,

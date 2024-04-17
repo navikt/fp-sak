@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.period
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -23,7 +22,6 @@ public enum UttakPeriodeType implements Kodeverdi {
     ANNET("ANNET", "Andre typer som f.eks utsettelse"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
-    public static final Set<UttakPeriodeType> STØNADSPERIODETYPER = Set.of(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FORELDREPENGER, UDEFINERT);
     private static final Map<String, UttakPeriodeType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "UTTAK_PERIODE_TYPE";

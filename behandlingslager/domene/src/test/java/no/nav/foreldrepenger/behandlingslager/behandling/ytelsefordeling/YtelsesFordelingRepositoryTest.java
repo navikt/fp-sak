@@ -82,7 +82,7 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         var periode_2 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
             UttakPeriodeType.FORELDREPENGER);
         var periode_3 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
-            UttakPeriodeType.ANNET);
+            UttakPeriodeType.FEDREKVOTE);
 
         var yf = repository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())

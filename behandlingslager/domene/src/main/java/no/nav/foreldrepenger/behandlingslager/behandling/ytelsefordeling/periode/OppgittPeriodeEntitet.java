@@ -139,11 +139,15 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public UttakPeriodeType getPeriodeType() {
-        return uttakPeriodeType;
+        return UttakPeriodeType.ANNET.equals(uttakPeriodeType) ? UttakPeriodeType.UDEFINERT : uttakPeriodeType;
     }
 
     void setPeriodeType(UttakPeriodeType uttakPeriodeType) {
-        this.uttakPeriodeType = uttakPeriodeType == null ? UttakPeriodeType.UDEFINERT : uttakPeriodeType;
+        if (UttakPeriodeType.ANNET.equals(uttakPeriodeType) || uttakPeriodeType == null) {
+            this.uttakPeriodeType = UttakPeriodeType.UDEFINERT;
+        } else {
+            this.uttakPeriodeType = uttakPeriodeType;
+        }
     }
 
     void setOppgittFordeling(OppgittFordelingEntitet oppgittFordeling) {

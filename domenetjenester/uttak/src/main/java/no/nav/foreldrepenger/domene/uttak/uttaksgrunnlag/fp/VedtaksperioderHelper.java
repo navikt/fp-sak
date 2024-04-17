@@ -207,7 +207,7 @@ public class VedtaksperioderHelper {
     private static UttakPeriodeType finnPeriodetype(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         //Oppholdsperiode har ingen aktiviteter
         if (uttakResultatPeriode.isOpphold()) {
-            return UttakPeriodeType.ANNET;
+            return UttakPeriodeType.UDEFINERT;
         }
         var harTrekkdager = uttakResultatPeriode.getAktiviteter().stream()
             .map(UttakResultatPeriodeAktivitetEntitet::getTrekkdager)
