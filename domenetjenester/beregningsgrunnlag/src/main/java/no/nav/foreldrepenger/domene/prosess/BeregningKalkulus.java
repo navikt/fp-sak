@@ -8,13 +8,16 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {
 
     private KalkulusKlient klient;
+
+    BeregningKalkulus() {
+        // CDI
+    }
 
     @Inject
     public BeregningKalkulus(KalkulusKlient klient) {
