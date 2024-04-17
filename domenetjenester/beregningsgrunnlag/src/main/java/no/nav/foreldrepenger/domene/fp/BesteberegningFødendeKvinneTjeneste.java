@@ -117,7 +117,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
-        var bgGrunnlag = beregningTjeneste.hent(behandlingReferanse.behandlingId());
+        var bgGrunnlag = beregningTjeneste.hent(behandlingReferanse);
         var harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getRegisterAktiviteter));
         var harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getGjeldendeAktiviteter));
         return harDPFraRegister && !harDPIGjeldendeAggregat;
@@ -131,7 +131,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
-        var bg = beregningTjeneste.hent(behandlingReferanse.behandlingId()).flatMap(
+        var bg = beregningTjeneste.hent(behandlingReferanse).flatMap(
             BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
@@ -165,7 +165,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
-        var beregningsgrunnlagEntitet = beregningTjeneste.hent(ref.behandlingId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var beregningsgrunnlagEntitet = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return beregningsgrunnlagEntitet.map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
@@ -197,7 +197,7 @@ public class BesteberegningFødendeKvinneTjeneste {
             skjæringstidspunkt);
     }
     public boolean trengerManuellKontrollAvAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
-        var besteberegnetAvvik = beregningTjeneste.hent(behandlingReferanse.behandlingId())
+        var besteberegnetAvvik = beregningTjeneste.hent(behandlingReferanse)
             .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
             .flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag)
             .flatMap(BesteberegningGrunnlag::getAvvik);
