@@ -14,6 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,9 +108,9 @@ class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(orginalBehandling.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningTjeneste.hent(revurdering.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
@@ -118,9 +122,9 @@ class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(orginalBehandling.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningTjeneste.hent(revurdering.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
@@ -133,7 +137,7 @@ class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(revurdering.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
@@ -144,7 +148,7 @@ class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(revurdering.getId()))
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();

@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -60,7 +61,8 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
-            .flatMap(beh -> beregningTjeneste.hent(beh.getId()))
+            .map(BehandlingReferanse::fra)
+            .flatMap(beh -> beregningTjeneste.hent(beh))
             .flatMap(bggr -> new BeregningsgrunnlagFormidlingV2DtoTjeneste(bggr).map());
 
         if (dto.isEmpty()) {

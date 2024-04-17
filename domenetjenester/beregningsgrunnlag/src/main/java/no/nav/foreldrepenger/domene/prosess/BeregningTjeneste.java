@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 @ApplicationScoped
@@ -25,11 +26,11 @@ public class BeregningTjeneste {
         this.skalKalleKalkulus = false;
     }
 
-    public Optional<BeregningsgrunnlagGrunnlag> hent(Long behandlingId) {
+    public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
         if (skalKalleKalkulus) {
-            return kalkulusBeregner.hent(behandlingId);
+            return kalkulusBeregner.hent(referanse);
         } else {
-            return fpsakBeregner.hent(behandlingId);
+            return fpsakBeregner.hent(referanse);
         }
     }
 }

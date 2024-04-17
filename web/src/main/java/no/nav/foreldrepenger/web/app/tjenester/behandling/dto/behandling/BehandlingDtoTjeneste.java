@@ -11,6 +11,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -373,7 +374,7 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(OpptjeningRestTjeneste.OPPTJENING_PATH, "opptjening", uuidDto));
             dto.leggTil(get(FeriepengegrunnlagRestTjeneste.FERIEPENGER_PATH, "feriepengegrunnlag", uuidDto));
 
-            var beregningsgrunnlag = beregningTjeneste.hent(behandling.getId())
+            var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
                     .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTil(get(BeregningsgrunnlagRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));

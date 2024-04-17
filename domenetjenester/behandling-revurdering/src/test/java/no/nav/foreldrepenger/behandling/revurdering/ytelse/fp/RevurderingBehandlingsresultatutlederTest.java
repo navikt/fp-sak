@@ -1223,7 +1223,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 .lagBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, medOppjustertDagsat,
                         skalDeleAndelMellomArbeidsgiverOgBruker, perioder, lagAndelTjeneste);
         var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(FASTSATT);
-        when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(gr));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(behandling))).thenReturn(Optional.of(gr));
     }
 
     private void lagreEndringsdato(LocalDate endringsdato, Long revurderingId) {

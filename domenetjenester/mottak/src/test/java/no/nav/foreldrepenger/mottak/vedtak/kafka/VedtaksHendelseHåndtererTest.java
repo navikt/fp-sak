@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -358,7 +360,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                     .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER).build()).build())
             .build();
         var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
-        when(beregningTjeneste.hent(anyLong())).thenReturn(Optional.of(gr));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(b))).thenReturn(Optional.of(gr));
     }
 
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int utbetalingsgrad) {

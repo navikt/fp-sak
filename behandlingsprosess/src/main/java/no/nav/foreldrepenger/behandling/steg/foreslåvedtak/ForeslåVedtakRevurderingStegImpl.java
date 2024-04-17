@@ -8,6 +8,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIBeregning;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -60,9 +61,9 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
         List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn orginal
-        var revurderingBG = hentBeregningsgrunnlag(revurdering.getId());
+        var revurderingBG = hentBeregningsgrunnlag(BehandlingReferanse.fra(revurdering));
         if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) && ErEndringIBeregning.vurderUgunst(
-            revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
+            revurderingBG, hentBeregningsgrunnlag(BehandlingReferanse.fra(orginalBehandling)))) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
         }
 
@@ -96,8 +97,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
         return behandlingsresultatRepository.hent(orginalBehandling.getId());
     }
 
-    private Optional<Beregningsgrunnlag> hentBeregningsgrunnlag(Long behandlingId) {
-        return beregningTjeneste.hent(behandlingId).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+    private Optional<Beregningsgrunnlag> hentBeregningsgrunnlag(BehandlingReferanse behandlingReferanse) {
+        return beregningTjeneste.hent(behandlingReferanse).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
     }
 
     @Override

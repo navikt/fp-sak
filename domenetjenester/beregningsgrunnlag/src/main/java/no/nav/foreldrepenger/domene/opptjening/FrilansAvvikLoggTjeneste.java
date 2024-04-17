@@ -52,7 +52,7 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     public void loggFrilansavvikVedBehov(BehandlingReferanse ref) {
-        var gr = beregningTjeneste.hent(ref.behandlingId());
+        var gr = beregningTjeneste.hent(ref);
         var stpBGOpt = gr.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).map(Beregningsgrunnlag::getSkjæringstidspunkt);
 
         if (stpBGOpt.isEmpty()) {
