@@ -73,6 +73,8 @@ spec:
   accessPolicy:
     inbound:
       rules:
+      - application: statuspoll
+        namespace: navdig
       {{#each AZURE_IAC_RULES}}
       - application: {{app}}
         namespace: {{namespace}}
