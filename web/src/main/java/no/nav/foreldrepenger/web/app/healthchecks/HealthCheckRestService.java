@@ -10,7 +10,9 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -90,6 +92,7 @@ public class HealthCheckRestService {
 
     @GET
     @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "pooles for status", tags = "nais", hidden = true)
     public Response status() {
         return Response.ok(new StatusDto(Plattformstatus.OK, "Alt er bra", null)).build();
