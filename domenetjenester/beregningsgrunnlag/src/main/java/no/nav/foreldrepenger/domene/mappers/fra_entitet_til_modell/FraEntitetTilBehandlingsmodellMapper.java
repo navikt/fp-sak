@@ -103,10 +103,15 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medGrunnbeløp(beregningsgrunnlagDto.getGrunnbeløp());
 
 
+        // Aktivitetstatuser
         beregningsgrunnlagDto.getAktivitetStatuser()
             .forEach(aktivitetStatus -> builder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel()).build()));
+
+        // Besteberegning
         beregningsgrunnlagDto.getBesteberegninggrunnlag().ifPresent(bb -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bb)));
+
+        // Faktatilfeller
         if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
             builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagDto.getFaktaOmBeregningTilfeller());
         }
@@ -115,11 +120,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
         mapPerioder(beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()).forEach(builder::leggTilBeregningsgrunnlagPeriode);
 
         // Sammenligningsgrunnlag
-        if (beregningsgrunnlagDto.getSammenligningsgrunnlag().isPresent()) {
-            builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(beregningsgrunnlagDto.getSammenligningsgrunnlag().get(), beregningsgrunnlagDto.getAktivitetStatuser()));
-        } else {
-            beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream().map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus).forEach(builder::leggTilSammenligningsgrunnlagPrStatus);
-        }
+        beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresentOrElse(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())),
+            () -> beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream().map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus).forEach(builder::leggTilSammenligningsgrunnlagPrStatus));
 
         return builder.build();
     }

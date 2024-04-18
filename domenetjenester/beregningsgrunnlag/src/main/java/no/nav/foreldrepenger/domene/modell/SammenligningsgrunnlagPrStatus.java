@@ -14,6 +14,7 @@ public class SammenligningsgrunnlagPrStatus {
     private SammenligningsgrunnlagType sammenligningsgrunnlagType;
     private BigDecimal rapportertPrÅr;
     private Long avvikPromille = 0L;
+
     public LocalDate getSammenligningsperiodeFom() {
         return sammenligningsperiode.getFomDato();
     }
