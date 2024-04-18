@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -60,12 +62,13 @@ class FraEntitetTilBehandlingsmodellMapperTest {
 
         // Sammenligningsgrunnlag
         var faktiskSG = faktiskBG.getSammenligningsgrunnlag().get();
-        var mappetSG = mappetBG.getSammenligningsgrunnlag();
+        var mappetSG = mappetBG.getSammenligningsgrunnlagPrStatusListe().getFirst();
         assertThat(mappetSG).isNotNull();
         assertThat(mappetSG.getRapportertPrÅr()).isEqualByComparingTo(faktiskSG.getRapportertPrÅr());
         assertThat(mappetSG.getAvvikPromille()).isEqualTo(faktiskSG.getAvvikPromille().longValue());
         assertThat(mappetSG.getSammenligningsperiodeFom()).isEqualTo(faktiskSG.getSammenligningsperiodeFom());
         assertThat(mappetSG.getSammenligningsperiodeTom()).isEqualTo(faktiskSG.getSammenligningsperiodeTom());
+        assertThat(mappetSG.getSammenligningsgrunnlagType()).isEqualTo(SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL);
 
         // Beregningsgrunnlagsperiode
         assertThat(faktiskBG.getBeregningsgrunnlagPerioder()).hasSize(mappetBG.getBeregningsgrunnlagPerioder().size());
