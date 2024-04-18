@@ -87,4 +87,18 @@ public class HealthCheckRestService {
         starter.stopServices();
         return Response.ok(RESPONSE_OK).build();
     }
+
+    @GET
+    @Path("/status")
+    @Operation(description = "pooles for status", tags = "nais", hidden = true)
+    public Response status() {
+        return Response.ok(new StatusDto(Plattformstatus.OK, "Alt er bra", null)).build();
+    }
+
+    record StatusDto(Plattformstatus status, String description, String logLink) {}
+
+    enum Plattformstatus {
+        OK, ISSUE, DOWN
+    }
+
 }
