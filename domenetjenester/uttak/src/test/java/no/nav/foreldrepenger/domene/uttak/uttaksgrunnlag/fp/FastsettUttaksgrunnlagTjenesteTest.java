@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder.fraEksisterende;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder.ny;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -15,10 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -42,9 +51,9 @@ class FastsettUttaksgrunnlagTjenesteTest {
     void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
 
         var førsteUttaksdato = LocalDate.now();
-        var periode = OppgittPeriodeBuilder.ny()
+        var periode = ny()
                 .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
         var oppgittFordelingForrigeBehandling = new OppgittFordelingEntitet(List.of(periode), true);
 
@@ -93,9 +102,9 @@ class FastsettUttaksgrunnlagTjenesteTest {
     void skal_lagre_opprinnelig_endringsdato() {
 
         var førsteUttaksdato = LocalDate.now();
-        var periode = OppgittPeriodeBuilder.ny()
+        var periode = ny()
                 .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
 
@@ -117,14 +126,14 @@ class FastsettUttaksgrunnlagTjenesteTest {
     void skal_beholde_overstyrt_dersom_uendret_justering() {
 
         var førsteUttaksdato = LocalDate.now();
-        var periode = OppgittPeriodeBuilder.ny()
+        var periode = ny()
             .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriodeType(FELLESPERIODE)
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
         var justertFordeling = new OppgittFordelingEntitet(List.of(periode), true);
-        var overstyrtFordeling = new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.fraEksisterende(periode)
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build()), true);
+        var overstyrtFordeling = new OppgittFordelingEntitet(List.of(fraEksisterende(periode)
+            .medPeriodeType(MØDREKVOTE).build()), true);
 
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medOpprinneligEndringsdato(førsteUttaksdato)
@@ -150,13 +159,13 @@ class FastsettUttaksgrunnlagTjenesteTest {
     void skal_fjerne_overstyrt_dersom_endret_justering() {
 
         var førsteUttaksdato = LocalDate.now();
-        var periode = OppgittPeriodeBuilder.ny()
+        var periode = ny()
             .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriodeType(FELLESPERIODE)
             .build();
-        var periodeMK = OppgittPeriodeBuilder.ny()
+        var periodeMK = ny()
             .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriodeType(MØDREKVOTE)
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
         var justertFordeling = new OppgittFordelingEntitet(List.of(periodeMK), true);
@@ -185,9 +194,9 @@ class FastsettUttaksgrunnlagTjenesteTest {
     @Test
     void skal_ikke_forskyve_søknadsperioder_hvis_både_termin_og_fødsel_er_oppgitt_i_søknad() {
         var søknadFom = LocalDate.of(2019, 7, 31);
-        var periode = OppgittPeriodeBuilder.ny()
+        var periode = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
 
@@ -207,25 +216,69 @@ class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
+    void skal_ikke_forskyve_søknadsperioder_hvis_ny_førstegangssøknad_med_endret_termindato() {
+        //søkte uttaket her vil gjøre at fødselsjusteringen gir esxception på overlapp
+        var termindato1 = LocalDate.of(2024, 5, 4);
+        var termindato2 = LocalDate.of(2024, 4, 29);
+
+        var fordeling1 = new OppgittFordelingEntitet(List.of(
+            ny().medPeriode(LocalDate.of(2024, 4, 15), LocalDate.of(2024, 5, 3)).medPeriodeType(FORELDREPENGER_FØR_FØDSEL).build(),
+            ny().medPeriode(LocalDate.of(2024, 5, 6), LocalDate.of(2024, 9, 13)).medPeriodeType(MØDREKVOTE).build(),
+            ny().medPeriode(LocalDate.of(2024, 9, 16), LocalDate.of(2025, 1, 17)).medPeriodeType(FELLESPERIODE).build()
+        ), true);
+        var uttaksperiodeFørstegang = new UttakResultatPeriodeEntitet.Builder(termindato1, termindato1.plusWeeks(10))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        var førstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(fordeling1)
+            .medUttak(new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiodeFørstegang))
+            .lagre(repositoryProvider);
+        var fordeling2 = new OppgittFordelingEntitet(List.of(
+            ny().medPeriode(LocalDate.of(2024, 4, 15), LocalDate.of(2024, 4, 26)).medPeriodeType(FORELDREPENGER_FØR_FØDSEL).build(),
+            ny().medPeriode(LocalDate.of(2024, 4, 29), LocalDate.of(2024, 6, 11)).medPeriodeType(MØDREKVOTE).build(),
+            ny().medPeriode(LocalDate.of(2024, 7, 12), LocalDate.of(2024, 11, 14)).medPeriodeType(FELLESPERIODE).build(),
+            ny().medPeriode(LocalDate.of(2024, 11, 15), LocalDate.of(2025, 2, 11)).medPeriodeType(MØDREKVOTE).build()
+        ), true);
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(fordeling2)
+            .lagre(repositoryProvider);
+
+        var familieHendelseRevurdering = FamilieHendelse.forFødsel(termindato2, null, List.of(), 1);
+        var familieHendelseFørstegangsbehandling = FamilieHendelse.forFødsel(termindato1, null, List.of(), 1);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medOriginalBehandling(new OriginalBehandling(førstegangsbehandling.getId(),
+                new FamilieHendelser().medSøknadHendelse(familieHendelseFørstegangsbehandling)))
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelseRevurdering).medBekreftetHendelse(familieHendelseRevurdering));
+        var endringsdatoRevurderingUtleder = mock(EndringsdatoRevurderingUtleder.class);
+        when(endringsdatoRevurderingUtleder.utledEndringsdato(any())).thenReturn(LocalDate.of(2024, 4, 15));
+        var tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider, endringsdatoUtleder, endringsdatoRevurderingUtleder);
+        tjeneste.fastsettUttaksgrunnlag(lagInput(revurdering, fpGrunnlag));
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(revurdering.getId());
+
+        assertThat(resultat.getGjeldendeFordeling().getPerioder().get(0).getFom()).isEqualTo(LocalDate.of(2024, 4, 15));
+    }
+
+    @Test
     void sammenhengende_uttak_skal_fjerne_oppholdsperioder_på_slutten_av_fordelingen() {
         var søknadFom = LocalDate.of(2019, 7, 31);
-        var periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
-        var opphold1 = OppgittPeriodeBuilder.ny()
+        var opphold1 = ny()
                 .medÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
                 .medPeriode(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
                 .build();
-        var periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = ny()
                 .medPeriode(opphold1.getTom().plusDays(1), opphold1.getTom().plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
-        var opphold2 = OppgittPeriodeBuilder.ny()
+        var opphold2 = ny()
                 .medÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
                 .medPeriode(periode2.getTom().plusDays(1), periode2.getTom().plusDays(10))
                 .build();
-        var opphold3 = OppgittPeriodeBuilder.ny()
+        var opphold3 = ny()
                 .medÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
                 .medPeriode(opphold2.getTom().plusDays(1), opphold2.getTom().plusDays(10))
                 .build();
@@ -253,8 +306,8 @@ class FastsettUttaksgrunnlagTjenesteTest {
     void adopsjon_uten_justering_men_oppdatere_mottatt_dato() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var søknadMottatt = søknadFom.plusMonths(5);
-        var søknadsperiode = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+        var søknadsperiode = ny()
+                .medPeriodeType(MØDREKVOTE)
                 .medPeriode(søknadFom.plusDays(1), søknadFom.plusDays(10))
                 .medMottattDato(søknadMottatt)
                 .medTidligstMottattDato(søknadMottatt)
@@ -286,19 +339,19 @@ class FastsettUttaksgrunnlagTjenesteTest {
     @Test
     void skal_fjerne_oppholdsperioder() {
         var søknadFom = LocalDate.of(2019, 7, 31);
-        var periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
-        var opphold1 = OppgittPeriodeBuilder.ny()
+        var opphold1 = ny()
                 .medÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
                 .medPeriode(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
                 .build();
-        var periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = ny()
                 .medPeriode(opphold1.getTom().plusDays(1), opphold1.getTom().plusDays(10))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriodeType(FELLESPERIODE)
                 .build();
-        var opphold2 = OppgittPeriodeBuilder.ny()
+        var opphold2 = ny()
                 .medÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
                 .medPeriode(periode2.getTom().plusDays(1), periode2.getTom().plusDays(10))
                 .build();
