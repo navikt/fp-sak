@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
+import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;

@@ -1,26 +1,38 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.mappers;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AvklaringsbehovMedTilstandDto;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningVenteårsak;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
-class BeregningAksjonspunktResultatMapper {
+public class BeregningAksjonspunktResultatMapper {
 
     private BeregningAksjonspunktResultatMapper() {
     }
 
-    static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
-        var apDef = mapTilAksjonspunkt(beregningResultat);
+    public static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
+        var apDef = mapTilAksjonspunkt(beregningResultat.getBeregningAvklaringsbehovDefinisjon());
         if (beregningResultat.harFrist()) {
-            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat),
+            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat.getVenteårsak()),
                     beregningResultat.getVentefrist());
         }
         return AksjonspunktResultat.opprettForAksjonspunkt(apDef);
     }
 
-    private static AksjonspunktDefinisjon mapTilAksjonspunkt(BeregningAvklaringsbehovResultat beregningResultat) {
-        return switch(beregningResultat.getBeregningAvklaringsbehovDefinisjon()) {
+    public static AksjonspunktResultat mapKontrakt(AvklaringsbehovMedTilstandDto avklaringsbehovMedTilstandDto) {
+        var apDef = mapTilAksjonspunkt(avklaringsbehovMedTilstandDto.getBeregningAvklaringsbehovDefinisjon());
+        if (avklaringsbehovMedTilstandDto.getVentefrist() != null) {
+            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(avklaringsbehovMedTilstandDto.getVenteårsak()),
+                avklaringsbehovMedTilstandDto.getVentefrist());
+        }
+        return AksjonspunktResultat.opprettForAksjonspunkt(apDef);
+    }
+
+    private static AksjonspunktDefinisjon mapTilAksjonspunkt(AvklaringsbehovDefinisjon definisjon) {
+        return switch(definisjon) {
             case FASTSETT_BG_AT_FL -> AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS;
             case VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN -> AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE;
             case FORDEL_BG -> AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG;
@@ -33,16 +45,15 @@ class BeregningAksjonspunktResultatMapper {
             case OVST_INNTEKT -> AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG;
             case AUTO_VENT_PÅ_INNTKT_RAP_FRST -> AksjonspunktDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST;
             case AUTO_VENT_PÅ_SISTE_AAP_DP_MELDKRT -> AksjonspunktDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
-            default -> throw new IllegalStateException("Mottok ukjent aksjonspunkt fra kalkulus " + beregningResultat.getBeregningAvklaringsbehovDefinisjon());
+            default -> throw new IllegalStateException("Mottok ukjent aksjonspunkt fra kalkulus " + definisjon);
         };
     }
 
-    private static Venteårsak mapTilVenteårsak(BeregningAvklaringsbehovResultat beregningResultat) {
-        return switch(beregningResultat.getVenteårsak()) {
+    private static Venteårsak mapTilVenteårsak(BeregningVenteårsak venteårsak) {
+        return switch(venteårsak) {
             case VENT_PÅ_SISTE_AAP_MELDEKORT -> Venteårsak.VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
             case VENT_INNTEKT_RAPPORTERINGSFRIST -> Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST;
-            default -> throw new IllegalStateException("Mottok ukjent venteårsak fra kalkulus " + beregningResultat.getVenteårsak());
+            default -> throw new IllegalStateException("Mottok ukjent venteårsak fra kalkulus " + venteårsak);
         };
     }
-
 }
