@@ -29,7 +29,9 @@ import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -101,16 +103,52 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medGrunnbeløp(beregningsgrunnlagDto.getGrunnbeløp());
 
 
+        // Aktivitetstatuser
         beregningsgrunnlagDto.getAktivitetStatuser()
             .forEach(aktivitetStatus -> builder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel()).build()));
+
+        // Besteberegning
         beregningsgrunnlagDto.getBesteberegninggrunnlag().ifPresent(bb -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bb)));
+
+        // Faktatilfeller
         if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
             builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagDto.getFaktaOmBeregningTilfeller());
         }
+
+        // Beregningsgrunnlagperioder
         mapPerioder(beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()).forEach(builder::leggTilBeregningsgrunnlagPeriode);
-        beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresent(sg -> builder.medSammenligningsgrunnlag(mapSammenligningsgrunnlag(sg)));
+
+        // Sammenligningsgrunnlag
+        beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresentOrElse(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())),
+            () -> beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream().map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus).forEach(builder::leggTilSammenligningsgrunnlagPrStatus));
+
         return builder.build();
+    }
+
+    private static SammenligningsgrunnlagPrStatus mapSammenligningsgrunnlagPrStatus(no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus sammenligningsgrunnlag) {
+        return SammenligningsgrunnlagPrStatus.builder()
+            .medAvvikPromille(sammenligningsgrunnlag.getAvvikPromille().longValue())
+            .medSammenligningsperiode(sammenligningsgrunnlag.getSammenligningsperiodeFom(), sammenligningsgrunnlag.getSammenligningsperiodeTom())
+            .medRapportertPrÅr(sammenligningsgrunnlag.getRapportertPrÅr())
+            .medSammenligningsgrunnlagType(sammenligningsgrunnlag.getSammenligningsgrunnlagType())
+            .build();
+    }
+
+    private static SammenligningsgrunnlagPrStatus mapSammenligningsgrunnlagTilNyModell(Sammenligningsgrunnlag sammenligningsgrunnlag,
+                                                                                       List<no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
+        return SammenligningsgrunnlagPrStatus.builder()
+            .medAvvikPromille(sammenligningsgrunnlag.getAvvikPromille().longValue())
+            .medSammenligningsperiode(sammenligningsgrunnlag.getSammenligningsperiodeFom(), sammenligningsgrunnlag.getSammenligningsperiodeTom())
+            .medRapportertPrÅr(sammenligningsgrunnlag.getRapportertPrÅr())
+            .medSammenligningsgrunnlagType(utledSammenligningsgrunnlagType(aktivitetStatuser))
+            .build();
+    }
+
+    private static SammenligningsgrunnlagType utledSammenligningsgrunnlagType(List<no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
+        // For å få så nøyaktige data som mulig mapper vi til den typen sammenligningsgrunnlaget ville hatt med ny modell. Så lenge det finnes en SN status er dette et SN grunnlag.
+        var finnesSNStatus = aktivitetStatuser.stream().anyMatch(as -> as.getAktivitetStatus().erSelvstendigNæringsdrivende());
+        return finnesSNStatus ? SammenligningsgrunnlagType.SAMMENLIGNING_SN : SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
     }
 
     private static BesteberegningGrunnlag mapBesteberegning(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
@@ -211,14 +249,6 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medNaturalytelseBortfaltPrÅr(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr().orElse(null))
             .medNaturalytelseTilkommetPrÅr(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr().orElse(null));
     }
-
-    private static no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag mapSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
-        return no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag.builder()
-            .medSammenligningsperiode(sammenligningsgrunnlag.getSammenligningsperiodeFom(), sammenligningsgrunnlag.getSammenligningsperiodeTom())
-            .medRapportertPrÅr(sammenligningsgrunnlag.getRapportertPrÅr())
-            .medAvvikPromille(sammenligningsgrunnlag.getAvvikPromille().longValue()).build();
-    }
-
 
     public static Optional<FaktaAggregat> mapFaktaAggregat(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
         // I fakta om beregning settes alle faktaavklaringer på første periode og vi kan derfor bruke denne til å hente ut avklart fakta

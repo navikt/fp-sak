@@ -16,14 +16,13 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 public class Beregningsgrunnlag {
 
     private LocalDate skjæringstidspunkt;
+    private BesteberegningGrunnlag besteberegningGrunnlag;
+    private Beløp grunnbeløp;
+    private boolean overstyrt = false;
     private final List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser = new ArrayList<>();
     private List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder = new ArrayList<>();
-    private Sammenligningsgrunnlag sammenligningsgrunnlag;
     private final List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
-    private Beløp grunnbeløp;
     private final List<BeregningsgrunnlagFaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
-    private BesteberegningGrunnlag besteberegningGrunnlag;
-    private boolean overstyrt = false;
 
     private Beregningsgrunnlag() {
     }
@@ -47,26 +46,31 @@ public class Beregningsgrunnlag {
             .toList();
     }
 
-    public Sammenligningsgrunnlag getSammenligningsgrunnlag() {
-        return sammenligningsgrunnlag;
-    }
-
     public Beløp getGrunnbeløp() {
         return grunnbeløp;
     }
 
-    public void leggTilBeregningsgrunnlagAktivitetStatus(BeregningsgrunnlagAktivitetStatus bgAktivitetStatus) {
+    void leggTilBeregningsgrunnlagAktivitetStatus(BeregningsgrunnlagAktivitetStatus bgAktivitetStatus) {
         Objects.requireNonNull(bgAktivitetStatus, "beregningsgrunnlagAktivitetStatus");
         aktivitetStatuser.remove(bgAktivitetStatus);
         aktivitetStatuser.add(bgAktivitetStatus);
     }
 
-    public void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode bgPeriode) {
+    void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode bgPeriode) {
         Objects.requireNonNull(bgPeriode, "beregningsgrunnlagPeriode");
         if (!beregningsgrunnlagPerioder.contains(bgPeriode)) {
             beregningsgrunnlagPerioder.add(bgPeriode);
         }
     }
+
+    void leggTilSammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
+        Objects.requireNonNull(sammenligningsgrunnlagPrStatus, "sammenligningsgrunnlagPrStatus");
+        verifiserIngenLikeSammenligningsgrunnlag(sammenligningsgrunnlagPrStatus);
+        if (!sammenligningsgrunnlagPrStatusListe.contains(sammenligningsgrunnlagPrStatus)) {
+            sammenligningsgrunnlagPrStatusListe.add(sammenligningsgrunnlagPrStatus);
+        }
+    }
+
 
     public Hjemmel getHjemmel() {
         if (aktivitetStatuser.isEmpty()) {
@@ -125,6 +129,15 @@ public class Beregningsgrunnlag {
             + ", grunnbeløp=" + grunnbeløp
             + ", beregningsgrunnlagPerioder=" + this.beregningsgrunnlagPerioder
             + ">";
+    }
+
+    private void verifiserIngenLikeSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
+        var finnesAlleredeSGAForStatus = sammenligningsgrunnlagPrStatusListe.stream()
+            .anyMatch(sg -> sg.getSammenligningsgrunnlagType().equals(sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()));
+        if (finnesAlleredeSGAForStatus) {
+            throw new IllegalStateException("FEIL: Prøver legge til sammenligningsgrunnlag med status " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType() +
+                " men et sammenligningsgrunnlag med denne statusen finnes allerede på grunnlaget!");
+        }
     }
 
     public static Builder builder() {
@@ -189,9 +202,9 @@ public class Beregningsgrunnlag {
             this.kladd.faktaOmBeregningTilfeller.add(b);
         }
 
-        public Builder medSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
+        public Builder leggTilSammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
             verifiserKanModifisere();
-            kladd.sammenligningsgrunnlag = sammenligningsgrunnlag;
+            this.kladd.leggTilSammenligningsgrunnlagPrStatus(sammenligningsgrunnlagPrStatus);
             return this;
         }
 
