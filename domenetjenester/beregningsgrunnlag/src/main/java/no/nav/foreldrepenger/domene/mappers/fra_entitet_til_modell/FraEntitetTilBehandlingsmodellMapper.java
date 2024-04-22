@@ -113,7 +113,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
         // Faktatilfeller
         if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
-            builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagDto.getFaktaOmBeregningTilfeller());
+            beregningsgrunnlagDto.getFaktaOmBeregningTilfeller().forEach(builder::leggTilFaktaOmBeregningTilfelle);
         }
 
         // Beregningsgrunnlagperioder

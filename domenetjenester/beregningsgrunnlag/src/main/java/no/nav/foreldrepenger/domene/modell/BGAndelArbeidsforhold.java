@@ -148,7 +148,7 @@ public class BGAndelArbeidsforhold {
             return this;
         }
 
-        BGAndelArbeidsforhold build() {
+        public BGAndelArbeidsforhold build() {
             Objects.requireNonNull(bgAndelArbeidsforhold.arbeidsgiver, "arbeidsgiver");
             return bgAndelArbeidsforhold;
         }

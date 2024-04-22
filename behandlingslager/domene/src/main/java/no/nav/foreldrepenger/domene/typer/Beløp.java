@@ -31,6 +31,11 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
         return new Beløp((int) verdi);
     }
 
+    public static Beløp fra(BigDecimal beløp) {
+        return beløp != null ? new Beløp(beløp) : null;
+    }
+
+
     public Beløp(BigDecimal verdi) {
         this.verdi = verdi;
     }

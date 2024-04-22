@@ -103,7 +103,7 @@ public class SammenligningsgrunnlagPrStatus {
             return sammenligningsgrunnlagMal;
         }
 
-        public void verifyStateForBuild() {
+        private void verifyStateForBuild() {
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsgrunnlagType, "sammenligningsgrunnlagType");
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode, "sammenligningsperiodePeriode");
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getFomDato(), "sammenligningsperiodeFom");

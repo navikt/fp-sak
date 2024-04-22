@@ -520,6 +520,12 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return this;
         }
 
+        public Builder medBGAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
+            verifiserKanModifisere();
+            kladd.bgAndelArbeidsforhold = bgAndelArbeidsforhold;
+            return this;
+        }
+
         public Builder medOrginalDagsatsFraTilstøtendeYtelse(Long orginalDagsatsFraTilstøtendeYtelse) {
             verifiserKanModifisere();
             kladd.orginalDagsatsFraTilstøtendeYtelse = orginalDagsatsFraTilstøtendeYtelse;
