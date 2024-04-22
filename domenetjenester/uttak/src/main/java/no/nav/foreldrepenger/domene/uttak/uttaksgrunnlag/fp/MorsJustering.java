@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
-import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.kopier;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.sorterEtterFom;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager.beregnAntallVirkedager;
 
@@ -289,6 +288,12 @@ class MorsJustering implements ForelderFødselJustering {
         return justertFellesperiode;
     }
 
+    private static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet periode, LocalDate nyFom, LocalDate nyTom) {
+        if (periode instanceof MorsJustering.JusterPeriodeHull) {
+            return new MorsJustering.JusterPeriodeHull(nyFom, nyTom);
+        }
+        return OppgittPeriodeUtil.kopier(periode, nyFom, nyTom);
+    }
 
     /**
      * Her har vi 6 håndteringer:

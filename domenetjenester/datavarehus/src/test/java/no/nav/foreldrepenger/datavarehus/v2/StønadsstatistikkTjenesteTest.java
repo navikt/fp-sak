@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -80,7 +81,7 @@ class StønadsstatistikkTjenesteTest {
     @Test
     void mor_foreldrepenger() {
         var fødselsdato = LocalDate.of(2023, 12, 5);
-        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
+        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.MØDREKVOTE).medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var periodeVirkedager = 65;
         var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
@@ -195,7 +196,7 @@ class StønadsstatistikkTjenesteTest {
     @Test
     void mor_foreldrepenger_prematur_flerbarn() {
         var fødselsdato = LocalDate.of(2023, 12, 5);
-        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
+        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.MØDREKVOTE).medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var periodeVirkedager = 65;
         var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
