@@ -43,7 +43,9 @@ create table GR_AKTIVITETSKRAV_ARBEID
         references BEHANDLING,
     ID NUMBER(19) not null
         constraint PK_GR_AKTIVITETSKRAV_ARBEID
-        primary key
+        primary key,
+    PERIODE_FOM DATE not null,
+    PERIODE_TOM DATE not null
 )
     /
 
@@ -60,6 +62,12 @@ comment on column GR_AKTIVITETSKRAV_ARBEID.BEHANDLING_ID is 'Foreign key til beh
 /
 
 comment on column GR_AKTIVITETSKRAV_ARBEID.ID is 'PK'
+/
+
+comment on column GR_AKTIVITETSKRAV_ARBEID.PERIODE_FOM is 'Fra dato vi innhenter informasjon om arbeid'
+/
+
+comment on column GR_AKTIVITETSKRAV_ARBEID.PERIODE_TOM is 'Til dato vi innhenter informasjon om arbeid'
 /
 
 create index IDX_GR_AKTIVITETSKRAV_ARBEID_1
@@ -79,9 +87,9 @@ create table AKTIVITETSKRAV_ARBEID_PERIODE
         references AKTIVITETSKRAV_ARBEID_PERIODER,
     TOM DATE not null,
     FOM DATE not null,
-    ORG_NR VARCHAR2(100 char) not null,
-    SUM_STILLINGSPROSENT NUMBER(5) not null,
-    SUM_PERMISJONSPROSENT NUMBER(5) not null,
+    ORG_NUMMER VARCHAR2(50 char) not null,
+    SUM_STILLINGSPROSENT NUMBER(5,2) not null,
+    SUM_PERMISJONSPROSENT NUMBER(5,2) not null,
     ID NUMBER(19) not null
         constraint PK_AKTIVITETSKRAV_ARBEID_PERIODE
         primary key
@@ -100,7 +108,7 @@ comment on column AKTIVITETSKRAV_ARBEID_PERIODE.FOM is 'Første dato vi henter i
 comment on column AKTIVITETSKRAV_ARBEID_PERIODE.TOM is 'Siste dato vi henter informasjon om arbeidsforholdet for'
 /
 
-comment on column AKTIVITETSKRAV_ARBEID_PERIODE.ORG_NR is 'Virksomhetens organisasjonsnummer'
+comment on column AKTIVITETSKRAV_ARBEID_PERIODE.ORG_NUMMER is 'Virksomhetens organisasjonsnummer'
 /
 
 comment on column AKTIVITETSKRAV_ARBEID_PERIODE.SUM_STILLINGSPROSENT is 'Sum stillingsprosent registrert for personen i virksomheten i aa-reg i perioden'

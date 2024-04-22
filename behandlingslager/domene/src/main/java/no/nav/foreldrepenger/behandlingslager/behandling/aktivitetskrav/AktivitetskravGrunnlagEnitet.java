@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav;
 
-import java.util.Objects;
-import java.util.Optional;
-
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,10 +11,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "AktivitetskravGrunnlag")
 @Table(name = "GR_AKTIVITETSKRAV_ARBEID")
@@ -35,6 +38,11 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
     @ManyToOne
     @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", updatable = false)
     private AktivitetskravArbeidPerioderEntitet perioderMedAktivitetskravArbeid;
+    @ChangeTracked
+    @Embedded
+    @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
+    DatoIntervallEntitet periode;
 
     AktivitetskravGrunnlagEnitet() {
         //CDI
@@ -56,20 +64,26 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
         this.aktiv = false;
     }
 
+    public DatoIntervallEntitet getPeriode() {
+        return periode;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AktivitetskravGrunnlagEnitet that = (AktivitetskravGrunnlagEnitet) o;
         return aktiv == that.aktiv && Objects.equals(id, that.id) && Objects.equals(behandlingId, that.behandlingId) && Objects.equals(
-            perioderMedAktivitetskravArbeid, that.perioderMedAktivitetskravArbeid);
+            perioderMedAktivitetskravArbeid, that.perioderMedAktivitetskravArbeid) && Objects.equals(periode, that.periode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, aktiv, behandlingId, perioderMedAktivitetskravArbeid);
+        return Objects.hash(id, aktiv, behandlingId, perioderMedAktivitetskravArbeid, periode);
     }
 
     public static class Builder {
@@ -98,6 +112,10 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
         }
         public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet.Builder builder) {
             this.kladd.perioderMedAktivitetskravArbeid = builder.build();
+            return this;
+        }
+        public Builder medPeriode(LocalDate fom, LocalDate tom) {
+            this.kladd.periode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
             return this;
         }
 

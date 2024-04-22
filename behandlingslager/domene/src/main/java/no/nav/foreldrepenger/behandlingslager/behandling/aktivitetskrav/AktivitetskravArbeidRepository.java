@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @ApplicationScoped
@@ -21,12 +21,13 @@ public class AktivitetskravArbeidRepository {
         this.entityManager = entityManager;
     }
 
-    public void lagreAktivitetskravArbeidPerioder(Long behandlingId, AktivitetskravArbeidPerioderEntitet.Builder builder) {
+    public void lagreAktivitetskravArbeidPerioder(Long behandlingId, AktivitetskravArbeidPerioderEntitet.Builder builder, LocalDate fraDato, LocalDate tilDato) {
 
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = AktivitetskravGrunnlagEnitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
-            .medPerioderMedAktivitetskravArbeid(builder);
+            .medPerioderMedAktivitetskravArbeid(builder)
+            .medPeriode(fraDato, tilDato);
 
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
     }

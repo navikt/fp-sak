@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +17,9 @@ import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 @Entity(name= "AktivitetskravArbeidPeriodeEntitet")
 @Table(name = "AKTIVITETSKRAV_ARBEID_PERIODE")
@@ -27,21 +31,24 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
     @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", nullable = false, updatable = false, unique = true)
     private AktivitetskravArbeidPerioderEntitet aktivitetskravArbeidPerioder;
 
+    @Embedded
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
+    @Embedded
     @ChangeTracked
-    @Column(name = "org_nr")
-    private String organisasjonsnummer;
+    @Column(name = "org_nummer")
+    private OrgNummer orgNummer;
 
+    @Embedded
     @ChangeTracked
-    @Column(name = "sum_stillingsprosent")
-    private BigDecimal sumStillingsprosent;
+    @AttributeOverride(name = "verdi", column = @Column(name = "sum_stillingsprosent"))
+    private Stillingsprosent sumStillingsprosent;
 
-
+    @Embedded
     @ChangeTracked
-    @Column(name = "sum_permisjonsprosent")
-    private BigDecimal sumPermisjonsprosent;
+    @AttributeOverride(name = "verdi", column = @Column(name = "sum_permisjonsprosent"))
+    private Stillingsprosent sumPermisjonsprosent;
     public AktivitetskravArbeidPeriodeEntitet() {
         //CDI
     }
@@ -54,15 +61,15 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
         return periode;
     }
 
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer;
+    public OrgNummer getOrgNummer() {
+        return orgNummer;
     }
 
-    public BigDecimal getSumStillingsprosent() {
+    public Stillingsprosent getSumStillingsprosent() {
         return sumStillingsprosent;
     }
 
-    public BigDecimal getSumPermisjonsprosent() {
+    public Stillingsprosent getSumPermisjonsprosent() {
         return sumPermisjonsprosent;
     }
 
@@ -79,13 +86,13 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
             return false;
         }
         AktivitetskravArbeidPeriodeEntitet that = (AktivitetskravArbeidPeriodeEntitet) o;
-        return Objects.equals(periode, that.periode) && Objects.equals(organisasjonsnummer, that.organisasjonsnummer) && Objects.equals(
+        return Objects.equals(periode, that.periode) && Objects.equals(orgNummer, that.orgNummer) && Objects.equals(
             sumStillingsprosent, that.sumStillingsprosent) && Objects.equals(sumPermisjonsprosent, that.sumPermisjonsprosent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(periode, organisasjonsnummer, sumStillingsprosent, sumPermisjonsprosent);
+        return Objects.hash(periode, orgNummer, sumStillingsprosent, sumPermisjonsprosent);
     }
 
     public static class Builder{
@@ -100,18 +107,18 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medOrganisasjonsnummer(String organisasjonsnummer) {
-            this.kladd.organisasjonsnummer = organisasjonsnummer;
+        public Builder medOrgNummer(String orgNummer) {
+            this.kladd.orgNummer = new OrgNummer(orgNummer);
             return this;
         }
 
         public Builder medSumStillingsprosent(BigDecimal stillingsprosent) {
-            this.kladd.sumStillingsprosent = stillingsprosent;
+            this.kladd.sumStillingsprosent = new Stillingsprosent(stillingsprosent);
             return this;
         }
 
         public Builder medSumPermisjonsprosent(BigDecimal permisjonsprosent) {
-            this.kladd.sumPermisjonsprosent = permisjonsprosent;
+            this.kladd.sumPermisjonsprosent = new Stillingsprosent(permisjonsprosent);
             return this;
         }
 
