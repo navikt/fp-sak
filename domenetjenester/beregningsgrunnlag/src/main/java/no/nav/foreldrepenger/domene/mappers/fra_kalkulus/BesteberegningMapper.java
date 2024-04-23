@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
