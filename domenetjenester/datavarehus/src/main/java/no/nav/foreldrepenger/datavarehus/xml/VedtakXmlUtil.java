@@ -128,7 +128,7 @@ public class VedtakXmlUtil {
 
     public static KodeverksOpplysning lagOppholdPeriodeTypeKodeverkOpplysning() {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
-        //Annet er fjernet fra enum
+        // Annet er fjernet fra enum
         kodeverksOpplysning.setKode("ANNET");
         kodeverksOpplysning.setValue("Andre typer som f.eks utsettelse");
         kodeverksOpplysning.setKodeverk(UttakPeriodeType.KODEVERK);
