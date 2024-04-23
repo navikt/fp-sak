@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
@@ -70,8 +71,13 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             startpunkter.add(StartpunktType.UTTAKSVILKÅR);
         }
         if (poDiff.erBarnDødsdatoEndret()) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
-            startpunkter.add(StartpunktType.BEREGNING);
+            if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                startpunkter.add(StartpunktType.DEKNINGSGRAD);
+            } else {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                startpunkter.add(StartpunktType.BEREGNING);
+            }
         }
         if (personstatusUnntattDødEndret) {
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erPersonstatusEndretForSøkerPeriode(påSkjæringstidpunkt), "personstatus");

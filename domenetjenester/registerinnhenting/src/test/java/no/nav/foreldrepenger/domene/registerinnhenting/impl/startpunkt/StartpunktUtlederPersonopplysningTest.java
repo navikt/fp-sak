@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.BEREGNING;
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.DEKNINGSGRAD;
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.SØKERS_RELASJON_TIL_BARNET;
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UDEFINERT;
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UTTAKSVILKÅR;
@@ -50,7 +50,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_returnere_startpunkt_udefinert_dersom_kun_fødselsregistrering_deretter_beregning_ved_død() {
+    void skal_returnere_startpunkt_udefinert_dersom_kun_fødselsregistrering_deretter_dekningsgrad_ved_død() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var nyBekreftetfødselsdato = origSkjæringsdato.minusDays(1); // fødselsdato før skjæringstidspunkt
@@ -102,7 +102,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         // Act/Assert
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurdering2Id).getId(),
-            repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(BEREGNING);
+            repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(DEKNINGSGRAD);
     }
 
     @Test

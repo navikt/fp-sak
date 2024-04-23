@@ -27,11 +27,12 @@ public enum StartpunktType implements Kodeverdi {
     SØKERS_RELASJON_TIL_BARNET("SØKERS_RELASJON_TIL_BARNET", "Søkers relasjon til barnet", 4, BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
     INNGANGSVILKÅR_MEDLEMSKAP("INNGANGSVILKÅR_MEDL", "Inngangsvilkår medlemskapsvilkår", 5, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
     OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE),
-    BEREGNING("BEREGNING", "Beregning", 7, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
+    DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad", 7, BehandlingStegType.DEKNINGSGRAD),
+    BEREGNING("BEREGNING", "Beregning", 8, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
     // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
-    BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 8, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 9, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
-    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 10, BehandlingStegType.BEREGN_YTELSE),
+    BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 9, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
+    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE),
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
     ;
