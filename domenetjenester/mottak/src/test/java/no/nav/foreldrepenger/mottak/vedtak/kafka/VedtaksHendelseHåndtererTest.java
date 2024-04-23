@@ -340,11 +340,14 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private void lagBeregningsgrunnlag(Behandling b, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
+        var dagsatsBruker = redusert.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
         var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(stp)
             .medGrunnbeløp(new BigDecimal(100000))
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(stp, Tid.TIDENES_ENDE)
+                .medDagsats(dagsatsBruker)
+                .medBruttoPrÅr(brutto)
                 .medRedusertPrÅr(redusert)
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(brutto)
@@ -353,7 +356,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                     .medArbforholdType(OpptjeningAktivitetType.ARBEID)
                     .medRedusertPrÅr(redusert)
                     .medRedusertBrukersAndelPrÅr(redusert)
-                    .medDagsatsBruker(redusert.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
+                    .medDagsatsBruker(dagsatsBruker)
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
