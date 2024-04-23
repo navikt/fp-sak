@@ -549,7 +549,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
 
         public void verifyStateForBuild() {
             Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
-            Objects.requireNonNull(kladd.kilde, "kilde");
             if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)
                 && kladd.getArbeidsforholdType().equals(OpptjeningAktivitetType.ARBEID)) {
                 Objects.requireNonNull(kladd.bgAndelArbeidsforhold, "bgAndelArbeidsforhold");
