@@ -55,22 +55,6 @@ public class BeregningsgrunnlagPeriode {
                 .orElse(BigDecimal.ZERO);
     }
 
-    void updateBruttoPrÅr() {
-        bruttoPrÅr = beregningsgrunnlagPrStatusOgAndelList.stream()
-                .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
-    }
-
-    void updateDagsats() {
-        dagsats = beregningsgrunnlagPrStatusOgAndelList.stream()
-            .map(BeregningsgrunnlagPrStatusOgAndel::getDagsats)
-            .filter(Objects::nonNull)
-            .reduce(Long::sum)
-            .orElse(null);
-    }
-
     public BigDecimal getBruttoPrÅr() {
         return bruttoPrÅr;
     }
@@ -182,6 +166,12 @@ public class BeregningsgrunnlagPeriode {
             return this;
         }
 
+        public Builder medDagsats(Long dagsats) {
+            verifiserKanModifisere();
+            kladd.dagsats = dagsats;
+            return this;
+        }
+
         public Builder leggTilPeriodeÅrsak(PeriodeÅrsak periodeÅrsak) {
             verifiserKanModifisere();
             if (!kladd.getPeriodeÅrsaker().contains(periodeÅrsak)) {
@@ -195,8 +185,6 @@ public class BeregningsgrunnlagPeriode {
         public BeregningsgrunnlagPeriode build() {
             verifyStateForBuild();
             verifiserAndelsnr();
-            kladd.updateBruttoPrÅr();
-            kladd.updateDagsats();
             built = true;
             return kladd;
         }
@@ -223,6 +211,7 @@ public class BeregningsgrunnlagPeriode {
             Objects.requireNonNull(kladd.beregningsgrunnlagPrStatusOgAndelList, "beregningsgrunnlagPrStatusOgAndelList");
             Objects.requireNonNull(kladd.periode, "beregningsgrunnlagPeriodeFom");
         }
+
     }
 
 

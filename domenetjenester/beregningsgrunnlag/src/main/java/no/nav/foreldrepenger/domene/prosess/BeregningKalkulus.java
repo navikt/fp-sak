@@ -6,8 +6,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
+import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 @ApplicationScoped
@@ -26,12 +29,18 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        throw new IllegalStateException("FEIL: Kaller kalkulus for å hente beregningsgrunnlag, men implementasjonen av denne er ikke ferdigstilt");
+        var request = lagEnkelKalkulusRequest(referanse);
+        return klient.hentGrunnlag(request).map(KalkulusTilFpsakMapper::map);
     }
 
     @Override
     public void beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType) {
 
+    }
+
+    private EnkelFpkalkulusRequestDto lagEnkelKalkulusRequest(BehandlingReferanse referanse) {
+        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(),
+            new Saksnummer(referanse.saksnummer().getVerdi()));
     }
 
 }
