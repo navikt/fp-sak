@@ -169,7 +169,8 @@ class ErEndringIBeregningTest {
 
     private static BeregningsgrunnlagPeriode byggBGPeriode(LocalDate fom, LocalDate tom, BeregningsgrunnlagPrStatusOgAndel... andeler) {
         var bgAndeler = Arrays.asList(andeler);
-        var periodeBuilder = BeregningsgrunnlagPeriode.builder().medBeregningsgrunnlagPeriode(fom, tom);
+        var dagsatsPeriode = bgAndeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).reduce(Long::sum).orElse(null);
+        var periodeBuilder = BeregningsgrunnlagPeriode.builder().medBeregningsgrunnlagPeriode(fom, tom).medDagsats(dagsatsPeriode);
         bgAndeler.forEach(periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
         return periodeBuilder.build();
     }
