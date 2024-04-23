@@ -208,7 +208,7 @@ class PleiepengerJusteringTest {
         var pleiepengerEtterFp = pleiepenger(of(2021, 3, 15), of(2021, 3, 20));
         var pleiepengerUtsettelser = List.of(pleiepengerFørFp, pleiepengerEtterFp, pleiepengerIFp1, pleiepengerIFp2);
         var foreldrepenger = List.of(
-            OppgittPeriodeBuilder.ny().medPeriodeType(MØDREKVOTE).medPeriode(of(2021, 1, 1), of(2021, 3, 3)).build());
+            OppgittPeriodeBuilder.ny().medPeriode(of(2021, 1, 1), of(2021, 3, 3)).build());
         var resultat = PleiepengerJustering.combine(pleiepengerUtsettelser, foreldrepenger);
         assertThat(resultat).hasSize(5);
         assertThat(resultat.get(0).getFom()).isEqualTo(of(2021, 1, 1));

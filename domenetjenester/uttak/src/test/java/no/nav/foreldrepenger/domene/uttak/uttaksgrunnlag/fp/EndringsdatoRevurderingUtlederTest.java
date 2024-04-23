@@ -603,7 +603,6 @@ class EndringsdatoRevurderingUtlederTest {
         var søknadsFom = FØDSELSDATO.plusWeeks(1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriode(søknadsFom, søknadsFom.plusWeeks(4))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
@@ -631,7 +630,6 @@ class EndringsdatoRevurderingUtlederTest {
         var søknadsFom = FØDSELSDATO.plusWeeks(1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriode(søknadsFom, søknadsFom.plusWeeks(4))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
@@ -661,7 +659,6 @@ class EndringsdatoRevurderingUtlederTest {
         var søknadsFom = FØDSELSDATO.plusWeeks(1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriode(søknadsFom, søknadsFom.plusWeeks(4))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
