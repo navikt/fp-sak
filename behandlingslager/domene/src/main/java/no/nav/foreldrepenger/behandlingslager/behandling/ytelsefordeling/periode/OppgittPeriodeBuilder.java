@@ -126,6 +126,9 @@ public class OppgittPeriodeBuilder {
         Objects.requireNonNull(kladd.getTom(), "tom");
         Objects.requireNonNull(kladd.getPeriodeType(), "periodeType");
         Objects.requireNonNull(kladd.getPeriodeKilde(), "periodeKilde");
+        if (kladd.getÅrsak() == Årsak.UKJENT && kladd.getPeriodeType() == UttakPeriodeType.UDEFINERT) {
+            throw new IllegalStateException("Periode må enten være utsettele, overføring eller uttak");
+        }
         return kladd;
     }
 }

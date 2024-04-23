@@ -194,6 +194,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var endringssøknadPeriode = OppgittPeriodeBuilder.ny()
             .medPeriode(endringssøknadFom, endringssøknadFom.plusMonths(2))
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var revurdering = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
