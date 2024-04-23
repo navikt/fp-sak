@@ -158,14 +158,16 @@ class ForeslåVedtakRevurderingStegImplTest {
         var bgBuilder = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .medGrunnbeløp(BigDecimal.valueOf(91425));
+        var dagsats = BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
         var periode = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
             .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
+            .medDagsats(dagsats)
             .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                 .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 .medKilde(AndelKilde.PROSESS_START)
                 .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr))
-                .medDagsatsArbeidsgiver(BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
+                .medDagsatsArbeidsgiver(dagsats)
                 .build())
             .build();
         var beregningsgrunnlag = bgBuilder.leggTilBeregningsgrunnlagPeriode(periode).build();
