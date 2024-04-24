@@ -190,7 +190,7 @@ public class FpDtoTjeneste {
             case FEDREKVOTE -> Konto.FEDREKVOTE;
             case FORELDREPENGER -> Konto.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
-            case ANNET, UDEFINERT -> null;
+            case UDEFINERT -> null;
         };
         var utsettelseÅrsak = finnUtsettelseÅrsak(periode.getÅrsak());
         var oppholdÅrsak = finnOppholdÅrsak(periode.getÅrsak());
