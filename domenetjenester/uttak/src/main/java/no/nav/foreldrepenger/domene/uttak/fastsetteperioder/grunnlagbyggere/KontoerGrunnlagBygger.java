@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.Minsterett;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnMinsterettGrunnlag;
+import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
 
 @ApplicationScoped
 public class KontoerGrunnlagBygger {
@@ -61,7 +61,7 @@ public class KontoerGrunnlagBygger {
         var stønadskontoer = hentStønadskontoer(ref);
         return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream()
             //Flerbarnsdager er stønadskontotype i stønadskontoberegningen, men ikke i fastsette perioder
-            .filter(sk -> !sk.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER)).map(this::map).toList());
+            .filter(sk -> sk.getStønadskontoType().erStønadsdager()).map(this::map).toList());
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
@@ -83,46 +83,46 @@ public class KontoerGrunnlagBygger {
 
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var erMor = RelasjonsRolleType.MORA.equals(ref.relasjonRolle());
-        var minsterett = !ref.getSkjæringstidspunkt().utenMinsterett();
         var rettOgOmsorg = rettOgOmsorgGrunnlagBygger.byggGrunnlag(uttakInput).build();
 
-        var bareFarHarRett = rettOgOmsorg.getFarHarRett() && !rettOgOmsorg.getMorHarRett();
+        var bareFarHarRett = rettOgOmsorg.getFarHarRett() && !rettOgOmsorg.getMorHarRett() && !rettOgOmsorg.getAleneomsorg();
         var morHarUføretrygd = rettOgOmsorg.getMorUføretrygd();
         var dekningsgrad = UttakEnumMapper.map(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
 
         var antallBarn = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAntallBarn();
-        var flerbarnsdager = stønadskontoer.stream()
-            .filter(k -> StønadskontoType.FLERBARNSDAGER.equals(k.getStønadskontoType()))
-            .findFirst()
-            .map(Stønadskonto::getMaxDager)
-            .orElse(0);
-        var builder = new Kontoer.Builder()
-            .flerbarnsdager(flerbarnsdager);
+        var flerbarnsdager = finnKontoVerdi(stønadskontoer, StønadskontoType.FLERBARNSDAGER).orElse(0);
+
 
         var gjelderFødsel = foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel();
 
         var familieHendelse = familieHendelse(foreldrepengerGrunnlag);
         var familieHendelseNesteSak = familieHendelseNesteSak(foreldrepengerGrunnlag);
 
-        var aleneomsorg = rettOgOmsorg.getAleneomsorg();
-        var minsterettGrunnlag = new BeregnMinsterettGrunnlag.Builder()
-            .bareFarHarRett(bareFarHarRett)
-            .morHarUføretrygd(morHarUføretrygd)
-            .mor(erMor)
-            .gjelderFødsel(gjelderFødsel)
-            .antallBarn(antallBarn)
-            .aleneomsorg(aleneomsorg)
-            .minsterett(minsterett)
-            .familieHendelseDato(familieHendelse)
-            .familieHendelseDatoNesteSak(familieHendelseNesteSak.orElse(null))
-            .dekningsgrad(dekningsgrad)
-            .build();
-        var minsteretter = Minsterett.finnMinsterett(minsterettGrunnlag);
-        builder.minsterettDager(minsteretter.getOrDefault(Minsterett.GENERELL_MINSTERETT, 0));
-        builder.utenAktivitetskravDager(minsteretter.getOrDefault(Minsterett.UTEN_AKTIVITETSKRAV, 0));
-        builder.farUttakRundtFødselDager(minsteretter.getOrDefault(Minsterett.FAR_UTTAK_RUNDT_FØDSEL, 0));
-        builder.etterNesteStønadsperiodeDager(minsteretter.getOrDefault(Minsterett.TETTE_FØDSLER, 0));
-        return builder;
+        var minsterettutleder = Stønadsdager.instance(null);
+        /* Bruk disse når det er migrert korrekt ned til UR
+            var bareFarMinsterett = finnKontoVerdi(stønadskontoer, StønadskontoType.BARE_FAR_RETT)
+              .orElseGet(() -> minsterettutleder.minsterettBareFarRett(familieHendelse, antallBarn, bareFarHarRett, morHarUføretrygd, dekningsgrad));
+            var uføredager = finnKontoVerdi(stønadskontoer, StønadskontoType.UFØREDAGER)
+              .orElseGet(() -> minsterettutleder.aktivitetskravUføredager(familieHendelse, bareFarHarRett, morHarUføretrygd, dekningsgrad));
+         */
+        var bareFarMinsterett = minsterettutleder.minsterettBareFarRett(familieHendelse, antallBarn, bareFarHarRett, morHarUføretrygd, dekningsgrad);
+        var uføredager = minsterettutleder.aktivitetskravUføredager(familieHendelse, bareFarHarRett, morHarUføretrygd, dekningsgrad);
+        var farRundtFødsel = finnKontoVerdi(stønadskontoer, StønadskontoType.FAR_RUNDT_FØDSEL)
+            .orElseGet(() -> minsterettutleder.andredagerFarRundtFødsel(familieHendelse, gjelderFødsel && rettOgOmsorg.getFarHarRett()));
+        int toTette = 0;
+        if (erMor) {
+            toTette = finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_MOR)
+                .orElseGet(() -> minsterettutleder.minsterettTetteFødsler(Brukerrolle.MOR, gjelderFødsel, familieHendelse, familieHendelseNesteSak.orElse(null)));
+        } else {
+            toTette = finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_FAR)
+                .orElseGet(() -> minsterettutleder.minsterettTetteFødsler(Brukerrolle.FAR, gjelderFødsel, familieHendelse, familieHendelseNesteSak.orElse(null)));
+        }
+        return new Kontoer.Builder()
+            .flerbarnsdager(flerbarnsdager)
+            .minsterettDager(bareFarMinsterett)
+            .utenAktivitetskravDager(uføredager)
+            .farUttakRundtFødselDager(farRundtFødsel)
+            .etterNesteStønadsperiodeDager(toTette);
     }
 
     private LocalDate familieHendelse(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
@@ -131,5 +131,9 @@ public class KontoerGrunnlagBygger {
 
     private Optional<LocalDate> familieHendelseNesteSak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         return foreldrepengerGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getHendelsedato);
+    }
+
+    private Optional<Integer> finnKontoVerdi(Set<Stønadskonto> konti, StønadskontoType stønadskontoType) {
+        return konti.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType())).findFirst().map(Stønadskonto::getMaxDager);
     }
 }

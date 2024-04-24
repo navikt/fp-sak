@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.PrematurukerUtil;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
 
 
 @ApplicationScoped

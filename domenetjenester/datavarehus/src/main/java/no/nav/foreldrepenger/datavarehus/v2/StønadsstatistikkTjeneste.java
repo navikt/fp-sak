@@ -416,7 +416,7 @@ public class StønadsstatistikkTjeneste {
             var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
             var konti = gjeldendeStønadskontoberegning.stream()
                 .flatMap(b -> b.getStønadskontoer().stream())
-                .filter(sk -> sk.getStønadskontoType() != StønadskontoType.FLERBARNSDAGER)
+                .filter(sk -> sk.getStønadskontoType().erStønadsdager())
                 .map(k -> map(k, saldoUtregning))
                 .collect(Collectors.toSet());
 
@@ -459,8 +459,8 @@ public class StønadsstatistikkTjeneste {
             case MØDREKVOTE -> Stønadskontotype.MØDREKVOTE;
             case FEDREKVOTE -> Stønadskontotype.FEDREKVOTE;
             case FORELDREPENGER -> Stønadskontotype.FORELDREPENGER;
-            case FLERBARNSDAGER, UDEFINERT -> throw new IllegalStateException("Ukjent " + stønadskonto.getStønadskontoType());
             case FORELDREPENGER_FØR_FØDSEL -> Stønadskontotype.FORELDREPENGER_FØR_FØDSEL;
+            default -> throw new IllegalStateException("Ukjent " + stønadskonto.getStønadskontoType());
         });
         //Kan være trukket i minus
         var restdagerDto = new ForeldrepengerRettigheter.Trekkdager(restdager.mindreEnn0() ? BigDecimal.ZERO : restdager.decimalValue());
@@ -479,7 +479,7 @@ public class StønadsstatistikkTjeneste {
             case FEDREKVOTE -> StønadsstatistikkVedtak.StønadskontoType.FEDREKVOTE;
             case FORELDREPENGER -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-            case FLERBARNSDAGER, UDEFINERT -> throw new IllegalStateException("Unexpected value: " + stønadskontoType);
+            default -> throw new IllegalStateException("Unexpected value: " + stønadskontoType);
         };
     }
 
