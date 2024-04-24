@@ -64,8 +64,9 @@ public class UttakStegBeregnStønadskontoTjeneste {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
         }
-        if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)) {
-            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
+        var fullBeregning = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
+        if (fullBeregning || oppfyllerPrematurUker(fpGrunnlag)) {
+            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
 
@@ -77,7 +78,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
-        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input);
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, true);
 
         var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
         var endringerVedReberegning = utledEndringer(eksiterendeKontoer, nyeKontoer);

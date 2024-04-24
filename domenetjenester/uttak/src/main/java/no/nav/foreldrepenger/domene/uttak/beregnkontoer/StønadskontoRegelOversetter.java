@@ -26,7 +26,8 @@ public class StønadskontoRegelOversetter {
                                                 Dekningsgrad dekningsgrad,
                                                 Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag,
-                                                BehandlingReferanse ref) {
+                                                BehandlingReferanse ref,
+                                                Map<StønadskontoType, Integer> tidligereUtregning) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
@@ -36,7 +37,7 @@ public class StønadskontoRegelOversetter {
             .dekningsgrad(map(dekningsgrad))
             .brukerRolle(UttakEnumMapper.mapTilBeregning(ref.relasjonRolle()))
             .rettighetType(mapRettighet(ytelseFordelingAggregat, annenForeldreHarRett))
-            .tidligereUtregning(mapTilStønadskontoBeregning(fpGrunnlag.getStønadskontoberegning()))
+            .tidligereUtregning(mapTilStønadskontoBeregning(tidligereUtregning))
             .morHarUføretrygd(ytelseFordelingAggregat.morMottarUføretrygd(fpGrunnlag.getUføretrygdGrunnlag().orElse(null)))
             .familieHendelseDatoNesteSak(familieHendelseNesteSak(fpGrunnlag).orElse(null));
 

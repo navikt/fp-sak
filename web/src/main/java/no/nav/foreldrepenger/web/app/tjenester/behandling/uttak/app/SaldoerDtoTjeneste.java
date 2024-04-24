@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -228,9 +229,9 @@ public class SaldoerDtoTjeneste {
         }
         var yfAggregat = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId());
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, dekningsgrad, annenpart, fpGrunnlag);
-        int prematurdager = stønadskontoberegning.getAntallPrematurDager();
-        int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();
+        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, dekningsgrad, annenpart, fpGrunnlag, fpGrunnlag.getStønadskontoberegning());
+        int prematurdager = stønadskontoberegning.getStønadskontoer().getOrDefault(UttakEnumMapper.mapTilBeregning(StønadskontoType.TILLEGG_PREMATUR), 0);
+        int flerbarnsdager = stønadskontoberegning.getStønadskontoer().getOrDefault(UttakEnumMapper.mapTilBeregning(StønadskontoType.TILLEGG_PREMATUR), 0);
 
         if (prematurdager > 0 || flerbarnsdager > 0) {
             return Optional.of(new KontoUtvidelser(prematurdager, flerbarnsdager));
