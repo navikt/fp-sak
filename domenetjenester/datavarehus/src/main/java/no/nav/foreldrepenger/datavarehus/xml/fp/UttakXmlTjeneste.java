@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -102,7 +101,7 @@ public class UttakXmlTjeneste {
         var kontrakt = new FordelingPeriode();
         kontrakt.setMorsAktivitet(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getMorsAktivitet()));
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
-        kontrakt.setPeriodetype(periodeDomene.isOpphold() ? VedtakXmlUtil.lagKodeverksOpplysning(UttakPeriodeType.ANNET)
+        kontrakt.setPeriodetype(periodeDomene.isOpphold() ? VedtakXmlUtil.lagOppholdPeriodeTypeKodeverkOpplysning()
             : VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeType()));
         return kontrakt;
     }

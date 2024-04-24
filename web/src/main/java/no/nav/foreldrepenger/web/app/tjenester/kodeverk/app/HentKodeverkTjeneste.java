@@ -152,7 +152,7 @@ public class HentKodeverkTjeneste {
         map.put(OverføringÅrsak.class.getSimpleName(), OverføringÅrsak.kodeMap().values());
         map.put(UtsettelseÅrsak.class.getSimpleName(), UtsettelseÅrsak.kodeMap().values());
         map.put(UttakArbeidType.class.getSimpleName(), UttakArbeidType.kodeMap().values());
-        map.put(UttakPeriodeType.class.getSimpleName(), UttakPeriodeType.kodeMap().values().stream().filter(k -> k != UttakPeriodeType.ANNET).toList());
+        map.put(UttakPeriodeType.class.getSimpleName(), UttakPeriodeType.kodeMap().values());
         map.put(MorsAktivitet.class.getSimpleName(), MorsAktivitet.kodeMap().values());
         map.put(ManuellBehandlingÅrsak.class.getSimpleName(), ManuellBehandlingÅrsak.kodeMap().values());
         map.put(FaresignalVurdering.class.getSimpleName(), FaresignalVurdering.kodeMap().values());
