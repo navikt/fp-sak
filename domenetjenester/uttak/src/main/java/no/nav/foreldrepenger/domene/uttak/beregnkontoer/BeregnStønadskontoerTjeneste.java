@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -76,20 +77,20 @@ public class BeregnStønadskontoerTjeneste {
     }
 
     public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
-        for (var eksisterendeStønadskonto : eksisterende.getStønadskontoer()) {
-            var likNyStønadskonto = finnKontoIStønadskontoberegning(ny, eksisterendeStønadskonto);
-            if (likNyStønadskonto.isEmpty()) {
-                return true;
-            }
+        var typerEksisterende = eksisterende.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());
+        var typerNy = ny.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());
+        if (typerNy.size() == typerEksisterende.size() && typerNy.containsAll(typerEksisterende)) {
+            return eksisterende.getStønadskontoer().stream()
+                .anyMatch(e -> !harSammeAntallDagerFor(ny, e));
+        } else {
+            return true;
         }
-        return false;
     }
 
-    private Optional<Stønadskonto> finnKontoIStønadskontoberegning(Stønadskontoberegning stønadskontoberegning, Stønadskonto konto) {
+    private boolean harSammeAntallDagerFor(Stønadskontoberegning stønadskontoberegning, Stønadskonto konto) {
         return stønadskontoberegning.getStønadskontoer().stream()
             .filter(stønadskonto -> stønadskonto.getStønadskontoType().equals(konto.getStønadskontoType()))
-            .filter(stønadskonto -> Objects.equals(stønadskonto.getMaxDager(), konto.getMaxDager()))
-            .findFirst();
+            .anyMatch(stønadskonto -> Objects.equals(stønadskonto.getMaxDager(), konto.getMaxDager()));
     }
 
     private void oppdaterBehandlingsresultat(Long behandlingId) {

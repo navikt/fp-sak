@@ -109,7 +109,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
                 etterpopuler(kontoberegning, StønadskontoType.FAR_RUNDT_FØDSEL, rundtFødsel);
                 endret = true;
             }
-            if (grunnlag.isMinsterett() && grunnlag.isFarRett() && !grunnlag.isFarAleneomsorg()) {
+            if (grunnlag.isMinsterett() && grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg()) {
                 var rundtFødsel = stønadsdager.minsterettBareFarRett(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), true, false, grunnlag.getDekningsgrad());
                 etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, rundtFødsel);
                 endret = true;

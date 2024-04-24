@@ -90,7 +90,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private static Set<KontoEndring> utledEndringer(Stønadskontoberegning eksiterendeKonti, Stønadskontoberegning nyeKonti) {
-        HashSet<StønadskontoType> alleTyper = new HashSet<>(Arrays.stream(StønadskontoType.values()).toList());
+        HashSet<StønadskontoType> alleTyper = new HashSet<>(Arrays.stream(StønadskontoType.values()).filter(StønadskontoType::erStønadsdager).toList());
 
         return alleTyper.stream().map(type -> {
             var dagerEksisterende = finnMaksdagerForType(eksiterendeKonti, type);

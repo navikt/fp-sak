@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -58,21 +59,21 @@ public class KontoerGrunnlagBygger {
      */
     public Kontoer.Builder byggGrunnlag(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var stønadskontoer = hentStønadskontoer(ref);
-        return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream()
-            //Flerbarnsdager er stønadskontotype i stønadskontoberegningen, men ikke i fastsette perioder
-            .filter(sk -> sk.getStønadskontoType().erStønadsdager()).map(this::map).toList());
+        var stønadskontoer = hentStønadsdagerKontoer(ref);
+        return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream().map(this::map).toList());
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
         return new Konto.Builder().trekkdager(stønadskonto.getMaxDager()).type(UttakEnumMapper.map(stønadskonto.getStønadskontoType()));
     }
 
-    private Set<Stønadskonto> hentStønadskontoer(BehandlingReferanse ref) {
+    private Set<Stønadskonto> hentStønadsdagerKontoer(BehandlingReferanse ref) {
         return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
             .getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
-            .getStønadskontoer();
+            .getStønadskontoer().stream()
+            .filter(k -> k.getStønadskontoType().erStønadsdager())
+            .collect(Collectors.toSet());
     }
 
     /*

@@ -183,6 +183,7 @@ public class UttakXmlTjeneste {
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Set<Stønadskonto> stønadskontoerDomene) {
         var stønadskontoer = stønadskontoerDomene
             .stream()
+            .filter(s -> s.getStønadskontoType().erStønadsdager() || StønadskontoType.FLERBARNSDAGER.equals(s.getStønadskontoType()))
             .map(this::konverterFraDomene)
             .toList();
         uttakForeldrepenger.getStoenadskontoer().addAll(stønadskontoer);
