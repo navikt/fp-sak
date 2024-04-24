@@ -37,7 +37,6 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
 
     @Embedded
     @ChangeTracked
-    @Column(name = "org_nummer")
     private OrgNummer orgNummer;
 
     @Embedded
