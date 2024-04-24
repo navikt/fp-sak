@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -37,11 +37,11 @@ class FastsettePerioderRevurderingUtilTest {
             LocalDate.of(2018, 6, 20))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
+        leggTilPeriodeAktivitet(uttakAktivitet, periode1, UttakPeriodeType.MØDREKVOTE, new Trekkdager(10));
         var periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusWeeks(1))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.FELLESPERIODE, new Trekkdager(10));
+        leggTilPeriodeAktivitet(uttakAktivitet, periode2, UttakPeriodeType.FELLESPERIODE, new Trekkdager(10));
 
         opprinneligePerioder.leggTilPeriode(periode1);
         opprinneligePerioder.leggTilPeriode(periode2);
@@ -75,11 +75,11 @@ class FastsettePerioderRevurderingUtilTest {
             LocalDate.of(2018, 6, 20))
             .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
+        leggTilPeriodeAktivitet(uttakAktivitet, periode1, UttakPeriodeType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
         var periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
             .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
+        leggTilPeriodeAktivitet(uttakAktivitet, periode2, UttakPeriodeType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
 
         opprinneligePerioder.leggTilPeriode(periode1);
         opprinneligePerioder.leggTilPeriode(periode2);
@@ -107,7 +107,7 @@ class FastsettePerioderRevurderingUtilTest {
             .medSamtidigUttak(false)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, opprinneligPeriode, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
+        leggTilPeriodeAktivitet(uttakAktivitet, opprinneligPeriode, UttakPeriodeType.MØDREKVOTE, new Trekkdager(10));
 
         opprinneligePerioder.leggTilPeriode(opprinneligPeriode);
         var opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
@@ -132,11 +132,11 @@ class FastsettePerioderRevurderingUtilTest {
         var helgMedTrekkdager = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2022, 10, 1), LocalDate.of(2022, 10, 2))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, helgMedTrekkdager, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
+        leggTilPeriodeAktivitet(uttakAktivitet, helgMedTrekkdager, UttakPeriodeType.MØDREKVOTE, new Trekkdager(10));
         var helgUtenTrekkdager = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2022, 10, 8), LocalDate.of(2022, 10, 9))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        leggTilPeriodeAktivitet(uttakAktivitet, helgUtenTrekkdager, StønadskontoType.FELLESPERIODE, Trekkdager.ZERO);
+        leggTilPeriodeAktivitet(uttakAktivitet, helgUtenTrekkdager, UttakPeriodeType.FELLESPERIODE, Trekkdager.ZERO);
 
         opprinneligePerioder.leggTilPeriode(helgMedTrekkdager);
         opprinneligePerioder.leggTilPeriode(helgUtenTrekkdager);
@@ -152,11 +152,11 @@ class FastsettePerioderRevurderingUtilTest {
         assertThat(perioder.get(0).getTom()).isEqualTo(helgMedTrekkdager.getTom());
     }
 
-    private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, StønadskontoType stønadskontoType, Trekkdager trekkdager) {
+    private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, UttakPeriodeType stønadskontoType, Trekkdager trekkdager) {
         leggTilPeriodeAktivitet(uttakAktivitet, periode, stønadskontoType, trekkdager, BigDecimal.TEN);
     }
 
-    private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, StønadskontoType stønadskontoType, Trekkdager trekkdager, BigDecimal utbetalingsgrad) {
+    private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, UttakPeriodeType stønadskontoType, Trekkdager trekkdager, BigDecimal utbetalingsgrad) {
         var periodeAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(trekkdager)

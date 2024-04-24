@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -73,7 +72,7 @@ public class TapteDagerFpffTjeneste {
             .getGjeldendePerioder()
             .getPerioder()
             .stream()
-            .filter(p -> p.getAktiviteter().stream().anyMatch(a -> Objects.equals(a.getTrekkonto(), StønadskontoType.FORELDREPENGER_FØR_FØDSEL)))
+            .filter(p -> p.getAktiviteter().stream().anyMatch(a -> Objects.equals(a.getTrekkonto(), UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)))
             .map(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()))
             .reduce(Integer::sum)
             .orElse(0);

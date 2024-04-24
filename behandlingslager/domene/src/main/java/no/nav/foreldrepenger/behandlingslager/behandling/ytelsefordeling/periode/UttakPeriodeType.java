@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.period
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -70,6 +71,10 @@ public enum UttakPeriodeType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
+    }
+
+    public boolean harAktivitetskrav() {
+        return Set.of(FELLESPERIODE, FORELDREPENGER).contains(this);
     }
 
     @Converter(autoApply = true)

@@ -322,7 +322,7 @@ public class FpDtoTjeneste {
                 case FEDREKVOTE -> Konto.FEDREKVOTE;
                 case FORELDREPENGER -> Konto.FORELDREPENGER;
                 case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
-                case UDEFINERT, FLERBARNSDAGER -> null;
+                case UDEFINERT -> null;
             };
             var arbeidstidsprosent = a.isSøktGraderingForAktivitetIPeriode() ? a.getArbeidsprosent() : BigDecimal.ZERO;
             return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId), konto,

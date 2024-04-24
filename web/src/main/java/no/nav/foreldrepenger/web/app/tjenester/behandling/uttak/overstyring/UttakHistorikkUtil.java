@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOppl
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -192,7 +193,8 @@ public final class UttakHistorikkUtil {
             HistorikkInnslagTekstBuilder.formatString(gjeldendeAktivitetTrekkdager),
             HistorikkInnslagTekstBuilder.formatString(nyAktivitetTrekkdager));
 
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE, gjeldendeAktivitet.getTrekkonto(), nyAktivitet.getStønadskontoType());
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE, mapTilStønadskontoType(gjeldendeAktivitet.getTrekkonto()),
+            mapTilStønadskontoType(nyAktivitet.getStønadskontoType()));
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE, gjeldendePeriode.getResultatType(),
             nyPeriode.getPeriodeResultatType());
         var fraUtbetalingsgrad = gjeldendeAktivitet.getUtbetalingsgrad().decimalValue();
@@ -211,6 +213,17 @@ public final class UttakHistorikkUtil {
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_GRADERING_AVSLAG_ÅRSAK, gjeldendePeriode.getGraderingAvslagÅrsak(),
             nyPeriode.getGraderingAvslagÅrsak());
         return builder;
+    }
+
+    private static StønadskontoType mapTilStønadskontoType(UttakPeriodeType uttakPeriodeType) {
+        return switch (uttakPeriodeType) {
+            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
+            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+            case UDEFINERT -> StønadskontoType.UDEFINERT;
+        };
     }
 
     private HistorikkInnslagTekstBuilder lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,

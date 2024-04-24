@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -85,7 +84,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
             .medPeriodeSoknad(periodeSøknad)
             .build();
         var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medErSøktGradering(true)
             .medUtbetalingsgrad(new Utbetalingsgrad(1))

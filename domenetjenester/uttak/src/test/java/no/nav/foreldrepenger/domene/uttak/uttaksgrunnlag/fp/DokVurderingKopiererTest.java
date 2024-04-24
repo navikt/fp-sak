@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -253,7 +252,7 @@ class DokVurderingKopiererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode0, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode0);
         var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -266,7 +265,7 @@ class DokVurderingKopiererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -324,7 +323,7 @@ class DokVurderingKopiererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1a, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(0))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
         perioder.leggTilPeriode(uttakPeriode1a);
@@ -339,7 +338,7 @@ class DokVurderingKopiererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1b, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(0))
-            .medTrekkonto(StønadskontoType.UDEFINERT)
+            .medTrekkonto(UttakPeriodeType.UDEFINERT)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
         perioder.leggTilPeriode(uttakPeriode1b);
@@ -355,7 +354,7 @@ class DokVurderingKopiererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode2, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(5))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode2);

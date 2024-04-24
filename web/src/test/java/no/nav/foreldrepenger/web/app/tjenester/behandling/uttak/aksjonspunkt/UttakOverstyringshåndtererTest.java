@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.List;
 
 import jakarta.inject.Inject;
 
@@ -18,12 +18,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -61,46 +61,44 @@ class UttakOverstyringshåndtererTest {
 
     @BeforeEach
     public void setup() {
-        oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class),
-                fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste);
+        oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakTjeneste,
+            uttakInputTjeneste);
     }
 
     @Test
     void skalReturnereUtenOveropp() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(2);
-        var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
-                .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
-                .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .medTrekkdager(BigDecimal.ZERO)
-                .build();
-        var aktiviteter = Collections.singletonList(aktivitetLagreDto);
+        var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder().medArbeidsforholdId(ARBEIDSFORHOLD_ID)
+            .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medTrekkdager(BigDecimal.ZERO)
+            .build();
+        var aktiviteter = List.of(aktivitetLagreDto);
         var periodeResultatType = PeriodeResultatType.INNVILGET;
         var periodeResultatÅrsak = PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
-        var stønadskontoType = StønadskontoType.FORELDREPENGER;
+        var stønadskontoType = UttakPeriodeType.FORELDREPENGER;
         var begrunnelse = "Dette er begrunnelsen";
-        var periode = new UttakResultatPeriodeLagreDto.Builder()
-                .medTidsperiode(fom, tom)
-                .medAktiviteter(aktiviteter)
-                .medBegrunnelse(begrunnelse)
-                .medPeriodeResultatType(periodeResultatType)
-                .medPeriodeResultatÅrsak(periodeResultatÅrsak)
-                .medFlerbarnsdager(false)
-                .medSamtidigUttak(false)
-                .build();
+        var periode = new UttakResultatPeriodeLagreDto.Builder().medTidsperiode(fom, tom)
+            .medAktiviteter(aktiviteter)
+            .medBegrunnelse(begrunnelse)
+            .medPeriodeResultatType(periodeResultatType)
+            .medPeriodeResultatÅrsak(periodeResultatÅrsak)
+            .medFlerbarnsdager(false)
+            .medSamtidigUttak(false)
+            .build();
 
-        var perioder = Collections.singletonList(periode);
+        var perioder = List.of(periode);
         var dto = new OverstyringUttakDto(perioder);
 
         // arrange
         var opprinneligPerioder = opprettUttakResultatPeriode(periodeResultatType, fom, tom, stønadskontoType);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medDefaultFordeling(fom)
-                .medDefaultSøknadTerminbekreftelse()
-                .medDefaultBekreftetTerminbekreftelse()
-                .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
-                .lagre(repositoryProvider);
+            .medDefaultFordeling(fom)
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultBekreftetTerminbekreftelse()
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
+            .lagre(repositoryProvider);
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
 
         var result = oppdaterer.håndterOverstyring(dto, behandling, kontekst(behandling));
@@ -120,27 +118,22 @@ class UttakOverstyringshåndtererTest {
 
     private BehandlingskontrollKontekst kontekst(Behandling behandling) {
         return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-                repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
+            repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-            LocalDate fom,
-            LocalDate tom,
-            StønadskontoType stønadskontoType) {
-        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
-                .build();
+                                                                     LocalDate fom,
+                                                                     LocalDate tom,
+                                                                     UttakPeriodeType stønadskontoType) {
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(resultat, PeriodeResultatÅrsak.UKJENT).build();
 
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID))
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakResultatPeriode, uttakAktivitet)
-                .medTrekkonto(stønadskontoType)
-                .medTrekkdager(new Trekkdager(10))
-                .medArbeidsprosent(BigDecimal.ZERO)
-                .medUtbetalingsgrad(new Utbetalingsgrad(100))
-                .build();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR),
+            InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID)).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).build();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakResultatPeriode, uttakAktivitet).medTrekkonto(stønadskontoType)
+            .medTrekkdager(new Trekkdager(10))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build();
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
 

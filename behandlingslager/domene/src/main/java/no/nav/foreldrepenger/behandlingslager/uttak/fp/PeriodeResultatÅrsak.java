@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 import static java.util.Set.of;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.FRITT_UTTAK;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.KREVER_SAMMENHENGENDE_UTTAK;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.MINSTERETT_2022;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.IKKE_MOR;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.MOR;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
@@ -24,6 +24,7 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
@@ -402,7 +403,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
 
     private final Set<UttakType> uttakTyper;
 
-    private final Set<StønadskontoType> valgbarForKonto;
+    private final Set<UttakPeriodeType> valgbarForKonto;
 
     private final Set<LovEndring> gyldigForLovendringer;
 
@@ -413,15 +414,14 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
                          String navn,
                          String lovHjemmel,
                          Set<UttakType> uttakTyper,
-                         Set<StønadskontoType> valgbarForKonto, Set<LovEndring> gyldigForLovendringer, Set<SynligFor> synligForRolle) {
+                         Set<UttakPeriodeType> valgbarForKonto, Set<LovEndring> gyldigForLovendringer, Set<SynligFor> synligForRolle) {
         this.kode = kode;
         this.sortering = sortering;
         this.navn = navn;
         this.lovHjemmel = lovHjemmel;
         this.utfallType = UDEFINERT_KODE.equals(kode) ? null : Long.parseLong(kode) < 4000L ? UtfallType.INNVILGET : UtfallType.AVSLÅTT;
         this.uttakTyper = uttakTyper == null ? of(UTTAK) : uttakTyper;
-        this.valgbarForKonto = valgbarForKonto == null ?
-            of(FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL)
+        this.valgbarForKonto = valgbarForKonto == null ? of(FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL)
             : valgbarForKonto;
         this.gyldigForLovendringer = gyldigForLovendringer == null ? of(LovEndring.values()) : gyldigForLovendringer;
         this.synligForRolle = synligForRolle == null ? Set.of(SynligFor.values()) : synligForRolle;
@@ -432,7 +432,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
                          String navn,
                          String lovHjemmel,
                          Set<UttakType> uttakTyper,
-                         Set<StønadskontoType> valgbarForKonto) {
+                         Set<UttakPeriodeType> valgbarForKonto) {
         this(kode, sortering, navn, lovHjemmel, uttakTyper, valgbarForKonto, null, null);
     }
 
@@ -452,7 +452,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         return uttakTyper;
     }
 
-    public Set<StønadskontoType> getValgbarForKonto() {
+    public Set<UttakPeriodeType> getValgbarForKonto() {
         return valgbarForKonto;
     }
 

@@ -9,12 +9,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -64,13 +64,13 @@ class UttakPerioderMapperTest {
         var tom = LocalDate.now().plusWeeks(1);
         var frilans = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
-                .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+                .medStønadskontoType(UttakPeriodeType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
         var annet = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.ANNET)
-                .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+                .medStønadskontoType(UttakPeriodeType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
@@ -82,12 +82,12 @@ class UttakPerioderMapperTest {
         var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet1 = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                 .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                 .build();
         var periodeAktivitet2 = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                 .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ANNET))
                 .build();
         var opprinneligPeriode = new ForeldrepengerUttakPeriode.Builder()
@@ -108,7 +108,7 @@ class UttakPerioderMapperTest {
         var tom = LocalDate.now().plusWeeks(1);
         var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
-                .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+                .medStønadskontoType(UttakPeriodeType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
@@ -121,7 +121,7 @@ class UttakPerioderMapperTest {
         var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                 .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                 .medSøktGraderingForAktivitetIPeriode(true)
                 .build();
@@ -142,7 +142,7 @@ class UttakPerioderMapperTest {
         return new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR))
                 .medArbeidsforholdId(ARBEIDSFORHOLD_REF)
-                .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+                .medStønadskontoType(UttakPeriodeType.FELLESPERIODE)
                 .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO);

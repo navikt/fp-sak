@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
@@ -66,14 +65,14 @@ class UttakPeriodeEndringDtoTjenesteTest {
 
         // Legg til opprinnelig periode
         var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,
-            dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+            dato.plusMonths(1), UttakPeriodeType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         var overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1),
-            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+            UttakPeriodeType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         var overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
@@ -99,14 +98,14 @@ class UttakPeriodeEndringDtoTjenesteTest {
 
         // Legg til opprinnelig periode
         var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,
-            dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+            dato.plusMonths(1), UttakPeriodeType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
         var overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato.plusWeeks(2),
-            dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"),
+            dato.plusMonths(1).plusWeeks(2), UttakPeriodeType.FORELDREPENGER, new BigDecimal("100"),
             new Utbetalingsgrad(100));
         var overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
@@ -131,7 +130,7 @@ class UttakPeriodeEndringDtoTjenesteTest {
     private UttakResultatPeriodeEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
                                                                     LocalDate fom,
                                                                     LocalDate tom,
-                                                                    StønadskontoType stønadskontoType,
+                                                                    UttakPeriodeType stønadskontoType,
                                                                     BigDecimal graderingArbeidsprosent,
                                                                     Utbetalingsgrad ubetalingsgrad) {
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()

@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class ForeldrepengerUttakPeriodeAktivitet {
 
     private ForeldrepengerUttakAktivitet aktivitet;
-    private StønadskontoType trekkonto = StønadskontoType.UDEFINERT;
+    private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
     private Trekkdager trekkdager = Trekkdager.ZERO;
     private BigDecimal arbeidsprosent;
     private Utbetalingsgrad utbetalingsgrad;
@@ -23,7 +23,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
     private ForeldrepengerUttakPeriodeAktivitet() {
     }
 
-    public StønadskontoType getTrekkonto() {
+    public UttakPeriodeType getTrekkonto() {
         return trekkonto;
     }
 
@@ -74,7 +74,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
     public static class Builder {
         private ForeldrepengerUttakPeriodeAktivitet kladd = new ForeldrepengerUttakPeriodeAktivitet();
 
-        public Builder medTrekkonto(StønadskontoType stønadskontoType) {
+        public Builder medTrekkonto(UttakPeriodeType stønadskontoType) {
             kladd.trekkonto = stønadskontoType;
             return this;
         }

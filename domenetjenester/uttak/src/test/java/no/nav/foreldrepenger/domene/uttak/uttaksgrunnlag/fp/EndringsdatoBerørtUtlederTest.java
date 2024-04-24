@@ -14,11 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -42,7 +42,7 @@ class EndringsdatoBerørtUtlederTest {
                 new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                     .medTrekkdager(new Trekkdager(75))
                     .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
-                    .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                    .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
                     .medArbeidsprosent(BigDecimal.ZERO)
                     .build()))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
@@ -53,7 +53,7 @@ class EndringsdatoBerørtUtlederTest {
                 new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                     .medTrekkdager(new Trekkdager(1))
                     .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-                    .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                    .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                     .medArbeidsprosent(BigDecimal.ZERO)
                     .build()))
             .medResultatÅrsak(PeriodeResultatÅrsak.HULL_MELLOM_FORELDRENES_PERIODER)
@@ -69,7 +69,7 @@ class EndringsdatoBerørtUtlederTest {
                 new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                     .medTrekkdager(new Trekkdager(1))
                     .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
-                    .medTrekkonto(StønadskontoType.FEDREKVOTE)
+                    .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
                     .medArbeidsprosent(BigDecimal.ZERO)
                     .build()))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -31,7 +30,7 @@ class AvslagØverføringValideringTest {
     void skalIkkeKunneTrekkeDagerFraSøktKvote() {
         var validering = new AvslagØverføringValidering();
 
-        var periode = avslåttOverføring(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE);
+        var periode = avslåttOverføring(UttakPeriodeType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE);
         var perioder = List.of(periode);
         assertThrows(TekniskException.class, () -> validering.utfør(perioder));
     }
@@ -40,7 +39,7 @@ class AvslagØverføringValideringTest {
     void skalKunneTrekkeDagerFraAnnenKvoteEnnSøktKvote() {
         var validering = new AvslagØverføringValidering();
 
-        var periode = avslåttOverføring(StønadskontoType.MØDREKVOTE, UttakPeriodeType.FEDREKVOTE);
+        var periode = avslåttOverføring(UttakPeriodeType.MØDREKVOTE, UttakPeriodeType.FEDREKVOTE);
         assertDoesNotThrow(() -> validering.utfør(List.of(periode)));
     }
 
@@ -48,24 +47,24 @@ class AvslagØverføringValideringTest {
     void skalKunneTrekkeDagerFraSøktKvoteHvisInnvilgetOverføring() {
         var validering = new AvslagØverføringValidering();
 
-        var periode = innvilgetOverføring(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE);
+        var periode = innvilgetOverføring(UttakPeriodeType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE);
         assertDoesNotThrow(() -> validering.utfør(List.of(periode)));
     }
 
-    private ForeldrepengerUttakPeriode avslåttOverføring(StønadskontoType kontoDetTrekkesFra,
+    private ForeldrepengerUttakPeriode avslåttOverføring(UttakPeriodeType trekkonto,
                                                          UttakPeriodeType søktKonto) {
-        return overføring(kontoDetTrekkesFra, søktKonto, PeriodeResultatÅrsak.DEN_ANDRE_PART_INNLEGGELSE_IKKE_OPPFYLT);
+        return overføring(trekkonto, søktKonto, PeriodeResultatÅrsak.DEN_ANDRE_PART_INNLEGGELSE_IKKE_OPPFYLT);
     }
 
-    private ForeldrepengerUttakPeriode innvilgetOverføring(StønadskontoType kontoDetTrekkesFra,
+    private ForeldrepengerUttakPeriode innvilgetOverføring(UttakPeriodeType trekkonto,
                                                            UttakPeriodeType søktKonto) {
-        return overføring(kontoDetTrekkesFra, søktKonto, PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT);
+        return overføring(trekkonto, søktKonto, PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT);
     }
 
-    private ForeldrepengerUttakPeriode overføring(StønadskontoType kontoDetTrekkesFra,
+    private ForeldrepengerUttakPeriode overføring(UttakPeriodeType trekkonto,
                                                   UttakPeriodeType søktKonto,
                                                   PeriodeResultatÅrsak resultatÅrsak) {
-        var aktivitet = aktivitetMedTrekkdager(kontoDetTrekkesFra);
+        var aktivitet = aktivitetMedTrekkdager(trekkonto);
         return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(LocalDate.now().minusWeeks(1),
             LocalDate.now().plusWeeks(3))
             .medOverføringÅrsak(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER)
@@ -76,7 +75,7 @@ class AvslagØverføringValideringTest {
             .build();
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet aktivitetMedTrekkdager(StønadskontoType stønadskontoType) {
+    private ForeldrepengerUttakPeriodeAktivitet aktivitetMedTrekkdager(UttakPeriodeType stønadskontoType) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder().medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(new Trekkdager(10))
             .medTrekkonto(stønadskontoType)
