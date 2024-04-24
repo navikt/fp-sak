@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -60,7 +59,8 @@ public class KontoerGrunnlagBygger {
     public Kontoer.Builder byggGrunnlag(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoer = hentStønadsdagerKontoer(ref);
-        return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream().map(this::map).toList());
+        return getBuilder(uttakInput, stønadskontoer)
+            .kontoList(stønadskontoer.stream().filter(k -> k.getStønadskontoType().erStønadsdager()).map(this::map).toList());
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
@@ -71,9 +71,7 @@ public class KontoerGrunnlagBygger {
         return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
             .getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
-            .getStønadskontoer().stream()
-            .filter(k -> k.getStønadskontoType().erStønadsdager())
-            .collect(Collectors.toSet());
+            .getStønadskontoer();
     }
 
     /*

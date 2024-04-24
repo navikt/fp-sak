@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -194,13 +195,16 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakInput input(Behandling behandling, Annenpart annenpart, LocalDate skjæringstidspunkt) {
+        return input(behandling, annenpart, skjæringstidspunkt, 1);
+    }
+    private UttakInput input(Behandling behandling, Annenpart annenpart, LocalDate skjæringstidspunkt, int antallBarn) {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(true)
             .medKreverSammenhengendeUttak(false);
         return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart));
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart, skjæringstidspunkt, antallBarn));
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
@@ -224,7 +228,11 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakInput input(Behandling behandling, LocalDate skjæringstidspunkt) {
-        return input(behandling, fpGrunnlag(), skjæringstidspunkt);
+        return input(behandling, fpGrunnlag(null, skjæringstidspunkt, 1), skjæringstidspunkt);
+    }
+
+    private UttakInput input(Behandling behandling, LocalDate skjæringstidspunkt, int antallBarn) {
+        return input(behandling, fpGrunnlag(null, skjæringstidspunkt, antallBarn), skjæringstidspunkt);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag() {
@@ -232,7 +240,13 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(Annenpart annenpart) {
-        var familieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1);
+        return fpGrunnlag(annenpart, LocalDate.now(), 1);
+    }
+
+    private ForeldrepengerGrunnlag fpGrunnlag(Annenpart annenpart, LocalDate fødselsdato, int antallBarn) {
+        var barn = new ArrayList<Barn>();
+        for (var i = antallBarn; i > 0; i--) barn.add(new Barn());
+        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, barn, antallBarn);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         return new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser).medAnnenpart(annenpart);
     }
@@ -410,7 +424,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
 
         // Act
-        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
+        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato, 2));
 
         // Assert
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -813,6 +827,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true, false, false));
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato, 1);
+        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, 1);
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
@@ -827,7 +843,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medAktørIdUføretrygdet(annenPartAktørId)
             .medRegisterUføretrygd(true, fødseldato.minusYears(2), fødseldato.minusYears(2))
             .build();
-        var input = input(behandling, fpGrunnlag().medUføretrygdGrunnlag(uføretrygdGrunnlag), fødseldato);
+        var input = input(behandling, fpGrunnlag(null, fødseldato, 1).medUføretrygdGrunnlag(uføretrygdGrunnlag), fødseldato);
         var saldoer = tjeneste.lagStønadskontoerDto(input);
 
         var totalSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER);
