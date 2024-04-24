@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.xmlutils.DateUtil;
 import no.nav.vedtak.felles.xml.felles.v2.BooleanOpplysning;
@@ -122,6 +123,15 @@ public class VedtakXmlUtil {
         kodeverksOpplysning.setValue(aksjonspunktDefinisjon.getNavn());
         kodeverksOpplysning.setKode(aksjonspunktDefinisjon.getKode());
         kodeverksOpplysning.setKodeverk("AKSJONSPUNKT_DEF");
+        return kodeverksOpplysning;
+    }
+
+    public static KodeverksOpplysning lagOppholdPeriodeTypeKodeverkOpplysning() {
+        var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
+        // Annet er fjernet fra enum
+        kodeverksOpplysning.setKode("ANNET");
+        kodeverksOpplysning.setValue("Andre typer som f.eks utsettelse");
+        kodeverksOpplysning.setKodeverk(UttakPeriodeType.KODEVERK);
         return kodeverksOpplysning;
     }
 }

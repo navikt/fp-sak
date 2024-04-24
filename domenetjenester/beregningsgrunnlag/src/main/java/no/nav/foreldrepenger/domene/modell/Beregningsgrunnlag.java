@@ -190,16 +190,11 @@ public class Beregningsgrunnlag {
             return this;
         }
 
-        public Builder leggTilFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
-            verifiserKanModifisere();
-            faktaOmBeregningTilfeller.forEach(this::leggTilFaktaOmBeregningTilfeller);
-            return this;
-        }
-
-        private void leggTilFaktaOmBeregningTilfeller(FaktaOmBeregningTilfelle tilfelle) {
+        public Builder leggTilFaktaOmBeregningTilfelle(FaktaOmBeregningTilfelle tilfelle) {
             verifiserKanModifisere();
             var b = BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd);
             this.kladd.faktaOmBeregningTilfeller.add(b);
+            return this;
         }
 
         public Builder leggTilSammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {

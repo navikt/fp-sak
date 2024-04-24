@@ -350,8 +350,8 @@ class MorsJustering implements ForelderFødselJustering {
         var ikkeFlyttbareTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
         var periodeForskjøvet = new LocalDateTimeline<>(justertTimeline.getMinLocalDate(), fomDatoOppgitt, true);
         var antallVirkedagerSomBleForskøvet = periodeForskjøvet.disjoint(ikkeFlyttbareTimeline).stream()
-            .mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom()) - 1)
-            .sum(); // Teller ikke med tom
+            .mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom()))
+            .sum() - 1; // Teller ikke med tom på siste periode
         return virkedagerSomSkalSkyves - antallVirkedagerSomBleForskøvet;
     }
 
