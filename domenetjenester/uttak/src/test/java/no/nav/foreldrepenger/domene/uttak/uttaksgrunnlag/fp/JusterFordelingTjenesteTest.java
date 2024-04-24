@@ -234,6 +234,53 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
+    void justering_av_periode_delvis_forbi_ikke_flyttbar_periode_skal_ikke_føre_til_hull_etter_denne_perioden() {
+        var termin = LocalDate.of(2024, 5, 1);
+
+        var ffff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var mødrekvote1 = lagPeriode(MØDREKVOTE, termin, termin.plusWeeks(8).minusDays(1));
+        // hull 2 uker
+        var gradering = lagGradering(FELLESPERIODE, termin.plusWeeks(15), termin.plusWeeks(25).minusDays(1), BigDecimal.valueOf(3.75));
+        var mødrekvote2 = lagPeriode(MØDREKVOTE, termin.plusWeeks(25), termin.plusWeeks(27).minusDays(1));
+        // hull
+        var mødrekvote3 = lagPeriode(MØDREKVOTE, termin.plusWeeks(35), termin.plusWeeks(36).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termin.plusWeeks(36), termin.plusWeeks(37));
+
+        var oppgittePerioder = List.of(
+            ffff,
+            mødrekvote1,
+            gradering,
+            mødrekvote2,
+            mødrekvote3,
+            fellesperiode
+        );
+
+        var fødsel = termin.minusWeeks(1);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(5);
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(ffff.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødsel.minusDays(1));
+
+        // 1 av de 3 ukene av mødrekvoten som låg etter gradering skal flyttes før
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødsel.plusWeeks(9).minusDays(1));
+
+        assertThat(justertePerioder.get(2)).isEqualTo(gradering);
+
+        // 2 av de 3 ukene av mødrekvoten som låg etter gradering skal ikke flyttes forbi
+        assertThat(justertePerioder.get(3).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(gradering.getTom().plusDays(1));
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(gradering.getTom().plusWeeks(2));
+
+        assertThat(justertePerioder.get(4).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(4).getFom()).isEqualTo(mødrekvote3.getFom());
+        assertThat(justertePerioder.get(4).getTom()).isEqualTo(fellesperiode.getTom());
+    }
+
+    @Test
     void ikke_skal_slå_sammen_perioder_der_mottatt_dato_er_ulik() {
         var mottattDato1 = LocalDate.of(2020, 1, 1);
         var mødrekvote1 = OppgittPeriodeBuilder.ny().medPeriode(LocalDate.of(2019, 8, 15), LocalDate.of(2019, 8, 19))
