@@ -58,7 +58,7 @@ public class KontoerGrunnlagBygger {
      */
     public Kontoer.Builder byggGrunnlag(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var stønadskontoer = hentStønadsdagerKontoer(ref);
+        var stønadskontoer = hentStønadskontoer(ref);
         return getBuilder(uttakInput, stønadskontoer)
             .kontoList(stønadskontoer.stream().filter(k -> k.getStønadskontoType().erStønadsdager()).map(this::map).toList());
     }
@@ -67,7 +67,7 @@ public class KontoerGrunnlagBygger {
         return new Konto.Builder().trekkdager(stønadskonto.getMaxDager()).type(UttakEnumMapper.map(stønadskonto.getStønadskontoType()));
     }
 
-    private Set<Stønadskonto> hentStønadsdagerKontoer(BehandlingReferanse ref) {
+    private Set<Stønadskonto> hentStønadskontoer(BehandlingReferanse ref) {
         return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
             .getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
