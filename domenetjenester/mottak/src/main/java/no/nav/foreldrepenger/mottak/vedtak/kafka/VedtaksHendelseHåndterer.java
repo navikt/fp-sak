@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
-import static java.util.stream.Collectors.toList;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,7 +21,6 @@ import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -38,14 +34,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.StandardCombinators;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.SjekkOverlapp;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
 
 @ApplicationScoped
@@ -128,17 +121,16 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker).forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
-            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(),
-                ytelse.getSaksnummer(), ytelse.getYtelse());
-            LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
-                ytelse.getYtelse(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(toList()));
+            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(), ytelse.getSaksnummer(),
+                ytelse.getYtelse());
+            LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getYtelse(),
+                fagsaker.stream().map(Fagsak::getSaksnummer).toList());
 
             var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
             if (!fagsakerMedOverlapp.isEmpty()) {
-                var overlappSaksnummerList =
-                    fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(toList());
-                var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
-                    ytelse.getYtelse(), ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
+                var overlappSaksnummerList = fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).toList();
+                var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s", ytelse.getYtelse(), ytelse.getSaksnummer(),
+                    String.join(", ", overlappSaksnummerList));
                 LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
                 loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
             }
@@ -160,8 +152,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
         // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
-        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)),
-            LocalTime.of(7,35, 1));
+        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
         // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
@@ -181,44 +172,20 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
     }
 
     private List<Fagsak> fagsakerMedVedtakOverlapp(YtelseV1 ytelse, List<Fagsak> fagsaker) {
-        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
-        var ytelsesegments = ytelse.getAnvist().stream()
-                // .filter(p -> p.utbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >  0)
-                .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
-                .collect(toList());
-        if (ytelsesegments.isEmpty() || fagsaker.isEmpty())
-            return List.of();
-
-        var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
-        var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
-
         var behandlinger = fagsaker.stream()
-                .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
-                .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b));
+            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
+            .filter(b -> SjekkOverlapp.erOverlappOgMerEnn100Prosent(tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId()), List.of(ytelse)));
 
-        return behandlinger.map(Behandling::getFagsak).collect(toList());
+        return behandlinger.map(Behandling::getFagsak).toList();
     }
 
     private List<Fagsak> getFagsakerFor(YtelseV1 ytelse) {
-        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi())).stream()
-                .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
-                .collect(toList());
+        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi()))
+            .stream()
+            .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
+            .toList();
     }
 
-    private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
-        var fpsegments = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId())
-                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
-                .filter(p -> p.getDagsats() > 0)
-                .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
-                .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
-                .collect(toList());
-
-        if (fpsegments.isEmpty())
-            return false;
-
-        var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::alwaysTrueForMatch).compress();
-        return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
-    }
 
     @Override
     public String topic() {
