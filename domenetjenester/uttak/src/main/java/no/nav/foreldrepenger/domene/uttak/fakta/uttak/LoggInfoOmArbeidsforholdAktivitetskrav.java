@@ -73,6 +73,7 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
                                          Saksnummer saksnummer, boolean harAnnenForelderRett,
                                          List<OppgittPeriodeEntitet> aktuellePerioder,
                                          List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
+
         var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo);
         var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo);
         var grunnlagTidslinje = stillingsprosentTidslinje
