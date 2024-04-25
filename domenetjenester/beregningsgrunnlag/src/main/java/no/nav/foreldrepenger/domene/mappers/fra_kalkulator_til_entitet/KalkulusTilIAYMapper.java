@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet;
 
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;

@@ -1,6 +1,6 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
-import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsforholdRef;
+import static no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus.mapArbeidsforholdRef;
 
 import java.util.List;
 

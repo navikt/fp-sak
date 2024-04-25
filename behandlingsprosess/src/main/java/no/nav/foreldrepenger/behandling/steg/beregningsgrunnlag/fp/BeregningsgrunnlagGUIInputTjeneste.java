@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 
-import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsforholdRef;
-import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
+import static no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus.mapArbeidsforholdRef;
+import static no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus.mapArbeidsgiver;
 
 import java.time.YearMonth;
 import java.util.Objects;

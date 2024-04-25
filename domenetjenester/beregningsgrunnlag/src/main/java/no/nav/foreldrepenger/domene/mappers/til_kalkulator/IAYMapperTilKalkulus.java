@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 
 import java.math.BigDecimal;
@@ -37,7 +37,6 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;

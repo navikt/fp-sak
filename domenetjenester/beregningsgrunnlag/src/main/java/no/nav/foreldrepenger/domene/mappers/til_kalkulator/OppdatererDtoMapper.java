@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,10 +13,6 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.RedigerbarAndelFakt
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderMilitærDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderteArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.dto.BeregningsaktivitetLagreDto;

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 
 import org.junit.jupiter.api.Test;

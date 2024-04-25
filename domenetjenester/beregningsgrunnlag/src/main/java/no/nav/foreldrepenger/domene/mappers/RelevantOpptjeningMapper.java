@@ -1,14 +1,10 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -20,34 +16,24 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class OpptjeningMapperTilKalkulus {
-    private static final Logger LOG = LoggerFactory.getLogger(OpptjeningMapperTilKalkulus.class);
+public class RelevantOpptjeningMapper {
 
-    private OpptjeningMapperTilKalkulus() {
+    private RelevantOpptjeningMapper() {
+        // Hindrer default konstruktør
     }
 
-    public static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(OpptjeningAktiviteter opptjeningAktiviteter,
-                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse ref) {
+    public static List<OpptjeningAktiviteter.OpptjeningPeriode> map(OpptjeningAktiviteter opptjeningAktiviteter,
+                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                                    BehandlingReferanse ref) {
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(Collections.emptyList());
         var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
             iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
-        var opptjeningInput = new OpptjeningAktiviteterDto(opptjeningAktiviteter.getOpptjeningPerioder()
+        return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
             .filter(opp -> finnesInntektsmeldingForEllerKanBeregnesUten(opp, inntektsmeldinger, yrkesfilter, ref.getUtledetSkjæringstidspunkt()))
-            .map(opptjeningPeriode -> OpptjeningAktiviteterDto.nyPeriode(
-                KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(opptjeningPeriode.opptjeningAktivitetType()), mapPeriode(opptjeningPeriode),
-                opptjeningPeriode.arbeidsgiverOrgNummer(), opptjeningPeriode.arbeidsgiverAktørId(),
-                opptjeningPeriode.arbeidsforholdId() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(
-                    opptjeningPeriode.arbeidsforholdId())))
-            .toList());
-
-        if (opptjeningInput.getOpptjeningPerioder().isEmpty() && !opptjeningAktiviteter.getOpptjeningPerioder().isEmpty()) {
-            LOG.warn("FP-658423: Fjernet alle opptjeningsaktiviteter før innsending til beregning. Oppteningaktiviteter: " + opptjeningAktiviteter);
-        }
-
-        return opptjeningInput;
+            .toList();
     }
 
     private static boolean finnesInntektsmeldingForEllerKanBeregnesUten(OpptjeningAktiviteter.OpptjeningPeriode opp,
