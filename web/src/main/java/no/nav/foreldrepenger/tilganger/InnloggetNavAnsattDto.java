@@ -12,12 +12,10 @@ public record InnloggetNavAnsattDto(String brukernavn,
                                     boolean kanBehandleKodeEgenAnsatt,
                                     boolean kanBehandleKode6,
                                     boolean kanBehandleKode7,
-                                    boolean skalViseDetaljerteFeilmeldinger,
                                     LocalDateTime funksjonellTid) {
     private InnloggetNavAnsattDto(Builder builder) {
         this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanBeslutte, builder.kanOverstyre,
-            builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7,
-            builder.skalViseDetaljerteFeilmeldinger, LocalDateTime.now());
+            builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7, LocalDateTime.now());
     }
 
     @Override
@@ -28,7 +26,6 @@ public record InnloggetNavAnsattDto(String brukernavn,
             ", kanBeslutte=" + kanBeslutte +
             ", kanOverstyre=" + kanOverstyre +
             ", kanOppgavestyre=" + kanOppgavestyre +
-            ", skalViseDetaljerteFeilmeldinger=" + skalViseDetaljerteFeilmeldinger +
             ", funksjonellTid=" + funksjonellTid + '}';
     }
 
@@ -43,7 +40,6 @@ public record InnloggetNavAnsattDto(String brukernavn,
         private boolean kanBehandleKodeEgenAnsatt;
         private boolean kanBehandleKode6;
         private boolean kanBehandleKode7;
-        private boolean skalViseDetaljerteFeilmeldinger;
 
         public Builder(String brukernavn, String navn) {
             this.brukernavn = brukernavn;
@@ -87,11 +83,6 @@ public record InnloggetNavAnsattDto(String brukernavn,
 
         public Builder kanBehandleKode7(boolean kanBehandleKode7) {
             this.kanBehandleKode7 = kanBehandleKode7;
-            return this;
-        }
-
-        public Builder skalViseDetaljerteFeilmeldinger(boolean skalViseDetaljerteFeilmeldinger) {
-            this.skalViseDetaljerteFeilmeldinger = skalViseDetaljerteFeilmeldinger;
             return this;
         }
 
