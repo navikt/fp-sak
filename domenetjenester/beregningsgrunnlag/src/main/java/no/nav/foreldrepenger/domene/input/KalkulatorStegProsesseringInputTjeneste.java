@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilKalkul
 import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegTilstand;
 import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegUtTilstand;
 
-import java.math.BigDecimal;
 import java.time.MonthDay;
 import java.util.Comparator;
 import java.util.List;
@@ -34,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;

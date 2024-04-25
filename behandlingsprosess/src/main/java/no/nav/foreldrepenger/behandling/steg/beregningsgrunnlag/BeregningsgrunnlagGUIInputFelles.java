@@ -20,9 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KravperioderMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.MapBehandlingRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {

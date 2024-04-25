@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
+package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene;
 
 import java.util.List;
 import java.util.Objects;

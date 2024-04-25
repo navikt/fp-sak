@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

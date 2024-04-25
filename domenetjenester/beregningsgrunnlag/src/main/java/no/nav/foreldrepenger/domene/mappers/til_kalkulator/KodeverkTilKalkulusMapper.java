@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
@@ -30,7 +30,7 @@ public class KodeverkTilKalkulusMapper {
         // Skjuler default konstruktør
     }
 
-    static Inntektskategori mapInntektskategori(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
+    public static Inntektskategori mapInntektskategori(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
         return switch (inntektskategori) {
             case ARBEIDSTAKER -> Inntektskategori.ARBEIDSTAKER;
             case FRILANSER -> Inntektskategori.FRILANSER;
@@ -46,7 +46,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static AndelKilde mapAndelkilde(no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde andelKilde) {
+    public static AndelKilde mapAndelkilde(no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde andelKilde) {
         return switch (andelKilde) {
             case SAKSBEHANDLER_KOFAKBER -> AndelKilde.SAKSBEHANDLER_KOFAKBER;
             case PROSESS_BESTEBEREGNING -> AndelKilde.PROSESS_BESTEBEREGNING;
@@ -57,7 +57,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
+    public static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
         return switch (aktivitetStatus) {
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER -> AktivitetStatus.ARBEIDSTAKER;
@@ -77,7 +77,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static SammenligningsgrunnlagType mapSammenligningsgrunnlagtype(no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType sammenligningsgrunnlagType) {
+    public static SammenligningsgrunnlagType mapSammenligningsgrunnlagtype(no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType sammenligningsgrunnlagType) {
         return switch (sammenligningsgrunnlagType) {
             case SAMMENLIGNING_AT -> SammenligningsgrunnlagType.SAMMENLIGNING_AT;
             case SAMMENLIGNING_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_FL;
@@ -87,7 +87,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
+    public static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
         return switch (uttakArbeidType) {
             case ORDINÆRT_ARBEID -> UttakArbeidType.ORDINÆRT_ARBEID;
             case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
@@ -96,7 +96,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static OpptjeningAktivitetType mapOpptjeningAktivitetType(no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType opptjeningtype) {
+    public static OpptjeningAktivitetType mapOpptjeningAktivitetType(no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType opptjeningtype) {
         return switch (opptjeningtype) {
             case ARBEIDSAVKLARING -> OpptjeningAktivitetType.AAP;
             case ARBEID -> OpptjeningAktivitetType.ARBEID;
@@ -137,7 +137,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static PeriodeÅrsak mapPeriodeårsak(no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak periodeÅrsak) {
+    public static PeriodeÅrsak mapPeriodeårsak(no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak periodeÅrsak) {
         return switch (periodeÅrsak) {
             case NATURALYTELSE_BORTFALT -> PeriodeÅrsak.NATURALYTELSE_BORTFALT;
             case ARBEIDSFORHOLD_AVSLUTTET -> PeriodeÅrsak.ARBEIDSFORHOLD_AVSLUTTET;
@@ -152,7 +152,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static ArbeidType mapArbeidtype(no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType arbeidType) {
+    public static ArbeidType mapArbeidtype(no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType arbeidType) {
         return switch (arbeidType) {
             case ETTERLØNN_SLUTTPAKKE -> ArbeidType.ETTERLØNN_SLUTTPAKKE;
             case FORENKLET_OPPGJØRSORDNING -> ArbeidType.FORENKLET_OPPGJØRSORDNING;
@@ -171,7 +171,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static VirksomhetType mapVirksomhetstype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType virksomhetType) {
+    public static VirksomhetType mapVirksomhetstype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType virksomhetType) {
         return switch (virksomhetType) {
             case DAGMAMMA -> VirksomhetType.DAGMAMMA;
             case FISKE -> VirksomhetType.FISKE;
@@ -182,7 +182,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static ArbeidsforholdHandlingType mapArbeidsforholdHandling(no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType handling) {
+    public static ArbeidsforholdHandlingType mapArbeidsforholdHandling(no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType handling) {
         return switch (handling) {
             case UDEFINERT -> ArbeidsforholdHandlingType.UDEFINERT;
             case BRUK -> ArbeidsforholdHandlingType.BRUK;
@@ -197,7 +197,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static NaturalYtelseType mapNaturalytelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType type) {
+    public static NaturalYtelseType mapNaturalytelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType type) {
         return switch (type) {
             case ELEKTRISK_KOMMUNIKASJON -> NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalYtelseType.AKSJER_UNDERKURS;

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import static no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapTilstand;
+import static no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KalkulusTilBehandlingslagerMapper.mapTilstand;
 
 import java.util.Optional;
 
@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 /**
