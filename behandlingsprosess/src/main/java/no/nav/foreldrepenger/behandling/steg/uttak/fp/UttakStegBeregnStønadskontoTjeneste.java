@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
+import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 
 
 @ApplicationScoped
@@ -65,7 +65,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
             return BeregningingAvStønadskontoResultat.BEREGNET;
         }
         var fullBeregning = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
-        if (fullBeregning || oppfyllerPrematurUker(fpGrunnlag)) {
+        if (fullBeregning || skalBeregneMedPrematurdager(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -109,11 +109,13 @@ public class UttakStegBeregnStønadskontoTjeneste {
             .orElse(0);
     }
 
-    private boolean oppfyllerPrematurUker(ForeldrepengerGrunnlag fpGrunnlag) {
+    private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag) {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
         var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato);
+        var eksisterendePrematurdager = fpGrunnlag.getStønadskontoberegning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
+        var nyePrematurdager = Stønadsdager.instance(null).ekstradagerPrematur(fødselsdato, termindato);
+        return nyePrematurdager > eksisterendePrematurdager;
     }
 
     private boolean finnesLøpendeInnvilgetFP(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
