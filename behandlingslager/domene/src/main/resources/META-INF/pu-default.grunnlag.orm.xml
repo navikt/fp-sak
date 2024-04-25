@@ -26,7 +26,7 @@
 
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet"/>
 
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEnitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet"/>
 

@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav;
 
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -11,18 +15,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
 @Entity(name = "AktivitetskravGrunnlag")
 @Table(name = "GR_AKTIVITETSKRAV_ARBEID")
-public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
+public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_AKTIVITETSKRAV_ARBEID")
     private Long id;
@@ -44,11 +45,11 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
     @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
     DatoIntervallEntitet periode;
 
-    AktivitetskravGrunnlagEnitet() {
+    AktivitetskravGrunnlagEntitet() {
         //CDI
     }
 
-    public AktivitetskravGrunnlagEnitet(AktivitetskravGrunnlagEnitet grunnlagEnitet) {
+    public AktivitetskravGrunnlagEntitet(AktivitetskravGrunnlagEntitet grunnlagEnitet) {
         grunnlagEnitet.getAktivitetskravPerioderMedArbeidEnitet().ifPresent(perioder -> this.perioderMedAktivitetskravArbeid = perioder);
     }
 
@@ -76,7 +77,7 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AktivitetskravGrunnlagEnitet that = (AktivitetskravGrunnlagEnitet) o;
+        AktivitetskravGrunnlagEntitet that = (AktivitetskravGrunnlagEntitet) o;
         return aktiv == that.aktiv && Objects.equals(id, that.id) && Objects.equals(behandlingId, that.behandlingId) && Objects.equals(
             perioderMedAktivitetskravArbeid, that.perioderMedAktivitetskravArbeid) && Objects.equals(periode, that.periode);
     }
@@ -88,22 +89,22 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
 
     public static class Builder {
 
-        private AktivitetskravGrunnlagEnitet kladd;
+        private AktivitetskravGrunnlagEntitet kladd;
 
-        private Builder(AktivitetskravGrunnlagEnitet kladd) {
+        private Builder(AktivitetskravGrunnlagEntitet kladd) {
             this.kladd = kladd;
         }
 
-        private static AktivitetskravGrunnlagEnitet.Builder nytt() {
-            return new Builder(new AktivitetskravGrunnlagEnitet());
+        private static AktivitetskravGrunnlagEntitet.Builder nytt() {
+            return new Builder(new AktivitetskravGrunnlagEntitet());
         }
 
-        private static AktivitetskravGrunnlagEnitet.Builder oppdatere(AktivitetskravGrunnlagEnitet kladd) {
-            return new Builder(new AktivitetskravGrunnlagEnitet(kladd));
+        private static AktivitetskravGrunnlagEntitet.Builder oppdatere(AktivitetskravGrunnlagEntitet kladd) {
+            return new Builder(new AktivitetskravGrunnlagEntitet(kladd));
         }
 
-        public static AktivitetskravGrunnlagEnitet.Builder oppdatere(Optional<AktivitetskravGrunnlagEnitet> kladd) {
-            return kladd.map(AktivitetskravGrunnlagEnitet.Builder::oppdatere).orElseGet(AktivitetskravGrunnlagEnitet.Builder::nytt);
+        public static AktivitetskravGrunnlagEntitet.Builder oppdatere(Optional<AktivitetskravGrunnlagEntitet> kladd) {
+            return kladd.map(AktivitetskravGrunnlagEntitet.Builder::oppdatere).orElseGet(AktivitetskravGrunnlagEntitet.Builder::nytt);
         }
 
         public Builder medBehandlingId(Long behandlingId) {
@@ -119,7 +120,7 @@ public class AktivitetskravGrunnlagEnitet extends BaseEntitet {
             return this;
         }
 
-        public AktivitetskravGrunnlagEnitet build() {
+        public AktivitetskravGrunnlagEntitet build() {
             return this.kladd;
         }
     }

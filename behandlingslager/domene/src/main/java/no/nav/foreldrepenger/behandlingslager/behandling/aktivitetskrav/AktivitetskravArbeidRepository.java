@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
+import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 
 @ApplicationScoped
@@ -21,10 +22,13 @@ public class AktivitetskravArbeidRepository {
         this.entityManager = entityManager;
     }
 
-    public void lagreAktivitetskravArbeidPerioder(Long behandlingId, AktivitetskravArbeidPerioderEntitet.Builder builder, LocalDate fraDato, LocalDate tilDato) {
+    public void lagreAktivitetskravArbeidPerioder(Long behandlingId,
+                                                  AktivitetskravArbeidPerioderEntitet.Builder builder,
+                                                  LocalDate fraDato,
+                                                  LocalDate tilDato) {
 
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
-        var nyttGrunnlag = AktivitetskravGrunnlagEnitet.Builder.oppdatere(aktivtGrunnlag)
+        var nyttGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
             .medPerioderMedAktivitetskravArbeid(builder)
             .medPeriode(fraDato, tilDato);
@@ -32,7 +36,7 @@ public class AktivitetskravArbeidRepository {
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
     }
 
-    private void lagreGrunnlag(Optional<AktivitetskravGrunnlagEnitet> aktivtGrunnlag, AktivitetskravGrunnlagEnitet nyttGrunnlag) {
+    private void lagreGrunnlag(Optional<AktivitetskravGrunnlagEntitet> aktivtGrunnlag, AktivitetskravGrunnlagEntitet nyttGrunnlag) {
         var differ = new RegisterdataDiffsjekker(true).getDiffEntity();
         if (aktivtGrunnlag.isEmpty() || differ.areDifferent(aktivtGrunnlag.orElse(null), nyttGrunnlag)) {
             aktivtGrunnlag.ifPresent(eksisterendeGrunnlag -> {
@@ -50,10 +54,10 @@ public class AktivitetskravArbeidRepository {
         }
     }
 
-    public Optional<AktivitetskravGrunnlagEnitet> hentGrunnlag(Long behandlingId) {
+    public Optional<AktivitetskravGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
             "FROM AktivitetskravGrunnlag grunnlag WHERE grunnlag.behandlingId = :behandlingId AND grunnlag.aktiv = true",
-            AktivitetskravGrunnlagEnitet.class).setParameter("behandlingId", behandlingId);
+            AktivitetskravGrunnlagEntitet.class).setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
