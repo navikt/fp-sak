@@ -32,7 +32,7 @@ public class TilgangerTjeneste {
         @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
         @KonfigVerdi(value = "bruker.gruppenavn.egenansatt") String gruppenavnEgenAnsatt,
         @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6,
-        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7,
+        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7
     ) {
         this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.gruppenavnVeileder = gruppenavnVeileder;

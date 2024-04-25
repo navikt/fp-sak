@@ -18,13 +18,12 @@ class TilgangerTjenesteTest {
     private static final String gruppenavnEgenAnsatt = "EgenAnsatt";
     private static final String gruppenavnKode6 = "Kode6";
     private static final String gruppenavnKode7 = "Kode7";
-    private static final Boolean skalViseDetaljerteFeilmeldinger = true;
     private TilgangerTjeneste tilgangerTjeneste;
 
     @BeforeEach
     public void setUp() {
         tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer,
-            gruppenavnOppgavestyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
+            gruppenavnOppgavestyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7);
     }
 
     @Test
