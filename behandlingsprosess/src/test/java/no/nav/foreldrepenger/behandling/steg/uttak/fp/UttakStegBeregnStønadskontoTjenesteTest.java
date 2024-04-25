@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -116,7 +117,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                         .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
                 new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                         .medTrekkdager(new Trekkdager(5))
                         .medUtbetalingsgrad(Utbetalingsgrad.TEN)
                         .medArbeidsprosent(BigDecimal.ZERO)
@@ -220,7 +221,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                         .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
                 new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                         .medTrekkdager(new Trekkdager(5))
                         .medUtbetalingsgrad(Utbetalingsgrad.TEN)
                         .medArbeidsprosent(BigDecimal.ZERO)
@@ -236,7 +237,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
                 .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
                 new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                         .medTrekkdager(Trekkdager.ZERO)
                         .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                         .medArbeidsprosent(BigDecimal.ZERO)

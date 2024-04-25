@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -49,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -99,7 +99,7 @@ class AutomatiskEtterkontrollTaskTest {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
-                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+            .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         this.historikkRepository = mock(HistorikkRepository.class);
         this.fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
@@ -119,14 +119,13 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .buildFor(behandling);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(vilkårResultat, lås);
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getOpptjeningRepository()
-                .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         return behandling;
     }
 
@@ -135,50 +134,49 @@ class AutomatiskEtterkontrollTaskTest {
     }
 
     private UttakAktivitetEntitet lagUttakAktivitet(Arbeidsgiver arbeidsgiver) {
-        return new UttakAktivitetEntitet.Builder()
-                .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
+        return new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
     }
 
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
-            UttakAktivitetEntitet uttakAktivitet,
-            LocalDate fom, LocalDate tom,
-            StønadskontoType stønadskontoType) {
+                            UttakAktivitetEntitet uttakAktivitet,
+                            LocalDate fom,
+                            LocalDate tom,
+                            UttakPeriodeType stønadskontoType) {
         lagPeriode(uttakResultatPerioder, uttakAktivitet, fom, tom, stønadskontoType, false, false);
 
     }
 
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
-            UttakAktivitetEntitet uttakAktivitet,
-            LocalDate fom, LocalDate tom,
-            StønadskontoType stønadskontoType,
-            boolean samtidigUttak,
-            boolean flerbarnsdager) {
+                            UttakAktivitetEntitet uttakAktivitet,
+                            LocalDate fom,
+                            LocalDate tom,
+                            UttakPeriodeType stønadskontoType,
+                            boolean samtidigUttak,
+                            boolean flerbarnsdager) {
         lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager, uttakAktivitet, Optional.empty());
     }
 
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
-            LocalDate fom,
-            LocalDate tom,
-            StønadskontoType stønadskontoType,
-            boolean samtidigUttak,
-            boolean flerbarnsdager,
-            UttakAktivitetEntitet uttakAktivitetEntitet, Optional<Trekkdager> trekkdagerOptional) {
+                            LocalDate fom,
+                            LocalDate tom,
+                            UttakPeriodeType stønadskontoType,
+                            boolean samtidigUttak,
+                            boolean flerbarnsdager,
+                            UttakAktivitetEntitet uttakAktivitetEntitet,
+                            Optional<Trekkdager> trekkdagerOptional) {
 
-        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .medSamtidigUttak(samtidigUttak)
-                .medFlerbarnsdager(flerbarnsdager)
-                .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medSamtidigUttak(samtidigUttak)
+            .medFlerbarnsdager(flerbarnsdager)
+            .build();
         uttakResultatPerioder.leggTilPeriode(periode);
 
-        var trekkdager = trekkdagerOptional
-            .orElseGet(() -> new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()),
-                false, BigDecimal.ZERO, null).decimalValue()));
+        var trekkdager = trekkdagerOptional.orElseGet(() -> new Trekkdager(
+            TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()), false, BigDecimal.ZERO, null).decimalValue()));
 
-        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet)
-            .medTrekkdager(trekkdager)
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet).medTrekkdager(trekkdager)
             .medTrekkonto(stønadskontoType)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
@@ -197,67 +195,60 @@ class AutomatiskEtterkontrollTaskTest {
         var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
-                StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
-                StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
-                fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), UttakPeriodeType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            UttakPeriodeType.FELLESPERIODE);
 
         var behandlingsresultatForMor = morsBehandling.getBehandlingsresultat();
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultatForMor);
         var behandlingVedtak = BehandlingVedtak.builder()
-                .medBehandlingsresultat(behandlingsresultatForMor)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medAnsvarligSaksbehandler("Saksbehadlersen")
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .build();
+            .medBehandlingsresultat(behandlingsresultatForMor)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("Saksbehadlersen")
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .build();
         entityManager.persist(behandlingVedtak);
 
-        repositoryProvider.getFpUttakRepository()
-                .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
-                .lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
+            .lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
         entityManager.flush();
         entityManager.clear();
 
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        fagsakRelasjonTjeneste
-                .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         var uttakResultatPerioderForFar = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForFar, uttakAktivitetForFar, fødseldato.plusWeeks(16),
-                fødseldato.plusWeeks(31).minusDays(1), StønadskontoType.FEDREKVOTE);
+        lagPeriode(uttakResultatPerioderForFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(31).minusDays(1),
+            UttakPeriodeType.FEDREKVOTE);
 
         var behandlingsresultatForFar = farsBehandling.getBehandlingsresultat();
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForFar)
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForFar).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultatForFar);
         var behandlingVedtakFar = BehandlingVedtak.builder()
-                .medBehandlingsresultat(behandlingsresultatForFar)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medAnsvarligSaksbehandler("Saksbehadlersen")
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .build();
+            .medBehandlingsresultat(behandlingsresultatForFar)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("Saksbehadlersen")
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .build();
         entityManager.persist(behandlingVedtakFar);
 
-        repositoryProvider.getFpUttakRepository()
-                .lagreOpprinneligUttakResultatPerioder(farsBehandling.getId(), uttakResultatPerioderForFar);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(farsBehandling.getId(), uttakResultatPerioderForFar);
 
         farsBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
-                .lagre(farsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(farsBehandling.getId()));
+            .lagre(farsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(farsBehandling.getId()));
         entityManager.flush();
         entityManager.clear();
 
-        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
-                Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(Collections.emptyList());
 
         var termindato = LocalDate.now().minusDays(70);
 
@@ -276,8 +267,7 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling.getId(), søknadHendelseFar);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(morsBehandling.getFagsakId(), morsBehandling.getId(),
-                morsBehandling.getAktørId().getId());
+        prosessTaskData.setBehandling(morsBehandling.getFagsakId(), morsBehandling.getId(), morsBehandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
         createTask();
@@ -285,8 +275,7 @@ class AutomatiskEtterkontrollTaskTest {
         assertRevurdering(morsBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(),
-                farsBehandling.getAktørId().getId());
+        prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(), farsBehandling.getAktørId().getId());
         prosessTaskDataFar.setSekvens("1");
 
         createTask();
@@ -306,15 +295,13 @@ class AutomatiskEtterkontrollTaskTest {
         var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
-            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
-            StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
-            fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), UttakPeriodeType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            UttakPeriodeType.FELLESPERIODE);
 
         var behandlingsresultatForMor = morsBehandling.getBehandlingsresultat();
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultatForMor);
         var behandlingVedtak = BehandlingVedtak.builder()
             .medBehandlingsresultat(behandlingsresultatForMor)
@@ -324,8 +311,7 @@ class AutomatiskEtterkontrollTaskTest {
             .build();
         entityManager.persist(behandlingVedtak);
 
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
             .lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
@@ -335,18 +321,16 @@ class AutomatiskEtterkontrollTaskTest {
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        fagsakRelasjonTjeneste
-            .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         var uttakResultatPerioderForFar = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForFar, uttakAktivitetForFar, fødseldato.plusWeeks(16),
-            fødseldato.plusWeeks(31).minusDays(1), StønadskontoType.FEDREKVOTE);
+        lagPeriode(uttakResultatPerioderForFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(31).minusDays(1),
+            UttakPeriodeType.FEDREKVOTE);
 
         var behandlingsresultatForFar = farsBehandling.getBehandlingsresultat();
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForFar)
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForFar).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultatForFar);
         var behandlingVedtakFar = BehandlingVedtak.builder()
             .medBehandlingsresultat(behandlingsresultatForFar)
@@ -356,8 +340,7 @@ class AutomatiskEtterkontrollTaskTest {
             .build();
         entityManager.persist(behandlingVedtakFar);
 
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(farsBehandling.getId(), uttakResultatPerioderForFar);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(farsBehandling.getId(), uttakResultatPerioderForFar);
 
         farsBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
@@ -365,8 +348,7 @@ class AutomatiskEtterkontrollTaskTest {
         entityManager.flush();
         entityManager.clear();
 
-        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
-            Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(Collections.emptyList());
 
         var termindato = LocalDate.now().minusDays(70);
 
@@ -388,8 +370,7 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling.getId(), søknadHendelseFar);
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(),
-            farsBehandling.getAktørId().getId());
+        prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(), farsBehandling.getAktørId().getId());
         prosessTaskDataFar.setSekvens("1");
 
         createTask();
@@ -399,50 +380,42 @@ class AutomatiskEtterkontrollTaskTest {
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         var revurdering = repositoryProvider.getBehandlingRepository()
-                .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+            .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        var årsaker = behandlingÅrsaker.stream()
-                .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .toList();
+        var årsaker = behandlingÅrsaker.stream().map(BehandlingÅrsak::getBehandlingÅrsakType).toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
         assertThat(revurdering.get().isBehandlingPåVent()).isFalse();
     }
 
     private void assertKøetRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         var revurdering = repositoryProvider.getBehandlingRepository()
-                .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+            .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        var årsaker = behandlingÅrsaker.stream()
-                .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .toList();
+        var årsaker = behandlingÅrsaker.stream().map(BehandlingÅrsak::getBehandlingÅrsakType).toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
         assertThat(revurdering.get().isBehandlingPåVent()).isTrue();
-        assertThat(revurdering.get()
-                .getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)).isPresent();
+        assertThat(revurdering.get().getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)).isPresent();
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
         var revurdering = repositoryProvider.getBehandlingRepository()
-                .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+            .hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 
     private void createTask() {
-        task = new AutomatiskEtterkontrollTask(repositoryProvider,
-                etterkontrollRepository,
-                historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                taskTjenesteMock, behandlendeEnhetTjeneste);
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste,
+            tpsFamilieTjenesteMock, taskTjenesteMock, behandlendeEnhetTjeneste);
     }
 
     @Test
     void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_dersom_fødsel_mangler_i_tps_uten_bekreftet() {
         var behandling = opprettRevurderingsKandidat(4, 1, true, false, false, false);
-        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
-                Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(Collections.emptyList());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -457,8 +430,7 @@ class AutomatiskEtterkontrollTaskTest {
     @Test
     void skal_ikke_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_dersom_fødsel_mangler_i_tps_med_overstyrt() {
         var behandling = opprettRevurderingsKandidat(4, 1, true, false, true, false);
-        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
-                Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(Collections.emptyList());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -473,8 +445,7 @@ class AutomatiskEtterkontrollTaskTest {
     @Test
     void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_dersom_fødsel_mangler_i_tps_med_overstyrt_termin() {
         var behandling = opprettRevurderingsKandidat(4, 1, true, false, false, true);
-        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
-                Collections.emptyList());
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(Collections.emptyList());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -583,46 +554,39 @@ class AutomatiskEtterkontrollTaskTest {
     }
 
     private Behandling opprettRevurderingsKandidat(int fødselUkerFørTermin,
-            int antallBarn,
-            boolean avsluttet,
-            boolean medBekreftet,
-            boolean medOverstyrtFødsel,
-            boolean medOverstyrtTermin) {
+                                                   int antallBarn,
+                                                   boolean avsluttet,
+                                                   boolean medBekreftet,
+                                                   boolean medOverstyrtFødsel,
+                                                   boolean medOverstyrtTermin) {
         var terminDato = LocalDate.now().minusDays(70);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medSøknadDato(terminDato.minusDays(20));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(terminDato.minusDays(20));
 
         scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medNavnPå("Lege Legesen")
-                        .medTermindato(terminDato)
-                        .medUtstedtDato(terminDato.minusDays(40)))
-                .medAntallBarn(1);
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medNavnPå("Lege Legesen")
+                .medTermindato(terminDato)
+                .medUtstedtDato(terminDato.minusDays(40)))
+            .medAntallBarn(1);
 
         if (medBekreftet) {
-            scenario.medBekreftetHendelse()
-                    .tilbakestillBarn()
-                    .medFødselsDato(terminDato, antallBarn)
-                    .erFødsel()
-                    .medAntallBarn(antallBarn);
+            scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).erFødsel().medAntallBarn(antallBarn);
         }
 
         if (medOverstyrtFødsel) {
-            scenario.medOverstyrtHendelse()
-                    .tilbakestillBarn()
-                    .medFødselsDato(terminDato, antallBarn)
-                    .erFødsel()
-                    .medAntallBarn(antallBarn);
+            scenario.medOverstyrtHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).erFødsel().medAntallBarn(antallBarn);
         }
 
         if (medOverstyrtTermin) {
             scenario.medOverstyrtHendelse()
-                    .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
-                            .medNavnPå("Lege Legesen")
-                            .medTermindato(terminDato)
-                            .medUtstedtDato(terminDato.minusDays(40)))
-                    .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                    .getTerminbekreftelseBuilder()
+                    .medNavnPå("Lege Legesen")
+                    .medTermindato(terminDato)
+                    .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(1);
         }
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
@@ -630,13 +594,13 @@ class AutomatiskEtterkontrollTaskTest {
 
         if (avsluttet) {
             scenario.medBehandlingVedtak()
-                    .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                    .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
-                    .medAnsvarligSaksbehandler("Severin Saksbehandler")
-                    .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
+                .medAnsvarligSaksbehandler("Severin Saksbehandler")
+                .build();
 
-            scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår()
-                    .medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+            scenario.medBehandlingsresultat(
+                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         }
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -650,8 +614,7 @@ class AutomatiskEtterkontrollTaskTest {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        repositoryProvider.getOpptjeningRepository()
-                .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
 
         entityManager.flush();
         entityManager.clear();
@@ -659,10 +622,7 @@ class AutomatiskEtterkontrollTaskTest {
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
-        return new FødtBarnInfo.Builder()
-                .medFødselsdato(fødselsdato)
-                .medIdent(PersonIdent.fra("12345678901"))
-                .build();
+        return new FødtBarnInfo.Builder().medFødselsdato(fødselsdato).medIdent(PersonIdent.fra("12345678901")).build();
     }
 
 }

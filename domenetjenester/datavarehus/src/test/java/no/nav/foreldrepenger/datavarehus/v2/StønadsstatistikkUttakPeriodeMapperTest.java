@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -43,7 +42,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS, null, null))
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medSøktGraderingForAktivitetIPeriode(false)
             .medTrekkdager(new Trekkdager(1))
             .build();
@@ -51,7 +50,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null))
             .medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(new Utbetalingsgrad(90))
-            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
             .medSøktGraderingForAktivitetIPeriode(true)
             .medTrekkdager(new Trekkdager(BigDecimal.valueOf(0.9)))
             .build();
@@ -78,7 +77,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS, null, null))
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
-            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(1))
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
@@ -103,7 +102,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS, null, null))
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
-            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
             .medTrekkdager(new Trekkdager(1))
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
@@ -152,7 +151,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(1))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom)
@@ -175,7 +174,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(1))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom)
@@ -198,7 +197,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(1))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom)
@@ -221,7 +220,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(1))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom)
@@ -245,7 +244,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(new Utbetalingsgrad(50))
             .medTrekkdager(new Trekkdager(1))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom)
@@ -270,7 +269,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(new Trekkdager(5))
-            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
             .build();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fom, fom.plusWeeks(1).minusDays(1))
@@ -296,35 +295,35 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medGraderingInnvilget(false)
             .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 4)))
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(UttakPeriodeType.MØDREKVOTE, 4)))
             .build();
         var uttakPeriode2 = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fomTirsdag.plusWeeks(1).with(DayOfWeek.MONDAY), fomTirsdag.plusWeeks(1).with(DayOfWeek.MONDAY))
             .medGraderingInnvilget(false)
             .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 1)))
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(UttakPeriodeType.MØDREKVOTE, 1)))
             .build();
         var uttakPeriode3 = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fomTirsdag.plusWeeks(1), fomTirsdag.plusWeeks(2).with(DayOfWeek.THURSDAY))
             .medGraderingInnvilget(false)
             .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 8)))
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(UttakPeriodeType.MØDREKVOTE, 8)))
             .build();
         var uttakPeriode4 = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fomTirsdag.plusWeeks(2).with(DayOfWeek.FRIDAY), fomTirsdag.plusWeeks(3).with(DayOfWeek.WEDNESDAY))
             .medGraderingInnvilget(false)
             .medSøktKonto(UttakPeriodeType.FELLESPERIODE)
             .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
-            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.FELLESPERIODE, 4)))
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(UttakPeriodeType.FELLESPERIODE, 4)))
             .build();
         var uttakPeriode5 = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(fomTirsdag.plusWeeks(3).with(DayOfWeek.THURSDAY), fomTirsdag.plusWeeks(3).with(DayOfWeek.FRIDAY))
             .medGraderingInnvilget(false)
             .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 2)))
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(UttakPeriodeType.MØDREKVOTE, 2)))
             .build();
         var stønadsstatistikkUttakPerioder = StønadsstatistikkUttakPeriodeMapper.mapUttak(MORA,
             BEGGE_RETT, List.of(uttakPeriode1, uttakPeriode2, uttakPeriode3, uttakPeriode4, uttakPeriode5), "");
@@ -343,7 +342,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
         assertThat(stønadsstatistikkUttakPerioder.get(2).virkedager()).isEqualTo(2);
     }
 
-    private static ForeldrepengerUttakPeriodeAktivitet getArbeidMedFulltUttak(StønadskontoType konto, int trekkdager) {
+    private static ForeldrepengerUttakPeriodeAktivitet getArbeidMedFulltUttak(UttakPeriodeType konto, int trekkdager) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet("123"), null))
             .medArbeidsprosent(BigDecimal.ZERO)

@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -239,7 +238,7 @@ class FaktaUttakFellesTjenesteTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(10))
-            .medTrekkonto(map(lagretEndretVedtaksperiode))
+            .medTrekkonto(lagretEndretVedtaksperiode.uttakPeriodeType())
             .build();
             uttakperioder.leggTilPeriode(uttaksperiode);
 
@@ -292,21 +291,12 @@ class FaktaUttakFellesTjenesteTest {
                 .medArbeidsprosent(BigDecimal.ZERO)
                 .medUtbetalingsgrad(Utbetalingsgrad.FULL)
                 .medTrekkdager(new Trekkdager(10))
-                .medTrekkonto(map(faktaUttakPeriodeDto))
+                .medTrekkonto(faktaUttakPeriodeDto.uttakPeriodeType())
                 .build();
             uttakperioder.leggTilPeriode(uttaksperiode);
         }
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(originalBehandling.getId(), uttakperioder);
         return originalBehandling;
-    }
-
-    private static StønadskontoType map(FaktaUttakPeriodeDto faktaUttakPeriodeDto) {
-        return switch (faktaUttakPeriodeDto.uttakPeriodeType()) {
-            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
-            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
-            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
-            default -> throw new IllegalStateException("Unexpected value: " + faktaUttakPeriodeDto.uttakPeriodeType());
-        };
     }
 
     @Test

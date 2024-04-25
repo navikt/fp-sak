@@ -174,7 +174,7 @@ class FastsettePerioderTjenesteTest {
         assertThat(uttakResultatPerioder).hasSize(1);
 
         var resultatPeriode = uttakResultatPerioder.iterator().next();
-        assertThat(resultatPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FEDREKVOTE);
+        assertThat(resultatPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(resultatPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
     }
 
@@ -704,8 +704,8 @@ class FastsettePerioderTjenesteTest {
             behandling.getId());
 
         // Steg 2: Opprett overstyrt uttaksplan med perioder
-        var overtstyrtMødrekvote = periodeAktivitet(StønadskontoType.MØDREKVOTE);
-        var overstyrtFelleskvote = periodeAktivitet(StønadskontoType.FELLESPERIODE);
+        var overtstyrtMødrekvote = periodeAktivitet(UttakPeriodeType.MØDREKVOTE);
+        var overstyrtFelleskvote = periodeAktivitet(UttakPeriodeType.FELLESPERIODE);
         var mødreKvotePeriode = innvilgetPeriode(fødselsdato, opprinneligMødreKvoteSlutt, overtstyrtMødrekvote);
         var fellesKvotePeriode1 = innvilgetPeriode(opprinneligMødreKvoteSlutt.plusDays(1),
             opprinneligFellesPeriodeSlutt.minusWeeks(2), overstyrtFelleskvote);
@@ -753,8 +753,8 @@ class FastsettePerioderTjenesteTest {
             .build();
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet periodeAktivitet(StønadskontoType fellesperiode) {
-        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(fellesperiode)
+    private ForeldrepengerUttakPeriodeAktivitet periodeAktivitet(UttakPeriodeType trekkonto) {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(trekkonto)
             .medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medTrekkdager(new Trekkdager(2))

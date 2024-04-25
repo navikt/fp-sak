@@ -51,7 +51,6 @@ public final class UttakEnumMapper {
     private static final KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> OVERFØRING_ÅRSAK_MAPPER = initOverføringÅrsakMapper();
     private static final KodeMapper<MorsAktivitet, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet> MORS_AKTIVITET_MAPPER = initMorsAktivitetMapper();
     private static final KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER = initUttakTilOppgittUtsettelseMapper();
-    private static final KodeMapper<StønadskontoType, UttakPeriodeType> PERIODE_TYPE_MAPPER = initPeriodeTypeMapper();
 
 
     private UttakEnumMapper() {
@@ -266,6 +265,19 @@ public final class UttakEnumMapper {
         };
     }
 
+    public static UttakPeriodeType mapTrekkonto(Stønadskontotype stønadskontotype) {
+        if (stønadskontotype == null) {
+            return UttakPeriodeType.UDEFINERT;
+        }
+        return switch (stønadskontotype) {
+            case FEDREKVOTE -> UttakPeriodeType.FEDREKVOTE;
+            case MØDREKVOTE -> UttakPeriodeType.MØDREKVOTE;
+            case FELLESPERIODE -> UttakPeriodeType.FELLESPERIODE;
+            case FORELDREPENGER -> UttakPeriodeType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+        };
+    }
+
     public static StønadskontoType map(StønadskontoBeregningStønadskontotype stønadskontotype) {
         if (stønadskontotype == null) {
             return StønadskontoType.UDEFINERT;
@@ -321,10 +333,6 @@ public final class UttakEnumMapper {
             return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
         }
         return Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value()));
-    }
-
-    public static UttakPeriodeType mapTilYf(StønadskontoType stønadskontoType) {
-        return PERIODE_TYPE_MAPPER.map(stønadskontoType).orElseThrow(() -> new IllegalArgumentException("Ukjent stønadskontoType " + stønadskontoType));
     }
 
     public static Optional<UtsettelseÅrsak> mapTilYf(UttakUtsettelseType utsettelseType) {

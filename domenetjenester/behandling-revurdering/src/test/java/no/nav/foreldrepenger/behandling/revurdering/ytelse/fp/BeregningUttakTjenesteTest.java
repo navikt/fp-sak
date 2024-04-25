@@ -132,7 +132,7 @@ class BeregningUttakTjenesteTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var uttaksperiodeUtenGradering = uttaksperiode(LocalDate.of(2019, 5, 1), LocalDate.of(2019, 5, 5));
 
-        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(StønadskontoType.MØDREKVOTE)
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medSøktGraderingForAktivitetIPeriode(true)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, null))
@@ -192,7 +192,7 @@ class BeregningUttakTjenesteTest {
     void hente_gradering_fra_uttaksresultat_uten_oppgittfordeling() {
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
-        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(StønadskontoType.MØDREKVOTE)
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medSøktGraderingForAktivitetIPeriode(true)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, null))
@@ -345,7 +345,7 @@ class BeregningUttakTjenesteTest {
                                                             UttakArbeidType uttakArbeidType,
                                                             LocalDate fom,
                                                             LocalDate tom) {
-        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(StønadskontoType.MØDREKVOTE)
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medSøktGraderingForAktivitetIPeriode(true)
             .medAktivitet(new ForeldrepengerUttakAktivitet(uttakArbeidType, arbeidsgiver, null))
@@ -359,7 +359,7 @@ class BeregningUttakTjenesteTest {
     }
 
     private ForeldrepengerUttakPeriodeAktivitet ugradertFrilansAktivitet() {
-        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(StønadskontoType.MØDREKVOTE)
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medSøktGraderingForAktivitetIPeriode(false)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
@@ -369,7 +369,7 @@ class BeregningUttakTjenesteTest {
     private ForeldrepengerUttakPeriode uttaksperiode(LocalDate fom, LocalDate tom) {
         var sn = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(
                 new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medSøktGraderingForAktivitetIPeriode(false)

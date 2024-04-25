@@ -8,9 +8,6 @@ import java.time.LocalDate;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.SendInformasjonsbrevBatchTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -116,7 +114,7 @@ class SendInformasjonsbrevBatchTjenesteTest {
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFFF, arbeidsforhold1)
                 .medTrekkdager(new Trekkdager(21))
-                .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+                .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
                 .medArbeidsprosent(BigDecimal.TEN).build();
 
         perioder.leggTilPeriode(uttakFFF);
@@ -127,7 +125,7 @@ class SendInformasjonsbrevBatchTjenesteTest {
                 .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødre, arbeidsforhold1)
                 .medTrekkdager(new Trekkdager(42))
-                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
                 .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakMødre);
 
@@ -146,7 +144,7 @@ class SendInformasjonsbrevBatchTjenesteTest {
                             .build();
             UttakResultatPeriodeAktivitetEntitet.builder(uttakFelles, arbeidsforhold1)
                     .medTrekkdager(new Trekkdager(7))
-                    .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                    .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
                     .medArbeidsprosent(BigDecimal.TEN).build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);

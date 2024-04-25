@@ -216,14 +216,11 @@ public class VedtaksperioderHelper {
         if (uttakResultatPeriode.isUtsettelse() && !harTrekkdager) {
             return UttakPeriodeType.UDEFINERT;
         }
-        var stønadskontoType = uttakResultatPeriode.getAktiviteter()
+        return uttakResultatPeriode.getAktiviteter()
             .stream()
             .max(Comparator.comparing(aktivitet -> aktivitet.getTrekkdager().decimalValue()))
-            .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto);
-        if (stønadskontoType.isPresent()) {
-            return UttakEnumMapper.mapTilYf(stønadskontoType.get());
-        }
-        throw new IllegalStateException("Uttaksperiode mangler stønadskonto");
+            .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto)
+            .orElseThrow(() -> new IllegalStateException("Uttaksperiode mangler stønadskonto"));
     }
 
     private static Optional<UtsettelseÅrsak> finnUtsettelsesÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {

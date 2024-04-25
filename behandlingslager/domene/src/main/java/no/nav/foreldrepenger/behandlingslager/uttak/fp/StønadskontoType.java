@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum StønadskontoType implements Kodeverdi {
@@ -64,12 +64,16 @@ public enum StønadskontoType implements Kodeverdi {
         return kode;
     }
 
-    public boolean tilhørerTredeling() {
-        return Set.of(MØDREKVOTE, FEDREKVOTE, FELLESPERIODE).contains(this);
-    }
-
-    public boolean harAktivitetskrav() {
-        return Set.of(FELLESPERIODE, FORELDREPENGER).contains(this);
+    public UttakPeriodeType toUttakPeriodeType() {
+        return switch (this) {
+            case FELLESPERIODE -> UttakPeriodeType.FELLESPERIODE;
+            case MØDREKVOTE -> UttakPeriodeType.MØDREKVOTE;
+            case FEDREKVOTE -> UttakPeriodeType.FEDREKVOTE;
+            case FORELDREPENGER -> UttakPeriodeType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+            case UDEFINERT -> UttakPeriodeType.UDEFINERT;
+            default -> throw new IllegalStateException("Unexpected value: " + this);
+        };
     }
 
     @Converter(autoApply = true)

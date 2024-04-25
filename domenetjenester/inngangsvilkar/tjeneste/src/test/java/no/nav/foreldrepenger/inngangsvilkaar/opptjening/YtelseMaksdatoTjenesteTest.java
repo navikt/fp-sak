@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -89,7 +90,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(uttakMødrekvote);
@@ -101,7 +102,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         perioder.leggTilPeriode(uttakFellesperiode);
@@ -169,13 +170,13 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold2)
             .medTrekkdager(new Trekkdager(15))
             .medArbeidsprosent(BigDecimal.valueOf(50))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO).build();
 
         uttak.leggTilPeriode(uttakMødrekvote);
@@ -224,7 +225,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(Trekkdager.ZERO)
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
 

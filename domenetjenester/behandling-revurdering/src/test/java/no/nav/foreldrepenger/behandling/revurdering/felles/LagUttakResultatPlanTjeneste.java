@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -64,7 +64,7 @@ public class LagUttakResultatPlanTjeneste {
                                                                     List<Integer> andelIArbeid,
                                                                     List<Integer> utbetalingsgrad,
                                                                     List<Trekkdager> trekkdager,
-                                                                    List<StønadskontoType> stønadskontoTyper) {
+                                                                    List<UttakPeriodeType> stønadskontoTyper) {
         var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
             behandling.getBehandlingsresultat());
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
@@ -90,7 +90,7 @@ public class LagUttakResultatPlanTjeneste {
                                                            List<Integer> andelIArbeid,
                                                            List<Integer> utbetalingsgrad,
                                                            List<Trekkdager> trekkdager,
-                                                           List<StønadskontoType> stønadskontoTyper) {
+                                                           List<UttakPeriodeType> stønadskontoTyper) {
         var uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
             samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
 
@@ -103,7 +103,7 @@ public class LagUttakResultatPlanTjeneste {
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
     }
 
-    private static UttakResultatPeriodeAktivitetEntitet lagPeriodeAktivitet(StønadskontoType stønadskontoType,
+    private static UttakResultatPeriodeAktivitetEntitet lagPeriodeAktivitet(UttakPeriodeType stønadskontoType,
                                                                             UttakResultatPeriodeEntitet uttakResultatPeriode,
                                                                             Trekkdager trekkdager,
                                                                             int andelIArbeid,

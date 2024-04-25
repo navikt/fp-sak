@@ -61,13 +61,13 @@ class StønadskontoSaldoTjenesteTest {
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(
-            new Trekkdager(10)).medTrekkonto(StønadskontoType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
+            new Trekkdager(10)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(arbeidsgiver, null)
                 .build()).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         uttak.leggTilPeriode(uttaksperiode);
@@ -101,7 +101,7 @@ class StønadskontoSaldoTjenesteTest {
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(null, null)
                 .build()).medTrekkdager(new Trekkdager(10))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         uttak.leggTilPeriode(uttaksperiode);
@@ -135,7 +135,7 @@ class StønadskontoSaldoTjenesteTest {
             .build();
         var frilansAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode1,
             uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttaksperiode1.leggTilAktivitet(frilansAktivitet);
@@ -148,12 +148,12 @@ class StønadskontoSaldoTjenesteTest {
             UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, arbeidsforholdRef1).build();
         var arbeidsgiverAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2,
             uttakAktivitetArbeidsgiver1).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         var frilansAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2,
             uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(uttaksperiode2);
@@ -167,17 +167,17 @@ class StønadskontoSaldoTjenesteTest {
             UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, arbeidsforholdRef2).build();
         var arbeidsgiverAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
             uttakAktivitetArbeidsgiver2).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         var arbeidsgiverAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
             uttakAktivitetArbeidsgiver1).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         var frilansAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
             uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(uttaksperiode3);
@@ -220,13 +220,13 @@ class StønadskontoSaldoTjenesteTest {
             PeriodeResultatType.MANUELL_BEHANDLING, PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(
-            Trekkdager.ZERO).medTrekkonto(StønadskontoType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
+            Trekkdager.ZERO).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(arbeidsgiver, null)
                 .build()).medTrekkdager(Trekkdager.ZERO)
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         uttak.leggTilPeriode(uttaksperiode);

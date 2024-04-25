@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapTilYf;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 
 class AvslagØverføringValidering implements OverstyrUttakPerioderValidering {
 
@@ -23,7 +22,7 @@ class AvslagØverføringValidering implements OverstyrUttakPerioderValidering {
         var kontoerSomTrekkesDager = p.getAktiviteter()
             .stream()
             .filter(a -> a.getTrekkdager().merEnn0())
-            .map(a -> mapTilYf(a.getTrekkonto()))
+            .map(ForeldrepengerUttakPeriodeAktivitet::getTrekkonto)
             .collect(Collectors.toSet());
         return kontoerSomTrekkesDager.contains(søktKonto);
     }
