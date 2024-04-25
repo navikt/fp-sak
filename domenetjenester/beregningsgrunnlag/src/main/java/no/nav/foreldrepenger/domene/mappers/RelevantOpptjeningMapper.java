@@ -78,11 +78,4 @@ public class RelevantOpptjeningMapper {
         }
         return Arbeidsgiver.virksomhet(opp.arbeidsgiverOrgNummer());
     }
-
-    private static Intervall mapPeriode(OpptjeningAktiviteter.OpptjeningPeriode opptjeningPeriode) {
-        if (opptjeningPeriode.periode().getTom() == null) {
-            return Intervall.fraOgMed(opptjeningPeriode.periode().getFom());
-        }
-        return Intervall.fraOgMedTilOgMed(opptjeningPeriode.periode().getFom(), opptjeningPeriode.periode().getTom());
-    }
 }

@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.mappers.input;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.math.BigDecimal;
+import java.util.Collections;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulus.beregning.v1.ForeldrepengerGrunnlag;
@@ -11,10 +13,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
-
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)

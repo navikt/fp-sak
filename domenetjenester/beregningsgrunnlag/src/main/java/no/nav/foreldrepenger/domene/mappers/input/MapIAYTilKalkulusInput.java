@@ -103,7 +103,7 @@ public class MapIAYTilKalkulusInput {
                 arbeidsforholdOverstyring.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(arbeidsforholdOverstyring.getArbeidsforholdRef().getReferanse())
                     : null,
                 KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling())))
-            .collect(Collectors.toList());
+            .toList();
 
         if (!resultat.isEmpty()) {
             return new ArbeidsforholdInformasjonDto(resultat);
@@ -120,13 +120,13 @@ public class MapIAYTilKalkulusInput {
                 .map(naturalYtelse -> new NaturalYtelseDto(mapPeriode(naturalYtelse.getPeriode()),
                     no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(naturalYtelse.getBeloepPerMnd().getVerdi()),
                     NaturalYtelseType.fraKode(naturalYtelse.getType().getKode())))
-                .collect(Collectors.toList());
+                .toList();
 
             var refusjonDtos = inntektsmelding.getEndringerRefusjon()
                 .stream()
                 .map(refusjon -> new RefusjonDto(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(refusjon.getRefusjonsbeløp().getVerdi()),
                     refusjon.getFom()))
-                .collect(Collectors.toList());
+                .toList();
 
             var internArbeidsforholdRefDto = inntektsmelding.getArbeidsforholdRef()
                 .gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(inntektsmelding.getArbeidsforholdRef().getReferanse()) : null;
@@ -152,7 +152,7 @@ public class MapIAYTilKalkulusInput {
                 KodeverkTilKalkulusMapper.mapYtelsetype(ytelse.getRelatertYtelseType()),
                 mapPeriode(ytelse.getPeriode()),
                 null)) // TODO tfp-5742 trenger vi ytelsegrunnlag?
-            .collect(Collectors.toList());
+            .toList();
 
         if (!ytelserDto.isEmpty()) {
             return new YtelserDto(ytelserDto);
@@ -179,7 +179,7 @@ public class MapIAYTilKalkulusInput {
     }
 
     private static ArbeidDto mapArbeidDto(AktørArbeid aktørArbeid, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        List<YrkesaktivitetDto> yrkesaktivitetDtoer = aktørArbeid.hentAlleYrkesaktiviteter().stream().map(ya -> mapYrkesaktivitetTilDto(ya, arbeidsforholdOverstyringer)).collect(Collectors.toList());
+        List<YrkesaktivitetDto> yrkesaktivitetDtoer = aktørArbeid.hentAlleYrkesaktiviteter().stream().map(ya -> mapYrkesaktivitetTilDto(ya, arbeidsforholdOverstyringer)).toList();
         if (!yrkesaktivitetDtoer.isEmpty()) {
             return new ArbeidDto(yrkesaktivitetDtoer);
         }
@@ -190,13 +190,13 @@ public class MapIAYTilKalkulusInput {
         List<AktivitetsAvtaleDto> aktivitetsAvtaleDtos = yrkesaktivitet.getAlleAktivitetsAvtaler().stream().map(aktivitetsAvtale -> new AktivitetsAvtaleDto(mapPeriode(aktivitetsAvtale.getPeriode()),
             aktivitetsAvtale.getSisteLønnsendringsdato(),
             aktivitetsAvtale.getProsentsats() != null ? IayProsent.fra(aktivitetsAvtale.getProsentsats().getVerdi()) : null)
-        ).collect(Collectors.toList());
+        ).toList();
 
         String arbeidsforholdRef = yrkesaktivitet.getArbeidsforholdRef().getReferanse();
         List<PermisjonDto> permisjoner = yrkesaktivitet.getPermisjon().stream()
             .filter(p -> erRelevantForBeregning(p, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
             .map(MapIAYTilKalkulusInput::mapTilPermisjonDto)
-            .collect(Collectors.toList());
+            .toList();
         return new YrkesaktivitetDto(
             mapTilAktør(yrkesaktivitet.getArbeidsgiver()),
             arbeidsforholdRef != null ? new InternArbeidsforholdRefDto(arbeidsforholdRef) : null,
@@ -238,7 +238,7 @@ public class MapIAYTilKalkulusInput {
 
     private static InntekterDto mapInntektDto(AktørInntekt inntekt) {
 
-        List<UtbetalingDto> utbetalingDtoer = inntekt.getInntekt().stream().map(MapIAYTilKalkulusInput::mapTilUtbetalingDto).collect(Collectors.toList());
+        List<UtbetalingDto> utbetalingDtoer = inntekt.getInntekt().stream().map(MapIAYTilKalkulusInput::mapTilUtbetalingDto).toList();
         if (!utbetalingDtoer.isEmpty()) {
             return new InntekterDto(utbetalingDtoer);
         }
@@ -247,7 +247,7 @@ public class MapIAYTilKalkulusInput {
 
     private static UtbetalingDto mapTilUtbetalingDto(Inntekt inntekt) {
         UtbetalingDto utbetalingDto = new UtbetalingDto(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()),
-            inntekt.getAlleInntektsposter().stream().map(MapIAYTilKalkulusInput::mapTilUtbetalingspostDto).collect(Collectors.toList()));
+            inntekt.getAlleInntektsposter().stream().map(MapIAYTilKalkulusInput::mapTilUtbetalingspostDto).toList());
         if (inntekt.getArbeidsgiver() != null) {
             return utbetalingDto.medArbeidsgiver(mapTilAktør(inntekt.getArbeidsgiver()));
         }
@@ -278,7 +278,7 @@ public class MapIAYTilKalkulusInput {
     }
 
     private static List<OppgittEgenNæringDto> mapOppgittEgenNæringListe(List<OppgittEgenNæring> egenNæring) {
-        return egenNæring == null ? null : egenNæring.stream().map(MapIAYTilKalkulusInput::mapOppgittEgenNæring).collect(Collectors.toList());
+        return egenNæring == null ? null : egenNæring.stream().map(MapIAYTilKalkulusInput::mapOppgittEgenNæring).toList();
     }
 
     private static Periode mapPeriode(DatoIntervallEntitet periode) {
@@ -309,7 +309,7 @@ public class MapIAYTilKalkulusInput {
         if (arbeidsforhold == null) {
             return null;
         }
-        return arbeidsforhold.stream().map(MapIAYTilKalkulusInput::mapArbeidsforhold).collect(Collectors.toList());
+        return arbeidsforhold.stream().map(MapIAYTilKalkulusInput::mapArbeidsforhold).toList();
     }
 
     private static OppgittArbeidsforholdDto mapArbeidsforhold(OppgittArbeidsforhold arb) {
