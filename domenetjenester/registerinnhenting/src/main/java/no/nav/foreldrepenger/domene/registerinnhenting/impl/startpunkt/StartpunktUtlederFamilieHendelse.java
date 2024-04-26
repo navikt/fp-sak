@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
@@ -51,8 +52,13 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         }
         if (erTilkommetRegisterDødfødselMedDekningsgrad80(ref, grunnlag1, grunnlag2)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "antall barn", grunnlag1, grunnlag2);
-            return StartpunktType.BEREGNING;
+            if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "antall barn", grunnlag1, grunnlag2);
+                return StartpunktType.DEKNINGSGRAD;
+            } else {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "antall barn", grunnlag1, grunnlag2);
+                return StartpunktType.BEREGNING;
+            }
         }
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "familiehendelse", grunnlag1, grunnlag2);
         return StartpunktType.UTTAKSVILKÅR;

@@ -8,10 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
@@ -26,6 +28,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     private PersonopplysningRepository personopplysningRepository;
 
     private BarnBorteEndringIdentifiserer barnBorteEndringIdentifiserer;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     StartpunktUtlederPersonopplysning() {
         // For CDI
@@ -33,9 +36,11 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
     @Inject
     StartpunktUtlederPersonopplysning(PersonopplysningRepository personopplysningRepository,
-                                      BarnBorteEndringIdentifiserer barnBorteEndringIdentifiserer) {
+                                      BarnBorteEndringIdentifiserer barnBorteEndringIdentifiserer,
+                                      DekningsgradTjeneste dekningsgradTjeneste) {
         this.personopplysningRepository = personopplysningRepository;
         this.barnBorteEndringIdentifiserer = barnBorteEndringIdentifiserer;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     @Override
@@ -72,8 +77,13 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
         }
         if (poDiff.erBarnDødsdatoEndret()) {
             if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
-                startpunkter.add(StartpunktType.DEKNINGSGRAD);
+                if (har80Dekningsgrad(ref)) {
+                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                    startpunkter.add(StartpunktType.DEKNINGSGRAD);
+                } else {
+                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                    startpunkter.add(StartpunktType.UTTAKSVILKÅR);
+                }
             } else {
                 FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
                 startpunkter.add(StartpunktType.BEREGNING);
@@ -105,6 +115,12 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             startpunkter.add(StartpunktType.UDEFINERT);
         }
         return startpunkter;
+    }
+
+    private boolean har80Dekningsgrad(BehandlingReferanse referanse) {
+        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(referanse)
+            .filter(Dekningsgrad._80::equals)
+            .isPresent();
     }
 
     private void leggTilBasertPåSTP(Long g1Id, Long g2Id, List<StartpunktType> startpunkter, boolean endretFørStp, String loggMelding) {
