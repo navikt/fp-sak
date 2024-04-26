@@ -18,7 +18,6 @@ public class TilgangerTjeneste {
     private String gruppenavnEgenAnsatt;
     private String gruppenavnKode6;
     private String gruppenavnKode7;
-    private boolean skalViseDetaljerteFeilmeldinger;
 
     public TilgangerTjeneste() {
         // CDI
@@ -33,8 +32,7 @@ public class TilgangerTjeneste {
         @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
         @KonfigVerdi(value = "bruker.gruppenavn.egenansatt") String gruppenavnEgenAnsatt,
         @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6,
-        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7,
-        @KonfigVerdi(value = "vise.detaljerte.feilmeldinger", defaultVerdi = "true") Boolean viseDetaljerteFeilmeldinger
+        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7
     ) {
         this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.gruppenavnVeileder = gruppenavnVeileder;
@@ -44,7 +42,6 @@ public class TilgangerTjeneste {
         this.gruppenavnEgenAnsatt = gruppenavnEgenAnsatt;
         this.gruppenavnKode6 = gruppenavnKode6;
         this.gruppenavnKode7 = gruppenavnKode7;
-        this.skalViseDetaljerteFeilmeldinger = viseDetaljerteFeilmeldinger != null && viseDetaljerteFeilmeldinger;
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
@@ -65,7 +62,6 @@ public class TilgangerTjeneste {
             .kanBehandleKodeEgenAnsatt(grupper.contains(gruppenavnEgenAnsatt))
             .kanBehandleKode6(grupper.contains(gruppenavnKode6))
             .kanBehandleKode7(grupper.contains(gruppenavnKode7))
-            .skalViseDetaljerteFeilmeldinger(this.skalViseDetaljerteFeilmeldinger)
             .build();
     }
 
