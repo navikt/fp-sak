@@ -148,7 +148,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     }
 
     private boolean trengsManuelleAvklaringer(BehandlingReferanse ref) {
-        return !arbeidsforholdInntektsmeldingMangelTjeneste.utledAlleManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
+        return !arbeidsforholdInntektsmeldingMangelTjeneste.utledUavklarteManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
     }
 
     private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
