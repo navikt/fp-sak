@@ -43,8 +43,8 @@ public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements Aksj
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return INGEN_AKSJONSPUNKTER;
         }
-        var mangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(param.getRef());
-        LOG.info("Fant {} mangler relatert til arbeid og inntektsmeldinger på saksnummer {}. Alle mangler var: {}", mangler.size(), param.getSaksnummer(), mangler);
-        return mangler.isEmpty() ? INGEN_AKSJONSPUNKTER : opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        var uavklarteMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledUavklarteManglerPåArbeidsforholdInntektsmelding(param.getRef());
+        LOG.info("Fant {} uavklarteMangler relatert til arbeid og inntektsmeldinger på saksnummer {}. Alle uavklarteMangler var: {}", uavklarteMangler.size(), param.getSaksnummer(), uavklarteMangler);
+        return uavklarteMangler.isEmpty() ? INGEN_AKSJONSPUNKTER : opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
     }
 }

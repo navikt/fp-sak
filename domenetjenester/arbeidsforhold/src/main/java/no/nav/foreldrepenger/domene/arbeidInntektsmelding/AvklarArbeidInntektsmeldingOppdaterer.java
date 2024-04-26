@@ -42,7 +42,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
     @Override
     public OppdateringResultat oppdater(BekreftArbeidInntektsmeldingAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var alleMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(param.getRef());
+        var alleMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledAlleManglerPåArbeidsforholdInntektsmelding(param.getRef());
         var alleSaksbehandlersValg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(param.getRef());
         validerArbeidsforholdSomManglerInntektsmelding(alleMangler, alleSaksbehandlersValg);
 
