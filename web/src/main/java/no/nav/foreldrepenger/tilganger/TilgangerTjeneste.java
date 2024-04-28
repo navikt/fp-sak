@@ -58,8 +58,7 @@ public class TilgangerTjeneste {
         if (!Environment.current().isProd()) {
             LOG.info("TILGANGER: Henter fra azure.");
             try {
-                var tilgangKlient =  new TilgangKlient();
-                var azureBrukerInfo = tilgangKlient.brukerInfo(ident);
+                var azureBrukerInfo = new TilgangKlient().brukerInfo();
                 if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
                     LOG.info("TILGANGER: Tilganger fra ldap og azure er ikke like.");
                     LOG.info("TILGANGER: Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
