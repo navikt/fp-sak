@@ -60,8 +60,7 @@ public class TilgangerTjeneste {
             try {
                 var azureBrukerInfo = new TilgangKlient().brukerInfo();
                 if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
-                    LOG.info("TILGANGER: Tilganger fra ldap og azure er ikke like.");
-                    LOG.info("TILGANGER: Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
+                    LOG.info("TILGANGER: Tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
                 } else {
                     LOG.info("TILGANGER: Azure == LDAP :)");
                 }
