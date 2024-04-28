@@ -101,8 +101,8 @@ public record InnloggetNavAnsattDto(String brukernavn,
         InnloggetNavAnsattDto that = (InnloggetNavAnsattDto) o;
         return kanVeilede == that.kanVeilede && kanBeslutte == that.kanBeslutte && kanOverstyre == that.kanOverstyre
             && kanSaksbehandle == that.kanSaksbehandle && kanOppgavestyre == that.kanOppgavestyre && kanBehandleKode6 == that.kanBehandleKode6
-            && kanBehandleKode7 == that.kanBehandleKode7 && kanBehandleKodeEgenAnsatt == that.kanBehandleKodeEgenAnsatt && Objects.equals(navn,
-            that.navn) && Objects.equals(brukernavn, that.brukernavn);
+            && kanBehandleKode7 == that.kanBehandleKode7 && kanBehandleKodeEgenAnsatt == that.kanBehandleKodeEgenAnsatt &&
+            Objects.equals(navn, that.navn) && Objects.equals(brukernavn, that.brukernavn);
     }
 
     @Override
