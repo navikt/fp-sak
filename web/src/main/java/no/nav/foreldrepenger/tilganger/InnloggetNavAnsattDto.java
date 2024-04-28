@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.tilganger;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public record InnloggetNavAnsattDto(String brukernavn,
                                     String navn,
@@ -89,5 +90,24 @@ public record InnloggetNavAnsattDto(String brukernavn,
         public InnloggetNavAnsattDto build() {
             return new InnloggetNavAnsattDto(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        InnloggetNavAnsattDto that = (InnloggetNavAnsattDto) o;
+        return kanVeilede == that.kanVeilede && kanBeslutte == that.kanBeslutte && kanOverstyre == that.kanOverstyre
+            && kanSaksbehandle == that.kanSaksbehandle && kanOppgavestyre == that.kanOppgavestyre && kanBehandleKode6 == that.kanBehandleKode6
+            && kanBehandleKode7 == that.kanBehandleKode7 && kanBehandleKodeEgenAnsatt == that.kanBehandleKodeEgenAnsatt && Objects.equals(navn,
+            that.navn) && Objects.equals(brukernavn, that.brukernavn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(brukernavn, navn, kanSaksbehandle, kanVeilede, kanBeslutte, kanOverstyre, kanOppgavestyre, kanBehandleKodeEgenAnsatt,
+            kanBehandleKode6, kanBehandleKode7);
     }
 }

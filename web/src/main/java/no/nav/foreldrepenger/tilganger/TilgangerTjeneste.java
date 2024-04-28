@@ -3,12 +3,18 @@ package no.nav.foreldrepenger.tilganger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.tilganger.azure.TilgangKlient;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class TilgangerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(TilgangerTjeneste.class);
 
     private String gruppenavnSaksbehandler;
     private String gruppenavnVeileder;
@@ -47,7 +53,25 @@ public class TilgangerTjeneste {
     public InnloggetNavAnsattDto innloggetBruker() {
         var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
-        return getInnloggetBruker(ident, ldapBruker);
+        var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
+
+        if (!Environment.current().isProd()) {
+            LOG.info("TILGANGER: Henter fra azure.");
+            try {
+                var tilgangKlient =  new TilgangKlient();
+                var azureBrukerInfo = tilgangKlient.brukerInfo(ident);
+                if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
+                    LOG.info("TILGANGER: Tilganger fra ldap og azure er ikke like.");
+                    LOG.info("TILGANGER: Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
+                } else {
+                    LOG.info("TILGANGER: Azure == LDAP :)");
+                }
+            } catch (Exception ex) {
+                LOG.info("TILGANGER: Azure klienten feilet med exception: {}", ex.getMessage());
+            }
+        }
+
+        return ldapBrukerInfo;
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
