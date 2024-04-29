@@ -43,9 +43,6 @@ spec:
     requests:
       cpu: "{{requests.cpu}}"
       memory: "{{requests.mem}}"
-  env:
-    - name: MS_GRAPH_CHECK
-      value: "false"
   kafka:
       pool: {{kafkaPool}}
   vault:

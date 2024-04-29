@@ -57,9 +57,7 @@ public class TilgangerTjeneste {
         var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
-        if (!Environment.current().isProd() || Boolean.TRUE.equals(Environment.current().getProperty("MS_GRAPH_CHECK", Boolean.class, Boolean.FALSE))) {
-            sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
-        }
+        sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
         return ldapBrukerInfo;
     }
 
