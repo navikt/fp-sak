@@ -213,7 +213,7 @@ class VedtakXmlTest {
 
         var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
                 uttakAktivitet)
-                .medTrekkonto(StønadskontoType.FORELDREPENGER)
+                .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
                 .medTrekkdager(new Trekkdager(10))
                 .medArbeidsprosent(BigDecimal.valueOf(100))
                 .medUtbetalingsgrad(null) // PFP-4396 tester at utbetalingsgrad kan være null

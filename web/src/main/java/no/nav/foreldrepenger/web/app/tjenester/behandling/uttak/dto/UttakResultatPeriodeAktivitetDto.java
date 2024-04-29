@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class UttakResultatPeriodeAktivitetDto {
 
-    private StønadskontoType stønadskontoType;
+    private UttakPeriodeType stønadskontoType;
     private Trekkdager trekkdager;
     private BigDecimal prosentArbeid;
     private String arbeidsforholdId;
@@ -25,7 +25,7 @@ public class UttakResultatPeriodeAktivitetDto {
     private UttakResultatPeriodeAktivitetDto() {
     }
 
-    public StønadskontoType getStønadskontoType() {
+    public UttakPeriodeType getStønadskontoType() {
         return stønadskontoType;
     }
 
@@ -66,7 +66,7 @@ public class UttakResultatPeriodeAktivitetDto {
 
         private UttakResultatPeriodeAktivitetDto kladd = new UttakResultatPeriodeAktivitetDto();
 
-        public Builder medStønadskontoType(StønadskontoType stønadskontoType) {
+        public Builder medStønadskontoType(UttakPeriodeType stønadskontoType) {
             kladd.stønadskontoType = stønadskontoType;
             return this;
         }

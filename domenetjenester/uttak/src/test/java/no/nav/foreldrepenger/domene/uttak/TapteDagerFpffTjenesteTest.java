@@ -243,7 +243,7 @@ class TapteDagerFpffTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(10))
             .build();
@@ -295,7 +295,7 @@ class TapteDagerFpffTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(5))
             .build();
@@ -352,7 +352,7 @@ class TapteDagerFpffTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(15))
             .build();
@@ -410,7 +410,7 @@ class TapteDagerFpffTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(15))
             .build();

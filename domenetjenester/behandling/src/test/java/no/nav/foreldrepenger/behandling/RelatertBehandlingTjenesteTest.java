@@ -19,13 +19,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -254,7 +254,7 @@ class RelatertBehandlingTjenesteTest {
                 .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, aktivitet)
                 .medTrekkdager(new Trekkdager(30))
-                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
                 .medArbeidsprosent(BigDecimal.TEN).build();
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakMødrekvote);
@@ -283,7 +283,7 @@ class RelatertBehandlingTjenesteTest {
                 .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote2, aktivitet2)
                 .medTrekkdager(new Trekkdager(30))
-                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
                 .medArbeidsprosent(BigDecimal.ZERO).build();
         var uttak2 = new UttakResultatPerioderEntitet();
         uttak2.leggTilPeriode(uttakMødrekvote2);

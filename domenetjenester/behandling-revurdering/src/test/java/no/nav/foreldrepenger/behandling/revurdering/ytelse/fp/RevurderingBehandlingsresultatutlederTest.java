@@ -53,12 +53,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -165,8 +165,8 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder, StønadskontoType.FEDREKVOTE);
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder, UttakPeriodeType.FEDREKVOTE);
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
@@ -214,8 +214,8 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
-        lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder, StønadskontoType.FEDREKVOTE);
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder, UttakPeriodeType.FEDREKVOTE);
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
@@ -267,7 +267,7 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak og endring i uttak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode avslått med opphørsårsak og endring
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -275,7 +275,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
         lagreEndringsdato(endringsdato, revurdering.getId());
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
@@ -328,7 +328,7 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak og endring i uttak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode ikkje avslått med opphørsårsak
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -336,7 +336,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -386,12 +386,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Like perioder, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
@@ -445,12 +445,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50),
-                List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FELLESPERIODE));
+                List.of(100), List.of(new Trekkdager(10)), List.of(UttakPeriodeType.FELLESPERIODE));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -504,12 +504,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50),
-                List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FELLESPERIODE));
+                List.of(100), List.of(new Trekkdager(10)), List.of(UttakPeriodeType.FELLESPERIODE));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -562,12 +562,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Ingen Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -621,12 +621,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Ingen Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -679,12 +679,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Ingen Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -729,12 +729,12 @@ class RevurderingBehandlingsresultatutlederTest {
         // Løpende vedtak
         lagUttakResultatPlanForBehandling(førstegangsbehandling, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Ingen Endring i periode, siste periode ikkje avslått
         lagUttakResultatPlanForBehandling(revurdering, opprinneligePerioder, List.of(false),
                 List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -786,7 +786,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode avslått med opphørsårsak for revurdering
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -794,7 +794,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -837,7 +837,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Alle perioder avslått med opphørsårsak for revurdering
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -845,7 +845,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.AVSLÅTT, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.BARNET_ER_DØD, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
         lagreEndringsdato(endringsdato, revurdering.getId());
 
         var vilkårResultat = VilkårResultat.builder()
@@ -891,7 +891,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode avslått med opphørsårsak for revurdering
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -899,7 +899,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
@@ -954,7 +954,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode avslått med opphørsårsak for revurdering
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -962,7 +962,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -1010,7 +1010,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Siste periode avslått med opphørsårsak for revurdering
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
@@ -1018,7 +1018,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
-                List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
@@ -1169,7 +1169,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
             List<LocalDateInterval> perioder,
-            StønadskontoType stønadskontoType) {
+                                                                   UttakPeriodeType stønadskontoType) {
         return lagUttakResultatPlanForBehandling(behandling, perioder, Collections.nCopies(perioder.size(), false),
                 Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
                 Collections.nCopies(perioder.size(), PeriodeResultatÅrsak.UKJENT),
@@ -1186,7 +1186,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List<Integer> andelIArbeid,
             List<Integer> utbetalingsgrad,
             List<Trekkdager> trekkdager,
-            List<StønadskontoType> stønadskontoTyper) {
+            List<UttakPeriodeType> stønadskontoTyper) {
         var uttakresultat = LagUttakResultatPlanTjeneste
                 .lagUttakResultatPlanTjeneste(behandling, perioder, samtidigUttak, periodeResultatTyper,
                         periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);

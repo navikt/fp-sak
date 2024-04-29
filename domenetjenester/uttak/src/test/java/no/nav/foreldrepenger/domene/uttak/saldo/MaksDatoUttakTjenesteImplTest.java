@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -66,7 +67,7 @@ class MaksDatoUttakTjenesteImplTest {
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
@@ -91,7 +92,7 @@ class MaksDatoUttakTjenesteImplTest {
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
@@ -123,7 +124,7 @@ class MaksDatoUttakTjenesteImplTest {
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
@@ -159,7 +160,7 @@ class MaksDatoUttakTjenesteImplTest {
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))

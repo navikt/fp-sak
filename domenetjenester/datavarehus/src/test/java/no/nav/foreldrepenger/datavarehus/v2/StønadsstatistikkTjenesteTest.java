@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -404,7 +405,7 @@ class StønadsstatistikkTjenesteTest {
                 .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .build()).medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(new Trekkdager(trekkdager))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
             .build();
         uttaksperiode.leggTilAktivitet(uttasperiodeAktivitet);

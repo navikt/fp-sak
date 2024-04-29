@@ -175,7 +175,7 @@ public class YtelseMaksdatoTjeneste {
     private BigDecimal brukteDager(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
         var sum = BigDecimal.ZERO;
         for (var aktivitet : aktiviteter) {
-            if (Objects.equals(aktivitet.getTrekkonto(), stønadskontoType)) {
+            if (Objects.equals(aktivitet.getTrekkonto(), stønadskontoType.toUttakPeriodeType())) {
                 sum = sum.add(aktivitet.getTrekkdager().decimalValue());
             }
         }

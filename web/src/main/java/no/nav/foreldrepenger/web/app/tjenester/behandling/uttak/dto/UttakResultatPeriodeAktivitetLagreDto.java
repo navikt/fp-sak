@@ -12,9 +12,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -26,7 +26,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class UttakResultatPeriodeAktivitetLagreDto {
 
     @ValidKodeverk
-    private StønadskontoType stønadskontoType = StønadskontoType.UDEFINERT;
+    private UttakPeriodeType stønadskontoType = UttakPeriodeType.UDEFINERT;
 
     @Min(0)
     @Max(1000)
@@ -53,7 +53,7 @@ public class UttakResultatPeriodeAktivitetLagreDto {
         //for jackson
     }
 
-    public StønadskontoType getStønadskontoType() {
+    public UttakPeriodeType getStønadskontoType() {
         return stønadskontoType;
     }
 
@@ -96,7 +96,7 @@ public class UttakResultatPeriodeAktivitetLagreDto {
 
         private UttakResultatPeriodeAktivitetLagreDto kladd = new UttakResultatPeriodeAktivitetLagreDto();
 
-        public Builder medStønadskontoType(StønadskontoType stønadskontoType) {
+        public Builder medStønadskontoType(UttakPeriodeType stønadskontoType) {
             kladd.stønadskontoType = stønadskontoType;
             return this;
         }

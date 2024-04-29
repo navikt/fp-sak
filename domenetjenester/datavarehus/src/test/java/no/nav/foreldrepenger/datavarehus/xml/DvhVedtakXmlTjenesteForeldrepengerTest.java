@@ -299,7 +299,7 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
                 uttakAktivitet)
-                .medTrekkonto(StønadskontoType.FORELDREPENGER)
+                .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
                 .medTrekkdager(new Trekkdager(10))
                 .medArbeidsprosent(new BigDecimal(100))
                 .medUtbetalingsgrad(new Utbetalingsgrad(100))

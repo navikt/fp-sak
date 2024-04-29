@@ -227,7 +227,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                                      UttakYrkesaktiviteter uttakYrkesaktiviteter) {
         var uttakAktivitet = riktigUttakAktivitet(aktivitet.getIdentifikator(), uttakAktiviteter);
         return UttakResultatPeriodeAktivitetEntitet.builder(periode, uttakAktivitet)
-            .medTrekkonto(UttakEnumMapper.map(uttakPeriode.getStønadskontotype()))
+            .medTrekkonto(UttakEnumMapper.mapTrekkonto(uttakPeriode.getStønadskontotype()))
             .medTrekkdager(map(aktivitet))
             .medUtbetalingsgrad(new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue()))
             .medArbeidsprosent(finnArbeidsprosent(uttakPeriode, aktivitet, uttakYrkesaktiviteter))

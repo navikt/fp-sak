@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FLERBARNSDAGER;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -402,9 +401,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
         var maxDagerFlerbarn = 17 * 5;
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
-            lagStønadskonto(FELLESPERIODE, maxDagerFP), lagStønadskonto(FEDREKVOTE, maxDagerFK), lagStønadskonto(MØDREKVOTE, maxDagerMK),
-            lagStønadskonto(FLERBARNSDAGER, maxDagerFlerbarn));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
+            lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP), lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK), lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK),
+            lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
 
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(morsBehandling.getFagsak(), morsBehandling.getId(), stønadskontoberegning);
@@ -441,7 +440,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         var maxDagerFlerbarn = 17 * 5;
         var stønadskontoberegning = lagStønadskontoberegning(
-            lagStønadskonto(FLERBARNSDAGER, maxDagerFlerbarn));
+            lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
 
@@ -659,8 +658,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                                             int maxDagerFP,
                                             int maxDagerFK,
                                             int maxDagerMK) {
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
-            lagStønadskonto(FELLESPERIODE, maxDagerFP), lagStønadskonto(FEDREKVOTE, maxDagerFK), lagStønadskonto(MØDREKVOTE, maxDagerMK));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
+            lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP), lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK), lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
@@ -819,7 +818,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
         var maxDager = 40 * 5;
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER, maxDager));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
@@ -883,7 +882,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
         var maxDager = 40 * 5;
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER, maxDager));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
@@ -916,7 +915,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(), true));
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FEDREKVOTE, 75));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FEDREKVOTE, 75));
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
         var saksnummer = behandling.getFagsak().getSaksnummer();
@@ -966,15 +965,16 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
                 .medPeriode(termindato.minusWeeks(3), termindato.minusDays(1))
                 .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+                .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
                 .build(), OppgittPeriodeBuilder.ny()
                 .medPeriode(termindato, termindato.plusWeeks(6).minusWeeks(1))
                 .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriodeType(MØDREKVOTE)
                 .build()), true));
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER_FØR_FØDSEL, 15), lagStønadskonto(MØDREKVOTE, 15 * 5));
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, 15),
+            lagStønadskonto(StønadskontoType.MØDREKVOTE, 15 * 5));
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
         var fpGrunnlag = fpGrunnlag().medFamilieHendelser(
@@ -1013,7 +1013,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                             UttakAktivitetEntitet uttakAktivitet,
                             LocalDate fom, LocalDate tom,
-                            StønadskontoType stønadskontoType) {
+                            UttakPeriodeType stønadskontoType) {
         lagPeriode(uttakResultatPerioder, uttakAktivitet, fom, tom, stønadskontoType, false, false);
 
     }
@@ -1021,7 +1021,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                             UttakAktivitetEntitet uttakAktivitet,
                             LocalDate fom, LocalDate tom,
-                            StønadskontoType stønadskontoType,
+                            UttakPeriodeType stønadskontoType,
                             boolean samtidigUttak,
                             boolean flerbarnsdager) {
         lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager,
@@ -1033,7 +1033,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @SafeVarargs
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                             LocalDate fom, LocalDate tom,
-                            StønadskontoType stønadskontoType,
+                            UttakPeriodeType stønadskontoType,
                             boolean samtidigUttak,
                             boolean flerbarnsdager,
                             UttakAktivitetMedTrekkdager... aktiviteter) {

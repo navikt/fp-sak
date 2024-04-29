@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 
 public class UttakDto {
     private final String stonadskontoType;
@@ -31,14 +31,14 @@ public class UttakDto {
     }
 
     public static class Builder {
-        private StønadskontoType stønadskontoType;
+        private UttakPeriodeType stønadskontoType;
         private PeriodeResultatType periodeResultatType;
         private boolean gradering;
 
         private Builder() {
         }
 
-        public Builder medStønadskontoType(StønadskontoType stønadskontoType) {
+        public Builder medStønadskontoType(UttakPeriodeType stønadskontoType) {
             this.stønadskontoType = stønadskontoType;
             return this;
         }

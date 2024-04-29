@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -710,7 +709,7 @@ class EndringsdatoRevurderingUtlederTest {
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(arbeidsgiver1, null)
                 .build()).medTrekkdager(Trekkdager.ZERO)
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         var nyArbeidsgiver = Arbeidsgiver.virksomhet("456");
@@ -718,7 +717,7 @@ class EndringsdatoRevurderingUtlederTest {
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(nyArbeidsgiver, null)
                 .build()).medTrekkdager(Trekkdager.ZERO)
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
         morPeriode.leggTilAktivitet(aktivitet1);

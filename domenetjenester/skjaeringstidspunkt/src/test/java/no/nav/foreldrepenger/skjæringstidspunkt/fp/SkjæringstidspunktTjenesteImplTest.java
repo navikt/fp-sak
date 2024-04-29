@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -296,7 +295,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFar, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
         perioder.leggTilPeriode(uttakFar);
 

@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -91,7 +90,7 @@ class FaktaUttakPeriodeDtoTjenesteTest {
                 .medUtbetalingsgrad(Utbetalingsgrad.FULL)
                 .medTrekkdager(new Trekkdager(10))
                 .medErSøktGradering(true)
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .build();
         var uttakperioder = new UttakResultatPerioderEntitet();
         uttakperioder.leggTilPeriode(uttaksperiode);

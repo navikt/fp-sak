@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -143,7 +144,14 @@ public class UttakXmlTjeneste {
 
     private UttaksresultatPeriodeAktivitet konverterFraDomene(ForeldrepengerUttakPeriodeAktivitet periodeAktivitet, int antVirkedager) {
         var kontrakt = new UttaksresultatPeriodeAktivitet();
-        kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getTrekkonto()));
+        kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(switch (periodeAktivitet.getTrekkonto()) {
+            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
+            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+            case UDEFINERT -> StønadskontoType.UDEFINERT;
+        }));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
         periodeAktivitet.getArbeidsgiver().ifPresent(ag -> {
             kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(ag.getIdentifikator()));

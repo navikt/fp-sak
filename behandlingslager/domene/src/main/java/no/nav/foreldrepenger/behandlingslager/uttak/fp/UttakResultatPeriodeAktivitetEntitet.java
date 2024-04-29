@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -44,9 +45,9 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     @JoinColumn(name = "uttak_aktivitet_id", nullable = false, updatable = false)
     private UttakAktivitetEntitet uttakAktivitet;
 
-    @Convert(converter = StønadskontoType.KodeverdiConverter.class)
+    @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
     @Column(name="trekkonto", nullable = false)
-    private StønadskontoType trekkonto = StønadskontoType.UDEFINERT;
+    private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
 
     @Embedded
     private Trekkdager trekkdagerDesimal;
@@ -82,7 +83,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
         return new Trekkdager(trekkdagerDesimal.decimalValue());
     }
 
-    public StønadskontoType getTrekkonto() {
+    public UttakPeriodeType getTrekkonto() {
         return trekkonto;
     }
 
@@ -177,7 +178,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
             return this;
         }
 
-        public UttakResultatPeriodeAktivitetEntitet.Builder medTrekkonto(StønadskontoType trekkonto) {
+        public UttakResultatPeriodeAktivitetEntitet.Builder medTrekkonto(UttakPeriodeType trekkonto) {
             kladd.trekkonto = trekkonto;
             return this;
         }

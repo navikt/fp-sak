@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
@@ -177,7 +177,7 @@ class StønadsstatistikkUttakPeriodeMapper {
      * - Utsettelse - Sammenhengende: alle utsettelser
      **/
     private static Forklaring utledForklaring(ForeldrepengerUttakPeriode periode,
-                                              StønadskontoType stønadskontoType,
+                                              UttakPeriodeType stønadskontoType,
                                               RelasjonsRolleType rolleType) {
         var forklaringForMorsAktivitet = utledForklaringAktivitetskrav(rolleType, periode.getMorsAktivitet(), stønadskontoType);
         if (periode.isInnvilgetUtsettelse()) { //Se bort i fra innvilget, se på trekk og utbetaling
@@ -211,7 +211,7 @@ class StønadsstatistikkUttakPeriodeMapper {
                 return Forklaring.FLERBARNSDAGER;
             }
             if (forklaringForMorsAktivitet == null
-                && StønadskontoType.FELLESPERIODE.equals(stønadskontoType)
+                && UttakPeriodeType.FELLESPERIODE.equals(stønadskontoType)
                 && periode.isSamtidigUttak()
                 && periode.getSamtidigUttaksprosent().mindreEnnEllerLik50()) {
                 return Forklaring.SAMTIDIG_MØDREKVOTE;
@@ -237,13 +237,13 @@ class StønadsstatistikkUttakPeriodeMapper {
     }
 
     private static Forklaring utledForklaringAktivitetskrav(RelasjonsRolleType rolleType,
-                                                                                          MorsAktivitet morsAktivitet,
-                                                                                          StønadskontoType stønadskontoType) {
+                                                            MorsAktivitet morsAktivitet,
+                                                            UttakPeriodeType stønadskontoType) {
         if (RelasjonsRolleType.erMor(rolleType) || !stønadskontoType.harAktivitetskrav()) {
             return null;
         }
         return switch (morsAktivitet) {
-            case UDEFINERT, UFØRE, IKKE_OPPGITT -> StønadskontoType.FORELDREPENGER.equals(stønadskontoType) ? Forklaring.MINSTERETT : null;
+            case UDEFINERT, UFØRE, IKKE_OPPGITT -> UttakPeriodeType.FORELDREPENGER.equals(stønadskontoType) ? Forklaring.MINSTERETT : null;
             case ARBEID -> Forklaring.AKTIVITETSKRAV_ARBEID;
             case UTDANNING -> Forklaring.AKTIVITETSKRAV_UTDANNING;
             case KVALPROG -> Forklaring.AKTIVITETSKRAV_KVALIFISERINGSPROGRAM;
@@ -256,7 +256,7 @@ class StønadsstatistikkUttakPeriodeMapper {
 
     private static Optional<ForeldrepengerUttakPeriodeAktivitet> velgAktivitet(ForeldrepengerUttakPeriode periode) {
         Predicate<ForeldrepengerUttakPeriodeAktivitet> kompatibelKonto = a -> periode.getSøktKonto() == null ||
-            a.getTrekkonto().getKode().equals(periode.getSøktKonto().getKode());
+            a.getTrekkonto().equals(periode.getSøktKonto());
         if (periode.harTrekkdager()) {
             return periode.getAktiviteter()
                 .stream()
@@ -297,7 +297,7 @@ class StønadsstatistikkUttakPeriodeMapper {
 
     private static StønadsstatistikkVedtak.RettighetType utledRettighet(RelasjonsRolleType rolleType,
                                                                         StønadsstatistikkVedtak.RettighetType rettighetType,
-                                                                        StønadskontoType stønadskontoType,
+                                                                        UttakPeriodeType stønadskontoType,
                                                                         ForeldrepengerUttakPeriode periode) {
         if (periode.isInnvilget() && periode.harTrekkdager() && overførerAnnenPartsKvote(rolleType, stønadskontoType)) {
             if (OverføringÅrsak.ALENEOMSORG.equals(periode.getOverføringÅrsak()) && periode.isInnvilget()) {
@@ -313,26 +313,26 @@ class StønadsstatistikkUttakPeriodeMapper {
         return rettighetType;
     }
 
-    private static boolean overførerAnnenPartsKvote(RelasjonsRolleType rolleType, StønadskontoType stønadskontoType) {
+    private static boolean overførerAnnenPartsKvote(RelasjonsRolleType rolleType, UttakPeriodeType stønadskontoType) {
         return morFedrekvote(rolleType, stønadskontoType) || farMødrekvote(rolleType, stønadskontoType);
     }
 
-    private static boolean farMødrekvote(RelasjonsRolleType rolleType, StønadskontoType stønadskontoType) {
-        return RelasjonsRolleType.erFarEllerMedmor(rolleType) && StønadskontoType.MØDREKVOTE.equals(stønadskontoType);
+    private static boolean farMødrekvote(RelasjonsRolleType rolleType, UttakPeriodeType stønadskontoType) {
+        return RelasjonsRolleType.erFarEllerMedmor(rolleType) && UttakPeriodeType.MØDREKVOTE.equals(stønadskontoType);
     }
 
-    private static boolean morFedrekvote(RelasjonsRolleType rolleType, StønadskontoType stønadskontoType) {
-        return RelasjonsRolleType.erMor(rolleType) && StønadskontoType.FEDREKVOTE.equals(stønadskontoType);
+    private static boolean morFedrekvote(RelasjonsRolleType rolleType, UttakPeriodeType stønadskontoType) {
+        return RelasjonsRolleType.erMor(rolleType) && UttakPeriodeType.FEDREKVOTE.equals(stønadskontoType);
     }
 
-    private static StønadsstatistikkVedtak.StønadskontoType mapStønadskonto(StønadskontoType stønadskontoType) {
+    private static StønadsstatistikkVedtak.StønadskontoType mapStønadskonto(UttakPeriodeType stønadskontoType) {
         return switch (stønadskontoType) {
             case MØDREKVOTE -> StønadsstatistikkVedtak.StønadskontoType.MØDREKVOTE;
             case FORELDREPENGER_FØR_FØDSEL -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
             case FEDREKVOTE -> StønadsstatistikkVedtak.StønadskontoType.FEDREKVOTE;
             case FELLESPERIODE -> StønadsstatistikkVedtak.StønadskontoType.FELLESPERIODE;
             case FORELDREPENGER -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER;
-            case UDEFINERT, FLERBARNSDAGER -> null;
+            case UDEFINERT -> null;
         };
     }
 

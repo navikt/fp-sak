@@ -22,13 +22,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -145,7 +145,7 @@ public class SatsReguleringUtil {
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom,
-            uttakFom.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
+            uttakFom.plusWeeks(15).minusDays(1), UttakPeriodeType.MØDREKVOTE);
 
         repositoryProvider.getFpUttakRepository()
             .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
@@ -169,14 +169,14 @@ public class SatsReguleringUtil {
     static void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                            UttakAktivitetEntitet uttakAktivitet,
                            LocalDate fom, LocalDate tom,
-                           StønadskontoType stønadskontoType) {
+                           UttakPeriodeType stønadskontoType) {
         lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, uttakAktivitet);
     }
 
     static void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                            LocalDate fom,
                            LocalDate tom,
-                           StønadskontoType stønadskontoType,
+                           UttakPeriodeType stønadskontoType,
                            UttakAktivitetEntitet uttakAktivitetEntitet) {
 
         var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
