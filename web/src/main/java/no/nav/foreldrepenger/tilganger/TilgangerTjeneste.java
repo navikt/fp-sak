@@ -57,11 +57,13 @@ public class TilgangerTjeneste {
         var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
-        sammenlignMenAzureGraphFailSoft(ldapBrukerInfo);
+        if (!Environment.current().isProd() || Boolean.TRUE.equals(Environment.current().getProperty("MS_GRAPH_CHECK", Boolean.class, Boolean.FALSE))) {
+            sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
+        }
         return ldapBrukerInfo;
     }
 
-    private static void sammenlignMenAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
+    private static void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
         LOG.info("TILGANGER Azure. Henter fra azure.");
         try {
             var azureBrukerInfo = new TilgangKlient().brukerInfo();
