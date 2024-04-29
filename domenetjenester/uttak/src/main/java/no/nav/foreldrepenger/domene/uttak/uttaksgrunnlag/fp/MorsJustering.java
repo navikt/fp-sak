@@ -289,7 +289,6 @@ class MorsJustering implements ForelderFødselJustering {
         return justertFellesperiode;
     }
 
-
     /**
      * Her har vi 6 håndteringer:
      *  1) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
@@ -419,10 +418,12 @@ class MorsJustering implements ForelderFødselJustering {
         return resultat;
     }
 
-    private static List<OppgittPeriodeEntitet> hullFra(List<OppgittPeriodeEntitet> oppgittePerioder) {
+    private List<OppgittPeriodeEntitet> hullFra(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
-        var sjekkPeriode = new LocalDateTimeline<>(oppgittTimeline.getMinLocalDate(), oppgittTimeline.getMaxLocalDate(), true);
-        return sjekkPeriode.disjoint(oppgittTimeline).stream()
+        var hullFraDato = nyFamiliehendelse.isBefore(gammelFamiliehendelse) ? gammelFamiliehendelse : oppgittTimeline.getMinLocalDate();
+        var hullTilDato = oppgittTimeline.getMaxLocalDate().isAfter(hullFraDato) ? oppgittTimeline.getMaxLocalDate() : hullFraDato;
+        var sjekkHullIInterval = new LocalDateTimeline<>(hullFraDato, hullTilDato, true);
+        return sjekkHullIInterval.disjoint(oppgittTimeline).stream()
             .map(seg -> new JusterPeriodeHull(seg.getFom(), seg.getTom()))
             .map(OppgittPeriodeEntitet.class::cast)
             .toList();
@@ -579,15 +580,6 @@ class MorsJustering implements ForelderFødselJustering {
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var hull = hullFra(oppgittePerioder);
-        if (nyFamiliehendelse.isBefore(gammelFamiliehendelse)) {
-            var hullTidslinje = tilLocalDateTimeLine(hull);
-            var intervallEtterTermin = new LocalDateInterval(gammelFamiliehendelse, LocalDateInterval.TIDENES_ENDE);
-            hull = hullTidslinje.intersection(intervallEtterTermin).stream()
-                .filter(MorsJustering::harVirkedager)
-                .map(seg -> kopier(seg.getValue(), seg.getFom(), seg.getTom()))
-                .toList();
-        }
-
         var ikkeFlyttbarePerioderFraOppgittePerioder = oppgittePerioder.stream()
             .filter(periode -> !erPeriodeFlyttbar(periode))
             .toList();
