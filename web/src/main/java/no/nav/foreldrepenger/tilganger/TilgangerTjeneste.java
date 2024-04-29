@@ -24,6 +24,7 @@ public class TilgangerTjeneste {
     private String gruppenavnEgenAnsatt;
     private String gruppenavnKode6;
     private String gruppenavnKode7;
+    private String gruppenavnDrift;
 
     public TilgangerTjeneste() {
         // CDI
@@ -38,7 +39,8 @@ public class TilgangerTjeneste {
         @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
         @KonfigVerdi(value = "bruker.gruppenavn.egenansatt") String gruppenavnEgenAnsatt,
         @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6,
-        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7
+        @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7,
+        @KonfigVerdi(value = "bruker.gruppenavn.drift") String gruppenavnDrift
     ) {
         this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.gruppenavnVeileder = gruppenavnVeileder;
@@ -48,28 +50,29 @@ public class TilgangerTjeneste {
         this.gruppenavnEgenAnsatt = gruppenavnEgenAnsatt;
         this.gruppenavnKode6 = gruppenavnKode6;
         this.gruppenavnKode7 = gruppenavnKode7;
+        this.gruppenavnDrift = gruppenavnDrift;
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
         var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
-
-        if (!Environment.current().isProd()) {
-            LOG.info("TILGANGER: Henter fra azure.");
-            try {
-                var azureBrukerInfo = new TilgangKlient().brukerInfo();
-                if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
-                    LOG.info("TILGANGER: Tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
-                } else {
-                    LOG.info("TILGANGER: Azure == LDAP :)");
-                }
-            } catch (Exception ex) {
-                LOG.info("TILGANGER: Azure klienten feilet med exception: {}", ex.getMessage());
-            }
-        }
-
+        sammenlignMenAzureGraphFailSoft(ldapBrukerInfo);
         return ldapBrukerInfo;
+    }
+
+    private static void sammenlignMenAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
+        LOG.info("TILGANGER Azure. Henter fra azure.");
+        try {
+            var azureBrukerInfo = new TilgangKlient().brukerInfo();
+            if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
+                LOG.info("TILGANGER Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
+            } else {
+                LOG.info("TILGANGER Azure. Azure == LDAP :)");
+            }
+        } catch (Exception ex) {
+            LOG.info("TILGANGER Azure. Klienten feilet med exception: {}", ex.getMessage());
+        }
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
@@ -84,6 +87,7 @@ public class TilgangerTjeneste {
             .kanBehandleKodeEgenAnsatt(grupper.contains(gruppenavnEgenAnsatt))
             .kanBehandleKode6(grupper.contains(gruppenavnKode6))
             .kanBehandleKode7(grupper.contains(gruppenavnKode7))
+            .kanDrifte(grupper.contains(gruppenavnDrift))
             .build();
     }
 

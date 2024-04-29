@@ -18,12 +18,13 @@ class TilgangerTjenesteTest {
     private static final String gruppenavnEgenAnsatt = "EgenAnsatt";
     private static final String gruppenavnKode6 = "Kode6";
     private static final String gruppenavnKode7 = "Kode7";
+    private static final String gruppenavnDrift = "Drifter";
     private TilgangerTjeneste tilgangerTjeneste;
 
     @BeforeEach
     public void setUp() {
         tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer,
-            gruppenavnOppgavestyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7);
+            gruppenavnOppgavestyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, gruppenavnDrift);
     }
 
     @Test
@@ -109,6 +110,18 @@ class TilgangerTjenesteTest {
 
         assertThat(innloggetBrukerUtenKode7Rettighet.kanBehandleKode7()).isFalse();
         assertThat(innloggetBrukerMedKode7Rettighet.kanBehandleKode7()).isTrue();
+    }
+
+    @Test
+    void skalMappeDriftGruppeTilKanDrifteRettighet() {
+        var brukerUtenforDriftGruppe = getTestBruker();
+        var brukerIDriftGruppe = getTestBruker(gruppenavnDrift);
+
+        var innloggetBrukerUtenDriftRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforDriftGruppe);
+        var innloggetBrukerMedDriftRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIDriftGruppe);
+
+        assertThat(innloggetBrukerUtenDriftRettighet.kanDrifte()).isFalse();
+        assertThat(innloggetBrukerMedDriftRettighet.kanDrifte()).isTrue();
     }
 
     private static LdapBruker getTestBruker(String... grupper) {
