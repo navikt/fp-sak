@@ -146,7 +146,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
                 var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
                     .medOppgittRettighet(yfa.getOppgittRettighet())
-                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad()) //TODO TFP-5702 sette oppgitt = sakskompleksDG eller bare kopiere begge?
+                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad())
                     .medOppgittFordeling(revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
                 ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
             });

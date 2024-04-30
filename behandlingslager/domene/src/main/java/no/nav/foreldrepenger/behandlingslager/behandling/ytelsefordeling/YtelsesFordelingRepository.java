@@ -125,7 +125,7 @@ public class YtelsesFordelingRepository {
         var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad() == null ? null : aggregat.getOppgittDekningsgrad().getVerdi());
-        grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getOppgittDekningsgrad().getVerdi());
+        grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSakskompleksDekningsgrad().getVerdi());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());

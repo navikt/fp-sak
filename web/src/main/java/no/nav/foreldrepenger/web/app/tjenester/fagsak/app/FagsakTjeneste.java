@@ -141,10 +141,6 @@ public class FagsakTjeneste {
         return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
     }
 
-    private Optional<Dekningsgrad> finnDekningsgrad(Saksnummer saksnummer) {
-        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(saksnummer);
-    }
-
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi) {
         return mapFraPersoninfoBasisTilPersonDto(pi, Språkkode.NB);
     }
@@ -155,8 +151,11 @@ public class FagsakTjeneste {
     }
 
     private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
-        return new FagsakBackendDto(fagsak, finnDekningsgrad(fagsak.getSaksnummer())
-            .map(Dekningsgrad::getVerdi).orElse(null));
+        var behandling = hentSisteYtelsesBehandling(fagsak);
+        var dekningsgrad = behandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(b))
+            .map(Dekningsgrad::getVerdi)
+            .orElse(null);
+        return new FagsakBackendDto(fagsak, dekningsgrad);
     }
 
     private FagsakSøkDto mapFraFagsakTilFagsakSøkDto(Fagsak fagsak, PersoninfoBasis pi) {
@@ -166,11 +165,15 @@ public class FagsakTjeneste {
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+        return hentSisteYtelsesBehandling(fagsak)
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(h -> new SakHendelseDto(h.getType(), hendelseDato(h), h.getAntallBarn(),
                 !h.getBarna().isEmpty() && h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));
+    }
+
+    private Optional<Behandling> hentSisteYtelsesBehandling(Fagsak fagsak) {
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
     }
 
     private LocalDate hendelseDato(FamilieHendelseEntitet fh) {

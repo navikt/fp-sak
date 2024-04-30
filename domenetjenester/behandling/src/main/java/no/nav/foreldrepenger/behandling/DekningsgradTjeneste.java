@@ -37,7 +37,7 @@ public class DekningsgradTjeneste {
 
     public Dekningsgrad finnGjeldendeDekningsgrad(BehandlingReferanse ref) {
         var saksnummer = ref.saksnummer();
-        return finnGjeldendeDekningsgrad(saksnummer);
+        return finnGjeldendeDekningsgradHvisEksisterer(saksnummer).orElseThrow();
     }
 
     public Dekningsgrad finnGjeldendeDekningsgrad(Behandling behandling) {
@@ -45,12 +45,7 @@ public class DekningsgradTjeneste {
     }
 
     public Optional<Dekningsgrad> finnOppgittDekningsgrad(Behandling behandling) {
-        //Gjøre ikke optional?
         return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(behandling.getFagsak().getSaksnummer()).map(FagsakRelasjon::getDekningsgrad);
-    }
-
-    public Dekningsgrad finnGjeldendeDekningsgrad(Saksnummer saksnummer) {
-        return finnGjeldendeDekningsgradHvisEksisterer(saksnummer).orElseThrow();
     }
 
     public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(Saksnummer saksnummer) {
