@@ -27,6 +27,7 @@ public class Transisjoner {
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE.getId(), BehandlingStegType.BEREGN_YTELSE),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK.getId(), BehandlingStegType.IVERKSETT_VEDTAK),
             new SpolFremoverTransisjon(BehandlingStegType.KONTROLLER_FAKTA),
+            new SpolFremoverTransisjon(BehandlingStegType.DEKNINGSGRAD),
             new SpolFremoverTransisjon(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
             new SpolFremoverTransisjon(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
             new SpolFremoverTransisjon(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),

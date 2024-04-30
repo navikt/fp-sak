@@ -128,7 +128,7 @@ class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    void skal_returnere_startpunkt_beregning_dersom_tilkommet_dødfødsel_med_dekningsgrad80() {
+    void skal_returnere_startpunkt_dekningsgrad_dersom_tilkommet_dødfødsel_med_dekningsgrad80() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var skjæringsdato = LocalDate.now().minusWeeks(3);
@@ -166,7 +166,7 @@ class StartpunktUtlederFamilieHendelseTest {
         when(familieHendelseTjeneste.hentGrunnlagPåId(2L)).thenReturn(g2);
 
         var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, dekningsgradTjeneste);
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(StartpunktType.BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(StartpunktType.DEKNINGSGRAD);
     }
 
     @Test

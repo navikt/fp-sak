@@ -48,9 +48,9 @@ public class EndreDekningsgradVedDødTjeneste {
         this.behandlingLåsRepository = behandlingLåsRepository;
     }
 
-    public void endreDekningsgradTil100(BehandlingReferanse ref) {
-        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+    public void endreDekningsgradTil100(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(behandling);
         if (gjeldendeDekningsgrad.equals(Dekningsgrad._100)) {
             // Eneste kjente case for å endre dekningsgrad er ved barnets død, som alltid skal ha dekningsgrad på 100.
             // Om denne allerede er satt trenger vi ikke endre
@@ -59,7 +59,7 @@ public class EndreDekningsgradVedDødTjeneste {
         oppdaterFagsakRelasjon(behandling, Dekningsgrad._100);
         oppdaterBehandlingsresultat(behandling);
         lagHistorikkinnslag(behandling);
-        LOG.info("Endrer dekningsgrad for saksnummer " + ref.saksnummer() + " automatisk på grunn av død");
+        LOG.info("Endrer dekningsgrad for behandling {} automatisk på grunn av død", behandlingId);
     }
 
     private void lagHistorikkinnslag(Behandling behandling) {

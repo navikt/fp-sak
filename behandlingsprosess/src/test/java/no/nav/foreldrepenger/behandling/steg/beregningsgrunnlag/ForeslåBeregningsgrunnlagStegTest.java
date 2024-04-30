@@ -7,10 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,17 +20,14 @@ import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp.BeregningsgrunnlagInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -55,8 +49,6 @@ class ForeslåBeregningsgrunnlagStegTest {
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
-    private FamilieHendelseRepository familieHendelseRepository;
-    @Mock
     private BehandlingskontrollKontekst kontekst;
     @Mock
     private Behandling behandling;
@@ -64,8 +56,6 @@ class ForeslåBeregningsgrunnlagStegTest {
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     @Mock
     BeregningsgrunnlagInputProvider inputProvider;
-    @Mock
-    EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -85,17 +75,9 @@ class ForeslåBeregningsgrunnlagStegTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(any())).thenReturn(beregningsgrunnlagRegelResultat);
 
-        var mockFamilieHendelseEntitet = mock(FamilieHendelseEntitet.class);
-        when(mockFamilieHendelseEntitet.getBarna()).thenReturn(List.of());
-
-        var mockFamilieHendelseGrunnlagEntitet = mock(FamilieHendelseGrunnlagEntitet.class);
-        when(mockFamilieHendelseGrunnlagEntitet.getGjeldendeVersjon()).thenReturn(mockFamilieHendelseEntitet);
-
-        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(mockFamilieHendelseGrunnlagEntitet));
-
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, beregningsgrunnlagKopierOgLagreTjeneste,
-                inputProvider, endreDekningsgradVedDødTjeneste);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningsgrunnlagKopierOgLagreTjeneste,
+                inputProvider);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }
