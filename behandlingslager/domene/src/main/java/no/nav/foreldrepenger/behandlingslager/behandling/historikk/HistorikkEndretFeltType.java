@@ -28,7 +28,6 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     BRUK_ANTALL_I_TPS("BRUK_ANTALL_I_TPS", "Bruk antall fra folkeregisteret"),
     BRUK_ANTALL_I_VEDTAKET("BRUK_ANTALL_I_VEDTAKET", "Bruk antall fra vedtaket"),
     BRUTTO_NAERINGSINNTEKT("BRUTTO_NAERINGSINNTEKT", "Brutto næringsinntekt"),
-    DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad"),
     DODSDATO("DODSDATO", "Dødsdato"),
     DOKUMENTASJON_FORELIGGER("DOKUMENTASJON_FORELIGGER", "Dokumentasjon foreligger"),
     EKTEFELLES_BARN("EKTEFELLES_BARN", "Ektefelles barn"),
