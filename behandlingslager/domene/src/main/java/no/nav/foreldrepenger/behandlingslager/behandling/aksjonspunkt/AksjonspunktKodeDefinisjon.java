@@ -23,6 +23,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_PÅ_KABAL_ANKE_KODE = "7040";
 
 
+    public static final String AVKLAR_DEKNINGSGRAD_KODE = "5002";
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
     public static final String AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE = "5021";
     public static final String AVKLAR_LOVLIG_OPPHOLD_KODE = "5019";

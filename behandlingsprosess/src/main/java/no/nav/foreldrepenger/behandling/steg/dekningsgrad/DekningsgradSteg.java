@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.dekningsgrad;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_DEKNINGSGRAD;
+
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -58,10 +60,7 @@ public class DekningsgradSteg implements BehandlingSteg {
             ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, fh).map(d -> {
             ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(behandlingId, d);
             return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }).orElseGet(() -> {
-            //TODO TFP-5702 aksjonspunkt
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-            });
+        }).orElseGet(() -> BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD));
     }
 
     private Optional<Dekningsgrad> finnAnnenPartsOppgittDekningsgrad(Long fagsakId) {

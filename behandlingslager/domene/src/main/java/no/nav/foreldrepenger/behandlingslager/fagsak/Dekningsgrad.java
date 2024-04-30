@@ -23,8 +23,8 @@ public class Dekningsgrad {
     }
 
     public Dekningsgrad(int verdi) {
-        if (verdi < 0 || verdi > 100) {
-            throw new IllegalArgumentException("!( 0 < value < 100 )");
+        if (verdi != 80 && verdi != 100) {
+            throw new IllegalArgumentException("Dekningsgrad er hverken 80 eller 100!");
         }
         this.verdi = verdi;
     }

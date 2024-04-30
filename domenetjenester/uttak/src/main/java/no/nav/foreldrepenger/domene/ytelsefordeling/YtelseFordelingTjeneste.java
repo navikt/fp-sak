@@ -139,7 +139,12 @@ public class YtelseFordelingTjeneste {
     }
 
     public void lagreSakskompleksDekningsgrad(Long behandlingId, Dekningsgrad sakskompleksDekningsgrad) {
-        var yfa = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+        var eksisterendeYtelsesFordeling = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        if (sakskompleksDekningsgrad.equals(eksisterendeYtelsesFordeling.getSakskompleksDekningsgrad())) {
+            return;
+        }
+
+        var yfa = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(eksisterendeYtelsesFordeling))
             .medSakskompleksDekningsgrad(sakskompleksDekningsgrad)
             .build();
 
