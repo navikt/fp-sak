@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dekningsgrad;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -11,6 +12,7 @@ public class AvklarDekningsgradHistorikkinnslagTjeneste {
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
+    @Inject
     public AvklarDekningsgradHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkTjenesteAdapter) {
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
     }
