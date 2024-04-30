@@ -91,7 +91,7 @@ public class MapIAYTilKalkulusInput {
         grunnlag.getGjeldendeOppgittOpptjening()
             .ifPresent(oo -> inntektArbeidYtelseGrunnlagDto.medOppgittOpptjeningDto(mapTilOppgittOpptjeningDto(oo)));
 
-        inntektArbeidYtelseGrunnlagDto.medInntektsmeldingerDto(mapInntektsmeldingTilDto(inntektsmeldinger, referanse));
+        inntektArbeidYtelseGrunnlagDto.medInntektsmeldingerDto(mapInntektsmeldingTilDto(inntektsmeldinger));
         inntektArbeidYtelseGrunnlagDto.medArbeidsforholdInformasjonDto(grunnlag.getArbeidsforholdInformasjon().map(MapIAYTilKalkulusInput::mapTilArbeidsforholdInformasjonDto).orElse(null));
 
         return inntektArbeidYtelseGrunnlagDto;
@@ -111,7 +111,7 @@ public class MapIAYTilKalkulusInput {
         return null;
     }
 
-    private static InntektsmeldingerDto mapInntektsmeldingTilDto(List<Inntektsmelding> inntektsmeldinger, BehandlingReferanse referanse) {
+    private static InntektsmeldingerDto mapInntektsmeldingTilDto(List<Inntektsmelding> inntektsmeldinger) {
         var mappedeInntektsmeldinger = inntektsmeldinger.stream().map(inntektsmelding -> {
             Aktør aktør = mapTilAktør(inntektsmelding.getArbeidsgiver());
             var inntektBeløp = no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra((inntektsmelding.getInntektBeløp().getVerdi()));
