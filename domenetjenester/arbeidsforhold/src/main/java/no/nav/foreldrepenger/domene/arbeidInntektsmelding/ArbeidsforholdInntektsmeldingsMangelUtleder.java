@@ -39,7 +39,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
-    public List<ArbeidsforholdMangel> finnManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
+    public List<ArbeidsforholdMangel> finnAlleManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {

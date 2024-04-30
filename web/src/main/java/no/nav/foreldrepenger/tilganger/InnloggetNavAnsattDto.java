@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.tilganger;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public record InnloggetNavAnsattDto(String brukernavn,
                                     String navn,
@@ -12,12 +13,12 @@ public record InnloggetNavAnsattDto(String brukernavn,
                                     boolean kanBehandleKodeEgenAnsatt,
                                     boolean kanBehandleKode6,
                                     boolean kanBehandleKode7,
-                                    boolean skalViseDetaljerteFeilmeldinger,
+                                    boolean kanDrifte,
                                     LocalDateTime funksjonellTid) {
+
     private InnloggetNavAnsattDto(Builder builder) {
         this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanBeslutte, builder.kanOverstyre,
-            builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7,
-            builder.skalViseDetaljerteFeilmeldinger, LocalDateTime.now());
+            builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7, builder.kanDrifte, LocalDateTime.now());
     }
 
     @Override
@@ -28,7 +29,7 @@ public record InnloggetNavAnsattDto(String brukernavn,
             ", kanBeslutte=" + kanBeslutte +
             ", kanOverstyre=" + kanOverstyre +
             ", kanOppgavestyre=" + kanOppgavestyre +
-            ", skalViseDetaljerteFeilmeldinger=" + skalViseDetaljerteFeilmeldinger +
+            ", kanDrifte=" + kanDrifte +
             ", funksjonellTid=" + funksjonellTid + '}';
     }
 
@@ -43,7 +44,7 @@ public record InnloggetNavAnsattDto(String brukernavn,
         private boolean kanBehandleKodeEgenAnsatt;
         private boolean kanBehandleKode6;
         private boolean kanBehandleKode7;
-        private boolean skalViseDetaljerteFeilmeldinger;
+        private boolean kanDrifte;
 
         public Builder(String brukernavn, String navn) {
             this.brukernavn = brukernavn;
@@ -90,13 +91,32 @@ public record InnloggetNavAnsattDto(String brukernavn,
             return this;
         }
 
-        public Builder skalViseDetaljerteFeilmeldinger(boolean skalViseDetaljerteFeilmeldinger) {
-            this.skalViseDetaljerteFeilmeldinger = skalViseDetaljerteFeilmeldinger;
+        public Builder kanDrifte(boolean kanDrifte) {
+            this.kanDrifte = kanDrifte;
             return this;
         }
 
         public InnloggetNavAnsattDto build() {
             return new InnloggetNavAnsattDto(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        InnloggetNavAnsattDto that = (InnloggetNavAnsattDto) o;
+        return kanVeilede == that.kanVeilede && kanBeslutte == that.kanBeslutte && kanOverstyre == that.kanOverstyre
+            && kanSaksbehandle == that.kanSaksbehandle && kanOppgavestyre == that.kanOppgavestyre && kanBehandleKode6 == that.kanBehandleKode6
+            && kanBehandleKode7 == that.kanBehandleKode7 && kanBehandleKodeEgenAnsatt == that.kanBehandleKodeEgenAnsatt && kanDrifte == that.kanDrifte &&
+            Objects.equals(navn, that.navn) && Objects.equals(brukernavn, that.brukernavn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(brukernavn, navn, kanSaksbehandle, kanVeilede, kanBeslutte, kanOverstyre, kanOppgavestyre, kanBehandleKodeEgenAnsatt,
+            kanBehandleKode6, kanBehandleKode7, kanDrifte);
     }
 }

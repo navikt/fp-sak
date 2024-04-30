@@ -3,12 +3,18 @@ package no.nav.foreldrepenger.tilganger;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.tilganger.azure.TilgangKlient;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class TilgangerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(TilgangerTjeneste.class);
 
     private String gruppenavnSaksbehandler;
     private String gruppenavnVeileder;
@@ -18,7 +24,7 @@ public class TilgangerTjeneste {
     private String gruppenavnEgenAnsatt;
     private String gruppenavnKode6;
     private String gruppenavnKode7;
-    private boolean skalViseDetaljerteFeilmeldinger;
+    private String gruppenavnDrift;
 
     public TilgangerTjeneste() {
         // CDI
@@ -34,7 +40,7 @@ public class TilgangerTjeneste {
         @KonfigVerdi(value = "bruker.gruppenavn.egenansatt") String gruppenavnEgenAnsatt,
         @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6,
         @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7,
-        @KonfigVerdi(value = "vise.detaljerte.feilmeldinger", defaultVerdi = "true") Boolean viseDetaljerteFeilmeldinger
+        @KonfigVerdi(value = "bruker.gruppenavn.drift") String gruppenavnDrift
     ) {
         this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.gruppenavnVeileder = gruppenavnVeileder;
@@ -44,13 +50,29 @@ public class TilgangerTjeneste {
         this.gruppenavnEgenAnsatt = gruppenavnEgenAnsatt;
         this.gruppenavnKode6 = gruppenavnKode6;
         this.gruppenavnKode7 = gruppenavnKode7;
-        this.skalViseDetaljerteFeilmeldinger = viseDetaljerteFeilmeldinger != null && viseDetaljerteFeilmeldinger;
+        this.gruppenavnDrift = gruppenavnDrift;
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
         var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
-        return getInnloggetBruker(ident, ldapBruker);
+        var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
+        sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
+        return ldapBrukerInfo;
+    }
+
+    private static void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
+        LOG.info("TILGANGER Azure. Henter fra azure.");
+        try {
+            var azureBrukerInfo = new TilgangKlient().brukerInfo();
+            if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
+                LOG.info("TILGANGER Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
+            } else {
+                LOG.info("TILGANGER Azure. Azure == LDAP :)");
+            }
+        } catch (Exception ex) {
+            LOG.info("TILGANGER Azure. Klienten feilet med exception: {}", ex.getMessage());
+        }
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
@@ -65,7 +87,7 @@ public class TilgangerTjeneste {
             .kanBehandleKodeEgenAnsatt(grupper.contains(gruppenavnEgenAnsatt))
             .kanBehandleKode6(grupper.contains(gruppenavnKode6))
             .kanBehandleKode7(grupper.contains(gruppenavnKode7))
-            .skalViseDetaljerteFeilmeldinger(this.skalViseDetaljerteFeilmeldinger)
+            .kanDrifte(grupper.contains(gruppenavnDrift))
             .build();
     }
 
