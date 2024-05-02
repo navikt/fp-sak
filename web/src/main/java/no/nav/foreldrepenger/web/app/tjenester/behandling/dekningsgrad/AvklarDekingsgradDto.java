@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class AvklarDekingsgradDto extends BekreftetAksjonspunktDto {
 
     @Size(min = 80, max = 100)
-    private int avklartDekningsgrad;
+    private final int avklartDekningsgrad;
 
     public AvklarDekingsgradDto(String begrunnelse, int avklartDekningsgrad) {
         super(begrunnelse);

@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.dekningsgrad;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_DEKNINGSGRAD;
-
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -28,6 +29,8 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class DekningsgradSteg implements BehandlingSteg {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DekningsgradSteg.class);
 
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -60,7 +63,11 @@ public class DekningsgradSteg implements BehandlingSteg {
             ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, fh).map(d -> {
             ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(behandlingId, d);
             return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }).orElseGet(() -> BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD));
+        }).orElseGet(() -> {
+            LOG.info("Ville ha opprettet aksjonspunkt for avklare dekningsgrad");
+//            return BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD);
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        });
     }
 
     private Optional<Dekningsgrad> finnAnnenPartsOppgittDekningsgrad(Long fagsakId) {
