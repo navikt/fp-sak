@@ -137,7 +137,8 @@ public class FagsakFullTjeneste {
     }
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
-        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(fagsak.getSaksnummer())
+        var sisteYtelsesBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        return sisteYtelsesBehandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(b))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
     }

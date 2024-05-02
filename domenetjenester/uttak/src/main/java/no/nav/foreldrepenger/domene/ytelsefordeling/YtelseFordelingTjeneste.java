@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -135,5 +136,18 @@ public class YtelseFordelingTjeneste {
 
     public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
         return ytelsesFordelingRepository.hentGrunnlagPåId(grunnlagId);
+    }
+
+    public void lagreSakskompleksDekningsgrad(Long behandlingId, Dekningsgrad sakskompleksDekningsgrad) {
+        var eksisterendeYtelsesFordeling = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        if (sakskompleksDekningsgrad.equals(eksisterendeYtelsesFordeling.getSakskompleksDekningsgrad())) {
+            return;
+        }
+
+        var yfa = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(eksisterendeYtelsesFordeling))
+            .medSakskompleksDekningsgrad(sakskompleksDekningsgrad)
+            .build();
+
+        ytelsesFordelingRepository.lagre(behandlingId, yfa);
     }
 }
