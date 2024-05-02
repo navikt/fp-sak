@@ -27,6 +27,10 @@ public class SjekkOverlapp {
             .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
             .toList();
 
+        if (ytelseSegments.isEmpty()) {
+            return false;
+        }
+
         var minYtelseDato = ytelseSegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElseThrow();
         var ytelseTidslinje = new LocalDateTimeline<>(ytelseSegments, StandardCombinators::max);
 

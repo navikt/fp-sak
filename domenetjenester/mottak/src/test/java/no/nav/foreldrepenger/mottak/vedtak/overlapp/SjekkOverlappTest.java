@@ -26,8 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
-class SjekkOverlappPleiepengerTest {
-    //Skal legge til test her
+class SjekkOverlappTest {
 
     @Test
     void overlapp_og_mer_enn_100_prosent() {
@@ -40,7 +39,7 @@ class SjekkOverlappPleiepengerTest {
         periode.setTom(TIL);
         var aktør = new Aktør();
         aktør.setVerdi("111111");
-        var ytelse = genererYtelseAbakus(YtelseType.PLEIEPENGER_SYKT_BARN, aktør, periode, List.of(anvist));
+        var ytelse = genererYtelseAbakus(aktør, periode, List.of(anvist));
 
         assertThat(SjekkOverlapp.erOverlappOgMerEnn100Prosent(Optional.of(beregningsresultatEnitet), List.of(ytelse))).isTrue();
     }
@@ -56,12 +55,12 @@ class SjekkOverlappPleiepengerTest {
         periode.setTom(TIL);
         var aktør = new Aktør();
         aktør.setVerdi("111111");
-        var ytelse = genererYtelseAbakus(YtelseType.PLEIEPENGER_SYKT_BARN, aktør, periode, List.of(anvist));
+        var ytelse = genererYtelseAbakus(aktør, periode, List.of(anvist));
 
         assertThat(SjekkOverlapp.erOverlappOgMerEnn100Prosent(Optional.of(beregningsresultatEnitet), List.of(ytelse))).isFalse();
     }
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int dagsats, BigDecimal utbetalingsgrad) {
-        int dagSatsRedusertMedUtbetalingsgrad = 0;
+        int dagSatsRedusertMedUtbetalingsgrad;
 
         dagSatsRedusertMedUtbetalingsgrad = new BigDecimal(dagsats).multiply(utbetalingsgrad)
             .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
@@ -83,32 +82,14 @@ class SjekkOverlappPleiepengerTest {
         return beregningsresultat;
     }
 
-    private void leggTilBerPeriode(BeregningsresultatEntitet beregningsresultatEntitet, LocalDate fom, LocalDate tom, int dagsats, int utbetGrad, int stillingsprosent) {
-        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultatEntitet);
-
-        BeregningsresultatAndel.builder()
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medDagsats(dagsats)
-            .medDagsatsFraBg(dagsats)
-            .medBrukerErMottaker(true)
-            .medUtbetalingsgrad(BigDecimal.valueOf(utbetGrad))
-            .medStillingsprosent(BigDecimal.valueOf(stillingsprosent))
-            .build(beregningsresultatPeriode);
-
-        beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
-    }
-
-    private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
+    private YtelseV1 genererYtelseAbakus(Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
         ytelse.setKildesystem(Kildesystem.K9SAK);
         ytelse.setSaksnummer("6T5NM");
         ytelse.setVedtattTidspunkt(LocalDateTime.now());
         ytelse.setVedtakReferanse("1001-ABC");
         ytelse.setAktør(aktør);
-        ytelse.setYtelse(mapYtelseType(type));
+        ytelse.setYtelse(mapYtelseType(YtelseType.PLEIEPENGER_SYKT_BARN));
         ytelse.setYtelseStatus(Status.LØPENDE);
         ytelse.setPeriode(periode);
         ytelse.setAnvist(anvist);
