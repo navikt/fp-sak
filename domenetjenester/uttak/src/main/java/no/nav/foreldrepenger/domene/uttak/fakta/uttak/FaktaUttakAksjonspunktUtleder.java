@@ -119,7 +119,7 @@ public class FaktaUttakAksjonspunktUtleder {
                 .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
                 .flatMap(Collection::stream)
                 .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-                .anyMatch(aa -> aa.getPeriode().inkluderer(førsteDatoMedGraderingForAG));
+                .noneMatch(aa -> aa.getPeriode().inkluderer(førsteDatoMedGraderingForAG));
         }
         return false;
     }
