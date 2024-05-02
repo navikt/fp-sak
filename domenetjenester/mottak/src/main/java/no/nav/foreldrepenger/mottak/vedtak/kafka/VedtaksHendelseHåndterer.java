@@ -172,6 +172,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
     }
 
     private List<Fagsak> fagsakerMedVedtakOverlapp(YtelseV1 ytelse, List<Fagsak> fagsaker) {
+        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
         var behandlinger = fagsaker.stream()
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .filter(b -> SjekkOverlapp.erOverlappOgMerEnn100Prosent(tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId()), List.of(ytelse)));
