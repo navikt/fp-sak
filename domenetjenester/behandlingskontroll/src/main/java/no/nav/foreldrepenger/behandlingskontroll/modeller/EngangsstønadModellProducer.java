@@ -34,6 +34,7 @@ public class EngangsstønadModellProducer {
                 BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR,
                 BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR,
                 BehandlingStegType.VURDER_SAMLET,
+                BehandlingStegType.VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR,
                 BehandlingStegType.BEREGN_YTELSE,
                 BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT,
                 BehandlingStegType.SIMULER_OPPDRAG,

@@ -49,6 +49,7 @@ public enum BehandlingStegType implements Kodeverdi {
 
     // Kun for Engangsstønad
     VURDER_SØKNADSFRISTVILKÅR("VURDERSFV", "Vurder felles inngangsvilkår", UTREDES),
+    VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR("VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR", "Vurder vilkår om forutgående medlemskap",UTREDES),
 
     // Kun for Foreldrepenger
     DEKNINGSGRAD("DEKNINGSGRAD", "Fastsetter dekningsgrad for behandling", UTREDES),
