@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class AktivitetskravArbeidRepository {
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Inject
     public AktivitetskravArbeidRepository(EntityManager entityManager) {
@@ -23,14 +23,14 @@ public class AktivitetskravArbeidRepository {
     }
 
     public void lagreAktivitetskravArbeidPerioder(Long behandlingId,
-                                                  AktivitetskravArbeidPerioderEntitet.Builder builder,
+                                                  AktivitetskravArbeidPerioderEntitet perioderEntitet,
                                                   LocalDate fraDato,
                                                   LocalDate tilDato) {
 
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
-            .medPerioderMedAktivitetskravArbeid(builder)
+            .medPerioderMedAktivitetskravArbeid(perioderEntitet)
             .medPeriode(fraDato, tilDato);
 
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
@@ -52,6 +52,11 @@ public class AktivitetskravArbeidRepository {
             entityManager.persist(nyttGrunnlag);
             entityManager.flush();
         }
+    }
+
+    public void  fjernGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlagEntitet) {
+        aktivitetskravGrunnlagEntitet.deaktiver();
+        entityManager.persist(aktivitetskravGrunnlagEntitet);
     }
 
     public Optional<AktivitetskravGrunnlagEntitet> hentGrunnlag(Long behandlingId) {

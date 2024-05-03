@@ -111,8 +111,8 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
             this.kladd.behandlingId = behandlingId;
             return this;
         }
-        public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet.Builder builder) {
-            this.kladd.perioderMedAktivitetskravArbeid = builder.build();
+        public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet perioderEntitet) {
+            this.kladd.perioderMedAktivitetskravArbeid = perioderEntitet;
             return this;
         }
         public Builder medPeriode(LocalDate fom, LocalDate tom) {
