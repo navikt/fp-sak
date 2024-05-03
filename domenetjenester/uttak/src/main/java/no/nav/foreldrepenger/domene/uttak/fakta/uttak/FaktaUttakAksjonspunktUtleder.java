@@ -61,8 +61,11 @@ public class FaktaUttakAksjonspunktUtleder {
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
             list.add(FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
         }
+        Optional<AktørArbeid> aktørArbeidFraRegister = input.getIayGrunnlag() == null
+            ? Optional.empty()
+            : input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
         if (graderingPåAktivitetIkkeIBeregning(input.getBeregningsgrunnlagStatuser(), perioder) ||
-            graderingPåAktivitetIkkeIIay(input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId()), perioder)) {
+            graderingPåAktivitetIkkeIIay(aktørArbeidFraRegister, perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
         var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
