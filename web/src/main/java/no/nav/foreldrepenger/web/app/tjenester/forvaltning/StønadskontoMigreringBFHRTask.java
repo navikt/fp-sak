@@ -147,7 +147,7 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
                 .medMaxDager(dager)
                 .build();
             nyKonto.setStønadskontoberegning(kontoberegning);
-            kontoberegning.getStønadskontoer().add(nyKonto);
+            kontoberegning.leggTilStønadskonto(nyKonto);
         } else if (finnesAllerede.isPresent() && dager > finnesAllerede.get().getMaxDager()) {
             if (dryrun) {
                 LOG.info("FPSAK KONTO ETTERPOPULER oppdater id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
