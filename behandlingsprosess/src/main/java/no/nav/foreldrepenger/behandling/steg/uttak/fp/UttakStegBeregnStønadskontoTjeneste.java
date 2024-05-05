@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -64,9 +65,12 @@ public class UttakStegBeregnStønadskontoTjeneste {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
         }
-        var fullBeregning = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
-        if (fullBeregning || skalBeregneMedPrematurdager(fpGrunnlag)) {
-            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, fullBeregning);
+        // Default er beregning relativt til eksisterende kontoberegning.
+        // Endring fra 80 til 100% DG krever full omregning ettersom antall dager reduseres
+        var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
+        var fullBeregning = endretDekningsgrad && Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
+        if (endretDekningsgrad || skalBeregneMedPrematurdager(fpGrunnlag)) {
+            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, !fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
 

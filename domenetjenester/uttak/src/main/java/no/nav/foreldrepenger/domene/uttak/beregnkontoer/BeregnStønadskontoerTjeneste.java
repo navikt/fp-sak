@@ -58,11 +58,11 @@ public class BeregnStønadskontoerTjeneste {
         fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, ref.behandlingId(), stønadskontoberegning);
     }
 
-    public void overstyrStønadskontoberegning(UttakInput uttakInput, boolean fullBeregning) {
+    public void overstyrStønadskontoberegning(UttakInput uttakInput, boolean relativBeregning) {
         var ref = uttakInput.getBehandlingReferanse();
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         var eksisterende = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
-        var ny = beregn(uttakInput, !fullBeregning);
+        var ny = beregn(uttakInput, relativBeregning);
         if (inneholderEndringer(eksisterende, ny)) {
             fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), ny);
             oppdaterBehandlingsresultat(ref.behandlingId());

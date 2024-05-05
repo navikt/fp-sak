@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkKafkaProducer;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.LegacyGrunnlagV0;
@@ -32,31 +31,29 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadskontoMigreringTask.class);
     private static final String FRA_ID = "fraId";
+    private static final String DRYRUN = "dryRun";
 
     private final FagsakRelasjonRepository fagsakRelasjonRepository;
-    private final StønadsstatistikkKafkaProducer kafkaProducer;
     private final EntityManager entityManager;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject
     public StønadskontoMigreringTask(FagsakRelasjonRepository fagsakRelasjonRepository,
-                                     StønadsstatistikkKafkaProducer kafkaProducer,
                                      EntityManager entityManager,
                                      ProsessTaskTjeneste prosessTaskTjeneste) {
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
-        this.kafkaProducer = kafkaProducer;
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fraIdProperty = prosessTaskData.getPropertyValue(FRA_ID);
-        var fraId = fraIdProperty == null ? null : Long.valueOf(fraIdProperty);
+        var fraId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_ID)).map(Long::valueOf).orElse(null);
+        var dryrun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRYRUN)).filter("false"::equalsIgnoreCase).isEmpty(); // krever "false"
 
         var beregninger = finnNesteHundreStønadskonti(fraId).toList();
 
-        beregninger.forEach(this::håndterBeregning);
+        beregninger.forEach(b -> håndterBeregning(b, dryrun));
 
         beregninger.stream()
             .map(Stønadskontoberegning::getId)
@@ -74,12 +71,11 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
             """;
 
         var query = entityManager.createNativeQuery(sql, Stønadskontoberegning.class)
-            .setParameter("fraId", fraId == null ? 0 : fraId)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true");
+            .setParameter("fraId", fraId == null ? 0 : fraId);
         return query.getResultStream();
     }
 
-    private void håndterBeregning(Stønadskontoberegning kontoberegning) {
+    private void håndterBeregning(Stønadskontoberegning kontoberegning, boolean dryrun) {
         var input = kontoberegning.getRegelInput();
         var stønadsdager = Stønadsdager.instance(null);
         var endret  = false;
@@ -89,40 +85,44 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
             var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV0.class);
             if (grunnlag.getAntallBarn() > 1) {
                 var dager = stønadsdager.ekstradagerFlerbarn(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
+                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager, dryrun);
                 endret = true;
             }
         } else {
             var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV1.class);
             if (grunnlag.getAntallBarn() > 1) {
                 var dager = stønadsdager.ekstradagerFlerbarn(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
+                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager, dryrun);
                 endret = true;
             }
             if (grunnlag.erFødsel() && grunnlag.getFødselsdato().isPresent() && grunnlag.getTermindato().isPresent()) {
                 var prematur = stønadsdager.ekstradagerPrematur(grunnlag.getFødselsdato().orElseThrow(), grunnlag.getTermindato().orElseThrow());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_PREMATUR, prematur);
+                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_PREMATUR, prematur, dryrun);
                 endret = true;
             }
             if (grunnlag.erFødsel() && grunnlag.isMinsterett() && grunnlag.isFarRett()) {
                 var rundtFødsel = stønadsdager.andredagerFarRundtFødsel(grunnlag.getFamiliehendelsesdato(), true);
-                etterpopuler(kontoberegning, StønadskontoType.FAR_RUNDT_FØDSEL, rundtFødsel);
+                etterpopuler(kontoberegning, StønadskontoType.FAR_RUNDT_FØDSEL, rundtFødsel, dryrun);
                 endret = true;
             }
             if (grunnlag.isMinsterett() && grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg()) {
                 var rundtFødsel = stønadsdager.minsterettBareFarRett(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), true, false, grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, rundtFødsel);
+                etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, rundtFødsel, dryrun);
                 endret = true;
             }
         }
-        if (endret) {
+        if (endret && !dryrun) {
             fagsakRelasjonRepository.persisterFlushStønadskontoberegning(kontoberegning);
         }
     }
 
-    private void etterpopuler(Stønadskontoberegning kontoberegning, StønadskontoType stønadskontoType, int dager) {
+    private void etterpopuler(Stønadskontoberegning kontoberegning, StønadskontoType stønadskontoType, int dager, boolean dryrun) {
         var finnesAllerede = kontoberegning.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).anyMatch(stønadskontoType::equals);
         if (!finnesAllerede && dager > 0) {
+            if (dryrun) {
+                LOG.info("FPSAK KONTO ETTERPOPULER id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
+                return;
+            }
             var nyKonto = Stønadskonto.builder()
                 .medStønadskontoType(stønadskontoType)
                 .medMaxDager(dager)
