@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
+import java.util.Map;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,6 +11,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -27,9 +29,10 @@ public class StønadskontoRegelAdapter {
                                                YtelseFordelingAggregat ytelseFordelingAggregat,
                                                Dekningsgrad dekningsgrad,
                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
-                                               ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+                                               ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
+                                               Map<StønadskontoType, Integer> tidligereUtregning) {
         var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
-            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
+            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
         return konverterTilStønadskontoberegning(resultat);
     }
 
@@ -37,9 +40,10 @@ public class StønadskontoRegelAdapter {
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
                                                          Dekningsgrad dekningsgrad,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
-                                                         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+                                                         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
+                                                         Map<StønadskontoType, Integer> tidligereUtregning) {
         var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat,
-            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref);
+            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning);
 
         return stønadskontoRegel.beregnKontoer(grunnlag);
     }
