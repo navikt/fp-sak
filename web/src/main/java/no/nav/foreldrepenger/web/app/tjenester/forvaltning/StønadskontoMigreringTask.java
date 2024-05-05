@@ -128,7 +128,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
                 .medMaxDager(dager)
                 .build();
             nyKonto.setStønadskontoberegning(kontoberegning);
-            kontoberegning.getStønadskontoer().add(nyKonto);
+            kontoberegning.leggTilStønadskonto(nyKonto);
         }
     }
 
