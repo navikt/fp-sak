@@ -35,7 +35,6 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadskontoMigreringBFHRTask.class);
     private static final String FRA_ID = "fraId";
-    private static final String DRYRUN = "dryRun";
 
     private final FagsakRelasjonRepository fagsakRelasjonRepository;
     private final BehandlingRepository behandlingRepository;
@@ -62,11 +61,10 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fraId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_ID)).map(Long::valueOf).orElse(null);
-        var dryrun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRYRUN)).filter("false"::equalsIgnoreCase).isEmpty(); // krever "false"
 
         var saker = finnNesteHundreSaker(fraId).toList();
 
-        saker.forEach(s -> håndterUføreSak(s, dryrun));
+        saker.forEach(this::håndterUføreSak);
 
         saker.stream()
             .max(Long::compareTo)
@@ -95,7 +93,7 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
         return query.getResultStream();
     }
 
-    private void håndterUføreSak(Long behandlingId, boolean dryrun) {
+    private void håndterUføreSak(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var kontoberegningOpt = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
             .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
@@ -121,27 +119,24 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
             if (minsterettdager > 0 && utenaktivitetskravdager > 0) {
                 throw new IllegalStateException("KontoMigrering: både WLB og UFO");
             } else if (utenaktivitetskravdager > 0) {
-                etterpopuler(kontoberegning, StønadskontoType.UFØREDAGER, utenaktivitetskravdager, dryrun);
+                etterpopuler(kontoberegning, StønadskontoType.UFØREDAGER, utenaktivitetskravdager);
                 endret = true;
             } else if (minsterettdager > 0) {
-                etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, minsterettdager, dryrun);
+                etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, minsterettdager);
                 endret = true;
             }
         }
-        if (endret && !dryrun) {
+        if (endret) {
             fagsakRelasjonRepository.persisterFlushStønadskontoberegning(kontoberegning);
         }
     }
 
-    private void etterpopuler(Stønadskontoberegning kontoberegning, StønadskontoType stønadskontoType, int dager, boolean dryrun) {
+    private void etterpopuler(Stønadskontoberegning kontoberegning, StønadskontoType stønadskontoType, int dager) {
         var finnesAllerede = kontoberegning.getStønadskontoer().stream()
             .filter(sk -> stønadskontoType.equals(sk.getStønadskontoType()))
             .findFirst();
         if (finnesAllerede.isEmpty() && dager > 0) {
-            if (dryrun) {
-                LOG.info("FPSAK KONTO ETTERPOPULER id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
-                return;
-            }
+            LOG.info("FPSAK KONTO ETTERPOPULER id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
             var nyKonto = Stønadskonto.builder()
                 .medStønadskontoType(stønadskontoType)
                 .medMaxDager(dager)
@@ -149,11 +144,7 @@ class StønadskontoMigreringBFHRTask implements ProsessTaskHandler {
             nyKonto.setStønadskontoberegning(kontoberegning);
             kontoberegning.leggTilStønadskonto(nyKonto);
         } else if (finnesAllerede.isPresent() && dager > finnesAllerede.get().getMaxDager()) {
-            if (dryrun) {
-                LOG.info("FPSAK KONTO ETTERPOPULER oppdater id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
-                return;
-            }
-
+            LOG.info("FPSAK KONTO ETTERPOPULER oppdater id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
             finnesAllerede.get().setMaxDager(dager);
         }
     }
