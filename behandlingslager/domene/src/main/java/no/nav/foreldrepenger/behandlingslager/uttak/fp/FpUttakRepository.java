@@ -36,15 +36,18 @@ public class FpUttakRepository {
         // CDI proxy
     }
 
-    public void lagreStønadskontoberegning(Long behandlingId,
-                                           Stønadskontoberegning stønadskontoberegning) {
-        lagreUttaksresultat(behandlingId, builder -> builder.medStønadskontoberegning(stønadskontoberegning));
-    }
 
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, Stønadskontoberegning stønadskontoberegning,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         // Nullstilling er forventet - fjerner evt overstyring
-        lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder));
+        lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder)
+            .medStønadskontoberegning(stønadskontoberegning));
+    }
+
+    // Kun testformål
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
+        lagreOpprinneligUttakResultatPerioder(behandlingId, null, opprinneligPerioder);
     }
 
     public void lagreOverstyrtUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet overstyrtPerioder) {

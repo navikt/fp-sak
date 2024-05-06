@@ -81,6 +81,13 @@ public class UttakStegBeregnStønadskontoTjeneste {
         return BeregningingAvStønadskontoResultat.INGEN_BEREGNING;
     }
 
+    public Stønadskontoberegning fastsettStønadskontoerForBehandling(UttakInput input) {
+        var ref = input.getBehandlingReferanse();
+        return beregnStønadskontoerTjeneste.beregnForBehandling(input)
+            .or(() -> fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeStønadskontoberegning())
+            .orElseThrow();
+    }
+
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
         var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, true);
 

@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -43,10 +44,10 @@ public class FastsettePerioderTjeneste {
         this.uttakTjeneste = uttakTjeneste;
     }
 
-    public void fastsettePerioder(UttakInput input) {
+    public void fastsettePerioder(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
         var resultat = regelAdapter.fastsettePerioder(input);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().behandlingId(),
-            resultat);
+            stønadskontoberegning, resultat);
     }
 
     public void manueltFastsettePerioder(UttakInput uttakInput, List<ForeldrepengerUttakPeriode> perioder) {

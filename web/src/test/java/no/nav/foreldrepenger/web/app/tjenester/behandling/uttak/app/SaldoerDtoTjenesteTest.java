@@ -158,11 +158,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
-        morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
-
-
         //
         // --- Stønadskontoer
         //
@@ -170,7 +166,11 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
+        morsBehandling.avsluttBehandling();
+        lagre(morsBehandling);
 
 
         // Act
@@ -276,7 +276,6 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         lagre(morsBehandling);
 
 
@@ -287,7 +286,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
+        lagre(morsBehandling);
+
+
 
         var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medArbeidsgiver(null)
@@ -343,8 +347,6 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
-        morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
 
 
@@ -355,7 +357,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
+        morsBehandling.avsluttBehandling();
+        lagre(morsBehandling);
+
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
@@ -402,8 +409,6 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
-        morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
 
 
@@ -421,6 +426,11 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(morsBehandling.getFagsak(), morsBehandling.getId(), stønadskontoberegning);
+
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), stønadskontoberegning, uttakResultatPerioderForMor);
+        morsBehandling.avsluttBehandling();
+        lagre(morsBehandling);
+
 
 
         // Act
@@ -667,7 +677,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         return behandlingFar;
     }
 
-    private void lagreStønadskontoBeregning(Behandling behandling,
+    private Stønadskontoberegning lagreStønadskontoBeregning(Behandling behandling,
                                             int maxDagerFPFF,
                                             int maxDagerFP,
                                             int maxDagerFK,
@@ -676,6 +686,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP), lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK), lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 
     private Behandling avsluttetBehandlingMedUttak(AbstractTestScenario<?> scenarioMor,

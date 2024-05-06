@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -36,6 +37,17 @@ public class StønadskontoRegelAdapter {
         return konverterTilStønadskontoberegning(resultat);
     }
 
+    public Optional<Stønadskontoberegning> beregnKontoerSjekkDiff(BehandlingReferanse ref,
+                                                        YtelseFordelingAggregat ytelseFordelingAggregat,
+                                                        Dekningsgrad dekningsgrad,
+                                                        Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
+                                                        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
+                                                        Map<StønadskontoType, Integer> tidligereUtregning) {
+        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
+            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
+        return endretUtregning(tidligereUtregning, resultat) ? Optional.of(konverterTilStønadskontoberegning(resultat)) : Optional.empty();
+    }
+
     public StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
                                                          Dekningsgrad dekningsgrad,
@@ -62,5 +74,12 @@ public class StønadskontoRegelAdapter {
             stønadskontoberegningBuilder.medStønadskonto(stønadskonto);
         }
         return stønadskontoberegningBuilder.build();
+    }
+
+    private boolean endretUtregning(Map<StønadskontoType, Integer> tidligereUtregning, StønadskontoResultat resultat) {
+        var nyUtregning = resultat.getStønadskontoer().entrySet().stream()
+            .filter(e -> e.getValue() > 0)
+            .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
+        return !nyUtregning.equals(tidligereUtregning);
     }
 }

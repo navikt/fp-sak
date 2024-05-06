@@ -79,6 +79,15 @@ public class BeregnStønadskontoerTjeneste {
         return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
+    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput) {
+        var ref = uttakInput.getBehandlingReferanse();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, fpGrunnlag.getStønadskontoberegning());
+    }
+
     public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
         var typerEksisterende = eksisterende.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());
         var typerNy = ny.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());

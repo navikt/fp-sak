@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 import java.time.Period;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
@@ -249,9 +246,7 @@ public class UttakGrunnlagTjeneste {
     // Skal utvides med data fra UttakResultat
     private Map<StønadskontoType, Integer> stønadskontoberegning(Optional<FagsakRelasjon> relasjon) {
         return relasjon.flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
-            .map(Stønadskontoberegning::getStønadskontoer).orElse(Set.of()).stream()
-            .filter(k -> k.getMaxDager() > 0)
-            .collect(Collectors.toMap(Stønadskonto::getStønadskontoType, Stønadskonto::getMaxDager));
+            .map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
 
     }
 }

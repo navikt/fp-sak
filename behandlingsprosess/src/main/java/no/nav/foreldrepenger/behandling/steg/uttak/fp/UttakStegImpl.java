@@ -94,7 +94,9 @@ public class UttakStegImpl implements UttakSteg {
 
         beregnStønadskontoTjeneste.beregnStønadskontoer(input);
 
-        fastsettePerioderTjeneste.fastsettePerioder(input);
+        var kontoutregningForBehandling = beregnStønadskontoTjeneste.fastsettStønadskontoerForBehandling(input);
+
+        fastsettePerioderTjeneste.fastsettePerioder(input, kontoutregningForBehandling);
 
         var aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input)
             .stream().map(AksjonspunktResultat::opprettForAksjonspunkt).toList();
