@@ -55,7 +55,7 @@ public class VurderForutgåendeMedlemskapvilkårSteg implements BehandlingSteg {
 
         /*
             - vi er interessert i oppgitte utlandsopphold/adressehistorikk/medl-perioder/udi register
-            - første skudd er en helt enkel variant. En del sjekker blir unøyaktige bl.a som følge av logikk tilpasset stp fremfor vurderingstidspunkt
+            - første skudd er en helt enkel variant for logging
          */
 
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
