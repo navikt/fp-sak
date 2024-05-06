@@ -53,12 +53,6 @@ public class VurderForutgåendeMedlemskapvilkårSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-
-        /*
-            - vi er interessert i oppgitte utlandsopphold/adressehistorikk/medl-perioder/udi register
-            - første skudd er en helt enkel variant for logging
-         */
-
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
