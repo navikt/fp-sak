@@ -210,4 +210,8 @@ public class InntektFilter {
         return Collections.unmodifiableList(result);
     }
 
+    public List<Inntekt> getAlleInntektSammenligningsgrunnlag() {
+        return getAlleInntekter(InntektsKilde.INNTEKT_SAMMENLIGNING);
+    }
+
 }

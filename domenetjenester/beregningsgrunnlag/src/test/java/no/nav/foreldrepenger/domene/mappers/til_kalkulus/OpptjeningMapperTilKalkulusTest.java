@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;

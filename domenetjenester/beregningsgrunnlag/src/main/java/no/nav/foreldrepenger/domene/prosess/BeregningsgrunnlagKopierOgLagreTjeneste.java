@@ -47,8 +47,8 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.BesteberegningMapper;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.BesteberegningMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 

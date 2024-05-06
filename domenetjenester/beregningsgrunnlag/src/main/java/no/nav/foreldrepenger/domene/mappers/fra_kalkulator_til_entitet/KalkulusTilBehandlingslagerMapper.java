@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet;
 
 import java.util.Collections;
 import java.util.List;

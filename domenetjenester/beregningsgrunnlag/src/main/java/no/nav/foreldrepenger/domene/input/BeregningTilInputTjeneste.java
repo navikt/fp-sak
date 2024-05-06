@@ -11,7 +11,7 @@ import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 
 @ApplicationScoped
