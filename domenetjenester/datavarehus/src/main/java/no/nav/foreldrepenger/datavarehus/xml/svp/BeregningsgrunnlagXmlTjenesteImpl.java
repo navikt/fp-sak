@@ -63,7 +63,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlagSvangerskapspenger, beregningsgrunnlagDomene.getAktivitetStatuser());
-            var dekningsgradOptional = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
+            var dekningsgradOptional = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling);
             if (dekningsgradOptional.isPresent()) {
                 var dekningsgrad = dekningsgradOptional.get().getVerdi();
                 beregningsgrunnlagSvangerskapspenger.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));

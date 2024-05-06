@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -66,12 +64,6 @@ public class SendVedtaksbrev {
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-
-        //hardkoding for å unngå å sende vedtaksbrev til bruker i spesifikk behandling
-        if (behandling.getUuid() != null && behandling.getUuid().equals(UUID.fromString("7138b556-5cfa-4c33-8a77-720a014bd0af"))) {
-            LOG.info("Sender ikke vedtaksbrev for behandlingUuid {} på sak {}", behandling.getUuid(), behandling.getFagsak().getSaksnummer());
-            return;
-        }
 
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             LOG.info("Ankebrev sendes av kabal for behandling med id {} ", behandling.getId());

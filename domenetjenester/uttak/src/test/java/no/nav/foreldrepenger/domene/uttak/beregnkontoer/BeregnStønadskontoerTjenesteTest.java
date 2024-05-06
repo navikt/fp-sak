@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.BARE_FAR_RETT;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FAR_RUNDT_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
@@ -70,9 +72,9 @@ class BeregnStønadskontoerTjenesteTest {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
-        assertThat(stønadskontoer).hasSize(4);
+        assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType)
-            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE);
+            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(FamilieHendelser familieHendelser) {
@@ -108,9 +110,9 @@ class BeregnStønadskontoerTjenesteTest {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
-        assertThat(stønadskontoer).hasSize(4);
+        assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType)
-            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE);
+            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -211,8 +213,8 @@ class BeregnStønadskontoerTjenesteTest {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
-        assertThat(stønadskontoer).hasSize(1);
-        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType).containsExactlyInAnyOrder(FORELDREPENGER);
+        assertThat(stønadskontoer).hasSize(3);
+        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType).containsExactlyInAnyOrder(FORELDREPENGER, FAR_RUNDT_FØDSEL, BARE_FAR_RETT);
     }
 
     private Behandling opprettBehandlingForMor(AktørId aktørId) {

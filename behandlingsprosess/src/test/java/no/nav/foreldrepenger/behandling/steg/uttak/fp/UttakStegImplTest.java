@@ -214,7 +214,7 @@ class UttakStegImplTest {
         steg.utførSteg(kontekst(behandling));
         morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
-        // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
+        // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir ny id
         assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
         var tredjeStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
         assertThat(tredjeStønadskontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());

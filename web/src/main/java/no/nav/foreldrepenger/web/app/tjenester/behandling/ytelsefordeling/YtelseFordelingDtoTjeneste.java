@@ -51,7 +51,7 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
-        var fagsdekningsgradkRelasjon = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
+        var fagsdekningsgradkRelasjon = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling);
         fagsdekningsgradkRelasjon.ifPresent(d -> dtoBuilder.medGjeldendeDekningsgrad(d.getVerdi()));
         return Optional.of(dtoBuilder.build());
     }

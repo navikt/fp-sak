@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -15,8 +14,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +31,7 @@ import no.nav.abakus.vedtak.ytelse.Status;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Anvisning;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -232,7 +230,8 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var psbYtelseMedOverlapp = lagVedtakForPeriode(
             YtelseType.PLEIEPENGER_SYKT_BARN,
             aktørFra(fpBehandling),
-            periode("2020-04-01", "2020-06-01"));
+            periode("2020-04-01", "2020-06-01"),
+            periodeMedGrad("2020-04-01", "2020-05-01", 100));
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlapp);
 
         // then
@@ -240,7 +239,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskDataList = captor.getAllValues();
 
-        assertThat(prosessTaskDataList.size()).isEqualTo(1);
+        assertThat(prosessTaskDataList).hasSize((1));
 
         var task = prosessTaskDataList.getFirst();
         assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
@@ -259,8 +258,28 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var psbYtelseUTENOverlapp = lagVedtakForPeriode(
             YtelseType.PLEIEPENGER_SYKT_BARN,
             aktørFra(fpBehandling),
-            periode("2020-06-01", "2020-06-30"));
+            periode("2020-06-01", "2020-06-30"),
+        periodeMedGrad("2020-06-01", "2020-06-30", 100));
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseUTENOverlapp);
+
+        // then
+        verifyNoInteractions(taskTjeneste);
+    }
+
+    @Test
+    void vedtak_om_PSB_som_overlapper_men_sum_utbetalingsgrad_er_ikke_over_100_ingen_tasks() {
+        // given
+        var fpBehandling = leggPerioderPå(
+            lagBehandlingFP(),
+            periodeMedGrad("2020-03-01", "2020-06-01", 80));
+
+        //when
+        var psbYtelseMedOverlappIkkeOver100Prosent = lagVedtakForPeriode(
+            YtelseType.PLEIEPENGER_SYKT_BARN,
+            aktørFra(fpBehandling),
+            periode("2020-04-01", "2020-05-01"),
+            periodeMedGrad("2020-04-01", "2020-05-01", 20));
+        vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlappIkkeOver100Prosent);
 
         // then
         verifyNoInteractions(taskTjeneste);
@@ -279,7 +298,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     private Behandling leggPerioderPå(Behandling behandling, PeriodeMedUtbetalingsgrad... perioder) {
-        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), perioder[0].utbetalingsgrad);
+        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), BigDecimal.valueOf(perioder[0].utbetalingsgrad));
         for (var i = 1; i < perioder.length; i++) {
             var periode = perioder[i];
             leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, periode.utbetalingsgrad, 100);
@@ -366,20 +385,27 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         when(beregningTjeneste.hent(BehandlingReferanse.fra(b))).thenReturn(Optional.of(gr));
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int utbetalingsgrad) {
+    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, BigDecimal utbetalingsgrad) {
+        int dagSatsRedusertMedUtbetalingsgrad = 0;
+        if (utbetalingsgrad.compareTo(BigDecimal.ZERO) != 0) {
+            dagSatsRedusertMedUtbetalingsgrad = new BigDecimal(DAGSATS).multiply(utbetalingsgrad)
+                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+                .intValue();
+        }
+
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
-                .build(beregningsresultat);
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
         BeregningsresultatAndel.builder()
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(DAGSATS)
-                .medDagsatsFraBg(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad))
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .build(beregningsresultatPeriode);
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(dagSatsRedusertMedUtbetalingsgrad != 0 ? dagSatsRedusertMedUtbetalingsgrad : DAGSATS)
+            .medDagsatsFraBg(DAGSATS)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(beregningsresultatPeriode);
         return beregningsresultat;
     }
 
