@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
+package no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +18,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.SammenligningsgrunnlagPrStatusDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;

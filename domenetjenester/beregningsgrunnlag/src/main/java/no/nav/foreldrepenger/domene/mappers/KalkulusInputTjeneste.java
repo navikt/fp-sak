@@ -1,0 +1,67 @@
+package no.nav.foreldrepenger.domene.mappers;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+
+import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.mappers.input.MapIAYTilKalkulusInput;
+import no.nav.foreldrepenger.domene.mappers.input.MapKalkulusYtelsegrunnlag;
+import no.nav.foreldrepenger.domene.mappers.input.MapKravperioder;
+import no.nav.foreldrepenger.domene.mappers.input.MapOpptjeningTilKalkulusInput;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+@ApplicationScoped
+public class KalkulusInputTjeneste {
+    private Instance<MapKalkulusYtelsegrunnlag> ytelsegrunnlagMappere;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+
+
+    public KalkulusInputTjeneste() {
+        // CDI
+    }
+
+    @Inject
+    public KalkulusInputTjeneste(@Any Instance<MapKalkulusYtelsegrunnlag> ytelsegrunnlagMappere,
+                                 InntektArbeidYtelseTjeneste iayTjeneste,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+                                 InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        this.ytelsegrunnlagMappere = ytelsegrunnlagMappere;
+        this.iayTjeneste = iayTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+    }
+
+    public KalkulatorInputDto lagKalkulusInput(BehandlingReferanse refUtenStp) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(refUtenStp.behandlingId());
+        var ref = refUtenStp.medSkjæringstidspunkt(skjæringstidspunkt);
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
+
+        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
+        if (opptjeningAktiviteter.isEmpty()) {
+            throw new IllegalStateException(String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(), ref.saksnummer()));
+        }
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var kravperioderDto = MapKravperioder.map(ref, inntektsmeldinger, iayGrunnlag);
+        var iayDto = MapIAYTilKalkulusInput.mapIAY(iayGrunnlag, inntektsmeldinger, ref);
+        var opptjeningDto = MapOpptjeningTilKalkulusInput.mapOpptjening(opptjeningAktiviteter.get(), iayGrunnlag, ref);
+        var kalkulatorInputDto = new KalkulatorInputDto(iayDto, opptjeningDto, ref.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
+        kalkulatorInputDto.medRefusjonsperioderPrInntektsmelding(kravperioderDto);
+        var ytelseMapper = FagsakYtelseTypeRef.Lookup.find(ytelsegrunnlagMappere, ref.fagsakYtelseType()).orElseThrow();
+        YtelsespesifiktGrunnlagDto ytelsegrunnlag = ytelseMapper.mapYtelsegrunnlag(ref);
+        kalkulatorInputDto.medYtelsespesifiktGrunnlag(ytelsegrunnlag);
+        return kalkulatorInputDto;
+    }
+}
