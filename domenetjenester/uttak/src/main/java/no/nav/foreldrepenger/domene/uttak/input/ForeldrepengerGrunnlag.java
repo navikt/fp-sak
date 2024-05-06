@@ -1,10 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.input;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
@@ -18,6 +21,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
     private NesteSakGrunnlagEntitet nesteSakGrunnlag;
     private boolean dødsfall;
+    Map<StønadskontoType, Integer> stønadskontoberegning = new LinkedHashMap<>();
 
     public ForeldrepengerGrunnlag() {
 
@@ -34,6 +38,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
         this.nesteSakGrunnlag = foreldrepengerGrunnlag.nesteSakGrunnlag;
         this.dødsfall = foreldrepengerGrunnlag.dødsfall;
+        this.stønadskontoberegning.putAll(foreldrepengerGrunnlag.stønadskontoberegning);
     }
 
     public boolean isBerørtBehandling() {
@@ -74,6 +79,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public boolean isDødsfall() {
         return dødsfall;
+    }
+
+    public Map<StønadskontoType, Integer> getStønadskontoberegning() {
+        return stønadskontoberegning;
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -133,6 +142,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medDødsfall(boolean dødsfall) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.dødsfall = dødsfall;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medStønadskontoberegning(Map<StønadskontoType, Integer> kontoberegning) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.stønadskontoberegning.putAll(kontoberegning);
         return nyttGrunnlag;
     }
 }

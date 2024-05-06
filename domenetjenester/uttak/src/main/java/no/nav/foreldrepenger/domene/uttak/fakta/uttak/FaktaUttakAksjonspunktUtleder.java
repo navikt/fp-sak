@@ -10,8 +10,10 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,6 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -56,7 +61,11 @@ public class FaktaUttakAksjonspunktUtleder {
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
             list.add(FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
         }
-        if (graderingPåUkjentAktivitet(input.getBeregningsgrunnlagStatuser(), perioder)) {
+        Optional<AktørArbeid> aktørArbeidFraRegister = input.getIayGrunnlag() == null
+            ? Optional.empty()
+            : input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
+        if (graderingPåAktivitetIkkeIBeregning(input.getBeregningsgrunnlagStatuser(), perioder) ||
+            graderingPåAktivitetIkkeIIay(aktørArbeidFraRegister, perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
         var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
@@ -79,13 +88,46 @@ public class FaktaUttakAksjonspunktUtleder {
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
-    private static boolean graderingPåUkjentAktivitet(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, List<OppgittPeriodeEntitet> perioder) {
+    private static boolean graderingPåAktivitetIkkeIIay(Optional<AktørArbeid> aktørArbeid,
+                                                        List<OppgittPeriodeEntitet> perioder) {
+        var yrkesaktiviteter = aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of());
         return perioder.stream()
             .filter(OppgittPeriodeEntitet::isGradert)
-            .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
+            .filter(op -> op.getGraderingAktivitetType() == ARBEID && op.getArbeidsgiver() != null)
+            .anyMatch(periode -> gradererUkjentIAYAktivitet(periode, yrkesaktiviteter, finnFørsteGraderteFomArbeidsgiver(periode.getArbeidsgiver(), perioder)));
     }
 
-    private static boolean gradererUkjentAktivitet(OppgittPeriodeEntitet søknadsperiode, Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
+    private static LocalDate finnFørsteGraderteFomArbeidsgiver(Arbeidsgiver arbeidsgiver, List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream()
+            .filter(p -> Objects.equals(p.getArbeidsgiver(), arbeidsgiver))
+            .filter(OppgittPeriodeEntitet::isGradert)
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder())
+            .orElseThrow();
+    }
+
+    private static boolean graderingPåAktivitetIkkeIBeregning(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream()
+            .filter(OppgittPeriodeEntitet::isGradert)
+            .anyMatch(periode -> gradererUkjentBeregningAktivitet(periode, beregningsgrunnlagStatuser));
+    }
+
+    private static boolean gradererUkjentIAYAktivitet(OppgittPeriodeEntitet søknadsperiode,
+                                                      Collection<Yrkesaktivitet> iayAktiviteter,
+                                                      LocalDate førsteDatoMedGraderingForAG) {
+
+        // Sjekker kun arbeid, antar at andre graderinger er ok
+        if (søknadsperiode.getGraderingAktivitetType() == ARBEID) {
+            return iayAktiviteter.stream().filter(ya -> Objects.equals(ya.getArbeidsgiver(), søknadsperiode.getArbeidsgiver()))
+                .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
+                .flatMap(Collection::stream)
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+                .noneMatch(aa -> aa.getPeriode().inkluderer(førsteDatoMedGraderingForAG));
+        }
+        return false;
+    }
+
+    private static boolean gradererUkjentBeregningAktivitet(OppgittPeriodeEntitet søknadsperiode, Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
         if (søknadsperiode.getGraderingAktivitetType() == ARBEID && !beregningHarArbeidsgiver(søknadsperiode.getArbeidsgiver(), beregningsgrunnlagStatuser)) {
             return true;
         }

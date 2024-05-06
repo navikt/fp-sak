@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -23,7 +24,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.PrematurukerUtil;
+import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 
 
 @ApplicationScoped
@@ -64,8 +65,12 @@ public class UttakStegBeregnStønadskontoTjeneste {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
         }
-        if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)) {
-            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
+        // Default er beregning relativt til eksisterende kontoberegning.
+        // Endring fra 80 til 100% DG krever full omregning ettersom antall dager reduseres
+        var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
+        var fullBeregning = endretDekningsgrad && Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
+        if (endretDekningsgrad || skalBeregneMedPrematurdager(fpGrunnlag)) {
+            beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, !fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
 
@@ -77,7 +82,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
-        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input);
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, true);
 
         var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
         var endringerVedReberegning = utledEndringer(eksiterendeKontoer, nyeKontoer);
@@ -90,7 +95,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private static Set<KontoEndring> utledEndringer(Stønadskontoberegning eksiterendeKonti, Stønadskontoberegning nyeKonti) {
-        HashSet<StønadskontoType> alleTyper = new HashSet<>(Arrays.stream(StønadskontoType.values()).toList());
+        HashSet<StønadskontoType> alleTyper = new HashSet<>(Arrays.stream(StønadskontoType.values()).filter(StønadskontoType::erStønadsdager).toList());
 
         return alleTyper.stream().map(type -> {
             var dagerEksisterende = finnMaksdagerForType(eksiterendeKonti, type);
@@ -108,11 +113,13 @@ public class UttakStegBeregnStønadskontoTjeneste {
             .orElse(0);
     }
 
-    private boolean oppfyllerPrematurUker(ForeldrepengerGrunnlag fpGrunnlag) {
+    private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag) {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
         var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato);
+        var eksisterendePrematurdager = fpGrunnlag.getStønadskontoberegning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
+        var nyePrematurdager = Stønadsdager.instance(null).ekstradagerPrematur(fødselsdato, termindato);
+        return nyePrematurdager > eksisterendePrematurdager;
     }
 
     private boolean finnesLøpendeInnvilgetFP(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

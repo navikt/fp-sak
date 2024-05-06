@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -40,7 +41,8 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesul
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.GraderingIkkeInnvilgetÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 
 public final class UttakEnumMapper {
@@ -278,17 +280,50 @@ public final class UttakEnumMapper {
         };
     }
 
-    public static StønadskontoType map(StønadskontoBeregningStønadskontotype stønadskontotype) {
-        if (stønadskontotype == null) {
-            return StønadskontoType.UDEFINERT;
-        }
+    public static StønadskontoType map(StønadskontoKontotype stønadskontotype) {
         return switch (stønadskontotype) {
-            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
-            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
             case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
             case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+            case TILLEGG_FLERBARN -> StønadskontoType.TILLEGG_FLERBARN;
+            case TILLEGG_PREMATUR -> StønadskontoType.TILLEGG_PREMATUR;
             case FLERBARNSDAGER -> StønadskontoType.FLERBARNSDAGER;
+            case UFØREDAGER -> StønadskontoType.UFØREDAGER;
+            case TETTE_SAKER_MOR -> StønadskontoType.TETTE_SAKER_MOR;
+            case TETTE_SAKER_FAR -> StønadskontoType.TETTE_SAKER_FAR;
+            case BARE_FAR_RETT -> StønadskontoType.BARE_FAR_RETT;
+            case FAR_RUNDT_FØDSEL -> StønadskontoType.FAR_RUNDT_FØDSEL;
+            case null -> StønadskontoType.UDEFINERT;
+        };
+    }
+
+    public static StønadskontoKontotype mapTilBeregning(StønadskontoType stønadskontoType) {
+        return switch (stønadskontoType) {
+            case FELLESPERIODE -> StønadskontoKontotype.FELLESPERIODE;
+            case MØDREKVOTE -> StønadskontoKontotype.MØDREKVOTE;
+            case FEDREKVOTE -> StønadskontoKontotype.FEDREKVOTE;
+            case FORELDREPENGER -> StønadskontoKontotype.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoKontotype.FORELDREPENGER_FØR_FØDSEL;
+            case TILLEGG_FLERBARN -> StønadskontoKontotype.TILLEGG_FLERBARN;
+            case TILLEGG_PREMATUR -> StønadskontoKontotype.TILLEGG_PREMATUR;
+            case FLERBARNSDAGER -> StønadskontoKontotype.FLERBARNSDAGER;
+            case UFØREDAGER -> StønadskontoKontotype.UFØREDAGER;
+            case TETTE_SAKER_MOR -> StønadskontoKontotype.TETTE_SAKER_MOR;
+            case TETTE_SAKER_FAR -> StønadskontoKontotype.TETTE_SAKER_FAR;
+            case BARE_FAR_RETT -> StønadskontoKontotype.BARE_FAR_RETT;
+            case FAR_RUNDT_FØDSEL -> StønadskontoKontotype.FAR_RUNDT_FØDSEL;
+            case UDEFINERT -> throw new IllegalArgumentException("Ugyldig stønadskonto");
+        };
+    }
+
+    public static Brukerrolle mapTilBeregning(RelasjonsRolleType rolleType) {
+        return switch (rolleType) {
+            case FARA -> Brukerrolle.FAR;
+            case MORA -> Brukerrolle.MOR;
+            case MEDMOR -> Brukerrolle.MEDMOR;
+            default -> Brukerrolle.UKJENT;
         };
     }
 

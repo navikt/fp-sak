@@ -79,8 +79,16 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
         return stønadskontoberegning;
     }
 
-    void setStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+    public void setStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
         this.stønadskontoberegning = stønadskontoberegning;
+    }
+
+    public void setMaxDager(Integer maxDager) {
+        this.maxDager = maxDager;
+    }
+
+    public void setStønadskontoType(StønadskontoType stønadskontoType) {
+        this.stønadskontoType = stønadskontoType;
     }
 
     public static Builder builder() {

@@ -51,6 +51,7 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_SØKNADSFRISTVILKÅR("VURDERSFV", "Vurder felles inngangsvilkår", UTREDES),
 
     // Kun for Foreldrepenger
+    DEKNINGSGRAD("DEKNINGSGRAD", "Fastsetter dekningsgrad for behandling", UTREDES),
     FORESLÅ_BESTEBEREGNING("FORS_BESTEBEREGNING", "Foreslå besteberegning", UTREDES),
     KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES), // Hvorfor kun FP ?

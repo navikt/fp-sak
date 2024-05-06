@@ -114,10 +114,7 @@ public class FagsakRelasjonRepository {
         var forskjellige = differ().areDifferent(fagsakRelasjon.getStønadskontoberegning().orElse(null), stønadskontoberegning);
         if (forskjellige) {
             deaktiverEksisterendeRelasjon(fagsakRelasjon);
-            entityManager.persist(stønadskontoberegning);
-            for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
-                entityManager.persist(stønadskonto);
-            }
+            persisterStønadskontoberegning(stønadskontoberegning);
             var nyFagsakRelasjon = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
                 stønadskontoberegning, fagsakRelasjon.getOverstyrtStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(),
                 fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
@@ -313,10 +310,7 @@ public class FagsakRelasjonRepository {
             fagsak2Lås = fagsakLåsRepository.taLås(fagsakNrTo.get().getId());
         }
         deaktiverEksisterendeRelasjon(fagsakRelasjon);
-        entityManager.persist(stønadskontoberegning);
-        for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
-            entityManager.persist(stønadskonto);
-        }
+        persisterStønadskontoberegning(stønadskontoberegning);
 
         var nyFagsakRelasjon = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
             fagsakRelasjon.getStønadskontoberegning().orElse(null), stønadskontoberegning, fagsakRelasjon.getDekningsgrad(),
@@ -372,5 +366,20 @@ public class FagsakRelasjonRepository {
             .setParameter("lopende", FagsakStatus.LØPENDE);
 
         return query.getResultList();
+    }
+
+    private void persisterStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+        Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
+
+        entityManager.persist(stønadskontoberegning);
+        for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
+            entityManager.persist(stønadskonto);
+        }
+    }
+
+    public void persisterFlushStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+        Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
+        persisterStønadskontoberegning(stønadskontoberegning);
+        entityManager.flush();
     }
 }

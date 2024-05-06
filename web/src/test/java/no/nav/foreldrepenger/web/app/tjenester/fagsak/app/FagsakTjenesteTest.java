@@ -87,7 +87,7 @@ class FagsakTjenesteTest {
 
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);
         var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
 
@@ -108,7 +108,7 @@ class FagsakTjenesteTest {
 
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);
         var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong())).thenReturn(
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(anyLong())).thenReturn(
             Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
 
