@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,6 +35,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -110,6 +116,7 @@ public class UttakGrunnlagTjeneste {
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
             .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
+            .medStønadskontoberegning(stønadskontoberegning(fagsakRelasjon))
             ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
@@ -237,5 +244,14 @@ public class UttakGrunnlagTjeneste {
             .map(d -> new LocalDateInterval(d.minus(INTERVALL_SAMME_BARN), d.plus(INTERVALL_SAMME_BARN)));
 
         return annenpartIntervall.filter(i -> i.overlaps(egetIntervall)).isPresent();
+    }
+
+    // Skal utvides med data fra UttakResultat
+    private Map<StønadskontoType, Integer> stønadskontoberegning(Optional<FagsakRelasjon> relasjon) {
+        return relasjon.flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+            .map(Stønadskontoberegning::getStønadskontoer).orElse(Set.of()).stream()
+            .filter(k -> k.getMaxDager() > 0)
+            .collect(Collectors.toMap(Stønadskonto::getStønadskontoType, Stønadskonto::getMaxDager));
+
     }
 }

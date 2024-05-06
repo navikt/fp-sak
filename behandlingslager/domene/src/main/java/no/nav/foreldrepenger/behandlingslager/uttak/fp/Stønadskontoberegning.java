@@ -59,6 +59,10 @@ public class Stønadskontoberegning extends BaseEntitet {
         return Collections.unmodifiableSet(stønadskontoer);
     }
 
+    public void leggTilStønadskonto(Stønadskonto stønadskonto) {
+        stønadskontoer.add(stønadskonto);
+    }
+
     @Override
     public String toString() {
         return "Stønadskontoberegning{" +
