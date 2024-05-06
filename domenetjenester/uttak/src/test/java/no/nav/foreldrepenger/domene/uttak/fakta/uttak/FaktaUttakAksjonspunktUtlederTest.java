@@ -5,7 +5,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.Test;
 
@@ -105,4 +119,75 @@ class FaktaUttakAksjonspunktUtlederTest {
         assertThat(ap).hasSize(1);
         assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
     }
+
+    @Test
+    void ap_hvis_gradering_uten_arbeidsforhold_aareg() {
+        var arbeidsgiverIAY = Arbeidsgiver.virksomhet("999999999");
+        var arbeidsgiverGradering = Arbeidsgiver.virksomhet("999999998");
+        var gradering = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(10))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .medArbeidsgiver(arbeidsgiverGradering)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
+            .build();
+
+
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingRef = BehandlingReferanse.fra(behandling);
+
+        var aggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var aktørArbeidBuilder = aggregat.getAktørArbeidBuilder(behandlingRef.aktørId());
+        aktørArbeidBuilder.leggTilYrkesaktivitet(lagYrkesAkiviteter(arbeidsgiverIAY));
+        aggregat.leggTilAktørArbeid(aktørArbeidBuilder);
+
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
+        inntektArbeidYtelseGrunnlagBuilder.medData(aggregat);
+
+        var input = new UttakInput(behandlingRef, inntektArbeidYtelseGrunnlagBuilder.build(), null)
+            .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiverIAY, null)))
+            .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(false);
+        var ap = utleder.utledAksjonspunkterFor(input);
+
+        assertThat(ap).hasSize(1);
+        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
+    }
+
+    private Yrkesaktivitet lagYrkesAkiviteter(Arbeidsgiver arbeidsgiver) {
+
+        var fom = LocalDate.of(2015, 8, 1);
+        var tom = Tid.TIDENES_ENDE;
+
+        var aa1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var aa1_2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom)).medProsentsats(new BigDecimal(20));
+
+        var ya1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .leggTilAktivitetsAvtale(aa1)
+            .leggTilAktivitetsAvtale(aa1_2)
+            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef());
+        return ya1.build();
+
+    }
+
+    private InntektArbeidYtelseGrunnlagBuilder opprettGrunnlag(List<YrkesaktivitetBuilder> yrkesaktivitetList,
+                                                               AktørId aktørId,
+                                                               ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
+        var aggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var aktørArbeidBuilder = aggregat.getAktørArbeidBuilder(aktørId);
+        for (var yrkesaktivitet : yrkesaktivitetList) {
+            aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitet);
+        }
+        aggregat.leggTilAktørArbeid(aktørArbeidBuilder);
+
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
+        inntektArbeidYtelseGrunnlagBuilder.medInformasjon(arbeidsforholdInformasjon);
+        inntektArbeidYtelseGrunnlagBuilder.medData(aggregat);
+        return inntektArbeidYtelseGrunnlagBuilder;
+    }
+
 }
