@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -62,7 +63,7 @@ public class VurderForutgåendeMedlemskapvilkårSteg implements BehandlingSteg {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         var datoer = vurderingsDatoer.finnVurderingsDatoerForutForStpEngangsstønad(ref);
-        var resultat = new TreeMap<LocalDate, Set<MedlemResultat>>();
+        Map<LocalDate, Set<MedlemResultat>> resultat = new TreeMap<>();
         for (var dato : datoer) {
             resultat.put(dato, vurderMedlemskapTjeneste.vurderMedlemskap(ref, dato));
         }
