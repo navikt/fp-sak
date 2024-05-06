@@ -80,8 +80,11 @@ public class BeregnStønadskontoerTjeneste {
     }
 
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput) {
-        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        return beregnForBehandling(uttakInput, fpGrunnlag.getStønadskontoberegning());
+        // Må hente på nytt siden FR kan ha blitt endret etter input/FpGrunnlag (evt generere ny input i steget)
+        var kontoUtregning = fagsakRelasjonTjeneste.finnRelasjonFor(uttakInput.getBehandlingReferanse().saksnummer())
+            .getGjeldendeStønadskontoberegning().orElseThrow()
+            .getStønadskontoutregning();
+        return beregnForBehandling(uttakInput, kontoUtregning);
     }
 
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {

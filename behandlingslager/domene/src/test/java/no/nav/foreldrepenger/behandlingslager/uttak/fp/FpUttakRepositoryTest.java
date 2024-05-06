@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,8 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
         var hentetUttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         assertThat(hentetUttakResultatOpt).isPresent();
         var hentetUttakResultat = hentetUttakResultatOpt.get();
+
+        assertThat(hentetUttakResultat.getStønadskontoberegning().getStønadskontoutregning()).isEqualTo(Map.of(StønadskontoType.FORELDREPENGER, 200));
 
         var resultat = hentetUttakResultat.getOpprinneligPerioder().getPerioder();
         assertThat(resultat).hasSize(1);
@@ -156,6 +159,8 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
         //Assert
         var hentetUttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+
+        assertThat(hentetUttakResultatOpt.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).isEqualTo(Map.of(StønadskontoType.FORELDREPENGER, 200));
 
         var aktivitet = hentetUttakResultatOpt.orElseThrow().getGjeldendePerioder().getPerioder().get(0).getAktiviteter().get(0);
         assertThat(aktivitet.getUtbetalingsgrad().decimalValue()).isEqualTo(new BigDecimal("20.57"));
