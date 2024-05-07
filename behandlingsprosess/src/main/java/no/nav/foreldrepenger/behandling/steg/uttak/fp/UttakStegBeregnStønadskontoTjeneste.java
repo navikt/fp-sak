@@ -69,7 +69,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
         // Endring fra 80 til 100% DG krever full omregning ettersom antall dager reduseres
         var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
         var fullBeregning = endretDekningsgrad && Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
-        if (endretDekningsgrad || skalBeregneMedPrematurdager(fpGrunnlag)) {
+        var eksisterendeKontoUtregning = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
+        if (endretDekningsgrad || skalBeregneMedPrematurdager(fpGrunnlag, eksisterendeKontoUtregning)) {
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, !fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -120,11 +121,11 @@ public class UttakStegBeregnStønadskontoTjeneste {
             .orElse(0);
     }
 
-    private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag) {
+    private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag, Stønadskontoberegning eksisterende) {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
         var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        var eksisterendePrematurdager = fpGrunnlag.getStønadskontoberegning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
+        var eksisterendePrematurdager = eksisterende.getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
         var nyePrematurdager = Stønadsdager.instance(null).ekstradagerPrematur(fødselsdato, termindato);
         return nyePrematurdager > eksisterendePrematurdager;
     }

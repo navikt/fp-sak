@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -60,11 +61,10 @@ public class BeregnStønadskontoerTjeneste {
 
     public void overstyrStønadskontoberegning(UttakInput uttakInput, boolean relativBeregning) {
         var ref = uttakInput.getBehandlingReferanse();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
-        var eksisterende = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
-        var ny = beregn(uttakInput, relativBeregning);
-        if (inneholderEndringer(eksisterende, ny)) {
-            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), ny);
+        var eksisterendeBeregning = getGjeldendeBeregning(ref);
+        var nyBeregning = beregn(uttakInput, relativBeregning);
+        if (inneholderEndringer(eksisterendeBeregning, nyBeregning)) {
+            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), nyBeregning);
             oppdaterBehandlingsresultat(ref.behandlingId());
         }
     }
@@ -75,7 +75,7 @@ public class BeregnStønadskontoerTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        Map<StønadskontoType, Integer> tidligereBeregning = relativBeregning ? fpGrunnlag.getStønadskontoberegning() : Map.of();
+        Map<StønadskontoType, Integer> tidligereBeregning = relativBeregning ? getGjeldendeBeregning(ref).getStønadskontoutregning() : Map.of();
         return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
@@ -125,5 +125,9 @@ public class BeregnStønadskontoerTjeneste {
             return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
+    }
+
+    private Stønadskontoberegning getGjeldendeBeregning(BehandlingReferanse ref) {
+        return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 }
