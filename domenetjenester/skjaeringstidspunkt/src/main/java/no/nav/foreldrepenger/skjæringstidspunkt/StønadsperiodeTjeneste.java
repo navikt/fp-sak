@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,6 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.konfig.Tid;
 
 /*
@@ -88,6 +92,19 @@ public class StønadsperiodeTjeneste {
     public Optional<LocalDateInterval> utbetalingsperiodeEnkeltSak(Fagsak fagsak) {
         return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .flatMap(this::stønadsperiodeEnkeltSakBR);
+    }
+
+    public LocalDateTimeline<Boolean> utbetalingsTidslinjeEnkeltSak(Fagsak fagsak) {
+        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .map(this::utbetalingsTidslinjeEnkeltSak).orElse(LocalDateTimeline.empty());
+    }
+
+    public LocalDateTimeline<Boolean> utbetalingsTidslinjeEnkeltSak(Behandling behandling) {
+        return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
+            .collect(Collectors.collectingAndThen(Collectors.toList(), s -> new LocalDateTimeline<>(s, StandardCombinators::alwaysTrueForMatch)));
     }
 
     public boolean fullUtbetalingSisteUtbetalingsperiode(Fagsak fagsak) {

@@ -119,7 +119,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String KONTROLLER_ANNENPART_EØS_KODE = "5069";
     public static final String VURDER_UTTAK_STORTINGSREPRESENTANT_KODE = "5072";
-    public static final String VURDER_UTTAK_ETTER_NESTE_SAK_KODE = "5067";
     public static final String KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE = "5073";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";
     public static final String KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE = "5077";
@@ -158,6 +157,7 @@ public class AksjonspunktKodeDefinisjon {
     //  "5036"
     //  "5042"  "5044"  "5045"  "5048"
     //  "5050"
+    //  "5067"
     //  "5070"  "5075"  "5078"  "5079"
     //  "5080"  "5081"  "5083"  "5088"
     //  "5090"  "5093"  "5094"  "5097" "5098"  "5099"

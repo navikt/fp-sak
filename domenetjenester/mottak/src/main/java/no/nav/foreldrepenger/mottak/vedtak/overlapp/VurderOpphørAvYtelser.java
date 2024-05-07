@@ -117,8 +117,8 @@ public class VurderOpphørAvYtelser {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
 
         //dersom to tette fødsler skal vi opprette VKY for at SB må ta stilling til eventuelt gjenstående minsterett ellers ikke
-        if (toTetteFødsler(sakOpphør, iverksattBehandling )) {
-            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett(to tette) identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
+        if (toTetteFødsler(sakOpphør, iverksattBehandling) && overlappendeYtelse(sakOpphør, iverksattBehandling)) {
+            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett ved tette fødsler identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
         } else {
             prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, null);
         }
@@ -154,6 +154,11 @@ public class VurderOpphørAvYtelser {
         }
         var grenseToTette = tidligsteFH.plus(TO_TETTE_GRENSE).plusDays(1);
         return grenseToTette.isAfter(senesteFH);
+    }
+
+    private boolean overlappendeYtelse(Fagsak sakOpphør, Behandling iverksattBehandling) {
+        return !stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(sakOpphør)
+            .intersection(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(iverksattBehandling)).isEmpty();
     }
 
     private boolean beggeSakerErForeldrepenger(Fagsak sakOpphør, Behandling iverksattBehandling) {

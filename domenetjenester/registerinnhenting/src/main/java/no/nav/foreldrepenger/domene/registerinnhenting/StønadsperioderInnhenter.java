@@ -158,7 +158,7 @@ public class StønadsperioderInnhenter {
         alleEgneSaker.stream()
             .filter(f -> f.getYtelseType().equals(aktuellType)
                 || FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()))
-            .filter(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).isPresent())
+            .filter(this::harVedtakMedUtbetaling)
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);
         // Finn mødres saker der bruker er implisert
@@ -183,7 +183,7 @@ public class StønadsperioderInnhenter {
             .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
                 .filter(f2 -> f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
             .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
-            .filter(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).isPresent())
+            .filter(this::harVedtakMedUtbetaling)
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.ANNEN_PART_SAK).stream())
             .forEach(egneMuligeSaker::add);
     }
@@ -211,6 +211,10 @@ public class StønadsperioderInnhenter {
         return familieHendelseTjeneste.finnAggregat(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+    }
+
+    private boolean harVedtakMedUtbetaling(Fagsak fagsak) {
+        return !stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(fagsak).isEmpty();
     }
 
     public record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {}
