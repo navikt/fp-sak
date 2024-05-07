@@ -63,11 +63,10 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
      * - utledVurderingsdatoerForMedlemskap
      *
      * Ser bare på datoer etter skjæringstidspunktet
-     * @param behandlingId id i databasen
+     * @param ref behandlingreferanse
      * @return datoer med diff i medlemskap
      */
     public Set<LocalDate> finnVurderingsdatoer(BehandlingReferanse ref) {
-
         var endringssjekker = FagsakYtelseTypeRef.Lookup.find(alleEndringssjekkere, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()));
 
@@ -78,6 +77,20 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
         // ønsker bare å se på datoer etter skjæringstidspunktet
         return datoer.stream().filter(d -> d.isAfter(ref.getUtledetSkjæringstidspunkt()) && ref.getUtledetMedlemsintervall().encloses(d)).collect(Collectors.toSet());
+    }
+
+    public Set<LocalDate> finnVurderingsDatoerForutForStpEngangsstønad(BehandlingReferanse ref) {
+        var endringssjekker = FagsakYtelseTypeRef.Lookup.find(alleEndringssjekkere, ref.fagsakYtelseType())
+            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()));
+        var fom = ref.getUtledetSkjæringstidspunkt().minusMonths(12);
+
+        Set<LocalDate> datoer = new HashSet<>();
+
+        datoer.addAll(utledVurderingsdatoerForTPS(ref, fom, ref.getUtledetSkjæringstidspunkt()).keySet());
+        datoer.addAll(utledVurderingsdatoerForMedlemskap(ref.behandlingId(), endringssjekker).keySet());
+        datoer.add(fom);
+
+        return datoer.stream().filter(d -> d.isBefore(ref.getUtledetSkjæringstidspunkt())).filter(d -> !d.isBefore(fom)).collect(Collectors.toSet());
     }
 
     Map<LocalDate, Set<VurderingsÅrsak>> finnVurderingsdatoerMedÅrsak(BehandlingReferanse ref) {
@@ -100,11 +113,15 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref) {
+        return utledVurderingsdatoerForTPS(ref, ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
+    }
+
+    private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref, LocalDate fom, LocalDate tom) {
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
-        var relevantPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
+        var relevantPeriodeEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
 
         var personopplysningerOpt = personopplysningTjeneste
-                .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, relevantPeriode);
+            .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, relevantPeriodeEntitet);
         if (personopplysningerOpt.isPresent()) {
             var personopplysningerAggregat = personopplysningerOpt.get();
 
