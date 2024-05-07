@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import java.util.Map;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -50,8 +52,8 @@ public class ForeldrepengerUttakTjeneste {
         var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder().getPerioder().stream()
             .map(p -> map(p, ignoreDok))
             .toList();
-
-        return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder);
+        var kontoutregning = Optional.ofNullable(entitet.getStønadskontoberegning()).map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
+        return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder, kontoutregning);
     }
 
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet, boolean ignoreDok) {

@@ -3,8 +3,11 @@ package no.nav.foreldrepenger.domene.uttak;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 
 public class ForeldrepengerUttak {
 
@@ -18,13 +21,22 @@ public class ForeldrepengerUttak {
      */
     private final List<ForeldrepengerUttakPeriode> overstyrtePerioder;
 
-    public ForeldrepengerUttak(List<ForeldrepengerUttakPeriode> perioder, List<ForeldrepengerUttakPeriode> overstyrtePerioder) {
+    private final Map<StønadskontoType, Integer> stønadskontoBeregning;
+
+    public ForeldrepengerUttak(List<ForeldrepengerUttakPeriode> perioder,
+                               List<ForeldrepengerUttakPeriode> overstyrtePerioder,
+                               Map<StønadskontoType, Integer> stønadskontoBeregning) {
         this.perioder = Objects.requireNonNull(perioder);
-        this.overstyrtePerioder = overstyrtePerioder == null ? List.of() : overstyrtePerioder;
+        this.overstyrtePerioder = Optional.ofNullable(overstyrtePerioder).orElse(List.of());
+        this.stønadskontoBeregning = Optional.ofNullable(stønadskontoBeregning).orElse(Map.of());
     }
 
     public ForeldrepengerUttak(List<ForeldrepengerUttakPeriode> perioder) {
-        this(perioder, List.of());
+        this(perioder, List.of(), Map.of());
+    }
+
+    public Map<StønadskontoType, Integer> getStønadskontoBeregning() {
+        return stønadskontoBeregning;
     }
 
     public List<ForeldrepengerUttakPeriode> getGjeldendePerioder() {
