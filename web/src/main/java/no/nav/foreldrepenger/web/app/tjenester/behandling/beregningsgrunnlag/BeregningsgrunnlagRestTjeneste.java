@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -16,14 +14,11 @@ import jakarta.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -45,10 +40,8 @@ public class BeregningsgrunnlagRestTjeneste {
     public static final String BEREGNINGSGRUNNLAG_PATH = BASE_PATH + BEREGNINGSGRUNNLAG_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
-    private BeregningDtoTjeneste beregningDtoTjeneste;
-    private InntektArbeidYtelseTjeneste iayTjeneste;
     private OpptjeningRepository opptjeningRepository;
-    private BeregningsgrunnlagInputProvider inputTjenesteProvider;
+    private BeregningTjeneste beregningTjeneste;
 
     public BeregningsgrunnlagRestTjeneste() {
         // CDI
@@ -56,15 +49,11 @@ public class BeregningsgrunnlagRestTjeneste {
 
     @Inject
     public BeregningsgrunnlagRestTjeneste(BehandlingRepository behandlingRepository,
-            OpptjeningRepository opptjeningRepository,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider,
-            BeregningDtoTjeneste beregningDtoTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste) {
+                                          OpptjeningRepository opptjeningRepository,
+                                          BeregningTjeneste beregningTjeneste) {
         this.opptjeningRepository = opptjeningRepository;
-        this.inputTjenesteProvider = inputTjenesteProvider;
-        this.beregningDtoTjeneste = beregningDtoTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.iayTjeneste = iayTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @GET
@@ -78,19 +67,6 @@ public class BeregningsgrunnlagRestTjeneste {
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return null;
         }
-
-        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
-        return iayGrunnlagOpt.flatMap(iayGrunnlag -> {
-            var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling, iayGrunnlag);
-            if (input.isPresent()) {
-                return beregningDtoTjeneste.lagBeregningsgrunnlagDto(input.get());
-            }
-            return Optional.empty();
-        }).orElse(null);
+        return beregningTjeneste.hentGuiDto(BehandlingReferanse.fra(behandling)).orElse(null);
     }
-
-    private BeregningsgrunnlagGUIInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return inputTjenesteProvider.getRestInputTjeneste(ytelseType);
-    }
-
 }

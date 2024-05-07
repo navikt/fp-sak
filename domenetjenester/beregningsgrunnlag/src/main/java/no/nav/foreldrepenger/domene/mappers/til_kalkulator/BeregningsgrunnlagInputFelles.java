@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import java.util.List;
 import java.util.Objects;

@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
@@ -33,4 +34,13 @@ public class BeregningTjeneste {
             return fpsakBeregner.hent(referanse);
         }
     }
+
+    public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
+        if (skalKalleKalkulus) {
+            return kalkulusBeregner.hentGUIDto(referanse);
+        } else {
+            return fpsakBeregner.hentGUIDto(referanse);
+        }
+    }
+
 }
