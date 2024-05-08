@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,8 +107,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_ELDRE);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(eldreBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_ELDRE.minusWeeks(2)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(eldreBehandling.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO_ELDRE.minusWeeks(2), FH_DATO_ELDRE.plusWeeks(6), Boolean.TRUE));
         avsluttBehandling(eldreBehandling);
 
         var behandling = lagBehandlingMor(FH_DATO, AKTØR_ID_MOR, null);
@@ -132,8 +128,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyereBehandling.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO_YNGRE, FH_DATO_YNGRE.plusWeeks(6), Boolean.TRUE));
         avsluttBehandling(nyereBehandling);
 
         var behandling = lagBehandlingMor(FH_DATO, AKTØR_ID_MOR, null);
@@ -158,8 +152,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(1));
         when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(STP_NORMAL, STP_NORMAL)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(avsluttetFPBehMor.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(STP_NORMAL, STP_NORMAL, Boolean.TRUE));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
@@ -183,8 +175,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.minusWeeks(3)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyereBehandling.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO_YNGRE.minusWeeks(3), FH_DATO_YNGRE.plusWeeks(6), Boolean.TRUE));
         avsluttBehandling(nyereBehandling);
 
         var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
@@ -211,8 +201,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.minusWeeks(3)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyereBehandling.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO_YNGRE.minusWeeks(3), FH_DATO_YNGRE.plusWeeks(6), Boolean.TRUE));
         avsluttBehandling(nyereBehandling);
 
         var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
@@ -238,8 +226,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.minusWeeks(3)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyereBehandling.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO_YNGRE.minusWeeks(3), FH_DATO_YNGRE.plusWeeks(6), Boolean.TRUE));
         avsluttBehandling(nyereBehandling);
 
         var nyereÅpenBehandlingFar = lagBehandlingFar(FH_DATO_YNGRE, MEDF_AKTØR_ID, AKTØR_ID_MOR);
@@ -247,8 +233,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE.plusMonths(2));
         lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereÅpenBehandlingFar.getFagsak())).thenReturn(Optional.empty());
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyereÅpenBehandlingFar.getFagsak()))
-            .thenReturn(LocalDateTimeline.empty());
 
         var gammelBehandlingMor = lagBehandlingFar(FH_DATO, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(gammelBehandlingMor.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
@@ -257,8 +241,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         lenient().when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
         lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(gammelBehandlingMor.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(3)));
-        lenient().when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(gammelBehandlingMor.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO.minusWeeks(3), FH_DATO.plusWeeks(6), Boolean.TRUE));
 
         var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(behandling.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
@@ -290,8 +272,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(1));
         when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FH_DATO.minusWeeks(15), FH_DATO)));
-        when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(avsluttetFPBehMor.getFagsak()))
-            .thenReturn(new LocalDateTimeline<>(FH_DATO.minusWeeks(15), FH_DATO.plusWeeks(6), Boolean.TRUE));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);

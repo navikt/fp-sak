@@ -26,6 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -73,6 +75,7 @@ public class StønadsperioderInnhenter {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
 
     public StønadsperioderInnhenter() {
@@ -93,6 +96,7 @@ public class StønadsperioderInnhenter {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.stønadsperiodeTjeneste = stønadsperiodeTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     public void innhentNesteSak(Behandling behandling) {
@@ -158,7 +162,7 @@ public class StønadsperioderInnhenter {
         alleEgneSaker.stream()
             .filter(f -> f.getYtelseType().equals(aktuellType)
                 || FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()))
-            .filter(this::harVedtakMedUtbetaling)
+            .filter(this::harInnvilgetVedtak)
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);
         // Finn mødres saker der bruker er implisert
@@ -183,7 +187,7 @@ public class StønadsperioderInnhenter {
             .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
                 .filter(f2 -> f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
             .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
-            .filter(this::harVedtakMedUtbetaling)
+            .filter(this::harInnvilgetVedtak)
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.ANNEN_PART_SAK).stream())
             .forEach(egneMuligeSaker::add);
     }
@@ -213,8 +217,11 @@ public class StønadsperioderInnhenter {
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
     }
 
-    private boolean harVedtakMedUtbetaling(Fagsak fagsak) {
-        return !stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(fagsak).isEmpty();
+    private boolean harInnvilgetVedtak(Fagsak fagsak) {
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .flatMap(b -> behandlingVedtakRepository.hentForBehandlingHvisEksisterer(b.getId()))
+            .filter(v -> !VedtakResultatType.AVSLAG.equals(v.getVedtakResultatType()))
+            .isPresent();
     }
 
     public record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {}
