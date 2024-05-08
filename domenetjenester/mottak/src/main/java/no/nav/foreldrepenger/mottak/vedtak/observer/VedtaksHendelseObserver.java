@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
@@ -56,7 +57,10 @@ public class VedtaksHendelseObserver {
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), ENV.isLocal() ? 1 : 5);
         }
-        lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), ENV.isLocal() ? 2 : 40); // Kafka kan ta litt tid
+        // Se bort fra avslagsvedtak - de skal ikke føre til opphør av eksisterende ytelse
+        if (!VedtakResultatType.AVSLAG.equals(event.vedtak().getVedtakResultatType())) {
+            lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), ENV.isLocal() ? 2 : 40); // Kafka kan ta tid
+        }
     }
 
     void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {

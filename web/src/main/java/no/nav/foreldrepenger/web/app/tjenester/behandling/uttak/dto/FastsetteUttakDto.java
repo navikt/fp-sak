@@ -58,20 +58,6 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
-    @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_UTTAK_ETTER_NESTE_SAK_KODE)
-    public static class FastsetteUttakEtterNesteSakDto extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused")
-        private FastsetteUttakEtterNesteSakDto() {
-            // For Jackson
-        }
-
-        public FastsetteUttakEtterNesteSakDto(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-    }
-
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE)
     public static class FastsetteUttakKontrollerAnnenpartEØSDto extends FastsetteUttakDto {
 
