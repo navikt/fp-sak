@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "stønadskonto.migrering", maxFailedRuns = 1)
+@ProsessTask(value = "stønadskonto.behandling.migrering", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class StønadskontoMigreringURTask implements ProsessTaskHandler {
 
