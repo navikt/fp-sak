@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,7 +12,6 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -63,7 +60,7 @@ public class BeregnStønadskontoerTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var eksisterendeBeregning = getGjeldendeBeregning(ref);
         var nyBeregning = beregn(uttakInput, relativBeregning);
-        if (inneholderEndringer(eksisterendeBeregning, nyBeregning)) {
+        if (!eksisterendeBeregning.getStønadskontoutregning().equals(nyBeregning.getStønadskontoutregning())) {
             fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), nyBeregning);
             oppdaterBehandlingsresultat(ref.behandlingId());
         }
@@ -79,14 +76,6 @@ public class BeregnStønadskontoerTjeneste {
         return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
-    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput) {
-        // Må hente på nytt siden FR kan ha blitt endret etter input/FpGrunnlag (evt generere ny input i steget)
-        var kontoUtregning = fagsakRelasjonTjeneste.finnRelasjonFor(uttakInput.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning().orElseThrow()
-            .getStønadskontoutregning();
-        return beregnForBehandling(uttakInput, kontoUtregning);
-    }
-
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
@@ -96,21 +85,14 @@ public class BeregnStønadskontoerTjeneste {
         return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
-    public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
-        var typerEksisterende = eksisterende.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());
-        var typerNy = ny.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).collect(Collectors.toSet());
-        if (typerNy.size() == typerEksisterende.size() && typerNy.containsAll(typerEksisterende)) {
-            return eksisterende.getStønadskontoer().stream()
-                .anyMatch(e -> !harSammeAntallDagerFor(ny, e));
-        } else {
-            return true;
-        }
-    }
-
-    private boolean harSammeAntallDagerFor(Stønadskontoberegning stønadskontoberegning, Stønadskonto konto) {
-        return stønadskontoberegning.getStønadskontoer().stream()
-            .filter(stønadskonto -> stønadskonto.getStønadskontoType().equals(konto.getStønadskontoType()))
-            .anyMatch(stønadskonto -> Objects.equals(stønadskonto.getMaxDager(), konto.getMaxDager()));
+    public void loggForBehandling(UttakInput uttakInput, Stønadskontoberegning tidligereBeregning) {
+        var ref = uttakInput.getBehandlingReferanse();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        stønadskontoRegelAdapter.beregnKontoerLoggDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag,
+            tidligereBeregning.getStønadskontoutregning(), tidligereBeregning.getId());
     }
 
     private void oppdaterBehandlingsresultat(Long behandlingId) {

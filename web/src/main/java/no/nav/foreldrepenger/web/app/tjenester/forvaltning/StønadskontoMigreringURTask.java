@@ -1,35 +1,26 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
-import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.LegacyGrunnlagV0;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.LegacyGrunnlagV1;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Dependent
 @ProsessTask(value = "stønadskonto.migrering", maxFailedRuns = 1)
@@ -96,12 +87,11 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
         var kontoFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
             .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning).orElseThrow();
-        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, kontoFagsakRelasjon.getStønadskontoutregning());
         if (dryRun) {
-            endretBeregning.ifPresent(eb ->
-                LOG.info("FPSAK migrer konto til UR endret for behandling {} fra {} til {}", behandling.getId(), kontoFagsakRelasjon.getStønadskontoutregning(), eb));
+            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, kontoFagsakRelasjon);
             return;
         }
+        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, kontoFagsakRelasjon.getStønadskontoutregning());
         endretBeregning.ifPresent(fagsakRelasjonRepository::persisterFlushStønadskontoberegning);
         var kontoBeregningId = endretBeregning.map(Stønadskontoberegning::getId).orElse(kontoFagsakRelasjon.getId());
         oppdaterUttakMedKontoId(uttakResultatEntitet, kontoBeregningId);

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -84,13 +83,15 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
     public Stønadskontoberegning fastsettStønadskontoerForBehandling(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        return beregnStønadskontoerTjeneste.beregnForBehandling(input)
-            .or(() -> fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeStønadskontoberegning())
+        var gjeldendeStønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
+            .getGjeldendeStønadskontoberegning();
+        return beregnStønadskontoerTjeneste.beregnForBehandling(input, gjeldendeStønadskontoberegning.orElseThrow().getStønadskontoutregning())
+            .or(() -> gjeldendeStønadskontoberegning)
             .orElseThrow();
     }
 
     private void logEvtEndring(UttakInput input, FagsakRelasjon fagsakRelasjon) {
-        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, true);
+        var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, false);
 
         var eksiterendeKontoer = fagsakRelasjon.getStønadskontoberegning().orElseThrow();
         var endringerVedReberegning = utledEndringer(eksiterendeKontoer, nyeKontoer);
@@ -113,12 +114,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     private static Integer finnMaksdagerForType(Stønadskontoberegning eksiterendeKonti, StønadskontoType type) {
-        return eksiterendeKonti.getStønadskontoer()
-            .stream()
-            .filter(s -> s.getStønadskontoType().equals(type))
-            .map(Stønadskonto::getMaxDager)
-            .findFirst()
-            .orElse(0);
+        return eksiterendeKonti.getStønadskontoutregning().getOrDefault(type, 0);
     }
 
     private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag, Stønadskontoberegning eksisterende) {
