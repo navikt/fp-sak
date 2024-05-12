@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,6 +63,12 @@ public class Stønadskontoberegning extends BaseEntitet {
 
     public void leggTilStønadskonto(Stønadskonto stønadskonto) {
         stønadskontoer.add(stønadskonto);
+    }
+
+    public Map<StønadskontoType, Integer> getStønadskontoutregning() {
+        return stønadskontoer.stream()
+            .filter(k -> k.getMaxDager() > 0)
+            .collect(Collectors.toMap(Stønadskonto::getStønadskontoType, Stønadskonto::getMaxDager));
     }
 
     @Override

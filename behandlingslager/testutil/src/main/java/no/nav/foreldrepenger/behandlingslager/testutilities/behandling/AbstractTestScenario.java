@@ -109,6 +109,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -178,6 +179,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingRepositoryProvider repositoryProvider;
     private PersonInformasjon.Builder personInformasjonBuilder;
     private UttakResultatPerioderEntitet uttak;
+    private Stønadskontoberegning stønadskontoberegning;
     private boolean manueltOpprettet;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
@@ -1026,7 +1028,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             return;
         }
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), stønadskontoberegning, uttak);
     }
 
     @SuppressWarnings("unchecked")
@@ -1222,6 +1224,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         }
         this.uttak = uttak;
+        return (S) this;
+    }
+
+    public S medStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+        this.stønadskontoberegning = stønadskontoberegning;
         return (S) this;
     }
 

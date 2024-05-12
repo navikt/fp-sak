@@ -38,6 +38,10 @@ public class UttakResultatEntitet extends BaseEntitet {
     @JoinColumn(name = "behandling_resultat_id", nullable = false, updatable = false)
     private Behandlingsresultat behandlingsresultat;
 
+    @ManyToOne
+    @JoinColumn(name = "konto_beregning_id")
+    private Stønadskontoberegning stønadskontoberegning;
+
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
@@ -69,6 +73,10 @@ public class UttakResultatEntitet extends BaseEntitet {
         return overstyrtPerioder;
     }
 
+    public Stønadskontoberegning getStønadskontoberegning() {
+        return stønadskontoberegning;
+    }
+
     public void deaktiver() {
         aktiv = false;
     }
@@ -91,6 +99,11 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public Builder medOverstyrtPerioder(UttakResultatPerioderEntitet overstyrtPerioder) {
             kladd.overstyrtPerioder = overstyrtPerioder;
+            return this;
+        }
+
+        public Builder medStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+            kladd.stønadskontoberegning = stønadskontoberegning;
             return this;
         }
 

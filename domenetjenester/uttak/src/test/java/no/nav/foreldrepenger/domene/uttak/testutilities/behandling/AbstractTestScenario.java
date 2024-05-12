@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -63,6 +64,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private Boolean overstyrtOmsorg;
     private UttakResultatPerioderEntitet uttak;
+    private Stønadskontoberegning stønadskontoberegning;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
         fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
@@ -204,7 +206,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             return;
         }
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), stønadskontoberegning, uttak);
     }
 
     public AktørId getAktørId() {
@@ -229,6 +231,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().build());
         }
         this.uttak = uttak;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
+        this.stønadskontoberegning = stønadskontoberegning;
         return (S) this;
     }
 

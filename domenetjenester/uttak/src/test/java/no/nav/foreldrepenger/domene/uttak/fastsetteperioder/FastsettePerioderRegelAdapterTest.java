@@ -756,7 +756,7 @@ class FastsettePerioderRegelAdapterTest {
             .medFordeling(oppgittFordelingMor);
         var morBehandling = morScenario.lagre(repositoryProvider);
 
-        lagreStønadskontoer(morBehandling);
+        var kontoer = lagreStønadskontoer(morBehandling);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
 
@@ -777,7 +777,7 @@ class FastsettePerioderRegelAdapterTest {
             .build();
         farUttakresultat.leggTilPeriode(farPeriode);
         repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(farBehandling.getId(), farUttakresultat);
+            .lagreOpprinneligUttakResultatPerioder(farBehandling.getId(), kontoer, farUttakresultat);
 
         var morUtsettelseRevurdering = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -1764,7 +1764,7 @@ class FastsettePerioderRegelAdapterTest {
         return dato.minusDays(dato.getDayOfWeek().getValue() - 1);
     }
 
-    private void lagreStønadskontoer(Behandling behandling) {
+    private Stønadskontoberegning lagreStønadskontoer(Behandling behandling) {
         var mødrekvote = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.MØDREKVOTE)
             .medMaxDager(75)
@@ -1793,6 +1793,7 @@ class FastsettePerioderRegelAdapterTest {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 
     private void lagreUttaksperiodegrense(Long behandlingId) {

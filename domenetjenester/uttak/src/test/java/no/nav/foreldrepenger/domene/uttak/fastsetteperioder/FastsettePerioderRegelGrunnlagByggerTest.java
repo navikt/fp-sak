@@ -364,10 +364,10 @@ class FastsettePerioderRegelGrunnlagByggerTest {
 
         perioder.leggTilPeriode(utsettelse);
 
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
+        var kontoer = lagreStønadskontoer(morsBehandling, fagsakRelasjonTjeneste);
 
-        lagreStønadskontoer(morsBehandling, fagsakRelasjonTjeneste);
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, perioder);
 
         // Arrange - fars behandling
         var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer("1111"),
@@ -518,7 +518,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
     }
 
-    private void lagreStønadskontoer(Behandling behandling, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    private Stønadskontoberegning lagreStønadskontoer(Behandling behandling, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         var mødrekvote = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.MØDREKVOTE)
             .medMaxDager(30)
@@ -547,6 +547,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
 
         var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 
     private void lagreYrkesAktiviter(Behandling behandling,

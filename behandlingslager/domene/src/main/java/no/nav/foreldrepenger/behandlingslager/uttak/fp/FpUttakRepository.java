@@ -36,10 +36,18 @@ public class FpUttakRepository {
         // CDI proxy
     }
 
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, Stønadskontoberegning stønadskontoberegning,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         // Nullstilling er forventet - fjerner evt overstyring
-        lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder));
+        lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder)
+            .medStønadskontoberegning(stønadskontoberegning));
+    }
+
+    // Kun testformål
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
+        lagreOpprinneligUttakResultatPerioder(behandlingId, null, opprinneligPerioder);
     }
 
     public void lagreOverstyrtUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet overstyrtPerioder) {
@@ -55,6 +63,9 @@ public class FpUttakRepository {
         var builder = new UttakResultatEntitet.Builder(hentBehandlingsresultat(behandlingId));
         if (eksistrendeResultat.isPresent()) {
             var eksisterende = eksistrendeResultat.get();
+            if (eksisterende.getStønadskontoberegning() != null) {
+                builder.medStønadskontoberegning(eksisterende.getStønadskontoberegning());
+            }
             if (eksisterende.getOpprinneligPerioder() != null) {
                 builder.medOpprinneligPerioder(eksisterende.getOpprinneligPerioder());
             }
@@ -79,6 +90,10 @@ public class FpUttakRepository {
     }
 
     private void persistResultat(UttakResultatEntitet resultat) {
+        var kontoutregning = resultat.getStønadskontoberegning();
+        if (kontoutregning != null) {
+            persistKontoutregning(kontoutregning);
+        }
         var overstyrtPerioder = resultat.getOverstyrtPerioder();
         if (overstyrtPerioder != null) {
             persistPerioder(overstyrtPerioder);
@@ -88,6 +103,13 @@ public class FpUttakRepository {
             persistPerioder(opprinneligPerioder);
         }
         entityManager.persist(resultat);
+    }
+
+    private void persistKontoutregning(Stønadskontoberegning stønadskontoberegning) {
+        entityManager.persist(stønadskontoberegning);
+        for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
+            entityManager.persist(stønadskonto);
+        }
     }
 
     private void persistPerioder(UttakResultatPerioderEntitet perioder) {

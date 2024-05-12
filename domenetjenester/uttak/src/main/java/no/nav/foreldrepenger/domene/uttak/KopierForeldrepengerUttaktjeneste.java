@@ -56,7 +56,7 @@ public class KopierForeldrepengerUttaktjeneste {
     private void kopierUttaksresultat(Long behandlingId, UttakResultatEntitet uttak) {
         LOG.info("Kopierer uttaksresultat id {}, til behandling {}", uttak.getId(), behandlingId);
         var kopiertOpprinneligPerioder = FastsettePerioderRevurderingUtil.kopier(uttak.getOpprinneligPerioder());
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, kopiertOpprinneligPerioder);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, uttak.getStønadskontoberegning(), kopiertOpprinneligPerioder);
         if (uttak.getOverstyrtPerioder() != null) {
             var kopiertOverstyrtPerioder = FastsettePerioderRevurderingUtil.kopier(uttak.getOverstyrtPerioder());
             fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, kopiertOverstyrtPerioder);

@@ -210,7 +210,7 @@ class TapteDagerFpffTjenesteTest {
         assertThat(resultat).isEqualTo(3);
     }
 
-    private void opprettFagsakRelasjon(Behandling behandling, int maksdagerFpff) {
+    private Stønadskontoberegning opprettFagsakRelasjon(Behandling behandling, int maksdagerFpff) {
         var stønadskontoberegning = new Stønadskontoberegning.Builder()
             .medStønadskonto(new Stønadskonto.Builder()
                 .medMaxDager(maksdagerFpff)
@@ -220,6 +220,7 @@ class TapteDagerFpffTjenesteTest {
             .medRegelInput(" ")
             .build();
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 
     @Test
@@ -237,7 +238,7 @@ class TapteDagerFpffTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
             .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
-        opprettFagsakRelasjon(førstegangsBehandling, 15);
+        var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
@@ -251,7 +252,7 @@ class TapteDagerFpffTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakPeriode);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), uttak);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), konto, uttak);
 
         var revurderingBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
@@ -289,7 +290,7 @@ class TapteDagerFpffTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
             .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
-        opprettFagsakRelasjon(førstegangsBehandling, 15);
+        var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
@@ -303,7 +304,7 @@ class TapteDagerFpffTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakPeriode);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), uttak);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), konto, uttak);
 
         var revurderingBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
@@ -345,7 +346,7 @@ class TapteDagerFpffTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFellesperiode, søktFpff, mødrekvote), true))
             .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
-        opprettFagsakRelasjon(førstegangsBehandling, 15);
+        var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         //fpff spiser opp fellesperiode før fødsel ved fødsel før termin
         var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
@@ -360,7 +361,7 @@ class TapteDagerFpffTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakPeriode);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), uttak);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), konto, uttak);
 
         var revurderingBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
@@ -403,7 +404,7 @@ class TapteDagerFpffTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søktFellesperiode, søktFpff, mødrekvote), true))
             .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
-        opprettFagsakRelasjon(førstegangsBehandling, 15);
+        var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         //fpff spiser opp fellesperiode før fødsel ved fødsel før termin
         var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
@@ -418,7 +419,7 @@ class TapteDagerFpffTjenesteTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakPeriode);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), uttak);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsBehandling.getId(), konto, uttak);
 
         var termindato = mødrekvote.getFom();
         var fødselsdato = LocalDate.of(2023, 11, 30);

@@ -210,7 +210,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void lagreUttak(Behandling førsteBehandling, UttakResultatPerioderEntitet opprinneligPerioder) {
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førsteBehandling.getId(), opprinneligPerioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førsteBehandling.getId(), null, opprinneligPerioder);
     }
 
     private UttakResultatPerioderEntitet innvilgetUttak() {

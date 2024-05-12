@@ -53,8 +53,8 @@ class StønadskontoSaldoTjenesteTest {
     @Test
     void skal_regne_ut_saldo_per_aktivitet() {
         var tjeneste = tjeneste();
-        var behandling = behandlingMedKonto(
-            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var behandling = behandlingMedKonto();
+        var konto = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
@@ -73,7 +73,7 @@ class StønadskontoSaldoTjenesteTest {
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
-        lagreUttak(uttak, behandling.getId());
+        lagreUttak(uttak, konto, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -91,8 +91,8 @@ class StønadskontoSaldoTjenesteTest {
     @Test
     void skal_regne_ut_for_arbeidstaker_uten_arbeidsgiver() {
         var tjeneste = tjeneste();
-        var behandling = behandlingMedKonto(
-            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var behandling = behandlingMedKonto();
+        var kontoer = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
@@ -106,7 +106,7 @@ class StønadskontoSaldoTjenesteTest {
             .build();
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet);
-        lagreUttak(uttak, behandling.getId());
+        lagreUttak(uttak, kontoer, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -125,7 +125,8 @@ class StønadskontoSaldoTjenesteTest {
             .medMaxDager(15)
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
             .build();
-        var behandling = behandlingMedKonto(stønadskonto, aktørId);
+        var behandling = behandlingMedKonto(aktørId);
+        var konto = behandlingMedKonto(behandling, stønadskonto);
 
         //Periode med bare frilans
         var uttak = new UttakResultatPerioderEntitet();
@@ -185,7 +186,7 @@ class StønadskontoSaldoTjenesteTest {
         uttaksperiode3.leggTilAktivitet(arbeidsgiverAktivitet2);
         uttaksperiode3.leggTilAktivitet(arbeidsgiverAktivitet3);
 
-        lagreUttak(uttak, behandling.getId());
+        lagreUttak(uttak, konto, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -212,8 +213,8 @@ class StønadskontoSaldoTjenesteTest {
     @Test
     void skal_returnere_alle_aktiviteter_hvis_ingen_trekkdager() {
         var tjeneste = tjeneste();
-        var behandling = behandlingMedKonto(
-            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var behandling = behandlingMedKonto();
+        var konto = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
@@ -232,7 +233,7 @@ class StønadskontoSaldoTjenesteTest {
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
-        lagreUttak(uttak, behandling.getId());
+        lagreUttak(uttak, konto, behandling.getId());
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
@@ -246,33 +247,35 @@ class StønadskontoSaldoTjenesteTest {
             AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null))).isEqualTo(15);
     }
 
-    private void lagreUttak(UttakResultatPerioderEntitet uttak, Long behandlingId) {
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingId, uttak);
+    private void lagreUttak(UttakResultatPerioderEntitet uttak, Stønadskontoberegning konto, Long behandlingId) {
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingId, konto, uttak);
     }
 
-    private Behandling behandlingMedKonto(Stønadskonto konto) {
-        return behandlingMedKonto(konto, AktørId.dummy());
+    private Behandling behandlingMedKonto() {
+        return behandlingMedKonto(AktørId.dummy());
     }
 
-    private Behandling behandlingMedKonto(Stønadskonto konto, AktørId aktørId) {
+    private Behandling behandlingMedKonto(AktørId aktørId) {
         var søknadsperioder = Collections.singletonList(OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2019, 2, 2), LocalDate.of(2019, 10, 2))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build());
         var fordeling = new OppgittFordelingEntitet(søknadsperioder, true);
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId)
+        return ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId)
             .medFordeling(fordeling)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medOppgittDekningsgrad(Dekningsgrad._100)
             .lagre(repositoryProvider);
+    }
 
+    private Stønadskontoberegning behandlingMedKonto(Behandling behandling, Stønadskonto konto) {
         var kontoer = Stønadskontoberegning.builder()
             .medStønadskonto(konto)
             .medRegelEvaluering("asd")
             .medRegelInput("awd")
             .build();
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), kontoer);
-        return behandling;
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {

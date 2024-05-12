@@ -5,11 +5,13 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 
 class FpUttakRepositoryStub extends FpUttakRepository {
 
+    private final Map<Long, Stønadskontoberegning> kontoer = new ConcurrentHashMap<>();
     private final Map<Long, UttakResultatPerioderEntitet> opprinnelig = new ConcurrentHashMap<>();
     private final Map<Long, UttakResultatPerioderEntitet> overstyrt = new ConcurrentHashMap<>();
 
@@ -20,10 +22,21 @@ class FpUttakRepositoryStub extends FpUttakRepository {
     }
 
     @Override
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, Stønadskontoberegning stønadskontoberegning,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         opprinnelig.put(behandlingId, opprinneligPerioder);
+        if (stønadskontoberegning != null) {
+            kontoer.put(behandlingId, stønadskontoberegning);
+        }
     }
+
+    @Override
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
+        // Nullstilling er forventet - fjerner evt overstyring
+        lagreOpprinneligUttakResultatPerioder(behandlingId, null, opprinneligPerioder);
+    }
+
 
     @Override
     public void lagreOverstyrtUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet overstyrtPerioder) {
