@@ -59,9 +59,18 @@ public class StønadskontoRegelAdapter {
                                       Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                       ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
                                       Map<StønadskontoType, Integer> tidligereUtregning,
-                                      Long tidligereStønadskontoId) {
+                                      Long tidligereStønadskontoId, boolean sakStengt) {
         var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
             annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
+        if (sakStengt) { // Tilfelle der fellesperioden var 130 dager i 2018 (da funker fletteMax dårlig)
+            var nyUtregningBeholdkontoer = resultat.getStønadskontoerBeholdStønadsdager().entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
+            if (!tidligereUtregning.equals(nyUtregningBeholdkontoer)) {
+                LOG.info("FPSAK migrer konto til UR behold endret for behandling {} konto {} fra {} til {}", ref.behandlingId(), tidligereStønadskontoId, tidligereUtregning, nyUtregningBeholdkontoer);
+            }
+            return;
+        }
         var nyUtregning = resultat.getStønadskontoer().entrySet().stream()
             .filter(e -> e.getValue() > 0)
             .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));

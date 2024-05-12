@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -85,13 +84,14 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     private void håndterBeregning(UttakResultatEntitet uttakResultatEntitet, boolean dryRun) {
         var behandling = uttakResultatEntitet.getBehandlingsresultat().getBehandling();
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var kontoFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
-            .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning).orElseThrow();
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt()).orElseThrow();
+        var kontoFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
+        var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
         if (dryRun) {
-            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, kontoFagsakRelasjon);
+            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon, behandling.getFagsak().erStengt());
             return;
         }
-        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, kontoFagsakRelasjon.getStønadskontoutregning());
+        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon.getStønadskontoutregning());
         endretBeregning.ifPresent(fagsakRelasjonRepository::persisterFlushStønadskontoberegning);
         var kontoBeregningId = endretBeregning.map(Stønadskontoberegning::getId).orElse(kontoFagsakRelasjon.getId());
         oppdaterUttakMedKontoId(uttakResultatEntitet, kontoBeregningId);
