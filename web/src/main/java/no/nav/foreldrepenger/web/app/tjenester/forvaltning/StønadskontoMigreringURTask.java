@@ -35,7 +35,6 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     private final EntityManager entityManager;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
     private final UttakInputTjeneste uttakInputTjeneste;
-    private final FagsakRelasjonRepository fagsakRelasjonTjeneste;
     private final BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
 
     @Inject
@@ -43,13 +42,11 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
                                        EntityManager entityManager,
                                        ProsessTaskTjeneste prosessTaskTjeneste,
                                        UttakInputTjeneste uttakInputTjeneste,
-                                       FagsakRelasjonRepository fagsakRelasjonTjeneste,
                                        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste) {
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
     }
 
@@ -87,9 +84,9 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     private void håndterBeregning(UttakResultatEntitet uttakResultatEntitet, boolean dryRun) {
         var behandling = uttakResultatEntitet.getBehandlingsresultat().getBehandling();
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonMedBeregningForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
             .or(() -> fagsakRelasjonRepository.finnTidligsteRelasjonForHvisEksisterer(behandling.getFagsakId()))
-            .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .or(() -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
             .orElseThrow();
         var kontoFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
         var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
