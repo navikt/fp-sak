@@ -62,7 +62,8 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste, dekningsgradTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -71,6 +72,8 @@ class BeregnStønadskontoerTjenesteTest {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
+        assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null"); // TODO: Må endres i overgangsfase
+
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
         assertThat(stønadskontoer).hasSize(5);
@@ -100,7 +103,8 @@ class BeregnStønadskontoerTjenesteTest {
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste, dekningsgradTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -137,7 +141,8 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste, dekningsgradTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -170,7 +175,8 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste, dekningsgradTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -203,7 +209,8 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste, dekningsgradTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 

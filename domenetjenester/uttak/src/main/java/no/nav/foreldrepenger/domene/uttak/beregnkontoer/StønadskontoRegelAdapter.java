@@ -6,6 +6,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.Dependent;
+
+import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -18,9 +22,17 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoRegelOrkestr
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoResultat;
 
 
+@Dependent
 public class StønadskontoRegelAdapter {
 
     private static final StønadskontoRegelOrkestrering STØNADSKONTO_REGEL = new StønadskontoRegelOrkestrering();
+
+    private final UttakCore2024 uttakCore2024;
+
+    @Inject
+    public StønadskontoRegelAdapter(UttakCore2024 uttakCore2024) {
+        this.uttakCore2024 = uttakCore2024;
+    }
 
     public Stønadskontoberegning beregnKontoer(BehandlingReferanse ref,
                                                YtelseFordelingAggregat ytelseFordelingAggregat,
@@ -51,7 +63,7 @@ public class StønadskontoRegelAdapter {
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
                                                          Map<StønadskontoType, Integer> tidligereUtregning) {
         var grunnlag = StønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat,
-            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning);
+            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning, uttakCore2024);
 
         return STØNADSKONTO_REGEL.beregnKontoer(grunnlag);
     }

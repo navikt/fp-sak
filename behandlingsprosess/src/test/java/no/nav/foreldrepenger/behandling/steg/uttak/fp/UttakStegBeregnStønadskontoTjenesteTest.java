@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UttakCore2024;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +62,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository(),
             repositoryProvider.getYtelsesFordelingRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste);
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste);
     }
 

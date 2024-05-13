@@ -32,11 +32,12 @@ public class BeregnStønadskontoerTjeneste {
     public BeregnStønadskontoerTjeneste(UttakRepositoryProvider repositoryProvider,
                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                         ForeldrepengerUttakTjeneste uttakTjeneste,
-                                        DekningsgradTjeneste dekningsgradTjeneste) {
+                                        DekningsgradTjeneste dekningsgradTjeneste,
+                                        StønadskontoRegelAdapter stønadskontoRegelAdapter) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
-        this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
+        this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
         this.uttakTjeneste = uttakTjeneste;
     }
 
