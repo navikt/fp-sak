@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -77,22 +78,24 @@ public class BeregnStønadskontoerTjeneste {
     }
 
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {
+        return beregnForBehandling(uttakInput, dekningsgradTjeneste.finnGjeldendeDekningsgrad(uttakInput.getBehandlingReferanse()), tidligereBeregning);
+    }
+
+    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Dekningsgrad dekningsgrad, Map<StønadskontoType, Integer> tidligereBeregning) {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
-        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
-    public void loggForBehandling(UttakInput uttakInput, Stønadskontoberegning tidligereBeregning) {
+    public void loggForBehandling(UttakInput uttakInput, Dekningsgrad dekningsgrad, Stønadskontoberegning tidligereBeregning, boolean sakStengt) {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
-        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         stønadskontoRegelAdapter.beregnKontoerLoggDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag,
-            tidligereBeregning.getStønadskontoutregning(), tidligereBeregning.getId());
+            tidligereBeregning.getStønadskontoutregning(), tidligereBeregning.getId(), sakStengt);
     }
 
     private void oppdaterBehandlingsresultat(Long behandlingId) {

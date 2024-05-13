@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -29,6 +28,7 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadskontoMigreringURTask.class);
     private static final String FRA_ID = "fraId";
+    private static final String MAX_ID = "maxId";
     private static final String DRY_RUN = "dryRun";
 
     private final FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -56,16 +56,18 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fraId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_ID)).map(Long::valueOf).orElse(null);
+        var maxId = Optional.ofNullable(prosessTaskData.getPropertyValue(MAX_ID)).map(Long::valueOf).orElse(null);
         var dryRun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).filter("false"::equalsIgnoreCase).isEmpty();
 
         var beregninger = finnNesteHundreStønadskonti(fraId).toList();
 
-        beregninger.forEach(ur -> håndterBeregning(ur, dryRun));
+        beregninger.stream().filter(b -> maxId == null || b.getId() < maxId).forEach(ur -> håndterBeregning(ur, dryRun));
 
         beregninger.stream()
             .map(UttakResultatEntitet::getId)
             .max(Long::compareTo)
-            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId, dryRun)));
+            .filter(v -> maxId == null || v < maxId)
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId, dryRun, maxId)));
     }
 
     private Stream<UttakResultatEntitet> finnNesteHundreStønadskonti(Long fraId) {
@@ -85,13 +87,14 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     private void håndterBeregning(UttakResultatEntitet uttakResultatEntitet, boolean dryRun) {
         var behandling = uttakResultatEntitet.getBehandlingsresultat().getBehandling();
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var kontoFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
-            .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning).orElseThrow();
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt()).orElseThrow();
+        var kontoFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
+        var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
         if (dryRun) {
-            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, kontoFagsakRelasjon);
+            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon, behandling.getFagsak().erStengt());
             return;
         }
-        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, kontoFagsakRelasjon.getStønadskontoutregning());
+        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon.getStønadskontoutregning());
         endretBeregning.ifPresent(fagsakRelasjonRepository::persisterFlushStønadskontoberegning);
         var kontoBeregningId = endretBeregning.map(Stønadskontoberegning::getId).orElse(kontoFagsakRelasjon.getId());
         oppdaterUttakMedKontoId(uttakResultatEntitet, kontoBeregningId);
@@ -105,10 +108,11 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
             .executeUpdate();
     }
 
-    public static ProsessTaskData opprettNesteTask(Long fraVedtakId, boolean dryRun) {
+    public static ProsessTaskData opprettNesteTask(Long fraVedtakId, boolean dryRun, Long maxId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(StønadskontoMigreringURTask.class);
 
         prosessTaskData.setProperty(StønadskontoMigreringURTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
+        prosessTaskData.setProperty(StønadskontoMigreringURTask.MAX_ID, maxId == null ? null : String.valueOf(maxId));
         prosessTaskData.setProperty(StønadskontoMigreringURTask.DRY_RUN, String.valueOf(dryRun));
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
