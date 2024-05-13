@@ -101,6 +101,13 @@ public class FagsakRelasjonRepository {
             .max(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
     }
 
+    public Optional<FagsakRelasjon> finnTidligsteRelasjonForHvisEksisterer(long fagsakId) {
+        var query = entityManager.createQuery("from FagsakRelasjon where fagsakNrEn.id=:fagsak or fagsakNrTo.id=:fagsak", FagsakRelasjon.class);
+        query.setParameter(FAGSAK_QP, fagsakId);
+        return query.getResultStream()
+            .min(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
+    }
+
     public void lagre(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
         Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
 

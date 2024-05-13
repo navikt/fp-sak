@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,13 +80,17 @@ public class StønadskontoRegelAdapter {
             .filter(e -> e.getValue() > 0)
             .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
         if (!tidligereUtregning.equals(nyUtregning)) {
-            LOG.info("FPSAK migrer konto til UR max endret for behandling {} konto {} fra {} til {}", ref.behandlingId(), tidligereStønadskontoId, tidligereUtregning, nyUtregning);
+            var endringer = utledEndringer(tidligereUtregning, nyUtregning);
+            LOG.info("FPSAK migrer konto til UR max endret for behandling {} konto {} endringer {}", ref.behandlingId(), tidligereStønadskontoId, endringer);
         }
         if (!tidligereUtregning.equals(nyUtregningBeholdkontoer)) {
-            LOG.info("FPSAK migrer konto til UR behold endret for behandling {} konto {} fra {} til {}", ref.behandlingId(), tidligereStønadskontoId, tidligereUtregning, nyUtregningBeholdkontoer);
+            var endringer = utledEndringer(tidligereUtregning, nyUtregningBeholdkontoer);
+            LOG.info("FPSAK migrer konto til UR behold endret for behandling {} konto {} endringer {}", ref.behandlingId(), tidligereStønadskontoId, endringer);
         }
-        if (!nyUtregningBeholdkontoer.equals(nyUtregning) || !tidligereUtregning.equals(nyUtregning) || !tidligereUtregning.equals(nyUtregningBeholdkontoer)) {
-            LOG.info("FPSAK migrer konto diff for behandling {} konto {} fra {} til {} eller {}", ref.behandlingId(), tidligereStønadskontoId, tidligereUtregning, nyUtregning, nyUtregningBeholdkontoer);
+        if (!nyUtregningBeholdkontoer.equals(nyUtregning)) {
+            var endringer1 = utledEndringer(tidligereUtregning, nyUtregning);
+            var endringer2 = utledEndringer(nyUtregning, nyUtregningBeholdkontoer);
+            LOG.info("FPSAK migrer konto diff for behandling {} konto {} fra tidligere {} diff {}", ref.behandlingId(), tidligereStønadskontoId, endringer1, endringer2);
         }
     }
 
@@ -125,4 +131,15 @@ public class StønadskontoRegelAdapter {
             .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
         return !nyUtregning.equals(tidligereUtregning);
     }
+
+    private List<KontoEndring> utledEndringer(Map<StønadskontoType, Integer> m1, Map<StønadskontoType, Integer> m2) {
+        var nøkler = new HashSet<>(m1.keySet());
+        nøkler.addAll(m2.keySet());
+        return nøkler.stream()
+            .filter(n -> !m1.getOrDefault(n, 0).equals(m2.getOrDefault(n, 0)))
+            .map(n -> new KontoEndring(n, m1.getOrDefault(n, 0), m2.getOrDefault(n, 0)))
+            .toList();
+    }
+
+    private record KontoEndring(StønadskontoType type, Integer dagerEksisterende, Integer dagerNye) { }
 }
