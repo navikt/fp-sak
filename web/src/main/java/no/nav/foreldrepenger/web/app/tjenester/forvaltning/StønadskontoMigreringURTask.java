@@ -87,7 +87,10 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
     private void håndterBeregning(UttakResultatEntitet uttakResultatEntitet, boolean dryRun) {
         var behandling = uttakResultatEntitet.getBehandlingsresultat().getBehandling();
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt()).orElseThrow();
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), uttakResultatEntitet.getOpprettetTidspunkt())
+            .or(() -> fagsakRelasjonRepository.finnTidligsteRelasjonForHvisEksisterer(behandling.getFagsakId()))
+            .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .orElseThrow();
         var kontoFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
         var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
         if (dryRun) {
