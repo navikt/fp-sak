@@ -101,10 +101,20 @@ public class FagsakRelasjonRepository {
             .max(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
     }
 
+    public Optional<FagsakRelasjon> finnRelasjonMedBeregningForHvisEksisterer(long fagsakId, LocalDateTime aktivPåTidspunkt) {
+        var query = entityManager.createQuery("from FagsakRelasjon where fagsakNrEn.id=:fagsak or fagsakNrTo.id=:fagsak", FagsakRelasjon.class);
+        query.setParameter(FAGSAK_QP, fagsakId);
+        return query.getResultStream()
+            .filter(fl -> !fl.getOpprettetTidspunkt().isAfter(aktivPåTidspunkt))
+            .filter(fr -> fr.getGjeldendeStønadskontoberegning().isPresent())
+            .max(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
+    }
+
     public Optional<FagsakRelasjon> finnTidligsteRelasjonForHvisEksisterer(long fagsakId) {
         var query = entityManager.createQuery("from FagsakRelasjon where fagsakNrEn.id=:fagsak or fagsakNrTo.id=:fagsak", FagsakRelasjon.class);
         query.setParameter(FAGSAK_QP, fagsakId);
         return query.getResultStream()
+            .filter(fr -> fr.getGjeldendeStønadskontoberegning().isPresent())
             .min(Comparator.comparing(FagsakRelasjon::getOpprettetTidspunkt));
     }
 
