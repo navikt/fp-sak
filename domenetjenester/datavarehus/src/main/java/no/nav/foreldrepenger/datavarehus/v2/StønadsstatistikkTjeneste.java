@@ -422,7 +422,7 @@ public class StønadsstatistikkTjeneste {
 
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-            var rettighetType = utledRettighetType(yfa, konti);
+            var rettighetType = utledRettighetType(behandling.getRelasjonsRolleType(), yfa, konti);
             var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
             var dekningsgradEkstradager = dekningsgrad.isÅtti() ? Dekningsgrad.DEKNINGSGRAD_80 : Dekningsgrad.DEKNINGSGRAD_100;
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
@@ -441,9 +441,9 @@ public class StønadsstatistikkTjeneste {
         });
     }
 
-    private static RettighetType utledRettighetType(YtelseFordelingAggregat yfa, Set<ForeldrepengerRettigheter.Stønadskonto> konti) {
+    private static RettighetType utledRettighetType(RelasjonsRolleType relasjonsRolleType, YtelseFordelingAggregat yfa, Set<ForeldrepengerRettigheter.Stønadskonto> konti) {
         if (konti.stream().anyMatch(k -> k.type().equals(StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER))) {
-            return yfa.harAleneomsorg() ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
+            return yfa.robustHarAleneomsorg(relasjonsRolleType) ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
         }
         return yfa.avklartAnnenForelderHarRettEØS() ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
     }
