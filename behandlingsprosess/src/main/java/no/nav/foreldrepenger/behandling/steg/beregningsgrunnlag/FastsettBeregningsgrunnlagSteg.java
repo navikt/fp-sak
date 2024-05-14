@@ -11,9 +11,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
@@ -26,8 +24,6 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    private RyddDekningsgradTjeneste ryddDekningsgradTjeneste;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
 
     FastsettBeregningsgrunnlagSteg() {
@@ -37,15 +33,11 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     @Inject
     public FastsettBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
                                           BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                          RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
-                                          BehandlingsresultatRepository behandlingsresultatRepository,
                                           BeregningsgrunnlagInputProvider inputTjenesteProvider) {
 
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.ryddDekningsgradTjeneste = ryddDekningsgradTjeneste;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     @Override
@@ -55,17 +47,6 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
         beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsgrunnlag(input);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
-                                   BehandlingStegModell modell,
-                                   BehandlingStegType tilSteg,
-                                   BehandlingStegType fraSteg) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
-        }
     }
 
     @Override
@@ -80,14 +61,6 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
                 .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId,
                     behandling.getId()));
 
-        }
-        ryddDekningsgrad(behandling);
-    }
-
-    private void ryddDekningsgrad(Behandling behandling) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
         }
     }
 

@@ -17,7 +17,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -36,16 +39,25 @@ public class DekningsgradSteg implements BehandlingSteg {
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
     private final EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private final RyddDekningsgradTjeneste ryddDekningsgradTjeneste;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final BehandlingRepository behandlingRepository;
 
     @Inject
     public DekningsgradSteg(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                             FamilieHendelseTjeneste familieHendelseTjeneste,
                             EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste,
-                            YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                            RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
+                            BehandlingsresultatRepository behandlingsresultatRepository,
+                            BehandlingRepository behandlingRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.endreDekningsgradVedDødTjeneste = endreDekningsgradVedDødTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.ryddDekningsgradTjeneste = ryddDekningsgradTjeneste;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -65,7 +77,7 @@ public class DekningsgradSteg implements BehandlingSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }).orElseGet(() -> {
             LOG.info("Ville ha opprettet aksjonspunkt for avklare dekningsgrad");
-//            return BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD);
+            // return BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD);
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         });
     }
@@ -89,8 +101,27 @@ public class DekningsgradSteg implements BehandlingSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
                                    BehandlingStegModell modell,
-                                   BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
-        //TODO TFP-5702 rydd sakskompleksDG??
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
+            ryddDekningsgradTjeneste.rydd(behandling);
+        }
+    }
+
+    @Override
+    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType fraSteg,
+                                    BehandlingStegType tilSteg) {
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        ryddDekningsgrad(behandling);
+    }
+
+    private void ryddDekningsgrad(Behandling behandling) {
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
+            ryddDekningsgradTjeneste.rydd(behandling);
+        }
     }
 }
