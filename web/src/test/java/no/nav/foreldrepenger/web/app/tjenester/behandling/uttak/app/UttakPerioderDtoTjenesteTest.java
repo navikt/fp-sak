@@ -137,7 +137,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling behandlingMedUttak(UttakResultatPerioderEntitet perioder, AbstractTestScenario<?> scenario, LocalDateTime vedtakstidspunkt) {
         scenario.medUttak(perioder);
-        scenario.medDefaultOppgittDekningsgrad();
         scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medBehandlingVedtak().medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);

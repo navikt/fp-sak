@@ -89,7 +89,6 @@ class StønadsstatistikkTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medFordeling(new OppgittFordelingEntitet(List.of(søktPeriode), true))
-            .medDefaultOppgittDekningsgrad()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medSøknadDato(søknadsdato)
             .medUttak(uttak);
@@ -204,7 +203,6 @@ class StønadsstatistikkTjenesteTest {
         var søknadsdato = fødselsdato.minusWeeks(3);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søktPeriode), true))
-            .medDefaultOppgittDekningsgrad()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medSøknadDato(søknadsdato)
             .medUttak(uttak);

@@ -65,7 +65,8 @@ class BeregnFeriepengerTjenesteTest {
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         Mockito.when(inputTjeneste.arbeidstakerVedSkjæringstidspunkt(any())).thenReturn(true);
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
         tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste, 60);
     }
 
@@ -73,7 +74,6 @@ class BeregnFeriepengerTjenesteTest {
     void skalBeregneFeriepenger() {
         var farsBehandling = lagBehandlingFar();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
@@ -92,7 +92,6 @@ class BeregnFeriepengerTjenesteTest {
     void skalSjekkeFeriepengerMedAvvik() {
         var farsBehandling = lagBehandlingFar();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
@@ -110,7 +109,6 @@ class BeregnFeriepengerTjenesteTest {
     @Test
     void skalSjekkeFeriepengerUtenAvvik() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
@@ -127,7 +125,6 @@ class BeregnFeriepengerTjenesteTest {
     @Test
     void skalIkkeBeregneFeriepenger() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),

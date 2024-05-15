@@ -103,7 +103,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
         var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
             new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository)), dekningsgradTjeneste),
             fagsakRelasjonTjeneste);
@@ -1104,7 +1105,6 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         }
         scenario.medDefaultBekreftetTerminbekreftelse();
-        scenario.medDefaultOppgittDekningsgrad();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         return scenario.lagre(repositoryProvider);

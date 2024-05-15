@@ -285,7 +285,7 @@ class UttakStegImplTest {
         avsluttMedVedtak(morsFørstegang, repositoryProvider);
 
         // mor oppdaterer dekningsgrad
-        var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
+        var morsRevurdering = opprettRevurdering(morsFørstegang, Dekningsgrad._100, fødselsdato);
         fagsakRelasjonTjeneste.overstyrDekningsgrad(fagsak, Dekningsgrad._100);
 
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -330,7 +330,7 @@ class UttakStegImplTest {
         avsluttMedVedtak(morsFørstegang, repositoryProvider);
 
         // mor oppdaterer dekningsgrad
-        var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
+        var morsRevurdering = opprettRevurdering(morsFørstegang, Dekningsgrad._100, fødselsdato);
 
         nesteSakRepository.lagreNesteSak(morsRevurdering.getId(), new Saksnummer("987"), fødselsdato.plusWeeks(40), fødselsdato.plusWeeks(40));
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -389,7 +389,7 @@ class UttakStegImplTest {
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);
 
-        var revurdering = opprettRevurdering(førstegangsBehandling, false, fødselsdato);
+        var revurdering = opprettRevurdering(førstegangsBehandling, Dekningsgrad._100, fødselsdato);
         var gjeldendeVersjon = familieHendelseRepository.hentAggregat(revurdering.getId()).getGjeldendeVersjon();
         var hendelse = FamilieHendelseBuilder.oppdatere(Optional.of(gjeldendeVersjon), HendelseVersjonType.SØKNAD);
         hendelse.medFødselsDato(fødselsdato).medAntallBarn(1);
@@ -413,7 +413,7 @@ class UttakStegImplTest {
         steg.utførSteg(kontekst);
     }
 
-    private Behandling opprettRevurdering(Behandling tidligereBehandling, boolean endretDekningsgrad, LocalDate fødselsdato) {
+    private Behandling opprettRevurdering(Behandling tidligereBehandling, Dekningsgrad dekningsgrad, LocalDate fødselsdato) {
         var revurdering = Behandling.fraTidligereBehandling(tidligereBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(tidligereBehandling.getId()))
@@ -430,14 +430,14 @@ class UttakStegImplTest {
                 .medOpprinneligEndringsdato(fødselsdato.minusWeeks(3))
                 .build();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurderingId)
+            .medSakskompleksDekningsgrad(dekningsgrad)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .build();
         ytelsesFordelingRepository.lagre(revurderingId, ytelseFordelingAggregat);
 
         var behandlingsresultat = Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                .medEndretDekningsgrad(endretDekningsgrad)
-                .buildFor(revurdering);
+            .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
+            .buildFor(revurdering);
         revurdering.setBehandlingresultat(behandlingsresultat);
         lagre(revurdering);
 

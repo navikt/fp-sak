@@ -299,12 +299,6 @@ public class Behandlingsresultat extends BaseEntitet {
             return this;
         }
 
-        public Builder medEndretDekningsgrad(boolean endretDekningsgrad) {
-            validerKanModifisere();
-            this.behandlingsresultat.endretDekningsgrad = endretDekningsgrad;
-            return this;
-        }
-
         public Builder medEndretStønadskonto(boolean endretStønadskonto) {
             validerKanModifisere();
             this.behandlingsresultat.endretStønadskonto = endretStønadskonto;

@@ -93,7 +93,7 @@ class EndringsdatoRevurderingUtlederTest {
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
         FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRelasjonRepository());
     private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste,
-        repositoryProvider.getBehandlingsresultatRepository());
+        repositoryProvider.getBehandlingsresultatRepository(), ytelsesFordelingRepository);
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtleder utleder = new EndringsdatoRevurderingUtleder(
@@ -124,15 +124,13 @@ class EndringsdatoRevurderingUtlederTest {
 
     private void endreDekningsgrad(Behandling revurdering, Dekningsgrad dekningsgrad) {
         fagsakRelasjonTjeneste.overstyrDekningsgrad(revurdering.getFagsak(), dekningsgrad);
-        var behandlingsresultat = Behandlingsresultat.builder().medEndretDekningsgrad(true);
-        repositoryProvider.getBehandlingsresultatRepository().lagre(revurdering.getId(), behandlingsresultat.build());
+        ytelsesFordelingRepository.lagre(revurdering.getId(), ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medSakskompleksDekningsgrad(dekningsgrad).build());
     }
 
     @Test
     void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret_hvis_endringssøknad() {
-        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
-            MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
-            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1),
+            MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
         var fordeling = Collections.singletonList(OppgittPeriodeBuilder.ny()
             .medPeriode(VirkedagUtil.fomVirkedag(LocalDate.now()), VirkedagUtil.fomVirkedag(LocalDate.now()))
@@ -140,11 +138,9 @@ class EndringsdatoRevurderingUtlederTest {
             .build());
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_ENDRING_FRA_BRUKER, opprinneligUttak,
             new OppgittFordelingEntitet(fordeling, true), Dekningsgrad._100);
-        var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
-            MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
+        var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
 
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
-            .medAvklarteDatoer(entitet);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medAvklarteDatoer(entitet);
         ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
         endreDekningsgrad(revurdering, Dekningsgrad._80);
@@ -251,7 +247,8 @@ class EndringsdatoRevurderingUtlederTest {
 
     @Test // #2
     void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_søknad_når_endringssøknad_er_mottatt_selv_om_mottatt_dato_før_vedtaksdato_på_original_behandling() {
-        var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad();
 
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1).minusDays(1))
@@ -677,7 +674,8 @@ class EndringsdatoRevurderingUtlederTest {
 
     @Test
     void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_gjeldende_vedtak_når_alle_perioder_er_tapt_til_annenpart() {
-        var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var morUttak = new UttakResultatPerioderEntitet();
         var morFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
         var morTom = morFom.plusDays(10);
@@ -688,10 +686,12 @@ class EndringsdatoRevurderingUtlederTest {
         morScenario.medUttak(morUttak);
         var førstegangsbehandling = morScenario.lagre(repositoryProvider);
 
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        revurderingScenario.medOriginalBehandling(førstegangsbehandling, RE_OPPLYSNINGER_OM_FORDELING);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittDekningsgrad(Dekningsgrad._100)
+            .medOriginalBehandling(førstegangsbehandling, RE_OPPLYSNINGER_OM_FORDELING);
 
         var revurdering = revurderingScenario.lagre(repositoryProvider);
+
         leggTilAktørArbeid(revurdering);
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
 

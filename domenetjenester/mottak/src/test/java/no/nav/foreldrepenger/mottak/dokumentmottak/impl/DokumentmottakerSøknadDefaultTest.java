@@ -587,7 +587,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var behandling1 = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .medDefaultFordeling(LocalDate.now())
-                .medDefaultOppgittDekningsgrad()
                 .lagre(repositoryProvider);
         behandling1.avsluttBehandling();
         var fagsak = behandling1.getFagsak();

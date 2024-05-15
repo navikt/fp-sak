@@ -57,7 +57,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
             dekningsgradTjeneste);
         tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste,
@@ -107,7 +108,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         var uttak = avslåttUttak();

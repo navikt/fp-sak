@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -16,21 +18,25 @@ public class DekningsgradTjeneste {
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
+
+    @Inject
+    public DekningsgradTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                BehandlingsresultatRepository behandlingsresultatRepository,
+                                YtelsesFordelingRepository ytelsesFordelingRepository) {
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.ytelsesFordelingRepository = ytelsesFordelingRepository;
+    }
 
     DekningsgradTjeneste() {
         // CDI
     }
 
-    @Inject
-    public DekningsgradTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-            BehandlingsresultatRepository behandlingsresultatRepository) {
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
-    }
-
     public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(Behandling behandling) {
         return finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer());
     }
+
     public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse ref) {
         return finnGjeldendeDekningsgradHvisEksisterer(ref.saksnummer());
     }
@@ -58,7 +64,13 @@ public class DekningsgradTjeneste {
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
             return dekningsgradEndretVerdi(ref);
         }
-        return false;
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        return ref.getOriginalBehandlingId().map(originalBehandling -> {
+            var originalDekningsgrad = ytelsesFordelingRepository.hentAggregat(originalBehandling).getGjeldendeDekningsgrad();
+            var behandlingDekningsgad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
+            return !Objects.equals(originalDekningsgrad, behandlingDekningsgad);
+        }).orElseGet(() -> !Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), ytelseFordelingAggregat.getOppgittDekningsgrad()));
+
     }
 
     private boolean dekningsgradEndretVerdi(BehandlingReferanse ref) {

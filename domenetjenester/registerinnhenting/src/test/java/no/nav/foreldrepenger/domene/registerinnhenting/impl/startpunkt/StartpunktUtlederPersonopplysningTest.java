@@ -52,7 +52,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         when(barnBorteEndringIdentifiserer.erEndret(any())).thenReturn(false);
         dekningsgradTjeneste = new DekningsgradTjeneste(new FagsakRelasjonTjeneste(repositoryProvider),
-            repositoryProvider.getBehandlingsresultatRepository());
+            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getYtelsesFordelingRepository());
     }
 
     @Test

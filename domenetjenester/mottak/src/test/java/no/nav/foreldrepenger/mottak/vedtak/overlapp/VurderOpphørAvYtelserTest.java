@@ -11,8 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -43,6 +42,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -477,7 +477,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenarioAvsluttetBehMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenarioAvsluttetBehMor.medDefaultOppgittDekningsgrad();
         var behandling = scenarioAvsluttetBehMor.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandling);
         return behandling;
@@ -498,7 +497,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenarioAvsluttetBehFar.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenarioAvsluttetBehFar.medDefaultOppgittDekningsgrad();
         var behandling = scenarioAvsluttetBehFar.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandling);
         return behandling;
@@ -518,10 +516,10 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenario.medDefaultFordeling(omsorgsovertakelsedato);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.medDefaultOppgittDekningsgrad();
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandling);
 
@@ -529,7 +527,8 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagBehandlingFPAdopsjonFar(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
-        var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
+        var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon()
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         scenario.medSøknadHendelse()
             .medAdopsjon(
                 scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
@@ -545,7 +544,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.medDefaultOppgittDekningsgrad();
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandling);
 

@@ -99,22 +99,22 @@ public class UttakRevurderingTestUtil {
                                          BehandlingÅrsakType behandlingÅrsakType,
                                          List<UttakResultatPeriodeEntitet> opprinneligUttaksResultatPerioder,
                                          OppgittFordelingEntitet nyFordeling,
-                                         Dekningsgrad oppgittDekningsgrad) {
+                                         Dekningsgrad dekningsgrad) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
-        var førstegangsbehandling = byggFørstegangsbehandling(scenario, opprinneligUttaksResultatPerioder);
+        var førstegangsbehandling = byggFørstegangsbehandling(scenario, dekningsgrad, opprinneligUttaksResultatPerioder);
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
             aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
             .medFordeling(nyFordeling)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medOppgittDekningsgrad(oppgittDekningsgrad);
+            .medOppgittDekningsgrad(dekningsgrad);
 
         var revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(revurdering.getFagsak(), oppgittDekningsgrad);
+            .opprettRelasjon(revurdering.getFagsak(), dekningsgrad);
         return revurdering;
     }
 
@@ -125,9 +125,10 @@ public class UttakRevurderingTestUtil {
 
     public Behandling opprettRevurderingAdopsjon() {
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
-        var førstegangsbehandling = byggFørstegangsbehandling(scenario, defaultUttaksresultat());
+        var førstegangsbehandling = byggFørstegangsbehandling(scenario, Dekningsgrad._100, defaultUttaksresultat());
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
+            .medOppgittDekningsgrad(Dekningsgrad._100)
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         var revurdering = revurderingsscenario.lagre(repositoryProvider);
@@ -136,10 +137,12 @@ public class UttakRevurderingTestUtil {
     }
 
     private Behandling byggFørstegangsbehandling(ScenarioMorSøkerForeldrepenger scenario,
+                                                 Dekningsgrad dekningsgrad,
                                                  List<UttakResultatPeriodeEntitet> perioder) {
         scenario.medDefaultInntektArbeidYtelse();
 
-        scenario.medFordeling(defaultFordeling());
+        scenario.medFordeling(defaultFordeling())
+            .medOppgittDekningsgrad(dekningsgrad);
 
         var uttak = new UttakResultatPerioderEntitet();
         perioder.forEach(uttak::leggTilPeriode);

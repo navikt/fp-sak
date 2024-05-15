@@ -233,7 +233,6 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
                 .medSaksnummer(SAKSNUMMER);
-        scenario.medDefaultOppgittDekningsgrad();
 
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID).medNavn("Anne N. Forelder").medType(SøknadAnnenPartType.FAR);
         scenario.medSøknadHendelse()

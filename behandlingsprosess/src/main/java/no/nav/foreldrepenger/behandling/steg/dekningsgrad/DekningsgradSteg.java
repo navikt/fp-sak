@@ -39,7 +39,6 @@ public class DekningsgradSteg implements BehandlingSteg {
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
     private final EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private final RyddDekningsgradTjeneste ryddDekningsgradTjeneste;
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final BehandlingRepository behandlingRepository;
 
@@ -48,14 +47,12 @@ public class DekningsgradSteg implements BehandlingSteg {
                             FamilieHendelseTjeneste familieHendelseTjeneste,
                             EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste,
                             YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                            RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
                             BehandlingsresultatRepository behandlingsresultatRepository,
                             BehandlingRepository behandlingRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.endreDekningsgradVedDødTjeneste = endreDekningsgradVedDødTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.ryddDekningsgradTjeneste = ryddDekningsgradTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
     }
@@ -105,7 +102,7 @@ public class DekningsgradSteg implements BehandlingSteg {
                                    BehandlingStegType fraSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
+            fagsakRelasjonTjeneste.nullstillOverstyrtDekningsgrad(behandling.getFagsak());
         }
     }
 
@@ -121,7 +118,7 @@ public class DekningsgradSteg implements BehandlingSteg {
     private void ryddDekningsgrad(Behandling behandling) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
+            fagsakRelasjonTjeneste.nullstillOverstyrtDekningsgrad(behandling.getFagsak());
         }
     }
 }
