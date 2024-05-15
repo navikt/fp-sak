@@ -86,14 +86,19 @@ public class FagsakRelasjonTjeneste {
         return fagsakRelasjon;
     }
 
+    public void oppdaterDekningsgrad(Long fagsakId, Dekningsgrad dekningsgrad) {
+        var fagsakRelasjon = fagsakRelasjonRepository.oppdaterDekningsgrad(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId), dekningsgrad, null);
+        fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
+    }
+
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
         var fagsakRelasjon = fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
         return fagsakRelasjon;
     }
 
-    public void opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
+    public void opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.opprettRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
         fagsakRelasjonOpt.ifPresent(relasjon -> fagsakRelasjonEventPubliserer.fireEvent(relasjon));
     }
 

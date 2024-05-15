@@ -177,15 +177,18 @@ public class FagsakRelasjonRepository {
 
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
         Objects.requireNonNull(overstyrtVerdi);
-        return oppdaterRelasjon(fagsak, finnRelasjonFor(fagsak).getDekningsgrad(), overstyrtVerdi);
+        var eksisterende = finnRelasjonFor(fagsak);
+        var eksisterendeDekningsgrad = eksisterende.getDekningsgrad();
+        if (eksisterendeDekningsgrad.equals(overstyrtVerdi)) {
+            return eksisterende;
+        }
+        return oppdaterDekningsgrad(fagsak, eksisterendeDekningsgrad, overstyrtVerdi);
     }
 
-    private FagsakRelasjon oppdaterRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
+    public FagsakRelasjon oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
         Objects.requireNonNull(fagsak, FAGSAK_QP);
         var eksisterendeFagsakRelasjon = finnRelasjonFor(fagsak);
-        if (eksisterendeFagsakRelasjon.getDekningsgrad().equals(overstyrtDekningsgrad) || dekningsgrad.equals(overstyrtDekningsgrad)) {
-            return eksisterendeFagsakRelasjon;
-        }
+
         var fagsakLås = fagsakLåsRepository.taLås(fagsak);
         deaktiverEksisterendeRelasjon(eksisterendeFagsakRelasjon);
         var nyFagsakRelasjon = new FagsakRelasjon(eksisterendeFagsakRelasjon.getFagsakNrEn(), eksisterendeFagsakRelasjon.getFagsakNrTo().orElse(null),
@@ -198,7 +201,7 @@ public class FagsakRelasjonRepository {
         return nyFagsakRelasjon;
     }
 
-    public Optional<FagsakRelasjon> opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
+    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
         if (fagsakRelasjon.isPresent()) {
             if (!dekningsgrad.equals(fagsakRelasjon.get().getDekningsgrad())) {
                 var fagsakLås = fagsakLåsRepository.taLås(fagsak.getId());
@@ -288,7 +291,7 @@ public class FagsakRelasjonRepository {
 
     public FagsakRelasjon nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
         var fagsakRelasjon = finnRelasjonFor(fagsak);
-        oppdaterRelasjon(fagsak, fagsakRelasjon.getDekningsgrad(), null);
+        oppdaterDekningsgrad(fagsak, fagsakRelasjon.getDekningsgrad(), null);
         return fagsakRelasjon;
     }
 

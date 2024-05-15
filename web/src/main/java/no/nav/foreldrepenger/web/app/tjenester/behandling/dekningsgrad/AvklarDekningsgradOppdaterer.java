@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dekningsgrad;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -16,12 +17,15 @@ public class AvklarDekningsgradOppdaterer implements AksjonspunktOppdaterer<Avkl
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private AvklarDekningsgradHistorikkinnslagTjeneste avklarDekningsgradHistorikkinnslagTjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @Inject
     public AvklarDekningsgradOppdaterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                        AvklarDekningsgradHistorikkinnslagTjeneste avklarDekningsgradHistorikkinnslagTjeneste) {
+                                        AvklarDekningsgradHistorikkinnslagTjeneste avklarDekningsgradHistorikkinnslagTjeneste,
+                                        FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.avklarDekningsgradHistorikkinnslagTjeneste = avklarDekningsgradHistorikkinnslagTjeneste;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
     AvklarDekningsgradOppdaterer() {
@@ -30,8 +34,14 @@ public class AvklarDekningsgradOppdaterer implements AksjonspunktOppdaterer<Avkl
 
     @Override
     public OppdateringResultat oppdater(AvklarDekingsgradDto dto, AksjonspunktOppdaterParameter param) {
-        ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(param.getBehandlingId(), Dekningsgrad.grad(dto.avklartDekningsgrad()));
+        var avklartDekningsgrad = Dekningsgrad.grad(dto.avklartDekningsgrad());
+        lagreDekningsgrad(param, avklartDekningsgrad);
         avklarDekningsgradHistorikkinnslagTjeneste.opprettHistorikkinnslag(dto);
         return OppdateringResultat.utenTransisjon().build();
+    }
+
+    private void lagreDekningsgrad(AksjonspunktOppdaterParameter param, Dekningsgrad avklartDekningsgrad) {
+        ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(param.getBehandlingId(), avklartDekningsgrad);
+        fagsakRelasjonTjeneste.oppdaterDekningsgrad(param.getRef().fagsakId(), avklartDekningsgrad);
     }
 }

@@ -64,7 +64,12 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public Optional<FagsakRelasjon> opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
+    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
+        throw new UnsupportedOperationException(IKKE_STOTTET);
+    }
+
+    @Override
+    public FagsakRelasjon oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 

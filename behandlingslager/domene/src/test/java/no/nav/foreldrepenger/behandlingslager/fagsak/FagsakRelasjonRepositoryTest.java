@@ -87,7 +87,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     void skal_lage_relasjon_når_mangler() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100);
+        relasjonRepository.opprettRelasjon(fagsak, Optional.empty(), Dekningsgrad._100);
         var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
 
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
@@ -101,7 +101,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository.opprettNy(fagsak);
         Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
 
-        relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._80);
+        relasjonRepository.opprettRelasjon(fagsak, Optional.empty(), Dekningsgrad._80);
 
         var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
@@ -109,7 +109,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
         Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
 
-        relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.of(fagsakRelasjon), Dekningsgrad._100);
+        relasjonRepository.opprettRelasjon(fagsak, Optional.of(fagsakRelasjon), Dekningsgrad._100);
 
         fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
@@ -209,15 +209,15 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak);
-        var rel1 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100).orElseThrow();
+        var rel1 = relasjonRepository.opprettRelasjon(fagsak, Optional.empty(), Dekningsgrad._100).orElseThrow();
         rel1.setOpprettetTidspunkt(LocalDate.of(2023, 1, 1).atStartOfDay());
         entityManager.persist(rel1);
 
-        var rel2 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.of(rel1), Dekningsgrad._80).orElseThrow();
+        var rel2 = relasjonRepository.opprettRelasjon(fagsak, Optional.of(rel1), Dekningsgrad._80).orElseThrow();
         rel2.setOpprettetTidspunkt(LocalDate.of(2024, 1, 1).atStartOfDay());
         entityManager.persist(rel2);
 
-        var rel3 = relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.of(rel2), Dekningsgrad._100).orElseThrow();
+        var rel3 = relasjonRepository.opprettRelasjon(fagsak, Optional.of(rel2), Dekningsgrad._100).orElseThrow();
         rel3.setOpprettetTidspunkt(LocalDate.of(2025, 1, 1).atStartOfDay());
         entityManager.persist(rel3);
 
