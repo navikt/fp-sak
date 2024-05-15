@@ -11,5 +11,6 @@ public enum RevurderingÅrsak {
     PLEIEPENGER,
     NYSAK,
     ANNENFORELDER,
-    REGULERING
+    REGULERING,
+    PRAKSISUTSETTELSE
 }

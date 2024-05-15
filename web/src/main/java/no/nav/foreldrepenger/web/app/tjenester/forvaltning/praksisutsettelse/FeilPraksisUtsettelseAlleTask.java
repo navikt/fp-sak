@@ -2,13 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.dokumentbestiller.infobrev.FeilPraksisUtsettelseRepository;
@@ -22,13 +18,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisUtsettelseAlleTask.class);
-    private static final String UTVALG = "utvalg";
     private static final String FRA_FAGSAK_ID = "fraFagsakId";
     private final FeilPraksisUtsettelseRepository utvalgRepository;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
-
-    public enum Utvalg { MOR, FAR_BEGGE_RETT, BARE_FAR_RETT }
 
     @Inject
     public FeilPraksisUtsettelseAlleTask(FeilPraksisUtsettelseRepository utvalgRepository,
@@ -41,18 +33,13 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
         var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
-        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG))
-            .map(Utvalg::valueOf).orElseThrow();
 
-        var saker = switch (utvalg) {
-            case MOR -> utvalgRepository.finnNesteHundreAktuelleSakerMor(fraFagsakId);
-            case FAR_BEGGE_RETT -> utvalgRepository.finnNesteHundreAktuelleSakerFarBeggeEllerAlene(fraFagsakId);
-            case BARE_FAR_RETT -> utvalgRepository.finnNesteHundreAktuelleSakerBareFarHarRett(fraFagsakId);
-        };
+        var saker = utvalgRepository.finnNesteHundreSakerSomErMerketPraksisUtsettelse(fraFagsakId);
+
         saker.stream().map(FeilPraksisUtsettelseAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
 
         saker.stream().max(Comparator.naturalOrder())
-            .map(maxfid -> opprettTaskForNesteUtvalg(maxfid, utvalg))
+            .map(FeilPraksisUtsettelseAlleTask::opprettTaskForNesteUtvalg)
             .ifPresent(prosessTaskTjeneste::lagre);
 
     }
@@ -66,11 +53,10 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
     }
 
 
-    public static ProsessTaskData opprettTaskForNesteUtvalg(Long fraFagsakId, Utvalg utvalg) {
+    public static ProsessTaskData opprettTaskForNesteUtvalg(Long fraFagsakId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisUtsettelseAlleTask.class);
         prosessTaskData.setProperty(FeilPraksisUtsettelseAlleTask.FRA_FAGSAK_ID, fraFagsakId == null ? null : String.valueOf(fraFagsakId));
-        prosessTaskData.setProperty(FeilPraksisUtsettelseAlleTask.UTVALG, utvalg.name());
-        prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(30));
+        prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(10));
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
         return prosessTaskData;
