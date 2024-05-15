@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -16,15 +17,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -45,6 +50,9 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
     private BehandlingRepository behandlingRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private UttakInputTjeneste uttakInputTjeneste;
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
     SendInformasjonsbrevPåminnelseTask() {
         // for CDI proxy
@@ -55,13 +63,18 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
                                               BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                               PersoninfoAdapter personinfoAdapter,
                                               BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                              DokumentBestillerTjeneste dokumentBestillerTjeneste) {
+                                              DokumentBestillerTjeneste dokumentBestillerTjeneste,
+                                              UttakInputTjeneste uttakInputTjeneste,
+                                              StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.uttakInputTjeneste = uttakInputTjeneste;
+        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
     }
 
     @Override
@@ -72,10 +85,28 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
             return; // Unngå brev til død bruker
         }
 
-        var fagsak = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_KEY)));
-        var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
+        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_KEY)));
 
-        var eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        //Sjekk at det finnes fedrekvote igjen
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(fagsakFar);
+        var fagsakMor = fagsakRelasjon.getRelatertFagsak(fagsakFar).orElseThrow();
+        var behandlingMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMor.getId()).orElseThrow();
+        var uttakInput = uttakInputTjeneste.lagInput(behandlingMor);
+        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
+        var gjenståendeFedrekvote = fagsakRelasjon.getGjeldendeStønadskontoberegning().stream()
+            .flatMap(sb -> sb.getStønadskontoer().stream())
+            .filter(sk -> sk.getStønadskontoType().equals(StønadskontoType.FEDREKVOTE))
+            .findFirst()
+            .filter(sk -> sk.getStønadskontoType().erStønadsdager())
+            .map(stønadskonto -> saldoUtregning.saldoITrekkdager(Stønadskontotype.FEDREKVOTE))
+            .orElse(null);
+
+        if (gjenståendeFedrekvote == null || !gjenståendeFedrekvote.merEnn0()) {
+            return;
+        }
+
+        var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsakFar);
+        var eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakFar.getId());
         if (eksisterendeBehandling.isPresent() && !eksisterendeBehandling.get().erAvsluttet()) {
             var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(eksisterendeBehandling.get().getUuid())
@@ -83,9 +114,9 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
                 .build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         } else {
-            var behandling = opprettFørstegangsbehandlingTilInfobrev(fagsak, brukEnhet);
+            var behandling = opprettFørstegangsbehandlingTilInfobrev(fagsakFar, brukEnhet);
             behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-            LOG.info("Opprettet informasjonsbehandling {} på fagsak {}", behandling.getId(), fagsak.getSaksnummer().getVerdi());
+            LOG.info("Opprettet informasjonsbehandling {} på fagsak {}", behandling.getId(), fagsakFar.getSaksnummer().getVerdi());
         }
     }
 
