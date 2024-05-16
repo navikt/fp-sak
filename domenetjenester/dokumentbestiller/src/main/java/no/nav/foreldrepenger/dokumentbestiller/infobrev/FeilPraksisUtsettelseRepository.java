@@ -145,9 +145,9 @@ public class FeilPraksisUtsettelseRepository {
 
     private static final String QUERY_MERKET = """
         select * from (
-          select distinct fagsak_id from fpsak.fagsak_egenskap
+          select distinct fagsak_id from fagsak_egenskap
            where egenskap_value = 'PRAKSIS_UTSETTELSE' and aktiv='J'
-           and fagsak_id not in (select fagsak_id from behandling bi1 where bi1.behandling_status <> 'AVSLU' and bi1.behandling_type in ('BT-002','BT-004'))
+           and fagsak_id not in (select fagsak_id from behandling bi1 where bi1.behandling_status <> 'AVSLU')
            and fagsak_id not in (select fagsak_id from behandling bi2 join behandling_arsak ba on bi2.id = ba.behandling_id
                             where ba.behandling_arsak_type = :feilp)
            and fagsak_id >:fraFagsakId
