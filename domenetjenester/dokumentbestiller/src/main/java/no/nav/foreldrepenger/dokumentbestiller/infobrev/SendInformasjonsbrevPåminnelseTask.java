@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
@@ -93,15 +92,8 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         var behandlingMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMor.getId()).orElseThrow();
         var uttakInput = uttakInputTjeneste.lagInput(behandlingMor);
         var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-        var gjenståendeFedrekvote = fagsakRelasjon.getGjeldendeStønadskontoberegning().stream()
-            .flatMap(sb -> sb.getStønadskontoer().stream())
-            .filter(sk -> sk.getStønadskontoType().equals(StønadskontoType.FEDREKVOTE))
-            .findFirst()
-            .filter(sk -> sk.getStønadskontoType().erStønadsdager())
-            .map(stønadskonto -> saldoUtregning.saldoITrekkdager(Stønadskontotype.FEDREKVOTE))
-            .orElse(null);
 
-        if (gjenståendeFedrekvote == null || !gjenståendeFedrekvote.merEnn0()) {
+        if (!saldoUtregning.saldoITrekkdager(Stønadskontotype.FEDREKVOTE).merEnn0()) {
             return;
         }
 
