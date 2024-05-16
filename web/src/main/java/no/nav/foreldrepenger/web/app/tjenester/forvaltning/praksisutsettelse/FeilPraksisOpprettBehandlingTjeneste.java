@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,7 +12,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -70,8 +68,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     }
 
     public void opprettBehandling(Fagsak fagsak) {
-        if (finnÅpenYtelsesbehandling(fagsak).isPresent()) {
-            LOG.info("FeilPraksisUtsettelse: Har åpen ytelsesbehandling saksnummer {}", fagsak.getSaksnummer());
+        if (harÅpenBehandling(fagsak)) {
+            LOG.info("FeilPraksisUtsettelse: Har åpen behandling saksnummer {}", fagsak.getSaksnummer());
             return;
         }
 
@@ -93,9 +91,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
 
     }
 
-    private Optional<Behandling> finnÅpenYtelsesbehandling(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .filter(b -> !BehandlingStatus.getFerdigbehandletStatuser().contains(b.getStatus()));
+    private boolean harÅpenBehandling(Fagsak fagsak) {
+        return !behandlingRepository.hentÅpneBehandlingerIdForFagsakId(fagsak.getId()).isEmpty();
     }
 
     private boolean harDødsfall(Behandling behandling) {

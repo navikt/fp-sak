@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
@@ -48,6 +49,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakE
 @ApplicationScoped
 public class RegistrerSøknadSteg implements BehandlingSteg {
     private static final Period VENT_PÅ_SØKNAD_PERIODE = Period.parse("P4W");
+    private static final LocalDate FRIST_PRAKSIS_UTSETTELSE = LocalDate.of(2024, Month.AUGUST, 25);
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
@@ -99,9 +101,9 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
                 return BehandleStegResultat.henlagtBehandling();
             }
             if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
-                var ventefrist = LocalDate.now().plusMonths(2).atStartOfDay();
+                var ventefrist = FRIST_PRAKSIS_UTSETTELSE.atStartOfDay();
 
-                var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV, ventefrist);
+                var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_PÅ_BRUKERTILBAKEMELDING, ventefrist);
                 return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
             }
         }

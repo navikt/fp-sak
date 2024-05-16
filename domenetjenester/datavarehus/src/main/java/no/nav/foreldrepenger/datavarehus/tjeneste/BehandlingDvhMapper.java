@@ -219,6 +219,9 @@ public class BehandlingDvhMapper {
         if (!behandling.erRevurdering()) {
             return null;
         }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+            return RevurderingÅrsak.PRAKSISUTSETTELSE;
+        }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             return RevurderingÅrsak.SØKNAD;
         }

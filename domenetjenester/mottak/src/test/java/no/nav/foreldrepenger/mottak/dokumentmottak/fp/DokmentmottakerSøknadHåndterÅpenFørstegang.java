@@ -60,7 +60,7 @@ class DokmentmottakerSøknadHåndterÅpenFørstegang extends DokumentmottakerTes
             mockHist,
             mockMD,
             behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class));
+            mock(TomtUttakTjeneste.class), null);
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider.getBehandlingRepository(), felles, behandlingsoppretterSpied, kompletthetskontroller, køKontroller, fpUttakTjeneste,
                 behandlingRevurderingTjeneste);
