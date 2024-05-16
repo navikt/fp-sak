@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -49,9 +49,9 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
     private BehandlingRepository behandlingRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
     private UttakInputTjeneste uttakInputTjeneste;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
     SendInformasjonsbrevPåminnelseTask() {
         // for CDI proxy
@@ -64,16 +64,17 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
                                               BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                               DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                               UttakInputTjeneste uttakInputTjeneste,
-                                              StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
+                                              StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
+                                              RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
+        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
     @Override
@@ -87,9 +88,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_KEY)));
 
         //Sjekk at det finnes fedrekvote igjen
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(fagsakFar);
-        var fagsakMor = fagsakRelasjon.getRelatertFagsak(fagsakFar).orElseThrow();
-        var behandlingMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMor.getId()).orElseThrow();
+        var behandlingMor = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(fagsakFar.getSaksnummer()).orElseThrow();
         var uttakInput = uttakInputTjeneste.lagInput(behandlingMor);
         var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
 
