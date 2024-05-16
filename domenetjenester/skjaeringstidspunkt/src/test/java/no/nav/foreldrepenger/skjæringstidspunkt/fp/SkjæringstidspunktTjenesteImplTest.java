@@ -38,9 +38,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
@@ -55,9 +53,9 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(1)), repositoryProvider,
+        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider,
             fagsakRelasjonTjeneste);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(LocalDate.now().minusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
     }
 
@@ -275,7 +273,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider, new FagsakRelasjonTjeneste(repositoryProvider));
+        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, new FagsakRelasjonTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
 
 

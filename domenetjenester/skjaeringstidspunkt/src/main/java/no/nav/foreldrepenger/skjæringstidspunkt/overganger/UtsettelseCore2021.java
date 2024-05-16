@@ -3,14 +3,12 @@ package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SØKNADSFRIST;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -22,35 +20,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
-/*
- * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av Prop 127L20/21
- * Klasse for styring av ikrafttredelese nytt regelverk for uttak
- * Metode for å gi ikrafttredelsesdato avhengig av miljø
- * Metode for å vurdere om en Familiehendelse skal vurderes etter nye eller gamle regler. Vil bli oppdatert
- * TODO: Etter dato passert og overgang for testcases -> flytt til sentral konfigklasse - skal ikke lenger ha miljøavvik
- */
-@ApplicationScoped
 public class UtsettelseCore2021 {
 
     private static final Period SENESTE_UTTAK_FØR_TERMIN = Period.ofWeeks(3);
     public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = false;
 
-    private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
-    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2021,10,1); // LA STÅ.
+    public static final LocalDate IKRAFT_FRA_DATO = LocalDate.of(2021, Month.OCTOBER,1); // LA STÅ.
 
-    private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
+    private final LocalDate ikrafttredelseDato;
 
-    UtsettelseCore2021() {
-        // CDI
+    public UtsettelseCore2021() {
+        this(IKRAFT_FRA_DATO);
     }
 
-    @Inject
-    public UtsettelseCore2021(@KonfigVerdi(value = PROP_NAME_DATO, required = false) LocalDate ikrafttredelse) {
-        // Pass på å ikke endre dato som skal brukes i produksjon før ting er vedtatt ...
-        this.ikrafttredelseDato = Environment.current().isProd() || ikrafttredelse == null ? DATO_FOR_PROD : ikrafttredelse;
+    UtsettelseCore2021(LocalDate ikrafttredelseDato) {
+        this.ikrafttredelseDato = ikrafttredelseDato;
     }
 
     public boolean kreverSammenhengendeUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

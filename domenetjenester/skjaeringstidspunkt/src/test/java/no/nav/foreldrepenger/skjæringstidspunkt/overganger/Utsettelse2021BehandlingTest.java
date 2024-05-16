@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ class Utsettelse2021BehandlingTest {
     @Test
     void skal_returnere_sammenhengende_uttak_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
-        var ikraftredelse = LocalDate.of(2021, 10, 1);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -36,13 +35,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
-        var ikraftredelse = LocalDate.of(2021, 10, 1);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
@@ -54,13 +53,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(20);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -73,13 +72,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(2);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -92,14 +91,14 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_sammenhengende_uttak_hvis_bekreftet_termin_2_dager_før() {
         // Arrange
-        var ikraftredelse = LocalDate.now().plusDays(2);
-        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
+        var bekreftetfødselsdato = ikraftredelse.minusDays(2);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -111,13 +110,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(2);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
@@ -130,13 +129,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(10);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -148,13 +147,13 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_fritt_uttak_hvis_søkt_termin_30_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(30);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -166,13 +165,13 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        assertThat(new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
     void skal_returnere_sammenhengende_uttak_pga_medforelder() {
         // Arrange
-        var ikraftredelse = LocalDate.of(2021, 10, 1);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -194,9 +193,8 @@ class Utsettelse2021BehandlingTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
-        var tjenesteCore = new UtsettelseCore2021(ikraftredelse);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
+        var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert
         assertThat(tjeneste.kreverSammenhengendeUttak(behandlingFar.getId())).isTrue();
@@ -205,7 +203,7 @@ class Utsettelse2021BehandlingTest {
     @Test
     void skal_returnere_fritt_uttak_pga_medforelder() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(30);
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
@@ -229,9 +227,8 @@ class Utsettelse2021BehandlingTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
 
-        var tjenesteCore = new UtsettelseCore2021(ikraftredelse);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
+        var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert
         assertThat(tjeneste.kreverSammenhengendeUttak(behandlingFar.getId())).isFalse();
@@ -239,7 +236,7 @@ class Utsettelse2021BehandlingTest {
 
     @Test
     void skal_gi_endret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_før_ikrafttredelse() {
-        var ikraftredelse = LocalDate.now();
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.minusWeeks(1);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -252,7 +249,7 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
+        var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -274,7 +271,7 @@ class Utsettelse2021BehandlingTest {
 
     @Test
     void skal_gi_uendret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_etter_ikrafttredelse() {
-        var ikraftredelse = LocalDate.now();
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(2);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -287,7 +284,7 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
+        var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -309,7 +306,7 @@ class Utsettelse2021BehandlingTest {
 
     @Test
     void skal_gi_uendret_regler_ved_søkt_termin_før_og_bekreftet_fødsel_før_ikrafttredelse() {
-        var ikraftredelse = LocalDate.now();
+        var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);
 
@@ -323,7 +320,7 @@ class Utsettelse2021BehandlingTest {
 
         // Act/Assert
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
+        var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isTrue();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
