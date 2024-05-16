@@ -79,7 +79,7 @@ public class BehandlingDvhMapper {
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))
             .medBehandlingMetode(utledBehandlingMetode(behandling, behandlingsresultat))
-            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling))
+            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling, fagsakMarkering))
             .medMottattTid(finnMottattTidspunkt(mottatteDokument))
             .medRegistrertTid(behandling.getOpprettetTidspunkt())
             .medKanBehandlesTid(kanBehandlesTid(behandling))
@@ -215,11 +215,12 @@ public class BehandlingDvhMapper {
             CommonDvhMapper.erSaksbehandler(aksjonspunkt.getEndretAv()) || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getOpprettetAv());
     }
 
-    private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
+    private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, FagsakMarkering fagsakMarkering) {
         if (!behandling.erRevurdering()) {
             return null;
         }
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+        // Midlertidig
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
             return RevurderingÅrsak.PRAKSISUTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
