@@ -33,9 +33,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
 
@@ -51,8 +49,8 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
             repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
-        var utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(null), repositoryProvider, fagsakRelasjonTjeneste);
-        var minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(null), repositoryProvider, fagsakRelasjonTjeneste);
+        var utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
+        var minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(

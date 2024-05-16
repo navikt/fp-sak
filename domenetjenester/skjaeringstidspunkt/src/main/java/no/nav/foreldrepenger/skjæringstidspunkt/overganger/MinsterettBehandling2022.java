@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 @ApplicationScoped
 public class MinsterettBehandling2022 {
 
-    private MinsterettCore2022 minsterettCore;
+    private final MinsterettCore2022 minsterettCore2022 = new MinsterettCore2022();
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -29,10 +29,8 @@ public class MinsterettBehandling2022 {
     }
 
     @Inject
-    public MinsterettBehandling2022(MinsterettCore2022 minsterettCore,
-                                    BehandlingRepositoryProvider repositoryProvider,
+    public MinsterettBehandling2022(BehandlingRepositoryProvider repositoryProvider,
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
-        this.minsterettCore = minsterettCore;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -41,14 +39,14 @@ public class MinsterettBehandling2022 {
     public boolean utenMinsterett(Behandling behandling) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
-            .map(minsterettCore::utenMinsterett)
+            .map(minsterettCore2022::utenMinsterett)
             .orElse(MinsterettCore2022.DEFAULT_SAK_UTEN_MINSTERETT);
     }
 
     boolean utenMinsterett(Long behandlingId) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
-            .map(minsterettCore::utenMinsterett)
+            .map(minsterettCore2022::utenMinsterett)
             .orElse(MinsterettCore2022.DEFAULT_SAK_UTEN_MINSTERETT);
     }
 

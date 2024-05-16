@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPart
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,7 +75,7 @@ class EndringssøknadSøknadMapperTest {
         var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository(),
-            new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste));
+            new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste));
         var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
             datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste, new AnnenPartOversetter(personinfoAdapter));
 

@@ -75,7 +75,6 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPart
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
@@ -113,7 +112,7 @@ class SøknadMapperTest {
         oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager),
             repositoryProvider.getBehandlingRepository(),
-            new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste));
+            new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).build();
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
