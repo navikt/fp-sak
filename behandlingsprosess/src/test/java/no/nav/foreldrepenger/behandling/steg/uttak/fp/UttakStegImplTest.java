@@ -268,7 +268,7 @@ class UttakStegImplTest {
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(morsFørstegang.getFagsak(),
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
                 Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
                 Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -313,7 +313,7 @@ class UttakStegImplTest {
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(morsFørstegang.getFagsak(),
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
             Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
             Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),

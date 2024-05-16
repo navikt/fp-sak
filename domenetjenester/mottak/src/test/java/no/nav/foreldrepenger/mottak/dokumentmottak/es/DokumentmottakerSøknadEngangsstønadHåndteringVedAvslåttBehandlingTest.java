@@ -60,7 +60,7 @@ class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandlingTest 
             mockHist,
             mockMD,
             behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class));
+            mock(TomtUttakTjeneste.class), null);
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
             repositoryProvider.getBehandlingRepository(),
             felles,
@@ -102,7 +102,7 @@ class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandlingTest 
             mockHist,
             mockMD,
             behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class));
+            mock(TomtUttakTjeneste.class), null);
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
             repositoryProvider.getBehandlingRepository(),
             felles,

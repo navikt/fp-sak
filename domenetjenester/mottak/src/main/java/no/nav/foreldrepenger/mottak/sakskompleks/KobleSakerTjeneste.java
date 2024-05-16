@@ -118,7 +118,7 @@ public class KobleSakerTjeneste {
     }
 
     public void oppdaterFagsakRelasjonMedDekningsgrad(Fagsak fagsak, Optional<FagsakRelasjon> relasjon, Dekningsgrad dekningsgrad) {
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, relasjon, dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, relasjon, dekningsgrad);
     }
 
     public void kobleRelatertFagsakHvisDetFinnesEn(Behandling behandling) {

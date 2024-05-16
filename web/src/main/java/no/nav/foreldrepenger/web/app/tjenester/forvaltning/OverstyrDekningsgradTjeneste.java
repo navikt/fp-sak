@@ -100,7 +100,7 @@ public class OverstyrDekningsgradTjeneste {
         fagsakRelasjonTjeneste.nullstillOverstyrtDekningsgrad(fagsak);
 
         var nullstiltRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, nullstiltRelasjon, tilVerdi);
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, nullstiltRelasjon, tilVerdi);
         var behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
 
         var uttakInput = uttakInputTjeneste.lagInput(behandling);

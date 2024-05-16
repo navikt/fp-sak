@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.behandling.steg.dekningsgrad;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

@@ -84,7 +84,7 @@ class DokumentmottakerVedleggTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
-                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
+                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         kompletthetskontroller = mock(Kompletthetskontroller.class);
