@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -24,6 +25,11 @@ public class YtelseFordelingAggregat {
     private Boolean overstyrtOmsorg;
 
     protected YtelseFordelingAggregat() {
+    }
+
+    // Brukes i tilfelle og steder der aleneomsorg ventes å ha vært manuelt/maskinelt avklart. OBS på nye førstegangssøknader
+    public boolean robustHarAleneomsorg(RelasjonsRolleType relasjonsRolleType) {
+        return RelasjonsRolleType.erMor(relasjonsRolleType) ? harAleneomsorg() : TRUE.equals(getAleneomsorgAvklaring());
     }
 
     public boolean harAleneomsorg() {

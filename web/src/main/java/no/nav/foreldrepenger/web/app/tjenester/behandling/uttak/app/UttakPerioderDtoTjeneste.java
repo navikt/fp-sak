@@ -84,7 +84,7 @@ public class UttakPerioderDtoTjeneste {
         var filter = new UttakResultatPerioderDto.FilterDto(kreverSammenhengendeUttak, utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
-        var aleneomsorg = ytelseFordeling.map(YtelseFordelingAggregat::harAleneomsorg).orElse(false);
+        var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);
         var annenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS).orElse(false);
         var oppgittAnnenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::oppgittAnnenForelderRettEØS).orElse(false);
         return new UttakResultatPerioderDto(perioderSøker,

@@ -73,7 +73,7 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
             select ur.* from UTTAK_RESULTAT ur
             where ur.ID >:fraId and ur.KONTO_BEREGNING_ID is null
             order by ur.id)
-            where ROWNUM <= 100
+            where ROWNUM <= 50
             """;
 
         var query = entityManager.createNativeQuery(sql, UttakResultatEntitet.class)
@@ -88,22 +88,20 @@ class StønadskontoMigreringURTask implements ProsessTaskHandler {
             .or(() -> fagsakRelasjonRepository.finnTidligsteRelasjonForHvisEksisterer(behandling.getFagsakId()))
             .or(() -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
             .orElseThrow();
-        var kontoFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
+        var beregningFagsakRelasjon = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
         var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad();
         if (dryRun) {
-            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon, behandling.getFagsak().erStengt());
+            beregnStønadskontoerTjeneste.loggForBehandling(uttakInput, dekningsgrad, beregningFagsakRelasjon, behandling.getFagsak().erStengt());
             return;
         }
-        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, dekningsgrad, kontoFagsakRelasjon.getStønadskontoutregning());
+        var endretBeregning = beregnStønadskontoerTjeneste.beregnForBehandling(uttakInput, dekningsgrad, beregningFagsakRelasjon.getStønadskontoutregning());
         endretBeregning.ifPresent(fagsakRelasjonRepository::persisterFlushStønadskontoberegning);
-        var kontoBeregningId = endretBeregning.map(Stønadskontoberegning::getId).orElse(kontoFagsakRelasjon.getId());
-        oppdaterUttakMedKontoId(uttakResultatEntitet, kontoBeregningId);
+        oppdaterUttakMedKontoId(uttakResultatEntitet, endretBeregning.orElse(beregningFagsakRelasjon));
     }
-
-    private int oppdaterUttakMedKontoId(UttakResultatEntitet uttakResultatEntitet, Long beregningId) {
+    private int oppdaterUttakMedKontoId(UttakResultatEntitet uttakResultatEntitet, Stønadskontoberegning beregning) {
         return entityManager.createNativeQuery(
-            "UPDATE UTTAK_RESULTAT SET KONTO_BEREGNING_ID = :kontoid WHERE id = :urid")
-            .setParameter("kontoid", beregningId)
+                "UPDATE UTTAK_RESULTAT SET KONTO_BEREGNING_ID = :kontoid WHERE id = :urid")
+            .setParameter("kontoid", beregning.getId())
             .setParameter("urid", uttakResultatEntitet.getId())
             .executeUpdate();
     }

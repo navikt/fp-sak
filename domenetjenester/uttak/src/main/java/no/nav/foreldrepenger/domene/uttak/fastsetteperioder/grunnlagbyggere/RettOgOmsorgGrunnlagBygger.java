@@ -41,7 +41,7 @@ public class RettOgOmsorgGrunnlagBygger {
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
         return new RettOgOmsorg.Builder()
-                .aleneomsorg(ytelseFordelingAggregat.harAleneomsorg())
+                .aleneomsorg(ytelseFordelingAggregat.robustHarAleneomsorg(uttakInput.getBehandlingReferanse().relasjonRolle()))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))

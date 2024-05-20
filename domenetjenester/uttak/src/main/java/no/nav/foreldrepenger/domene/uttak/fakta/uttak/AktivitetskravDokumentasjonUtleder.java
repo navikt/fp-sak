@@ -48,7 +48,7 @@ public class AktivitetskravDokumentasjonUtleder {
         var behandlingReferanse = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle()) || ytelseFordelingAggregat.harAleneomsorg()
+        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle()) || ytelseFordelingAggregat.robustHarAleneomsorg(input.getBehandlingReferanse().relasjonRolle())
             || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet()) || MorsAktivitet.IKKE_OPPGITT.equals(periode.getMorsAktivitet())) {
             return Optional.empty();
         }

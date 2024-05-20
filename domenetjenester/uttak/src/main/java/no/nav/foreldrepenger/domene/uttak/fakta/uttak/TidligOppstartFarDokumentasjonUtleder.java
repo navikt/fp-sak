@@ -43,7 +43,7 @@ final class TidligOppstartFarDokumentasjonUtleder {
 
     private static boolean behandlingKanIkkeHaTidligOppstart(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat, FamilieHendelse familieHendelse) {
         return !familieHendelse.gjelderFødsel() || RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle())
-            || ytelseFordelingAggregat.harAleneomsorg();
+            || ytelseFordelingAggregat.robustHarAleneomsorg(input.getBehandlingReferanse().relasjonRolle());
     }
 
     private static boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode, UttakInput input) {
