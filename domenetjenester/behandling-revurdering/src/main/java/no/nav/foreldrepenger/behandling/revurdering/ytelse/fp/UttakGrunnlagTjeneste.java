@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
-import java.util.Map;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -33,8 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -113,7 +110,6 @@ public class UttakGrunnlagTjeneste {
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
             .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
-            .medStønadskontoberegning(stønadskontoberegning(fagsakRelasjon))
             ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
@@ -243,10 +239,4 @@ public class UttakGrunnlagTjeneste {
         return annenpartIntervall.filter(i -> i.overlaps(egetIntervall)).isPresent();
     }
 
-    // Skal utvides med data fra UttakResultat
-    private Map<StønadskontoType, Integer> stønadskontoberegning(Optional<FagsakRelasjon> relasjon) {
-        return relasjon.flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
-            .map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
-
-    }
 }

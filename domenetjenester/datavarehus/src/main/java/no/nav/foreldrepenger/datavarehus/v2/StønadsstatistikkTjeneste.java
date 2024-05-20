@@ -64,7 +64,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
@@ -75,13 +74,12 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -109,6 +107,7 @@ public class StønadsstatistikkTjeneste {
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private SøknadRepository søknadRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -147,6 +146,7 @@ public class StønadsstatistikkTjeneste {
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.søknadRepository = søknadRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.utregnetStønadskontoTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
     }
 
     StønadsstatistikkTjeneste() {
@@ -411,28 +411,24 @@ public class StønadsstatistikkTjeneste {
         }
         var fr = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), vedtakstidspunkt);
         return fr.map(fagsakRelasjon -> {
-            var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
+            var gjeldendeStønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(behandling.getId(), fagsakRelasjon);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-            var konti = gjeldendeStønadskontoberegning.stream()
-                .flatMap(b -> b.getStønadskontoer().stream())
-                .filter(sk -> sk.getStønadskontoType().erStønadsdager())
-                .map(k -> map(k, saldoUtregning))
+            var konti = gjeldendeStønadskontoberegning.entrySet().stream()
+                .filter(sk -> sk.getKey().erStønadsdager())
+                .map(k -> map(k.getKey(), k.getValue(), saldoUtregning))
                 .collect(Collectors.toSet());
 
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             var rettighetType = utledRettighetType(behandling.getRelasjonsRolleType(), yfa, konti);
             var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
-            var dekningsgradEkstradager = dekningsgrad.isÅtti() ? Dekningsgrad.DEKNINGSGRAD_80 : Dekningsgrad.DEKNINGSGRAD_100;
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
-            var stønadsdager = Stønadsdager.instance(null);
-            var flerbarnsdager = stønadsdager.ekstradagerFlerbarn(familiehendelse.getSkjæringstidspunkt(), familiehendelse.getAntallBarn(), dekningsgradEkstradager);
+            var flerbarnsdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
             if (flerbarnsdager > 0) {
                 ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER, new ForeldrepengerRettigheter.Trekkdager(flerbarnsdager)));
             }
-            var prematurdager = familiehendelse.getGjelderAdopsjon() ? 0 :
-                stønadsdager.ekstradagerPrematur(familiehendelse.getFødselsdato().orElse(null), familiehendelse.getTermindato().orElse(null));
+            var prematurdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
             if (prematurdager > 0) {
                 ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
             }
@@ -448,19 +444,19 @@ public class StønadsstatistikkTjeneste {
         return yfa.avklartAnnenForelderHarRettEØS() ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
     }
 
-    private static ForeldrepengerRettigheter.Stønadskonto map(Stønadskonto stønadskonto, SaldoUtregning saldoUtregning) {
-        var minsterett = StønadskontoType.FORELDREPENGER.equals(stønadskonto.getStønadskontoType()) ? saldoUtregning.getMaxDagerMinsterett()
+    private static ForeldrepengerRettigheter.Stønadskonto map(StønadskontoType stønadskonto, Integer maxDager, SaldoUtregning saldoUtregning) {
+        var minsterett = StønadskontoType.FORELDREPENGER.equals(stønadskonto) ? saldoUtregning.getMaxDagerMinsterett()
             .add(saldoUtregning.getMaxDagerUtenAktivitetskrav())
             .rundOpp() : 0;
-        var stønadskontoType = map(stønadskonto.getStønadskontoType());
-        var maksdager = map(stønadskonto.getMaxDager());
-        var restdager = saldoUtregning.saldoITrekkdager(switch (stønadskonto.getStønadskontoType()) {
+        var stønadskontoType = map(stønadskonto);
+        var maksdager = map(maxDager);
+        var restdager = saldoUtregning.saldoITrekkdager(switch (stønadskonto) {
             case FELLESPERIODE -> Stønadskontotype.FELLESPERIODE;
             case MØDREKVOTE -> Stønadskontotype.MØDREKVOTE;
             case FEDREKVOTE -> Stønadskontotype.FEDREKVOTE;
             case FORELDREPENGER -> Stønadskontotype.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> Stønadskontotype.FORELDREPENGER_FØR_FØDSEL;
-            default -> throw new IllegalStateException("Ukjent " + stønadskonto.getStønadskontoType());
+            default -> throw new IllegalStateException("Ukjent " + stønadskonto);
         });
         //Kan være trukket i minus
         var restdagerDto = new ForeldrepengerRettigheter.Trekkdager(restdager.mindreEnn0() ? BigDecimal.ZERO : restdager.decimalValue());

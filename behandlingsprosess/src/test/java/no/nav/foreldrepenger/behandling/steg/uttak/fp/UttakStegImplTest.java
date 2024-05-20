@@ -60,6 +60,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -389,6 +391,11 @@ class UttakStegImplTest {
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);
 
+        var fellesperiode = fpUttakRepository.hentUttakResultatHvisEksisterer(førstegangsBehandling.getId())
+            .map(UttakResultatEntitet::getStønadskontoberegning).map(Stønadskontoberegning::getStønadskontoutregning)
+            .map(u -> u.getOrDefault(StønadskontoType.FELLESPERIODE,0 )).orElse(0);
+        assertThat(fellesperiode).isGreaterThan(0);
+
         var revurdering = opprettRevurdering(førstegangsBehandling, false, fødselsdato);
         var gjeldendeVersjon = familieHendelseRepository.hentAggregat(revurdering.getId()).getGjeldendeVersjon();
         var hendelse = FamilieHendelseBuilder.oppdatere(Optional.of(gjeldendeVersjon), HendelseVersjonType.SØKNAD);
@@ -401,10 +408,11 @@ class UttakStegImplTest {
         kjørSteg(revurdering);
         var relasjonEtter = fagsakRelasjonTjeneste.finnRelasjonFor(revurdering.getFagsak());
 
-        assertThat(relasjonEtter.getOverstyrtStønadskontoberegning()).isPresent();
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurdering.getId());
         assertThat(resultat).isPresent();
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(relasjonEtter.getGjeldendeStønadskontoberegning().orElseThrow().getId());
+        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(relasjonEtter.getGjeldendeStønadskontoberegning().orElseThrow().getId());
+        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR,0 )).isGreaterThan(0);
+        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 )).isGreaterThan(fellesperiode);
     }
 
     private void kjørSteg(Behandling førstegangsBehandling) {

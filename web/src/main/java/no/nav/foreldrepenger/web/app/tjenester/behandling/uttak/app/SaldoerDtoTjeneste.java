@@ -19,7 +19,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
@@ -27,12 +26,12 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
-import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoValidering;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
@@ -51,11 +50,11 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 @Dependent
 public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private StønadskontoRegelAdapter stønadskontoRegelAdapter;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
-    private DekningsgradTjeneste dekningsgradTjeneste;
+    private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
+
+
 
     public SaldoerDtoTjeneste() {
         //For CDI
@@ -63,17 +62,13 @@ public class SaldoerDtoTjeneste {
 
     @Inject
     public SaldoerDtoTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                              StønadskontoRegelAdapter stønadskontoRegelAdapter,
-                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
                               ForeldrepengerUttakTjeneste uttakTjeneste,
                               TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
-                              DekningsgradTjeneste dekningsgradTjeneste) {
+                              UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
-        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.tapteDagerFpffTjeneste = tapteDagerFpffTjeneste;
-        this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
     }
 
     public SaldoerDto lagStønadskontoerDto(UttakInput input) {
@@ -93,6 +88,7 @@ public class SaldoerDtoTjeneste {
     private SaldoerDto lagStønadskontoDto(UttakInput input, SaldoUtregning saldoUtregning) {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var ref = input.getBehandlingReferanse();
+        var kontoutregning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(input.getBehandlingReferanse());
         var annenpart = annenPartUttak(fpGrunnlag);
         Map<SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new EnumMap<>(SaldoVisningStønadskontoType.class);
         var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isBerørtBehandling());
@@ -103,7 +99,7 @@ public class SaldoerDtoTjeneste {
                 var aktivitetIdentifikatorDto = mapToDto(aktivitet);
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
             }
-            var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
+            var kontoUtvidelser = finnKontoUtvidelser(stønadskontotype, kontoutregning);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
             var visningStønadskontoType = fra(stønadskontotype);
             stønadskontoMap.put(visningStønadskontoType,
@@ -213,25 +209,17 @@ public class SaldoerDtoTjeneste {
     }
 
     private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        var annenpart = foreldrepengerGrunnlag.getAnnenpart();
-        if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
-        }
-        return Optional.empty();
+        return foreldrepengerGrunnlag.getAnnenpart()
+            .map(Annenpart::gjeldendeVedtakBehandlingId)
+            .flatMap(uttakTjeneste::hentUttakHvisEksisterer);
     }
 
-    private Optional<KontoUtvidelser> finnKontoUtvidelser(BehandlingReferanse ref,
-                                                          Stønadskontotype stønadskonto,
-                                                          Optional<ForeldrepengerUttak> annenpart,
-                                                          ForeldrepengerGrunnlag fpGrunnlag) {
+    private Optional<KontoUtvidelser> finnKontoUtvidelser(Stønadskontotype stønadskonto, Map<StønadskontoType, Integer> kontoUtregning) {
         if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
             return Optional.empty();
         }
-        var yfAggregat = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId());
-        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, dekningsgrad, annenpart, fpGrunnlag, fpGrunnlag.getStønadskontoberegning());
-        int prematurdager = stønadskontoberegning.getStønadskontoer().getOrDefault(UttakEnumMapper.mapTilBeregning(StønadskontoType.TILLEGG_PREMATUR), 0);
-        int flerbarnsdager = stønadskontoberegning.getStønadskontoer().getOrDefault(UttakEnumMapper.mapTilBeregning(StønadskontoType.TILLEGG_PREMATUR), 0);
+        int prematurdager = kontoUtregning.getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
+        int flerbarnsdager = kontoUtregning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
 
         if (prematurdager > 0 || flerbarnsdager > 0) {
             return Optional.of(new KontoUtvidelser(prematurdager, flerbarnsdager));

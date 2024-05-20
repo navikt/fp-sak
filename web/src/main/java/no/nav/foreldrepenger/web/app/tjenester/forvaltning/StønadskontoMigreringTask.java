@@ -24,6 +24,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
+/*
+ * Migreringspattern til senere bruk. Skal ikke kjøres på nytt.
+ */
 @Dependent
 @ProsessTask(value = "stønadskonto.migrering", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
@@ -31,6 +34,9 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadskontoMigreringTask.class);
     private static final String FRA_ID = "fraId";
+    private static final String MAX_ID = "maxId";
+    private static final String DRY_RUN = "dryRun";
+
 
     private final FagsakRelasjonRepository fagsakRelasjonRepository;
     private final EntityManager entityManager;
@@ -48,15 +54,18 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fraId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_ID)).map(Long::valueOf).orElse(null);
+        var maxId = Optional.ofNullable(prosessTaskData.getPropertyValue(MAX_ID)).map(Long::valueOf).orElse(null);
+        var dryRun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).filter("false"::equalsIgnoreCase).isEmpty();
 
         var beregninger = finnNesteHundreStønadskonti(fraId).toList();
 
-        beregninger.forEach(this::håndterBeregning);
+        beregninger.stream().filter(b -> maxId == null || b.getId() < maxId).forEach(ur -> håndterBeregning(ur, dryRun));
 
         beregninger.stream()
             .map(Stønadskontoberegning::getId)
             .max(Long::compareTo)
-            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId)));
+            .filter(v -> maxId == null || v < maxId)
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId, dryRun, maxId)));
     }
 
     private Stream<Stønadskontoberegning> finnNesteHundreStønadskonti(Long fraId) {
@@ -73,10 +82,14 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         return query.getResultStream();
     }
 
-    private void håndterBeregning(Stønadskontoberegning kontoberegning) {
+    private void håndterBeregning(Stønadskontoberegning kontoberegning, boolean dryRun) {
         var input = kontoberegning.getRegelInput();
         var stønadsdager = Stønadsdager.instance(null);
         var endret  = false;
+        if (dryRun) {
+            // DO som logging
+            return;
+        }
         if (input.contains("rettighetstype")) {
             return; // V2 - trenger ikke etterpopulere
         } else if (input.contains("familiehendelsesdato")) {
@@ -127,10 +140,12 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         }
     }
 
-    public static ProsessTaskData opprettNesteTask(Long fraVedtakId) {
+    public static ProsessTaskData opprettNesteTask(Long fraVedtakId, boolean dryRun, Long maxId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(StønadskontoMigreringTask.class);
 
         prosessTaskData.setProperty(StønadskontoMigreringTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
+        prosessTaskData.setProperty(StønadskontoMigreringTask.MAX_ID, maxId == null ? null : String.valueOf(maxId));
+        prosessTaskData.setProperty(StønadskontoMigreringTask.DRY_RUN, String.valueOf(dryRun));
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
         return prosessTaskData;

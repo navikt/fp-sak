@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 
 
 @ApplicationScoped
@@ -68,8 +67,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
         // Endring fra 80 til 100% DG krever full omregning ettersom antall dager reduseres
         var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
         var fullBeregning = endretDekningsgrad && Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
-        var eksisterendeKontoUtregning = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
-        if (endretDekningsgrad || skalBeregneMedPrematurdager(fpGrunnlag, eksisterendeKontoUtregning)) {
+        if (endretDekningsgrad) {
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, !fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -115,15 +113,6 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
     private static Integer finnMaksdagerForType(Stønadskontoberegning eksiterendeKonti, StønadskontoType type) {
         return eksiterendeKonti.getStønadskontoutregning().getOrDefault(type, 0);
-    }
-
-    private boolean skalBeregneMedPrematurdager(ForeldrepengerGrunnlag fpGrunnlag, Stønadskontoberegning eksisterende) {
-        var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
-        var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        var eksisterendePrematurdager = eksisterende.getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
-        var nyePrematurdager = Stønadsdager.instance(null).ekstradagerPrematur(fødselsdato, termindato);
-        return nyePrematurdager > eksisterendePrematurdager;
     }
 
     private boolean finnesLøpendeInnvilgetFP(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

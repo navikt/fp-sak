@@ -45,7 +45,7 @@ public class FastsettePerioderTjeneste {
     }
 
     public void fastsettePerioder(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
-        var resultat = regelAdapter.fastsettePerioder(input);
+        var resultat = regelAdapter.fastsettePerioder(input, stønadskontoberegning);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().behandlingId(),
             stønadskontoberegning, resultat);
     }

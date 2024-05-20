@@ -1,19 +1,16 @@
 package no.nav.foreldrepenger.domene.uttak.saldo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -21,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøkn
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -39,7 +37,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningT
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private FpUttakRepository fpUttakRepository;
     private KontoerGrunnlagBygger kontoerGrunnlagBygger;
 
@@ -48,8 +46,8 @@ public class StønadskontoSaldoTjeneste {
     }
 
     @Inject
-    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger, UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
+        this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
@@ -70,16 +68,16 @@ public class StønadskontoSaldoTjeneste {
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
                                                           UttakInput uttakInput,
                                                           boolean berørtBehandling,
-                                                          Optional<Set<Stønadskonto>> stønadskontoer) {
+                                                          Map<StønadskontoType, Integer> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
             .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        if (stønadskontoer.isPresent() && !perioderSøker.isEmpty()) {
+        if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
+            var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
                 sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
@@ -128,10 +126,8 @@ public class StønadskontoSaldoTjeneste {
             .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
     }
 
-    private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
-        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(ref.saksnummer())
-            .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
-            .map(Stønadskontoberegning::getStønadskontoer);
+    private Map<StønadskontoType, Integer> stønadskontoer(BehandlingReferanse ref) {
+        return utregnetStønadskontoTjeneste.gjeldendeKontoutregning(ref);
     }
 
     public int finnStønadRest(SaldoUtregning saldoUtregning) {

@@ -89,15 +89,6 @@ public class BeregnStønadskontoerTjeneste {
         return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
-    public void loggForBehandling(UttakInput uttakInput, Dekningsgrad dekningsgrad, Stønadskontoberegning tidligereBeregning, boolean sakStengt) {
-        var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
-        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
-        stønadskontoRegelAdapter.beregnKontoerLoggDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag,
-            tidligereBeregning.getStønadskontoutregning(), tidligereBeregning.getId(), sakStengt);
-    }
-
     private void oppdaterBehandlingsresultat(Long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var oppdaterBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medEndretStønadskonto(true).build();

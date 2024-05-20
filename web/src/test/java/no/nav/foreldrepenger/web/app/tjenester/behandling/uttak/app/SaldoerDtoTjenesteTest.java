@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -67,9 +65,8 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -103,17 +100,13 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
-            new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository)), dekningsgradTjeneste),
-            fagsakRelasjonTjeneste);
-        var stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
+        var utregnetKontoTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(),
+            utregnetKontoTjeneste);
         var tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, stønadskontoRegelAdapter,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), uttakTjeneste, tapteDagerFpffTjeneste,
-            dekningsgradTjeneste);
+        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, uttakTjeneste, tapteDagerFpffTjeneste, utregnetKontoTjeneste);
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
     }
 
@@ -166,7 +159,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        lagreStønadskontoBeregning(morsBehandling, kontoer);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
@@ -286,7 +280,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        lagreStønadskontoBeregning(morsBehandling, kontoer);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
         lagre(morsBehandling);
@@ -357,7 +352,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        var kontoer = lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        lagreStønadskontoBeregning(morsBehandling, kontoer);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), kontoer, uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
@@ -460,11 +456,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             FELLESPERIODE, false, true);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
-
         var maxDagerFlerbarn = 17 * 5;
         var stønadskontoberegning = lagStønadskontoberegning(
             lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
+        scenarioMor.medStønadskontoberegning(stønadskontoberegning);
+        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
+
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
 
@@ -478,7 +475,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             FELLESPERIODE, false, true);
 
-        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar, stønadskontoberegning);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
@@ -529,13 +526,15 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenarioMor.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenarioMor.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioMor.medUttak(uttakMor);
-        var behandlingMor = scenarioMor.lagre(repositoryProvider);
-
         var maxDagerFPFF = 3 * 5;
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var kontoer = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        scenarioMor.medStønadskontoberegning(kontoer);
+        var behandlingMor = scenarioMor.lagre(repositoryProvider);
+
+        lagreStønadskontoBeregning(behandlingMor, kontoer);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(input(behandlingMor, fødseldato));
@@ -578,13 +577,14 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             MØDREKVOTE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
-
         var maxDagerFPFF = 3 * 5;
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var stønadskontoberegning = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        scenarioMor.medStønadskontoberegning(stønadskontoberegning);
+        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
+
 
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
@@ -592,7 +592,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(6), fødseldato.plusWeeks(18).minusDays(1),
             FELLESPERIODE);
 
-        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar, stønadskontoberegning);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
@@ -628,13 +628,16 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
-
         var maxDagerFPFF = 3 * 5;
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var stønadskontoberegning = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        scenarioMor.medStønadskontoberegning(stønadskontoberegning);
+        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
+
+        lagreStønadskontoBeregning(behandlingMor, stønadskontoberegning);
+
 
         var virksomhetForFar = arbeidsgiver("456");
         var aktiviteterFar = lagUttakAktivitet(virksomhetForFar);
@@ -644,7 +647,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             FELLESPERIODE);
 
-        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar, stønadskontoberegning);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
@@ -663,11 +666,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling behandlingMedUttakFar(LocalDate fødseldato,
                                              Behandling behandlingMor,
-                                             UttakResultatPerioderEntitet uttakFar) {
+                                             UttakResultatPerioderEntitet uttakFar, Stønadskontoberegning stønadskontoberegning) {
         var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioFar.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioFar.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenarioFar.medSøknadHendelse().medFødselsDato(fødseldato);
+        scenarioFar.medStønadskontoberegning(stønadskontoberegning);
         scenarioFar.medUttak(uttakFar);
 
         var behandlingFar = scenarioFar.lagre(repositoryProvider);
@@ -677,16 +681,17 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         return behandlingFar;
     }
 
-    private Stønadskontoberegning lagreStønadskontoBeregning(Behandling behandling,
-                                            int maxDagerFPFF,
-                                            int maxDagerFP,
-                                            int maxDagerFK,
-                                            int maxDagerMK) {
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
+    private Stønadskontoberegning lagreStønadskontoBeregning(int maxDagerFPFF,
+                                                             int maxDagerFP,
+                                                             int maxDagerFK,
+                                                             int maxDagerMK) {
+        return lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
             lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP), lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK), lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK));
-        repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
+    }
+
+    private void lagreStønadskontoBeregning(Behandling behandling,
+                                            Stønadskontoberegning stønadskontoberegning) {
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
 
     private Behandling avsluttetBehandlingMedUttak(AbstractTestScenario<?> scenarioMor,
@@ -720,13 +725,15 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
-
         var maxDagerFPFF = 3 * 5;
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var stønadskontoberegning = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        scenarioMor.medStønadskontoberegning(stønadskontoberegning);
+        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
+
+        lagreStønadskontoBeregning(behandlingMor, stønadskontoberegning);
 
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
@@ -735,7 +742,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             FELLESPERIODE, true, false);
 
 
-        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar, stønadskontoberegning);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
@@ -773,13 +780,15 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             new UttakAktivitetMedTrekkdager(uttakAktivitetForMor2, Optional.empty()));
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
-
         var maxDagerFPFF = 3 * 5;
         var maxDagerFP = 16 * 5;
         var maxDagerFK = 15 * 5;
         var maxDagerMK = 15 * 5;
-        lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        var stønadskontoberegning = lagreStønadskontoBeregning(maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
+        scenarioMor.medStønadskontoberegning(stønadskontoberegning);
+        var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
+
+        lagreStønadskontoBeregning(behandlingMor, stønadskontoberegning);
 
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
@@ -789,7 +798,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             FELLESPERIODE);
 
-        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar, stønadskontoberegning);
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
@@ -842,19 +851,15 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(fødseldato, 1);
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
+        var maxDager = 40 * 5;
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager), lagStønadskonto(StønadskontoType.UFØREDAGER, 75));
+        scenario.medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        var maxDager = 40 * 5;
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
-        var uføretrygdGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId())
-            .medAktørIdUføretrygdet(annenPartAktørId)
-            .medRegisterUføretrygd(true, fødseldato.minusYears(2), fødseldato.minusYears(2))
-            .build();
-        var input = input(behandling, fpGrunnlag(null, fødseldato, 1).medUføretrygdGrunnlag(uføretrygdGrunnlag), fødseldato);
+        var input = input(behandling, fpGrunnlag(null, fødseldato, 1), fødseldato);
         var saldoer = tjeneste.lagStønadskontoerDto(input);
 
         var totalSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER);
@@ -906,10 +911,11 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true, false, false));
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
+        var maxDager = 40 * 5;
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager), lagStønadskonto(StønadskontoType.BARE_FAR_RETT, 40));
+        scenario.medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        var maxDager = 40 * 5;
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER, maxDager));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
@@ -937,12 +943,13 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttak.leggTilPeriode(periode);
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FEDREKVOTE, 75), lagStønadskonto(StønadskontoType.TETTE_SAKER_FAR, 40));
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medFordeling(new OppgittFordelingEntitet(List.of(), true));
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
+            .medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FEDREKVOTE, 75));
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
         var saksnummer = behandling.getFagsak().getSaksnummer();
@@ -998,10 +1005,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                 .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
                 .medPeriodeType(MØDREKVOTE)
                 .build()), true));
-        var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
-
         var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, 15),
             lagStønadskonto(StønadskontoType.MØDREKVOTE, 15 * 5));
+        scenario.medStønadskontoberegning(stønadskontoberegning);
+        var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
+
+
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
 
         var fpGrunnlag = fpGrunnlag().medFamilieHendelser(

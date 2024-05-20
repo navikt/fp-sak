@@ -9,13 +9,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -29,8 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -47,11 +45,10 @@ class MaksDatoUttakTjenesteImplTest {
 
     {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
-        var kontoerGrunnlagBygger = new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
-            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
-            dekningsgradTjeneste);
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, kontoerGrunnlagBygger, fagsakRelasjonTjeneste);
+        var kontoerGrunnlagBygger = new KontoerGrunnlagBygger();
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        var utregnetTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, kontoerGrunnlagBygger, utregnetTjeneste);
         maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
             repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste);
     }
@@ -73,10 +70,8 @@ class MaksDatoUttakTjenesteImplTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
+        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
-
-        lagreStønadskonto(behandling,
-            new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
         assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(fellesperiode.getTom());
@@ -98,10 +93,8 @@ class MaksDatoUttakTjenesteImplTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
+        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
-
-        lagreStønadskonto(behandling,
-            new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
         assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(LocalDate.of(2019, 10, 18));
@@ -130,23 +123,18 @@ class MaksDatoUttakTjenesteImplTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
+        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
-
-        lagreStønadskonto(behandling,
-            new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
         assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(LocalDate.of(2019, 10, 18));
     }
 
-    private void lagreStønadskonto(Behandling behandling, Stønadskonto stønadskonto) {
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
+    private Stønadskontoberegning lagStønadskonto(Stønadskonto stønadskonto) {
+        return new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
             .medRegelInput(" ")
             .medStønadskonto(stønadskonto)
             .build();
-        repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
 
     @Test
@@ -166,9 +154,6 @@ class MaksDatoUttakTjenesteImplTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
-        var behandling = scenario.lagre(repositoryProvider);
-
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
             .medRegelInput(" ")
             .medStønadskonto(
@@ -176,8 +161,8 @@ class MaksDatoUttakTjenesteImplTest {
             .medStønadskonto(
                 new Stønadskonto.Builder().medMaxDager(1).medStønadskontoType(StønadskontoType.MØDREKVOTE).build())
             .build();
-        repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        scenario.medStønadskontoberegning(stønadskontoberegning);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Assert
         //siste uttaksdag + 2 fellesperiode + 1 mødrekvote gjenværende
