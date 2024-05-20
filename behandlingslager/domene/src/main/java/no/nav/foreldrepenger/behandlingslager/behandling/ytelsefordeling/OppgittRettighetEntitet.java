@@ -103,12 +103,12 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return annenForelderOppholdEØS;
     }
 
-    public static OppgittRettighetEntitet kopiAleneomsorg(OppgittRettighetEntitet rett, Boolean aleneomsorg) {
+    public static OppgittRettighetEntitet kopiIkkeAleneomsorg(OppgittRettighetEntitet rett) {
         if (rett == null) {
-            return new OppgittRettighetEntitet(null, aleneomsorg, null, null, null);
+            return new OppgittRettighetEntitet(null, false, null, null, null);
         }
-        return Objects.equals(aleneomsorg, rett.harAleneomsorgForBarnet) ? rett :
-            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, aleneomsorg, rett.morMottarUføretrygd, rett.annenForelderRettEØS,
+        return Objects.equals(false, rett.harAleneomsorgForBarnet) ? rett :
+            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, false, rett.morMottarUføretrygd, rett.annenForelderRettEØS,
                 rett.annenForelderOppholdEØS);
     }
 
@@ -120,7 +120,10 @@ public class OppgittRettighetEntitet extends BaseEntitet {
             new OppgittRettighetEntitet(false, true, rett.morMottarUføretrygd, rett.annenForelderRettEØS, rett.annenForelderOppholdEØS);
     }
 
-    public static OppgittRettighetEntitet kopiAnnenForelderRett(OppgittRettighetEntitet rett, Boolean annenForelderRett) {
+    public static OppgittRettighetEntitet kopiAnnenForelderRett(OppgittRettighetEntitet rett, boolean annenForelderRett) {
+        // Kan velge å sette aleneomsorg = false dersom annenForelder rett her og for Boolean EØS.
+        // Nå er dette implisitt gjennom avklaringsrekkefølge i KontrollerOmsorgRett (Alene, AnnenRett, AnnenRettEØS). null = ikke eksplisitt avklart
+        // Krever antagelig fortsatt robustAleneomsorg pga ny 1g-søknad
         if (rett == null) {
             return new OppgittRettighetEntitet(annenForelderRett, null, null, null, null);
         }

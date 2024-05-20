@@ -54,7 +54,7 @@ public class YtelseFordelingTjeneste {
         if (aleneomsorg) {
             overstyrtRett = OppgittRettighetEntitet.kopiAleneomsorgIkkeRettAnnenForelder(overstyrtRett);
         } else {
-            overstyrtRett = OppgittRettighetEntitet.kopiAleneomsorg(overstyrtRett, aleneomsorg);
+            overstyrtRett = OppgittRettighetEntitet.kopiIkkeAleneomsorg(overstyrtRett);
         }
         ytelseFordelingBuilder.medOverstyrtRettighet(overstyrtRett);
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingBuilder.build());
@@ -115,7 +115,7 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, builder.build());
     }
 
-    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
+    public void bekreftAnnenforelderHarRett(Long behandlingId, boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
         var overstyrtRett = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .flatMap(YtelseFordelingAggregat::getOverstyrtRettighet).orElse(null);
         overstyrtRett = OppgittRettighetEntitet.kopiAnnenForelderRett(overstyrtRett, annenforelderHarRett);
