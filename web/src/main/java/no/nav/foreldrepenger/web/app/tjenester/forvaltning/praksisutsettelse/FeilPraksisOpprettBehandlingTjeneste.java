@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
 
@@ -23,17 +25,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 /**
  *  Opprette revurderinger der det er oppdaget feil praksis
@@ -54,6 +62,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private FpUttakRepository fpUttakRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @Inject
     public FeilPraksisOpprettBehandlingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -63,7 +72,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
                                                 PersoninfoAdapter personinfoAdapter,
                                                 PersonopplysningRepository personopplysningRepository,
                                                 FamilieHendelseRepository familieHendelseRepository,
-                                                FpUttakRepository fpUttakRepository) {
+                                                FpUttakRepository fpUttakRepository,
+                                                FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -73,6 +83,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         this.personopplysningRepository = personopplysningRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.fpUttakRepository = fpUttakRepository;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     FeilPraksisOpprettBehandlingTjeneste() {
@@ -90,14 +101,19 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             LOG.info("FeilPraksisUtsettelse: Fant ingen vedtatte behandlinger saksnummer {}", fagsak.getSaksnummer());
             return;
         }
-        if (harDødsfall(sisteVedtatte)) {
-            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {}", fagsak.getSaksnummer());
-            return;
-        }
         var uttak = fpUttakRepository.hentUttakResultat(sisteVedtatte.getId());
         var fortsattRammet = uttak.getGjeldendePerioder().getPerioder().stream().anyMatch(FeilPraksisOpprettBehandlingTjeneste::feilPraksis);
         if (!fortsattRammet) {
             LOG.info("FeilPraksisUtsettelse: Sak ikke utslag feil praksis saksnummer {}", fagsak.getSaksnummer());
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
+            return;
+        }
+        if (harDødsfall(sisteVedtatte)) {
+            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {}", fagsak.getSaksnummer());
+            return;
+        }
+        if (famileHendelseEtterPraksisendring(sisteVedtatte)) {
+            LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {}", fagsak.getSaksnummer());
             return;
         }
 
@@ -110,7 +126,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     }
 
     private static boolean feilPraksis(UttakResultatPeriodeEntitet periode) {
-        return feilUtsettelseTrekkUtenUtbetaling(periode) || feilPraksisGraderingTrekkUtenUtbetaling(periode);
+        return feilUtsettelseTrekkUtenUtbetaling(periode) || feilPraksisGradering(periode);
     }
 
 
@@ -119,13 +135,29 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             .anyMatch(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling());
     }
 
-    private static boolean feilPraksisGraderingTrekkUtenUtbetaling(UttakResultatPeriodeEntitet periode) {
+    private static boolean feilPraksisGradering(UttakResultatPeriodeEntitet periode) {
         return GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(periode.getGraderingAvslagÅrsak()) && periode.getSamtidigUttaksprosent() == null &&
-            periode.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0);
+            periode.getAktiviteter().stream()
+                .anyMatch(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a));
+    }
+
+    private static boolean feilPraksisGraderingAktivitet(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
+        var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
+        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
+        return aktivitet.getTrekkdager().compareTo(new Trekkdager(forventetTrekkdager)) > 0;
     }
 
     private boolean harÅpenBehandling(Fagsak fagsak) {
         return !behandlingRepository.hentÅpneBehandlingerIdForFagsakId(fagsak.getId()).isEmpty();
+    }
+
+    private boolean famileHendelseEtterPraksisendring(Behandling behandling) {
+        var hendelseEtterPraksisdato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .filter(stp -> stp.isAfter(UtsettelseCore2021.IKRAFT_FRA_DATO.minusDays(1)));
+
+        return hendelseEtterPraksisdato.isPresent();
     }
 
     private boolean harDødsfall(Behandling behandling) {
