@@ -8,10 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -68,6 +72,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private FpUttakRepository fpUttakRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @Inject
     public FeilPraksisOpprettBehandlingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -77,7 +82,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
                                                 PersoninfoAdapter personinfoAdapter,
                                                 PersonopplysningRepository personopplysningRepository,
                                                 FamilieHendelseRepository familieHendelseRepository,
-                                                FpUttakRepository fpUttakRepository) {
+                                                FpUttakRepository fpUttakRepository,
+                                                FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -87,6 +93,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         this.personopplysningRepository = personopplysningRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.fpUttakRepository = fpUttakRepository;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     FeilPraksisOpprettBehandlingTjeneste() {
@@ -111,15 +118,16 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             return;
         }
         if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
-            LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {}", fagsak.getSaksnummer());
+            LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
-            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {}", fagsak.getSaksnummer());
+            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
             return;
         }
         if (famileHendelseEtterPraksisendring(sisteVedtatte)) {
-            LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {}", fagsak.getSaksnummer());
+            //TODO - fjerne merking av disse og noen til ??? fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
+            LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
             return;
         }
 
@@ -131,7 +139,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
 
     }
 
-    public static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
+    private static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
         Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
         tapteDagerGradering(perioder).forEach((k,v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
         return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
