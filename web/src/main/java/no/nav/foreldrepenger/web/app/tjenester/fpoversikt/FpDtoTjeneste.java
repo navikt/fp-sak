@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.DtoTjenesteFelles.statusForSøknad;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +30,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -363,7 +367,8 @@ public class FpDtoTjeneste {
     }
 
     private static FpSak.Uttaksperiode.Resultat.Årsak tilResultatÅrsak(ForeldrepengerUttakPeriode periode) {
-        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager() && periode.harRedusertUtbetaling()) {
+        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager() &&
+            periode.harRedusertUtbetaling() && harAktivitetMerTrekkEnnUtbetalingTilsier(periode)) {
             return FpSak.Uttaksperiode.Resultat.Årsak.INNVILGET_UTTAK_AVSLÅTT_GRADERING_TILBAKE_I_TID;
         }
 
@@ -378,6 +383,16 @@ public class FpDtoTjeneste {
     private boolean trekkerMinsterett(ForeldrepengerUttakPeriode periode) {
         return periode.harTrekkdager() && !Set.of(PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT,
             PeriodeResultatÅrsak.GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT).contains(periode.getResultatÅrsak());
+    }
+
+    private static boolean harAktivitetMerTrekkEnnUtbetalingTilsier(ForeldrepengerUttakPeriode periode) {
+        return periode.getAktiviteter().stream().anyMatch(a -> a.getTrekkdager().compareTo(graderingForventetTrekkdager(periode, a)) > 0);
+    }
+
+    private static Trekkdager graderingForventetTrekkdager(ForeldrepengerUttakPeriode periode, ForeldrepengerUttakPeriodeAktivitet aktivitet) {
+        var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
+        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
+        return new Trekkdager(forventetTrekkdager);
     }
 
     private static FpSak.Uttaksperiode.Resultat.Type utledResultatType(ForeldrepengerUttakPeriode periode) {

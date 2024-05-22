@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -69,7 +68,6 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private FpUttakRepository fpUttakRepository;
-    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @Inject
     public FeilPraksisOpprettBehandlingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -79,8 +77,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
                                                 PersoninfoAdapter personinfoAdapter,
                                                 PersonopplysningRepository personopplysningRepository,
                                                 FamilieHendelseRepository familieHendelseRepository,
-                                                FpUttakRepository fpUttakRepository,
-                                                FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                                FpUttakRepository fpUttakRepository) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -90,7 +87,6 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         this.personopplysningRepository = personopplysningRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.fpUttakRepository = fpUttakRepository;
-        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     FeilPraksisOpprettBehandlingTjeneste() {
@@ -110,8 +106,12 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
         var uttak = fpUttakRepository.hentUttakResultat(sisteVedtatte.getId());
         var tapteDager = tapteDager(uttak.getGjeldendePerioder().getPerioder());
+        if (tapteDager.compareTo(Trekkdager.ZERO) == 0) {
+            LOG.info("FeilPraksisUtsettelse: Sak gir ikke utslag saksnummer {}", fagsak.getSaksnummer());
+            return;
+        }
         if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
-            LOG.info("FeilPraksisUtsettelse: Sak ikke utslag feil praksis saksnummer {}", fagsak.getSaksnummer());
+            LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {}", fagsak.getSaksnummer());
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
@@ -130,51 +130,42 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         LOG.info("FeilPraksisUtsettelse: Opprettet revurdering med behandlingId {} saksnummer {}", revurdering.getId(), fagsak.getSaksnummer());
 
     }
-    
-    private Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
-        Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>();
-        tapteDagerUtsettelse(perioder).forEach((k,v) -> {
-            var sum = v.stream().map(UttakAktivitetTapteDager::taptedager).reduce(Trekkdager.ZERO, Trekkdager::add);
-            if (sum.compareTo(Trekkdager.ZERO) > 0) {
-                trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(sum));
-            }
-        });
-        tapteDagerGradering(perioder).forEach((k,v) -> {
-            var sum = v.stream().map(UttakAktivitetTapteDager::taptedager).reduce(Trekkdager.ZERO, Trekkdager::add);
-            if (sum.compareTo(Trekkdager.ZERO) > 0) {
-                trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(sum));
-            }
-        });
+
+    public static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
+        Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
+        tapteDagerGradering(perioder).forEach((k,v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
         return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
     }
 
-    private Map<UttakAktivitetGruppering, List<UttakAktivitetTapteDager>> tapteDagerUtsettelse(List<UttakResultatPeriodeEntitet> perioder) {
+    private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerUtsettelse(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
             .filter(p -> FEIL_UTSETTELSE.contains(p.getResultatÅrsak()))
-            .map(this::tapteDagerUtsettelsePeriode)
+            .map(FeilPraksisOpprettBehandlingTjeneste::tapteDagerUtsettelsePeriode)
             .flatMap(Collection::stream)
-            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel));
+            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel,
+                Collectors.reducing(Trekkdager.ZERO, UttakAktivitetTapteDager::taptedager, Trekkdager::add)));
     }
 
-    private List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
+    private static List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
         return periode.getAktiviteter().stream()
             .filter(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling())
-            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a.getUttakArbeidType(), a.getArbeidsgiver(), a.getArbeidsforholdRef()), a.getTrekkdager()))
+            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a), a.getTrekkdager()))
             .toList();
     }
 
-    private Map<UttakAktivitetGruppering, List<UttakAktivitetTapteDager>> tapteDagerGradering(List<UttakResultatPeriodeEntitet> perioder) {
+    private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerGradering(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
             .filter(p -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(p.getGraderingAvslagÅrsak()) && p.getSamtidigUttaksprosent() == null)
-            .map(this::tapteDagerGraderingPeriode)
+            .map(FeilPraksisOpprettBehandlingTjeneste::tapteDagerGraderingPeriode)
             .flatMap(Collection::stream)
-            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel));
+            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel,
+                Collectors.reducing(Trekkdager.ZERO, UttakAktivitetTapteDager::taptedager, Trekkdager::add)));
     }
 
-    private List<UttakAktivitetTapteDager> tapteDagerGraderingPeriode(UttakResultatPeriodeEntitet periode) {
+    private static List<UttakAktivitetTapteDager> tapteDagerGraderingPeriode(UttakResultatPeriodeEntitet periode) {
         return periode.getAktiviteter().stream()
             .filter(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a))
-            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a.getUttakArbeidType(), a.getArbeidsgiver(), a.getArbeidsforholdRef()),
+            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a),
                 a.getTrekkdager().subtract(graderingForventetTrekkdager(periode, a))))
             .toList();
     }
@@ -222,8 +213,12 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             .map(PersoninfoBasis::dødsdato).isPresent();
     }
 
-    private record UttakAktivitetGruppering(UttakArbeidType uttakArbeidType, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {}
+    private record UttakAktivitetGruppering(UttakArbeidType uttakArbeidType, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
+        UttakAktivitetGruppering(UttakResultatPeriodeAktivitetEntitet aktivitet) {
+            this(aktivitet.getUttakArbeidType(), aktivitet.getArbeidsgiver(), aktivitet.getArbeidsforholdRef());
+        }
+    }
 
-    private record UttakAktivitetTapteDager(UttakAktivitetGruppering grupperingsnøkkel, Trekkdager taptedager) {}
+    private record UttakAktivitetTapteDager(UttakAktivitetGruppering grupperingsnøkkel, Trekkdager taptedager) { }
 
 }
