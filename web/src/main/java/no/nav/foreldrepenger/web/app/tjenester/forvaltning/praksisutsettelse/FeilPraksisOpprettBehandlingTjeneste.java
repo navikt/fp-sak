@@ -2,8 +2,13 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,17 +33,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
@@ -102,10 +109,9 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             return;
         }
         var uttak = fpUttakRepository.hentUttakResultat(sisteVedtatte.getId());
-        var fortsattRammet = uttak.getGjeldendePerioder().getPerioder().stream().anyMatch(FeilPraksisOpprettBehandlingTjeneste::feilPraksis);
-        if (!fortsattRammet) {
+        var tapteDager = tapteDager(uttak.getGjeldendePerioder().getPerioder());
+        if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
             LOG.info("FeilPraksisUtsettelse: Sak ikke utslag feil praksis saksnummer {}", fagsak.getSaksnummer());
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
@@ -124,27 +130,65 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         LOG.info("FeilPraksisUtsettelse: Opprettet revurdering med behandlingId {} saksnummer {}", revurdering.getId(), fagsak.getSaksnummer());
 
     }
-
-    private static boolean feilPraksis(UttakResultatPeriodeEntitet periode) {
-        return feilUtsettelseTrekkUtenUtbetaling(periode) || feilPraksisGradering(periode);
+    
+    private Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
+        Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>();
+        tapteDagerUtsettelse(perioder).forEach((k,v) -> {
+            var sum = v.stream().map(UttakAktivitetTapteDager::taptedager).reduce(Trekkdager.ZERO, Trekkdager::add);
+            if (sum.compareTo(Trekkdager.ZERO) > 0) {
+                trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(sum));
+            }
+        });
+        tapteDagerGradering(perioder).forEach((k,v) -> {
+            var sum = v.stream().map(UttakAktivitetTapteDager::taptedager).reduce(Trekkdager.ZERO, Trekkdager::add);
+            if (sum.compareTo(Trekkdager.ZERO) > 0) {
+                trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(sum));
+            }
+        });
+        return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
     }
 
-
-    private static boolean feilUtsettelseTrekkUtenUtbetaling(UttakResultatPeriodeEntitet periode) {
-        return FEIL_UTSETTELSE.contains(periode.getResultatÅrsak()) && periode.getAktiviteter().stream()
-            .anyMatch(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling());
+    private Map<UttakAktivitetGruppering, List<UttakAktivitetTapteDager>> tapteDagerUtsettelse(List<UttakResultatPeriodeEntitet> perioder) {
+        return perioder.stream()
+            .filter(p -> FEIL_UTSETTELSE.contains(p.getResultatÅrsak()))
+            .map(this::tapteDagerUtsettelsePeriode)
+            .flatMap(Collection::stream)
+            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel));
     }
 
-    private static boolean feilPraksisGradering(UttakResultatPeriodeEntitet periode) {
-        return GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(periode.getGraderingAvslagÅrsak()) && periode.getSamtidigUttaksprosent() == null &&
-            periode.getAktiviteter().stream()
-                .anyMatch(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a));
+    private List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
+        return periode.getAktiviteter().stream()
+            .filter(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling())
+            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a.getUttakArbeidType(), a.getArbeidsgiver(), a.getArbeidsforholdRef()), a.getTrekkdager()))
+            .toList();
     }
+
+    private Map<UttakAktivitetGruppering, List<UttakAktivitetTapteDager>> tapteDagerGradering(List<UttakResultatPeriodeEntitet> perioder) {
+        return perioder.stream()
+            .filter(p -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(p.getGraderingAvslagÅrsak()) && p.getSamtidigUttaksprosent() == null)
+            .map(this::tapteDagerGraderingPeriode)
+            .flatMap(Collection::stream)
+            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel));
+    }
+
+    private List<UttakAktivitetTapteDager> tapteDagerGraderingPeriode(UttakResultatPeriodeEntitet periode) {
+        return periode.getAktiviteter().stream()
+            .filter(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a))
+            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a.getUttakArbeidType(), a.getArbeidsgiver(), a.getArbeidsforholdRef()),
+                a.getTrekkdager().subtract(graderingForventetTrekkdager(periode, a))))
+            .toList();
+    }
+
 
     private static boolean feilPraksisGraderingAktivitet(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
+        var forventetTrekkdager = graderingForventetTrekkdager(periode, aktivitet);
+        return aktivitet.getTrekkdager().compareTo(forventetTrekkdager) > 0;
+    }
+
+    private static Trekkdager graderingForventetTrekkdager(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
         var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
-        return aktivitet.getTrekkdager().compareTo(new Trekkdager(forventetTrekkdager)) > 0;
+        return new Trekkdager(forventetTrekkdager);
     }
 
     private boolean harÅpenBehandling(Fagsak fagsak) {
@@ -177,5 +221,9 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         return personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId)
             .map(PersoninfoBasis::dødsdato).isPresent();
     }
+
+    private record UttakAktivitetGruppering(UttakArbeidType uttakArbeidType, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {}
+
+    private record UttakAktivitetTapteDager(UttakAktivitetGruppering grupperingsnøkkel, Trekkdager taptedager) {}
 
 }
