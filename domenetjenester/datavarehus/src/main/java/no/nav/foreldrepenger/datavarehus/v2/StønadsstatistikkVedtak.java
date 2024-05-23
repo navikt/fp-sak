@@ -234,7 +234,8 @@ public class StønadsstatistikkVedtak {
         PLEIEPENGER,
         NYSAK,
         ANNENFORELDER,
-        REGULERING
+        REGULERING,
+        PRAKSIS_UTSETTELSE
     }
 
     public enum BeregningHjemmel {

@@ -61,4 +61,8 @@ public class Trekkdager implements Comparable<Trekkdager> {
     public Trekkdager add(Trekkdager trekkdager) {
         return new Trekkdager(decimalValue().add(trekkdager.decimalValue()));
     }
+
+    public Trekkdager subtract(Trekkdager trekkdager) {
+        return new Trekkdager(decimalValue().subtract(trekkdager.decimalValue()));
+    }
 }

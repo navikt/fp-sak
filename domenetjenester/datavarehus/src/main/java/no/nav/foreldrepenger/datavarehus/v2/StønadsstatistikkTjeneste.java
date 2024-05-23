@@ -180,7 +180,7 @@ public class StønadsstatistikkTjeneste {
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
-            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling))
+            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling, utlandMarkering))
             .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
             .medVedtakstidspunkt(vedtakstidspunkt)
@@ -500,9 +500,13 @@ public class StønadsstatistikkTjeneste {
         return new StønadsstatistikkVedtak.Saksnummer(saksnummer.getVerdi());
     }
 
-    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
+    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, FagsakMarkering fagsakMarkering) {
         if (!behandling.erRevurdering()) {
             return null;
+        }
+        // MIdlertidig
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
