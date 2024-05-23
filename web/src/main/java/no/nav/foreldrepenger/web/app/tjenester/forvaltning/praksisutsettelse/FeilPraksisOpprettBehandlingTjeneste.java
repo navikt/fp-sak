@@ -8,13 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -115,19 +113,21 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         var tapteDager = tapteDager(uttak.getGjeldendePerioder().getPerioder());
         if (tapteDager.compareTo(Trekkdager.ZERO) == 0) {
             LOG.info("FeilPraksisUtsettelse: Sak gir ikke utslag saksnummer {}", fagsak.getSaksnummer());
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
             return;
         }
         if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
-            LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
+            LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
-            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
+            LOG.info("FeilPraksisUtsettelse: Sak med dødsfall saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
             return;
         }
         if (famileHendelseEtterPraksisendring(sisteVedtatte)) {
-            //TODO - fjerne merking av disse og noen til ??? fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
-            LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {} tap{}", fagsak.getSaksnummer(), tapteDager);
+            LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
             return;
         }
 
