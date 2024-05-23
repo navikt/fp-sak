@@ -66,8 +66,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
         // Default er beregning relativt til eksisterende kontoberegning.
         // Endring fra 80 til 100% DG krever full omregning ettersom antall dager reduseres
         var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
-        var fullBeregning = endretDekningsgrad && Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
         if (endretDekningsgrad) {
+            var fullBeregning = Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input, !fullBeregning);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -80,7 +80,6 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     public Stønadskontoberegning fastsettStønadskontoerForBehandling(UttakInput input) {
-        var ref = input.getBehandlingReferanse();
         var gjeldendeStønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         return beregnStønadskontoerTjeneste.beregnForBehandling(input, gjeldendeStønadskontoberegning.orElseThrow().getStønadskontoutregning())

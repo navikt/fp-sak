@@ -6,7 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
@@ -32,24 +31,12 @@ public class KontoerGrunnlagBygger {
      * - kan utsettes og  utvide stønadsperioden
      * - Brukes framfor utenAktivitetskravDager fom FAB
      */
-    public Kontoer.Builder byggGrunnlag(UttakInput uttakInput, Stønadskontoberegning stønadskontoberegning) {
-        var kontoer = stønadskontoberegning.getStønadskontoer().stream()
-            .filter(k -> k.getStønadskontoType().erStønadsdager())
-            .map(k -> map(k.getStønadskontoType(), k.getMaxDager()))
-            .toList();
-        return getBuilder(uttakInput, stønadskontoberegning.getStønadskontoutregning()).kontoList(kontoer);
-    }
-
     public Kontoer.Builder byggGrunnlag(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoutregning) {
         var kontoer = stønadskontoutregning.entrySet().stream()
             .filter(k -> k.getKey().erStønadsdager())
-            .map(k -> map(k.getKey(), k.getValue()))
+            .map(k -> new Konto.Builder().trekkdager(k.getValue()).type(UttakEnumMapper.map(k.getKey())))
             .toList();
         return getBuilder(uttakInput, stønadskontoutregning).kontoList(kontoer);
-    }
-
-    private Konto.Builder map(StønadskontoType stønadskonto, Integer maxDager) {
-        return new Konto.Builder().trekkdager(maxDager).type(UttakEnumMapper.map(stønadskonto));
     }
 
     private Kontoer.Builder getBuilder(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoer) {
