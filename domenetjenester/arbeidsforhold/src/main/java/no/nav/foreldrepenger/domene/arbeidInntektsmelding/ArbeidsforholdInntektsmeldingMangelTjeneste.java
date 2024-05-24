@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +120,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     private boolean finnesAvklaringSomGjelderMangel(ArbeidsforholdMangel mangel, List<ArbeidsforholdValg> alleAvklaringer) {
         return alleAvklaringer.stream()
+            .filter(ak -> ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING.equals(ak.getVurdering()))
             .anyMatch(ak -> ak.getArbeidsgiver().equals(mangel.arbeidsgiver()) && ak.getArbeidsforholdRef().gjelderFor(mangel.ref()));
     }
 
