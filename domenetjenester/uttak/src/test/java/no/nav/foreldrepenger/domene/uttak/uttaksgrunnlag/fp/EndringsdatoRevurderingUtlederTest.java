@@ -46,6 +46,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -760,14 +763,18 @@ class EndringsdatoRevurderingUtlederTest {
     void endringsdato_skal_være_mors_første_dag_hvis_far_endrer_stønadskonto() {
         var behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR,
             testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), testUtil.søknadsAggregatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
+        var førsteGangUttak = repositoryProvider.getFpUttakRepository().hentUttakResultat(behandling.getId());
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(),
+            Stønadskontoberegning.builder().medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(230).build()).build(),
+            førsteGangUttak.getOpprinneligPerioder());
 
         var fomFar = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusMonths(1);
         var behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR,
             testUtil.uttaksresultatBerørtSak(fomFar), testUtil.søknadsAggregatBerørtSak(fomFar), behandling.getFagsak());
-        var behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        var builder = Behandlingsresultat.builderFraEksisterende(behandlingsresultatRepository.hent(behandlingFar.getId()))
-            .medEndretStønadskonto(true);
-        behandlingsresultatRepository.lagre(behandlingFar.getId(), builder.build());
+        var farUttak = repositoryProvider.getFpUttakRepository().hentUttakResultat(behandlingFar.getId());
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingFar.getId(),
+            Stønadskontoberegning.builder().medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build()).build(),
+            farUttak.getOpprinneligPerioder());
 
         var revurderingBerørtSak = testUtil.opprettRevurderingBerørtSak(AKTØR_ID_MOR, BERØRT_BEHANDLING,
             behandling);

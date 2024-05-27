@@ -9,8 +9,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -27,7 +25,6 @@ public class BeregnStønadskontoerTjeneste {
 
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
@@ -40,7 +37,6 @@ public class BeregnStønadskontoerTjeneste {
                                         DekningsgradTjeneste dekningsgradTjeneste) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
         this.uttakTjeneste = uttakTjeneste;
@@ -63,7 +59,6 @@ public class BeregnStønadskontoerTjeneste {
         var nyBeregning = beregn(uttakInput, relativBeregning);
         if (!eksisterendeBeregning.getStønadskontoutregning().equals(nyBeregning.getStønadskontoutregning())) {
             fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), nyBeregning);
-            oppdaterBehandlingsresultat(ref.behandlingId());
         }
     }
 
@@ -87,12 +82,6 @@ public class BeregnStønadskontoerTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
-    }
-
-    private void oppdaterBehandlingsresultat(Long behandlingId) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var oppdaterBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medEndretStønadskonto(true).build();
-        behandlingsresultatRepository.lagre(behandlingId, oppdaterBehandlingsresultat);
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {

@@ -81,7 +81,7 @@ class EndringsdatoBerørtUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         var behandling = scenario
             .lagre(repositoryProvider);
-        var resultat = EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak, utløsendeYfa, utløsendeBehandlingsresultat,
+        var resultat = EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak, utløsendeYfa,
             false, Optional.of(berørtUttak), getUttakInput(behandling, fødselsdato), "");
 
         assertThat(resultat).isEmpty();

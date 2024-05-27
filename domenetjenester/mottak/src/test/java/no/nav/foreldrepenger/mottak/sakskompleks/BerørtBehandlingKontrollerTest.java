@@ -282,7 +282,7 @@ class BerørtBehandlingKontrollerTest {
         settOppKøBruker();
         settOppKøAnnenpart();
         køetBehandling.setOpprettetTidspunkt(LocalDateTime.now());
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
@@ -298,7 +298,8 @@ class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingAnnenpart();
         settOppKøAnnenpart();
 
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(true);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class)))
+            .thenReturn(Optional.of(BerørtBehandlingTjeneste.BerørtÅrsak.ORDINÆR));
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - oppretter berørt behandling på medforelder
@@ -313,7 +314,7 @@ class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         settOppKøBruker();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
@@ -327,7 +328,8 @@ class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(true);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class)))
+            .thenReturn(Optional.of(BerørtBehandlingTjeneste.BerørtÅrsak.ORDINÆR));
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert opprett berørt (for medforelder)
@@ -340,7 +342,8 @@ class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(true);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class)))
+            .thenReturn(Optional.of(BerørtBehandlingTjeneste.BerørtÅrsak.ORDINÆR));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(berørt));
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandlingMedforelder.getId());
@@ -355,7 +358,7 @@ class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any())).thenReturn(true);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
         when(behandlingsoppretter.opprettRevurdering(any(), eq(BehandlingÅrsakType.REBEREGN_FERIEPENGER))).thenReturn(berørtFeriepenger);
@@ -373,7 +376,7 @@ class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingAnnenpart();
         settOppKøBruker();
         settOppKøAnnenpart();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - dekø fra medforelders kø
@@ -389,7 +392,7 @@ class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingAnnenpart();
         settOppKøAnnenpart();
 
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert  - dekø fra medforelders kø
@@ -404,7 +407,7 @@ class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         settOppKøBruker();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert dekø fra egen kø
@@ -418,7 +421,7 @@ class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - skal ikke skje noe
