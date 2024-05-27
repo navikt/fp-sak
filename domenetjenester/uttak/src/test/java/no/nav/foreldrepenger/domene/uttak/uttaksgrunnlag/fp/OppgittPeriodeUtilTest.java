@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -164,7 +165,7 @@ class OppgittPeriodeUtilTest {
     void skal_ikke_slå_sammen_perioder_hvis_ulik_dok_vurdering() {
         var p1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
             .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 25))
             .build();
 

@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_BARN_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_BARN_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -49,7 +54,7 @@ class DokVurderingKopiererTest {
                 .medPeriode(fom, tom)
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .build());
 
         var periode = OppgittPeriodeBuilder.ny()
@@ -63,7 +68,7 @@ class DokVurderingKopiererTest {
         var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
-        assertThat(oppdatertperiode.getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatertperiode.getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
         assertThat(oppdatertperiode.getFom()).isEqualTo(periode.getFom());
         assertThat(oppdatertperiode.getTom()).isEqualTo(periode.getTom());
     }
@@ -77,7 +82,7 @@ class DokVurderingKopiererTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom)
             .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_BARN_IKKE_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(INNLEGGELSE_BARN_IKKE_GODKJENT))
             .build());
 
         var periode = OppgittPeriodeBuilder.ny()
@@ -104,7 +109,7 @@ class DokVurderingKopiererTest {
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(SYKDOM_ANNEN_FORELDER_GODKJENT))
             .build());
 
         var periode = OppgittPeriodeBuilder.ny()
@@ -133,7 +138,7 @@ class DokVurderingKopiererTest {
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
             .build());
 
         var periode = OppgittPeriodeBuilder.ny()
@@ -147,7 +152,7 @@ class DokVurderingKopiererTest {
         var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
-        assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatert.get(0).getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
         assertThat(oppdatert.get(1).getDokumentasjonVurdering()).isNull();
         assertThat(oppdatert.get(0).getFom()).isEqualTo(periode.getFom());
         assertThat(oppdatert.get(0).getTom()).isEqualTo(tom);
@@ -164,7 +169,7 @@ class DokVurderingKopiererTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom)
             .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(INNLEGGELSE_BARN_GODKJENT))
             .build());
 
         var periode = OppgittPeriodeBuilder.ny()
@@ -178,7 +183,7 @@ class DokVurderingKopiererTest {
 
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
-        assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT);
+        assertThat(oppdatertperiode.getDokumentasjonVurdering().type()).isEqualTo(INNLEGGELSE_BARN_GODKJENT);
         assertThat(oppdatertperiode.getFom()).isEqualTo(periode.getFom());
         assertThat(oppdatertperiode.getTom()).isEqualTo(periode.getTom());
     }
@@ -198,7 +203,7 @@ class DokVurderingKopiererTest {
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsprosent(BigDecimal.TEN)
             .medMorsAktivitet(MorsAktivitet.TRENGER_HJELP)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
             .build());
 
         // Lik eksisterende vedtak
@@ -223,7 +228,7 @@ class DokVurderingKopiererTest {
         var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad1, søknad2), List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
-        assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatert.get(0).getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
         assertThat(oppdatert.get(1).getDokumentasjonVurdering()).isNull();
         assertThat(oppdatert.get(0).getFom()).isEqualTo(søknad1.getFom());
         assertThat(oppdatert.get(0).getTom()).isEqualTo(søknad1.getTom());
@@ -247,12 +252,13 @@ class DokVurderingKopiererTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_IKKE_DOKUMENTERT))
                 .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode0, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode0);
         var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -260,12 +266,13 @@ class DokVurderingKopiererTest {
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -288,7 +295,7 @@ class DokVurderingKopiererTest {
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isNull();
-        assertThat(oppdatert.get(1).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatert.get(1).getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
         assertThat(oppdatert.get(2).getDokumentasjonVurdering()).isNull();
         assertThat(oppdatert.get(0).getFom()).isEqualTo(søknad0.getFom());
         assertThat(oppdatert.get(0).getTom()).isEqualTo(søknad0.getTom());
@@ -318,7 +325,7 @@ class DokVurderingKopiererTest {
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1a, arbeidsforhold1)
@@ -333,7 +340,7 @@ class DokVurderingKopiererTest {
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
                 .medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1b, arbeidsforhold1)
@@ -349,7 +356,7 @@ class DokVurderingKopiererTest {
                 .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
                 .medMorsAktivitet(MorsAktivitet.UTDANNING)
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode2, arbeidsforhold1)
@@ -384,8 +391,8 @@ class DokVurderingKopiererTest {
         var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad0, søknad1, søknad2), List.of(), Optional.of(uttakResultat));
 
         assertThat(oppdatert).hasSize(3);
-        assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
-        assertThat(oppdatert.get(1).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatert.get(0).getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
+        assertThat(oppdatert.get(1).getDokumentasjonVurdering().type()).isEqualTo(MORS_AKTIVITET_GODKJENT);
         assertThat(oppdatert.get(2).getDokumentasjonVurdering()).isNull();
         assertThat(oppdatert.get(0).getFom()).isEqualTo(søknad0.getFom());
         assertThat(oppdatert.get(0).getTom()).isEqualTo(søknad0.getTom());

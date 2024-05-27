@@ -84,7 +84,9 @@ public class ForeldrepengerUttakTjeneste {
             .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
             .medOpprinneligSendtTilManuellBehandling(!ignoreDok && entitet.opprinneligSendtTilManuellBehandling())
             .medErFraSøknad(entitet.getPeriodeSøknad().isPresent())
-            .medDokumentasjonVurdering(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering).orElse(null))
+            .medDokumentasjonVurdering(entitet.getPeriodeSøknad()
+                .map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering)
+                .orElse(null))
             .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();
     }

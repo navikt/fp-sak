@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_GODKJENT;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto.Vurdering.GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +29,7 @@ import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAk
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 @CdiDbAwareTest
-class DokumentasjonVurderingBehovDtoTjenesteTest {
+class DokumentasjonVurderingTypeBehovDtoTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -49,7 +50,7 @@ class DokumentasjonVurderingBehovDtoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(SYKDOM_ANNEN_FORELDER_GODKJENT))
             .build();
         var overføringUtenVurdering = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(3), LocalDate.now().plusWeeks(4).minusDays(1))

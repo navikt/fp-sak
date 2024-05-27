@@ -43,9 +43,9 @@ public class YtelseFordelingAggregat {
         }
         return Optional.ofNullable(getAnnenForelderRettAvklaring())
             .orElseGet(() -> {
-                var oppgittRettighet = getOppgittRettighet();
-                Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
-                return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
+                var or = getOppgittRettighet();
+                Objects.requireNonNull(or, "oppgittRettighet");
+                return or.getHarAnnenForeldreRett() == null || or.getHarAnnenForeldreRett();
             });
     }
 
@@ -109,13 +109,14 @@ public class YtelseFordelingAggregat {
     }
 
     public OppgittFordelingEntitet getGjeldendeFordeling() {
-        return getOverstyrtFordeling().or(this::getJustertFordeling).orElseGet(this::getOppgittFordeling);
+        return getOverstyrtFordeling()
+            .or(this::getJustertFordeling)
+            .orElseGet(this::getOppgittFordeling);
     }
 
     public Optional<OppgittFordelingEntitet> getJustertFordeling() {
         return Optional.ofNullable(justertFordeling);
     }
-
     public Optional<AvklarteUttakDatoerEntitet> getAvklarteDatoer() {
         return Optional.ofNullable(avklarteDatoer);
     }

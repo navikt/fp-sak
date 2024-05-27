@@ -596,10 +596,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private OppgittFordelingEntitet oversettFordeling(Behandling behandling,
                                                       Foreldrepenger omYtelse,
                                                       LocalDate mottattDato) {
-        var perioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
+        var oppgittePerioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
         var annenForelderErInformert = omYtelse.getFordeling().isAnnenForelderErInformert();
         var ønskerJustertVedFødsel = omYtelse.getFordeling().isOenskerJustertVedFoedsel();
-        return lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel);
+        return lagOppgittFordeling(behandling, oppgittePerioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel);
     }
 
     private OppgittFordelingEntitet lagOppgittFordeling(Behandling behandling,

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
 import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.LoggInfoOmArbeidsforholdAktivitetskrav.loggInfoOmArbeidsforhold;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -39,7 +40,7 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medMorsAktivitet(MorsAktivitet.ARBEID)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
             .build();
         var aktuellePerioder = List.of(periode);
 

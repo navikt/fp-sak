@@ -85,9 +85,9 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             .map(YtelseFordelingAggregat::getGjeldendeFordeling);
     }
 
-    public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
-        if (nysøknad.isEmpty() || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
-            return nysøknad;
+    public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> oppgittePerioderFraSøknad) {
+        if (oppgittePerioderFraSøknad.isEmpty() || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
+            return oppgittePerioderFraSøknad;
         }
 
         // Vedtaksperioder fra forrige uttaksresultat
@@ -95,7 +95,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             .flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
 
         // Kopier kun godkjent vurdering for søknadsperioder. Vedtaksperioder vil innholde alle vurderinger
-        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(nysøknad, List.of(), forrigeUttak);
+        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(oppgittePerioderFraSøknad, List.of(), forrigeUttak);
     }
 
 }

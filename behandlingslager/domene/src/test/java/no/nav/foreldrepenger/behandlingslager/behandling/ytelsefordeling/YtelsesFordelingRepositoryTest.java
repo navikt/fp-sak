@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -41,10 +44,12 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
     void skal_lagre_grunnlaget() {
         var behandling = opprettBehandlingMedYtelseFordeling();
         //Endre periode for å teste overstyring
+        var dokumentasjonVurdering = new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.TEN));
         var periode_12 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10).plusDays(1), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(dokumentasjonVurdering)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
             .build();
         var periode_22 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(20).plusDays(1), LocalDate.now().minusDays(10))
@@ -67,8 +72,7 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         assertThat(aggregat.getOverstyrtFordeling().orElseThrow().getPerioder()).isNotEmpty();
         assertThat(aggregat.getOverstyrtFordeling().get().getPerioder()).hasSize(2);
 
-        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder().get(0).getDokumentasjonVurdering())
-            .isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder().get(0).getDokumentasjonVurdering()).isEqualTo(dokumentasjonVurdering);
 
     }
 

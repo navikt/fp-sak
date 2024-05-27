@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_SØKER_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -71,7 +72,7 @@ class FastsettePerioderRegelResultatKonvertererTest {
             .medÅrsak(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.SYKDOM)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(SYKDOM_SØKER_GODKJENT))
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public class DokVurderingKopierer {
 
@@ -26,7 +25,7 @@ public class DokVurderingKopierer {
     }
 
     public static List<OppgittPeriodeEntitet> oppdaterMedDokumentasjonVurdering(List<OppgittPeriodeEntitet> nysøknad,
-                                                                                List<OppgittFordelingEntitet> tidligereFordelinger,
+                                                                                List<OppgittFordelingEntitet> tidligereFordelinger, // TODO: Fjern denne som settes bare i test..
                                                                                 Optional<UttakResultatEntitet> forrigeUttak) {
         if (nysøknad.isEmpty()) {
             return nysøknad;
@@ -66,7 +65,6 @@ public class DokVurderingKopierer {
     private static LocalDateTimeline<OppgittPeriodeEntitet> oppdaterDokumentasjonVurdering(LocalDateTimeline<OppgittPeriodeEntitet> tidslinje,
                                                                                            LocalDateTimeline<SammenligningPeriodeForDokVurdering> sammenlignTidslinje,
                                                                                            List<OppgittPeriodeEntitet> perioder) {
-
         if (perioder.isEmpty()) {
             return tidslinje;
         }
@@ -78,7 +76,7 @@ public class DokVurderingKopierer {
         var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, DokVurderingKopierer::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
 
         // Bygg tidslinjer over vurdering - men kun de som finnes for sammenfallende (like nok) perioder
-        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder), StandardCombinators::min)
+        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder))
             .intersection(tidslinjeSammenfallForrigeSøknad).filterValue(Objects::nonNull).compress();
 
         if (tidslinjeVurderingForrigeSøknad.isEmpty()) {

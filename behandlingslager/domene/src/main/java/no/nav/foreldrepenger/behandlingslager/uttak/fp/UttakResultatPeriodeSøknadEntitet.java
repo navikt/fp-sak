@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
@@ -57,8 +58,11 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
 
     @Column(name = "DOKUMENTASJON_VURDERING")
-    @Convert(converter = DokumentasjonVurdering.KodeverdiConverter.class)
-    private DokumentasjonVurdering dokumentasjonVurdering;
+    @Convert(converter = DokumentasjonVurdering.Type.KodeverdiConverter.class)
+    private DokumentasjonVurdering.Type dokumentasjonVurderingType;
+
+    @ChangeTracked
+    private MorsStillingsprosent morsStillingsprosent;
 
     public Long getId() {
         return id;
@@ -93,7 +97,10 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     }
 
     public DokumentasjonVurdering getDokumentasjonVurdering() {
-        return dokumentasjonVurdering;
+        if (this.dokumentasjonVurderingType == null) {
+            return null;
+        }
+        return new DokumentasjonVurdering(this.dokumentasjonVurderingType, this.morsStillingsprosent);
     }
 
     @Override
@@ -107,7 +114,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
             ", mottattDato=" + mottattDato +
             ", tidligstMottattDato=" + tidligstMottattDato +
             ", morsAktivitet=" + morsAktivitet +
-            ", dokumentasjonVurdering=" + dokumentasjonVurdering +
+            ", dokumentasjonVurdering=" + dokumentasjonVurderingType +
             '}';
     }
 
@@ -151,7 +158,13 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
         }
 
         public Builder medDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
-            kladd.dokumentasjonVurdering = dokumentasjonVurdering;
+            if (dokumentasjonVurdering == null) {
+                kladd.morsStillingsprosent = null;
+                kladd.dokumentasjonVurderingType = null;
+                return this;
+            }
+            kladd.morsStillingsprosent = dokumentasjonVurdering.morsStillingsprosent();
+            kladd.dokumentasjonVurderingType = dokumentasjonVurdering.type();
             return this;
         }
 

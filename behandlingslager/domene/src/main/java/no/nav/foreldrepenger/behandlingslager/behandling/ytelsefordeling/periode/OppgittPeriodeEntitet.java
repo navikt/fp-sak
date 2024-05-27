@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -122,8 +123,11 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     private LocalDate tidligstMottattDato;
 
     @Column(name = "DOKUMENTASJON_VURDERING")
-    @Convert(converter = DokumentasjonVurdering.KodeverdiConverter.class)
-    private DokumentasjonVurdering dokumentasjonVurdering;
+    @Convert(converter = DokumentasjonVurdering.Type.KodeverdiConverter.class)
+    private DokumentasjonVurdering.Type dokumentasjonVurderingType;
+
+    @ChangeTracked
+    private MorsStillingsprosent morsStillingsprosent;
 
     protected OppgittPeriodeEntitet() {
         // Hibernate
@@ -207,6 +211,23 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.morsAktivitet = morsAktivitet == null ? MorsAktivitet.UDEFINERT : morsAktivitet;
     }
 
+    public DokumentasjonVurdering getDokumentasjonVurdering() {
+        if (this.dokumentasjonVurderingType == null) {
+            return null;
+        }
+        return new DokumentasjonVurdering(this.dokumentasjonVurderingType, this.morsStillingsprosent);
+    }
+
+    public void setDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
+        if (dokumentasjonVurdering == null) {
+            this.dokumentasjonVurderingType = null;
+            this.morsStillingsprosent = null;
+        } else {
+            this.dokumentasjonVurderingType = dokumentasjonVurdering.type();
+            this.morsStillingsprosent = dokumentasjonVurdering.morsStillingsprosent();
+        }
+    }
+
     public Optional<String> getBegrunnelse() {
         return Optional.ofNullable(begrunnelse);
     }
@@ -256,8 +277,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public boolean isGradert() {
-        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0
-            && getGraderingAktivitetType() != null;
+        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0 && getGraderingAktivitetType() != null;
     }
 
     public boolean isOpphold() {
@@ -305,13 +325,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
     }
 
-    public DokumentasjonVurdering getDokumentasjonVurdering() {
-        return dokumentasjonVurdering;
-    }
-
-    public void setDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
-        this.dokumentasjonVurdering = dokumentasjonVurdering;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -321,37 +334,25 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         if (!(o instanceof OppgittPeriodeEntitet that)) {
             return false;
         }
-        return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) &&
-                Objects.equals(årsakType, that.årsakType) &&
-                Objects.equals(årsak, that.årsak) &&
-                Objects.equals(periode, that.periode) &&
-                Objects.equals(getArbeidsprosentSomStillingsprosent(), that.getArbeidsprosentSomStillingsprosent()) &&
-                Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(erArbeidstaker, that.erArbeidstaker) &&
-                Objects.equals(morsAktivitet, that.morsAktivitet) &&
-                Objects.equals(samtidigUttak, that.samtidigUttak) &&
-                Objects.equals(periodeKilde, that.periodeKilde) &&
-                Objects.equals(mottattDato, that.mottattDato) &&
-                Objects.equals(dokumentasjonVurdering, that.dokumentasjonVurdering) &&
-                Objects.equals(tidligstMottattDato, that.tidligstMottattDato) &&
-                Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
+        return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) && Objects.equals(årsakType, that.årsakType) && Objects.equals(årsak,
+            that.årsak) && Objects.equals(periode, that.periode) && Objects.equals(getArbeidsprosentSomStillingsprosent(),
+            that.getArbeidsprosentSomStillingsprosent()) && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(erArbeidstaker,
+            that.erArbeidstaker) && Objects.equals(morsAktivitet, that.morsAktivitet) && Objects.equals(samtidigUttak, that.samtidigUttak)
+            && Objects.equals(periodeKilde, that.periodeKilde) && Objects.equals(mottattDato, that.mottattDato) && Objects.equals(
+            dokumentasjonVurderingType, that.dokumentasjonVurderingType) && Objects.equals(morsStillingsprosent, that.morsStillingsprosent) &&
+            Objects.equals(tidligstMottattDato, that.tidligstMottattDato) && Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker,
-            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato, tidligstMottattDato, dokumentasjonVurdering);
+        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker, arbeidsgiver, periodeKilde,
+            samtidigUttaksprosent, mottattDato, tidligstMottattDato, dokumentasjonVurderingType, morsStillingsprosent);
     }
 
     @Override
     public String toString() {
-        return "OppgittPeriodeEntitet{" +
-                "uttakPeriodeType=" + uttakPeriodeType.getKode() +
-                ", årsak=" + årsak +
-                ", dokumentasjonVurdering=" + dokumentasjonVurdering +
-                ", periode=" + periode +
-                ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-                ", arbeidsprosent=" + arbeidsprosent +
-                '}';
+        return "OppgittPeriodeEntitet{" + "uttakPeriodeType=" + uttakPeriodeType.getKode() + ", årsak=" + årsak
+            + ", dokumentasjonVurdering=" + dokumentasjonVurderingType + ", morsStillingsprosent=" + morsStillingsprosent
+            + ", periode=" + periode + ", samtidigUttaksprosent=" + samtidigUttaksprosent + ", arbeidsprosent=" + arbeidsprosent + '}';
     }
 }
