@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -94,11 +97,12 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
 
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
-            justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(),
-                fordeling.ønskerJustertVedFødsel());
+        if (skalJustereFordelingEtterFamiliehendelse(fpGrunnlag, justertePerioder, behandlingId)) {
+            justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
             LOG.info("Justerte perioder etter flytting ved endring i familiehendelse {}", justertePerioder);
         }
+        justertePerioder = slåSammenLikePerioder(justertePerioder);
+
         if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
             justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
         } else {
@@ -106,6 +110,50 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
+    }
+
+    private static boolean skalJustereFordelingEtterFamiliehendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> perioder, Long behandlingId) {
+        if (!fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
+            return false;
+        }
+
+        if (perioder.isEmpty()) {
+            LOG.info("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør, berørt, osv)");
+            return false;
+        }
+
+        if (finnesOverlapp(perioder)) {
+            LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
+                + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
+            return false;
+        }
+
+        if (fpGrunnlag.getOriginalBehandling().isPresent()) {
+            if (nySøknadPåTermin(fpGrunnlag.getFamilieHendelser())) {
+                LOG.info("Skal ikke fødselsjustere ny søknad på termin");
+                return false;
+            }
+
+            var gjeldendeFamilieHendelseOriginalBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse();
+            var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+            if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() && gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
+                var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get();
+                var mottattDato = førsteUttaksperiode.getMottattDato();
+                var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
+                LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny behandling har registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+
+                if (fødselsdato.isEqual(førsteUttaksperiode.getFom())) {
+                    LOG.info("Termin til fødsel: Startdato for første uttaksperiode er lik fødseldato {}", fødselsdato);
+                } else if (førsteUttaksperiode.getFom().isBefore(fødselsdato)) {
+                    LOG.info("Termin til fødsel: Startdato for første uttaksperiode er før fødseldato {}", fødselsdato);
+                } else {
+                    LOG.info("Termin til fødsel: Startdato for første uttaksperiode er etter fødseldato {}", fødselsdato);
+                }
+                // TODO: Utled om en skal justere eller ikke (per nå justere vi)
+            }
+        }
+
+        return true;
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioder(List<OppgittPeriodeEntitet> perioder) {
@@ -141,12 +189,16 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
-        if (oppgittePerioder.isEmpty()) {
-            LOG.info("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør, berørt, osv)");
-        }
-        var familiehendelser = finnFamiliehendelser(fpGrunnlag);
-        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
-                familiehendelser.gjeldende(), relasjonsRolleType, ønskerJustertVedFødsel);
+        var gammelFamiliehendelse = gjeldenedFamiliehendelsedatoFraOrginalbehandling(fpGrunnlag)
+            .orElseGet(() -> fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse().getFamilieHendelseDato());
+        var nyFamiliehendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+        return JusterFordelingTjeneste.justerForFamiliehendelse(
+            oppgittePerioder,
+            gammelFamiliehendelse,
+            nyFamiliehendelse,
+            relasjonsRolleType,
+            ønskerJustertVedFødsel
+        );
     }
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
@@ -174,41 +226,14 @@ public class FastsettUttaksgrunnlagTjeneste {
         return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, kreverSammenhengendeUttak);
     }
 
-    private record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {
+    private static Optional<LocalDate> gjeldenedFamiliehendelsedatoFraOrginalbehandling(ForeldrepengerGrunnlag fpGrunnlag) {
+        return fpGrunnlag.getOriginalBehandling().map(b -> b.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato());
     }
 
-    private FHSøknadGjeldende finnFamiliehendelser(ForeldrepengerGrunnlag fpGrunnlag) {
-        var familieHendelser = fpGrunnlag.getFamilieHendelser();
-        var gjeldendeFamiliehendelse = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-        var originalbehandling = fpGrunnlag.getOriginalBehandling();
-        if (originalbehandling.isPresent()) {
-           if (erNySøknadPåTermin(familieHendelser)) {
-                return new FHSøknadGjeldende(Optional.ofNullable(gjeldendeFamiliehendelse), gjeldendeFamiliehendelse);
-            }
-
-            var familieHendelserOriginalBehandling = originalbehandling.get().getFamilieHendelser();
-            var fødselsdatoForrigeBehandling = familieHendelserOriginalBehandling
-                    .getGjeldendeFamilieHendelse()
-                    .getFamilieHendelseDato();
-            return new FHSøknadGjeldende(Optional.ofNullable(fødselsdatoForrigeBehandling), gjeldendeFamiliehendelse);
-        }
-        var søknadVersjon = familieHendelser.getSøknadFamilieHendelse();
-        var søknadFødselsdato = søknadVersjon.getFødselsdato();
-        var søknadTermindato = søknadVersjon.getTermindato();
-        if (søknadTermindato.isPresent()) {
-            if (søknadFødselsdato.isPresent()) {
-                return new FHSøknadGjeldende(søknadFødselsdato, gjeldendeFamiliehendelse);
-            }
-            var termindato = søknadTermindato.get();
-            return new FHSøknadGjeldende(Optional.of(termindato), gjeldendeFamiliehendelse);
-        }
-        return new FHSøknadGjeldende(søknadFødselsdato, gjeldendeFamiliehendelse);
-    }
-
-    private static boolean erNySøknadPåTermin(FamilieHendelser sisteFamiliehendelser) {
-        return sisteFamiliehendelser.getOverstyrtFamilieHendelse().isEmpty()
-            && sisteFamiliehendelser.getSøknadFamilieHendelse().getFødselsdato().isEmpty()
-            && sisteFamiliehendelser.getBekreftetFamilieHendelse().filter(fh -> fh.getFødselsdato().isPresent()).isEmpty();
+    private static boolean nySøknadPåTermin(FamilieHendelser familiehendels) {
+        return familiehendels.getOverstyrtFamilieHendelse().isEmpty()
+            && familiehendels.getSøknadFamilieHendelse().getFødselsdato().isEmpty()
+            && familiehendels.getBekreftetFamilieHendelse().filter(fh -> fh.getFødselsdato().isPresent()).isEmpty();
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
