@@ -113,11 +113,6 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private static boolean skalJustereFordelingEtterFamiliehendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> perioder, Long behandlingId) {
-        if (behandlingId.equals(3066799L)) { // TODO: Fjern denne etter behandling OK.
-            LOG.info("Justerer ikke behandling {}", behandlingId);
-            return false;
-        }
-
         if (!fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             return false;
         }
