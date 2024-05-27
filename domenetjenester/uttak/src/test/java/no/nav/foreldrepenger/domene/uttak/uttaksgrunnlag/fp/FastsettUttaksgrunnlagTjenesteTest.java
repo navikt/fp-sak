@@ -206,13 +206,13 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
         var søknadFamilieHendelse = FamilieHendelse.forFødsel(søknadFom, søknadFom.minusWeeks(2), List.of(), 0);
-        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
-                new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
         tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, fpGrunnlag));
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        assertThat(resultat.getGjeldendeFordeling().getPerioder().get(0).getFom()).isEqualTo(søknadFom);
+        assertThat(resultat.getGjeldendeFordeling().getPerioder()).isEqualTo(fordeling.getPerioder());
     }
 
     @Test
@@ -372,5 +372,34 @@ class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(oppgittePerioder).hasSize(2);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(periode1.getFom());
         assertThat(oppgittePerioder.get(1).getFom()).isEqualTo(periode2.getFom());
+    }
+
+    @Test
+    void tillater_overlappende_perioder_men_skal_ikke_justeres_bare_slås_sammen_hvis_mulig() {
+        var fødselsdato = LocalDate.of(2018, 1, 1);
+        var mødrekvote = ny()
+            .medPeriode(fødselsdato, fødselsdato.plusDays(10))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        // overlapper med mødrekvoten
+        var fellesperiode = ny()
+            .medPeriode(fødselsdato.plusDays(5), fødselsdato.plusDays(20))
+            .medPeriodeType(FELLESPERIODE)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true);
+
+        var førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        førstegangsbehandlingScenario.medFordeling(fordeling);
+
+        var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
+
+        var søknadFamilieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato.minusWeeks(2), List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
+        tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, fpGrunnlag));
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
+
+        assertThat(resultat.getGjeldendeFordeling().getPerioder()).isEqualTo(fordeling.getPerioder());
     }
 }

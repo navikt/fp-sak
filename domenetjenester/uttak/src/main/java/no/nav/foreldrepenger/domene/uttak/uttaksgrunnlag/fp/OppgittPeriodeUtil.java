@@ -64,6 +64,7 @@ public class OppgittPeriodeUtil {
 
     public static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder, boolean ignorerTidligstMottattDato) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
+        perioder = sorterEtterFom(perioder); // Må være sortert
 
         var i = 0;
         while (i < perioder.size()) {

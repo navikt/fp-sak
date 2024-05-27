@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.kopier;
-import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.sorterEtterFom;
 
 import java.time.DayOfWeek;
@@ -11,16 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 final class JusterFordelingTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(JusterFordelingTjeneste.class);
 
     private JusterFordelingTjeneste() {
     }
@@ -34,33 +28,22 @@ final class JusterFordelingTjeneste {
                                                                 LocalDate nyFamiliehendelse,
                                                                 RelasjonsRolleType relasjonsRolleType,
                                                                 boolean ønskerJustertVedFødsel) {
-        var justert = sorterEtterFom(oppgittePerioder);
-        if (finnesOverlapp(oppgittePerioder)) {
-            LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
-                + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
-            //Justering støtter ikke overlapp
-        } else if (gammelFamiliehendelse != null && nyFamiliehendelse != null) {
-            //flytter til mandag
-            gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
-            nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
-            if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
-                if (oppgittePerioder.isEmpty()) {
-                    throw new IllegalStateException("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør)! Termin og fødsel er på forskjellig dager.");
-                }
-                justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel);
-            }
-            exceptionHvisOverlapp(justert);
+        if (gammelFamiliehendelse == null || nyFamiliehendelse == null) {
+            return oppgittePerioder;
         }
-        return slåSammenLikePerioder(justert);
-    }
+        gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
+        nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
+        if (gammelFamiliehendelse.isEqual(nyFamiliehendelse)) {
+            return oppgittePerioder;
+        }
 
-    private static List<OppgittPeriodeEntitet> justerVedEndringAvFamilieHendelse(List<OppgittPeriodeEntitet> oppgittePerioder,
-                                                                                 LocalDate gammelFamiliehendelse,
-                                                                                 LocalDate nyFamiliehendelse,
-                                                                                 RelasjonsRolleType relasjonsRolleType,
-                                                                                 boolean ønskerJustertVedFødsel) {
-        var oppgittPerioder = sorterEtterFom(oppgittePerioder);
-        return sorterEtterFom(justerPerioder(oppgittPerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel));
+        var justert = sorterEtterFom(oppgittePerioder);
+        justert = fjernHelgerFraStartOgSlutt(justert);
+        justert = splitPåDato(gammelFamiliehendelse, justert);
+        justert = justerPerioder(justert, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel);
+        justert = sorterEtterFom(justert);
+        exceptionHvisOverlapp(justert);
+        return justert;
     }
 
     private static List<OppgittPeriodeEntitet> justerPerioder(List<OppgittPeriodeEntitet> oppgittePerioder,
@@ -68,15 +51,13 @@ final class JusterFordelingTjeneste {
                                                               LocalDate nyFamiliehendelse,
                                                               RelasjonsRolleType relasjonsRolleType,
                                                               boolean ønskerJustertVedFødsel) {
-        var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
-        var splitetPåFødsel = splitPåDato(gammelFamiliehendelse, fjernetHelgerFraStartOgSluttAvPerioder);
         var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ?
             new MorsJustering(gammelFamiliehendelse, nyFamiliehendelse) :
             new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
-            return justering.justerVedFødselEtterTermin(splitetPåFødsel);
+            return justering.justerVedFødselEtterTermin(oppgittePerioder);
         }
-        return justering.justerVedFødselFørTermin(splitetPåFødsel);
+        return justering.justerVedFødselFørTermin(oppgittePerioder);
     }
 
     private static List<OppgittPeriodeEntitet> splitPåDato(LocalDate dato,
