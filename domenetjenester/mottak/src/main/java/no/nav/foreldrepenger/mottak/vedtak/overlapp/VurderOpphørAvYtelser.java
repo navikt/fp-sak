@@ -42,6 +42,8 @@ public class VurderOpphørAvYtelser {
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
 
+    private static final Period MATCH_INTERVALL_HENDELSE = Period.parse("P6W");
+
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -222,8 +224,11 @@ public class VurderOpphørAvYtelser {
     }
 
     private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startdatoIVB) {
+        var startdato = stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak).orElse(Tid.TIDENES_ENDE);
         var sluttdato = stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(fagsak).orElse(Tid.TIDENES_BEGYNNELSE);
-        return sluttdato.equals(startdatoIVB) || sluttdato.isAfter(startdatoIVB);
+        var startintervallIVB = new LocalDateInterval(startdatoIVB.minus(MATCH_INTERVALL_HENDELSE), startdatoIVB.plus(MATCH_INTERVALL_HENDELSE));
+        var startintervall = new LocalDateInterval(startdato.minus(MATCH_INTERVALL_HENDELSE), startdato.plus(MATCH_INTERVALL_HENDELSE));
+        return startintervall.compareTo(startintervallIVB) < 0 && (sluttdato.equals(startdatoIVB) || sluttdato.isAfter(startdatoIVB));
     }
 
 }
