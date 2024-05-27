@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -110,7 +109,6 @@ class FastsettePerioderTjenesteTest {
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
         regelAdapter = new FastsettePerioderRegelAdapter(
             new FastsettePerioderRegelGrunnlagBygger(new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
                 new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -119,7 +117,7 @@ class FastsettePerioderTjenesteTest {
                     repositoryProvider.getFpUttakRepository()),
                 new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
                 new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
-                new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(fagsakRelasjonTjeneste, rettOgOmsorgGrunnlagBygger, dekningsgradTjeneste),
+                new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(),
                 new YtelserGrunnlagBygger()),
             new FastsettePerioderRegelResultatKonverterer(fpUttakRepository, ytelsesFordelingRepository));
     }

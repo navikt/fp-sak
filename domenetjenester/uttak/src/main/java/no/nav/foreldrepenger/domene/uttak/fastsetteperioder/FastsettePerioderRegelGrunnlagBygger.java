@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AdopsjonGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.ArbeidGrunnlagBygger;
@@ -70,7 +71,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
         this.ytelserGrunnlagBygger = ytelserGrunnlagBygger;
     }
 
-    public RegelGrunnlag byggGrunnlag(UttakInput input) {
+    public RegelGrunnlag byggGrunnlag(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = input.getYtelsespesifiktGrunnlag();
         return new RegelGrunnlag.Builder()
             .arbeid(arbeidGrunnlagBygger.byggGrunnlag(input))
@@ -84,7 +85,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
             .inngangsvilkår(inngangsvilkårGrunnlagBygger.byggGrunnlag(input))
             .opptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
             .adopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
-            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input))
+            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input, stønadskontoberegning.getStønadskontoutregning()))
             .ytelser(ytelserGrunnlagBygger.byggGrunnlag(input))
             .build();
     }

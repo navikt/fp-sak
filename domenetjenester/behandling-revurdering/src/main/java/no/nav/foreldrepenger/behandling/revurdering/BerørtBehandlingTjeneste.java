@@ -44,36 +44,43 @@ public class BerørtBehandlingTjeneste {
         // CDI
     }
 
+    public enum BerørtÅrsak { ORDINÆR, KONTO_REDUSERT, OPPHØR, FERIEPENGER }
+
     /**
      * Finner ut om det skal opprettes en berørt behandling på med forelders sak.
      *
-     * @param brukersGjeldendeBehandlingsresultat brukers behandlingsresultat
-     * @param behandling                          brukers siste vedtatte behandling
-     * @param behandlingIdAnnenPart               medforelders siste vedtatte
+     * @param vedtattBehandlingsresultat brukers behandlingsresultat
+     * @param vedtattBehandling                          brukers siste vedtatte behandling
+     * @param sistVedtattBehandlingIdAnnenPart               medforelders siste vedtatte
      *                                            behandling.
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
-    public boolean skalBerørtBehandlingOpprettes(Behandlingsresultat brukersGjeldendeBehandlingsresultat,
-                                                 Behandling behandling,
-                                                 Long behandlingIdAnnenPart) {
+    public Optional<BerørtÅrsak> skalBerørtBehandlingOpprettes(Behandlingsresultat vedtattBehandlingsresultat,
+                                                 Behandling vedtattBehandling,
+                                                 Long sistVedtattBehandlingIdAnnenPart) {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
-        if (ikkeAktuellForVurderBerørt(behandling, brukersGjeldendeBehandlingsresultat)) {
-            return false;
+        if (ikkeAktuellForVurderBerørt(vedtattBehandling, vedtattBehandlingsresultat)) {
+            return Optional.empty();
         }
-        var uttakInput = uttakInputTjeneste.lagInput(behandling.getId());
+        var uttakInput = uttakInputTjeneste.lagInput(vedtattBehandling.getId());
 
-        var brukersUttak = hentUttak(behandling.getId()).orElse(tomtUttak());
-        var annenpartsUttak = hentUttak(behandlingIdAnnenPart);
-        if (annenpartsUttak.isEmpty() || finnMinAktivDato(annenpartsUttak.get()).isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
-            return false;
+        var vedtattUttak = hentUttak(vedtattBehandling.getId()).orElse(tomtUttak());
+        var annenpartsSistVedtatteUttak = hentUttak(sistVedtattBehandlingIdAnnenPart);
+        if (annenpartsSistVedtatteUttak.isEmpty() || finnMinAktivDato(annenpartsSistVedtatteUttak.get()).isEmpty() || finnMinAktivDato(vedtattUttak, annenpartsSistVedtatteUttak.get()).isEmpty()) {
+            return Optional.empty();
         }
-        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(brukersUttak,
-            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()),
-            brukersGjeldendeBehandlingsresultat,
+
+        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(vedtattUttak,
+            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(vedtattBehandling.getId()),
             stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput),
-            annenpartsUttak,
+            annenpartsSistVedtatteUttak,
             uttakInput,
-            "Skal opprette berørt").isPresent();
+            "Skal opprette berørt").isPresent() ? Optional.of(utledÅrsak(vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
+    }
+
+    private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
+        var harEndretStrukturEllerRedusertAntallStønadsdager = EndringsdatoBerørtUtleder.harEndretStrukturEllerRedusertAntallStønadsdager(brukersUttak, annenpartsUttak);
+        return harEndretStrukturEllerRedusertAntallStønadsdager ? BerørtÅrsak.KONTO_REDUSERT : BerørtÅrsak.ORDINÆR;
     }
 
 

@@ -92,7 +92,8 @@ class StønadsstatistikkTjenesteTest {
             .medDefaultOppgittDekningsgrad()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medSøknadDato(søknadsdato)
-            .medUttak(uttak);
+            .medUttak(uttak)
+            .medStønadskontoberegning(stønadskontoberegning());
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning());
@@ -207,7 +208,8 @@ class StønadsstatistikkTjenesteTest {
             .medDefaultOppgittDekningsgrad()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medSøknadDato(søknadsdato)
-            .medUttak(uttak);
+            .medUttak(uttak)
+            .medStønadskontoberegning(stønadskontoberegningUtvidet());
         scenario.medBekreftetHendelse()
             .medFødselsDato(fødselsdato, 2)
             .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
@@ -433,11 +435,15 @@ class StønadsstatistikkTjenesteTest {
         var fellesperiode = new Stønadskonto.Builder().medMaxDager(5 * 16 + 5 * 17 + 5 * 8).medStønadskontoType(StønadskontoType.FELLESPERIODE).build();
         var fedrekvote = new Stønadskonto.Builder().medMaxDager(5 * 15).medStønadskontoType(StønadskontoType.FEDREKVOTE).build();
         var flerbarn = new Stønadskonto.Builder().medMaxDager(5 * 17).medStønadskontoType(StønadskontoType.FLERBARNSDAGER).build();
+        var tilleggFlerbarn = new Stønadskonto.Builder().medMaxDager(5 * 17).medStønadskontoType(StønadskontoType.TILLEGG_FLERBARN).build();
+        var tilleggPrematur = new Stønadskonto.Builder().medMaxDager(5 * 8).medStønadskontoType(StønadskontoType.TILLEGG_PREMATUR).build();
         return new Stønadskontoberegning.Builder().medStønadskonto(fpff)
             .medStønadskonto(mødrekvote)
             .medStønadskonto(fellesperiode)
             .medStønadskonto(fedrekvote)
             .medStønadskonto(flerbarn)
+            .medStønadskonto(tilleggFlerbarn)
+            .medStønadskonto(tilleggPrematur)
             .medRegelInput("regelinput")
             .medRegelEvaluering("regeleval")
             .build();

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,13 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.FordelingPeriode;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.ObjectFactory;
@@ -41,7 +40,7 @@ public class UttakXmlTjeneste {
     private ObjectFactory uttakObjectFactory;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public UttakXmlTjeneste() {
@@ -51,10 +50,10 @@ public class UttakXmlTjeneste {
     @Inject
     public UttakXmlTjeneste(BehandlingRepositoryProvider repositoryProvider,
                             ForeldrepengerUttakTjeneste uttakTjeneste,
-                            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                            UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
         this.uttakObjectFactory = new ObjectFactory();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -171,28 +170,25 @@ public class UttakXmlTjeneste {
     }
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
-        if(fagsakRelasjon.isPresent()){
-            var stønadskontoerOptional = fagsakRelasjon.get()
-                .getGjeldendeStønadskontoberegning()
-                .map(Stønadskontoberegning::getStønadskontoer);
-            stønadskontoerOptional.ifPresent(stønadskontoer -> setStoenadskontoer(uttakForeldrepenger, stønadskontoer));
+        var kontoutregning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
+        if(!kontoutregning.isEmpty()){
+            setStoenadskontoer(uttakForeldrepenger, kontoutregning);
         }
     }
 
-    private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Set<Stønadskonto> stønadskontoerDomene) {
-        var stønadskontoer = stønadskontoerDomene
+    private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Map<StønadskontoType, Integer> stønadskontoerDomene) {
+        var stønadskontoer = stønadskontoerDomene.entrySet()
             .stream()
-            .filter(s -> s.getStønadskontoType().erStønadsdager() || StønadskontoType.FLERBARNSDAGER.equals(s.getStønadskontoType()))
+            .filter(s -> s.getKey().erStønadsdager() || StønadskontoType.FLERBARNSDAGER.equals(s.getKey()))
             .map(this::konverterFraDomene)
             .toList();
         uttakForeldrepenger.getStoenadskontoer().addAll(stønadskontoer);
     }
 
-    private Stoenadskonto konverterFraDomene(Stønadskonto stønadskontoDomene) {
+    private Stoenadskonto konverterFraDomene(Map.Entry<StønadskontoType, Integer> stønadskontoDomene) {
         var stønadskonto = new Stoenadskonto();
-        stønadskonto.setMaxdager(VedtakXmlUtil.lagIntOpplysning(stønadskontoDomene.getMaxDager()));
-        stønadskonto.setStoenadskontotype(VedtakXmlUtil.lagKodeverksOpplysning(stønadskontoDomene.getStønadskontoType()));
+        stønadskonto.setMaxdager(VedtakXmlUtil.lagIntOpplysning(stønadskontoDomene.getValue()));
+        stønadskonto.setStoenadskontotype(VedtakXmlUtil.lagKodeverksOpplysning(stønadskontoDomene.getKey()));
         return stønadskonto;
     }
 }

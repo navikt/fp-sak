@@ -50,6 +50,7 @@ class FpUttakRepositoryStub extends FpUttakRepository {
             return Optional.empty();
         }
         return Optional.of(new UttakResultatEntitet.Builder(behandlingsresultatRepository.hent(behandlingId))
+            .medStønadskontoberegning(kontoer.get(behandlingId))
             .medOpprinneligPerioder(opprinneligUttak)
             .medOverstyrtPerioder(overstyrt.get(behandlingId))
             .build());

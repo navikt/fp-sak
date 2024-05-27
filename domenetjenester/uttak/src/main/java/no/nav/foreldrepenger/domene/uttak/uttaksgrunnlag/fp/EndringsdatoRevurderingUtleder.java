@@ -148,7 +148,9 @@ public class EndringsdatoRevurderingUtleder {
     private boolean harAnnenpartEndretStønadskonto(UttakInput input) {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var annenpartBehandling = annenpartsBehandling(fpGrunnlag);
-        return behandlingsresultatRepository.hent(annenpartBehandling).isEndretStønadskonto();
+        var utløsendeUttak = hentUttak(annenpartBehandling);
+        var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
+        return EndringsdatoBerørtUtleder.harEndretStrukturEllerRedusertAntallStønadsdager(utløsendeUttak.orElse(null), berørtUttak.orElse(null));
     }
 
     private static Long annenpartsBehandling(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -421,7 +423,6 @@ public class EndringsdatoRevurderingUtleder {
         var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak,
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(utløsendeBehandlingId),
-            behandlingsresultatRepository.hent(utløsendeBehandlingId),
             stønadskontoSaldoTjeneste.erOriginalNegativSaldoPåNoenKontoForsiktig(input), // Gambler på samme resultat for input fra begge partene
             berørtUttak,
             input,

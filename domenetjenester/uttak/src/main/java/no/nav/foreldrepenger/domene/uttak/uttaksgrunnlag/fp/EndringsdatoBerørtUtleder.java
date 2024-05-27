@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -36,7 +36,6 @@ public final class EndringsdatoBerørtUtleder {
 
     public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeUttak,
                                                                            Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
-                                                                           Behandlingsresultat utløsendeBehandlingsresultat,
                                                                            boolean negativSaldoNoenKonto,
                                                                            Optional<ForeldrepengerUttak> berørtUttakOpt,
                                                                            UttakInput uttakInput,
@@ -57,7 +56,7 @@ public final class EndringsdatoBerørtUtleder {
             });
 
         Set<LocalDate> berørtBehovDatoer = new HashSet<>();
-        if (utløsendeBehandlingsresultat.isEndretStønadskonto()) {
+        if (harEndretStrukturEllerRedusertAntallStønadsdager(utløsendeUttak, berørtUttakOpt.get())) {
             LOG.info("{}: EndretKonto endringsdato {}", loggPrefix, endringsdato);
             berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato());
         }
@@ -186,4 +185,22 @@ public final class EndringsdatoBerørtUtleder {
             .max(Comparator.naturalOrder());
     }
 
+    public static boolean harEndretStrukturEllerRedusertAntallStønadsdager(ForeldrepengerUttak nyttVedtak, ForeldrepengerUttak annenpart) {
+        if (nyttVedtak == null || annenpart == null) {
+            return false;
+        }
+        var vedtattForeldrepenger = nyttVedtak.getStønadskontoBeregning().getOrDefault(StønadskontoType.FORELDREPENGER, 0);
+        var annenpartForeldrepenger = annenpart.getStønadskontoBeregning().getOrDefault(StønadskontoType.FORELDREPENGER, 0);
+        if (vedtattForeldrepenger > 0 && annenpartForeldrepenger > 0) {
+            return vedtattForeldrepenger < annenpartForeldrepenger;
+        }
+        var vedtattFellesperiode = nyttVedtak.getStønadskontoBeregning().getOrDefault(StønadskontoType.FELLESPERIODE, 0);
+        var annenpartFellesperiode = annenpart.getStønadskontoBeregning().getOrDefault(StønadskontoType.FELLESPERIODE, 0);
+        if (vedtattFellesperiode > 0 && annenpartFellesperiode > 0) {
+            return vedtattFellesperiode < annenpartFellesperiode;
+        } else {
+            // Endret fra Foreldrepenger til Kvoter eller omvendt
+            return (vedtattForeldrepenger > 0 && annenpartFellesperiode > 0) ||  (vedtattFellesperiode > 0 && annenpartForeldrepenger > 0);
+        }
+    }
 }

@@ -26,7 +26,7 @@ public class StønadskontoRegelOversetter {
 
     private static final LocalDate START_FPSAK = LocalDate.of(2019, Month.JANUARY, 1);
 
-    public BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
+    public static BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
                                                 Dekningsgrad dekningsgrad,
                                                 Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag,
@@ -52,7 +52,7 @@ public class StønadskontoRegelOversetter {
             .build();
     }
 
-    private void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
+    private static void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
                                              FamilieHendelse gjeldendeFamilieHendelse,
                                              boolean erFødsel) {
         if (erFødsel) {
@@ -74,11 +74,11 @@ public class StønadskontoRegelOversetter {
         }
     }
 
-    private Optional<LocalDate> familieHendelseNesteSak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+    private static Optional<LocalDate> familieHendelseNesteSak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         return foreldrepengerGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getHendelsedato);
     }
 
-    private Map<StønadskontoKontotype, Integer> mapTilStønadskontoBeregning(Map<StønadskontoType, Integer> gjeldende) {
+    private static Map<StønadskontoKontotype, Integer> mapTilStønadskontoBeregning(Map<StønadskontoType, Integer> gjeldende) {
         return gjeldende.entrySet().stream()
             .collect(Collectors.toMap(e -> UttakEnumMapper.mapTilBeregning(e.getKey()), Map.Entry::getValue));
     }

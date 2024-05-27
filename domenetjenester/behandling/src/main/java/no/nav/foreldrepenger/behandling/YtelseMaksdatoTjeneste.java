@@ -11,18 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -57,7 +57,8 @@ public class YtelseMaksdatoTjeneste {
             return Optional.empty();
         }
 
-        var uttakResultat = annenpartsUttak(saksnummer);
+        var apBehandling = annenpartsGjeldendeVedtatteBehandling(saksnummer);
+        var uttakResultat = apBehandling.flatMap(this::annenpartsUttak);
         if (uttakResultat.isPresent()) {
             var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
@@ -70,7 +71,7 @@ public class YtelseMaksdatoTjeneste {
                 if (sisteUttaksdag.isEmpty()) {
                     return Optional.empty();
                 }
-                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, saksnummer);
+                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, apBehandling.get());
                 var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
                 if (maksdato == null || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
@@ -81,19 +82,18 @@ public class YtelseMaksdatoTjeneste {
         return Optional.empty();
     }
 
-    private Optional<UttakResultatEntitet> annenpartsUttak(Saksnummer saksnummer) {
-        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
-        if (annenPartsGjeldendeVedtattBehandling.isEmpty()) {
-            return Optional.empty();
-        }
+    private Optional<Behandling> annenpartsGjeldendeVedtatteBehandling(Saksnummer saksnummer) {
+        return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
+    }
 
-        return fpUttakRepository.hentUttakResultatHvisEksisterer(annenPartsGjeldendeVedtattBehandling.get().getId());
+    private Optional<UttakResultatEntitet> annenpartsUttak(Behandling behandling) {
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
     }
 
     // TODO PK-48734 Her trengs det litt refaktorering
     public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
-        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        var uttakResultat = annenpartsUttak(ref.saksnummer());
+        var apBehandling = annenpartsGjeldendeVedtatteBehandling(ref.saksnummer());
+        var uttakResultat = apBehandling.flatMap(this::annenpartsUttak);
         if (uttakResultat.isPresent()) {
             var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
@@ -106,7 +106,7 @@ public class YtelseMaksdatoTjeneste {
                 if (sisteUttaksdag.isEmpty()) {
                     return Optional.empty();
                 }
-                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, behandling.getFagsak());
+                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, apBehandling.get());
                 var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
                 if (maksdato == null || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
@@ -132,27 +132,33 @@ public class YtelseMaksdatoTjeneste {
                 .collect(Collectors.groupingBy(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet));
     }
 
-    private int beregnTilgjengeligeStønadsdager(List<UttakResultatPeriodeAktivitetEntitet> perioder, Saksnummer saksnummer) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(saksnummer);
-        var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
-        if (optionalStønadskontoberegning.isPresent()) {
-            var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
-            var tilgjengeligMødrekvote = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.MØDREKVOTE, perioder, stønadskontoer));
-            var tilgjengeligFellesperiode = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.FELLESPERIODE, perioder, stønadskontoer));
+    private int beregnTilgjengeligeStønadsdager(List<UttakResultatPeriodeAktivitetEntitet> perioder, Behandling behandling) {
+        var stønadsdagerUtregning = getKontoUtregning(behandling);
+        if (!stønadsdagerUtregning.isEmpty()) {
+            var tilgjengeligMødrekvote = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.MØDREKVOTE, perioder, stønadsdagerUtregning));
+            var tilgjengeligFellesperiode = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.FELLESPERIODE, perioder, stønadsdagerUtregning));
             return tilgjengeligFellesperiode + tilgjengeligMødrekvote;
         }
         return 0;
     }
 
-    private int beregnTilgjengeligeStønadsdagerForeldrepenger(List<UttakResultatPeriodeAktivitetEntitet> perioder, Fagsak fagsak) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(fagsak);
-        var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
-        if (optionalStønadskontoberegning.isPresent()) {
-            var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
-            var tilgjengeligeDager = beregnTilgjengeligeDagerFor(StønadskontoType.FORELDREPENGER, perioder, stønadskontoer);
+    private int beregnTilgjengeligeStønadsdagerForeldrepenger(List<UttakResultatPeriodeAktivitetEntitet> perioder, Behandling behandling) {
+        var stønadsdagerUtregning = getKontoUtregning(behandling);
+        if (!stønadsdagerUtregning.isEmpty()) {
+            var tilgjengeligeDager = beregnTilgjengeligeDagerFor(StønadskontoType.FORELDREPENGER, perioder, stønadsdagerUtregning);
             return rundOpp(tilgjengeligeDager);
         }
         return 0;
+    }
+
+    private Map<StønadskontoType, Integer> getKontoUtregning(Behandling behandling) {
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
+            .map(UttakResultatEntitet::getStønadskontoberegning)
+            .map(Stønadskontoberegning::getStønadskontoutregning)
+            .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId())
+                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .map(Stønadskontoberegning::getStønadskontoutregning))
+            .orElseGet(Map::of);
     }
 
     private int rundOpp(BigDecimal tilgjengeligeDager) {
@@ -160,13 +166,12 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private BigDecimal beregnTilgjengeligeDagerFor(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter,
-            Set<Stønadskonto> stønadskontoer) {
-        var optionalStønadskonto = stønadskontoer.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType()))
-                .findFirst();
-        if (optionalStønadskonto.isPresent()) {
+            Map<StønadskontoType, Integer> stønadskontoer) {
+        var optionalStønadskonto = stønadskontoer.getOrDefault(stønadskontoType, 0);
+        if (optionalStønadskonto > 0) {
             var brukteDager = brukteDager(stønadskontoType, aktiviteter);
 
-            var tilgjengeligeDager = BigDecimal.valueOf(optionalStønadskonto.get().getMaxDager()).subtract(brukteDager);
+            var tilgjengeligeDager = BigDecimal.valueOf(optionalStønadskonto).subtract(brukteDager);
             return tilgjengeligeDager.compareTo(BigDecimal.ZERO) > 0 ? tilgjengeligeDager : BigDecimal.ZERO;
         }
         return BigDecimal.ZERO;

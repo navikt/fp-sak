@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
@@ -37,8 +38,8 @@ public class FastsettePerioderRegelAdapter {
         this.regelResultatKonverterer = regelResultatKonverterer;
     }
 
-    UttakResultatPerioderEntitet fastsettePerioder(UttakInput input) {
-        var grunnlag = regelGrunnlagBygger.byggGrunnlag(input);
+    UttakResultatPerioderEntitet fastsettePerioder(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
+        var grunnlag = regelGrunnlagBygger.byggGrunnlag(input, stønadskontoberegning);
         List<FastsettePeriodeResultat> resultat;
         try {
             resultat = REGEL.fastsettePerioder(grunnlag);

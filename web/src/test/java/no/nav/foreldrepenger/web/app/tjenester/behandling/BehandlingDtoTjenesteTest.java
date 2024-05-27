@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -93,7 +94,8 @@ class BehandlingDtoTjenesteTest {
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
                 behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class),
-            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste);
+            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste));
     }
 
     @Test

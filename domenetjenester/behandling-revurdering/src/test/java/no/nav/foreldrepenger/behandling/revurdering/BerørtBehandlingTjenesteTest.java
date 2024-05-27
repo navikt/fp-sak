@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -217,24 +219,26 @@ class BerørtBehandlingTjenesteTest {
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(UttakPeriodeType.FELLESPERIODE)))
             .build();
+        var morsBeregning = Map.of(StønadskontoType.MØDREKVOTE, 75, StønadskontoType.FEDREKVOTE, 75, StønadskontoType.FELLESPERIODE, 80);
+        var morUttak = new ForeldrepengerUttak(List.of(morsMK, morsPeriode), null, morsBeregning);
+        lagreUttak(behandling, morUttak);
+
         var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(basedato.plusWeeks(20), basedato.plusWeeks(33).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER)))
             .build();
-        var morUttak = new ForeldrepengerUttak(List.of(morsMK, morsPeriode));
-        lagreUttak(behandling, morUttak);
-
-        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        var farsBeregning = Map.of(StønadskontoType.FORELDREPENGER, 230);
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode), null, farsBeregning);
         lagreUttak(behandlingAnnenpart, farUttak);
 
         lagUttakInput(behandling);
 
-        var br = Behandlingsresultat.builder().medEndretStønadskonto(true).buildFor(behandling);
+        var br = Behandlingsresultat.builder().buildFor(behandling);
 
         var resultat = tjeneste.skalBerørtBehandlingOpprettes(br, behandling, behandlingAnnenpart.getId());
 
-        assertThat(resultat).isTrue();
+        assertThat(resultat).isPresent();
     }
 
     @Test
@@ -1108,7 +1112,7 @@ class BerørtBehandlingTjenesteTest {
 
     private boolean skalBerørtOpprettes(Behandling behandling, Behandling annenpartsBehandling) {
         return tjeneste.skalBerørtBehandlingOpprettes(getBehandlingsresultat(behandling.getId()), behandling,
-            annenpartsBehandling.getId());
+            annenpartsBehandling.getId()).isPresent();
     }
 
     private BehandlingsresultatRepository getBehandlingsresultatRepository() {
