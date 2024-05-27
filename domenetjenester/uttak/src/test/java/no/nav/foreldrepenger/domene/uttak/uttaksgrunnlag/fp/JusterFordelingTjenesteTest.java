@@ -10,6 +10,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -1253,34 +1254,6 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
-    void skal_tillate_overlapp_hvis_lik_fødselsdato() {
-        var fødselsdato = LocalDate.of(2018, 1, 1);
-        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
-        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
-        //overlapper 1 dag med mødrekvote
-        var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
-        var oppgittePerioder = List.of(fpff, mk, fp);
-
-        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato);
-
-        assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
-    }
-
-    @Test
-    void skal_tillate_overlapp_hvis_ulik_fødselsdato() {
-        var fødselsdato = LocalDate.of(2018, 1, 1);
-        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
-        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
-        //overlapper 1 dag med mødrekvote
-        var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
-        var oppgittePerioder = List.of(fpff, mk, fp);
-
-        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
-
-        assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
-    }
-
-    @Test
     void ikke_fylle_hull_når_hele_siste_periode_skyves_igjen_hullet_ved_fødsel_før_termin() {
         var termindato = LocalDate.of(2022, 6, 7);
         var fødselsdato = termindato.minusWeeks(2);
@@ -2111,8 +2084,8 @@ class JusterFordelingTjenesteTest {
     }
 
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
-        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA,
-            false);
+        var justert = JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA, false);
+        return slåSammenLikePerioder(justert);
     }
 
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {

@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -98,6 +101,8 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
             LOG.info("Justerte perioder etter flytting ved endring i familiehendelse {}", justertePerioder);
         }
+        justertePerioder = slåSammenLikePerioder(justertePerioder);
+
         if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
             justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
         } else {
@@ -109,7 +114,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private static boolean skalJustereFordelingEtterFamiliehendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> perioder, Long behandlingId) {
         if (behandlingId.equals(3066799L)) { // TODO: Fjern denne etter behandling OK.
-            LOG.info("Justere ikke behandling {}", behandlingId);
+            LOG.info("Justerer ikke behandling {}", behandlingId);
             return false;
         }
 
@@ -122,9 +127,15 @@ public class FastsettUttaksgrunnlagTjeneste {
             return false;
         }
 
+        if (finnesOverlapp(perioder)) {
+            LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
+                + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
+            return false;
+        }
+
         if (fpGrunnlag.getOriginalBehandling().isPresent()) {
             if (nySøknadPåTermin(fpGrunnlag.getFamilieHendelser())) {
-                LOG.info("Skal ikke fødselsjustere på ny søknad på termin");
+                LOG.info("Skal ikke fødselsjustere ny søknad på termin");
                 return false;
             }
 
@@ -136,7 +147,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                 var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
                 LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny behandling har registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
 
-                if (fødselsdato == førsteUttaksperiode.getFom()) {
+                if (fødselsdato.isEqual(førsteUttaksperiode.getFom())) {
                     LOG.info("Termin til fødsel: Startdato for første uttaksperiode er lik fødseldato {}", fødselsdato);
                 } else if (førsteUttaksperiode.getFom().isBefore(fødselsdato)) {
                     LOG.info("Termin til fødsel: Startdato for første uttaksperiode er før fødseldato {}", fødselsdato);
