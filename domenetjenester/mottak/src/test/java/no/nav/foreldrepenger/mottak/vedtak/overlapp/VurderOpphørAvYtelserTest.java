@@ -395,14 +395,10 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     void opprettHåndteringNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         var løpendeFPMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
         // PGA sjekk gradering
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(løpendeFPMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(løpendeFPMor.getFagsak())).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(løpendeFPMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_LØPENDE_BEHANDLING,SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
         lenient().when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(løpendeFPMor.getFagsak())).thenReturn(true);
 
         var nySVPNyttBarnOverlapperFP = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nySVPNyttBarnOverlapperFP.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(nySVPNyttBarnOverlapperFP.getFagsak())).thenReturn(Optional.of(SISTE_PERIODEDAG_OVERLAPP));
         when(stønadsperiodeTjeneste.stønadsperiode(nySVPNyttBarnOverlapperFP)).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_OVERLAPP, SISTE_PERIODEDAG_OVERLAPP)));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nySVPNyttBarnOverlapperFP);
