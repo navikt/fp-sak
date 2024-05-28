@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -96,9 +97,8 @@ public class FastsettUttaksgrunnlagTjeneste {
             }
         }
 
-        ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        if (skalJustereFordelingEtterFamiliehendelse(fpGrunnlag, justertePerioder, behandlingId)) {
-            justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
+        if (skalJustereFordelingEtterFamiliehendelse(input, justertePerioder)) {
+            justertePerioder = justerFordelingEtterFamilieHendelse(input.getYtelsespesifiktGrunnlag(), justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
             LOG.info("Justerte perioder etter flytting ved endring i familiehendelse {}", justertePerioder);
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
@@ -112,7 +112,8 @@ public class FastsettUttaksgrunnlagTjeneste {
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
 
-    private static boolean skalJustereFordelingEtterFamiliehendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> perioder, Long behandlingId) {
+    private static boolean skalJustereFordelingEtterFamiliehendelse(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
+        ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         if (!fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             return false;
         }
@@ -136,7 +137,9 @@ public class FastsettUttaksgrunnlagTjeneste {
 
             var gjeldendeFamilieHendelseOriginalBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse();
             var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-            if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() && gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
+            if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() &&
+                input.getBehandlingÅrsaker().contains(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
+                gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
                 var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get();
                 var mottattDato = førsteUttaksperiode.getMottattDato();
                 var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
