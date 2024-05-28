@@ -81,6 +81,10 @@ class DekningsgradMigreringTask implements ProsessTaskHandler {
             LOG.info("Migrerer dekningsgrad, behandling {} ikke kommet langt nok for å oppdatere sakskompleksDG ", behandling.getId());
             return;
         }
+        if (behandling.getBehandlingStegTilstandHistorikk().toList().isEmpty()) {
+            LOG.info("Migrerer dekningsgrad, behandling {} har ingen steg", behandling.getId());
+            return;
+        }
         var aktivPåTidspunkt = behandling.getSisteBehandlingStegTilstand().orElseThrow().getOpprettetTidspunkt();
         LOG.info("Migrerer dekningsgrad, fant aktivtidspunkt {} for behanding {}", aktivPåTidspunkt, behandling.getId());
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), aktivPåTidspunkt);
