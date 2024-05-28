@@ -184,4 +184,21 @@ public class ForvaltningSøknadRestTjeneste {
         return Response.ok(antall).build();
     }
 
+    @POST
+    @Path("/sanerOverstyrtKonto")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Saner overstyrt stønadskonto", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response settNorskIdentAnnenpart() {
+        var antall = entityManager.createNativeQuery(
+                "UPDATE FAGSAK_RELASJON SET KONTO_BEREGNING_ID = OVERSTYRT_KONTO_BEREGNING_ID WHERE OVERSTYRT_KONTO_BEREGNING_ID is not null")
+            .executeUpdate();
+        entityManager.createNativeQuery(
+                "UPDATE FAGSAK_RELASJON SET OVERSTYRT_KONTO_BEREGNING_ID = null WHERE OVERSTYRT_KONTO_BEREGNING_ID is not null")
+            .executeUpdate();
+        entityManager.flush();
+
+        return Response.ok(antall).build();
+    }
+
 }

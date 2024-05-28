@@ -27,6 +27,7 @@ public class AvsluttBehandling {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
+    private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
 
     public AvsluttBehandling() {
         // CDI
@@ -37,19 +38,23 @@ public class AvsluttBehandling {
                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                              BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
-                             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+                             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
         this.vurderBehandlingerUnderIverksettelse = vurderBehandlingerUnderIverksettelse;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
+        this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
     }
 
     void avsluttBehandling(Long behandlingId) {
         LOG.info("Avslutter behandling inngang {}", behandlingId);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
         vedtak.setIverksettingStatus(IverksettingStatus.IVERKSATT);

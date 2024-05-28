@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -92,8 +91,6 @@ public class UttakStegImpl implements UttakSteg {
             LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på {}", input.getBehandlingReferanse().saksnummer(), e);
         }
 
-        beregnStønadskontoTjeneste.beregnStønadskontoer(input);
-
         var kontoutregningForBehandling = beregnStønadskontoTjeneste.fastsettStønadskontoerForBehandling(input);
 
         fastsettePerioderTjeneste.fastsettePerioder(input, kontoutregningForBehandling);
@@ -132,7 +129,6 @@ public class UttakStegImpl implements UttakSteg {
                                    BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.VURDER_UTTAK, førsteSteg)) {
             ryddUttak(kontekst.getBehandlingId());
-            ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
         }
     }
 
@@ -151,7 +147,6 @@ public class UttakStegImpl implements UttakSteg {
                 uttakInput.getBehandlingReferanse().behandlingId());
         } else {
             ryddUttak(kontekst.getBehandlingId());
-            ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
         }
     }
 
@@ -159,15 +154,4 @@ public class UttakStegImpl implements UttakSteg {
         fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
-    private void ryddStønadskontoberegning(Long behandlingId, Long fagsakId) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        if (behandlingsresultat.isEndretStønadskonto()) {
-            var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-            fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(fagsak);
-            var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medEndretStønadskonto(false)
-                .build();
-            behandlingsresultatRepository.lagre(behandlingId, nyttBehandlingsresultat);
-        }
-    }
 }

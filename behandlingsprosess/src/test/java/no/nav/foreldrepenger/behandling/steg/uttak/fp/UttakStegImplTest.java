@@ -60,8 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -77,6 +75,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.vedtak.intern.OppdatereFagsakRelasjonVedVedtak;
 
 @CdiDbAwareTest
 class UttakStegImplTest {
@@ -113,6 +112,8 @@ class UttakStegImplTest {
     private NesteSakRepository nesteSakRepository;
     @Inject
     private BehandlingLåsRepository behandlingLåsRepository;
+    @Inject
+    private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private UttakStegImpl steg;
@@ -206,58 +207,49 @@ class UttakStegImplTest {
 
         // Act -- behandler mors behandling først
         steg.utførSteg(kontekst(behandling));
-        var morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert - stønadskontoer skal ha blitt opprettet
-        assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
-        var førsteStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat).isPresent();
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(førsteStønadskontoberegning.getId());
+        var resultat = fpUttakRepository.hentUttakResultat(behandling.getId());
+        assertThat(resultat.getStønadskontoberegning()).isNotNull();
+        var førsteStønadskontoberegning = resultat.getStønadskontoberegning();
+        assertThat(førsteStønadskontoberegning.getStønadskontoutregning()).containsKey(StønadskontoType.FORELDREPENGER);
 
         // Act -- kjører steget på nytt for mor
         steg.utførSteg(kontekst(behandling));
-        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
-        assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
-        var andreStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        assertThat(andreStønadskontoberegning.getId()).isEqualTo(førsteStønadskontoberegning.getId());
-        var resultat2 = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat2).isPresent();
-        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(førsteStønadskontoberegning.getId());
+        var resultat2 = fpUttakRepository.hentUttakResultat(behandling.getId());
+        var andreStønadskontoberegning = resultat2.getStønadskontoberegning();
+        assertThat(andreStønadskontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
+        assertThat(andreStønadskontoberegning.getStønadskontoutregning()).containsKey(StønadskontoType.FORELDREPENGER);
 
         // Act -- kjører steget på nytt for mor
         yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
         steg.utførSteg(kontekst(behandling));
-        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir ny id
-        assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
-        var tredjeStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        assertThat(tredjeStønadskontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
-        var resultat3 = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat3).isPresent();
-        assertThat(resultat3.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(tredjeStønadskontoberegning.getId());
+        var resultat3 = fpUttakRepository.hentUttakResultat(behandling.getId());
+        var tredjeStønadskontoberegning = resultat3.getStønadskontoberegning();
+        assertThat(tredjeStønadskontoberegning.getId()).isNotEqualTo(andreStønadskontoberegning.getId());
+        assertThat(tredjeStønadskontoberegning.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
 
         // Avslutter mors behandling
         avsluttMedVedtak(behandling, repositoryProvider);
+        oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 
         // Act -- behandler fars behandling, skal ikke opprette stønadskontoer på nytt
         var kontekstForFarsBehandling = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(farsBehandling));
         steg.utførSteg(kontekstForFarsBehandling);
 
-        var nyLagretFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(fagsakForFar);
-        var stønadskontoberegningFar = nyLagretFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
 
         // Assert
+        var resultatFar = fpUttakRepository.hentUttakResultat(farsBehandling.getId());
+        var stønadskontoberegningFar = resultatFar.getStønadskontoberegning();
         assertThat(stønadskontoberegningFar.getId()).isEqualTo(tredjeStønadskontoberegning.getId());
-        var resultatFar = fpUttakRepository.hentUttakResultatHvisEksisterer(farsBehandling.getId());
-        assertThat(resultatFar).isPresent();
-        assertThat(resultatFar.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(tredjeStønadskontoberegning.getId());
+        assertThat(stønadskontoberegningFar.getId()).isEqualTo(tredjeStønadskontoberegning.getId());
     }
 
     @Test
@@ -278,13 +270,13 @@ class UttakStegImplTest {
 
         // Første versjon av kontoer opprettes
         steg.utførSteg(førstegangsKontekst);
-        var morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak());
-        var førsteStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(morsFørstegang.getId());
-        assertThat(resultat).isPresent();
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(førsteStønadskontoberegning.getId());
+
+        var resultat = fpUttakRepository.hentUttakResultat(morsFørstegang.getId());
+        var førsteStønadskontoberegning = resultat.getStønadskontoberegning();
+        assertThat(førsteStønadskontoberegning.getStønadskontoutregning()).containsEntry(StønadskontoType.FELLESPERIODE, 90);
 
         avsluttMedVedtak(morsFørstegang, repositoryProvider);
+        oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(morsFørstegang);
 
         // mor oppdaterer dekningsgrad
         var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
@@ -293,16 +285,12 @@ class UttakStegImplTest {
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
-        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsRevurdering.getFagsak());
 
-        assertThat(morsFagsakRelasjon.getStønadskontoberegning()).isPresent();
-        assertThat(morsFagsakRelasjon.getOverstyrtStønadskontoberegning()).isPresent();
-        var overstyrtKontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
+
+        var resultat2 = fpUttakRepository.hentUttakResultat(morsRevurdering.getId());
+        var overstyrtKontoberegning = resultat2.getStønadskontoberegning();
         assertThat(overstyrtKontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
-        assertThat(morsFagsakRelasjon.getStønadskontoberegning().get().getId()).isEqualTo(førsteStønadskontoberegning.getId());
-        var resultat2 = fpUttakRepository.hentUttakResultatHvisEksisterer(morsRevurdering.getId());
-        assertThat(resultat2).isPresent();
-        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(overstyrtKontoberegning.getId());
+        assertThat(overstyrtKontoberegning.getStønadskontoutregning()).containsEntry(StønadskontoType.FELLESPERIODE, 80);
     }
 
     @Test
@@ -323,13 +311,12 @@ class UttakStegImplTest {
 
         // Første versjon av kontoer opprettes
         steg.utførSteg(førstegangsKontekst);
-        var morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak());
-        var førsteStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(morsFørstegang.getId());
-        assertThat(resultat).isPresent();
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isEqualTo(førsteStønadskontoberegning.getId());
+        var resultat = fpUttakRepository.hentUttakResultat(morsFørstegang.getId());
+        var førsteStønadskontoberegning = resultat.getStønadskontoberegning();
+
 
         avsluttMedVedtak(morsFørstegang, repositoryProvider);
+        oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(morsFørstegang);
 
         // mor oppdaterer dekningsgrad
         var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
@@ -338,13 +325,10 @@ class UttakStegImplTest {
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
             behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
-        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsRevurdering.getFagsak());
 
-        assertThat(morsFagsakRelasjon.getStønadskontoberegning()).isPresent();
-        assertThat(morsFagsakRelasjon.getStønadskontoberegning().get().getId()).isEqualTo(førsteStønadskontoberegning.getId());
         var resultat2 = fpUttakRepository.hentUttakResultatHvisEksisterer(morsRevurdering.getId());
         assertThat(resultat2).isPresent();
-        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(morsFagsakRelasjon.getStønadskontoberegning().orElseThrow().getId());
+        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
         assertThat(resultat2.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).containsEntry(StønadskontoType.TETTE_SAKER_MOR, 110);
         // 4 stønadskontoer, 2 stk tettsak, far rundt fødsel
         assertThat(resultat2.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().keySet()).hasSize(7);
@@ -390,10 +374,10 @@ class UttakStegImplTest {
 
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);
+        oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(førstegangsBehandling);
 
-        var fellesperiode = fpUttakRepository.hentUttakResultatHvisEksisterer(førstegangsBehandling.getId())
-            .map(UttakResultatEntitet::getStønadskontoberegning).map(Stønadskontoberegning::getStønadskontoutregning)
-            .map(u -> u.getOrDefault(StønadskontoType.FELLESPERIODE,0 )).orElse(0);
+        var førstegangBeregning = fpUttakRepository.hentUttakResultat(førstegangsBehandling.getId()).getStønadskontoberegning();
+        var fellesperiode = førstegangBeregning.getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 );
         assertThat(fellesperiode).isGreaterThan(0);
 
         var revurdering = opprettRevurdering(førstegangsBehandling, false, fødselsdato);
@@ -402,15 +386,11 @@ class UttakStegImplTest {
         hendelse.medFødselsDato(fødselsdato).medAntallBarn(1);
         familieHendelseRepository.lagreRegisterHendelse(revurdering.getId(), hendelse);
 
-        var relasjonFør = fagsakRelasjonTjeneste.finnRelasjonFor(revurdering.getFagsak());
-        assertThat(relasjonFør.getOverstyrtStønadskontoberegning()).isNotPresent();
-
         kjørSteg(revurdering);
-        var relasjonEtter = fagsakRelasjonTjeneste.finnRelasjonFor(revurdering.getFagsak());
 
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurdering.getId());
         assertThat(resultat).isPresent();
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(relasjonEtter.getGjeldendeStønadskontoberegning().orElseThrow().getId());
+        assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(førstegangBeregning.getId());
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR,0 )).isGreaterThan(0);
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 )).isGreaterThan(fellesperiode);
     }

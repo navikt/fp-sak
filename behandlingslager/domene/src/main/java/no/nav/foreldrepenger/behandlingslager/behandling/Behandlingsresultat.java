@@ -81,6 +81,8 @@ public class Behandlingsresultat extends BaseEntitet {
     @Column(name = "endret_dekningsgrad", nullable = false)
     private boolean endretDekningsgrad;
 
+
+    // TODO post konto og dekningsgrad: Unmap herfra og setUnused
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "endret_stoenadskonto", nullable = false)
     private boolean endretStønadskonto;
@@ -169,10 +171,6 @@ public class Behandlingsresultat extends BaseEntitet {
 
     public boolean isEndretDekningsgrad() {
         return endretDekningsgrad;
-    }
-
-    public boolean isEndretStønadskonto() {
-        return endretStønadskonto;
     }
 
     @Override
@@ -302,12 +300,6 @@ public class Behandlingsresultat extends BaseEntitet {
         public Builder medEndretDekningsgrad(boolean endretDekningsgrad) {
             validerKanModifisere();
             this.behandlingsresultat.endretDekningsgrad = endretDekningsgrad;
-            return this;
-        }
-
-        public Builder medEndretStønadskonto(boolean endretStønadskonto) {
-            validerKanModifisere();
-            this.behandlingsresultat.endretStønadskonto = endretStønadskonto;
             return this;
         }
 

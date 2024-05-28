@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoBerørtUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -79,7 +80,8 @@ public class BerørtBehandlingTjeneste {
     }
 
     private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
-        var harEndretStrukturEllerRedusertAntallStønadsdager = EndringsdatoBerørtUtleder.harEndretStrukturEllerRedusertAntallStønadsdager(brukersUttak, annenpartsUttak);
+        var harEndretStrukturEllerRedusertAntallStønadsdager = UtregnetStønadskontoTjeneste
+            .harEndretStrukturEllerRedusertAntallStønadsdager(annenpartsUttak.getStønadskontoBeregning(), brukersUttak.getStønadskontoBeregning());
         return harEndretStrukturEllerRedusertAntallStønadsdager ? BerørtÅrsak.KONTO_REDUSERT : BerørtÅrsak.ORDINÆR;
     }
 

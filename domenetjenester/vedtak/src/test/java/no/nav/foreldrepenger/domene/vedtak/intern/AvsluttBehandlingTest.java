@@ -54,6 +54,9 @@ class AvsluttBehandlingTest {
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
+    @Mock
+    private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
+
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
 
@@ -70,8 +73,8 @@ class AvsluttBehandlingTest {
         var vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(
                 repositoryProvider);
 
-        avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste,
-                behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste);
+        avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
+            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
             Long behId = invocation.getArgument(0);
