@@ -36,7 +36,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     public Stønadskontoberegning fastsettStønadskontoerForBehandling(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var gjeldendeStønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         var kreverNyBeregning = gjeldendeStønadskontoberegning.isPresent() && dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) &&
             Dekningsgrad._100.equals(dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref));
         var tidligereStønadskontoberegning = gjeldendeStønadskontoberegning.filter(sb -> !kreverNyBeregning);

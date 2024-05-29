@@ -68,7 +68,7 @@ class BeregnStønadskontoerTjenesteTest {
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -106,7 +106,7 @@ class BeregnStønadskontoerTjenesteTest {
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -143,7 +143,7 @@ class BeregnStønadskontoerTjenesteTest {
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -176,7 +176,7 @@ class BeregnStønadskontoerTjenesteTest {
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -209,7 +209,7 @@ class BeregnStønadskontoerTjenesteTest {
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
-            .getGjeldendeStønadskontoberegning();
+            .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 

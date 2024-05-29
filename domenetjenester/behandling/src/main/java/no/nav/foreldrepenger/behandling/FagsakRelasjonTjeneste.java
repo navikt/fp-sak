@@ -117,11 +117,6 @@ public class FagsakRelasjonTjeneste {
         fagsakRelasjonEventPubliserer.fireEvent(fr);
     }
 
-    public void overstyrStønadskontoberegning(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
-        var fagsak = finnFagsak(fagsakId);
-        fagsakRelasjonRepository.overstyrStønadskontoberegning(fagsak, behandlingId, stønadskontoberegning);
-    }
-
     private Fagsak finnFagsak(long fagsakId) {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }

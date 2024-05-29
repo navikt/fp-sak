@@ -48,6 +48,7 @@ public class FagsakRelasjon extends BaseEntitet {
     @Embedded
     private Dekningsgrad dekningsgrad;
 
+    // TODO: fjerne mapping og set unused
     @AttributeOverride(name = "verdi", column = @Column(name = "overstyrt_dekningsgrad"))
     @Embedded
     private Dekningsgrad overstyrtDekningsgrad;
@@ -69,15 +70,12 @@ public class FagsakRelasjon extends BaseEntitet {
 
     public FagsakRelasjon(Fagsak fagsakNrEn,
                    Fagsak fagsakNrTo,
-                   Stønadskontoberegning stønadskontoberegning,
-                   Stønadskontoberegning overstyrtStønadskontoberegning,
-                   Dekningsgrad dekningsgrad,
+                   Stønadskontoberegning stønadskontoberegning, Dekningsgrad dekningsgrad,
                    Dekningsgrad overstyrtDekningsgrad,
                    LocalDate avsluttningsdato) {
         this.stønadskontoberegning = stønadskontoberegning;
         this.fagsakNrEn = fagsakNrEn;
         this.fagsakNrTo = fagsakNrTo;
-        this.overstyrtStønadskontoberegning = overstyrtStønadskontoberegning;
         this.dekningsgrad = dekningsgrad;
         this.overstyrtDekningsgrad = overstyrtDekningsgrad;
         this.avsluttningsdato = avsluttningsdato;
@@ -130,16 +128,8 @@ public class FagsakRelasjon extends BaseEntitet {
         return Optional.ofNullable(overstyrtDekningsgrad);
     }
 
-    public Optional<Stønadskontoberegning> getGjeldendeStønadskontoberegning() {
-        return getOverstyrtStønadskontoberegning().or(this::getStønadskontoberegning);
-    }
-
     public Dekningsgrad getGjeldendeDekningsgrad() {
         return getOverstyrtDekningsgrad().orElse(getDekningsgrad());
-    }
-
-    public Optional<Stønadskontoberegning> getOverstyrtStønadskontoberegning() {
-        return Optional.ofNullable(overstyrtStønadskontoberegning);
     }
 
     public LocalDate getAvsluttningsdato() {

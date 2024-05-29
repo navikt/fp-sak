@@ -274,7 +274,7 @@ class StønadskontoSaldoTjenesteTest {
             .medRegelInput("awd")
             .build();
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), kontoer);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {

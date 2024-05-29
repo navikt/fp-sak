@@ -107,7 +107,7 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
         Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
 
         var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
@@ -120,7 +120,7 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
-        Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, null)));
+        Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
 
         var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
@@ -146,7 +146,7 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatOpphørt));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
         Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, LocalDate.now().plusMonths(2))));
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.now().plusMonths(2))));
 
         var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
