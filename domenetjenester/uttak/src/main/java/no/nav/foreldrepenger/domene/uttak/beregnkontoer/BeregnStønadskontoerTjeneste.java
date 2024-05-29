@@ -6,11 +6,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -48,39 +46,17 @@ public class BeregnStønadskontoerTjeneste {
 
     public void opprettStønadskontoer(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var stønadskontoberegning = beregn(uttakInput, false);
+        var stønadskontoberegning = beregnForBehandling(uttakInput, Map.of()).orElseThrow();
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, ref.behandlingId(), stønadskontoberegning);
     }
 
-    public void overstyrStønadskontoberegning(UttakInput uttakInput, boolean relativBeregning) {
-        var ref = uttakInput.getBehandlingReferanse();
-        var eksisterendeBeregning = getGjeldendeBeregning(ref);
-        var nyBeregning = beregn(uttakInput, relativBeregning);
-        if (!eksisterendeBeregning.getStønadskontoutregning().equals(nyBeregning.getStønadskontoutregning())) {
-            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), nyBeregning);
-        }
-    }
-
-    public Stønadskontoberegning beregn(UttakInput uttakInput, boolean relativBeregning) {
+    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        Map<StønadskontoType, Integer> tidligereBeregning = relativBeregning ? getGjeldendeBeregning(ref).getStønadskontoutregning() : Map.of();
-        return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
-    }
-
-    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {
-        return beregnForBehandling(uttakInput, dekningsgradTjeneste.finnGjeldendeDekningsgrad(uttakInput.getBehandlingReferanse()), tidligereBeregning);
-    }
-
-    public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Dekningsgrad dekningsgrad, Map<StønadskontoType, Integer> tidligereBeregning) {
-        var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
-        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
@@ -92,7 +68,4 @@ public class BeregnStønadskontoerTjeneste {
         return Optional.empty();
     }
 
-    private Stønadskontoberegning getGjeldendeBeregning(BehandlingReferanse ref) {
-        return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeStønadskontoberegning().orElseThrow();
-    }
 }

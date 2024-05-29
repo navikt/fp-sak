@@ -44,7 +44,7 @@ public class StønadskontoRegelAdapter {
         return endretUtregning(tidligereUtregning, resultat) ? Optional.of(konverterTilStønadskontoberegning(resultat)) : Optional.empty();
     }
 
-    public StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
+    private StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
                                                          Dekningsgrad dekningsgrad,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
@@ -74,10 +74,6 @@ public class StønadskontoRegelAdapter {
 
     private boolean endretUtregning(Map<StønadskontoType, Integer> tidligereUtregning, StønadskontoResultat resultat) {
         var nyUtregning = resultat.getStønadskontoer().entrySet().stream()
-            .filter(e -> e.getValue() > 0)
-            .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
-        // Dersom man vil ha uflettet resultat
-        var nyUtregningBeholdkontoer = resultat.getStønadskontoerBeholdStønadsdager().entrySet().stream()
             .filter(e -> e.getValue() > 0)
             .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
         return !nyUtregning.equals(tidligereUtregning);

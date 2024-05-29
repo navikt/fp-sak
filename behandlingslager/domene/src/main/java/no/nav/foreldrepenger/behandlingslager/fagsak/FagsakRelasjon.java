@@ -131,7 +131,7 @@ public class FagsakRelasjon extends BaseEntitet {
     }
 
     public Optional<Stønadskontoberegning> getGjeldendeStønadskontoberegning() {
-        return getOverstyrtStønadskontoberegning().isPresent() ? getOverstyrtStønadskontoberegning() : getStønadskontoberegning();
+        return getOverstyrtStønadskontoberegning().or(this::getStønadskontoberegning);
     }
 
     public Dekningsgrad getGjeldendeDekningsgrad() {
