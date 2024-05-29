@@ -122,13 +122,6 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void overstyrStønadskontoberegning(Fagsak fagsak,
-                                              Long behandlingId,
-                                              Stønadskontoberegning stønadskontoberegning) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
     public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon,
                                                                 LocalDate avsluttningsdato,
                                                                 FagsakRelasjonLås lås,
