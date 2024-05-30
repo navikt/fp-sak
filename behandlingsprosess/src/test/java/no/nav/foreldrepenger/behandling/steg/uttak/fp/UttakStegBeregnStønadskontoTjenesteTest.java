@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.steg.uttak.fp.UttakStegBeregnStønadskontoTjeneste.BeregningingAvStønadskontoResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -60,8 +59,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
             dekningsgradTjeneste);
-        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste,
-                uttakTjeneste, fagsakRelasjonTjeneste);
+        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test
@@ -79,9 +77,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     @Test
@@ -100,9 +98,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     @Test
@@ -135,9 +133,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(førsteBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     @Test
@@ -158,9 +156,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(morBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     private ForeldrepengerGrunnlag familieHendelser(FamilieHendelse søknadFamilieHendelse) {
@@ -183,9 +181,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     @Test
@@ -204,9 +202,9 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
-        var resultat = tjeneste.beregnStønadskontoer(input);
+        var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
-        assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
+        assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
     }
 
     private void lagreUttak(Behandling førsteBehandling, UttakResultatPerioderEntitet opprinneligPerioder) {

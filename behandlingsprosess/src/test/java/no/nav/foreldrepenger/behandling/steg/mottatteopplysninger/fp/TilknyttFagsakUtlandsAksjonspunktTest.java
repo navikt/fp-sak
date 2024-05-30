@@ -47,7 +47,7 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
         var behandling = scenario.lagre(provider);
 
         when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null,
-                null, null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
+                null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
             provider.getBehandlingRepository().taSkriveLås(behandling));
 

@@ -493,7 +493,7 @@ class FastsettePerioderTjenesteTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
         var fastsettePerioderTjeneste = tjeneste();
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato),
-            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow());
+            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow());
 
         // Assert
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(
@@ -554,7 +554,7 @@ class FastsettePerioderTjenesteTest {
 
         var fastsettePerioderTjeneste = tjeneste();
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato),
-            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow());
+            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow());
 
         // Assert
 
@@ -788,7 +788,7 @@ class FastsettePerioderTjenesteTest {
             .build();
         var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
     private Stønadskontoberegning opprettStønadskontoerForFarOgMor(Behandling behandling) {
@@ -818,7 +818,7 @@ class FastsettePerioderTjenesteTest {
             .build();
         var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getGjeldendeStønadskontoberegning().orElseThrow();
+        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {

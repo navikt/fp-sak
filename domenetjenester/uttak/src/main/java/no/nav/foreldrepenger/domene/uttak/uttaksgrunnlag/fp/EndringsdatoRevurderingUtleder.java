@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.RelevanteArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -150,7 +152,8 @@ public class EndringsdatoRevurderingUtleder {
         var annenpartBehandling = annenpartsBehandling(fpGrunnlag);
         var utløsendeUttak = hentUttak(annenpartBehandling);
         var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
-        return EndringsdatoBerørtUtleder.harEndretStrukturEllerRedusertAntallStønadsdager(utløsendeUttak.orElse(null), berørtUttak.orElse(null));
+        return UtregnetStønadskontoTjeneste.harEndretStrukturEllerRedusertAntallStønadsdager(
+            berørtUttak.map(ForeldrepengerUttak::getStønadskontoBeregning).orElse(Map.of()), utløsendeUttak.map(ForeldrepengerUttak::getStønadskontoBeregning).orElse(Map.of()));
     }
 
     private static Long annenpartsBehandling(ForeldrepengerGrunnlag fpGrunnlag) {

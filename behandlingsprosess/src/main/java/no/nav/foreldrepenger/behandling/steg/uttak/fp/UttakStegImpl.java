@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -19,12 +18,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
@@ -42,14 +38,11 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 public class UttakStegImpl implements UttakSteg {
 
     private static final Logger LOG = LoggerFactory.getLogger(UttakStegImpl.class);
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final FastsettePerioderTjeneste fastsettePerioderTjeneste;
     private final FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
-    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final FpUttakRepository fpUttakRepository;
     private final UttakInputTjeneste uttakInputTjeneste;
     private final UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
-    private final FagsakRepository fagsakRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierUttaktjeneste;
     private final LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo;
@@ -61,19 +54,14 @@ public class UttakStegImpl implements UttakSteg {
                          FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
                          UttakInputTjeneste uttakInputTjeneste,
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
-                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
-                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                         KopierForeldrepengerUttaktjeneste kopierUttaktjeneste,
+                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste, KopierForeldrepengerUttaktjeneste kopierUttaktjeneste,
                          LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo,
                          YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.beregnStønadskontoTjeneste = beregnStønadskontoTjeneste;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierUttaktjeneste = kopierUttaktjeneste;
         this.loggArbeidsforholdInfo = loggArbeidsforholdInfo;
@@ -91,8 +79,6 @@ public class UttakStegImpl implements UttakSteg {
         } catch (Exception e){
             LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på {}", input.getBehandlingReferanse().saksnummer(), e);
         }
-
-        beregnStønadskontoTjeneste.beregnStønadskontoer(input);
 
         var kontoutregningForBehandling = beregnStønadskontoTjeneste.fastsettStønadskontoerForBehandling(input);
 
@@ -132,7 +118,6 @@ public class UttakStegImpl implements UttakSteg {
                                    BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.VURDER_UTTAK, førsteSteg)) {
             ryddUttak(kontekst.getBehandlingId());
-            ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
         }
     }
 
@@ -151,7 +136,6 @@ public class UttakStegImpl implements UttakSteg {
                 uttakInput.getBehandlingReferanse().behandlingId());
         } else {
             ryddUttak(kontekst.getBehandlingId());
-            ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
         }
     }
 
@@ -159,15 +143,4 @@ public class UttakStegImpl implements UttakSteg {
         fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
-    private void ryddStønadskontoberegning(Long behandlingId, Long fagsakId) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        if (behandlingsresultat.isEndretStønadskonto()) {
-            var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-            fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(fagsak);
-            var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medEndretStønadskonto(false)
-                .build();
-            behandlingsresultatRepository.lagre(behandlingId, nyttBehandlingsresultat);
-        }
-    }
 }

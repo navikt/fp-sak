@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -37,7 +38,7 @@ public class UtregnetStønadskontoTjeneste {
         return uttakTjeneste.hentUttakHvisEksisterer(ref.behandlingId())
             .map(ForeldrepengerUttak::getStønadskontoBeregning)
             .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(ref.fagsakId())
-                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
     }
@@ -46,8 +47,37 @@ public class UtregnetStønadskontoTjeneste {
         return uttakTjeneste.hentUttakHvisEksisterer(behandlingId)
             .map(ForeldrepengerUttak::getStønadskontoBeregning)
             .or(() -> Optional.ofNullable(fagsakRelasjon)
-                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
     }
+
+    public static boolean harSammeAntallStønadsdager(Map<StønadskontoType, Integer> forrigeUtregning, Map<StønadskontoType, Integer> nyUtregning) {
+        var forrigeDager = forrigeUtregning.entrySet().stream()
+            .filter(e -> e.getKey().erStønadsdager())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        var nyeDager = nyUtregning.entrySet().stream()
+            .filter(e -> e.getKey().erStønadsdager())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return forrigeDager.equals(nyeDager);
+    }
+
+    public static boolean harEndretStrukturEllerRedusertAntallStønadsdager(Map<StønadskontoType, Integer> forrigeUtregning,
+                                                                           Map<StønadskontoType, Integer> nyUtregning) {
+        var nyutregnetForeldrepenger = nyUtregning.getOrDefault(StønadskontoType.FORELDREPENGER, 0);
+        var eksisterendeForeldrepenger = forrigeUtregning.getOrDefault(StønadskontoType.FORELDREPENGER, 0);
+        if (nyutregnetForeldrepenger > 0 && eksisterendeForeldrepenger > 0) {
+            return nyutregnetForeldrepenger < eksisterendeForeldrepenger;
+        }
+        var nyutregnetFellesperiode = nyUtregning.getOrDefault(StønadskontoType.FELLESPERIODE, 0);
+        var eksisterendeFellesperiode = forrigeUtregning.getOrDefault(StønadskontoType.FELLESPERIODE, 0);
+        if (nyutregnetFellesperiode > 0 && eksisterendeFellesperiode > 0) {
+            return nyutregnetFellesperiode < eksisterendeFellesperiode;
+        } else {
+            // Endret fra Foreldrepenger til Kvoter eller omvendt
+            return (nyutregnetForeldrepenger > 0 && eksisterendeFellesperiode > 0) ||  (nyutregnetFellesperiode > 0 && eksisterendeForeldrepenger > 0);
+        }
+    }
+
+
 }
