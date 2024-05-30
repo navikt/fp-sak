@@ -112,10 +112,19 @@ public class StønadsperiodeTjeneste {
             .map(this::erFullUtbetalingSistePeriode).orElse(false);
     }
 
+    public Optional<LocalDate> stønadsperiodeStartdatoEnkeltSak(Fagsak fagsak) {
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
+        return switch (fagsak.getYtelseType()) {
+            case FORELDREPENGER -> behandling.flatMap(this::stønadsperiodeStartdatoFraBehandling);
+            case SVANGERSKAPSPENGER -> behandling.flatMap(this::stønadsperiodeStartdatoEnkeltSakBR);
+            default -> throw new IllegalArgumentException(YTELSE_IKKE_STØTTET);
+        };
+    }
+
     public Optional<LocalDate> stønadsperiodeSluttdatoEnkeltSak(Fagsak fagsak) {
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         return switch (fagsak.getYtelseType()) {
-            case FORELDREPENGER -> behandling.flatMap(this::stønadsperiodeSluttdato);
+            case FORELDREPENGER -> behandling.flatMap(this::stønadsperiodeSluttdatoFraBehandling);
             case SVANGERSKAPSPENGER -> behandling.flatMap(this::stønadsperiodeSluttdatoEnkeltSakBR);
             default -> throw new IllegalArgumentException(YTELSE_IKKE_STØTTET);
         };
@@ -131,9 +140,9 @@ public class StønadsperiodeTjeneste {
     private Optional<LocalDateInterval> stønadsperiodeUR(Behandling behandling) {
         var brukstartdato = stønadsperiodeStartdatoUR(behandling);
         if (brukstartdato.isEmpty()) return Optional.empty();
-        var sluttdato = stønadsperiodeSluttdato(behandling);
+        var sluttdato = stønadsperiodeSluttdatoFraBehandling(behandling);
         var annenpartSluttdato = vedtattBehandlingRelatertFagsak(behandling.getFagsakId())
-            .flatMap(this::stønadsperiodeSluttdato);
+            .flatMap(this::stønadsperiodeSluttdatoFraBehandling);
         var bruksluttdato = sluttdato.filter(s -> s.isAfter(annenpartSluttdato.orElse(Tid.TIDENES_BEGYNNELSE))).or(() -> annenpartSluttdato);
         return brukstartdato.map(s -> new LocalDateInterval(s, bruksluttdato.orElse(Tid.TIDENES_ENDE)));
     }
@@ -152,7 +161,7 @@ public class StønadsperiodeTjeneste {
 
     }
 
-    private Optional<LocalDate> stønadsperiodeSluttdato(Behandling behandling) {
+    private Optional<LocalDate> stønadsperiodeSluttdatoFraBehandling(Behandling behandling) {
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
             .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder)
             .flatMap(StønadsperiodeTjeneste::finnSisteStønadsdatoFraUttakResultat);
