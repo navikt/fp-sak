@@ -156,7 +156,7 @@ public class YtelseMaksdatoTjeneste {
             .map(UttakResultatEntitet::getStønadskontoberegning)
             .map(Stønadskontoberegning::getStønadskontoutregning)
             .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId())
-                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
     }

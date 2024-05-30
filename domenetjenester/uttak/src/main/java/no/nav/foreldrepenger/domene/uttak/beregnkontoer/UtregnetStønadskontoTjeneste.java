@@ -38,7 +38,7 @@ public class UtregnetStønadskontoTjeneste {
         return uttakTjeneste.hentUttakHvisEksisterer(ref.behandlingId())
             .map(ForeldrepengerUttak::getStønadskontoBeregning)
             .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(ref.fagsakId())
-                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
     }
@@ -47,7 +47,7 @@ public class UtregnetStønadskontoTjeneste {
         return uttakTjeneste.hentUttakHvisEksisterer(behandlingId)
             .map(ForeldrepengerUttak::getStønadskontoBeregning)
             .or(() -> Optional.ofNullable(fagsakRelasjon)
-                .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+                .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
     }

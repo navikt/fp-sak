@@ -38,14 +38,10 @@ public class OppdatereFagsakRelasjonVedVedtak {
             return;
         }
         var fagsakrelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
-        var gjeldendeKontoutregning = fagsakrelasjon.getGjeldendeStønadskontoberegning()
+        var gjeldendeKontoutregning = fagsakrelasjon.getStønadskontoberegning()
             .map(Stønadskontoberegning::getStønadskontoutregning)
             .orElseGet(Map::of);
         if (!UtregnetStønadskontoTjeneste.harSammeAntallStønadsdager(gjeldendeKontoutregning, uttak.getStønadskontoberegning().getStønadskontoutregning())) {
-            if (fagsakrelasjon.getOverstyrtStønadskontoberegning().isPresent()) {
-                fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(behandling.getFagsak());
-                fagsakrelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
-            }
             fagsakRelasjonTjeneste.lagre(behandling.getFagsakId(), fagsakrelasjon, behandling.getId(), uttak.getStønadskontoberegning());
         }
     }

@@ -61,15 +61,15 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
             fagsakRelasjon = opprettRelasjon(fagsak, Dekningsgrad._100);
         }
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            stønadskontoberegning, fagsakRelasjon.getOverstyrtStønadskontoberegning().orElse(null),
-            fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
+            stønadskontoberegning,
+                fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
             fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }
 
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjon = new FagsakRelasjon(fagsak, null, null, null, dekningsgrad, null, null);
+        var fagsakRelasjon = new FagsakRelasjon(fagsak, null, null, dekningsgrad, null, null);
         lagre(fagsak, fagsakRelasjon);
         return fagsakRelasjon;
     }
@@ -83,8 +83,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
         var fagsakRelasjon = finnRelasjonFor(fagsak);
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getOverstyrtStønadskontoberegning()
-            .orElse(null), fagsakRelasjon.getDekningsgrad(), overstyrtVerdi, fagsakRelasjon.getAvsluttningsdato());
+            fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(), overstyrtVerdi, fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
         return ny;
     }
@@ -100,7 +99,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
         var fagsakRelasjon = finnRelasjonFor(fagsakEn);
         var ny = new FagsakRelasjon(fagsakEn, fagsakTo, fagsakRelasjon.getStønadskontoberegning().orElse(null),
-            fagsakRelasjon.getOverstyrtStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(),
+                fagsakRelasjon.getDekningsgrad(),
             fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsakEn, ny);
         lagre(fagsakTo, ny);
@@ -119,13 +118,6 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public Optional<FagsakRelasjon> nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
-    public void overstyrStønadskontoberegning(Fagsak fagsak,
-                                              Long behandlingId,
-                                              Stønadskontoberegning stønadskontoberegning) {
         throw new IkkeImplementertForTestException();
     }
 

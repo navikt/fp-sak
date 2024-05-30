@@ -103,11 +103,6 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void overstyrStønadskontoberegning(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
-    }
-
-    @Override
     public List<Fagsak> finnFagsakerForAvsluttning(LocalDate localDate) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
