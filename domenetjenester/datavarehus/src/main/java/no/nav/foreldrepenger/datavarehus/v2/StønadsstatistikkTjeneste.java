@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -84,6 +87,8 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class StønadsstatistikkTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkTjeneste.class);
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
     private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45,0);
@@ -422,7 +427,11 @@ public class StønadsstatistikkTjeneste {
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             var rettighetType = utledRettighetType(behandling.getRelasjonsRolleType(), yfa, konti);
-            var dekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
+            var dekningsgradGammel = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO TFP-5702: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
+            var dekningsgradNy = yfa.getGjeldendeDekningsgrad();
+            if (!Objects.equals(dekningsgradGammel, dekningsgradNy)) {
+                LOG.info("Dekningsgrad diff - stønadsstats {} {} {}", behandling.getId(), dekningsgradGammel, dekningsgradNy);
+            }
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
             var flerbarnsdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
             if (flerbarnsdager > 0) {
@@ -433,7 +442,7 @@ public class StønadsstatistikkTjeneste {
                 ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
             }
 
-            return new ForeldrepengerRettigheter(dekningsgrad.getVerdi(), rettighetType, konti, ekstradager);
+            return new ForeldrepengerRettigheter(dekningsgradGammel.getVerdi(), rettighetType, konti, ekstradager);
         });
     }
 

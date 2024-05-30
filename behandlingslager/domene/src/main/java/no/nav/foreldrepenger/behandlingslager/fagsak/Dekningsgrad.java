@@ -57,4 +57,9 @@ public class Dekningsgrad {
     public boolean isÅtti() {
         return this.equals(_80);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(verdi);
+    }
 }
