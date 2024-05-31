@@ -176,7 +176,7 @@ public class FpDtoTjeneste {
                     return oppgittFordeling.getPerioder().stream().map(FpDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
                 var behandling = behandlingRepository.hentBehandling(md.getBehandlingId());
-                var oppgittDekningsgrad = dekningsgradTjeneste.finnOppgittDekningsgrad(behandling);
+                var oppgittDekningsgrad = dekningsgradTjeneste.finnOppgittDekningsgrad(BehandlingReferanse.fra(behandling));
                 return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
@@ -296,7 +296,7 @@ public class FpDtoTjeneste {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var uttaksperioder = finnUttaksperioder(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling));
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
     }
 

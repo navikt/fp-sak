@@ -9,12 +9,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -39,55 +39,30 @@ public class DekningsgradTjeneste {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
-    public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(Behandling behandling) {
-        var gammel = finnGjeldendeDekningsgradHvisEksisterer(behandling.getFagsak().getSaksnummer()).orElse(null);
-        var ny = gjeldendeFraBehandling(behandling.getId());
-        logDiff(behandling.getId(), gammel, ny, "gjeldende1");
-        return Optional.ofNullable(gammel);
-    }
-
     public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse ref) {
+        //Bare foreldrepenger dekningsgrad kan være noe annet enn 100
+        if (ref.fagsakYtelseType() != FagsakYtelseType.FORELDREPENGER) {
+            return Optional.of(Dekningsgrad._100);
+        }
         var gammel = finnGjeldendeDekningsgradHvisEksisterer(ref.saksnummer()).orElse(null);
         var ny = gjeldendeFraBehandling(ref.behandlingId());
-        logDiff(ref.behandlingId(), gammel, ny, "gjeldende2");
+        logDiff(ref.behandlingId(), gammel, ny, "gjeldende");
         return Optional.ofNullable(gammel);
     }
 
     public Dekningsgrad finnGjeldendeDekningsgrad(BehandlingReferanse ref) {
-        var saksnummer = ref.saksnummer();
-        var gammel = finnGjeldendeDekningsgradHvisEksisterer(saksnummer).orElseThrow();
-        var ny = gjeldendeFraBehandling(ref.behandlingId());
-        logDiff(ref.behandlingId(), gammel, ny, "gjeldende3");
-        return gammel;
+        return finnGjeldendeDekningsgradHvisEksisterer(ref).orElseThrow();
     }
 
-    public Dekningsgrad finnGjeldendeDekningsgrad(Behandling behandling) {
-        var gammel = finnGjeldendeDekningsgradHvisEksisterer(behandling).orElseThrow();
-        var ny = gjeldendeFraBehandling(behandling.getId());
-        logDiff(behandling.getId(), gammel, ny, "gjeldende4");
-        return gammel;
-    }
-
-    private Dekningsgrad gjeldendeFraBehandling(Long behandlingId) {
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getGjeldendeDekningsgrad)
-            .orElse(null);
-    }
-
-    public Optional<Dekningsgrad> finnOppgittDekningsgrad(Behandling behandling) {
-        var gammel = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(behandling.getFagsak().getSaksnummer())
+    public Optional<Dekningsgrad> finnOppgittDekningsgrad(BehandlingReferanse ref) {
+        var gammel = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(ref.saksnummer())
             .map(FagsakRelasjon::getDekningsgrad)
             .orElse(null);
-        var ny = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId()).map(YtelseFordelingAggregat::getOppgittDekningsgrad).orElse(null);
+        var ny = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId()).map(YtelseFordelingAggregat::getOppgittDekningsgrad).orElse(null);
 
-        logDiff(behandling.getId(), gammel, ny, "oppgitt");
+        logDiff(ref.behandlingId(), gammel, ny, "oppgitt");
 
         return Optional.ofNullable(gammel);
-    }
-
-    public Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(Saksnummer saksnummer) {
-        //Skal hente gjeldende dekningsgrad i sakskomplekset. Fra kontogrunnlag på fagsakrel
-        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer).map(FagsakRelasjon::getGjeldendeDekningsgrad);
     }
 
     public boolean behandlingHarEndretDekningsgrad(BehandlingReferanse ref) {
@@ -99,15 +74,7 @@ public class DekningsgradTjeneste {
         return gammel;
     }
 
-    private boolean behandingHarEndretDekningsgradGammel(BehandlingReferanse ref) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
-        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
-            return dekningsgradEndretVerdi(ref);
-        }
-        return false;
-    }
-
-    public boolean behandlingHarEndretDekningsgradNy(BehandlingReferanse ref) {
+    private boolean behandlingHarEndretDekningsgradNy(BehandlingReferanse ref) {
         var yfaOpt = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
         if (yfaOpt.isEmpty()) {
             return false;
@@ -119,6 +86,25 @@ public class DekningsgradTjeneste {
             return !Objects.equals(originalDekningsgrad, behandlingDekningsgad);
         }).orElseGet(() -> !Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), ytelseFordelingAggregat.getOppgittDekningsgrad()));
 
+    }
+
+    private Optional<Dekningsgrad> finnGjeldendeDekningsgradHvisEksisterer(Saksnummer saksnummer) {
+        //Skal hente gjeldende dekningsgrad i sakskomplekset. Fra kontogrunnlag på fagsakrel
+        return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer).map(FagsakRelasjon::getGjeldendeDekningsgrad);
+    }
+
+    private Dekningsgrad gjeldendeFraBehandling(Long behandlingId) {
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(YtelseFordelingAggregat::getGjeldendeDekningsgrad)
+            .orElse(null);
+    }
+
+    private boolean behandingHarEndretDekningsgradGammel(BehandlingReferanse ref) {
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
+        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
+            return dekningsgradEndretVerdi(ref);
+        }
+        return false;
     }
 
     private boolean dekningsgradEndretVerdi(BehandlingReferanse ref) {
