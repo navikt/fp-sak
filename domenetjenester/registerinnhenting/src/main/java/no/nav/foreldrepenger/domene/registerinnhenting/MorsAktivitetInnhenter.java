@@ -98,10 +98,10 @@ public class MorsAktivitetInnhenter {
             return null;
         }
 
-        var nyGrunnlagFraDato = utledNyGrunnlagFraDato(nyMinsteAktvitetskravDato, gjeldendeAktivitetsgrunnlag.orElse(null));
-        var nyGrunnlagTilDato = nyHøyesteAktivitetskravDato != null ? nyHøyesteAktivitetskravDato : gjeldendeAktivitetsgrunnlag.get().getPeriode().getFomDato();
+        var nyGrunnlagFraDato = utledNyGrunnlagFraDato(nyMinsteAktvitetskravDato, gjeldendeAktivitetsgrunnlag.map(grunnlag -> grunnlag.getPeriode().getFomDato()).orElse(Tid.TIDENES_ENDE));
+        var nyGrunnlagTilDato = nyHøyesteAktivitetskravDato != null ? nyHøyesteAktivitetskravDato : gjeldendeAktivitetsgrunnlag.get().getPeriode().getTomDato();
 
-        LOG.info("MorsAktivitetInnhenter: Henter mors aktivitet for behandlingId: {} for periode:{} - {}", behandling.getId(), nyGrunnlagFraDato, nyHøyesteAktivitetskravDato);
+        LOG.info("MorsAktivitetInnhenter: Henter mors aktivitet for behandlingId: {} for periode:{} - {}", behandling.getId(), nyGrunnlagFraDato, nyGrunnlagTilDato);
         var arbeidsforholdInfo = abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(annenPartAktørId, nyGrunnlagFraDato, nyGrunnlagTilDato,
             behandling.getFagsakYtelseType());
 
@@ -112,16 +112,12 @@ public class MorsAktivitetInnhenter {
         var mapAvOrgnrOgAvtaler = arbeidsforholdInfo.stream().collect(Collectors.groupingBy(this::aktivitetskravNøkkel));
         var perioderBuilder = lagAktivitetskravPerioderBuilder(mapAvOrgnrOgAvtaler, nyGrunnlagFraDato, nyHøyesteAktivitetskravDato);
 
-        return new MorAktivitet(nyGrunnlagFraDato, nyHøyesteAktivitetskravDato, perioderBuilder);
+        return new MorAktivitet(nyGrunnlagFraDato, nyGrunnlagTilDato, perioderBuilder);
     }
 
-    private LocalDate utledNyGrunnlagFraDato(LocalDate nyMinsteAktvitetskravDato, AktivitetskravGrunnlagEntitet gjeldendeAktivitetsgrunnlag) {
-        var fraDatoGjeldendeGrunnlag = gjeldendeAktivitetsgrunnlag != null ? gjeldendeAktivitetsgrunnlag.getPeriode().getFomDato() : Tid.TIDENES_ENDE;
-
+    private LocalDate utledNyGrunnlagFraDato(LocalDate nyMinsteAktvitetskravDato, LocalDate fraDatoGjeldendeGrunnlag) {
         if (nyMinsteAktvitetskravDato.isBefore(fraDatoGjeldendeGrunnlag)) {
             return nyMinsteAktvitetskravDato;
-        } else if (fraDatoGjeldendeGrunnlag.isBefore(nyMinsteAktvitetskravDato)) {
-            return fraDatoGjeldendeGrunnlag;
         } else {
             return fraDatoGjeldendeGrunnlag;
         }

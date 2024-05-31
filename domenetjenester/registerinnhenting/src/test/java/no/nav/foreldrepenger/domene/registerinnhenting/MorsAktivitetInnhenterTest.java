@@ -61,7 +61,7 @@ class MorsAktivitetInnhenterTest {
             abakusArbeidsforholdTjeneste, aktivitetskravArbeidRepository);
     }
 @Test
-    void mor_har_aktivitetskrav() {
+    void sjekk_at_mor_har_riktig_aktivitetskrav_info_første_gang() {
         var annenPartAktørId = AktørId.dummy();
         var fraDato = LocalDate.now().minusWeeks(1);
         var tilDato = LocalDate.now().plusWeeks(4);
@@ -85,7 +85,7 @@ class MorsAktivitetInnhenterTest {
     }
 
     @Test
-    void mor_ikke_har_aktivitetskrav() {
+    void sjekk_at_ingen_aktivitet_når_ingen_aktivitetskravperioder() {
         var annenPartAktørId = AktørId.dummy();
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandling = førstegangScenario.lagMocked();
@@ -97,17 +97,18 @@ class MorsAktivitetInnhenterTest {
     }
 
     @Test
-    void mor_har_aktivitetskrav_i_hele_perioden() {
+    void sjekk_at_mor_har_samme_aktivitet_i_hele_perioden() {
         var annenPartAktørId = AktørId.dummy();
         var fraDato = LocalDate.now().minusWeeks(1);
         var tilDato = LocalDate.now().plusWeeks(4);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraDato.minusWeeks(2), tilDato.plusWeeks(2));
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandling = førstegangScenario.lagMocked();
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
         var perioderMedAktivitetskrav = List.of(lagOppgittPeriode(LocalDate.now().minusWeeks(1), LocalDate.now()), lagOppgittPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4)));
         var aktivitetsavtaler = List.of(lagAktivitetsavtale(periode, BigDecimal.valueOf(100)));
 
-        var arbeidsforholdMedPermisjon = List.of(lagArbeidsforholdMedPermisjon(Arbeidsgiver.virksomhet("999999999"), EksternArbeidsforholdRef.ref("01"), aktivitetsavtaler, Collections.emptyList()));
+        var arbeidsforholdMedPermisjon = List.of(lagArbeidsforholdMedPermisjon(virksomhet, EksternArbeidsforholdRef.ref("01"), aktivitetsavtaler, Collections.emptyList()));
 
         when(abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(any(), any(), any(), any())).thenReturn(arbeidsforholdMedPermisjon);
 
@@ -118,10 +119,13 @@ class MorsAktivitetInnhenterTest {
         assertThat(morAktivitet.fraDato()).isEqualTo(fraDato.minusWeeks(2));
         assertThat(morAktivitet.tilDato()).isEqualTo(tilDato.plusWeeks(2));
         assertThat(aktivitetPeriodeEntitetListe).hasSize(1);
+        assertThat(aktivitetPeriodeEntitetListe.stream()
+            .map(aktPeriode -> aktPeriode.getSumStillingsprosent().getVerdi())
+            .reduce(BigDecimal::add).orElse(BigDecimal.ZERO)).isEqualTo(BigDecimal.valueOf(100));
     }
 
     @Test
-    void mor_har_aktvitetsgrunnlag_med_tidligere_fra_dato(){
+    void sjekk_at_forrige_innhentingsfradato_opprettholdes_når_nye_aktivitetskrav_perioder_er_senere(){
         var annenPartAktørId = AktørId.dummy();
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
 
@@ -156,7 +160,7 @@ class MorsAktivitetInnhenterTest {
     }
 
     @Test
-    void mor_har_aktvitetsgrunnlag_med_senere_fra_dato(){
+    void sjekk_at_fradato_fra_ny_aktivitetskravperiode_velges_når_den_er_før_forrige_grunnlagsfradato(){
         var annenPartAktørId = AktørId.dummy();
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
 
@@ -191,7 +195,41 @@ class MorsAktivitetInnhenterTest {
     }
 
     @Test
-    void mor_har_aktivitetskrav_i_flere_arbeidsforhold_med_ulik_stillingsprosent_i_perioden_og_permisjon_i_ett() {
+    void sjekk_at_det_innhentes_på_nytt_for_samme_periode_når_mor_har_et_aktvitetsgrunnlag_og_ingen_nye_aktivitskravperioder(){
+        var annenPartAktørId = AktørId.dummy();
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+
+        //førstegangsbehandling
+        var nyfraDato = LocalDate.now();
+        var nytilDato = LocalDate.now().plusWeeks(4);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(nyfraDato, nytilDato);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var behandling = førstegangScenario.lagMocked();
+        var aktivitetsavtaler = List.of(lagAktivitetsavtale(periode, BigDecimal.valueOf(100)));
+
+        //forrige aktivitetsgrunnlag
+        var grunnlagsFraDato = LocalDate.now().minusWeeks(2);
+        var grunnlagsTilDato = LocalDate.now().plusWeeks(2);
+        var perioder = List.of(lagAktvitetskravArbeidPeriode(grunnlagsFraDato, grunnlagsTilDato, BigDecimal.valueOf(100),  virksomhet.getOrgnr()));
+        var aktvitetskravPerioder = lagPerioderBUilder(perioder);
+        var gjeldendeAktivitetsgrunnlag = lagAktivitetsgrunnlag(behandling.getId(), grunnlagsFraDato, grunnlagsTilDato, aktvitetskravPerioder);
+
+        var arbeidsforholdMedPermisjon = List.of(lagArbeidsforholdMedPermisjon(virksomhet, EksternArbeidsforholdRef.ref("01"), aktivitetsavtaler, Collections.emptyList()));
+
+        when(abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(any(), any(), any(), any())).thenReturn(arbeidsforholdMedPermisjon);
+
+
+        var morAktivitet = morsAktivitetInnhenter.finnMorsAktivitet(behandling, List.of(), annenPartAktørId, Optional.of(gjeldendeAktivitetsgrunnlag));
+        var aktivitetPeriodeEntitetListe = morAktivitet.perioderEntitet().getAktivitetskravArbeidPeriodeListe();
+
+
+        assertThat(morAktivitet.fraDato()).isEqualTo(grunnlagsFraDato);
+        assertThat(morAktivitet.tilDato()).isEqualTo(grunnlagsTilDato);
+        assertThat(aktivitetPeriodeEntitetListe).hasSize(3);
+    }
+
+    @Test
+    void sjekk_at_mors_aktivitet_er_riktig_når_flere_arbeidsforhold_med_ulik_stillingsprosent_i_perioden_og_permisjon_i_ett() {
         var annenPartAktørId = AktørId.dummy();
         var orgnr1 = Arbeidsgiver.virksomhet("999999999");
         var orgnr2 = Arbeidsgiver.virksomhet("888888888");
