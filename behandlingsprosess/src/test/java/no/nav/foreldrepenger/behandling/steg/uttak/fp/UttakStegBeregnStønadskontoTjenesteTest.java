@@ -65,7 +65,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_beregne_hvis_vedtak_uten_uttak() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
@@ -85,7 +86,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         lagreUttak(førsteBehandling, avslåttUttak());
@@ -106,10 +108,11 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var uttak = avslåttUttak();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(uttak.getPerioder().getFirst().getFom());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
-        var uttak = avslåttUttak();
         var periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
                 uttak.getPerioder().get(0).getFom().minusDays(1))
                         .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
