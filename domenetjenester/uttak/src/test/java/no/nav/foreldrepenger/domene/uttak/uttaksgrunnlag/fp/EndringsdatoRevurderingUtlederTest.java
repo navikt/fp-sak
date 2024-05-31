@@ -96,7 +96,7 @@ class EndringsdatoRevurderingUtlederTest {
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
         FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRelasjonRepository());
     private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste,
-        repositoryProvider.getBehandlingsresultatRepository());
+        repositoryProvider.getBehandlingsresultatRepository(), ytelsesFordelingRepository);
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtleder utleder = new EndringsdatoRevurderingUtleder(

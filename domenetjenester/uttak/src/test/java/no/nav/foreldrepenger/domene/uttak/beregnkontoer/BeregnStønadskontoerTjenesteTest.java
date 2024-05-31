@@ -41,7 +41,8 @@ class BeregnStønadskontoerTjenesteTest {
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null,
         repositoryProvider.getFagsakRelasjonRepository());
     private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-    private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+    private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+        ytelsesFordelingRepository);
 
     @Test
     void bådeMorOgFarHarRettTermin() {
