@@ -108,7 +108,11 @@ public class DekningsgradTjeneste {
     }
 
     public boolean behandlingHarEndretDekningsgradNy(BehandlingReferanse ref) {
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        var yfaOpt = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
+        if (yfaOpt.isEmpty()) {
+            return false;
+        }
+        var ytelseFordelingAggregat = yfaOpt.orElseThrow();
         return ref.getOriginalBehandlingId().map(originalBehandling -> {
             var originalDekningsgrad = ytelsesFordelingRepository.hentAggregat(originalBehandling).getGjeldendeDekningsgrad();
             var behandlingDekningsgad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
