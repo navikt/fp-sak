@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -152,7 +153,7 @@ public class FagsakTjeneste {
 
     private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
         var behandling = hentSisteYtelsesBehandling(fagsak);
-        var dekningsgrad = behandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(b))
+        var dekningsgrad = behandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
         return new FagsakBackendDto(fagsak, dekningsgrad);

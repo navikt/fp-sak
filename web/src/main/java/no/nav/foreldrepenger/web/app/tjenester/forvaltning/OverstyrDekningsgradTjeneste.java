@@ -90,7 +90,9 @@ public class OverstyrDekningsgradTjeneste {
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
-        var fraVerdi = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(fagsak.getSaksnummer()).orElseThrow();
+        //TODO 5702 vurdere om vi trenger overstyring swagger
+        var fraVerdi = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(fagsak.getSaksnummer())
+            .map(FagsakRelasjon::getGjeldendeDekningsgrad).orElseThrow();
         var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();

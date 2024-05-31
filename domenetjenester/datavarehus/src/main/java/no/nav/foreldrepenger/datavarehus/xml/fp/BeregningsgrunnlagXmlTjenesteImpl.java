@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -61,7 +62,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlag, beregningsgrunnlagDomene.getAktivitetStatuser());
-            var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(behandling).getVerdi();
+            var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(BehandlingReferanse.fra(behandling)).getVerdi();
             beregningsgrunnlag.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
             VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt()).ifPresent(beregningsgrunnlag::setSkjaeringstidspunkt);
             setBeregningsgrunnlagPerioder(beregningsgrunnlag, beregningsgrunnlagDomene.getBeregningsgrunnlagPerioder());
