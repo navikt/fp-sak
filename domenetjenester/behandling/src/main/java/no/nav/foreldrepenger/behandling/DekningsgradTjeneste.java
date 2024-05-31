@@ -91,11 +91,30 @@ public class DekningsgradTjeneste {
     }
 
     public boolean behandlingHarEndretDekningsgrad(BehandlingReferanse ref) {
+        var gammel = behandingHarEndretDekningsgradGammel(ref);
+        var ny = behandlingHarEndretDekningsgradNy(ref);
+        if (!Objects.equals(gammel, ny)) {
+            LOG.info("Dekningsgrad diff - endret {} {} {}", ref.behandlingId(), gammel, ny);
+        }
+        return gammel;
+    }
+
+    private boolean behandingHarEndretDekningsgradGammel(BehandlingReferanse ref) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
             return dekningsgradEndretVerdi(ref);
         }
         return false;
+    }
+
+    public boolean behandlingHarEndretDekningsgradNy(BehandlingReferanse ref) {
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        return ref.getOriginalBehandlingId().map(originalBehandling -> {
+            var originalDekningsgrad = ytelsesFordelingRepository.hentAggregat(originalBehandling).getGjeldendeDekningsgrad();
+            var behandlingDekningsgad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
+            return !Objects.equals(originalDekningsgrad, behandlingDekningsgad);
+        }).orElseGet(() -> !Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), ytelseFordelingAggregat.getOppgittDekningsgrad()));
+
     }
 
     private boolean dekningsgradEndretVerdi(BehandlingReferanse ref) {
