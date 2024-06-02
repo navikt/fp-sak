@@ -8,6 +8,8 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Fore
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.HendelseType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2024_08_02;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_UTJEVNE80_2024_07_01;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.UtlandsTilsnitt;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
@@ -405,7 +407,19 @@ public class StønadsstatistikkTjeneste {
         if (stp.utenMinsterett()) {
             return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
         }
-        return FORELDREPENGER_MINSTERETT_2022_08_02;
+        var familieHendelseDato = stp.getFamiliehendelsedato();
+        if (LocalDate.now().isBefore(FORELDREPENGER_UTJEVNE80_2024_07_01.getDatoFom())) {
+            return FORELDREPENGER_MINSTERETT_2022_08_02;
+        } else if (familieHendelseDato != null && familieHendelseDato.isBefore(FORELDREPENGER_UTJEVNE80_2024_07_01.getDatoFom())) {
+            return FORELDREPENGER_MINSTERETT_2022_08_02;
+        } if (LocalDate.now().isBefore(FORELDREPENGER_MINSTERETT_2024_08_02.getDatoFom())) {
+            return FORELDREPENGER_UTJEVNE80_2024_07_01;
+        } else if (familieHendelseDato != null && familieHendelseDato.isBefore(FORELDREPENGER_MINSTERETT_2024_08_02.getDatoFom())) {
+            return FORELDREPENGER_UTJEVNE80_2024_07_01;
+        } else {
+            return FORELDREPENGER_MINSTERETT_2024_08_02;
+        }
+
     }
 
     private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling,

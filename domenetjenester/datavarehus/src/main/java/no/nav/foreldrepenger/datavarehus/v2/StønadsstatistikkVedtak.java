@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -299,12 +300,14 @@ public class StønadsstatistikkVedtak {
     }
 
     enum LovVersjon {
-        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019,1,1)), // LOV-2017-12-19-116 - 1/1-2019
-        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER, LocalDate.of(2021,10,1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
-        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2022,8,2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019, Month.JANUARY,1)), // LOV-2017-12-19-116 - 1/1-2019
+        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER, LocalDate.of(2021,Month.OCTOBER,1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
+        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2022,Month.AUGUST,2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_UTJEVNE80_2024_07_01(YtelseType.FORELDREPENGER, LocalDate.of(2024,Month.JULY,1)), // LOV-2024-05-14-21 - 1/7-2024 - utjevne 80%
+        FORELDREPENGER_MINSTERETT_2024_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2024,Month.AUGUST,2)), // LOV-TBA - 2/8-2024 - minsterett
 
-        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,1,1)),
-        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,1,1))
+        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,Month.JANUARY,1)),
+        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,Month.JANUARY,1))
         ;
 
         private final YtelseType ytelseType;
