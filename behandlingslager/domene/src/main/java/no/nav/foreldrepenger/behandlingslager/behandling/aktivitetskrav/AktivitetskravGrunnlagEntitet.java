@@ -95,7 +95,7 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
             this.kladd = kladd;
         }
 
-        private static AktivitetskravGrunnlagEntitet.Builder nytt() {
+        public static Builder nytt() {
             return new Builder(new AktivitetskravGrunnlagEntitet());
         }
 
@@ -104,15 +104,15 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
         }
 
         public static AktivitetskravGrunnlagEntitet.Builder oppdatere(Optional<AktivitetskravGrunnlagEntitet> kladd) {
-            return kladd.map(AktivitetskravGrunnlagEntitet.Builder::oppdatere).orElseGet(AktivitetskravGrunnlagEntitet.Builder::nytt);
+            return kladd.map(AktivitetskravGrunnlagEntitet.Builder::oppdatere).orElseGet(Builder::nytt);
         }
 
         public Builder medBehandlingId(Long behandlingId) {
             this.kladd.behandlingId = behandlingId;
             return this;
         }
-        public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet.Builder builder) {
-            this.kladd.perioderMedAktivitetskravArbeid = builder.build();
+        public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet perioderEntitet) {
+            this.kladd.perioderMedAktivitetskravArbeid = perioderEntitet;
             return this;
         }
         public Builder medPeriode(LocalDate fom, LocalDate tom) {
