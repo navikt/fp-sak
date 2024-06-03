@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -44,8 +45,9 @@ class FastsettUttaksgrunnlagTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
+    private final EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder = mock(EndringsdatoRevurderingUtleder.class);
     private final FastsettUttaksgrunnlagTjeneste tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider, endringsdatoUtleder,
-            mock(EndringsdatoRevurderingUtleder.class));
+        endringsdatoRevurderingUtleder);
 
     @Test
     void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
@@ -401,5 +403,49 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
         assertThat(resultat.getGjeldendeFordeling().getPerioder()).isEqualTo(fordeling.getPerioder());
+    }
+
+    @Disabled
+    @Test
+    void fjerner_perioder_før_endringsdato_i_revuderinger() {
+        var fødselsdato = LocalDate.of(2024, 3, 6);
+        var mødrekvote1 = ny()
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(3).minusDays(1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var mødrekvote2 = ny()
+            .medPeriode(fødselsdato.plusWeeks(3), fødselsdato.plusWeeks(10))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(mødrekvote1, mødrekvote2), true);
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(mødrekvote1.getFom(), mødrekvote2.getTom())
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        var uttak = new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiode);
+        var førstegangsbehandlingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medUttak(uttak)
+            .medFordeling(fordeling);
+        var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
+
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)
+            .medFordeling(fordeling)
+            .lagre(repositoryProvider);
+
+        var søknadFamilieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
+
+        var input = lagInput(revurdering, fpGrunnlag);
+        var endringsdato = fødselsdato.plusWeeks(8);
+        when(endringsdatoRevurderingUtleder.utledEndringsdato(input)).thenReturn(endringsdato);
+
+        tjeneste.fastsettUttaksgrunnlag(input);
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(revurdering.getId());
+
+        assertThat(resultat.getGjeldendeFordeling().getPerioder()).hasSize(1);
+        assertThat(resultat.getGjeldendeFordeling().getPerioder().getFirst().getFom()).isEqualTo(endringsdato);
+        assertThat(resultat.getGjeldendeFordeling().getPerioder().getFirst().getTom()).isEqualTo(mødrekvote2.getTom());
     }
 }
