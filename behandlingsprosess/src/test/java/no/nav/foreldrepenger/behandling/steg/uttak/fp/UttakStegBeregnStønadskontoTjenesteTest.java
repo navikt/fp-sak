@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UttakCore2024;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,15 +59,17 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
+        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste);
+            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
         tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test
     void skal_beregne_hvis_vedtak_uten_uttak() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
@@ -84,7 +89,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         lagreUttak(førsteBehandling, avslåttUttak());
@@ -105,10 +111,11 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var uttak = avslåttUttak();
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultFordeling(uttak.getPerioder().getFirst().getFom());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
-        var uttak = avslåttUttak();
         var periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
                 uttak.getPerioder().get(0).getFom().minusDays(1))
                         .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)

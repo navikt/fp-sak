@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -138,7 +139,7 @@ public class FagsakFullTjeneste {
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
         var sisteYtelsesBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        return sisteYtelsesBehandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(b))
+        return sisteYtelsesBehandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
     }

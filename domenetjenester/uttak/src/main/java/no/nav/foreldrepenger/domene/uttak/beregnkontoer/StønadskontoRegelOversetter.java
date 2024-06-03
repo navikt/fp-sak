@@ -27,16 +27,18 @@ public class StønadskontoRegelOversetter {
     private static final LocalDate START_FPSAK = LocalDate.of(2019, Month.JANUARY, 1);
 
     public static BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                Dekningsgrad dekningsgrad,
-                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
-                                                ForeldrepengerGrunnlag fpGrunnlag,
-                                                BehandlingReferanse ref,
-                                                Map<StønadskontoType, Integer> tidligereUtregning) {
+                                                       Dekningsgrad dekningsgrad,
+                                                       Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
+                                                       ForeldrepengerGrunnlag fpGrunnlag,
+                                                       BehandlingReferanse ref,
+                                                       Map<StønadskontoType, Integer> tidligereUtregning,
+                                                       UttakCore2024 uttakCore2024) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
+            .regelvalgsdato(uttakCore2024.utledRegelvalgsdato(familieHendelse))
             .antallBarn(familieHendelse.getAntallBarn())
             .dekningsgrad(map(dekningsgrad))
             .brukerRolle(UttakEnumMapper.mapTilBeregning(ref.relasjonRolle()))

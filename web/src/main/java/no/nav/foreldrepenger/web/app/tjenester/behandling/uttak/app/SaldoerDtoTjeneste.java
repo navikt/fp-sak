@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Stønadskont
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 
-@Dependent
+@ApplicationScoped
 public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;

@@ -36,7 +36,8 @@ class DekningsgradTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
         fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
 
-        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
 
         assertThat(tjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling))).isTrue();
     }
@@ -46,7 +47,8 @@ class DekningsgradTjenesteTest {
         var behandling = behandling(false);
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
 
-        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
 
         assertThat(tjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling))).isFalse();
     }
@@ -57,7 +59,8 @@ class DekningsgradTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
         fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
 
-        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
 
         assertThat(tjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling))).isFalse();
     }
@@ -68,7 +71,8 @@ class DekningsgradTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
         fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._80);
 
-        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
+        var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
 
         assertThat(tjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling))).isFalse();
     }

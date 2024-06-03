@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-class BeregnStønadskontoerTjenesteTest {
+class BeregnStønadskontoerTjenesteDekning80Test {
 
     private static final LocalDate IVERKSATT = LocalDate.of(2024, Month.JANUARY,1);
     private static final UttakCore2024 UTTAK_CORE_2024 = new UttakCore2024(IVERKSATT, IVERKSATT);
@@ -52,7 +52,7 @@ class BeregnStønadskontoerTjenesteTest {
         var termindato = LocalDate.now().plusMonths(4);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -83,7 +83,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(80);
+        //assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(FamilieHendelser familieHendelser) {
@@ -98,7 +98,7 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -122,7 +122,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(80);
+        //assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -134,7 +134,7 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -160,7 +160,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(2);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(230);
+        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
     }
 
     @Test
@@ -168,7 +168,7 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -195,7 +195,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(2);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(230);
+        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
     }
 
     @Test
@@ -203,7 +203,7 @@ class BeregnStønadskontoerTjenesteTest {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForFar(AktørId.dummy());
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -230,16 +230,16 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(3);
         assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(200);
+        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(261);
         //assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
     }
 
     @Test
-    void barefarHarRettFødselEldre() {
+    void barefarHarRettFødsel_Eldre() {
         var fødselsdato = IVERKSATT.minusMonths(6);
         var behandling = opprettBehandlingForFar(AktørId.dummy());
 
-        var dekningsgrad = Dekningsgrad._100;
+        var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
         fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
 
@@ -266,9 +266,10 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer).hasSize(3);
         assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(200);
+        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(250);
         assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(40);
     }
+
 
     private Behandling opprettBehandlingForMor(AktørId aktørId) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);

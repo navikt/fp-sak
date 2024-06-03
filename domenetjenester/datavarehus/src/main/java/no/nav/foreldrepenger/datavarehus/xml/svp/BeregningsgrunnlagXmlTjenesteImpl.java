@@ -8,6 +8,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -63,7 +64,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlagSvangerskapspenger, beregningsgrunnlagDomene.getAktivitetStatuser());
-            var dekningsgradOptional = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(behandling);
+            var dekningsgradOptional = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling));
             if (dekningsgradOptional.isPresent()) {
                 var dekningsgrad = dekningsgradOptional.get().getVerdi();
                 beregningsgrunnlagSvangerskapspenger.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
