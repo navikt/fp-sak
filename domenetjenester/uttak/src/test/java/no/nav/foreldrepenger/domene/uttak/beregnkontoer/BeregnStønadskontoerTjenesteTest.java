@@ -75,9 +75,9 @@ class BeregnStønadskontoerTjenesteTest {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
-        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.now();
+        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.of(2024, Month.AUGUST,2);
         //assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null"); // TODO: Må endres i overgangsfase
-        //assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Må endres i overgangsfase
+        assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Fjernes 2/8-2024 - enable den over
 
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
@@ -231,7 +231,7 @@ class BeregnStønadskontoerTjenesteTest {
         assertThat(stønadskontoer).hasSize(3);
         assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
         assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(200);
-        //assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
+        assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
     }
 
     @Test
