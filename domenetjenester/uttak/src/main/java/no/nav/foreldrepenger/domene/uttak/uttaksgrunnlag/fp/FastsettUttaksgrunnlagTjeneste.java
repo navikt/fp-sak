@@ -90,6 +90,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
+                justertePerioder = fjernPerioderFørEndringsdato(justertePerioder, endringsdatoRevurdering);
                 justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId,
                     input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() || input.isBehandlingManueltOpprettet());
             } else {
@@ -110,6 +111,19 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
+    }
+
+    private static List<OppgittPeriodeEntitet> fjernPerioderFørEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate endringsdato) {
+        //Kan skje feks ved nytt pleiepenger vedtak på behandling opprettet pga ny IM (behandling som i utgangspunktet er tiltenkt å hoppe over uttak).
+        //Oppgitt fordeling er i disse tilfellene kopiert fra tidligere behandling
+        if (oppgittePerioder.stream().anyMatch(op -> op.getFom().isBefore(endringsdato))) {
+            LOG.info("Fant og filtrerer ut oppgitte perioder før endringsdato {}", endringsdato);
+        }
+//        return oppgittePerioder.stream()
+//            .flatMap(op -> klipp(op, endringsdato, Optional.empty()))
+//            .filter(op -> !op.getFom().isBefore(endringsdato))
+//            .toList();
+        return oppgittePerioder;
     }
 
     private static boolean skalJustereFordelingEtterFamiliehendelse(UttakInput input, List<OppgittPeriodeEntitet> perioder) {

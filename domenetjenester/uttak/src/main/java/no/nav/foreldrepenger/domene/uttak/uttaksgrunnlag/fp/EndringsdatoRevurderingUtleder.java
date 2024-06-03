@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
@@ -62,7 +61,6 @@ public class EndringsdatoRevurderingUtleder {
     private RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository; // Kun for logging
 
     @Inject
@@ -77,7 +75,6 @@ public class EndringsdatoRevurderingUtleder {
         this.relevanteArbeidsforholdTjeneste = relevanteArbeidsforholdTjeneste;
         this.uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRepository = behandlingRepository;
     }
 
