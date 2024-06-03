@@ -18,7 +18,6 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,11 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -81,6 +77,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class EndringsdatoRevurderingUtlederTest {
@@ -93,10 +90,7 @@ class EndringsdatoRevurderingUtlederTest {
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final UttakBeregningsandelTjenesteTestUtil uttakBeregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
-    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
-        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRelasjonRepository());
-    private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste,
-        repositoryProvider.getBehandlingsresultatRepository(), ytelsesFordelingRepository);
+    private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(ytelsesFordelingRepository);
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtleder utleder = new EndringsdatoRevurderingUtleder(
@@ -108,27 +102,26 @@ class EndringsdatoRevurderingUtlederTest {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = Dekningsgrad._80;
+        var opprinneligUttak = List.of(opprinneligPeriode);
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_OPPLYSNINGER_OM_DØD, opprinneligUttak,
-            new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
+            new OppgittFordelingEntitet(List.of(), true));
         var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medAvklarteDatoer(entitet);
         ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
-        endreDekningsgrad(revurdering, Dekningsgrad._100);
+        endreDekningsgrad(revurdering);
 
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
 
         assertThat(endringsdato).isEqualTo(opprinneligPeriode.getFom());
     }
 
-    private void endreDekningsgrad(Behandling revurdering, Dekningsgrad dekningsgrad) {
-        fagsakRelasjonTjeneste.overstyrDekningsgrad(revurdering.getFagsak(), dekningsgrad);
-        var behandlingsresultat = Behandlingsresultat.builder().medEndretDekningsgrad(true);
-        repositoryProvider.getBehandlingsresultatRepository().lagre(revurdering.getId(), behandlingsresultat.build());
+    private void endreDekningsgrad(Behandling revurdering) {
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+        var gjeldendeDekningsgrad = ytelseFordelingTjeneste.hentAggregat(revurdering.getId()).getGjeldendeDekningsgrad();
+        ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(revurdering.getId(), gjeldendeDekningsgrad.isÅtti() ? Dekningsgrad._100 : Dekningsgrad._80);
     }
 
     @Test
@@ -136,13 +129,13 @@ class EndringsdatoRevurderingUtlederTest {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var fordeling = Collections.singletonList(OppgittPeriodeBuilder.ny()
+        var opprinneligUttak = List.of(opprinneligPeriode);
+        var fordeling = List.of(OppgittPeriodeBuilder.ny()
             .medPeriode(VirkedagUtil.fomVirkedag(LocalDate.now()), VirkedagUtil.fomVirkedag(LocalDate.now()))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build());
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            new OppgittFordelingEntitet(fordeling, true), Dekningsgrad._100);
+            new OppgittFordelingEntitet(fordeling, true));
         var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
 
@@ -150,7 +143,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medAvklarteDatoer(entitet);
         ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
-        endreDekningsgrad(revurdering, Dekningsgrad._80);
+        endreDekningsgrad(revurdering);
 
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
 
@@ -164,10 +157,9 @@ class EndringsdatoRevurderingUtlederTest {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             baselineDato, baselineDato.plusWeeks(15)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = Dekningsgrad._80;
+        var opprinneligUttak = List.of(opprinneligPeriode);
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
-            new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
+            new OppgittFordelingEntitet(List.of(), true));
 
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering, startdatoNySak));
 
@@ -181,10 +173,9 @@ class EndringsdatoRevurderingUtlederTest {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             baselineDato, baselineDato.plusWeeks(15)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        var oppgittDekningsgrad = Dekningsgrad._80;
+        var opprinneligUttak = List.of(opprinneligPeriode);
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
-            new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
+            new OppgittFordelingEntitet(List.of(), true));
 
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering, startdatoNySak));
 
@@ -260,7 +251,8 @@ class EndringsdatoRevurderingUtlederTest {
             .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
-        originalScenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriode), true));
+        originalScenario.medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
+            .medOppgittDekningsgrad(Dekningsgrad._100);
 
         var originalBehandling = originalScenario.lagre(repositoryProvider);
 
@@ -282,7 +274,8 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
 
         revurderingScenario.medFordeling(
-            new OppgittFordelingEntitet(Collections.singletonList(nyOppgittPeriode), true));
+            new OppgittFordelingEntitet(List.of(nyOppgittPeriode), true))
+            .medOppgittDekningsgrad(Dekningsgrad._100);
 
         var revurdering = lagre(revurderingScenario);
 
@@ -303,7 +296,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         originalScenario.medFordeling(
-            new OppgittFordelingEntitet(Collections.singletonList(originalOppgittPeriode), true));
+            new OppgittFordelingEntitet(List.of(originalOppgittPeriode), true));
         var originalBehandling = originalScenario.lagre(repositoryProvider);
 
         var originaltUttak = new UttakResultatPerioderEntitet();
@@ -323,7 +316,7 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
 
         revurderingScenario.medFordeling(
-            new OppgittFordelingEntitet(Collections.singletonList(nyOppgittPeriode), true));
+            new OppgittFordelingEntitet(List.of(nyOppgittPeriode), true));
 
         var revurdering = lagre(revurderingScenario);
 
@@ -609,7 +602,7 @@ class EndringsdatoRevurderingUtlederTest {
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, Dekningsgrad._100);
+            nyFordeling);
         uttakBeregningsandelTjeneste.leggTilSelvNæringdrivende(Arbeidsgiver.virksomhet("123"));
 
         // Act
@@ -636,8 +629,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
-        var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, Dekningsgrad._100);
+        var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak, nyFordeling);
         uttakBeregningsandelTjeneste.leggTilSelvNæringdrivende(Arbeidsgiver.virksomhet("123"));
         uttakBeregningsandelTjeneste.leggTilFrilans();
 
@@ -666,8 +658,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
         var nyFordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
-        var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak,
-            nyFordeling, Dekningsgrad._100);
+        var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRING_FRA_BRUKER, opprinneligUttak, nyFordeling);
         uttakBeregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.nullRef());
         var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(RE_ENDRING_FRA_BRUKER));
 
