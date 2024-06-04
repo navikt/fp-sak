@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /*
- * Migreringspattern til senere bruk. Skal ikke kjøres på nytt.
+ * Migreringspattern til senere bruk. Skal ikke kjøres på nytt. Bevares for pattern
  */
 @Dependent
 @ProsessTask(value = "stønadskonto.migrering", maxFailedRuns = 1)
@@ -95,30 +95,25 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         } else if (input.contains("familiehendelsesdato")) {
             var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV0.class);
             if (grunnlag.getAntallBarn() > 1) {
-                var dager = stønadsdager.ekstradagerFlerbarn(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
+                //etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
                 endret = true;
             }
         } else {
             var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV1.class);
             if (grunnlag.getAntallBarn() > 1) {
-                var dager = stønadsdager.ekstradagerFlerbarn(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
+                //etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
                 endret = true;
             }
             if (grunnlag.erFødsel() && grunnlag.getFødselsdato().isPresent() && grunnlag.getTermindato().isPresent()) {
-                var prematur = stønadsdager.ekstradagerPrematur(grunnlag.getFødselsdato().orElseThrow(), grunnlag.getTermindato().orElseThrow());
-                etterpopuler(kontoberegning, StønadskontoType.TILLEGG_PREMATUR, prematur);
+                //etterpopuler(kontoberegning, StønadskontoType.TILLEGG_PREMATUR, prematur);
                 endret = true;
             }
             if (grunnlag.erFødsel() && grunnlag.isMinsterett() && grunnlag.isFarRett()) {
-                var rundtFødsel = stønadsdager.andredagerFarRundtFødsel(grunnlag.getFamiliehendelsesdato(), true);
-                etterpopuler(kontoberegning, StønadskontoType.FAR_RUNDT_FØDSEL, rundtFødsel);
+                //etterpopuler(kontoberegning, StønadskontoType.FAR_RUNDT_FØDSEL, rundtFødsel);
                 endret = true;
             }
             if (grunnlag.isMinsterett() && grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg()) {
-                var rundtFødsel = stønadsdager.minsterettBareFarRett(grunnlag.getFamiliehendelsesdato(), grunnlag.getAntallBarn(), true, false, grunnlag.getDekningsgrad());
-                etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, rundtFødsel);
+                //etterpopuler(kontoberegning, StønadskontoType.BARE_FAR_RETT, rundtFødsel);
                 endret = true;
             }
         }

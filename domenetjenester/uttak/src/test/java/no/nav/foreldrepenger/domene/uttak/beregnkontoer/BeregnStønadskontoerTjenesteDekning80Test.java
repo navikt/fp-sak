@@ -75,15 +75,15 @@ class BeregnStønadskontoerTjenesteDekning80Test {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
-        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.now();
+        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.of(2024, Month.AUGUST,2);
         //assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null"); // TODO: Må endres i overgangsfase
-        //assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Må endres i overgangsfase
+        assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Fjernes 2/8-2024 - enable den over
 
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
         assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        //assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
+        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(FamilieHendelser familieHendelser) {
@@ -122,7 +122,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer).hasSize(5);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        //assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
+        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(101);
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -160,7 +160,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer).hasSize(2);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
+        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
     }
 
     @Test
@@ -195,7 +195,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer).hasSize(2);
         assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
+        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(291);
     }
 
     @Test
@@ -230,8 +230,8 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer).hasSize(3);
         assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        //assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(261);
-        //assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
+        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(261);
+        assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
     }
 
     @Test
