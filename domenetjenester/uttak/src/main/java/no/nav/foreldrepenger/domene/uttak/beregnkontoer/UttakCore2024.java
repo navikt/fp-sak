@@ -11,6 +11,9 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /*
  * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av Proposisjonene
  * Klasse for styring av ikrafttredelese nytt regelverk for minsterett og uttak ifm fødsel
@@ -22,6 +25,8 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 @ApplicationScoped
 public class UttakCore2024 {
 
+
+    private static final Logger LOG = LoggerFactory.getLogger(UttakCore2024.class);
     private static final Environment ENV = Environment.current();
 
     private static final String PROP_NAME_DATO_DEL1 = "dato.for.aatti.prosent";
@@ -89,6 +94,7 @@ public class UttakCore2024 {
         } else if (ikrafttredelseFraKonfig != null && ikrafttredelseFraKonfig.isAfter(ikrafttredelseFraLov)) {
             throw new IllegalArgumentException("Støtter ikke forsinket iverksettelse i test");
         } else {
+            LOG.info("UTTAK CORE 2024 ikrafttredelse {}", ikrafttredelseFraKonfig);
             return ikrafttredelseFraKonfig == null ? ikrafttredelseFraLov : ikrafttredelseFraKonfig;
 
         }
