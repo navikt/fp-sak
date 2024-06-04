@@ -22,9 +22,14 @@ public record AdopsjonsvilkårGrunnlag (List<BekreftetAdopsjonBarn> bekreftetAdo
     }
 
     /*
+     * erStønadsperiodeBruktOpp er legacy - har slått til i to tilfelle
+     *
      * Jepp det er ikke norske bokstaver - lot det ligge i denne omgangen pga vedtakxml-mapping (den bør også oppdateres)
      * For å fornorske: Lag en legacy-variant så LagretVedtakXML kan hente fra gammel/ny json
      * Men helst finn på noe smartere ifm vedtakslagring - deretter full historisk regenerering av alle saker
+     *
+     * Se eksempel fra Stønadskonto for lesing av eldre regelinput og evt ny lagring etter remapping til nye navn.
+     * Krever GrunnlagV0, V1, V2 ,etc så jackson kan lese alle historisk versjoner
      */
 
 }

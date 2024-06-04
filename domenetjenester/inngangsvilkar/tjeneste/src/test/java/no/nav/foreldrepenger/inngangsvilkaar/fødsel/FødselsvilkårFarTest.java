@@ -53,7 +53,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P6M"));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
-            repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste);
         mockMinsterett = mock(MinsterettBehandling2022.class);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil,

@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -31,22 +30,16 @@ public class AdopsjonsvilkårOversetter {
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
 
     AdopsjonsvilkårOversetter() {
         // for CDI proxy
     }
 
-    /**
-     * @param tidligsteUtstedelseAvTerminBekreftelse - Periode for tidligst utstedelse av terminbekreftelse før termindato
-     */
     @Inject
     public AdopsjonsvilkårOversetter(BehandlingRepositoryProvider repositoryProvider,
-                                     PersonopplysningTjeneste personopplysningTjeneste,
-                                     YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste) {
+                                     PersonopplysningTjeneste personopplysningTjeneste) {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningTjeneste = personopplysningTjeneste;
-        this.ytelseMaksdatoTjeneste = beregnMorsMaksdatoTjeneste;
     }
 
     public AdopsjonsvilkårGrunnlag oversettTilRegelModellAdopsjon(BehandlingReferanse ref) {
@@ -59,19 +52,7 @@ public class AdopsjonsvilkårOversetter {
             tilSøkerKjøenn(getSøkersKjønn(ref)),
             bekreftetAdopsjon.adoptererAlene(),
             bekreftetAdopsjon.omsorgsovertakelseDato(),
-            erStønadperiodeBruktOpp(ref, familieHendelseGrunnlag));
-    }
-
-    private boolean erStønadperiodeBruktOpp(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        var versjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        var adopsjon = versjon.orElseGet(familieHendelseGrunnlag::getSøknadVersjon).getAdopsjon();
-
-        if (adopsjon.isPresent()) {
-            var omsorgsovertakelseDato = adopsjon.get().getOmsorgsovertakelseDato();
-            var maksdatoForeldrepenger = ytelseMaksdatoTjeneste.beregnMaksdatoForeldrepenger(ref);
-            return maksdatoForeldrepenger.isPresent() && !omsorgsovertakelseDato.isBefore(maksdatoForeldrepenger.get()); // stønadsperioden er ikke brukt opp av annen forelder
-        }
-        return true;
+            false);
     }
 
     private static BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

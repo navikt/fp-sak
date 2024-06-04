@@ -1,20 +1,14 @@
 package no.nav.foreldrepenger.inngangsvilkaar.adopsjon;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -46,10 +40,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
-            repositoryProvider.getFpUttakRepository(), repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
-        oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjeneste);
+        oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 
     @Test
@@ -68,38 +59,11 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() {
-        var maksdatoForeldrepenger = LocalDate.of(2018, 8, 1);
-        var omsorgsovertakelsedato = LocalDate.of(2018, 9, 1);
-
-        var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
-        Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
-
-        var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock);
-
-        var behandling = settOppAdopsjonBehandlingFor(10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
-
-        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
-
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
-        var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
-
-        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(data.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1051);
-        assertThat(data.regelInput()).isNotEmpty();
-        assertThat(ektefellesBarn).isEqualTo("true");
-    }
-
-    @Test
     void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() {
         var maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
 
-        var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
-        Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
-
-        var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock);
+        var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
 
         var behandling = settOppAdopsjonBehandlingFor(
             10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);

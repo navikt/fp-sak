@@ -29,7 +29,6 @@ public class RegelResultatOversetter {
         Map.entry(RegelUtfallMerknad.RVM_1027, VilkårUtfallMerknad.VM_1027),
         Map.entry(RegelUtfallMerknad.RVM_1028, VilkårUtfallMerknad.VM_1028),
         Map.entry(RegelUtfallMerknad.RVM_1035, VilkårUtfallMerknad.VM_1035),
-        Map.entry(RegelUtfallMerknad.RVM_1051, VilkårUtfallMerknad.VM_1051),
         Map.entry(RegelUtfallMerknad.UDEFINERT, VilkårUtfallMerknad.UDEFINERT));
 
     private RegelResultatOversetter() {
