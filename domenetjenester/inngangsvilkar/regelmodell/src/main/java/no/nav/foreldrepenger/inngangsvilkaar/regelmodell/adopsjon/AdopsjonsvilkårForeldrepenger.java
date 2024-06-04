@@ -35,18 +35,8 @@ public class AdopsjonsvilkårForeldrepenger implements RuleService<Adopsjonsvilk
     public Specification<AdopsjonsvilkårGrunnlag> getSpecification() {
         var rs = new Ruleset<AdopsjonsvilkårGrunnlag>();
 
-        Specification<AdopsjonsvilkårGrunnlag> stønadsPeriodeBruktOppNode =
-            rs.hvisRegel(SjekkOmStønadsperiodeForAnnenForelderErBruktOpp.ID, "Hvis stønadsperiode for andre forelder er brukt opp ...")
-                .hvis(new SjekkOmStønadsperiodeForAnnenForelderErBruktOpp(), new IkkeOppfylt(SjekkOmStønadsperiodeForAnnenForelderErBruktOpp.STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN))
-                .ellers(new Oppfylt());
-
-        Specification<AdopsjonsvilkårGrunnlag> ektefelleEllerSamboersBarnNode =
-            rs.hvisRegel(SjekkEktefellesEllerSamboersBarn.ID_FP, "Hvis ikke ektefelles eller samboers barn ...")
-                .hvis(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_FP), stønadsPeriodeBruktOppNode)
-                .ellers(new Oppfylt());
-
         return (Specification<AdopsjonsvilkårGrunnlag>) rs.hvisRegel(SjekkBarnUnder15År.ID_FP, "Hvis barn under 15 år ved omsorgsovertakelsen ...")
-            .hvis(new SjekkBarnUnder15År(SjekkBarnUnder15År.ID_FP), ektefelleEllerSamboersBarnNode)
+            .hvis(new SjekkBarnUnder15År(SjekkBarnUnder15År.ID_FP), new Oppfylt())
             .ellers(new IkkeOppfylt(SjekkBarnUnder15År.INGEN_BARN_UNDER_15));
     }
 }

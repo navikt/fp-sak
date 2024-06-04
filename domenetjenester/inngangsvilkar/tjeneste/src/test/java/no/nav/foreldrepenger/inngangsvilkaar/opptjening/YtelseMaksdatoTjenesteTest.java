@@ -57,7 +57,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
-            repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste);
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 

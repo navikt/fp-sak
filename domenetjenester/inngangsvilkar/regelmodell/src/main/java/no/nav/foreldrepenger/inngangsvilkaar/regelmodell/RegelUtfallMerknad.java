@@ -23,8 +23,6 @@ public enum RegelUtfallMerknad {
 
     RVM_1035(SjekkTilstrekkeligOpptjeningInklAntatt.IKKE_TILSTREKKELIG_OPPTJENING_ID, "Ikke tilstrekkelig opptjening"),
 
-    RVM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"),
-
     UDEFINERT("-", "Ikke definert"),
 
     ;

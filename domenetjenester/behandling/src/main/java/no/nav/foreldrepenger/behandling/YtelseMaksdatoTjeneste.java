@@ -18,7 +18,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -34,7 +33,6 @@ public class YtelseMaksdatoTjeneste {
 
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private FpUttakRepository fpUttakRepository;
-    private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     YtelseMaksdatoTjeneste() {
@@ -43,12 +41,9 @@ public class YtelseMaksdatoTjeneste {
 
     @Inject
     public YtelseMaksdatoTjeneste(RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                  FpUttakRepository fpUttakRepository,
-                                  BehandlingRepository behandlingRepository,
-                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                  FpUttakRepository fpUttakRepository, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.fpUttakRepository = fpUttakRepository;
-        this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
@@ -90,33 +85,6 @@ public class YtelseMaksdatoTjeneste {
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
     }
 
-    // TODO PK-48734 Her trengs det litt refaktorering
-    public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
-        var apBehandling = annenpartsGjeldendeVedtatteBehandling(ref.saksnummer());
-        var uttakResultat = apBehandling.flatMap(this::annenpartsUttak);
-        if (uttakResultat.isPresent()) {
-            var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
-
-            var perArbeidsforhold = finnPerioderPerArbeidsforhold(
-                    gjeldenePerioder.getPerioder());
-            LocalDate maksdato = null;
-            for (var entry : perArbeidsforhold.entrySet()) {
-                var perioder = entry.getValue();
-                var sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
-                if (sisteUttaksdag.isEmpty()) {
-                    return Optional.empty();
-                }
-                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, apBehandling.get());
-                var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
-                if (maksdato == null || maksdato.isBefore(tmpMaksdato)) {
-                    maksdato = tmpMaksdato;
-                }
-            }
-            return Optional.ofNullable(maksdato);
-        }
-        return Optional.empty();
-    }
-
     private Optional<LocalDate> finnMorsSisteUttaksdag(List<UttakResultatPeriodeAktivitetEntitet> perioder) {
         return perioder.stream()
                 .filter(a -> a.getTrekkdager().merEnn0() || a.getPeriode().isInnvilget())
@@ -138,15 +106,6 @@ public class YtelseMaksdatoTjeneste {
             var tilgjengeligMødrekvote = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.MØDREKVOTE, perioder, stønadsdagerUtregning));
             var tilgjengeligFellesperiode = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.FELLESPERIODE, perioder, stønadsdagerUtregning));
             return tilgjengeligFellesperiode + tilgjengeligMødrekvote;
-        }
-        return 0;
-    }
-
-    private int beregnTilgjengeligeStønadsdagerForeldrepenger(List<UttakResultatPeriodeAktivitetEntitet> perioder, Behandling behandling) {
-        var stønadsdagerUtregning = getKontoUtregning(behandling);
-        if (!stønadsdagerUtregning.isEmpty()) {
-            var tilgjengeligeDager = beregnTilgjengeligeDagerFor(StønadskontoType.FORELDREPENGER, perioder, stønadsdagerUtregning);
-            return rundOpp(tilgjengeligeDager);
         }
         return 0;
     }
@@ -200,6 +159,6 @@ public class YtelseMaksdatoTjeneste {
 
         var uker = paddedVirkedager / virkedagerPrUke;
         var dager = paddedVirkedager % virkedagerPrUke;
-        return justertDatoForHelg.plusDays((uker * dagerPrUke + dager) - (long) padBefore);
+        return justertDatoForHelg.plusDays(((long) uker * dagerPrUke + dager) - (long) padBefore);
     }
 }
