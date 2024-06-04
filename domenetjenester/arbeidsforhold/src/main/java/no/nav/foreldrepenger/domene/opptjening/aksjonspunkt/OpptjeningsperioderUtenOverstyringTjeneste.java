@@ -169,7 +169,10 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
         var frilansOppdrag = filter.getFrilansOppdrag();
 
         if (aktørArbeidFraRegister.isPresent() && !inntektFilter.getFiltrertInntektsposter().isEmpty() && !frilansOppdrag.isEmpty()) {
-            var periode = opptjeningOptional.get().getOpptjeningPeriode();
+            var opptjening = opptjeningOptional.get();
+            // Sjekk på lang/kort opptjeningsperiode
+            var periode = opptjening.getFom().isBefore(opptjening.getTom().minusMonths(4)) ? opptjening.getOpptjeningPeriode() :
+                DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.getTom().minusMonths(4), opptjening.getTom());
             var frilansMedInntekt = frilansOppdrag.stream()
                     .filter(frilans -> harInntektFraVirksomhetForPeriode(frilans, inntektFilter, periode))
                     .toList();
