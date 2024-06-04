@@ -191,10 +191,10 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
             .getVerdi()).isEqualTo(BigDecimal.ZERO);
     }
 
-    private AktivitetskravArbeidPerioderEntitet.Builder lagPerioderBUilder(List<AktivitetskravArbeidPeriodeEntitet.Builder> perioder) {
+    private AktivitetskravArbeidPerioderEntitet lagPerioderBUilder(List<AktivitetskravArbeidPeriodeEntitet.Builder> perioder) {
         var builder = new AktivitetskravArbeidPerioderEntitet.Builder();
         perioder.forEach(builder::leggTil);
-        return builder;
+        return builder.build();
     }
 
     private AktivitetskravArbeidPeriodeEntitet.Builder lagAktvitetskravArbeidPeriode(LocalDate fra, LocalDate til, BigDecimal stillingsprosent) {

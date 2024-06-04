@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
-import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.ufo.UføreInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -33,8 +32,7 @@ public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
     @Inject
     public InnhentMedlemskapOpplysningerTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                              RegisterdataInnhenter registerdataInnhenter,
-                                             UføreInnhenter uføreInnhenter,
-                                             StønadsperioderInnhenter stønadsperioderInnhenter) {
+                                             UføreInnhenter uføreInnhenter) {
         super(behandlingRepositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.registerdataInnhenter = registerdataInnhenter;

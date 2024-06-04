@@ -97,9 +97,9 @@ public class VedtaksperioderHelper {
         return periode.getPeriodeSøknad().isPresent();
     }
 
-    private static Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op,
-                                                       LocalDate fraDato,
-                                                       Optional<LocalDate> førsteSøknadsdato) {
+    public static Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op,
+                                                      LocalDate fraDato,
+                                                      Optional<LocalDate> førsteSøknadsdato) {
         Objects.requireNonNull(fraDato);
 
         var opb = OppgittPeriodeBuilder.fraEksisterende(op);
@@ -108,8 +108,7 @@ public class VedtaksperioderHelper {
         if (fraDato.isAfter(fom)) {
             fom = fraDato;
         }
-        if (førsteSøknadsdato.isPresent() && (førsteSøknadsdato.get().isBefore(tom) || førsteSøknadsdato.get()
-            .isEqual(tom))) {
+        if (førsteSøknadsdato.isPresent() && (førsteSøknadsdato.get().isBefore(tom) || førsteSøknadsdato.get().isEqual(tom))) {
             tom = førsteSøknadsdato.get().minusDays(1);
         }
         if (!fom.isAfter(tom)) {

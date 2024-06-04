@@ -77,8 +77,7 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
-                .equals(dok.getOpprineligDokumentMal()));
+            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
     }
 
     public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
