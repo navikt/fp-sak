@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.sendØkonomiOppdrag", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.sendØkonomiOppdrag", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendØkonomiOppdragTask extends GenerellProsessTask {
 

@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.avsluttOppgave")
+@ProsessTask(value = "oppgavebehandling.avsluttOppgave", prioritet = 2)
 public class AvsluttOppgaveTask implements ProsessTaskHandler {
 
     private static final String OPPGAVE_ID_TASK_KEY = "oppgaveId";

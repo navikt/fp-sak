@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @Dependent
-@ProsessTask("behandlingsprosess.gregulering.opprett")
+@ProsessTask(value = "behandlingsprosess.gregulering.opprett", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
 
@@ -132,7 +132,6 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
-        prosessTaskData.setPrioritet(100);
         taskTjeneste.lagre(prosessTaskData);
     }
 }

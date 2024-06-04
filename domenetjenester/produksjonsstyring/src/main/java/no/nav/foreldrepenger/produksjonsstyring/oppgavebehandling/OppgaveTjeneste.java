@@ -197,7 +197,6 @@ public class OppgaveTjeneste {
 
     public void ferdigstillOppgaveForForvaltning(String oppgaveId) {
         var avsluttOppgaveTask = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
-        avsluttOppgaveTask.setPrioritet(50);
         AvsluttOppgaveTask.setOppgaveId(avsluttOppgaveTask, oppgaveId);
         avsluttOppgaveTask.setCallIdFraEksisterende();
         taskTjeneste.lagre(avsluttOppgaveTask);

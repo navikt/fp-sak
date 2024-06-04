@@ -33,7 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
-@ProsessTask(value = "stønadsstatisikk.migrering", maxFailedRuns = 1)
+@ProsessTask(value = "stønadsstatisikk.migrering", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
@@ -140,7 +140,6 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FOM_DATO_KEY, fomDato.toString());
         prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
         return prosessTaskData;
     }
 }

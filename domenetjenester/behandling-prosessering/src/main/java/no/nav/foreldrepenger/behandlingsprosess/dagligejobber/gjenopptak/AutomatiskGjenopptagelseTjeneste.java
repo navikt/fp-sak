@@ -60,7 +60,6 @@ public class AutomatiskGjenopptagelseTjeneste {
         taskdata.setBehandling(behandling.getFagsakId(), behandling.getId());
         taskdata.setCallId(callId + "_" + behandling.getId());
         taskdata.setNesteKjøringEtter(nesteKjøring);
-        taskdata.setPrioritet(50);
         taskTjeneste.lagre(taskdata);
     }
 

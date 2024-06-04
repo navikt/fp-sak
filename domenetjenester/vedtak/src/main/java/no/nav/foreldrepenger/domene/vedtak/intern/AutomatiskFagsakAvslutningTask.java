@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 
 @ApplicationScoped
-@ProsessTask("behandlingskontroll.fagsakAvslutning")
+@ProsessTask(value = "behandlingskontroll.fagsakAvslutning", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 

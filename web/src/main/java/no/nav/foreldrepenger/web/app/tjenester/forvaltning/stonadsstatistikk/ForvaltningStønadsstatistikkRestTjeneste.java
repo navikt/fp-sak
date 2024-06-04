@@ -117,7 +117,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
             var task = ProsessTaskData.forProsessTask(SendStønadsstatistikkForVedtakTask.class);
             task.setCallIdFraEksisterende();
             task.setBehandling(behandling.getFagsak().getId(), behandling.getId());
-            task.setPrioritet(150);
+            task.setPrioritet(4); // Skal gå som batch
 
             taskGruppe.addNesteSekvensiell(task);
         }

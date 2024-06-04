@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("iverksetteVedtak.oppgaveArena")
+@ProsessTask(value = "iverksetteVedtak.oppgaveArena", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOppgaveArenaTask extends GenerellProsessTask {
 

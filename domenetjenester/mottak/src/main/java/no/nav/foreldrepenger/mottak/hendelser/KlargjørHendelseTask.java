@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("hendelser.klargjoering")
+@ProsessTask(value = "hendelser.klargjoering", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class KlargjørHendelseTask implements ProsessTaskHandler {
 

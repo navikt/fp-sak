@@ -189,7 +189,6 @@ public class ForvaltningBeregningRestTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(50);
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         taskTjeneste.lagre(prosessTaskData);
         return Response.ok().build();

@@ -11,7 +11,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.vurderOpphørAvYtelser", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.vurderOpphørAvYtelser", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
 

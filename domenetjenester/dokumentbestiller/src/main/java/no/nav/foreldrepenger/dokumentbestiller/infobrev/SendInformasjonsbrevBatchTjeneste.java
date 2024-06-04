@@ -47,7 +47,6 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();
             data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
-            data.setPrioritet(100);
             data.setProperty(OpprettInformasjonsFagsakTask.OPPRETTET_DATO_KEY, sak.getKildesakOpprettetDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.FH_DATO_KEY, sak.getFamilieHndelseDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_ID_KEY, sak.getEnhet());

@@ -28,7 +28,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
  * Migreringspattern til senere bruk. Skal ikke kjøres på nytt. Bevares for pattern
  */
 @Dependent
-@ProsessTask(value = "stønadskonto.migrering", maxFailedRuns = 1)
+@ProsessTask(value = "stønadskonto.migrering", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class StønadskontoMigreringTask implements ProsessTaskHandler {
 
@@ -142,7 +142,6 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(StønadskontoMigreringTask.MAX_ID, maxId == null ? null : String.valueOf(maxId));
         prosessTaskData.setProperty(StønadskontoMigreringTask.DRY_RUN, String.valueOf(dryRun));
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
         return prosessTaskData;
     }
 }

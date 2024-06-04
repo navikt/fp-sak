@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class OpprettProsessTaskIverksett {
@@ -39,13 +38,13 @@ public class OpprettProsessTaskIverksett {
     public void opprettIverksettingTasks(Behandling behandling) {
         var taskGruppe = new ProsessTaskGruppe();
         // Felles
-        var avsluttBehandling = getProsesstaskFor(TaskType.forProsessTask(AvsluttBehandlingTask.class));
+        var avsluttBehandling = ProsessTaskData.forProsessTask(AvsluttBehandlingTask.class);
 
         // Send brev og oppdrag i parallell
         List<ProsessTaskData> parallelle = new ArrayList<>();
-        parallelle.add(getProsesstaskFor(TaskType.forProsessTask(SendVedtaksbrevTask.class)));
+        parallelle.add(ProsessTaskData.forProsessTask(SendVedtaksbrevTask.class));
         if (behandling.erYtelseBehandling()) {
-            parallelle.add(getProsesstaskFor(TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class)));
+            parallelle.add(ProsessTaskData.forProsessTask(VurderOgSendØkonomiOppdragTask.class));
         }
         taskGruppe.addNesteParallell(parallelle);
 
@@ -62,20 +61,14 @@ public class OpprettProsessTaskIverksett {
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(VurderOppgaveArenaTask.class)));
+            taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VurderOppgaveArenaTask.class));
         }
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class)));
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class)));
+            taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class));
+            taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
         }
-        taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(VedtakTilDatavarehusTask.class)));
-        taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(SendStønadsstatistikkForVedtakTask.class)));
-    }
-
-    private ProsessTaskData getProsesstaskFor(TaskType tasktype) {
-        var task = ProsessTaskData.forTaskType(tasktype);
-        task.setPrioritet(50);
-        return task;
+        taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VedtakTilDatavarehusTask.class));
+        taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SendStønadsstatistikkForVedtakTask.class));
     }
 
 }

@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "migrering.migrertilomsorgrett", maxFailedRuns = 1)
+@ProsessTask(value = "migrering.migrertilomsorgrett", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
 

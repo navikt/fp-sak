@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("vedlikehold.adressebeskyttelse")
+@ProsessTask(value = "vedlikehold.adressebeskyttelse", prioritet = 3)
 public class VedlikeholdAdressebeskyttelseTask implements ProsessTaskHandler {
 
 

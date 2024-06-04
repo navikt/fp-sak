@@ -30,7 +30,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
-@ProsessTask("behandlingsprosess.etterkontroll")
+@ProsessTask(value = "behandlingsprosess.etterkontroll", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 

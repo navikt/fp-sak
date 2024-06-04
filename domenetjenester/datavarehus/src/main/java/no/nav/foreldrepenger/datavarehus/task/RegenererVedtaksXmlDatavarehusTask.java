@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.regenererVedtakXmlTilDatavarehus", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.regenererVedtakXmlTilDatavarehus", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class RegenererVedtaksXmlDatavarehusTask extends GenerellProsessTask {
 

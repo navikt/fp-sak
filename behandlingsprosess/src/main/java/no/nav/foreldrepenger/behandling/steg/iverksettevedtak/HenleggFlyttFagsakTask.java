@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "behandlingskontroll.henleggBehandling", maxFailedRuns = 1)
+@ProsessTask(value = "behandlingskontroll.henleggBehandling", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
 

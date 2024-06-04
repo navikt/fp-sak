@@ -72,7 +72,6 @@ class EngangsstønadReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         task.doTask(prosessTaskData);
 
@@ -91,7 +90,6 @@ class EngangsstønadReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         task.doTask(prosessTaskData);
 

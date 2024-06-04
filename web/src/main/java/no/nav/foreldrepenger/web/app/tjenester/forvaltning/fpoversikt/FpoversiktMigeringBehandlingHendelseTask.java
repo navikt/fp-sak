@@ -22,7 +22,7 @@ import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
-@ProsessTask(value = "fpoversikt.migrering", maxFailedRuns = 1)
+@ProsessTask(value = "fpoversikt.migrering", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
 

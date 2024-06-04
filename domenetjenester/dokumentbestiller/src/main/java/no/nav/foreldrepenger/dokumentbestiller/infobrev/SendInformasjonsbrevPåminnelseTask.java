@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("opprettsak.informasjonsbrevPåminnelse")
+@ProsessTask(value = "opprettsak.informasjonsbrevPåminnelse", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 

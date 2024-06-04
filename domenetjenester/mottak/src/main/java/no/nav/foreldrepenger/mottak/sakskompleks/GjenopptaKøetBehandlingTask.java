@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "kompletthettjeneste.gjenopptaBehandling", maxFailedRuns = 1)
+@ProsessTask(value = "kompletthettjeneste.gjenopptaBehandling", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class GjenopptaKøetBehandlingTask extends FagsakProsessTask {
 

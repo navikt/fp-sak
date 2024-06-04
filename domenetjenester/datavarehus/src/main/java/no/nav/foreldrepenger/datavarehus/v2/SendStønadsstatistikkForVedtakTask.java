@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
-@ProsessTask("iverksetteVedtak.stønadsstatistikk")
+@ProsessTask(value = "iverksetteVedtak.stønadsstatistikk", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendStønadsstatistikkForVedtakTask extends GenerellProsessTask {
 

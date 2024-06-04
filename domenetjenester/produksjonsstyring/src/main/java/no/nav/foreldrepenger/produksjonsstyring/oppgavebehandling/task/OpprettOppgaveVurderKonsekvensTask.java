@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.opprettOppgaveVurderKonsekvens")
+@ProsessTask(value = "oppgavebehandling.opprettOppgaveVurderKonsekvens", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
 
