@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
@@ -43,11 +42,14 @@ public class OpptjeningForBeregningTjeneste {
 
         var behandlingId = behandlingReferanse.behandlingId();
 
-        var opptjening = opptjeningsperioderTjeneste.hentOpptjeningHvisFinnes(behandlingId);
-        if(opptjening.isEmpty()) {
+        var opptjeningOpt = opptjeningsperioderTjeneste.hentOpptjeningHvisFinnes(behandlingId);
+        if (opptjeningOpt.isEmpty()) {
             return Collections.emptyList();
         }
-        var opptjeningsperiodeFom = opptjening.map(Opptjening::getFom).orElseThrow();
+        var opptjening = opptjeningOpt.get();
+        // Sjekk på lang/kort opptjeningsperiode
+        var opptjeningsperiodeFom = opptjening.getFom().isBefore(opptjening.getTom().minusMonths(4)) ?
+            opptjening.getFom() : opptjening.getTom().minusMonths(4);
 
         var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.fagsakYtelseType());
         var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderOpptjening);
