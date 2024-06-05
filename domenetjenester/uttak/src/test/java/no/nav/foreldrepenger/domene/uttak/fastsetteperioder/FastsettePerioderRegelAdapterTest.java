@@ -1327,8 +1327,7 @@ class FastsettePerioderRegelAdapterTest {
 
         var revurdering = uttakRevurderingTestUtil.opprettRevurdering(UttakRevurderingTestUtil.AKTØR_ID_MOR,
             BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, List.of(opprinneligFpff, opprinneligMødrekvote),
-            new OppgittFordelingEntitet(List.of(revurderingSøknadsperiodeFellesperiode), true),
-            Dekningsgrad._100);
+            new OppgittFordelingEntitet(List.of(revurderingSøknadsperiodeFellesperiode), true));
 
         var fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak(), Dekningsgrad._100);

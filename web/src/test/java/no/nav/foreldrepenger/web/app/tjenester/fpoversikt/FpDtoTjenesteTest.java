@@ -179,19 +179,18 @@ class FpDtoTjenesteTest {
                                                     LocalDate fødselsdato,
                                                     OppgittFordelingEntitet fordeling,
                                                     OppgittRettighetEntitet oppgittRettighet) {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medOppgittRettighet(oppgittRettighet)
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(oppgittRettighet)
             .medFordeling(fordeling)
-            .medFødselAdopsjonsdato(fødselsdato);
+            .medFødselAdopsjonsdato(fødselsdato)
+            .medOppgittDekningsgrad(dekningsgrad);
 
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.medBehandlingsresultat(Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
             .lagre(repositoryProvider);
 
-        behandling.avsluttBehandling();
         avsluttBehandling(behandling);
-
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), dekningsgrad);
         return behandling;
     }
 
