@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -405,7 +404,6 @@ class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(resultat.getGjeldendeFordeling().getPerioder()).isEqualTo(fordeling.getPerioder());
     }
 
-    @Disabled
     @Test
     void fjerner_perioder_før_endringsdato_i_revuderinger() {
         var fødselsdato = LocalDate.of(2024, 3, 6);
