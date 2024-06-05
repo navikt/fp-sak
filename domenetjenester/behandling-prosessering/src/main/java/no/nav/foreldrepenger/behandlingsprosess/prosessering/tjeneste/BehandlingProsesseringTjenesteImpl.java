@@ -130,13 +130,13 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling) {
-        return lagTasksForOppdatering(behandling, LocalDateTime.now());
+        return lagTasksForOppdatering(behandling, LocalDateTime.now(), 1);
     }
 
     // Til bruk ved første prosessering av nyopprettet behandling
     @Override
     public String opprettTasksForStartBehandling(Behandling behandling) {
-        var taskData = lagTaskData(TASK_START, behandling, LocalDateTime.now());
+        var taskData = lagTaskData(TASK_START, behandling, LocalDateTime.now(), 2);
         return lagreEnkeltTask(taskData);
     }
 
@@ -145,7 +145,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     public String opprettTasksForFortsettBehandling(Behandling behandling) {
         return erAlleredeOpprettetOppdateringFor(behandling)
             .orElseGet(() -> {
-                var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now());
+                var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 1);
                 taskData.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
                 return lagreEnkeltTask(taskData);
             });
@@ -153,7 +153,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autopunktUtført) {
-        var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now());
+        var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 2);
         autopunktUtført.ifPresent(apu -> taskData.setProperty(FortsettBehandlingTask.UTFORT_AUTOPUNKT, apu.getKode()));
         return lagreEnkeltTask(taskData);
     }
@@ -161,7 +161,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     @Override
     public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
                                                                           LocalDateTime nesteKjøringEtter) {
-        var taskData = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter);
+        var taskData = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, 2);
         taskData.setProperty(FortsettBehandlingTask.GJENOPPTA_STEG, behandlingStegType.getKode());
         return lagreEnkeltTask(taskData);
     }
@@ -173,7 +173,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         return erAlleredeOpprettetOppdateringFor(behandling)
             .or(() -> finnesFeiletOppdateringFor(behandling))
             .orElseGet(() -> {
-                var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
+                var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter, 3);
                 return taskTjeneste.lagre(gruppe);
             });
     }
@@ -181,7 +181,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     // Robust task til bruk ved batch-gjenopptak fra vent - forutsetter sjekk på at ikke allerede finnes
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter) {
-        var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
+        var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter, 3);
         return taskTjeneste.lagre(gruppe);
     }
 
@@ -189,9 +189,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     public String opprettTasksForInitiellRegisterInnhenting(Behandling behandling) {
         var gruppe = new ProsessTaskGruppe();
 
-        leggTilTasksForRegisterinnhenting(behandling, gruppe, LocalDateTime.now());
+        leggTilTasksForRegisterinnhenting(behandling, gruppe, LocalDateTime.now(), 3);
 
-        var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now());
+        var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 3);
 
         // NB: Viktig Starter opp prosessen igjen fra steget hvor den var satt på vent
         fortsettBehandlingTask.setProperty(GJENOPPTA_STEG, BehandlingStegType.INNHENT_REGISTEROPP.getKode());
@@ -200,44 +200,44 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         return taskTjeneste.lagre(gruppe);
     }
 
-    private ProsessTaskGruppe lagTasksForOppdatering(Behandling behandling, LocalDateTime nesteKjøringEtter) {
+    private ProsessTaskGruppe lagTasksForOppdatering(Behandling behandling, LocalDateTime nesteKjøringEtter, int prioritet) {
         var gruppe = new ProsessTaskGruppe();
-        var gjenopptaTask = lagTaskData(TaskType.forProsessTask(GjenopptaBehandlingTask.class), behandling, nesteKjøringEtter);
+        var gjenopptaTask = lagTaskData(TaskType.forProsessTask(GjenopptaBehandlingTask.class), behandling, nesteKjøringEtter, prioritet);
         gruppe.addNesteSekvensiell(gjenopptaTask);
 
         if (behandling.erYtelseBehandling() && registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
-            leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter);
-            var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter);
+            leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter, prioritet);
+            var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter, prioritet);
             var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
             registerdataOppdatererTask.setPayload(StandardJsonConfig.toJson(snapshot));
             gruppe.addNesteSekvensiell(registerdataOppdatererTask);
         }
-        var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter);
+        var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, prioritet);
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
         return gruppe;
     }
 
-    private void leggTilTasksForRegisterinnhenting(Behandling behandling, ProsessTaskGruppe gruppe, LocalDateTime nesteKjøringEtter) {
+    private void leggTilTasksForRegisterinnhenting(Behandling behandling, ProsessTaskGruppe gruppe, LocalDateTime nesteKjøringEtter, int prioritet) {
         var tasker = new ArrayList<ProsessTaskData>();
-        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentPersonopplysningerTask.class), behandling, nesteKjøringEtter));
-        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMedlemskapOpplysningerTask.class), behandling, nesteKjøringEtter));
+        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentPersonopplysningerTask.class), behandling, nesteKjøringEtter, prioritet));
+        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMedlemskapOpplysningerTask.class), behandling, nesteKjøringEtter, prioritet));
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter));
+            tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter, prioritet));
         }
         gruppe.addNesteParallell(tasker);
-        var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter);
+        var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter, prioritet);
         gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
     }
 
-    private ProsessTaskData lagTaskData(TaskType tasktype, Behandling behandling, LocalDateTime nesteKjøringEtter) {
+    private ProsessTaskData lagTaskData(TaskType tasktype, Behandling behandling, LocalDateTime nesteKjøringEtter, int prioritet) {
         var taskdata = ProsessTaskData.forTaskType(tasktype);
         taskdata.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskdata.setCallIdFraEksisterende();
         if (nesteKjøringEtter != null) {
             taskdata.setNesteKjøringEtter(nesteKjøringEtter);
         }
-        taskdata.setPrioritet(50);
+        taskdata.setPrioritet(prioritet);
         return taskdata;
     }
 

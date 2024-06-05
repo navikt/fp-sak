@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.opprettOppgaveVurderDokument")
+@ProsessTask(value = "oppgavebehandling.opprettOppgaveVurderDokument", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
 

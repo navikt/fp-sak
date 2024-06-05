@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 
 @ApplicationScoped
-@ProsessTask("behandlingskontroll.behandlingAvsluttetFagsak")
+@ProsessTask(value = "behandlingskontroll.behandlingAvsluttetFagsak", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class BehandlingAvsluttetHendelseTask extends FagsakProsessTask {
 

@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("vedtak.publiserHendelse")
+@ProsessTask(value = "vedtak.publiserHendelse", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 

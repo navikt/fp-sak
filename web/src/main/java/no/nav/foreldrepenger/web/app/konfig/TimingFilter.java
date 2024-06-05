@@ -24,8 +24,11 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     private static final String COUNTER_NAME = "restantall";
     private static final ThreadLocalTimer TIMER = new ThreadLocalTimer();
 
+    static {
+        MetricsUtil.timerUtenHistogram(METRIC_NAME);
+    }
+
     public TimingFilter() {
-        MetricsUtil.utvidMedPercentiler(METRIC_NAME, 0.5, 0.95, 0.99);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     public void filter(ContainerRequestContext req) {
         TIMER.start();
     }
+
 
     private static class ThreadLocalTimer extends ThreadLocal<Long> {
         public void start() {

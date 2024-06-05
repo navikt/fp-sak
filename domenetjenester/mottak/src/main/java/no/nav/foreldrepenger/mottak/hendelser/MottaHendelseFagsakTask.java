@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("hendelser.håndterHendelsePåFagsak")
+@ProsessTask(value = "hendelser.håndterHendelsePåFagsak", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class MottaHendelseFagsakTask extends FagsakProsessTask {
 

@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.håndterOverlappPleiepenger", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.håndterOverlappPleiepenger", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
     private HåndterOpphørAvYtelser tjeneste;

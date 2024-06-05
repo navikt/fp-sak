@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "dekningsgrad.migrering", maxFailedRuns = 1)
+@ProsessTask(value = "dekningsgrad.migrering", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class DekningsgradMigreringTask implements ProsessTaskHandler {
 
@@ -128,7 +128,6 @@ class DekningsgradMigreringTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(DekningsgradMigreringTask.TOM_DATO_KEY, tomDato.toString());
         prosessTaskData.setProperty(DekningsgradMigreringTask.FRA_BEHANDLING_ID, fraBehandlingId == null ? null : String.valueOf(fraBehandlingId));
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
         return prosessTaskData;
     }
 }

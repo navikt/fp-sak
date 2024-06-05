@@ -26,7 +26,7 @@ import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
-@ProsessTask("oppgavebehandling.behandlingshendelse")
+@ProsessTask(value = "oppgavebehandling.behandlingshendelse", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
 

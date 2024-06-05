@@ -90,7 +90,6 @@ class GrunnbeløpReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -128,7 +127,6 @@ class GrunnbeløpReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -146,7 +144,6 @@ class GrunnbeløpReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -168,7 +165,6 @@ class GrunnbeløpReguleringTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -184,7 +180,6 @@ class GrunnbeløpReguleringTaskTest {
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
-        prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);

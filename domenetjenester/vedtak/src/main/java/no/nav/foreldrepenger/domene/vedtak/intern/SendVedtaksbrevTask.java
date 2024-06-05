@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("iverksetteVedtak.sendVedtaksbrev")
+@ProsessTask(value = "iverksetteVedtak.sendVedtaksbrev", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendVedtaksbrevTask extends BehandlingProsessTask {
 

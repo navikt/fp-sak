@@ -268,7 +268,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(morsBehandling.getFagsakId(), morsBehandling.getId(), morsBehandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -276,7 +275,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(), farsBehandling.getAktørId().getId());
-        prosessTaskDataFar.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskDataFar);
@@ -371,7 +369,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(), farsBehandling.getAktørId().getId());
-        prosessTaskDataFar.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskDataFar);
@@ -419,7 +416,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -434,7 +430,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -449,7 +444,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -465,7 +459,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -482,7 +475,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -499,7 +491,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -515,7 +506,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -532,7 +522,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);
@@ -546,7 +535,6 @@ class AutomatiskEtterkontrollTaskTest {
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setSekvens("1");
 
         createTask();
         task.doTask(prosessTaskData);

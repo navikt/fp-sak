@@ -28,7 +28,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.oppdaterpersonoversikt")
+@ProsessTask(value = "oppgavebehandling.oppdaterpersonoversikt", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OppdaterPersonoversiktTask extends GenerellProsessTask {
 

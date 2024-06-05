@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask("oppgavebehandling.flytt.enhet")
+@ProsessTask(value = "oppgavebehandling.flytt.enhet", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FlyttEnhetTask implements ProsessTaskHandler {
 

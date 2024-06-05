@@ -34,7 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @Dependent
-@ProsessTask("behandlingsprosess.esregulering.reguler")
+@ProsessTask(value = "behandlingsprosess.esregulering.reguler", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class EngangsstønadReguleringTask extends FagsakProsessTask {
 

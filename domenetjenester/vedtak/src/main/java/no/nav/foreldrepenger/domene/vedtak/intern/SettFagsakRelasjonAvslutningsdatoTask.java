@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("iverksetteVedtak.fagsakRelasjonAvsluttningsdato")
+@ProsessTask(value = "iverksetteVedtak.fagsakRelasjonAvsluttningsdato", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettFagsakRelasjonAvslutningsdatoTask extends FagsakRelasjonProsessTask {
 

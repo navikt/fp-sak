@@ -10,7 +10,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("iverksetteVedtak.vedtakTilDatavarehus")
+@ProsessTask(value = "iverksetteVedtak.vedtakTilDatavarehus", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakTilDatavarehusTask extends GenerellProsessTask {
 

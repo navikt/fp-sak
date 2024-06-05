@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.håndterKlageAnke", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.håndterKlageAnke", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
 
@@ -102,7 +102,6 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-        opprettOppgave.setPrioritet(50);
         opprettOppgave.setCallIdFraEksisterende();
         opprettOppgave.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskTjeneste.lagre(opprettOppgave);

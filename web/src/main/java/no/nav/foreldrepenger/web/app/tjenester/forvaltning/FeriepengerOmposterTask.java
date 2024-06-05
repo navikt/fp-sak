@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @Dependent
-@ProsessTask("feriepenger.omposter24")
+@ProsessTask(value = "feriepenger.omposter24", prioritet = 4)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class FeriepengerOmposterTask extends FagsakProsessTask {
 

@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "vedtak.overlapp.avstem", maxFailedRuns = 1)
+@ProsessTask(value = "vedtak.overlapp.avstem", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     public static final String LOG_SAKSNUMMER_KEY = "logsaksnummer";

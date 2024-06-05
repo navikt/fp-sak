@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  * Oppretter videre tasks for gjenoppta og oppdater registerdata
  */
 @Dependent
-@ProsessTask("batch.opprett.gjenoppta")
+@ProsessTask(value = "batch.opprett.gjenoppta", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettGjenopptaTask extends GenerellProsessTask {
 

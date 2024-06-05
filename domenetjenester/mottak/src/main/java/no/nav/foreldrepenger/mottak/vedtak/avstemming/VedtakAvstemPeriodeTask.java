@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-@ProsessTask(value = "vedtak.overlapp.periode", maxFailedRuns = 1)
+@ProsessTask(value = "vedtak.overlapp.periode", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 

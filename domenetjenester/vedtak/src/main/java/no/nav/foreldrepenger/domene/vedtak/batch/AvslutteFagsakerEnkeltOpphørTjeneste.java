@@ -124,7 +124,6 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskFagsakAvslutningTask.class);
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setNesteKjøringEtter(nesteKjøring);
-        prosessTaskData.setPrioritet(100);
         prosessTaskData.setSaksnummer(fagsak.getSaksnummer().toString());
         prosessTaskData.setCallId(callId);
         return prosessTaskData;

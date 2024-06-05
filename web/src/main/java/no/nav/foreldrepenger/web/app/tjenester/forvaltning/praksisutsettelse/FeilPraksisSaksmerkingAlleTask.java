@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "behandling.saksmerkepraksisutsettelse.alle", maxFailedRuns = 1)
+@ProsessTask(value = "behandling.saksmerkepraksisutsettelse.alle", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
 
@@ -56,7 +56,6 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisSaksmerkingSingleTask.class);
         prosessTaskData.setProperty(FeilPraksisSaksmerkingSingleTask.FAGSAK_ID, String.valueOf(fagsakId));
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
         return prosessTaskData;
     }
 
@@ -67,7 +66,6 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(FeilPraksisSaksmerkingAlleTask.UTVALG, utvalg.name());
         prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(30));
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
         return prosessTaskData;
     }
 }

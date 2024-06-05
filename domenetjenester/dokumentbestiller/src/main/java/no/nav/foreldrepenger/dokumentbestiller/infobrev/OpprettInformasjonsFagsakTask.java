@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("opprettsak.informasjonssak")
+@ProsessTask(value = "opprettsak.informasjonssak", prioritet = 3)
 public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     public static final String FH_DATO_KEY = "familieHendelseDato";

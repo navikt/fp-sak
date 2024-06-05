@@ -100,7 +100,6 @@ public class BehandlingskontrollEventObserver {
         prosessTaskData.setBehandling(fagsakId, behandlingsId, aktørId.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(90);
         taskTjeneste.lagre(prosessTaskData);
     }
 }
