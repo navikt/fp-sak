@@ -231,12 +231,12 @@ public class LosBehandlingDtoTjeneste {
         }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             var uttakEllerSkjæringstidspunkt = finnUttakEllerUtledetSkjæringstidspunkt(behandling);
-            return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt, vurderSykdom, gradering);
+            return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt);
         }
         var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
             finnEndringsdatoForeldrepenger(behandling, aggregat) : finnEndringsdatoSvangerskapspenger(behandling);
         var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
-        return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak, vurderSykdom, gradering);
+        return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak);
     }
 
     private LocalDate finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling) {
