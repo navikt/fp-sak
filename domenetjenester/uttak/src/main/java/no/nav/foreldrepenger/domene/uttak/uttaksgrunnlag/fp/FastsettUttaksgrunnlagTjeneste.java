@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper.klipp;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -119,11 +120,10 @@ public class FastsettUttaksgrunnlagTjeneste {
         if (oppgittePerioder.stream().anyMatch(op -> op.getFom().isBefore(endringsdato))) {
             LOG.info("Fant og filtrerer ut oppgitte perioder før endringsdato {}", endringsdato);
         }
-//        return oppgittePerioder.stream()
-//            .flatMap(op -> klipp(op, endringsdato, Optional.empty()))
-//            .filter(op -> !op.getFom().isBefore(endringsdato))
-//            .toList();
-        return oppgittePerioder;
+        return oppgittePerioder.stream()
+            .flatMap(op -> klipp(op, endringsdato, Optional.empty()))
+            .filter(op -> !op.getFom().isBefore(endringsdato))
+            .toList();
     }
 
     private static boolean skalJustereFordelingEtterFamiliehendelse(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
