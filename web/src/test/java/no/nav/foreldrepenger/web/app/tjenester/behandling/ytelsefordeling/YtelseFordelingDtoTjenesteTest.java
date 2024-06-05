@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -207,9 +206,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository(),
-            repositoryProvider.getYtelsesFordelingRepository());
+        var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste,
             uføretrygdRepository, uttakTjeneste);
     }

@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -51,8 +50,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         when(barnBorteEndringIdentifiserer.erEndret(any())).thenReturn(false);
-        dekningsgradTjeneste = new DekningsgradTjeneste(new FagsakRelasjonTjeneste(repositoryProvider),
-            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getYtelsesFordelingRepository());
+        dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
     }
 
     @Test

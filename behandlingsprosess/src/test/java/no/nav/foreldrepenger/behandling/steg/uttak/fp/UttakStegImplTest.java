@@ -279,8 +279,8 @@ class UttakStegImplTest {
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(morsFørstegang);
 
         // mor oppdaterer dekningsgrad
-        var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
-        fagsakRelasjonTjeneste.overstyrDekningsgrad(fagsak, Dekningsgrad._100);
+        var morsRevurdering = opprettRevurdering(morsFørstegang, fødselsdato.minusWeeks(3));
+        oppdaterDekningsgrad(morsRevurdering.getId(), Dekningsgrad._100);
 
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(morsRevurdering));
@@ -291,6 +291,11 @@ class UttakStegImplTest {
         var overstyrtKontoberegning = resultat2.getStønadskontoberegning();
         assertThat(overstyrtKontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
         assertThat(overstyrtKontoberegning.getStønadskontoutregning()).containsEntry(StønadskontoType.FELLESPERIODE, 80);
+    }
+
+    private void oppdaterDekningsgrad(Long behandlingId, Dekningsgrad dekningsgrad) {
+        ytelsesFordelingRepository.lagre(behandlingId,
+            ytelsesFordelingRepository.opprettBuilder(behandlingId).medSakskompleksDekningsgrad(dekningsgrad).build());
     }
 
     @Test
@@ -319,7 +324,8 @@ class UttakStegImplTest {
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(morsFørstegang);
 
         // mor oppdaterer dekningsgrad
-        var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
+        var morsRevurdering = opprettRevurdering(morsFørstegang, fødselsdato.minusWeeks(3));
+        oppdaterDekningsgrad(morsRevurdering.getId(), Dekningsgrad._80);
 
         nesteSakRepository.lagreNesteSak(morsRevurdering.getId(), new Saksnummer("987"), fødselsdato.plusWeeks(40), fødselsdato.plusWeeks(40));
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -361,12 +367,13 @@ class UttakStegImplTest {
         scenario.medSøknadHendelse().medTerminbekreftelse(terminbekreftelse);
         var fødselsdato = LocalDate.of(2019, 7, 1);
         var periodeBuilder = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-                .medPeriode(fødselsdato, LocalDate.of(2019, 10, 1));
-        scenario.medFordeling(new OppgittFordelingEntitet(List.of(periodeBuilder.build()), true));
-        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fødselsdato, LocalDate.of(2019, 10, 1));
+        scenario.medFordeling(new OppgittFordelingEntitet(List.of(periodeBuilder.build()), true))
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build())
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         var førstegangsBehandling = scenario.lagre(repositoryProvider);
         byggArbeidForBehandling(førstegangsBehandling);
         opprettUttaksperiodegrense(fødselsdato, førstegangsBehandling);
@@ -380,7 +387,7 @@ class UttakStegImplTest {
         var fellesperiode = førstegangBeregning.getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 );
         assertThat(fellesperiode).isGreaterThan(0);
 
-        var revurdering = opprettRevurdering(førstegangsBehandling, false, fødselsdato);
+        var revurdering = opprettRevurdering(førstegangsBehandling, fødselsdato);
         var gjeldendeVersjon = familieHendelseRepository.hentAggregat(revurdering.getId()).getGjeldendeVersjon();
         var hendelse = FamilieHendelseBuilder.oppdatere(Optional.of(gjeldendeVersjon), HendelseVersjonType.SØKNAD);
         hendelse.medFødselsDato(fødselsdato).medAntallBarn(1);
@@ -401,7 +408,7 @@ class UttakStegImplTest {
         steg.utførSteg(kontekst);
     }
 
-    private Behandling opprettRevurdering(Behandling tidligereBehandling, boolean endretDekningsgrad, LocalDate fødselsdato) {
+    private Behandling opprettRevurdering(Behandling tidligereBehandling, LocalDate endringsdato) {
         var revurdering = Behandling.fraTidligereBehandling(tidligereBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(tidligereBehandling.getId()))
@@ -413,18 +420,13 @@ class UttakStegImplTest {
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(behandlingId, revurderingId);
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(fødselsdato.minusWeeks(3))
-                .medOpprinneligEndringsdato(fødselsdato.minusWeeks(3))
-                .build();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurderingId)
-            .medAvklarteDatoer(avklarteUttakDatoer)
-            .build();
-        ytelsesFordelingRepository.lagre(revurderingId, ytelseFordelingAggregat);
+        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
+        yfBuilder.medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build());
+        ytelsesFordelingRepository.lagre(revurderingId, yfBuilder.build());
 
         var behandlingsresultat = Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                .medEndretDekningsgrad(endretDekningsgrad)
                 .buildFor(revurdering);
         revurdering.setBehandlingresultat(behandlingsresultat);
         lagre(revurdering);

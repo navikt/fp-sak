@@ -441,11 +441,6 @@ public class StønadsstatistikkTjeneste {
 
             var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             var rettighetType = utledRettighetType(behandling.getRelasjonsRolleType(), yfa, konti);
-            var dekningsgradGammel = fagsakRelasjon.getGjeldendeDekningsgrad(); //TODO TFP-5702: Erstatt med å hente dekningsgrad fra behandling etter at dekningsgrad migreres til behandling
-            var dekningsgradNy = yfa.getGjeldendeDekningsgrad();
-            if (!Objects.equals(dekningsgradGammel, dekningsgradNy)) {
-                LOG.info("Dekningsgrad diff - stønadsstats {} {} {}", behandling.getId(), dekningsgradGammel, dekningsgradNy);
-            }
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
             var flerbarnsdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
             if (flerbarnsdager > 0) {
@@ -456,7 +451,7 @@ public class StønadsstatistikkTjeneste {
                 ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
             }
 
-            return new ForeldrepengerRettigheter(dekningsgradGammel.getVerdi(), rettighetType, konti, ekstradager);
+            return new ForeldrepengerRettigheter(yfa.getGjeldendeDekningsgrad().getVerdi(), rettighetType, konti, ekstradager);
         });
     }
 
