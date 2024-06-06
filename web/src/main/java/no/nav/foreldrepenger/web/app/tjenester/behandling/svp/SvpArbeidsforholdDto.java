@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class SvpArbeidsforholdDto {
     private String eksternArbeidsforholdReferanse;
     private boolean skalBrukes = true;
     private boolean kanTilrettelegges = true;
+    private BigDecimal stillingsprosentStartTilr = BigDecimal.ZERO;
     private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
     private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
@@ -146,10 +148,6 @@ public class SvpArbeidsforholdDto {
         this.avklarteOppholdPerioder = avklarteOppholdPerioder;
     }
 
-    public void leggTilOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> oppholdPerioder) {
-        this.avklarteOppholdPerioder.addAll(oppholdPerioder);
-    }
-
     public String getArbeidsgiverReferanse() {
         return arbeidsgiverReferanse;
     }
@@ -164,5 +162,13 @@ public class SvpArbeidsforholdDto {
 
     public void setUttakArbeidType(UttakArbeidType uttakArbeidType) {
         this.uttakArbeidType = uttakArbeidType;
+    }
+
+    public BigDecimal getStillingsprosentStartTilr() {
+        return stillingsprosentStartTilr;
+    }
+
+    public void setStillingsprosentStartTilr(BigDecimal stillingsprosentStartTilr) {
+        this.stillingsprosentStartTilr = stillingsprosentStartTilr;
     }
 }
