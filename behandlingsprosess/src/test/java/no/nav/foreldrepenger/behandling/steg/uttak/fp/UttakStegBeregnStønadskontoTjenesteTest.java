@@ -256,6 +256,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettStønadskontoer(Behandling førsteBehandling) {
+        fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
         var stønadskontoberegning = Stønadskontoberegning.builder()
             .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
             .medRegelEvaluering(" ")
