@@ -52,7 +52,7 @@ class FagsakTjenesteTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         personopplysningRepository = new PersonopplysningRepository(entityManager);
         tjeneste = new FagsakTjeneste(new FagsakRepository(entityManager),
-                new SøknadRepository(entityManager, behandlingRepository), null);
+                new SøknadRepository(entityManager, behandlingRepository));
 
     }
 

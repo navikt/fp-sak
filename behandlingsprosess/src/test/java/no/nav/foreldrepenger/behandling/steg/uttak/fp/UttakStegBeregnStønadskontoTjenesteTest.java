@@ -8,9 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
-import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UttakCore2024;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +38,8 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
+import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UttakCore2024;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -257,12 +256,11 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettStønadskontoer(Behandling førsteBehandling) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
         var stønadskontoberegning = Stønadskontoberegning.builder()
             .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
             .medRegelEvaluering(" ")
             .medRegelInput(" ")
             .build();
-        fagsakRelasjonTjeneste.lagre(førsteBehandling.getFagsak().getId(), fagsakRelasjon, førsteBehandling.getId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.lagre(førsteBehandling.getFagsak().getId(), førsteBehandling.getId(), stønadskontoberegning);
     }
 }

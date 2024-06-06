@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -35,8 +34,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class OppdaterFagsakStatusTjenesteTest {
 
-    @Mock
-    private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
@@ -60,7 +57,7 @@ class OppdaterFagsakStatusTjenesteTest {
         var behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
 
-        oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(), fagsakStatusEventPubliserer,
+        oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(),
             behandlingsresultatRepository, behandlingRepository, fagsakRelasjonTjeneste, mock(ProsessTaskTjeneste.class), mock(FptilbakeRestKlient.class));
     }
 

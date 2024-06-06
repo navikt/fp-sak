@@ -75,7 +75,7 @@ class FordelRestTjenesteTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
+        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository());
         fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
     }
 

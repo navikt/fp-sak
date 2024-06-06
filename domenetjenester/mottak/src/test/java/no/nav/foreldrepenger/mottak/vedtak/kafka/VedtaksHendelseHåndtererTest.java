@@ -100,7 +100,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
-            new SøknadRepository(getEntityManager(), behandlingRepository), null);
+            new SøknadRepository(getEntityManager(), behandlingRepository));
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
             null, null, null, null,

@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -64,11 +62,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
-import no.nav.foreldrepenger.datavarehus.domene.FagsakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
@@ -110,53 +105,10 @@ class DatavarehusTjenesteImplTest {
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
 
-    @Test
-    void lagreNedFagsak() {
-        var scenario = opprettFørstegangssøknad();
-        var behandling = scenario.lagre(repositoryProvider);
-        var fagsak = behandling.getFagsak();
-
-        var captor = ArgumentCaptor.forClass(FagsakDvh.class);
-
-        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
-        datavarehusTjeneste.lagreNedFagsak(fagsak.getId());
-
-        verify(datavarehusRepository).lagre(captor.capture());
-        var fagsakDvh = captor.getValue();
-        assertThat(fagsakDvh.getFagsakId()).isEqualTo(fagsak.getId());
-    }
-
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
             totrinnRepository, mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
             dvhVedtakTjenesteEngangsstønad, skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
-    }
-
-    @Test
-    void lagreNedAksjonspunkter() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.medBehandlingStegStart(BEHANDLING_STEG_TYPE);
-        scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
-        var behandling = scenario.lagre(repositoryProvider);
-        behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
-        behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
-
-        List<Aksjonspunkt> aksjonspunkter = new ArrayList<>(behandling.getAksjonspunkter());
-        var captor = ArgumentCaptor.forClass(AksjonspunktDvh.class);
-        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
-
-        // Act
-        datavarehusTjeneste.lagreNedAksjonspunkter(aksjonspunkter, behandling.getId(), BEHANDLING_STEG_TYPE);
-
-        verify(datavarehusRepository, times(2)).lagre(captor.capture());
-        var aksjonspunktDvhList = captor.getAllValues();
-        assertThat(aksjonspunktDvhList.get(0).getAksjonspunktId()).isEqualTo(aksjonspunkter.get(0).getId());
-        assertThat(aksjonspunktDvhList.get(0).getBehandlingId()).isEqualTo(behandling.getId());
-        assertThat(aksjonspunktDvhList.get(0).getBehandlingStegId())
-            .isEqualTo(behandling.getBehandlingStegTilstand(BEHANDLING_STEG_TYPE).get().getId());
-        assertThat(aksjonspunktDvhList.get(1).getAksjonspunktId()).isEqualTo(aksjonspunkter.get(1).getId());
     }
 
     @Test
@@ -208,7 +160,6 @@ class DatavarehusTjenesteImplTest {
 
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(captor.getValue().getMottattTid()).isEqualTo(mottattDokument.getMottattTidspunkt());
-        assertThat(captor.getValue().getMottattTidspunkt()).isEqualTo(mottattDokument.getMottattTidspunkt());
     }
 
     @Test
@@ -227,19 +178,6 @@ class DatavarehusTjenesteImplTest {
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
         // Act
         datavarehusTjeneste.lagreNedBehandling(behandling.getId());
-
-        verify(datavarehusRepository).lagre(captor.capture());
-        assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
-    }
-
-    @Test
-    void lagreNedVedtak() {
-        var vedtak = byggBehandlingVedtak();
-        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
-        var captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
-        var datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
-        // Act
-        datavarehusTjeneste.lagreNedVedtak(vedtak, behandling);
 
         verify(datavarehusRepository).lagre(captor.capture());
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());

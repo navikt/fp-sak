@@ -9,15 +9,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
@@ -71,18 +68,6 @@ public class BehandlingskontrollEventObserver {
         }
     }
 
-    public void observerFagsakAvsluttetEvent(@Observes FagsakStatusEvent event) {
-        if (event.getBehandlingId() != null && FagsakStatus.AVSLUTTET.equals(event.getNyStatus())) {
-            try {
-                // Bruker AVSLUTTET her for behandling som allerede er avsluttet. Dette er for å trigge ny opphenting av sak i fpoversikt.
-                // Det vil i realiteten være to AVSLUTTET behandling hendelser på siste behandling i avsluttet fagsak.
-                opprettProsessTask(event.getFagsakId(), event.getBehandlingId(), event.getAktørId(), HendelseForBehandling.AVSLUTTET);
-            } catch (Exception ex) {
-                LOG.warn("Publisering av BehandlingAvsluttetEvent feilet ved fagsak avsluttet", ex);
-            }
-        }
-    }
-
     public void observerAksjonspunktHarEndretBehandlendeEnhetEvent(@Observes BehandlingEnhetEvent event) {
         try {
             opprettProsessTask(event, HendelseForBehandling.ENHET);
@@ -96,10 +81,7 @@ public class BehandlingskontrollEventObserver {
     }
 
     private void opprettProsessTask(Long fagsakId, Long behandlingsId, AktørId aktørId, HendelseForBehandling hendelse) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(fagsakId, behandlingsId, aktørId.getId());
-        prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
-        prosessTaskData.setCallIdFraEksisterende();
+        var prosessTaskData = PubliserBehandlingHendelseTask.prosessTask(fagsakId, behandlingsId, aktørId, hendelse);
         taskTjeneste.lagre(prosessTaskData);
     }
 }

@@ -33,7 +33,6 @@ public class FagsakTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FagsakTjeneste.class);
 
     private FagsakRepository fagsakRepository;
-    private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
     private SøknadRepository søknadRepository;
 
     FagsakTjeneste() {
@@ -41,10 +40,8 @@ public class FagsakTjeneste {
     }
 
     @Inject
-    public FagsakTjeneste(FagsakRepository fagsakRepository, SøknadRepository søknadRepository,
-            FagsakStatusEventPubliserer fagsakStatusEventPubliserer) {
+    public FagsakTjeneste(FagsakRepository fagsakRepository, SøknadRepository søknadRepository) {
         this.fagsakRepository = fagsakRepository;
-        this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
         this.søknadRepository = søknadRepository;
     }
 
@@ -97,9 +94,6 @@ public class FagsakTjeneste {
         validerNyFagsak(nyFagsak);
         validerHarSaksnummer(nyFagsak);
         fagsakRepository.opprettNy(nyFagsak);
-        if (fagsakStatusEventPubliserer != null) {
-            fagsakStatusEventPubliserer.fireEvent(nyFagsak, nyFagsak.getStatus());
-        }
         return nyFagsak;
     }
 

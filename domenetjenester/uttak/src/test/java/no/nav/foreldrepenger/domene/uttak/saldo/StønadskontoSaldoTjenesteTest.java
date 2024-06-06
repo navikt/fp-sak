@@ -278,7 +278,7 @@ class StønadskontoSaldoTjenesteTest {
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var utregnetTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
         return new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(), utregnetTjeneste);

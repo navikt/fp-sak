@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -37,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -60,13 +58,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -125,39 +121,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     public DatavarehusTjenesteImpl() {
         //Crazy Dedicated Instructors
-    }
-
-    @Override
-    public void lagreNedFagsakRelasjon(FagsakRelasjon fr) {
-
-        var fagsakRelasjonDvh = FagsakRelasjonDvhMapper.map(fr);
-        datavarehusRepository.lagre(fagsakRelasjonDvh);
-    }
-
-    @Override
-    public void lagreNedFagsak(Long fagsakId) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
-        Optional<AktørId> annenPartAktørId = Optional.empty();
-        if (behandling.isPresent()) {
-            annenPartAktørId = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.get().getId()).map(OppgittAnnenPartEntitet::getAktørId);
-        }
-        var fagsakDvh = FagsakDvhMapper.map(fagsak, annenPartAktørId);
-        datavarehusRepository.lagre(fagsakDvh);
-    }
-
-    @Override
-    public void lagreNedAksjonspunkter(Collection<Aksjonspunkt> aksjonspunkter, Long behandlingId, BehandlingStegType behandlingStegType) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var behandlingStegTilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
-        var totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
-        for (var aksjonspunkt : aksjonspunkter) {
-            if (aksjonspunkt.getId() != null) {
-                var godkjennt = totrinnsvurderings.stream().anyMatch(ttv -> ttv.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon() && ttv.isGodkjent());
-                var aksjonspunktDvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, behandlingStegTilstand, godkjennt);
-                datavarehusRepository.lagre(aksjonspunktDvh);
-            }
-        }
     }
 
     @Override
@@ -268,17 +231,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
-        var ytelseMedUtbetalingFra = finnUtbetaltDato(behandling, vedtak);
-
-        var vilkårIkkeOppfylt = Optional.ofNullable(vedtak.getBehandlingsresultat().getVilkårResultat())
-            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
-            .filter(v -> VilkårUtfallType.IKKE_OPPFYLT.equals(v.getGjeldendeVilkårUtfall()))
-            .map(Vilkår::getVilkårType)
-            .collect(Collectors.toSet());
-
-        var behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling, ytelseMedUtbetalingFra, vilkårIkkeOppfylt);
-        datavarehusRepository.lagre(behandlingVedtakDvh);
-
         lagreNedBehandling(behandling, Optional.of(vedtak));
     }
 
@@ -360,15 +312,18 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
-                .filter(a -> gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a))
-                .forEach(ap -> oppdaterMedKlage(behandling, ap));
-        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-            aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
-                .filter(this::gjelderAnkeVurderingResultat)
-                .forEach(ap -> oppdaterMedAnke(behandling));
+        var gjelderKlageEllerAnke = aksjonspunkter.stream().anyMatch(DatavarehusTjenesteImpl::gjelderKlageEllerAnke);
+        if (gjelderKlageEllerAnke) {
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
+            if (BehandlingType.KLAGE.equals(behandling.getType())) {
+                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
+                    .filter(a -> gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a))
+                    .forEach(ap -> oppdaterMedKlage(behandling, ap));
+            } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
+                    .filter(DatavarehusTjenesteImpl::gjelderAnkeVurderingResultat)
+                    .forEach(ap -> oppdaterMedAnke(behandling));
+            }
         }
     }
 
@@ -386,16 +341,20 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         }
      }
 
-    private boolean gjelderKlageFormkrav(Aksjonspunkt a) {
+     private static boolean gjelderKlageEllerAnke(Aksjonspunkt a) {
+        return gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a) || gjelderAnkeVurderingResultat(a);
+     }
+
+    private static boolean gjelderKlageFormkrav(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon());
     }
 
-    private boolean gjelderKlageVurderingResultat(Aksjonspunkt a) {
+    private static boolean gjelderKlageVurderingResultat(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon())
             || AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE.equals(a.getAksjonspunktDefinisjon());
     }
 
-    private boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
+    private static boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon()) ||
             AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN.equals(a.getAksjonspunktDefinisjon());
     }

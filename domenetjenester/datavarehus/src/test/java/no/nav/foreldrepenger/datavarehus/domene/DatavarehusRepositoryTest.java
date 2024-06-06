@@ -22,37 +22,10 @@ class DatavarehusRepositoryTest {
     }
 
     @Test
-    void skal_lagre_fagsak_dvh() {
-        var fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
-
-        var id = datavarehusRepository.lagre(fagsakDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
-
-    @Test
     void skal_lagre_behandling_dvh() {
         var behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
 
         var id = datavarehusRepository.lagre(behandlingDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
-
-    @Test
-    void skal_lagre_behandling_vedtak_dvh() {
-        var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
-
-        var id = datavarehusRepository.lagre(behandlingVedtakDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
-
-    @Test
-    void skal_lagre_aksjonspunkt_dvh() {
-        var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
-
-        var id = datavarehusRepository.lagre(aksjonspunktDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
@@ -67,12 +40,4 @@ class DatavarehusRepositoryTest {
         assertThat(id).isEqualTo(idOppdatert);
     }
 
-    @Test
-    void skal_lagre_fagsakRelasjon_dvh() {
-        var fagsakRelasjonDvh = DatavarehusTestUtils.byggFagsakRelasjonDvhForTest();
-
-        var id = datavarehusRepository.lagre(fagsakRelasjonDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
 }

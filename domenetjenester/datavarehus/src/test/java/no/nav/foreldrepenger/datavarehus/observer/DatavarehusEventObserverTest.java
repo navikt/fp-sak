@@ -1,35 +1,27 @@
 package no.nav.foreldrepenger.datavarehus.observer;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
@@ -43,72 +35,6 @@ class DatavarehusEventObserverTest {
     @BeforeEach
     public void setUp() {
         datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test
-    void observerAksjonspunktUtførtEvent() {
-        var behandling = byggBehandling();
-        var behandlingId = behandling.getId();
-        List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
-
-        var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        var captor = ArgumentCaptor.forClass(List.class);
-
-        datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
-
-        verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        var resultList = captor.getValue();
-        assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
-        assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test
-    void observerAksjonspunkterFunnetEvent() {
-        var behandling = byggBehandling();
-        var behandlingId = behandling.getId();
-        List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
-
-        var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        var captor = ArgumentCaptor.forClass(List.class);
-
-        datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
-
-        verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        var resultList = captor.getValue();
-        assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
-        assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Test
-    void observerAksjonspunkterAvbruttEvent() {
-        var behandling = byggBehandling();
-        var behandlingId = behandling.getId();
-        List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
-
-        var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        var captor = ArgumentCaptor.forClass(List.class);
-
-        datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
-
-        verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        var resultList = captor.getValue();
-        assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
-        assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
-    }
-
-    @Test
-    void observerFagsakStatus() {
-        var behandling = byggBehandling();
-        var fagsak = behandling.getFagsak();
-
-        var event = new FagsakStatusEvent(fagsak.getId(), behandling.getId(), fagsak.getAktørId(), FagsakStatus.OPPRETTET, fagsak.getStatus());
-
-        datavarehusEventObserver.observerFagsakStatus(event);
-
-        verify(datavarehusTjeneste).lagreNedFagsak(eq(fagsak.getId()));
     }
 
     @Test
