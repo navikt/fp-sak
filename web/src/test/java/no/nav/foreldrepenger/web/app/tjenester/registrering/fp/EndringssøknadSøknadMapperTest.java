@@ -77,7 +77,7 @@ class EndringssøknadSøknadMapperTest {
             new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository(),
             new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste));
         var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
-            datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste, new AnnenPartOversetter(personinfoAdapter));
+                oppgittPeriodeMottattDatoTjeneste, new AnnenPartOversetter(personinfoAdapter));
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();

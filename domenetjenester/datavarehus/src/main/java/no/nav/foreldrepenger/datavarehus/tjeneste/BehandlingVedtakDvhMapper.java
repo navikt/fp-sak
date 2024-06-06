@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 
 public class BehandlingVedtakDvhMapper {
@@ -17,26 +12,6 @@ public class BehandlingVedtakDvhMapper {
     private static final Set<VedtakResultatType> VEDTAK_IKKE_OPPFYLT = Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR);
 
     private BehandlingVedtakDvhMapper() {
-    }
-
-    static BehandlingVedtakDvh map(BehandlingVedtak behandlingVedtak, Behandling behandling, LocalDate utbetaltTid, Set<VilkårType> vilkårIkkeOppfylt) {
-        return BehandlingVedtakDvh.builder()
-                .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
-                .ansvarligSaksbehandler(behandlingVedtak.getAnsvarligSaksbehandler())
-                .behandlingId(behandling.getId())
-                .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandlingVedtak))
-                .funksjonellTid(LocalDateTime.now())
-                .godkjennendeEnhet(behandling.getBehandlendeEnhet())
-                .iverksettingStatus(behandlingVedtak.getIverksettingStatus().getKode())
-                .opprettetDato(
-                        behandlingVedtak.getOpprettetTidspunkt() == null ? null : behandlingVedtak.getOpprettetTidspunkt().toLocalDate())
-                .vedtakDato(behandlingVedtak.getVedtaksdato())
-                .vedtakTid(behandlingVedtak.getVedtakstidspunkt())
-                .vedtakId(behandlingVedtak.getId())
-                .vedtakResultatTypeKode(behandlingVedtak.getVedtakResultatType().getKode())
-                .utbetaltTid(utbetaltTid)
-                .vilkårIkkeOppfylt(mapVilkårIkkeOppfylt(behandlingVedtak.getVedtakResultatType(), behandling.getFagsakYtelseType(), vilkårIkkeOppfylt))
-                .build();
     }
 
     public static VilkårIkkeOppfylt mapVilkårIkkeOppfylt(VedtakResultatType vedtakResultatType, FagsakYtelseType ytelseType, Set<VilkårType> vilkårIkkeOppfylt) {

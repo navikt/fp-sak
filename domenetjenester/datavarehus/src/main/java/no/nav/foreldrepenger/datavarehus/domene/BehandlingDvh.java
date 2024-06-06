@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,8 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import org.hibernate.annotations.NaturalId;
-
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH")
@@ -44,12 +41,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "YTELSE_TYPE")
     private String ytelseType;
 
-    @Column(name = "VEDTAK_ID")
-    private Long vedtakId;
-
-    @Column(name = "OPPRETTET_DATO", nullable = false)
-    private LocalDate opprettetDato;
-
     @Column(name = "BEHANDLING_RESULTAT_TYPE")
     private String behandlingResultatType;
 
@@ -71,39 +62,11 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "ANSVARLIG_BESLUTTER")
     private String ansvarligBeslutter;
 
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "TOTRINNSBEHANDLING")
-    private boolean toTrinnsBehandling;
-
     @Column(name = "RELATERT_TIL")
     private Long relatertBehandling;
 
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "FERDIG")
-    private boolean ferdig;
-
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "VEDTATT")
-    private boolean vedtatt;
-
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "AVBRUTT")
-    private boolean avbrutt;
-
-    @Column(name = "SOEKNAD_FAMILIE_HENDELSE")
-    private String soeknadFamilieHendelse;
-
-    @Column(name = "BEKREFTET_FAMILIE_HENDELSE")
-    private String bekreftetFamilieHendelse;
-
-    @Column(name = "OVERSTYRT_FAMILIE_HENDELSE")
-    private String overstyrtFamilieHendelse;
-
     @Column(name = "FAMILIE_HENDELSE_TYPE")
     private String familieHendelseType;
-
-    @Column(name = "MOTTATT_TIDSPUNKT")
-    private LocalDateTime mottattTidspunkt;
 
     @Column(name = "FOERSTE_STOENADSDAG")
     private LocalDate foersteStoenadsdag;
@@ -179,14 +142,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return ytelseType;
     }
 
-    public Long getVedtakId() {
-        return vedtakId;
-    }
-
-    public LocalDate getOpprettetDato() {
-        return opprettetDato;
-    }
-
     public String getBehandlingResultatType() {
         return behandlingResultatType;
     }
@@ -215,44 +170,12 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return ansvarligBeslutter;
     }
 
-    public boolean isToTrinnsBehandling() {
-        return toTrinnsBehandling;
-    }
-
     public Long getRelatertBehandling() {
         return relatertBehandling;
     }
 
-    public boolean isFerdig() {
-        return ferdig;
-    }
-
-    public boolean isVedtatt() {
-        return vedtatt;
-    }
-
-    public boolean isAvbrutt() {
-        return avbrutt;
-    }
-
-    public String getSoeknadFamilieHendelse() {
-        return soeknadFamilieHendelse;
-    }
-
-    public String getBekreftetFamilieHendelse() {
-        return bekreftetFamilieHendelse;
-    }
-
-    public String getOverstyrtFamilieHendelse() {
-        return overstyrtFamilieHendelse;
-    }
-
     public String getFamilieHendelseType() {
         return familieHendelseType;
-    }
-
-    public LocalDateTime getMottattTidspunkt() {
-        return mottattTidspunkt;
     }
 
     public LocalDate getFoersteStoenadsdag() {
@@ -327,8 +250,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(saksnummer, other.saksnummer)
                 && Objects.equals(aktørId, other.aktørId)
                 && Objects.equals(ytelseType, other.ytelseType)
-                && Objects.equals(vedtakId, other.vedtakId)
-                && Objects.equals(opprettetDato, other.opprettetDato)
                 && Objects.equals(behandlingResultatType, other.behandlingResultatType)
                 && Objects.equals(behandlingType, other.behandlingType)
                 && Objects.equals(behandlingStatus, other.behandlingStatus)
@@ -337,14 +258,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(ansvarligSaksbehandler, other.ansvarligSaksbehandler)
                 && Objects.equals(ansvarligBeslutter, other.ansvarligBeslutter)
                 && Objects.equals(relatertBehandling, other.relatertBehandling)
-                && Objects.equals(ferdig, other.ferdig)
-                && Objects.equals(vedtatt, other.vedtatt)
-                && Objects.equals(avbrutt, other.avbrutt)
-                && Objects.equals(soeknadFamilieHendelse, other.soeknadFamilieHendelse)
-                && Objects.equals(bekreftetFamilieHendelse, other.bekreftetFamilieHendelse)
-                && Objects.equals(overstyrtFamilieHendelse, other.overstyrtFamilieHendelse)
                 && Objects.equals(familieHendelseType, other.familieHendelseType)
-                && Objects.equals(mottattTidspunkt, other.mottattTidspunkt)
                 && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
                 && Objects.equals(uuid, other.uuid)
                 && Objects.equals(papirSøknad, other.papirSøknad)
@@ -363,9 +277,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), behandlingId, fagsakId, vedtakId, opprettetDato, behandlingResultatType, behandlingType,
-            behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, soeknadFamilieHendelse,
-            bekreftetFamilieHendelse, overstyrtFamilieHendelse, familieHendelseType, mottattTidspunkt,foersteStoenadsdag,papirSøknad,
+        return Objects.hash(super.hashCode(), behandlingId, fagsakId, behandlingResultatType, behandlingType,
+            behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
+            familieHendelseType, foersteStoenadsdag,papirSøknad,
             behandlingMetode, revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
             vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
     }
@@ -380,8 +294,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private String saksnummer;
         private String aktørId;
         private String ytelseType;
-        private Long vedtakId;
-        private LocalDate opprettetDato;
         private String behandlingResultatType;
         private String behandlingType;
         private String behandlingStatus;
@@ -391,16 +303,8 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private String ansvarligBeslutter;
         private LocalDateTime funksjonellTid;
         private String endretAv;
-        private boolean toTrinnsBehandling;
         private Long relatertBehandling;
-        private boolean ferdig;
-        private boolean vedtatt;
-        private boolean avbrutt;
-        private String soeknadFamilieHendelse;
-        private String bekreftetFamilieHendelse;
-        private String overstyrtFamilieHendelse;
         private String familieHendelseType;
-        private LocalDateTime mottattTidspunkt;
         private LocalDate foersteStoenadsdag;
         private UUID uuid;
         private String papirSøknad;
@@ -444,16 +348,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
         public Builder ytelseType(String ytelseType) {
             this.ytelseType = ytelseType;
-            return this;
-        }
-
-        public Builder vedtakId(Long vedtakId) {
-            this.vedtakId = vedtakId;
-            return this;
-        }
-
-        public Builder opprettetDato(LocalDate opprettetDato) {
-            this.opprettetDato = opprettetDato;
             return this;
         }
 
@@ -502,53 +396,13 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
-        public Builder toTrinnsBehandling(boolean toTrinnsBehandling) {
-            this.toTrinnsBehandling = toTrinnsBehandling;
-            return this;
-        }
-
         public Builder relatertBehandling(Long behandlingId) {
             this.relatertBehandling = behandlingId;
             return this;
         }
 
-        public Builder ferdig(boolean ferdig) {
-            this.ferdig = ferdig;
-            return this;
-        }
-
-        public Builder vedtatt(boolean vedtatt) {
-            this.vedtatt = vedtatt;
-            return this;
-        }
-
-        public Builder avbrutt(boolean avbrutt) {
-            this.avbrutt = avbrutt;
-            return this;
-        }
-
-        public Builder soeknadFamilieHendelse(String soeknadFamilieHendelse) {
-            this.soeknadFamilieHendelse = soeknadFamilieHendelse;
-            return this;
-        }
-
-        public Builder bekreftetFamilieHendelse(String bekreftetFamilieHendelse) {
-            this.bekreftetFamilieHendelse = bekreftetFamilieHendelse;
-            return this;
-        }
-
-        public Builder overstyrtFamilieHendelse(String overstyrtFamilieHendelse) {
-            this.overstyrtFamilieHendelse = overstyrtFamilieHendelse;
-            return this;
-        }
-
         public Builder familieHendelseType(String familieHendelseType) {
             this.familieHendelseType = familieHendelseType;
-            return this;
-        }
-
-        public Builder medMottattTidspunkt(LocalDateTime mottattTidspunkt) {
-            this.mottattTidspunkt = mottattTidspunkt;
             return this;
         }
 
@@ -624,8 +478,6 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.saksnummer = saksnummer;
             behandlingDvh.aktørId = aktørId;
             behandlingDvh.ytelseType = ytelseType;
-            behandlingDvh.vedtakId = vedtakId;
-            behandlingDvh.opprettetDato = opprettetDato;
             behandlingDvh.behandlingResultatType = behandlingResultatType;
             behandlingDvh.behandlingType = behandlingType;
             behandlingDvh.behandlingStatus = behandlingStatus;
@@ -633,18 +485,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.utlandstilsnitt = utlandstilsnitt;
             behandlingDvh.ansvarligSaksbehandler = ansvarligSaksbehandler;
             behandlingDvh.ansvarligBeslutter = ansvarligBeslutter;
-            behandlingDvh.toTrinnsBehandling = toTrinnsBehandling;
             behandlingDvh.relatertBehandling = relatertBehandling;
-            behandlingDvh.ferdig = ferdig;
-            behandlingDvh.vedtatt = vedtatt;
-            behandlingDvh.avbrutt = avbrutt;
             behandlingDvh.setFunksjonellTid(funksjonellTid);
             behandlingDvh.setEndretAv(endretAv);
-            behandlingDvh.soeknadFamilieHendelse = soeknadFamilieHendelse;
-            behandlingDvh.bekreftetFamilieHendelse = bekreftetFamilieHendelse;
-            behandlingDvh.overstyrtFamilieHendelse = overstyrtFamilieHendelse;
             behandlingDvh.familieHendelseType = familieHendelseType;
-            behandlingDvh.mottattTidspunkt = mottattTidspunkt;
             behandlingDvh.foersteStoenadsdag = foersteStoenadsdag;
             behandlingDvh.uuid = uuid;
             behandlingDvh.papirSøknad = papirSøknad;

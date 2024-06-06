@@ -2,10 +2,8 @@ package no.nav.foreldrepenger.datavarehus.domene;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,24 +28,9 @@ public class DatavarehusRepository {
         return liste.isEmpty() ? Optional.empty() : Optional.of(liste.get(0));
     }
 
-    public long lagre(FagsakDvh fagsakDvh) {
-        entityManager.persist(fagsakDvh);
-        return fagsakDvh.getId();
-    }
-
     public long lagre(BehandlingDvh behandlingDvh) {
         entityManager.persist(behandlingDvh);
         return behandlingDvh.getId();
-    }
-
-    public long lagre(AksjonspunktDvh aksjonspunktDvh) {
-        entityManager.persist(aksjonspunktDvh);
-        return aksjonspunktDvh.getId();
-    }
-
-    public long lagre(BehandlingVedtakDvh behandlingVedtakDvh) {
-        entityManager.persist(behandlingVedtakDvh);
-        return behandlingVedtakDvh.getId();
     }
 
     public long lagre(VedtakUtbetalingDvh vedtakUtbetalingDvh) {
@@ -109,22 +92,4 @@ public class DatavarehusRepository {
         return ankeVurderingResultat.getId();
 
     }
-
-    public long lagre( FagsakRelasjonDvh fagsakRelasjonDvh ) {
-        entityManager.persist(fagsakRelasjonDvh);
-        entityManager.flush();
-        return fagsakRelasjonDvh.getId();
-    }
-
-    public Map<String, AksjonspunktDefDvh> hentAksjonspunktDefinisjoner() {
-        var query = entityManager.createQuery("from AksjonspunktDefDvh", AksjonspunktDefDvh.class);
-
-        return query.getResultList().stream().collect(Collectors.toMap(AksjonspunktDefDvh::getAksjonspunktDef, a -> a));
-    }
-
-    public void lagre( AksjonspunktDefDvh aksjonspunktDefDvh ) {
-        entityManager.persist(aksjonspunktDefDvh);
-        entityManager.flush();
-    }
-
 }

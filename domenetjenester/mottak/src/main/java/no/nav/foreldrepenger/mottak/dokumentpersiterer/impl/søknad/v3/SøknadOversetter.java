@@ -70,7 +70,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -144,7 +143,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersoninfoAdapter personinfoAdapter;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
-    private DatavarehusTjeneste datavarehusTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FagsakRepository fagsakRepository;
@@ -158,7 +156,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                             VirksomhetTjeneste virksomhetTjeneste,
                             InntektArbeidYtelseTjeneste iayTjeneste,
                             PersoninfoAdapter personinfoAdapter,
-                            DatavarehusTjeneste datavarehusTjeneste,
                             SøknadDataFraTidligereVedtakTjeneste søknadDataFraTidligereVedtakTjeneste,
                             AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
@@ -170,7 +167,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
-        this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.svangerskapspengerRepository = grunnlagRepositoryProvider.getSvangerskapspengerRepository();
         this.søknadDataFraTidligereVedtakTjeneste = søknadDataFraTidligereVedtakTjeneste;
@@ -196,8 +192,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             persisterEndringssøknad(wrapper, mottattDokument, behandling, gjelderFra);
         } else {
             persisterSøknad(wrapper, mottattDokument, behandling);
-            // DVH oppdatering skal normalt gå gjennom events - dette er en unntaksløsning for å sikre at DVH oppdateres med annen part (som er lagt på DVH-sak)
-            datavarehusTjeneste.lagreNedFagsak(behandling.getFagsakId());
         }
     }
 

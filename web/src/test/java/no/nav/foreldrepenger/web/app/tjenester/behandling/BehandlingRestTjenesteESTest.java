@@ -70,7 +70,7 @@ class BehandlingRestTjenesteESTest {
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(),
-            repositoryProvider.getSøknadRepository(), null);
+            repositoryProvider.getSøknadRepository());
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);

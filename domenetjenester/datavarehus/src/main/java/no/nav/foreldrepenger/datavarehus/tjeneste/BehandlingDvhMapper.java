@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
@@ -64,18 +62,9 @@ public class BehandlingDvhMapper {
             .aktørId(behandling.getAktørId().getId())
             .ytelseType(behandling.getFagsakYtelseType().getKode())
             .funksjonellTid(LocalDateTime.now())
-            .opprettetDato(behandling.getOpprettetDato().toLocalDate())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
-            .toTrinnsBehandling(behandling.isToTrinnsBehandling())
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
-            .ferdig(mapFerdig(behandling))
-            .vedtatt(behandlingsresultat != null && mapVedtatt(behandlingsresultat, behandling.getFagsak().getStatus()))
-            .avbrutt(behandlingsresultat != null && mapAvbrutt(behandlingsresultat, behandling.getFagsak().getStatus()))
-            .soeknadFamilieHendelse(mapSoeknadFamilieHendelse(fh))
-            .bekreftetFamilieHendelse(mapbekreftetFamilieHendelse(fh))
-            .overstyrtFamilieHendelse(mapoverstyrtFamilieHendelse(fh))
             .familieHendelseType(mapFamilieHendelse(fh))
-            .medMottattTidspunkt(finnMottattTidspunkt(mottatteDokument))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))
             .medBehandlingMetode(utledBehandlingMetode(behandling, behandlingsresultat))
@@ -85,8 +74,7 @@ public class BehandlingDvhMapper {
             .medKanBehandlesTid(kanBehandlesTid(behandling))
             .medFerdigBehandletTid(behandling.erAvsluttet() ? behandling.getEndretTidspunkt() : null)
             .medForventetOppstartTid(forventetOppstartDato.orElse(null));
-        vedtak.ifPresent(v -> builder.vedtakId(v.getId())
-            .vedtakTid(v.getVedtakstidspunkt())
+        vedtak.ifPresent(v -> builder.vedtakTid(v.getVedtakstidspunkt())
             .vedtakResultatType(Optional.ofNullable(v.getVedtakResultatType()).map(Kodeverdi::getKode).orElse(null))
             .vilkårIkkeOppfylt(vilkårIkkeOppfylt.orElse(null))
             .utbetaltTid(utbetaltTid.orElse(null)));
@@ -136,43 +124,11 @@ public class BehandlingDvhMapper {
         return behandling.getOriginalBehandlingId().orElse(null);
     }
 
-    private static String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
-        return fh.map(f -> f.getSøknadVersjon().getType().getKode()).orElse(null);
-    }
-
-    private static String mapbekreftetFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
-        return fh.flatMap(f -> f.getBekreftetVersjon().map(bv -> bv.getType().getKode())).orElse(null);
-    }
-
-    private static String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
-        return fh.flatMap(f -> f.getOverstyrtVersjon().map(bv -> bv.getType().getKode())).orElse(null);
-    }
-
     private static String mapFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
         return fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getType)
             .map(FamilieHendelseType::getKode)
             .orElse(null);
-    }
-
-
-    private static boolean mapAvbrutt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
-        return FagsakStatus.AVSLUTTET.equals(fagsakStatus) && behandlingsresultat.getBehandlingResultatType().erHenlagt();
-    }
-
-    private static boolean mapVedtatt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
-        var behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
-        if (FagsakStatus.AVSLUTTET.equals(fagsakStatus)) {
-            return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType);
-        }
-        if (FagsakStatus.LØPENDE.equals(fagsakStatus)) {
-            return BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
-        }
-        return false;
-    }
-
-    private static boolean mapFerdig(Behandling behandling) {
-        return FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus());
     }
 
     private static Boolean finnPapirSøknad(Behandling behandling, List<MottattDokument> mottatteDokumenter) {

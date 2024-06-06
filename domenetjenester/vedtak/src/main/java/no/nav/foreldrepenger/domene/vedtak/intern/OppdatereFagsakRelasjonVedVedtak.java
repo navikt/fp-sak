@@ -42,7 +42,7 @@ public class OppdatereFagsakRelasjonVedVedtak {
             .map(Stønadskontoberegning::getStønadskontoutregning)
             .orElseGet(Map::of);
         if (!UtregnetStønadskontoTjeneste.harSammeAntallStønadsdager(gjeldendeKontoutregning, uttak.getStønadskontoberegning().getStønadskontoutregning())) {
-            fagsakRelasjonTjeneste.lagre(behandling.getFagsakId(), fagsakrelasjon, behandling.getId(), uttak.getStønadskontoberegning());
+            fagsakRelasjonTjeneste.lagre(behandling.getFagsakId(), behandling.getId(), uttak.getStønadskontoberegning());
         }
     }
 }
