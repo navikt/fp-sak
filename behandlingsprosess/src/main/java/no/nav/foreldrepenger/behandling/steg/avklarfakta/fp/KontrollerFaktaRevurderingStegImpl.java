@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -93,6 +95,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
     private OpptjeningRepository opptjeningRepository;
+    private DekningsgradTjeneste dekningsgradTjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -100,16 +104,17 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
-            BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            MottatteDokumentTjeneste mottatteDokumentTjeneste,
-            ForeldrepengerUttakTjeneste uttakTjeneste,
-            KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
+                                       BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                       HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
+                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste,
+                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
+                                       BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
+                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                       MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                       ForeldrepengerUttakTjeneste uttakTjeneste,
+                                       KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste,
+                                       DekningsgradTjeneste dekningsgradTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -124,6 +129,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.uttakTjeneste = uttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
     @Override
@@ -135,8 +142,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         // Spesialhåndtering for enkelte behandlinger
         if (SpesialBehandling.erSpesialBehandling(behandling)) {
-            var startpunkt = SpesialBehandling.skalUttakVurderes(behandling) ?
-                StartpunktType.UTTAKSVILKÅR : StartpunktType.TILKJENT_YTELSE;
+            StartpunktType startpunkt;
+            if (SpesialBehandling.skalUttakVurderes(behandling)) {
+                startpunkt = erDekningsgradEndring(ref) ? StartpunktType.DEKNINGSGRAD : StartpunktType.UTTAKSVILKÅR;
+            } else {
+                startpunkt = StartpunktType.TILKJENT_YTELSE;
+            }
             behandling.setStartpunkt(startpunkt);
             kopierResultaterAvhengigAvStartpunkt(behandling, kontekst, ref);
             return utledStegResultat(startpunkt, List.of());
@@ -153,6 +164,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst, ref);
 
         return utledStegResultat(startpunkt, aksjonspunktResultater);
+    }
+
+    private boolean erDekningsgradEndring(BehandlingReferanse ref) {
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
+        var fagsakrelDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
+            .getGjeldendeDekningsgrad();
+        return !Objects.equals(dekningsgrad, fagsakrelDekningsgrad);
     }
 
     private BehandleStegResultat utledStegResultat(StartpunktType startpunkt, List<AksjonspunktResultat> aksjonspunkt) {

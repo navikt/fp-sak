@@ -9,9 +9,6 @@ import java.util.Properties;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.SendInformasjonsbrevPåminnelseBatchTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -171,20 +167,20 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
             .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
 
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandlingMor.getFagsak(), behandlingMor.getId(), kontoMor.build());
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak());
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandlingMor.getFagsak(), kontoMor.build());
 
         var fagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørIdFar));
         repositoryProvider.getFagsakRepository().opprettNy(fagsakFar);
         var behandlingFar = Behandling.forFørstegangssøknad(fagsakFar).medBehandlendeEnhet(new OrganisasjonsEnhet("1000", "Enheten")).build();
         lås = behandlingRepository.taSkriveLås(behandlingFar);
         repositoryProvider.getBehandlingRepository().lagre(behandlingFar, lås);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), fagsakFar, behandlingMor);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), fagsakFar);
 
         var kontoFar = Stønadskontoberegning.builder()
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FEDREKVOTE).medMaxDager(75).build())
             .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
-        repositoryProvider.getFagsakRelasjonRepository().lagre(fagsakFar, behandlingFar.getId(), kontoFar.build());
+        repositoryProvider.getFagsakRelasjonRepository().lagre(fagsakFar, kontoFar.build());
 
         em.flush();
         em.clear();

@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -75,8 +74,8 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
                 Inntektskategori.ARBEIDSTAKER);
 
@@ -94,8 +93,8 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
             Inntektskategori.ARBEIDSTAKER);
 
@@ -112,7 +111,7 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
@@ -129,7 +128,7 @@ class BeregnFeriepengerTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
                 Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 

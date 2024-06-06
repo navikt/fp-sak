@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -36,9 +38,10 @@ public final class EndringsdatoBerørtUtleder {
     }
 
     public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeUttak,
-                                                                           Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
+                                                                           YtelseFordelingAggregat utløsendeBehandlingYtelseFordeling,
                                                                            boolean negativSaldoNoenKonto,
                                                                            Optional<ForeldrepengerUttak> berørtUttakOpt,
+                                                                           Dekningsgrad berørtDekningsgrad,
                                                                            UttakInput uttakInput,
                                                                            String loggPrefix) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
@@ -50,7 +53,7 @@ public final class EndringsdatoBerørtUtleder {
         }
         var berørtUttak = berørtUttakOpt.get();
         // Endring fra en søknadsperiode eller fra start?
-        var endringsdato = utløsendeBehandlingYtelseFordeling.flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
+        var endringsdato = utløsendeBehandlingYtelseFordeling.getGjeldendeEndringsdatoHvisEksisterer()
             .orElseGet(() -> {
                 //mangler endringsdato ved utsatt oppstart behandlinger.
                 return finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow();
@@ -60,6 +63,10 @@ public final class EndringsdatoBerørtUtleder {
         if (UtregnetStønadskontoTjeneste.harEndretStrukturEllerRedusertAntallStønadsdager(
             berørtUttakOpt.map(ForeldrepengerUttak::getStønadskontoBeregning).orElse(Map.of()), utløsendeUttak.getStønadskontoBeregning())) {
             LOG.info("{}: EndretKonto endringsdato {}", loggPrefix, endringsdato);
+            berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato());
+        }
+        if (!Objects.equals(berørtDekningsgrad, utløsendeBehandlingYtelseFordeling.getGjeldendeDekningsgrad())) {
+            LOG.info("{}: Dekningsgrad endringsdato {}", loggPrefix, endringsdato);
             berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato());
         }
 

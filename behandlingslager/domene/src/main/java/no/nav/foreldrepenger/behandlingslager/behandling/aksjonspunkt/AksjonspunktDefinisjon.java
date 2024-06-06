@@ -322,6 +322,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_AVKLART_STARTDATO(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE, AksjonspunktType.MANUELL, "Overstyr avklart startdato for foreldrepengeperioden",
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
             TOTRINN, EnumSet.of(ES, FP, SVP)),
+    OVERSTYRING_AV_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD_KODE, AksjonspunktType.OVERSTYRING, "Overstyr dekningsgrad",
+        BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
+        TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 700
 

@@ -151,7 +151,7 @@ class FastsettePerioderTjenesteTest {
             .lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
 
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -219,7 +219,7 @@ class FastsettePerioderTjenesteTest {
 
         var behandling = behandlingMedSøknadsperioder(List.of(fpff, mødrekvote, fellesperiode));
         byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver1, arbeidsgiver2));
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -271,7 +271,7 @@ class FastsettePerioderTjenesteTest {
 
         var behandling = behandlingMedSøknadsperioder(List.of(periode1, periode2, periode3));
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -316,7 +316,7 @@ class FastsettePerioderTjenesteTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver));
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
         opprettGrunnlag(behandling.getId(), fødselsdato);
 
         var input = lagInput(behandling, fødselsdato);
@@ -359,7 +359,7 @@ class FastsettePerioderTjenesteTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver));
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
-        var kontoer = opprettStønadskontoerBareFarHarRett(behandling);
+        var kontoer = opprettStønadskontoerBareFarHarRett();
         opprettGrunnlag(behandling.getId(), fødselsdato);
 
         var input = lagInput(behandling, fødselsdato);
@@ -395,7 +395,7 @@ class FastsettePerioderTjenesteTest {
 
         var behandling = behandlingMedSøknadsperioder(List.of(periode1));
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -483,8 +483,6 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fpffKonto)
             .medStønadskonto(foreldrepengerKonto)
             .build();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -492,8 +490,7 @@ class FastsettePerioderTjenesteTest {
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
         var fastsettePerioderTjeneste = tjeneste();
-        fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato),
-            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow());
+        fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato), stønadskontoberegning);
 
         // Assert
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(
@@ -543,8 +540,6 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fpffKonto)
             .medStønadskonto(mødrekvoteKonto)
             .build();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -553,8 +548,7 @@ class FastsettePerioderTjenesteTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(person, null);
 
         var fastsettePerioderTjeneste = tjeneste();
-        fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato),
-            fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow());
+        fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato), stønadskontoberegning);
 
         // Assert
 
@@ -590,8 +584,7 @@ class FastsettePerioderTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittFpff, oppgittMødrekvote), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
         opprettGrunnlag(behandling.getId(), fødselsdato);
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet1, InternArbeidsforholdRef.nullRef());
@@ -692,7 +685,7 @@ class FastsettePerioderTjenesteTest {
             .build();
         var behandling = behandlingMedSøknadsperioder(List.of(opprinneligeMødreKvote, opprinneligFellesPeriode));
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
-        var kontoer = opprettStønadskontoerForFarOgMor(behandling);
+        var kontoer = opprettStønadskontoerForFarOgMor();
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -776,22 +769,19 @@ class FastsettePerioderTjenesteTest {
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
-    private Stønadskontoberegning opprettStønadskontoerBareFarHarRett(Behandling behandling) {
+    private Stønadskontoberegning opprettStønadskontoerBareFarHarRett() {
         var konto = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FORELDREPENGER)
             .medMaxDager(50)
             .build();
-        var stønadskontoberegning = Stønadskontoberegning.builder()
+        return Stønadskontoberegning.builder()
             .medRegelEvaluering("evaluering")
             .medRegelInput("grunnlag")
             .medStønadskonto(konto)
             .build();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
-    private Stønadskontoberegning opprettStønadskontoerForFarOgMor(Behandling behandling) {
+    private Stønadskontoberegning opprettStønadskontoerForFarOgMor() {
         var foreldrepengerFørFødsel = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
             .medMaxDager(15)
@@ -808,7 +798,7 @@ class FastsettePerioderTjenesteTest {
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
             .medMaxDager(50)
             .build();
-        var stønadskontoberegning = Stønadskontoberegning.builder()
+        return Stønadskontoberegning.builder()
             .medRegelEvaluering("evaluering")
             .medRegelInput("grunnlag")
             .medStønadskonto(mødrekvote)
@@ -816,9 +806,6 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fellesperiode)
             .medStønadskonto(foreldrepengerFørFødsel)
             .build();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
-        return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {

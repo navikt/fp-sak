@@ -49,7 +49,7 @@ public class BeregnStønadskontoerTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoberegning = beregnForBehandling(uttakInput, Map.of()).orElseThrow();
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
-        fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, ref.behandlingId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, stønadskontoberegning);
     }
 
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {

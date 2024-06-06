@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -55,10 +53,21 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void lagre(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
+        return opprettRelasjon(fagsak, new FagsakRelasjon(fagsak, null, null, null, null, null));
+    }
+
+    @Override
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
+        lagre(fagsak, fagsakRelasjon);
+        return fagsakRelasjon;
+    }
+
+    @Override
+    public void lagre(Fagsak fagsak, Stønadskontoberegning stønadskontoberegning) {
         var fagsakRelasjon = finnRelasjonForHvisEksisterer(fagsak).orElse(null);
         if (fagsakRelasjon == null) {
-            fagsakRelasjon = opprettRelasjon(fagsak, Dekningsgrad._100);
+            fagsakRelasjon = opprettRelasjon(fagsak);
         }
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
             stønadskontoberegning,
@@ -67,36 +76,13 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
         lagre(fagsak, ny);
     }
 
-    @Override
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjon = new FagsakRelasjon(fagsak, null, null, dekningsgrad, null, null);
-        lagre(fagsak, fagsakRelasjon);
-        return fagsakRelasjon;
-    }
-
     private void lagre(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
         relasjonMap.put(fagsak.getId(), fagsakRelasjon);
         relasjonMapSaksnummer.put(fagsak.getSaksnummer(), fagsakRelasjon);
     }
 
     @Override
-    public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
-        var fagsakRelasjon = finnRelasjonFor(fagsak);
-        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(), overstyrtVerdi, fagsakRelasjon.getAvsluttningsdato());
-        lagre(fagsak, ny);
-        return ny;
-    }
-
-    @Override
-    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak,
-                                                    Optional<FagsakRelasjon> fagsakRelasjon,
-                                                    Dekningsgrad dekningsgrad) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
-    public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
+    public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         var fagsakRelasjon = finnRelasjonFor(fagsakEn);
         var ny = new FagsakRelasjon(fagsakEn, fagsakTo, fagsakRelasjon.getStønadskontoberegning().orElse(null),
                 fagsakRelasjon.getDekningsgrad(),
@@ -108,11 +94,6 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public Optional<FagsakRelasjon> fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
-    public FagsakRelasjon nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
         throw new IkkeImplementertForTestException();
     }
 

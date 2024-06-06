@@ -421,7 +421,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
 
         repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(morsBehandling.getFagsak(), morsBehandling.getId(), stønadskontoberegning);
+            .lagre(morsBehandling.getFagsak(), stønadskontoberegning);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), stønadskontoberegning, uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
@@ -463,7 +463,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var behandlingMor = avsluttetBehandlingMedUttak(scenarioMor, uttakMor);
 
         repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
+            .lagre(behandlingMor.getFagsak(), stønadskontoberegning);
 
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
@@ -677,7 +677,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var behandlingFar = scenarioFar.lagre(repositoryProvider);
 
         repositoryProvider.getFagsakRelasjonRepository()
-            .kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
+            .kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak());
         return behandlingFar;
     }
 
@@ -691,7 +691,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     private void lagreStønadskontoBeregning(Behandling behandling,
                                             Stønadskontoberegning stønadskontoberegning) {
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
     }
 
     private Behandling avsluttetBehandlingMedUttak(AbstractTestScenario<?> scenarioMor,
@@ -856,8 +856,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenario.medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
 
         var input = input(behandling, fpGrunnlag(null, fødseldato, 1), fødseldato);
         var saldoer = tjeneste.lagStønadskontoerDto(input);
@@ -916,8 +915,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenario.medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        repositoryProvider.getFagsakRelasjonRepository()
-            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
 
         var input = inputFAB(behandling, fpGrunnlag(), fødseldato);
         var saldoer = tjeneste.lagStønadskontoerDto(input);
@@ -950,7 +948,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medStønadskontoberegning(stønadskontoberegning);
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
 
         var saksnummer = behandling.getFagsak().getSaksnummer();
         var fødselNesteSak = periode.getTom().minusDays(1);
@@ -1011,7 +1009,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = avsluttetBehandlingMedUttak(scenario, uttak);
 
 
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
 
         var fpGrunnlag = fpGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(termindato, fødseldato, List.of(), 1))

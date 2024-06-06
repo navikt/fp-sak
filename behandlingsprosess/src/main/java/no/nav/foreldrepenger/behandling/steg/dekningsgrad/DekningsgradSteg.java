@@ -1,31 +1,33 @@
 package no.nav.foreldrepenger.behandling.steg.dekningsgrad;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_DEKNINGSGRAD;
+
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @BehandlingStegRef(BehandlingStegType.DEKNINGSGRAD)
 @BehandlingTypeRef
@@ -33,95 +35,69 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ApplicationScoped
 public class DekningsgradSteg implements BehandlingSteg {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DekningsgradSteg.class);
-
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
-    private final EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private final RyddDekningsgradTjeneste ryddDekningsgradTjeneste;
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final BehandlingRepository behandlingRepository;
+    private final HistorikkRepository historikkRepository;
 
     @Inject
     public DekningsgradSteg(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                             FamilieHendelseTjeneste familieHendelseTjeneste,
-                            EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste,
                             YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                            RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
-                            BehandlingsresultatRepository behandlingsresultatRepository,
-                            BehandlingRepository behandlingRepository) {
+                            BehandlingRepository behandlingRepository,
+                            HistorikkRepository historikkRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.endreDekningsgradVedDødTjeneste = endreDekningsgradVedDødTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.ryddDekningsgradTjeneste = ryddDekningsgradTjeneste;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
+        this.historikkRepository = historikkRepository;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
-        if (erBarnDødsfall(kontekst)) {
-            endreDekningsgradVedDødTjeneste.endreDekningsgradTil100(behandlingId);
-        }
+
         var fagsakRelasjonDekningsgrad = hentFagsakRelasjon(kontekst).getGjeldendeDekningsgrad();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         var eksisterendeSakskompleksDekningsgrad = ytelseFordelingAggregat.getSakskompleksDekningsgrad();
         var annenPartsOppgittDekningsgrad = finnAnnenPartsOppgittDekningsgrad(kontekst.getFagsakId()).orElse(null);
         var fh = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon();
         return SakskompleksDekningsgradUtleder.utledFor(fagsakRelasjonDekningsgrad, eksisterendeSakskompleksDekningsgrad,
-            ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, fh).map(d -> {
-            ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(behandlingId, d);
+            ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, fh).map(utledingResultat -> {
+                if (!Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), utledingResultat.dekningsgrad())) {
+                    lagHistorikkinnslag(behandlingId, ytelseFordelingAggregat.getGjeldendeDekningsgrad(), utledingResultat);
+                }
+            ytelseFordelingTjeneste.lagreSakskompleksDekningsgrad(behandlingId, utledingResultat.dekningsgrad());
             return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }).orElseGet(() -> {
-            LOG.info("Ville ha opprettet aksjonspunkt for avklare dekningsgrad");
-            // return BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD);
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        });
+        }).orElseGet(() -> BehandleStegResultat.utførtMedAksjonspunkt(AVKLAR_DEKNINGSGRAD));
     }
 
-    private Optional<Dekningsgrad> finnAnnenPartsOppgittDekningsgrad(Long fagsakId) {
-        //TODO TFP-5702 Bare åpne behandlinger før vedtak?
-        return Optional.empty();
+    private void lagHistorikkinnslag(Long behandlingId, Dekningsgrad gjeldendeDekningsgrad, DekningsgradUtledingResultat nyUtleding) {
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.ENDRET_DEKNINGSGRAD);
+        nyeRegisteropplysningerInnslag.setBehandlingId(behandlingId);
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.ENDRET_DEKNINGSGRAD)
+            .medBegrunnelse(String.format("Dekningsgraden er endret fra %s%% til %s%% grunnet %s", gjeldendeDekningsgrad, nyUtleding.dekningsgrad(),
+                switch (nyUtleding.kilde()) {
+                    case FAGSAK_RELASJON -> "annen parts sak";
+                    case DØDSFALL -> "opplysninger om død";
+                    case OPPGITT, ALLEREDE_FASTSATT -> throw new IllegalStateException("Unexpected value: " + nyUtleding.kilde());
+                }));
+        historieBuilder.build(nyeRegisteropplysningerInnslag);
+        historikkRepository.lagre(nyeRegisteropplysningerInnslag);
     }
 
-    private boolean erBarnDødsfall(BehandlingskontrollKontekst kontekst) {
-        var fagsakRelasjon = hentFagsakRelasjon(kontekst);
-        var fh = familieHendelseTjeneste.hentAggregat(kontekst.getBehandlingId());
-        var barna = fh.getGjeldendeVersjon().getBarna();
-        return VurderDekningsgradVedDødsfall.skalEndreDekningsgrad(fagsakRelasjon.getGjeldendeDekningsgrad(), barna);
+    private Optional<Dekningsgrad> finnAnnenPartsOppgittDekningsgrad(long fagsakId) {
+        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)
+            .flatMap(fr -> fr.getRelatertFagsakFraId(fagsakId))
+            .flatMap(annenPartsFagsak -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(annenPartsFagsak.getId())
+                .flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()).map(YtelseFordelingAggregat::getOppgittDekningsgrad)));
     }
 
     private FagsakRelasjon hentFagsakRelasjon(BehandlingskontrollKontekst kontekst) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(kontekst.getFagsakId()).orElseThrow();
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
-                                   BehandlingStegModell modell,
-                                   BehandlingStegType tilSteg,
-                                   BehandlingStegType fraSteg) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
-        }
-    }
-
-    @Override
-    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
-                                    BehandlingStegModell modell,
-                                    BehandlingStegType fraSteg,
-                                    BehandlingStegType tilSteg) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        ryddDekningsgrad(behandling);
-    }
-
-    private void ryddDekningsgrad(Behandling behandling) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
-            ryddDekningsgradTjeneste.rydd(behandling);
-        }
     }
 }

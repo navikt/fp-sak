@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -114,13 +113,8 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         var kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling);
 
         if (kobling.isEmpty() || kobling.flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty()) {
-            // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves
-            // dekningsgrad fra koblet sak.
             if (!behandling.erRevurdering()) {
-                var dekningsgrad = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
-                    .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
-                    .orElse(Dekningsgrad._100);
-                kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, dekningsgrad);
+                kobleSakTjeneste.opprettFagsakRelasjon(behandling.getFagsak());
             }
             // Ingen kobling foretatt
             return;

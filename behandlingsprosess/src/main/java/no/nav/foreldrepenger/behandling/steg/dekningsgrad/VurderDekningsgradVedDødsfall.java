@@ -21,7 +21,7 @@ final class VurderDekningsgradVedDødsfall {
         return barnList.stream().allMatch(VurderDekningsgradVedDødsfall::dødeBarnetInnenDeFørsteSeksLeveuker);
     }
 
-    private static boolean dødeBarnetInnenDeFørsteSeksLeveuker(UidentifisertBarn barn) {
+    static boolean dødeBarnetInnenDeFørsteSeksLeveuker(UidentifisertBarn barn) {
         var dødsdato = barn.getDødsdato();
         if (dødsdato.isPresent()) {
             var antallDagerLevd = DatoIntervallEntitet.fraOgMedTilOgMed(barn.getFødselsdato(), dødsdato.get()).antallDager();

@@ -138,7 +138,9 @@ public class EndringsdatoRevurderingUtleder {
     }
 
     private EnumSet<EndringsdatoType> utledEndringsdatoTypeBerørtBehandling(UttakInput input) {
-        if (arbeidsforholdRelevantForUttakErEndret(input) || harAnnenpartEndretStønadskonto(input)) {
+        if (arbeidsforholdRelevantForUttakErEndret(input)
+            || harAnnenpartEndretStønadskonto(input)
+            || endretDekningsgrad(input.getBehandlingReferanse())) {
             return EnumSet.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }
         return EnumSet.of(EndringsdatoType.ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING);
@@ -420,11 +422,13 @@ public class EndringsdatoRevurderingUtleder {
 
     private Optional<LocalDate> beregnetEndringsdatoBerørtBehandling(UttakInput input, Long utløsendeBehandlingId) {
         var utløsendeUttak = hentUttak(utløsendeBehandlingId).orElseGet(() -> new ForeldrepengerUttak(List.of()));
-        var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
+        var originalBehandlingId = input.getBehandlingReferanse().originalBehandlingId();
+        var berørtUttak = hentUttak(originalBehandlingId);
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak,
-            ytelsesFordelingRepository.hentAggregatHvisEksisterer(utløsendeBehandlingId),
+            ytelsesFordelingRepository.hentAggregat(utløsendeBehandlingId),
             stønadskontoSaldoTjeneste.erOriginalNegativSaldoPåNoenKontoForsiktig(input), // Gambler på samme resultat for input fra begge partene
             berørtUttak,
+            ytelsesFordelingRepository.hentAggregat(originalBehandlingId).getGjeldendeDekningsgrad(),
             input,
             "Berørt endringsdato");
     }

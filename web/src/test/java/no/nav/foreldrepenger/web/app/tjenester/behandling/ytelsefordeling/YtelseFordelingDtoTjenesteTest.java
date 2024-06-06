@@ -242,9 +242,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
                 .medUtstedtDato(termindato)
                 .medTermindato(termindato));
 
-        var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        return behandling;
+        return scenario.lagre(repositoryProvider);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

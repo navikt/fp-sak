@@ -41,15 +41,15 @@ public class Behandlingsresultat extends BaseEntitet {
 
     @ManyToOne
     @JoinColumn(name = "inngangsvilkar_resultat_id"
-    /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
-    /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
+        /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
+        /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
     )
     private VilkårResultat vilkårResultat;
 
     @ManyToOne
     @JoinColumn(name = "beregning_resultat_id"
-    /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
-    /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
+        /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
+        /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
     )
     private LegacyESBeregningsresultat beregningResultat;
 

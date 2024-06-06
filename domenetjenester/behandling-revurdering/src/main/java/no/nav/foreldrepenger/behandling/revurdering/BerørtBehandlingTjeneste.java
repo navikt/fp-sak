@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.revurdering;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -45,7 +46,7 @@ public class BerørtBehandlingTjeneste {
         // CDI
     }
 
-    public enum BerørtÅrsak { ORDINÆR, KONTO_REDUSERT, OPPHØR, FERIEPENGER }
+    public enum BerørtÅrsak { ORDINÆR, DEKNINGSGRAD, KONTO_REDUSERT, OPPHØR, FERIEPENGER }
 
     /**
      * Finner ut om det skal opprettes en berørt behandling på med forelders sak.
@@ -72,19 +73,31 @@ public class BerørtBehandlingTjeneste {
         }
 
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(vedtattUttak,
-            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(vedtattBehandling.getId()),
+            ytelseFordelingTjeneste.hentAggregat(vedtattBehandling.getId()),
             stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput),
             annenpartsSistVedtatteUttak,
+            ytelseFordelingTjeneste.hentAggregat(sistVedtattBehandlingIdAnnenPart).getGjeldendeDekningsgrad(),
             uttakInput,
-            "Skal opprette berørt").isPresent() ? Optional.of(utledÅrsak(vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
+            "Skal opprette berørt").isPresent() ? Optional.of(utledÅrsak(vedtattBehandling, sistVedtattBehandlingIdAnnenPart,
+            vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
     }
 
-    private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
+    private BerørtÅrsak utledÅrsak(Behandling vedtattBehandling,
+                                   Long sistVedtattBehandlingIdAnnenPart,
+                                   ForeldrepengerUttak brukersUttak,
+                                   ForeldrepengerUttak annenpartsUttak) {
+        if (!harLikDekningsgrad(vedtattBehandling, sistVedtattBehandlingIdAnnenPart)) {
+            return BerørtÅrsak.DEKNINGSGRAD;
+        }
         var harEndretStrukturEllerRedusertAntallStønadsdager = UtregnetStønadskontoTjeneste
             .harEndretStrukturEllerRedusertAntallStønadsdager(annenpartsUttak.getStønadskontoBeregning(), brukersUttak.getStønadskontoBeregning());
         return harEndretStrukturEllerRedusertAntallStønadsdager ? BerørtÅrsak.KONTO_REDUSERT : BerørtÅrsak.ORDINÆR;
     }
 
+    private boolean harLikDekningsgrad(Behandling vedtattBehandling, Long sistVedtattBehandlingIdAnnenPart) {
+        return Objects.equals(ytelseFordelingTjeneste.hentAggregat(vedtattBehandling.getId()).getGjeldendeDekningsgrad(),
+            ytelseFordelingTjeneste.hentAggregat(sistVedtattBehandlingIdAnnenPart).getGjeldendeDekningsgrad());
+    }
 
     private boolean ikkeAktuellForVurderBerørt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         // Vurder å inkludere

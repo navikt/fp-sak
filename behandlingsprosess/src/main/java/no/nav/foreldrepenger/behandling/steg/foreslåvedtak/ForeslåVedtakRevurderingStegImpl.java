@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIBeregning;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -40,18 +41,21 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     private BehandlingRepository behandlingRepository;
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     ForeslåVedtakRevurderingStegImpl() {
     }
 
     @Inject
     ForeslåVedtakRevurderingStegImpl(ForeslåVedtakTjeneste foreslåVedtakTjeneste,
-            BeregningTjeneste beregningTjeneste,
-            BehandlingRepositoryProvider repositoryProvider) {
+                                     BeregningTjeneste beregningTjeneste,
+                                     BehandlingRepositoryProvider repositoryProvider,
+                                     DekningsgradTjeneste dekningsgradTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåVedtakTjeneste = foreslåVedtakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     @Override
@@ -61,9 +65,10 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
         List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn orginal
-        var revurderingBG = hentBeregningsgrunnlag(BehandlingReferanse.fra(revurdering));
+        var ref = BehandlingReferanse.fra(revurdering);
+        var revurderingBG = hentBeregningsgrunnlag(ref);
         if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) && ErEndringIBeregning.vurderUgunst(
-            revurderingBG, hentBeregningsgrunnlag(BehandlingReferanse.fra(orginalBehandling)))) {
+            revurderingBG, hentBeregningsgrunnlag(BehandlingReferanse.fra(orginalBehandling))) && !dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref)) { //TODO: TFP-5702 skal vi ha AP?
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
         }
 

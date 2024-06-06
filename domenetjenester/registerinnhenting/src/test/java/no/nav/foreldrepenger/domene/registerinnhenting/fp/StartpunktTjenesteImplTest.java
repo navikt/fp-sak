@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
@@ -40,7 +42,8 @@ class StartpunktTjenesteImplTest {
         var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
             (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
 
-        tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker, familietjeneste);
+        tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker, familietjeneste, mock(FagsakRelasjonTjeneste.class),
+            mock(DekningsgradTjeneste.class));
     }
 
     @Test

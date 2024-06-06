@@ -53,7 +53,5 @@ public class DekningsgradTjeneste {
             var behandlingDekningsgad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
             return !Objects.equals(originalDekningsgrad, behandlingDekningsgad);
         }).orElseGet(() -> !Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), ytelseFordelingAggregat.getOppgittDekningsgrad()));
-
     }
-
 }

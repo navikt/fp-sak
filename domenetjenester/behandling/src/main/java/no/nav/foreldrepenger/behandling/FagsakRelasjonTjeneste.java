@@ -9,7 +9,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -74,14 +73,16 @@ public class FagsakRelasjonTjeneste {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId, aktivPåTidspunkt);
     }
 
-    public void lagre(long fagsakId, FagsakRelasjon fagsakRelasjon, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public void lagre(long fagsakId,
+                      FagsakRelasjon fagsakRelasjon,
+                      Stønadskontoberegning stønadskontoberegning) {
         var fagsak = finnFagsak(fagsakId);
-        fagsakRelasjonRepository.lagre(fagsak, behandlingId, stønadskontoberegning);
+        fagsakRelasjonRepository.lagre(fagsak, stønadskontoberegning);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
     }
 
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjon = fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
+        var fagsakRelasjon = fagsakRelasjonRepository.opprettRelasjon(fagsak);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
         return fagsakRelasjon;
     }
@@ -91,30 +92,19 @@ public class FagsakRelasjonTjeneste {
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
     }
 
-    public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
-        var fagsakRelasjon = fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
-        fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
-        return fagsakRelasjon;
+    public void opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
+        var fr = fagsakRelasjonRepository.opprettRelasjon(fagsak, fagsakRelasjon);
+        fagsakRelasjonEventPubliserer.fireEvent(fr);
     }
 
-    public void opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.opprettRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
-        fagsakRelasjonOpt.ifPresent(relasjon -> fagsakRelasjonEventPubliserer.fireEvent(relasjon));
-    }
-
-    public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
+    public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         var fagsakRelasjonOpt = fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
-    }
-
-    public void nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
-        var fr = fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
-        fagsakRelasjonEventPubliserer.fireEvent(fr);
     }
 
     private Fagsak finnFagsak(long fagsakId) {

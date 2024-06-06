@@ -129,7 +129,7 @@ public class BerørtBehandlingKontroller {
         var årsakHist = BerørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER) ?
             BerørtBehandlingTjeneste.BerørtÅrsak.OPPHØR : årsak;
         switch (årsakHist) {
-            case KONTO_REDUSERT -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
+            case KONTO_REDUSERT, DEKNINGSGRAD -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
             case OPPHØR -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
             case ORDINÆR, FERIEPENGER -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         }

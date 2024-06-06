@@ -97,7 +97,7 @@ class StønadsstatistikkTjenesteTest {
             .medStønadskontoberegning(stønadskontoberegning());
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning());
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning());
         settOpprettetTidspunktPåFagsakRel(behandling, søknadsdato.atStartOfDay());
 
         var bruttoPrÅr = BigDecimal.valueOf(400000);
@@ -217,7 +217,7 @@ class StønadsstatistikkTjenesteTest {
                 .medTermindato(fødselsdato.plusWeeks(8)).medUtstedtDato(fødselsdato));
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegningUtvidet());
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegningUtvidet());
         settOpprettetTidspunktPåFagsakRel(behandling, søknadsdato.atStartOfDay());
 
         var bruttoPrÅr = BigDecimal.valueOf(400000);

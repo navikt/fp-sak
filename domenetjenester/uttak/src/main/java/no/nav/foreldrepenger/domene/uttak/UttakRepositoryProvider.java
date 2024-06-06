@@ -44,8 +44,7 @@ public class UttakRepositoryProvider {
 
         // behandling repositories
         this.fagsakRepository = new FagsakRepository(entityManager);
-        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository,
-            new FagsakLåsRepository(entityManager));
+        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new FagsakLåsRepository(entityManager));
 
         // behandling aggregater
         this.fpUttakRepository = new FpUttakRepository(entityManager);

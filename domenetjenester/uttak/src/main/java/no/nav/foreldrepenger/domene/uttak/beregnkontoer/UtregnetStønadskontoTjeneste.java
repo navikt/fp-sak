@@ -78,6 +78,4 @@ public class UtregnetStønadskontoTjeneste {
             return (nyutregnetForeldrepenger > 0 && eksisterendeFellesperiode > 0) ||  (nyutregnetFellesperiode > 0 && eksisterendeForeldrepenger > 0);
         }
     }
-
-
 }

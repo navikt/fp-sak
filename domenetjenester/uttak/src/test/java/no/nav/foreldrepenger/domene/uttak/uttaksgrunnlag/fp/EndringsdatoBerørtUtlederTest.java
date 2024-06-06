@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -64,7 +65,6 @@ class EndringsdatoBerørtUtlederTest {
         var morsPerioder = List.of(mødrekvote, avlsåttMsp);
         var berørtUttak = new ForeldrepengerUttak(morsPerioder);
         var utløsendeYfa = lagYtelseFordelingAggregat(avlsåttMsp.getFom());
-        var utløsendeBehandlingsresultat = lagBehandlingsresultat();
         var fedrekvote = new ForeldrepengerUttakPeriode.Builder().medAktiviteter(List.of(
                 new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
                     .medTrekkdager(new Trekkdager(1))
@@ -82,7 +82,7 @@ class EndringsdatoBerørtUtlederTest {
         var behandling = scenario
             .lagre(repositoryProvider);
         var resultat = EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak, utløsendeYfa,
-            false, Optional.of(berørtUttak), getUttakInput(behandling, fødselsdato), "");
+            false, Optional.of(berørtUttak), utløsendeYfa.getGjeldendeDekningsgrad(), getUttakInput(behandling, fødselsdato), "");
 
         assertThat(resultat).isEmpty();
     }
@@ -96,10 +96,11 @@ class EndringsdatoBerørtUtlederTest {
         return Behandlingsresultat.builder().build();
     }
 
-    private static Optional<YtelseFordelingAggregat> lagYtelseFordelingAggregat(LocalDate endringsdato) {
-        return Optional.of(YtelseFordelingAggregat.oppdatere(Optional.empty())
+    private static YtelseFordelingAggregat lagYtelseFordelingAggregat(LocalDate endringsdato) {
+        return YtelseFordelingAggregat.oppdatere(Optional.empty())
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(endringsdato).build())
-            .build());
+            .medSakskompleksDekningsgrad(Dekningsgrad._100)
+            .build();
     }
 
 }

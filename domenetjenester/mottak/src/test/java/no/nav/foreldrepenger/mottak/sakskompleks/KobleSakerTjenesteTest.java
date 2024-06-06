@@ -247,7 +247,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
         var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
-        fagsakRelasjonTjeneste.kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
+        fagsakRelasjonTjeneste.kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak());
 
         var nybehandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
 

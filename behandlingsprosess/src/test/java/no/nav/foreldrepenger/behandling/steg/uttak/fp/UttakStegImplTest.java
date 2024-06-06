@@ -52,6 +52,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -132,7 +133,7 @@ class UttakStegImplTest {
                 .medBrukerAktørId(AKTØRID)
                 .build();
         fagsakRepository.opprettNy(fagsak);
-        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak);
         return fagsak;
     }
 
@@ -196,7 +197,7 @@ class UttakStegImplTest {
 
         var behandling = opprettBehandling();
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-        fagsakRelasjonTjeneste.kobleFagsaker(fagsak, fagsakForFar, behandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(fagsak, fagsakForFar);
 
         opprettPersonopplysninger(behandling);
 
@@ -262,9 +263,7 @@ class UttakStegImplTest {
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
-                Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
-                Dekningsgrad._80);
+        fagsakRelasjonTjeneste.oppdaterDekningsgrad(morsFørstegang.getFagsakId(), Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(morsFørstegang));
 
@@ -303,14 +302,13 @@ class UttakStegImplTest {
 
         var fødselsdato = LocalDate.of(2023, 2, 25);
         var fagsak = opprettFagsak();
+        var dekningsgrad = Dekningsgrad._80;
         var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato,
-            fødselsdato, Dekningsgrad._80);
+            fødselsdato, dekningsgrad);
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
-            Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
-            Dekningsgrad._80);
+        fagsakRelasjonTjeneste.oppdaterDekningsgrad(fagsak.getId(), dekningsgrad);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
             behandlingRepository.taSkriveLås(morsFørstegang));
 
@@ -325,7 +323,7 @@ class UttakStegImplTest {
 
         // mor oppdaterer dekningsgrad
         var morsRevurdering = opprettRevurdering(morsFørstegang, fødselsdato.minusWeeks(3));
-        oppdaterDekningsgrad(morsRevurdering.getId(), Dekningsgrad._80);
+        oppdaterDekningsgrad(morsRevurdering.getId(), dekningsgrad);
 
         nesteSakRepository.lagreNesteSak(morsRevurdering.getId(), new Saksnummer("987"), fødselsdato.plusWeeks(40), fødselsdato.plusWeeks(40));
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -377,7 +375,8 @@ class UttakStegImplTest {
         var førstegangsBehandling = scenario.lagre(repositoryProvider);
         byggArbeidForBehandling(førstegangsBehandling);
         opprettUttaksperiodegrense(fødselsdato, førstegangsBehandling);
-        fagsakRelasjonTjeneste.opprettRelasjon(førstegangsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(førstegangsBehandling.getFagsak(), new FagsakRelasjon(førstegangsBehandling.getFagsak(), null, null,
+            Dekningsgrad._100, null, null));
 
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);

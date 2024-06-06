@@ -14,10 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -68,6 +66,8 @@ class ForeslåVedtakRevurderingStegImplTest {
     private Behandlingsresultat behandlingsresultat;
     @Mock
     private Behandlingsresultat orginalBehandlingsresultat;
+    @Mock
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     private final BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
     private ForeslåVedtakRevurderingStegImpl foreslåVedtakRevurderingStegForeldrepenger;
@@ -98,7 +98,7 @@ class ForeslåVedtakRevurderingStegImplTest {
         when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
 
         foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningTjeneste,
-                repositoryProvider);
+                repositoryProvider, dekningsgradTjeneste);
         when(foreslåVedtakTjeneste.foreslåVedtak(eq(revurdering), any())).thenReturn(behandleStegResultat);
         when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
     }

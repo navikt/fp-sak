@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -763,9 +764,8 @@ class FastsettePerioderRegelAdapterTest {
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
 
         var farBehandling = farScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morBehandling.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getFagsakRelasjonRepository()
-            .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morBehandling.getFagsak(), new FagsakRelasjon(morBehandling.getFagsak(),
+            farBehandling.getFagsak(), null, null, null, null));
 
         var farUttakresultat = new UttakResultatPerioderEntitet();
         var farPeriode = new UttakResultatPeriodeEntitet.Builder(
@@ -1330,18 +1330,15 @@ class FastsettePerioderRegelAdapterTest {
             new OppgittFordelingEntitet(List.of(revurderingSøknadsperiodeFellesperiode), true));
 
         var fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.lagre(revurdering.getFagsak(), revurdering.getId(), new Stønadskontoberegning.Builder()
-            .medRegelEvaluering("sdawd")
+        var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering("sdawd")
             .medRegelInput("sdawd")
-            .medStønadskonto(
-                new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.MØDREKVOTE).build())
-            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(100)
-                .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
-                .build())
-            .medStønadskonto(
-                new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
-            .build());
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.MØDREKVOTE).build())
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL).build())
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
+            .build();
+
+        fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak(), new FagsakRelasjon(revurdering.getFagsak(),
+            null, stønadskontoberegning, Dekningsgrad._100, null, null));
 
         var endringsdato = revurderingSøknadsperiodeFellesperiode.getFom();
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(
