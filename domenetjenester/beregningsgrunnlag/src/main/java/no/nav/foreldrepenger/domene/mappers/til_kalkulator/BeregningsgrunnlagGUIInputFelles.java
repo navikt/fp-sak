@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +14,6 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforhold
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovStatus;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -47,19 +46,11 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         // for CDI proxy
     }
 
-    public BeregningsgrunnlagGUIInput lagInput(Behandling behandling) {
-        var behandlingId = behandling.getId();
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-
-        return lagInput(ref, iayGrunnlag, behandling.getAksjonspunkter()).orElseThrow();
-    }
-
-    public Optional<BeregningsgrunnlagGUIInput> lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        return lagInput(ref, iayGrunnlag, behandling.getAksjonspunkter());
+    public Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+        var refMedStp = ref.medSkjæringstidspunkt(skjæringstidspunkt);
+        var aksjonspunkter = behandlingRepository.hentBehandling(ref.behandlingId()).getAksjonspunkter();
+        return lagInput(refMedStp, iayGrunnlag, aksjonspunkter);
     }
 
     /**
@@ -117,16 +108,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var alleInntektsmeldingerForFagsak = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(ref.saksnummer());
         return KravperioderMapper.map(ref, alleInntektsmeldingerForFagsak, iayGrunnlag);
-    }
-
-    /**
-     * Returnerer input hvis data er på tilgjengelig for det, ellers
-     * Optional.empty().
-     */
-    public BeregningsgrunnlagGUIInput lagInput(Long behandlingId) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return lagInput(behandling, iayGrunnlag).orElseThrow();
     }
 
     public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
