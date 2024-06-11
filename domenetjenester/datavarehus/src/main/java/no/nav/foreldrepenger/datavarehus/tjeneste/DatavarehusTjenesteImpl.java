@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -45,7 +44,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrun
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -58,7 +56,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
@@ -71,14 +68,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(DatavarehusTjenesteImpl.class);
 
     private DatavarehusRepository datavarehusRepository;
-    private FagsakRepository fagsakRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private BehandlingRepository behandlingRepository;
-    private PersonopplysningRepository personopplysningRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private TotrinnRepository totrinnRepository;
     private KlageRepository klageRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private AnkeRepository ankeRepository;
@@ -92,7 +86,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
                                    DatavarehusRepository datavarehusRepository,
                                    BehandlingsresultatRepository behandlingsresultatRepository,
-                                   TotrinnRepository totrinnRepository,
                                    FagsakEgenskapRepository fagsakEgenskapRepository,
                                    AnkeRepository ankeRepository,
                                    KlageRepository klageRepository,
@@ -101,14 +94,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                    SvangerskapspengerRepository svangerskapspengerRepository) {
         this.datavarehusRepository = datavarehusRepository;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.totrinnRepository = totrinnRepository;
         this.klageRepository = klageRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.ankeRepository = ankeRepository;
@@ -230,7 +220,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     @Override
-    public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
+    public void lagreNedBehandling(Behandling behandling, BehandlingVedtak vedtak) {
         lagreNedBehandling(behandling, Optional.of(vedtak));
     }
 

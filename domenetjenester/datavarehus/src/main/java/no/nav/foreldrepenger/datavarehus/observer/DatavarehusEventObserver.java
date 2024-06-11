@@ -61,7 +61,7 @@ public class DatavarehusEventObserver {
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
         if (event.iverksattVedtak()) {
-            tjeneste.lagreNedVedtak(event.vedtak(), event.behandling());
+            tjeneste.lagreNedBehandling(event.behandling(), event.vedtak());
         }
     }
 
