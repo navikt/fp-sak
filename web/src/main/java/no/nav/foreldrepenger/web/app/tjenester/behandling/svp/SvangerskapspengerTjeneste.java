@@ -95,7 +95,7 @@ public class SvangerskapspengerTjeneste {
             throw SvangerskapsTjenesteFeil.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandlingId);
         }
         dto.setTermindato(terminbekreftelse.get().getTermindato());
-        familieHendelseGrunnlag.get().getGjeldendeVersjon().getFødselsdato().ifPresent(dto::setTermindato);
+        familieHendelseGrunnlag.get().getGjeldendeVersjon().getFødselsdato().ifPresent(dto::setFødselsdato);
 
         dto.setSaksbehandlet(harSaksbehandletTilrettelegging(behandling));
 

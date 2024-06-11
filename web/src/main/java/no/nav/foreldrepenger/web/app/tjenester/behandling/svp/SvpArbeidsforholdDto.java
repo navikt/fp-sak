@@ -28,7 +28,7 @@ public class SvpArbeidsforholdDto {
     private String eksternArbeidsforholdReferanse;
     private boolean skalBrukes = true;
     private boolean kanTilrettelegges = true;
-    private BigDecimal stillingsprosentStartTilr = BigDecimal.ZERO;
+    private BigDecimal stillingsprosentStartTilr;
     private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
     private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 

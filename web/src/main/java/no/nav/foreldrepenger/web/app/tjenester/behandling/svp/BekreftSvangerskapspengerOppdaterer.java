@@ -220,8 +220,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                     + "ikke overens med arbeidsforhold fra søknaden: " + behandling.getId());
             }
 
-
-
             svangerskapspengerRepository.lagreOverstyrtGrunnlag(behandling, nyeTilrettelegginger);
 
             //behov fra dato er stp i saken tidlig i prosessen, og benyttes som start dato når det sjekkes om det finnes en relevant neste sak. Dersom denne endres må utledning av neste sak gjøres på nytt.
