@@ -117,7 +117,7 @@ public class AksjonspunktKontrollRepository {
     }
 
     public void forberedSettPåVentMedAutopunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        if (AksjonspunktType.AUTOPUNKT.equals(aksjonspunktDefinisjon.getAksjonspunktType())) {
+        if (AksjonspunktType.AUTOPUNKT.equals(aksjonspunktDefinisjon.getAksjonspunktType()) && ikkeAktivFatteVedtak(behandling)) {
             behandling.setAnsvarligSaksbehandler(null);
         }
     }
@@ -129,7 +129,9 @@ public class AksjonspunktKontrollRepository {
                 throw new IllegalStateException("Sett på vent");
             } catch (Exception e) {
                 LOG.info("SETTPÅVENT med saksbehandler - hvorfor kom vi hit???", e);
-                behandling.setAnsvarligSaksbehandler(null);
+                if (ikkeAktivFatteVedtak(behandling)) {
+                    behandling.setAnsvarligSaksbehandler(null);
+                }
             }
         }
         // Oppdater behandlingens tidsfrist for enkelte autopunkt
@@ -141,6 +143,10 @@ public class AksjonspunktKontrollRepository {
             }
         }
 
+    }
+
+    private static boolean ikkeAktivFatteVedtak(Behandling behandling) {
+        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FATTER_VEDTAK).isEmpty();
     }
 
 }
