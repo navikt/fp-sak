@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.domene.ftinntektsmelding.FtInntektsmeldingTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,8 +51,10 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
         var dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerTjeneste.class);
         var dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
+        var ftInntektsmeldingTjeneste = mock(FtInntektsmeldingTjeneste.class);
+
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste,
-            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()));
+            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()), ftInntektsmeldingTjeneste);
         kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(
             kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
             new SøknadRepository(entityManager, new BehandlingRepository(entityManager)),

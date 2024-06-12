@@ -21,6 +21,8 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 
+import no.nav.foreldrepenger.domene.ftinntektsmelding.FtInntektsmeldingTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +78,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private FtInntektsmeldingTjeneste ftInntektsmeldingTjeneste;
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -100,7 +104,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
                 inntektsmeldingArkivTjeneste);
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-                dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
+                dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste, ftInntektsmeldingTjeneste);
         søknadRepository = repositoryProvider.getSøknadRepository();
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
                 kompletthetsjekkerFelles);

@@ -16,24 +16,23 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC)
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "ftinntektsmelding.url", endpointDefault = "https://ftinntektsmelding.intern.dev.nav.no/ftinntektsmelding",
+    scopesProperty = "ftinntektsmelding.scopes", scopesDefault = "api://dev-gcp.teamforeldrepenger.ftinntektsmelding/.default")
 public class FtinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FtinntektsmeldingKlient.class);
 
-    private final URI opprettForespørselEndpoint;
     private final RestClient restClient;
     private final RestConfig restConfig;
 
     public FtinntektsmeldingKlient() {
         this.restClient = RestClient.client();
-        this.restConfig = RestConfig.forClient(this.getClass());
-        this.opprettForespørselEndpoint = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
+        this.restConfig = RestConfig.forClient(FtinntektsmeldingKlient.class);
     }
 
     public void opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            var rrequest = RestRequest.newPOSTJson(request, opprettForespørselEndpoint, restConfig);
+            var rrequest = RestRequest.newPOSTJson(request, null, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
             throw new IllegalStateException("Klarte ikke opprette forespørsel om inntektsmelding", e);

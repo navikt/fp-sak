@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+
+import no.nav.foreldrepenger.domene.ftinntektsmelding.FtInntektsmeldingTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +67,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private FtInntektsmeldingTjeneste ftInntektsmeldingTjeneste;
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -85,7 +90,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
             inntektsmeldingArkivTjeneste);
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
+            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste, ftInntektsmeldingTjeneste);
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
