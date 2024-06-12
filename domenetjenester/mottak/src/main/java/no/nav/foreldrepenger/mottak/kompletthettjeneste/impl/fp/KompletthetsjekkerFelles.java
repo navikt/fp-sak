@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,11 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.ftinntektsmelding.FtInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
@@ -60,6 +62,7 @@ public class KompletthetsjekkerFelles {
     private KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FtInntektsmeldingTjeneste ftInntektsmeldingTjeneste;
 
     KompletthetsjekkerFelles() {
         // CDI
@@ -70,13 +73,15 @@ public class KompletthetsjekkerFelles {
                                     DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                     DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                     KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding,
-                                    InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                    InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                    FtInntektsmeldingTjeneste ftInntektsmeldingTjeneste) {
         this.søknadRepository = provider.getSøknadRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.kompletthetssjekkerInntektsmelding = kompletthetssjekkerInntektsmelding;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.ftInntektsmeldingTjeneste = ftInntektsmeldingTjeneste;
     }
 
     public Behandling hentBehandling(Long behandlingId) {
@@ -103,6 +108,9 @@ public class KompletthetsjekkerFelles {
     public Optional<KompletthetResultat> getInntektsmeldingKomplett(BehandlingReferanse ref) {
         var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldinger(ref);
         if (!manglendeInntektsmeldinger.isEmpty()) {
+            var alleAgUtenInntektsmelding = manglendeInntektsmeldinger.stream()
+                .map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toSet());
+            alleAgUtenInntektsmelding.forEach(ag -> ftInntektsmeldingTjeneste.lagForespørsel(ag, ref));
             loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);
             var resultat = finnVentefristTilManglendeInntektsmelding(ref).map(
                 frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING)).orElse(KompletthetResultat.fristUtløpt());
