@@ -28,7 +28,7 @@ public class SvpArbeidsforholdDto {
     private String eksternArbeidsforholdReferanse;
     private boolean skalBrukes = true;
     private boolean kanTilrettelegges = true;
-    private BigDecimal stillingsprosentStartTilr;
+    private BigDecimal stillingsprosentStartTilrettelegging;
     private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
     private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
@@ -164,11 +164,11 @@ public class SvpArbeidsforholdDto {
         this.uttakArbeidType = uttakArbeidType;
     }
 
-    public BigDecimal getStillingsprosentStartTilr() {
-        return stillingsprosentStartTilr;
+    public BigDecimal getStillingsprosentStartTilrettelegging() {
+        return stillingsprosentStartTilrettelegging;
     }
 
-    public void setStillingsprosentStartTilr(BigDecimal stillingsprosentStartTilr) {
-        this.stillingsprosentStartTilr = stillingsprosentStartTilr;
+    public void setStillingsprosentStartTilrettelegging(BigDecimal stillingsprosentStartTilrettelegging) {
+        this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
     }
 }
