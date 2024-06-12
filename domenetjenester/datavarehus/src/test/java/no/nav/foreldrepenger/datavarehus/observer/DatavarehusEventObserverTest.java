@@ -62,7 +62,7 @@ class DatavarehusEventObserverTest {
         var event = new BehandlingVedtakEvent(vedtak, behandling);
 
         datavarehusEventObserver.observerBehandlingVedtakEvent(event);
-        verify(datavarehusTjeneste).lagreNedVedtak(eq(vedtak), eq(behandling));
+        verify(datavarehusTjeneste).lagreNedBehandling(eq(behandling), eq(vedtak));
     }
 
     private BehandlingVedtak byggVedtak() {
