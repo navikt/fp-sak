@@ -681,11 +681,19 @@ public class Behandling extends BaseEntitet {
         return erAvsluttet() || erUnderIverksettelse() || erHenlagt();
     }
 
+    public boolean erOrdinærSaksbehandlingAvsluttet() {
+        return erAvsluttet() || erUnderIverksettelse() || erTilBeslutter();
+    }
+
     private boolean erHenlagt() {
         if (behandlingsresultat == null || behandlingsresultat.isEmpty()) {
             return false;
         }
         return getBehandlingsresultat().isBehandlingHenlagt();
+    }
+
+    public boolean erTilBeslutter() {
+        return Objects.equals(BehandlingStatus.FATTER_VEDTAK, getStatus());
     }
 
     public boolean erUnderIverksettelse() {
