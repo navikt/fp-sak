@@ -232,7 +232,10 @@ public class BehandlingRestTjeneste {
         // precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
-        behandlingsutredningTjeneste.setAnsvarligSaksbehandlerFraKontekst(behandling);
+        // Ikke sett beslutter som saksbehandler
+        if (!behandling.erOrdinærSaksbehandlingAvsluttet()) {
+            behandlingsutredningTjeneste.setAnsvarligSaksbehandlerFraKontekst(behandling);
+        }
 
         // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status url under )
         var gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
