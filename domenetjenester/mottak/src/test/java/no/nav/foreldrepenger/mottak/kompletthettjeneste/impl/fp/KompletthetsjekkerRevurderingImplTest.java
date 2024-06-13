@@ -9,8 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.domene.ftinntektsmelding.FtInntektsmeldingTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +27,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
@@ -51,10 +50,10 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
         var dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerTjeneste.class);
         var dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-        var ftInntektsmeldingTjeneste = mock(FtInntektsmeldingTjeneste.class);
+        var fpInntektsmeldingTjeneste = mock(FpInntektsmeldingTjeneste.class);
 
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste,
-            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()), ftInntektsmeldingTjeneste);
+            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()), fpInntektsmeldingTjeneste);
         kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(
             kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
             new SøknadRepository(entityManager, new BehandlingRepository(entityManager)),

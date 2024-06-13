@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.ftinntektsmelding;
+package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,16 +10,16 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
-public class FtInntektsmeldingTjeneste {
-    private FtinntektsmeldingKlient klient;
+public class FpInntektsmeldingTjeneste {
+    private FpinntektsmeldingKlient klient;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    FtInntektsmeldingTjeneste() {
+    FpInntektsmeldingTjeneste() {
         // CDI
     }
 
     @Inject
-    public FtInntektsmeldingTjeneste(FtinntektsmeldingKlient klient,
+    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.klient = klient;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
