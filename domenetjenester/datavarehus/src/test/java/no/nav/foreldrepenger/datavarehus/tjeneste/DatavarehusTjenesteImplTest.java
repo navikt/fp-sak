@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
@@ -83,8 +82,6 @@ class DatavarehusTjenesteImplTest {
     @Mock
     private DvhVedtakXmlTjeneste dvhVedtakTjenesteEngangsstønad;
     @Mock
-    private TotrinnRepository totrinnRepository;
-    @Mock
     private AnkeRepository ankeRepository;
     @Mock
     private KlageRepository klageRepository;
@@ -107,7 +104,7 @@ class DatavarehusTjenesteImplTest {
 
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
-            totrinnRepository, mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
+            mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
             dvhVedtakTjenesteEngangsstønad, skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
     }
 

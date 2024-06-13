@@ -28,7 +28,7 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
     }
 
     @Override
-    public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
+    public void lagreNedBehandling(Behandling behandling, BehandlingVedtak vedtak) {
 
     }
 
