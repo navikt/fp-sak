@@ -38,6 +38,7 @@ public class FtInntektsmeldingTjeneste {
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
             new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), ref.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
             new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
+
         klient.opprettForespørsel(request);
     }
 
