@@ -88,19 +88,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori;
 
-    public BeregningsresultatAndel(BeregningsresultatAndel kopi) {
-        this.arbeidsforholdRef = kopi.arbeidsforholdRef;
-        this.arbeidsgiver = kopi.arbeidsgiver;
-        this.brukerErMottaker = kopi.brukerErMottaker;
-        this.arbeidsforholdType = kopi.arbeidsforholdType;
-        this.dagsats = kopi.dagsats;
-        this.stillingsprosent = kopi.stillingsprosent;
-        this.utbetalingsgrad = kopi.utbetalingsgrad;
-        this.dagsatsFraBg = kopi.dagsatsFraBg;
-        this.aktivitetStatus = kopi.aktivitetStatus;
-        this.inntektskategori = kopi.inntektskategori;
-    }
-
     public BeregningsresultatAndel() {
     }
 
@@ -169,14 +156,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     public Inntektskategori getInntektskategori() {
         return inntektskategori;
-    }
-
-    /**
-     * Returnerer en aktivitetsnøkkel som brukes til å idetifisere resultatandeler i forskjellige behandlinger.
-     * @return Nøkkel med Aktivitetstatus, arbeidsgiver, inntektskategori, arbeidsforholdreferanse
-     */
-    public AktivitetOgArbeidsforholdNøkkel getAktivitetOgArbeidsforholdNøkkel() {
-        return new AktivitetOgArbeidsforholdNøkkel(this);
     }
 
     /**

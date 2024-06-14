@@ -36,7 +36,7 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
     private long versjon;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "BEREGNINGSRESULTAT_FP_ID", nullable = false, updatable = false)
+    @JoinColumn(name = "BEREGNINGSRESULTAT_FP_ID", updatable = false)
     private BeregningsresultatEntitet beregningsresultat;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultatFeriepenger", cascade = CascadeType.PERSIST, orphanRemoval = true)

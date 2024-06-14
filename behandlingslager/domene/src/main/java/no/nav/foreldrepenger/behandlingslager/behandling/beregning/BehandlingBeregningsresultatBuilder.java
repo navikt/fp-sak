@@ -33,6 +33,11 @@ public class BehandlingBeregningsresultatBuilder {
         return this;
     }
 
+    public BehandlingBeregningsresultatBuilder medBeregningsresultatFeriepenger(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
+        kladd.setBeregningsresultatFeriepenger(beregningsresultatFeriepenger);
+        return this;
+    }
+
     public BehandlingBeregningsresultatBuilder medSkalHindreTilbaketrekk(boolean skalHindreTilbaketrekk) {
         kladd.setSkalHindreTilbaketrekk(skalHindreTilbaketrekk);
         return this;
