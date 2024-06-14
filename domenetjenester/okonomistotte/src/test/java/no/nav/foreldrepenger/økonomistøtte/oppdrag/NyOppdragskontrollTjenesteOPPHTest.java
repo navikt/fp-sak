@@ -107,7 +107,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
+        var endringsdato = beregningsresultat.getGjeldendePerioder().get(0).getBeregningsresultatPeriodeFom();
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(false, true);
 
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
@@ -132,7 +132,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
         var endringsdato = sistePeriodeTom.plusMonths(18);
 
@@ -166,7 +166,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
         var endringsdato = sistePeriodeTom.plusMonths(18);
 
@@ -199,7 +199,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
         var endringsdato = sistePeriodeTom.plusDays(1);
 
@@ -232,7 +232,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
         var endringsdato = sistePeriodeTom.plusDays(1);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, virksomhet,
@@ -260,7 +260,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+        var førsteDatoVedtakFom = beregningsresultat.getGjeldendePerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(true, true);
@@ -286,7 +286,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+        var førsteDatoVedtakFom = beregningsresultat.getGjeldendePerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, virksomhet,
@@ -312,7 +312,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+        var førsteDatoVedtakFom = beregningsresultat.getGjeldendePerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(false, true);
@@ -368,7 +368,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArb, 20000L, List.of(stønadsdatoFom));
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP, feriepenger);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -417,7 +417,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
         var endringsdato = sistePeriodeTom.plusDays(1);
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();

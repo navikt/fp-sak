@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -82,10 +83,10 @@ class BeregnFeriepengerTjenesteTest {
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
-        tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
+        var feriepenger = tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
 
         // Assert
-        assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(this::assertBeregningsresultatFeriepenger);
+        assertBeregningsresultatFeriepenger(feriepenger);
     }
 
     @Test
@@ -98,10 +99,10 @@ class BeregnFeriepengerTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
             Inntektskategori.ARBEIDSTAKER);
-
+        var morBrR = BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(morsBeregningsresultatFP).build(1L);
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morsBeregningsresultatFP);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morBrR);
 
         // Assert
         assertThat(avvik).isTrue();
@@ -115,10 +116,11 @@ class BeregnFeriepengerTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
+        var morBrR = BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(morsBeregningsresultatFP).build(1L);
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morsBeregningsresultatFP);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morBrR);
 
         // Assert
         assertThat(avvik).isFalse();
@@ -135,16 +137,14 @@ class BeregnFeriepengerTjenesteTest {
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
-        tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
+        var feriepenger = tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
 
         // Assert
-        assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(resultat -> {
-            assertThat(resultat.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
-            assertThat(resultat.getFeriepengerPeriodeFom()).isNull();
-            assertThat(resultat.getFeriepengerPeriodeTom()).isNull();
-            assertThat(resultat.getFeriepengerRegelInput()).isNotNull();
-            assertThat(resultat.getFeriepengerRegelSporing()).isNotNull();
-        });
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
+        assertThat(feriepenger.getFeriepengerPeriodeFom()).isNull();
+        assertThat(feriepenger.getFeriepengerPeriodeTom()).isNull();
+        assertThat(feriepenger.getFeriepengerRegelInput()).isNotNull();
+        assertThat(feriepenger.getFeriepengerRegelSporing()).isNotNull();
     }
 
     private void assertBeregningsresultatFeriepenger(BeregningsresultatFeriepenger feriepenger) {
@@ -152,18 +152,16 @@ class BeregnFeriepengerTjenesteTest {
         assertThat(feriepenger.getFeriepengerPeriodeTom()).as("FeriepengerPeriodeTom").isEqualTo(SISTE_DAG_FAR);
         var beregningsresultatFeriepengerPrÅrListe = feriepenger.getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe).as("beregningsresultatFeriepengerPrÅrListe").hasSize(2);
-        var prÅr1 = beregningsresultatFeriepengerPrÅrListe.get(0);
+        var prÅr1 = beregningsresultatFeriepengerPrÅrListe.stream().filter(f -> f.getOpptjeningsår().getYear() == 2018).findFirst().orElseThrow();
         assertThat(prÅr1.getOpptjeningsår()).as("prÅr1.opptjeningsår").isEqualTo(LocalDate.of(2018, 12, 31));
         assertThat(prÅr1.getÅrsbeløp().getVerdi()).as("prÅr1.årsbeløp").isEqualTo(BigDecimal.valueOf(263)); // DAGSATS * 21 * 0.102
-        var andelÅr1 = prÅr1.getBeregningsresultatAndel();
-        assertThat(andelÅr1).isNotNull();
-        assertThat(andelÅr1.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(2);
-        var prÅr2 = beregningsresultatFeriepengerPrÅrListe.get(1);
+        assertThat(prÅr1.getAktivitetStatus()).isEqualTo(AktivitetStatus.ARBEIDSTAKER);
+        assertThat(prÅr1.erBrukerMottaker()).isTrue();
+        var prÅr2 = beregningsresultatFeriepengerPrÅrListe.stream().filter(f -> f.getOpptjeningsår().getYear() == 2019).findFirst().orElseThrow();
         assertThat(prÅr2.getOpptjeningsår()).as("prÅr2.opptjeningsår").isEqualTo(LocalDate.of(2019, 12, 31));
         assertThat(prÅr2.getÅrsbeløp().getVerdi()).as("prÅr2.årsbeløp").isEqualTo(BigDecimal.valueOf(113)); // DAGSATS * 9 * 0.102
-        var andelÅr2 = prÅr2.getBeregningsresultatAndel();
-        assertThat(andelÅr2).isNotNull();
-        assertThat(andelÅr2.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(2);
+        assertThat(prÅr1.getAktivitetStatus()).isEqualTo(AktivitetStatus.ARBEIDSTAKER);
+        assertThat(prÅr1.erBrukerMottaker()).isTrue();
     }
 
     private Behandling lagBehandlingFar() {
@@ -182,7 +180,7 @@ class BeregnFeriepengerTjenesteTest {
         var farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR,
                 Inntektskategori.ARBEIDSTAKER);
 
-        beregningsresultatRepository.lagre(farsBehandling, farsBeregningsresultatFP);
+        beregningsresultatRepository.lagre(farsBehandling, farsBeregningsresultatFP, null);
         return farsBehandling;
     }
 

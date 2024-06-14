@@ -42,6 +42,7 @@ class BeregnFeriepengerForPeriode {
                             .medÅrsbeløp(feriepengerAndelPrÅr)
                             .medBrukerErMottaker(andel.erBrukerMottaker())
                             .medArbeidsforhold(andel.getArbeidsforhold())
+                            .medAktivitetStatus(andel.getAktivitetStatus())
                             .build());
 
                         //Regelsporing

@@ -50,7 +50,7 @@ public class KopierUtbetResultatTjeneste {
 
         var forrigeRes = forrigeResOpt.get();
         var forrigeBeslutning = forrigeRes.skalHindreTilbaketrekk().orElse(false);
-        if (!forrigeBeslutning || forrigeRes.getUtbetBeregningsresultatFP() == null) {
+        if (!forrigeBeslutning || forrigeRes.getUtbetBeregningsresultatFP().isEmpty()) {
             // Ingenting å kopiere hvis vi ikke gjorde omfordeling sist
             return false;
         }
@@ -67,7 +67,7 @@ public class KopierUtbetResultatTjeneste {
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         var forrigeRes = ref.getOriginalBehandlingId()
             .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid)).orElseThrow();
-        var forrigeUtbetResultat = forrigeRes.getUtbetBeregningsresultatFP();
+        var forrigeUtbetResultat = forrigeRes.getUtbetBeregningsresultatFP().orElseThrow(); // Har vært validert i kanKopiereForrige
         var skulleHindreTilbaketrekkIForrigeBehandling = forrigeRes.skalHindreTilbaketrekk().orElseThrow();
 
         // Lagre original beslutning
@@ -85,12 +85,12 @@ public class KopierUtbetResultatTjeneste {
 
             // Beregn feriepenger
             var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.fagsakYtelseType()).orElseThrow();
-            feriepengerTjeneste.beregnFeriepenger(ref, nyttUtbetResultat);
+            var feriepenger = feriepengerTjeneste.beregnFeriepenger(ref, nyttUtbetResultat);
 
             // Lagre utbet entitet
             LOG.info("FP-587469: Lagrer kopiert utbetalt resultat på behandling med id {} kopiert fra behandling med id {}", ref.behandlingId(),
                 ref.getOriginalBehandlingId().orElse(0L));
-            beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, nyttUtbetResultat);
+            beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, nyttUtbetResultat, feriepenger);
         }
     }
 

@@ -150,7 +150,6 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
 
         public BeregningsresultatFeriepenger build(BeregningsresultatEntitet beregningsresultat) {
             beregningsresultatFPMal.beregningsresultat = beregningsresultat;
-            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(beregningsresultatFPMal);
             verifyStateForBuild();
             return beregningsresultatFPMal;
         }

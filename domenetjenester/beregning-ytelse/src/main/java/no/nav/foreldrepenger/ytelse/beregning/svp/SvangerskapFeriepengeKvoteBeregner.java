@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -31,7 +32,7 @@ public class SvangerskapFeriepengeKvoteBeregner {
     }
 
 
-    public Optional<Integer> beregn(BeregningsresultatEntitet beregnetYtelse, List<BeregningsresultatEntitet> annenTilkjentYtelsePåSammeSvangerskap) {
+    public Optional<Integer> beregn(BeregningsresultatEntitet beregnetYtelse, List<BehandlingBeregningsresultatEntitet> annenTilkjentYtelsePåSammeSvangerskap) {
         var førsteDagMedFeriepengerOpt = finnFørsteDagSomGirFeriepenger(beregnetYtelse);
         if (førsteDagMedFeriepengerOpt.isEmpty()) {
             return Optional.empty();
@@ -44,12 +45,12 @@ public class SvangerskapFeriepengeKvoteBeregner {
         return Optional.of(svpFerieKvote - brukteFeriedager);
     }
 
-    private Integer finnBrukteFeriepengedager(BeregningsresultatEntitet tilkjentytelse, LocalDate førsteDagMedFeriepenger) {
+    private Integer finnBrukteFeriepengedager(BehandlingBeregningsresultatEntitet tilkjentytelse, LocalDate førsteDagMedFeriepenger) {
         var feriepengetidslinjeOpt = tilkjentytelse.getBeregningsresultatFeriepenger().flatMap(this::lagFeriepengeperiode);
         if (feriepengetidslinjeOpt.isEmpty()) {
             return 0;
         }
-        var intervallerSomKvalifisererTilFeriepenger = lagTilkjentYtelseFerieTidslinje(tilkjentytelse);
+        var intervallerSomKvalifisererTilFeriepenger = lagTilkjentYtelseFerieTidslinje(tilkjentytelse.getGjeldendePerioder());
         var perioderMedFeriepengerBeregnet = intervallerSomKvalifisererTilFeriepenger.stream()
             .map(inter -> inter.overlap(feriepengetidslinjeOpt.get()))
             .flatMap(Optional::stream)
@@ -62,9 +63,8 @@ public class SvangerskapFeriepengeKvoteBeregner {
         return perioderSomTrekkerFraFeriekvote.stream().mapToInt(p -> Virkedager.beregnAntallVirkedager(p.getFomDato(), p.getTomDato())).sum();
     }
 
-    private List<LocalDateInterval> lagTilkjentYtelseFerieTidslinje(BeregningsresultatEntitet tilkjentytelse) {
-        return tilkjentytelse.getBeregningsresultatPerioder()
-            .stream()
+    private List<LocalDateInterval> lagTilkjentYtelseFerieTidslinje(List<BeregningsresultatPeriode> tilkjentytelse) {
+        return tilkjentytelse.stream()
             .filter(p -> finnesAndelMedKravPåFeriepengerOgUtbetaling(p.getBeregningsresultatAndelList()))
             .map(this::lagIntervall)
             .toList();

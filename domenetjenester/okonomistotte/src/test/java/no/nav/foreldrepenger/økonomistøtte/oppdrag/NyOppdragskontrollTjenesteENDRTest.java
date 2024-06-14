@@ -174,7 +174,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, b1Andel, 11481L, LocalDate.of(2021, 5, 1));
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1, feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse);
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
@@ -206,7 +206,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(feriepenger2, b2Andel, 4592L, LocalDate.of(2022, 5, 1));
 
 
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatFP_2);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatFP_2, feriepenger2);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -242,7 +242,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(feriepenger3, b3Andel, 4592L, LocalDate.of(2022, 5, 1));
 
 
-        var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatFP_3);
+        var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatFP_3, feriepenger3);
         var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(
             mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
 
@@ -278,7 +278,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(feriepenger4, b4Andel, 6888L, LocalDate.of(2021, 5, 1));
 
 
-        var gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultatFP_4);
+        var gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultatFP_4, feriepenger4);
         var builder4 = getInputStandardBuilder(gruppertYtelse4).medTidligereOppdrag(
             mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2)));
 
@@ -316,7 +316,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         buildBeregningsresultatFeriepengerPrÅr(feriepenger5, b5Andel, 6888L, LocalDate.of(2021, 5, 1));
 
-        var gruppertYtelse5 = mapper.fordelPåNøkler(beregningsresultatFP_5);
+        var gruppertYtelse5 = mapper.fordelPåNøkler(beregningsresultatFP_5, feriepenger5);
         var builder5 = getInputStandardBuilder(gruppertYtelse5).medTidligereOppdrag(
             mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, oppdragRevurdering3)));
 
@@ -404,7 +404,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(opp150RevurderingListe).hasSize(6).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
             assertThat(linjeOpphør.getDatoStatusFom()).isEqualTo(
-                beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom().plusDays(10));
+                beregningsresultat.getGjeldendePerioder().get(0).getBeregningsresultatPeriodeFom().plusDays(10));
         }).anySatisfy(linjeEndring -> {
             assertThat(linjeEndring.gjelderOpphør()).isFalse();
             assertThat(linjeEndring.getSats()).isEqualTo(Sats.på(300));
@@ -463,7 +463,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(opp150RevurderingListe).hasSize(6).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
             assertThat(linjeOpphør.getDatoStatusFom()).isEqualTo(
-                beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom());
+                beregningsresultat.getGjeldendePerioder().get(0).getBeregningsresultatPeriodeFom());
         }).anySatisfy(linjeEndring -> {
             assertThat(linjeEndring.gjelderOpphør()).isFalse();
             assertThat(linjeEndring.getSats()).isEqualTo(Sats.på(400));
@@ -751,7 +751,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
         assertThat(opp150RevurderingListeForArbeidsgiver).hasSize(3)
             .allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
-        var forventetDatoStatusFom = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
+        var forventetDatoStatusFom = beregningsresultat.getGjeldendePerioder().get(0).getBeregningsresultatPeriodeFom();
         assertThat(opp150RevurderingListe).hasSize(6).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
             assertThat(linjeOpphør.getDatoStatusFom()).isEqualTo(forventetDatoStatusFom);
@@ -1304,7 +1304,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         var originaltOppdrag110 = originaltOppdrag.getOppdrag110Liste().get(0);
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
+        var sistePeriodeTom = beregningsresultat.getGjeldendePerioder().get(1).getBeregningsresultatPeriodeTom();
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1),
             sistePeriodeTom.minusDays(6));
@@ -1945,7 +1945,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1, b1_feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse);
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
@@ -1970,7 +1970,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L,
             List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
 
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP, b2_feriepenger);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -2045,7 +2045,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1, b1_feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse);
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
@@ -2066,7 +2066,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L,
             List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP, b2_feriepenger);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -2629,7 +2629,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat, feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse);
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
@@ -2675,7 +2675,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatAndel(brR0Periode4, false, 789, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brR0Periode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
 
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultat1);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultat1, feriepenger1);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -2729,7 +2729,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatAndel(brRPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brRPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
 
-        var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultat2);
+        var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultat2, feriepenger2);
         var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(
             mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
 
@@ -2786,7 +2786,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         buildBeregningsresultatAndel(brR2Periode4, true, 789, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brR2Periode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
 
-        var gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultat3);
+        var gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultat3, feriepenger3);
         var builder4 = getInputStandardBuilder(gruppertYtelse4).medTidligereOppdrag(
             mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2)));
 

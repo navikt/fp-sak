@@ -44,7 +44,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 101L, baseDato);
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat, feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
@@ -100,7 +100,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_2, 101L, baseDato.plusYears(1));
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat, feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
@@ -151,7 +151,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 101L, baseDato);
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
-        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat, feriepenger);
         var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
@@ -179,7 +179,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         buildBeregningsresultatFeriepengerPrÅr(rferiepenger, randelBruker_1, 100L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(rferiepenger, randelArbeidsgiver_1, 101L, baseDato);
 
-        var gruppertYtelse2 = mapper.fordelPåNøkler(rberegningsresultat);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(rberegningsresultat, rferiepenger);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(oppdragskontroll)));
 
         var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());

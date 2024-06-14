@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 
 public class BeregningsresultatFeriepengerPrÅr {
@@ -12,6 +13,7 @@ public class BeregningsresultatFeriepengerPrÅr {
     private BigDecimal årsbeløp;
     private Boolean brukerErMottaker;
     private Arbeidsforhold arbeidsforhold;
+    private AktivitetStatus aktivitetStatus;
 
     private BeregningsresultatFeriepengerPrÅr() {
     }
@@ -34,6 +36,10 @@ public class BeregningsresultatFeriepengerPrÅr {
 
     public String getArbeidsgiverId() {
         return arbeidsforhold == null ? null : arbeidsforhold.identifikator();
+    }
+
+    public AktivitetStatus getAktivitetStatus() {
+        return aktivitetStatus;
     }
 
     public static Builder builder() {
@@ -76,6 +82,11 @@ public class BeregningsresultatFeriepengerPrÅr {
             return this;
         }
 
+        public Builder medAktivitetStatus(AktivitetStatus aktivitetStatus) {
+            kladd.aktivitetStatus = aktivitetStatus;
+            return this;
+        }
+
         public BeregningsresultatFeriepengerPrÅr build() {
             verifyStateForBuild();
             return kladd;
@@ -85,6 +96,7 @@ public class BeregningsresultatFeriepengerPrÅr {
             Objects.requireNonNull(kladd.opptjeningÅr, "opptjeningÅr");
             Objects.requireNonNull(kladd.årsbeløp, "årsbeløp");
             Objects.requireNonNull(kladd.brukerErMottaker, "brukerErMottaker");
+            Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
         }
     }
 }

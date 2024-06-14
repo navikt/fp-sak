@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -158,11 +160,11 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         return builder.build();
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatFP() {
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatFP() {
         return buildBeregningsresultatFP(false);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatFP(boolean medFeriepenger) {
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatFP(boolean medFeriepenger) {
         var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
@@ -194,9 +196,11 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold3, 20000L,
                 List.of(DAGENS_DATO, DAGENS_DATO.plusYears(1)));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat)
+                .medBeregningsresultatFeriepenger(feriepenger).build(1L);
         }
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).build(1L);
     }
 
     protected BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
@@ -270,9 +274,13 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                           Long årsBeløp,
                                                           LocalDate opptjeningsår) {
         BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel.getAktivitetStatus())
+            .medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsgiver(andel.getArbeidsgiver().orElse(null))
+            .medArbeidsforholdRef(andel.getArbeidsforholdRef())
             .medOpptjeningsår(opptjeningsår)
             .medÅrsbeløp(årsBeløp)
-            .build(beregningsresultatFeriepenger, andel);
+            .build(beregningsresultatFeriepenger);
     }
 
    protected GruppertYtelse buildTilkjentYtelseMedFlereInntektskategoriFP(boolean medFeriepenger) {
@@ -328,7 +336,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         return new YtelsePeriode(Periode.of(LocalDate.of(opptjeningsår.plusYears(1).getYear(), 5, 1), LocalDate.of(opptjeningsår.plusYears(1).getYear(), 5, 31)), sats);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean medFeriepenger) {
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean medFeriepenger) {
         var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
@@ -352,9 +360,10 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold, 15000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger).build(1L);
         }
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).build(1L);
     }
 
     protected GruppertYtelse buildTilkjentYtelseMedFlereAndelerSomArbeidsgiver() {
@@ -429,14 +438,14 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         return KodeEndring.NY.equals(oppdr110Revurd.getKodeEndring());
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatBrukerFP(int dagsatsBruker,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatBrukerFP(int dagsatsBruker,
                                                                         int dagsatsArbeidsgiver,
                                                                         LocalDate... perioder) {
         return buildBeregningsresultatBrukerFP(List.of(dagsatsBruker), List.of(dagsatsArbeidsgiver),
             perioder);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatBrukerFP(List<Integer> dagsatsBruker,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatBrukerFP(List<Integer> dagsatsBruker,
                                                                         List<Integer> dagsatsArbeidsgiver,
                                                                         LocalDate... perioder) {
         var beregningsresultat = BeregningsresultatEntitet.builder()
@@ -461,10 +470,10 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             }
         }
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger).build(1L);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean sammeKlasseKodeForFlereAndeler,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean sammeKlasseKodeForFlereAndeler,
                                                                                           AktivitetStatus aktivitetStatus,
                                                                                           Inntektskategori inntektskategori) {
         var beregningsresultat = BeregningsresultatEntitet.builder()
@@ -486,10 +495,10 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver2, 20000L, List.of(DAGENS_DATO));
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger).build(1L);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
                                                                                          boolean medFeriepenger) {
         var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -503,12 +512,13 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         if (medFeriepenger) {
             var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 20000L, List.of(DAGENS_DATO));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger).build(1L);
         }
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).build(1L);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(boolean erOpptjentOverFlereÅr,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(boolean erOpptjentOverFlereÅr,
                                                                                                        Long årsbeløp1,
                                                                                                        Long årsbeløp2, LocalDate brukDato) {
         var builder = BeregningsresultatEntitet.builder()
@@ -524,7 +534,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel1, feriepenger, brukDato);
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel2, feriepenger, brukDato);
 
-        return beregningsresultat;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger).build(1L);
     }
 
     private void oppsettFeriepenger(boolean erOpptjentOverFlereÅr,
@@ -551,7 +561,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         }
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatRevurderingFP(boolean medFeriepenger) {
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatRevurderingFP(boolean medFeriepenger) {
         var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
@@ -581,11 +591,13 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                 List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold4, 15000L,
                 List.of(DAGENS_DATO));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP)
+                .medBeregningsresultatFeriepenger(feriepengerRevurdering).build(1L);
         }
-        return beregningsresultatRevurderingFP;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP).build(1L);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatRevurderingFP(AktivitetStatus aktivitetStatus,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatRevurderingFP(AktivitetStatus aktivitetStatus,
                                                                              Inntektskategori inntektskategori) {
 
         return buildBeregningsresultatRevurderingFP(aktivitetStatus, inntektskategori, virksomhet, virksomhet4,
@@ -602,7 +614,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
      * @param medFeriepenger
      * @return
      */
-    protected BeregningsresultatEntitet buildBeregningsresultatRevurderingFP(AktivitetStatus aktivitetStatus,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatRevurderingFP(AktivitetStatus aktivitetStatus,
                                                                              Inntektskategori inntektskategori,
                                                                              String førsteVirksomhetOrgnr,
                                                                              String andreVirksomhetOrgnr,
@@ -630,9 +642,11 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                 List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold4, 15000L,
                 List.of(DAGENS_DATO));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP)
+                .medBeregningsresultatFeriepenger(feriepengerRevurdering).build(1L);
         }
 
-        return beregningsresultatRevurderingFP;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP).build(1L);
     }
 
     /**
@@ -644,7 +658,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
      * @param inntektskategori en {@link Inntektskategori}
      * @return Beregningsresultat
      */
-    protected BeregningsresultatEntitet buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus aktivitetStatus,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus aktivitetStatus,
                                                                                                      Inntektskategori inntektskategori) {
         var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -668,10 +682,11 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsiver, 16000L,
             List.of(DAGENS_DATO));
 
-        return beregningsresultatRevurderingFP;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP)
+            .medBeregningsresultatFeriepenger(feriepengerRevurdering).build(1L);
     }
 
-    protected BeregningsresultatEntitet buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
+    protected BehandlingBeregningsresultatEntitet buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
                                                                                                     boolean medFeriepenger) {
         var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -686,9 +701,11 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             var feriepenger = buildBeregningsresultatFeriepenger(
                 beregningsresultatRevurderingFP);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 21000L, List.of(DAGENS_DATO));
+            return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP)
+                .medBeregningsresultatFeriepenger(feriepenger).build(1L);
         }
 
-        return beregningsresultatRevurderingFP;
+        return BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(beregningsresultatRevurderingFP).build(1L);
     }
 
     protected BeregningsresultatEntitet buildEmptyBeregningsresultatFP() {

@@ -42,8 +42,13 @@ public class BeregningsresultatRepository {
 
     public Optional<BeregningsresultatEntitet> hentUtbetBeregningsresultat(Long behandlingId) {
         var aggregat = hentBeregningsresultatAggregat(behandlingId);
-        return aggregat.map(BehandlingBeregningsresultatEntitet::getUtbetBeregningsresultatFP)
+        return aggregat.flatMap(BehandlingBeregningsresultatEntitet::getUtbetBeregningsresultatFP)
             .or(() -> aggregat.map(BehandlingBeregningsresultatEntitet::getBgBeregningsresultatFP));
+    }
+
+    public Optional<BeregningsresultatFeriepenger> hentFeriepenger(Long behandlingId) {
+        var aggregat = hentBeregningsresultatAggregat(behandlingId);
+        return aggregat.flatMap(BehandlingBeregningsresultatEntitet::getBeregningsresultatFeriepenger);
     }
 
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {
@@ -54,10 +59,17 @@ public class BeregningsresultatRepository {
         return hentUniktResultat(query);
     }
 
+    // Kun test uten feriepenger
     public void lagre(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
         var builder = opprettResultatBuilderFor(behandling.getId())
+            .medBgBeregningsresultatFP(beregningsresultat);
+        lagreOgFlush(behandling, builder);
+    }
+
+    public void lagre(Behandling behandling, BeregningsresultatEntitet beregningsresultat, BeregningsresultatFeriepenger feriepenger) {
+        var builder = opprettResultatBuilderFor(behandling.getId())
             .medBgBeregningsresultatFP(beregningsresultat)
-            .medBeregningsresultatFeriepenger(beregningsresultat.getBeregningsresultatFeriepenger().orElse(null));
+            .medBeregningsresultatFeriepenger(feriepenger);
         lagreOgFlush(behandling, builder);
     }
 
@@ -67,10 +79,10 @@ public class BeregningsresultatRepository {
         lagreOgFlush(behandling, builder);
     }
 
-    public void lagreUtbetBeregningsresultat(Behandling behandling, BeregningsresultatEntitet utbetBeregningsresultatFP) {
+    public void lagreUtbetBeregningsresultat(Behandling behandling, BeregningsresultatEntitet utbetBeregningsresultatFP, BeregningsresultatFeriepenger feriepenger) {
         var builder = opprettResultatBuilderFor(behandling.getId())
             .medUtbetBeregningsresultatFP(utbetBeregningsresultatFP)
-            .medBeregningsresultatFeriepenger(utbetBeregningsresultatFP.getBeregningsresultatFeriepenger().orElse(null));
+            .medBeregningsresultatFeriepenger(feriepenger);
         lagreOgFlush(behandling, builder);
     }
 
@@ -104,14 +116,14 @@ public class BeregningsresultatRepository {
         var aggregatEntitet = builder.build(behandling.getId());
         entityManager.persist(aggregatEntitet.getBgBeregningsresultatFP());
         aggregatEntitet.getBgBeregningsresultatFP().getBeregningsresultatPerioder().forEach(this::lagre);
-        if (aggregatEntitet.getUtbetBeregningsresultatFP() != null) {
-            entityManager.persist(aggregatEntitet.getUtbetBeregningsresultatFP());
-            aggregatEntitet.getUtbetBeregningsresultatFP().getBeregningsresultatPerioder().forEach(this::lagre);
-        }
-        if (aggregatEntitet.getBeregningsresultatFeriepenger() != null) {
-            entityManager.persist(aggregatEntitet.getBeregningsresultatFeriepenger());
-            aggregatEntitet.getBeregningsresultatFeriepenger().getBeregningsresultatFeriepengerPrÅrListe().forEach(this::lagre);
-        }
+        aggregatEntitet.getUtbetBeregningsresultatFP().ifPresent(br -> {
+            entityManager.persist(br);
+            br.getBeregningsresultatPerioder().forEach(this::lagre);
+        });
+        aggregatEntitet.getBeregningsresultatFeriepenger().ifPresent(ferie -> {
+            entityManager.persist(ferie);
+            ferie.getBeregningsresultatFeriepengerPrÅrListe().forEach(this::lagre);
+        });
         entityManager.persist(aggregatEntitet);
         entityManager.flush();
     }

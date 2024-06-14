@@ -50,7 +50,7 @@ class FeriepengegrunnlagMapperTest {
             OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 40000, nyAndel);
         // Act
-        var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
+        var dtoOpt = FeriepengegrunnlagMapper.map(beregningsresultatFeriepenger.getBeregningsresultatFeriepengerPrÅrListe());
 
         // Assert
         assertThat(dtoOpt).isPresent();
@@ -67,7 +67,7 @@ class FeriepengegrunnlagMapperTest {
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
             OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
+        var dtoOpt = FeriepengegrunnlagMapper.map(beregningsresultatFeriepenger.getBeregningsresultatFeriepengerPrÅrListe());
 
         // Assert
         assertThat(dtoOpt).isEmpty();
@@ -99,8 +99,12 @@ class FeriepengegrunnlagMapperTest {
             .build(beregningsresultatPeriode);
     }
 
-    private void opprettFeriepenger(int opptjeningsår, int årsbeløp, BeregningsresultatAndel andel) {
-        BeregningsresultatFeriepengerPrÅr.builder().medOpptjeningsår(opptjeningsår).medÅrsbeløp(årsbeløp).build(beregningsresultatFeriepenger, andel);
+    private BeregningsresultatFeriepengerPrÅr opprettFeriepenger(int opptjeningsår, int årsbeløp, BeregningsresultatAndel andel) {
+        return BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel.getAktivitetStatus()).medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsgiver(andel.getArbeidsgiver().orElse(null)).medArbeidsforholdRef(andel.getArbeidsforholdRef())
+            .medOpptjeningsår(opptjeningsår).medÅrsbeløp(årsbeløp)
+            .build(beregningsresultatFeriepenger);
     }
 
 }

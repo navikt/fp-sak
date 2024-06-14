@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.EksisterendeOppdragMapper;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.EndringsdatoTjeneste;
@@ -64,12 +65,12 @@ public class OppdragPostConditionTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (fagsakYtelseType == FagsakYtelseType.FORELDREPENGER || fagsakYtelseType == FagsakYtelseType.SVANGERSKAPSPENGER) {
-            var beregningsresultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).orElse(null);
+            var beregningsresultat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId()).orElse(null);
             softPostCondition(behandling, beregningsresultat);
         }
     }
 
-    private void softPostCondition(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    private void softPostCondition(Behandling behandling, BehandlingBeregningsresultatEntitet beregningsresultat) {
         try {
             sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(behandling, beregningsresultat);
         } catch (Exception e) {
@@ -78,7 +79,7 @@ public class OppdragPostConditionTjeneste {
         }
     }
 
-    private boolean sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    private boolean sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(Behandling behandling, BehandlingBeregningsresultatEntitet beregningsresultat) {
         var resultat = sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
         var altOk = true;
         for (var entry : resultat.entrySet()) {
@@ -93,11 +94,13 @@ public class OppdragPostConditionTjeneste {
         return altOk;
     }
 
-    private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling,
+                                                                                                        BehandlingBeregningsresultatEntitet beregningsresultat) {
         var saksnummer = behandling.getFagsak().getSaksnummer();
         var oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         var oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
-        var målbilde = TilkjentYtelseMapper.lagFor(finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
+        var målbilde = beregningsresultat == null ? GruppertYtelse.TOM :
+            TilkjentYtelseMapper.lagFor(finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
         var alleKjedenøkler = SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler());
         var betalingsmottakere = alleKjedenøkler.stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
 
