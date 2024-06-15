@@ -90,6 +90,27 @@ class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
+    void skalBeregneFeriepenger_flere_perioder_samme_resultat() {
+        var farsBehandling = lagBehandlingFar();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medDefaultOppgittDekningsgrad();
+        var morsBehandling = scenario.lagre(repositoryProvider);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        var morsBeregningsresultatFP = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        lagBeregningsresultaPeriode(morsBeregningsresultatFP, SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusWeeks(1).minusDays(1), Inntektskategori.ARBEIDSTAKER);
+        lagBeregningsresultaPeriode(morsBeregningsresultatFP, SKJÆRINGSTIDSPUNKT_MOR.plusWeeks(1), SKJÆRINGSTIDSPUNKT_FAR.minusWeeks(1).minusDays(1), Inntektskategori.ARBEIDSTAKER);
+        lagBeregningsresultaPeriode(morsBeregningsresultatFP, SKJÆRINGSTIDSPUNKT_FAR.minusWeeks(1), SKJÆRINGSTIDSPUNKT_FAR.minusDays(1), Inntektskategori.ARBEIDSTAKER);
+
+        // Act
+        var ref = BehandlingReferanse.fra(morsBehandling);
+        var feriepenger = tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
+
+        // Assert
+        assertBeregningsresultatFeriepenger(feriepenger);
+    }
+
+    @Test
     void skalSjekkeFeriepengerMedAvvik() {
         var farsBehandling = lagBehandlingFar();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -186,18 +207,23 @@ class BeregnFeriepengerTjenesteTest {
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
-        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
-                .build(beregningsresultat);
-        BeregningsresultatAndel.builder()
-                .medInntektskategori(inntektskategori)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(DAGSATS)
-                .medDagsatsFraBg(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .build(beregningsresultatPeriode);
+        lagBeregningsresultaPeriode(beregningsresultat, periodeFom, periodeTom, inntektskategori);
         return beregningsresultat;
+    }
+
+    private BeregningsresultatPeriode lagBeregningsresultaPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(inntektskategori)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(DAGSATS)
+            .medDagsatsFraBg(DAGSATS)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(beregningsresultatPeriode);
+        return beregningsresultatPeriode;
     }
 }

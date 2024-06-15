@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.MonthDay;
 import java.time.Period;
 import java.util.List;
 
@@ -81,7 +83,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
                 .medDagsatsFraBg(DAGSATS_FRA_BG)
                 .medUtbetalingssgrad(UTBETALINGSGRAD)
                 .build();
-        andel.addBeregningsresultatFeriepengerPrÅr(fraAndel(andel, årsbeløp));
+        andel.addBeregningsresultatFeriepengerPrÅr(fraAndel(andel, årsbeløp, STP));
         var periode = new BeregningsresultatPeriode(PERIODE);
         periode.addBeregningsresultatAndel(andel);
         return periode;
@@ -90,7 +92,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     @Test
     void skal_lage_feriepengeresultat_med_flere_andeler() {
         // Arrange
-        var periode = lagPeriodeMedAndeler();
+        var periode = lagPeriodeMedMangeAndeler(PERIODE, STP);
         var beregningsresultat = lagVlBeregningsresultat();
         var regelresultat = new BeregningsresultatFeriepengerResultat(List.of(periode), new LocalDateInterval(STP, STP.plusMonths(10)));
         var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
@@ -110,10 +112,57 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.ONE); // Arbeidsgiver direkte
         assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
             .filter(f -> !f.erBrukerMottaker()).map(f -> f.getÅrsbeløp())
-            .reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.TEN); // Arbeidsgiver direkte
+            .reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.TEN); // Arbeidsgiver refusjon
     }
 
-    private BeregningsresultatPeriode lagPeriodeMedAndeler() {
+    @Test
+    void skal_lage_feriepengeresultat_med_flere_perioder() {
+        // Arrange
+        var baselinedato = LocalDate.of(2023, Month.DECEMBER, 1);
+        var baselinedatoP2W = baselinedato.plusWeeks(2);
+        var baselinedatoP6W = baselinedato.plusWeeks(6);
+
+        var periode1 = lagPeriodeMedMangeAndeler(new LocalDateInterval(baselinedato, baselinedatoP2W.minusDays(1)), baselinedato);
+        var periode2 = lagPeriodeMedMangeAndeler(new LocalDateInterval(baselinedatoP2W, baselinedatoP6W.minusDays(1)), baselinedatoP2W);
+        var periode3 = lagPeriodeMedMangeAndeler(new LocalDateInterval(baselinedatoP6W, baselinedato.plusWeeks(8).minusDays(1)), baselinedatoP6W);
+
+        var beregningsresultat = lagVlBeregningsresultat();
+        var regelresultat = new BeregningsresultatFeriepengerResultat(List.of(periode1, periode2, periode3),
+            new LocalDateInterval(baselinedato, baselinedato.plusWeeks(8).minusDays(1)));
+        var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
+
+        // Act
+        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+
+
+        // Assert
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(8);
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream().filter(f -> f.erBrukerMottaker()).toList()).hasSize(6);
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> f.erBrukerMottaker() && f.getOpptjeningsår().getYear() == baselinedato.getYear()).toList()).hasSize(3);
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> f.erBrukerMottaker() && f.getArbeidsgiver().isEmpty() && f.getOpptjeningsår().getYear() == baselinedato.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(2 * (25 + 2 + 3))); // SN + 2 stk FL
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> f.erBrukerMottaker() && f.getArbeidsgiver().isPresent() && f.getOpptjeningsår().getYear() == baselinedato.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.ONE.add(BigDecimal.ONE)); // 2 perioder Arbeidsgiver direkte
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> !f.erBrukerMottaker() && f.getArbeidsgiver().isPresent() && f.getOpptjeningsår().getYear() == baselinedato.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.TEN.add(BigDecimal.TEN)); // 2 perioder Arbeidsgiver direkte
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> f.erBrukerMottaker() && f.getArbeidsgiver().isEmpty() && f.getOpptjeningsår().getYear() == baselinedatoP6W.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(25 + 2 + 3)); // SN + 2 stk FL
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> f.erBrukerMottaker() && f.getArbeidsgiver().isPresent() && f.getOpptjeningsår().getYear() == baselinedatoP6W.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.ONE); // Arbeidsgiver direkte
+        assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+            .filter(f -> !f.erBrukerMottaker() && f.getArbeidsgiver().isPresent() && f.getOpptjeningsår().getYear() == baselinedatoP6W.getYear())
+            .map(f -> f.getÅrsbeløp()).reduce(Beløp.ZERO, Beløp::adder).getVerdi()).isEqualByComparingTo(BigDecimal.TEN); // Arbeidsgiver direkte
+    }
+
+
+
+    private BeregningsresultatPeriode lagPeriodeMedMangeAndeler(LocalDateInterval tidsperiode, LocalDate opptjeningsår) {
         var andelATD = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -122,7 +171,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medDagsatsFraBg(DAGSATS_FRA_BG)
             .medUtbetalingssgrad(UTBETALINGSGRAD)
             .build();
-        andelATD.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelATD, BigDecimal.ONE));
+        andelATD.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelATD, BigDecimal.ONE, opptjeningsår));
         var andelATR = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
             .medBrukerErMottaker(false)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -131,7 +180,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medDagsatsFraBg(DAGSATS_FRA_BG)
             .medUtbetalingssgrad(UTBETALINGSGRAD)
             .build();
-        andelATR.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelATR, BigDecimal.TEN));
+        andelATR.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelATR, BigDecimal.TEN, opptjeningsår));
         var andelFRI1 = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -139,7 +188,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medDagsatsFraBg(DAGSATS_FRA_BG)
             .medUtbetalingssgrad(UTBETALINGSGRAD)
             .build();
-        andelFRI1.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelFRI1, BigDecimal.valueOf(2)));
+        andelFRI1.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelFRI1, BigDecimal.valueOf(2), opptjeningsår));
         var andelFRI2 = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -147,7 +196,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medDagsatsFraBg(DAGSATS_FRA_BG)
             .medUtbetalingssgrad(UTBETALINGSGRAD)
             .build();
-        andelFRI2.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelFRI1, BigDecimal.valueOf(3)));
+        andelFRI2.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelFRI1, BigDecimal.valueOf(3), opptjeningsår));
         var andelSN = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.SN)
             .medBrukerErMottaker(true)
             .medInntektskategori(Inntektskategori.SJØMANN)
@@ -155,8 +204,8 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
             .medDagsatsFraBg(DAGSATS_FRA_BG)
             .medUtbetalingssgrad(UTBETALINGSGRAD)
             .build();
-        andelSN.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelSN, BigDecimal.valueOf(25L)));
-        var periode = new BeregningsresultatPeriode(PERIODE);
+        andelSN.addBeregningsresultatFeriepengerPrÅr(fraAndel(andelSN, BigDecimal.valueOf(25L), opptjeningsår));
+        var periode = new BeregningsresultatPeriode(tidsperiode);
         periode.addBeregningsresultatAndel(andelATD);
         periode.addBeregningsresultatAndel(andelATR);
         periode.addBeregningsresultatAndel(andelFRI1);
@@ -165,9 +214,9 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         return periode;
     }
 
-    private BeregningsresultatFeriepengerPrÅr fraAndel(BeregningsresultatAndel andel, BigDecimal årsbeløp) {
+    private BeregningsresultatFeriepengerPrÅr fraAndel(BeregningsresultatAndel andel, BigDecimal årsbeløp, LocalDate opptjeningsår) {
         return BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(årsbeløp)
-            .medOpptjeningÅr(LocalDate.now())
+            .medOpptjeningÅr(opptjeningsår.with(MonthDay.of(Month.DECEMBER, 31)))
             .medBrukerErMottaker(andel.erBrukerMottaker())
             .medArbeidsforhold(andel.getArbeidsforhold())
             .medAktivitetStatus(andel.getAktivitetStatus())
