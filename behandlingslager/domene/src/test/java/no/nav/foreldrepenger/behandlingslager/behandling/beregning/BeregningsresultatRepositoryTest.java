@@ -229,7 +229,7 @@ class BeregningsresultatRepositoryTest {
             .medFeriepengerPeriodeTom(LocalDate.now())
             .medFeriepengerRegelInput("-")
             .medFeriepengerRegelSporing("-")
-            .build(beregningsresultat);
+            .build();
 
         var andel = beregningsresultat.getBeregningsresultatPerioder()
             .get(0)

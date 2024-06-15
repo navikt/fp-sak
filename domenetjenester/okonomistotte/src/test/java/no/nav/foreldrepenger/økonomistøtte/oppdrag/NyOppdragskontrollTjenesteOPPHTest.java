@@ -364,7 +364,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 3, 10);
         var andelArb = buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
 
-        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        var feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArb, 20000L, List.of(stønadsdatoFom));
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);

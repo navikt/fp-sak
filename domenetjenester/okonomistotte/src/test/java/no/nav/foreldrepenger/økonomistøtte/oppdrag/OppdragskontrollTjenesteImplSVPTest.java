@@ -39,7 +39,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         var andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
 
-        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 100L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 101L, baseDato);
 
@@ -93,7 +93,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var andelBruker_2 = buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         var andelArbeidsgiver_2 =buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
 
-        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 100L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 101L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_2, 100L, baseDato.plusYears(1));
@@ -146,7 +146,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         var andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
 
-        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 100L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 101L, baseDato);
 
@@ -175,7 +175,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var randelBruker_1 = buildBeregningsresultatAndel(rbrPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         var randelArbeidsgiver_1 = buildBeregningsresultatAndel(rbrPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
 
-        var rferiepenger = buildBeregningsresultatFeriepenger(rberegningsresultat);
+        var rferiepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(rferiepenger, randelBruker_1, 100L, baseDato);
         buildBeregningsresultatFeriepengerPrÅr(rferiepenger, randelArbeidsgiver_1, 101L, baseDato);
 

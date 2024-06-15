@@ -66,7 +66,7 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
-        return MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+        return MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(resultat);
     }
 
     public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref) {

@@ -164,7 +164,7 @@ class TilkjentYtelseMapperTest {
             .medFeriepengerPeriodeTom(LocalDate.of(2021, 5, 31))
             .medFeriepengerRegelInput("foo")
             .medFeriepengerRegelSporing("bar")
-            .build(ENTITET);
+            .build();
 
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_1, JAN_2).build(ENTITET);
         var andel1 = lagAndelTilOrg(ARBEIDSGIVER_1, 1000, periode1);

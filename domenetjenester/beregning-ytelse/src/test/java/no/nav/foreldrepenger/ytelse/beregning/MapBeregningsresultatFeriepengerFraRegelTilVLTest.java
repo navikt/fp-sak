@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
@@ -33,12 +32,11 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     void skal_ikkje_lage_feriepengeresultat_om_årsbeløp_avrundes_til_0() {
         // Arrange
         var feriepengerPrÅrListe = List.of(lagPeriodeMedAndel(BigDecimal.valueOf(0.1)));
-        var beregningsresultat = lagVlBeregningsresultat();
         var regelresultat = new BeregningsresultatFeriepengerResultat(feriepengerPrÅrListe, new LocalDateInterval(STP, STP.plusMonths(10)));
         var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
 
         // Act
-        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(resultat);
 
         // Assert
         assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
@@ -48,26 +46,17 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     void skal_lage_feriepengeresultat_om_årsbeløp_ikkje_avrundes_til_0() {
         // Arrange
         var feriepengerPrÅrListe = List.of(lagPeriodeMedAndel(BigDecimal.valueOf(1.5)));
-        var beregningsresultat = lagVlBeregningsresultat();
         var regelresultat = new BeregningsresultatFeriepengerResultat(feriepengerPrÅrListe, new LocalDateInterval(STP, STP.plusMonths(10)));
         var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
 
         // Act
-        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(resultat);
 
 
         // Assert
         assertThat(feriepenger.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1);
         assertBeregningsresultatFeriepenger(feriepenger, STP, BigDecimal.valueOf(1.5).setScale(0, RoundingMode.HALF_UP), ORGNR, true,
             no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER);
-    }
-
-    private BeregningsresultatEntitet lagVlBeregningsresultat() {
-        return BeregningsresultatEntitet
-                .builder()
-                .medRegelInput("Regelinput")
-                .medRegelSporing("Regelsporing")
-                .build();
     }
 
     private BeregningsresultatFeriepengerPrÅr lagPeriodeMedAndel(BigDecimal årsbeløp) {
@@ -83,13 +72,12 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         feriepengerPrÅrListe.addAll(lagPeriodeMedMangeAndeler(baselinedato));
         feriepengerPrÅrListe.addAll(lagPeriodeMedMangeAndeler(baselinedatoP6W));
 
-        var beregningsresultat = lagVlBeregningsresultat();
         var regelresultat = new BeregningsresultatFeriepengerResultat(feriepengerPrÅrListe,
             new LocalDateInterval(baselinedato, baselinedato.plusWeeks(8).minusDays(1)));
         var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
 
         // Act
-        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+        var feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(resultat);
 
 
         // Assert

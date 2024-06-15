@@ -63,7 +63,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse, true);
-        var ferie = lagFPPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse);
+        var ferie = lagFPPeriode(dagerEtter(50), dagerEtter(60));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
@@ -81,7 +81,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse, true); // 7 virkedager
-        var ferie = lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse);
+        var ferie = lagFPPeriode(dagerFør(50), dagerFør(40));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
@@ -101,8 +101,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
         lagTYPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2, true); // 8 virkedager
-        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1);
-        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2);
+        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40));
+        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2)));
@@ -124,9 +124,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
         lagTYPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2, true); // 8 virkedager
         lagTYPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3, true); // 4 virkedager
-        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1);
-        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2);
-        var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3);
+        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40));
+        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20));
+        var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
@@ -144,7 +144,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, false);
         lagTYPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1, true);
-        var ferie1 = lagFPPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1);
+        var ferie1 = lagFPPeriode(dagerFør(150), dagerFør(100));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1)));
@@ -165,9 +165,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
         lagTYPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse2, true); // 7 virkedager, skal ikke trekkes fra da de kommer etter ytelse som beregnes
         lagTYPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3, true); // 4 virkedager
-        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1);
-        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2);
-        var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3);
+        var ferie1 = lagFPPeriode(dagerFør(50), dagerFør(40));
+        var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20));
+        var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10));
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
@@ -186,7 +186,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse, true); // 7 virkedager
         lagTYPeriode(dagerFør(30), dagerFør(20), tidligereYtelse, true); // 8 virkedager
-        var ferie = lagFPPeriode(dagerFør(50), dagerFør(20), tidligereYtelse); // Ferieperiode dekker opphold i ytelsen
+        var ferie = lagFPPeriode(dagerFør(50), dagerFør(20)); // Ferieperiode dekker opphold i ytelsen
 
         // Act
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
@@ -211,8 +211,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerFør(100), dagerFør(50), tidligereYtelse1, true); // 37 virkedager
         lagTYPeriode(dagerFør(49), dagerFør(20), tidligereYtelse2, true); // 21 virkedager
         lagTYPeriode(dagerFør(19), dagerFør(5), tidligereYtelse2, true); // 10 virkedager
-        var ferie1 = lagFPPeriode(dagerFør(100), dagerFør(50), tidligereYtelse1); // Ferieperiode dekker opphold i ytelsen
-        var ferie2 = lagFPPeriode(dagerFør(49), dagerFør(5), tidligereYtelse2); // Ferieperiode dekker opphold i ytelsen
+        var ferie1 = lagFPPeriode(dagerFør(100), dagerFør(50)); // Ferieperiode dekker opphold i ytelsen
+        var ferie2 = lagFPPeriode(dagerFør(49), dagerFør(5)); // Ferieperiode dekker opphold i ytelsen
 
         // Act
         Exception exception = assertThrows(IllegalStateException.class,
@@ -244,8 +244,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
             .build(1L);
     }
 
-    private BeregningsresultatFeriepenger lagFPPeriode(LocalDate fom, LocalDate tom, BeregningsresultatEntitet bgr) {
-        return BeregningsresultatFeriepenger.builder().medFeriepengerPeriodeFom(fom).medFeriepengerPeriodeTom(tom).medFeriepengerRegelInput("").medFeriepengerRegelSporing("").build(bgr);
+    private BeregningsresultatFeriepenger lagFPPeriode(LocalDate fom, LocalDate tom) {
+        return BeregningsresultatFeriepenger.builder().medFeriepengerPeriodeFom(fom).medFeriepengerPeriodeTom(tom).medFeriepengerRegelInput("").medFeriepengerRegelSporing("").build();
     }
 
     private LocalDate dagerEtter(int i) {

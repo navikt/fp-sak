@@ -83,7 +83,7 @@ class LagOppdragTjenesteTest {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
-        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
+        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build();
         BeregningsresultatFeriepengerPrÅr.builder()
             .medAktivitetStatus(andel.getAktivitetStatus()).medBrukerErMottaker(andel.erBrukerMottaker())
             .medArbeidsgiver(andel.getArbeidsgiver().orElse(null)).medArbeidsforholdRef(andel.getArbeidsforholdRef())

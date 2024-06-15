@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
 import java.math.RoundingMode;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -16,14 +15,14 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         // unused
     }
 
-    public static BeregningsresultatFeriepenger mapFra(BeregningsresultatEntitet resultat, FastsattFeriepengeresultat feriepengeresultat) {
+    public static BeregningsresultatFeriepenger mapFra(FastsattFeriepengeresultat feriepengeresultat) {
 
         if (feriepengeresultat.resultat().feriepengerPeriode() == null) {
             // Lagrer sporing
             return BeregningsresultatFeriepenger.builder()
                 .medFeriepengerRegelInput(feriepengeresultat.regelInput())
                 .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
-                .build(resultat);
+                .build();
         }
 
         var beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
@@ -31,7 +30,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
             .medFeriepengerPeriodeTom(feriepengeresultat.resultat().feriepengerPeriode().getTomDato())
             .medFeriepengerRegelInput(feriepengeresultat.regelInput())
             .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
-            .build(resultat);
+            .build();
 
         feriepengeresultat.resultat().beregningsresultatFeriepengerPrÅrListe()
             .stream()
