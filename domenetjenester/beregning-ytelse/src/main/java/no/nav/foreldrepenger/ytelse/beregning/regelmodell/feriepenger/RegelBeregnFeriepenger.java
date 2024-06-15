@@ -28,11 +28,11 @@ public class RegelBeregnFeriepenger implements RuleService<BeregningsresultatFer
 
         // FP_BR 8.7 Beregn feriepenger (Ett kalenderår)
         var beregnFeriepengerEttÅr =
-            rs.beregningsRegel(BeregnFeriepengerEttÅr.ID, BeregnFeriepengerEttÅr.BESKRIVELSE, new BeregnFeriepengerEttÅr(), new BeregnetFeriepenger());
+            rs.beregningsRegel(BeregnFeriepengerEttÅr.ID, BeregnFeriepengerEttÅr.BESKRIVELSE, new BeregnFeriepengerEttÅr(), new GrupperOgSummerFeriepengerOverÅr(), new BeregnetFeriepenger());
 
         // FP_BR 8.6 Beregn feriepenger (Flere kalenderår)
         var beregnFeriepengerFlereÅr =
-            rs.beregningsRegel(BeregnFeriepengerFlereÅr.ID, BeregnFeriepengerFlereÅr.BESKRIVELSE, new BeregnFeriepengerFlereÅr(), new BeregnetFeriepenger());
+            rs.beregningsRegel(BeregnFeriepengerFlereÅr.ID, BeregnFeriepengerFlereÅr.BESKRIVELSE, new BeregnFeriepengerFlereÅr(), new GrupperOgSummerFeriepengerOverÅr(), new BeregnetFeriepenger());
 
         // FP_BR 8.5 Går feriepengeperioden over flere kalenderår?
         var sjekkOmFeriepengePeriodenGårOverFlereÅr =

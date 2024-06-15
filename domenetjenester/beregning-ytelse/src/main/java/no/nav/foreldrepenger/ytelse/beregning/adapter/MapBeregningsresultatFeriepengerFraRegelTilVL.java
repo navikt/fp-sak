@@ -1,22 +1,14 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.FastsattFeriepengeresultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
 
 public class MapBeregningsresultatFeriepengerFraRegelTilVL {
@@ -41,29 +33,23 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
             .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
             .build(resultat);
 
-        var alleBeregneteFeriepenger = feriepengeresultat.resultat().beregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList)
-            .flatMap(Collection::stream)
-            .map(BeregningsresultatAndel::getBeregningsresultatFeriepengerPrÅrListe)
-            .flatMap(Collection::stream)
+        feriepengeresultat.resultat().beregningsresultatFeriepengerPrÅrListe()
+            .stream()
             .filter(MapBeregningsresultatFeriepengerFraRegelTilVL::erAvrundetÅrsbeløpUlik0)
-            .collect(Collectors.groupingBy(FeriepengerGruppering::fraBeregningRegel,
-                Collectors.reducing(BigDecimal.ZERO, prÅr -> prÅr.getÅrsbeløp(), BigDecimal::add)));
-
-        alleBeregneteFeriepenger.forEach((k, v) -> mapFeriepengerPrÅr(beregningsresultatFeriepenger, k, v));
+            .forEach(ferie -> mapFeriepengerPrÅr(beregningsresultatFeriepenger, ferie));
         return beregningsresultatFeriepenger;
     }
 
     private static void mapFeriepengerPrÅr(BeregningsresultatFeriepenger beregningsresultatFeriepenger,
-                                           FeriepengerGruppering feriepenger, BigDecimal beløp) {
-        var årsbeløp = beløp.setScale(0, RoundingMode.HALF_UP).longValue();
+                                           no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr feriepenger) {
+        var årsbeløp = feriepenger.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
         BeregningsresultatFeriepengerPrÅr.builder()
-            .medAktivitetStatus(feriepenger.aktivitetStatus())
-            .medBrukerErMottaker(feriepenger.brukerErMottaker())
+            .medAktivitetStatus(AktivitetStatusMapper.fraRegelTilVl(feriepenger))
+            .medBrukerErMottaker(feriepenger.erBrukerMottaker())
             .medArbeidsgiver(finnArbeidsgiver(feriepenger))
-            .medArbeidsforholdRef(feriepenger.arbeidsforhold() == null
-                ? null : InternArbeidsforholdRef.ref(feriepenger.arbeidsforhold().arbeidsforholdId()))
-            .medOpptjeningsår(feriepenger.opptjeningÅr())
+            .medArbeidsforholdRef(feriepenger.getArbeidsforhold() == null
+                ? null : InternArbeidsforholdRef.ref(feriepenger.getArbeidsforhold().arbeidsforholdId()))
+            .medOpptjeningsår(feriepenger.getOpptjeningÅr())
             .medÅrsbeløp(årsbeløp)
             .build(beregningsresultatFeriepenger);
     }
@@ -73,12 +59,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         return årsbeløp != 0L;
     }
 
-    private static Arbeidsgiver finnArbeidsgiver(FeriepengerGruppering feriepengerGruppering) {
-        if (feriepengerGruppering.arbeidsforhold() == null) {
+    private static Arbeidsgiver finnArbeidsgiver(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr feriepenger) {
+        if (feriepenger.getArbeidsforhold() == null) {
             return null;
         }
-        var identifikator = feriepengerGruppering.arbeidsforhold().identifikator();
-        var referanseType = feriepengerGruppering.arbeidsforhold().referanseType();
+        var identifikator = feriepenger.getArbeidsforhold().identifikator();
+        var referanseType = feriepenger.getArbeidsforhold().referanseType();
         if (referanseType == ReferanseType.AKTØR_ID) {
             return Arbeidsgiver.person(new AktørId(identifikator));
         }
@@ -86,13 +72,6 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
             return Arbeidsgiver.virksomhet(identifikator);
         }
         return null;
-    }
-    private record FeriepengerGruppering(LocalDate opptjeningÅr, AktivitetStatus aktivitetStatus, Boolean brukerErMottaker, Arbeidsforhold arbeidsforhold) {
-
-        static FeriepengerGruppering fraBeregningRegel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr andel) {
-            return new FeriepengerGruppering(andel.getOpptjeningÅr(), AktivitetStatusMapper.fraRegelTilVl(andel),
-                andel.erBrukerMottaker(), andel.getArbeidsforhold());
-        }
     }
 
 }

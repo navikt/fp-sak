@@ -35,9 +35,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         }
 
         var andelerFraRegelKjøring =
-            feriepengerResultat.beregningsresultatPerioder().stream()
-                .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
-                .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
+            feriepengerResultat.beregningsresultatFeriepengerPrÅrListe().stream()
                 .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
                 .toList();
 
