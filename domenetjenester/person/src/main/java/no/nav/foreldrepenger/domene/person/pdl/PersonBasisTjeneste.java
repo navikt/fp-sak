@@ -23,8 +23,8 @@ import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedsel;
-import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.Foedselsdato;
+import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
@@ -67,15 +67,15 @@ public class PersonBasisTjeneste {
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
                 .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-                .foedsel(new FoedselResponseProjection().foedselsdato())
+                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .kjoenn(new KjoennResponseProjection().kjoenn())
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
+        var fødselsdato = person.getFoedselsdato().stream()
+                .map(Foedselsdato::getFoedselsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
                 .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
@@ -92,12 +92,12 @@ public class PersonBasisTjeneste {
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
                 .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-                .foedsel(new FoedselResponseProjection().foedselsdato());
+                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
+        var fødselsdato = person.getFoedselsdato().stream()
+                .map(Foedselsdato::getFoedselsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
 
@@ -106,7 +106,7 @@ public class PersonBasisTjeneste {
                 .medFødselsdato(fødselsdato)
                 .build();
 
-        return person.getNavn().isEmpty() || person.getFoedsel().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
+        return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
 
     public Optional<PersoninfoKjønn> hentKjønnPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId) {
