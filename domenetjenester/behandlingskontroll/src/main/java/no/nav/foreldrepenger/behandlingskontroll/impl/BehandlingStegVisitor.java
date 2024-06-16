@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -292,7 +293,7 @@ class BehandlingStegVisitor {
                                             BehandlingStegStatus sluttStegStatusVedOvergang) {
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
 
-        if (!Objects.equals(nesteStegType, forrigeTilstand.getSteg())) {
+        if (!Objects.equals(nesteStegType, Optional.ofNullable(forrigeTilstand).map(BehandlingStegTilstandSnapshot::getSteg).orElse(null))) {
             var forrigeStatus = behandling.getStatus();
 
             // sett steg og status for neste steg
