@@ -6,14 +6,15 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ApplicationScoped
@@ -23,7 +24,7 @@ public class AvsluttBehandling {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
@@ -36,14 +37,14 @@ public class AvsluttBehandling {
     @Inject
     public AvsluttBehandling(BehandlingRepositoryProvider repositoryProvider,
                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                             BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer,
+                             BehandlingEventPubliserer behandlingEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                              OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.vurderBehandlingerUnderIverksettelse = vurderBehandlingerUnderIverksettelse;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
@@ -62,7 +63,7 @@ public class AvsluttBehandling {
         behandlingVedtakRepository.lagre(vedtak, kontekst.getSkriveLås());
         LOG.info("Avslutter behandling iverksatt vedtak: {}", behandlingId);
 
-        behandlingVedtakEventPubliserer.fireEvent(vedtak, behandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingVedtakEvent(vedtak, behandling));
 
         LOG.info("Avslutter behandling gjenopptar: {}", behandlingId);
 
