@@ -68,7 +68,8 @@ class StønadsstatistikkUtbetalingSVPLegacyMapper {
     private static UtbetalingSammenlign mapTilkjentAndel(BeregningsresultatAndel andel, SvangerskapspengerUttakResultatEntitet uttak) {
 
         var aktuellPeriode = andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom();
-        var aktuellUttakPeriode = uttak.getUttaksResultatArbeidsforhold().stream()
+        var aktuellUttakPeriode = uttak.getUttaksResultatArbeidsforhold()
+            .stream()
             .filter(arbeidsforhold -> Objects.equals(arbeidsforhold.getArbeidsgiver(), andel.getArbeidsgiver().orElse(null)))
             .filter(arbeidsforhold -> andel.getAktivitetStatus().equals(map(arbeidsforhold.getUttakArbeidType())))
             .filter(arbeidsforhold -> arbeidsforhold.getArbeidsforholdRef().gjelderFor(andel.getArbeidsforholdRef()))
@@ -78,7 +79,7 @@ class StønadsstatistikkUtbetalingSVPLegacyMapper {
             .orElseThrow();
 
         return new UtbetalingSammenlign(mapInntektskategori(andel), andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
-            mapMottaker(andel), andel.getDagsats(), aktuellUttakPeriode.getUtbetalingsgrad().decimalValue() );
+            mapMottaker(andel), andel.getDagsats(), aktuellUttakPeriode.getUtbetalingsgrad().decimalValue());
     }
 
     public static AktivitetStatus map(UttakArbeidType uttakArbeidType) {

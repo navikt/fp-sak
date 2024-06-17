@@ -25,10 +25,8 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 class BeregningsgrunnlagDiffSjekkerTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(
-        new Virksomhet.Builder().medOrgnr("111111111").build());
-    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.fra(
-        new Virksomhet.Builder().medOrgnr("999999999").build());
+    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(new Virksomhet.Builder().medOrgnr("111111111").build());
+    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.fra(new Virksomhet.Builder().medOrgnr("999999999").build());
 
 
     @Test
@@ -36,15 +34,13 @@ class BeregningsgrunnlagDiffSjekkerTest {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
         var forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.ONE)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
@@ -60,14 +56,12 @@ class BeregningsgrunnlagDiffSjekkerTest {
     void skalReturnereTrueOmUlikeAktivitetstatuser() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
         var forrige = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
@@ -83,22 +77,18 @@ class BeregningsgrunnlagDiffSjekkerTest {
     void skalReturnereTrueOmUliktAntallPerioder() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
         BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         var forrige = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(1))
-            .build(forrige);
+        BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(1)).build(forrige);
 
         BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1), null)
@@ -117,14 +107,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        var aktivPeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(aktivt);
+        var aktivPeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
@@ -133,14 +120,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
 
         var forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        var forrigePeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(forrige);
+        var forrigePeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(forrige);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
@@ -164,14 +148,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        var aktivPeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(aktivt);
+        var aktivPeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
@@ -181,14 +162,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
 
         var forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        var forrigePeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(forrige);
+        var forrigePeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(forrige);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.FRILANSER)
@@ -209,14 +187,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        var aktivPeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(aktivt);
+        var aktivPeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -227,14 +202,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
 
         var forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        var forrigePeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(forrige);
+        var forrigePeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(forrige);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -255,39 +227,31 @@ class BeregningsgrunnlagDiffSjekkerTest {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        var aktivPeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(aktivt);
+        var aktivPeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medBGAndelArbeidsforhold(
-                BGAndelArbeidsforhold.builder().medArbeidsgiver(ARBEIDSGIVER1).medArbeidsgiver(ARBEIDSGIVER1))
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(ARBEIDSGIVER1).medArbeidsgiver(ARBEIDSGIVER1))
             .medAndelsnr(1L)
             .build(aktivPeriode);
 
         var forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        var forrigePeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(forrige);
+        var forrigePeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(forrige);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medBGAndelArbeidsforhold(
-                BGAndelArbeidsforhold.builder().medArbeidsgiver(ARBEIDSGIVER1).medArbeidsgiver(ARBEIDSGIVER1))
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(ARBEIDSGIVER1).medArbeidsgiver(ARBEIDSGIVER1))
             .medAndelsnr(1L)
             .build(forrigePeriode);
 
@@ -302,14 +266,11 @@ class BeregningsgrunnlagDiffSjekkerTest {
     void skalIkkeGiForskjellPåAndelerHvisBeggeManglerArbeidsforhold() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        var aktivPeriode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-            .build(aktivt);
+        var aktivPeriode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null).build(aktivt);
 
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -319,8 +280,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
             .build(aktivPeriode);
 
         var forrige = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
@@ -346,8 +306,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
     void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligAvvik() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
@@ -361,8 +320,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
             .build(aktivt);
 
         var forrige = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
@@ -383,8 +341,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
     void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligInntektMenLiktAvvik() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
@@ -398,8 +355,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
             .build(aktivt);
 
         var forrige = BeregningsgrunnlagEntitet.ny()
-            .leggTilAktivitetStatus(
-                BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
@@ -422,23 +378,20 @@ class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusFl)
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
-        var resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet,
-            beregningsgrunnlagEntitet);
+        var resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet, beregningsgrunnlagEntitet);
         assertThat(resultat).isFalse();
     }
 
@@ -448,15 +401,13 @@ class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
@@ -478,31 +429,25 @@ class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAtAktivt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAtAktivt.medAvvikPromille(avvikPromilleAtAktivt);
         sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFlAktivt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlAktivt.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFlAktivt.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var sammenligningsgrunnlagPrStatusFlForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlForrige.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFlForrige.medAvvikPromille(BigDecimal.valueOf(250));
-        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsperiode(LocalDate.now().minusYears(1),
-            LocalDate.now());
-        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
+        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var sammenligningsgrunnlagPrStatusAtForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAtForrige.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAtForrige.medAvvikPromille(avvikPromilleAtForrige);
-        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsperiode(LocalDate.now().minusYears(1),
-            LocalDate.now());
-        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
+        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAtAktivt)
@@ -521,8 +466,7 @@ class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeErSattForBeggeBeregningsgrunnlag() {
         var beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build();
-        var resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet,
-            beregningsgrunnlagEntitet);
+        var resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet, beregningsgrunnlagEntitet);
         assertThat(resultat).isFalse();
     }
 

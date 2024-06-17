@@ -39,8 +39,10 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     }
 
     @Inject
-    public HåndterMottattDokumentTask(InnhentDokumentTjeneste innhentDokumentTjeneste, MottattDokumentPersisterer mottattDokumentPersisterer,
-                                      MottatteDokumentTjeneste mottatteDokumentTjeneste, BehandlingRepositoryProvider repositoryProvider) {
+    public HåndterMottattDokumentTask(InnhentDokumentTjeneste innhentDokumentTjeneste,
+                                      MottattDokumentPersisterer mottattDokumentPersisterer,
+                                      MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                      BehandlingRepositoryProvider repositoryProvider) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.innhentDokumentTjeneste = innhentDokumentTjeneste;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;
@@ -52,10 +54,13 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(MOTTATT_DOKUMENT_ID_KEY));
         var mottattDokument = mottatteDokumentTjeneste.hentMottattDokument(dokumentId)
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
+            .orElseThrow(
+                () -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
         var behandlingÅrsakType = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY))
-            .map(BehandlingÅrsakType::fraKode).orElse(BehandlingÅrsakType.UDEFINERT);
-        LOG.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
+            .map(BehandlingÅrsakType::fraKode)
+            .orElse(BehandlingÅrsakType.UDEFINERT);
+        LOG.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(),
+            prosessTaskData.getBehandlingId(), mottattDokument.getId());
         if (behandlingId != null) {
             innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {

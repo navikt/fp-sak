@@ -55,7 +55,8 @@ class TpsFamilieTjenesteTest {
         var personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
         when(fødselTjeneste.hentFødteBarnInfoFor(any(), any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
-        var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType.FORELDREPENGER, AKTØR, List.of(intervall));
+        var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType.FORELDREPENGER, AKTØR,
+            List.of(intervall));
 
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }
@@ -63,10 +64,9 @@ class TpsFamilieTjenesteTest {
     private List<FødtBarnInfo> genererBarn(Set<FamilierelasjonVL> familierelasjoner, LocalDate startdatoIntervall) {
         var barn = new ArrayList<FødtBarnInfo>();
         for (var familierelasjon : familierelasjoner) {
-            barn.add(new FødtBarnInfo.Builder()
-                    .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
-                    .medIdent(familierelasjon.getPersonIdent())
-                    .build());
+            barn.add(new FødtBarnInfo.Builder().medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
+                .medIdent(familierelasjon.getPersonIdent())
+                .build());
         }
         return barn;
     }
@@ -74,19 +74,18 @@ class TpsFamilieTjenesteTest {
     private Personinfo opprettPersonInfo(AktørId aktørId, int antallBarn, LocalDate startdatoIntervall) {
         var builder = new Personinfo.Builder();
         builder.medAktørId(aktørId)
-                .medNavn("Test")
-                .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-                .medFødselsdato(LocalDate.now().minusYears(30))
-                .medPersonIdent(new PersonIdent("123"))
-                .medFamilierelasjon(genererBarn(antallBarn, startdatoIntervall));
+            .medNavn("Test")
+            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
+            .medFødselsdato(LocalDate.now().minusYears(30))
+            .medPersonIdent(new PersonIdent("123"))
+            .medFamilierelasjon(genererBarn(antallBarn, startdatoIntervall));
         return builder.build();
     }
 
     private Set<FamilierelasjonVL> genererBarn(int antallBarn, LocalDate startdatoIntervall) {
         final Set<FamilierelasjonVL> set = new HashSet<>();
         IntStream.range(0, Math.toIntExact(antallBarn))
-                .forEach(barnNr -> set
-                        .add(new FamilierelasjonVL(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN)));
+            .forEach(barnNr -> set.add(new FamilierelasjonVL(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN)));
         return set;
     }
 

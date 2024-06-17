@@ -42,22 +42,25 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
 
     @Inject
     public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                   KompletthetsjekkerProvider kompletthetsjekkerProvider,
-                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                          KompletthetsjekkerProvider kompletthetsjekkerProvider,
+                                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, kompletthetsjekkerProvider);
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
 
     }
 
     @Override
-    protected Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling,
-                                                   Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato) {
+    protected Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling,
+                                                   Vilkår vilkårFraBehandling,
+                                                   Optional<SøknadEntitet> søknad,
+                                                   Optional<LocalDate> familieHendelseDato) {
         Vilkaarsgrunnlag vilkaarsgrunnlag = null;
         if (VilkårType.SØKERSOPPLYSNINGSPLIKT.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøkersopplysningsplikt(behandling, søknad);
         } else if (VilkårType.MEDLEMSKAPSVILKÅRET.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForMedlemskapsvilkåret(vilkårFraBehandling);
-        } else if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårFraBehandling.getVilkårType()) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårFraBehandling.getVilkårType())) {
+        } else if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårFraBehandling.getVilkårType()) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(
+            vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForFødselsvilkåret(vilkårFraBehandling);
         } else if (VilkårType.SØKNADSFRISTVILKÅRET.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøknadsfristvilkåret(søknad, familieHendelseDato);
@@ -73,8 +76,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), AdopsjonsvilkårGrunnlag.class);
+        var grunnlagForVilkår = StandardJsonConfig.fromJson(vilkårFraBehandling.getRegelInput(), AdopsjonsvilkårGrunnlag.class);
 
         vilkårgrunnlag.setSoekersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         var adopsjon = new Adopsjon();
@@ -91,7 +93,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Optional<SøknadEntitet> søknadEntitet,
                                                                         Optional<LocalDate> familieHendelseDato) {
         var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
-        søknadEntitet.map(SøknadEntitet::getElektroniskRegistrert).ifPresent(e -> vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(e)));
+        søknadEntitet.map(SøknadEntitet::getElektroniskRegistrert)
+            .ifPresent(e -> vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(e)));
 
         søknadEntitet.map(SøknadEntitet::getMottattDato).flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(vilkårgrunnlag::setSoeknadMottattDato);
 
@@ -113,23 +116,25 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlag.class);
+        var grunnlagForVilkår = StandardJsonConfig.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlag.class);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));
 
-        Optional.ofNullable(grunnlagForVilkår.bekreftetFødselsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+        Optional.ofNullable(grunnlagForVilkår.bekreftetFødselsdato())
+            .flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlag::setFoedselsdatoBarn);
 
-        Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+        Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato())
+            .flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlag::setTermindato);
 
-        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::name)
-            .map(VedtakXmlUtil::lagStringOpplysning).ifPresent(vilkårgrunnlag::setSoekersRolle);
+        Optional.ofNullable(grunnlagForVilkår.søkerRolle())
+            .map(RegelSøkerRolle::name)
+            .map(VedtakXmlUtil::lagStringOpplysning)
+            .ifPresent(vilkårgrunnlag::setSoekersRolle);
 
-        Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
-            .ifPresent(vilkårgrunnlag::setSoeknadsdato);
+        Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(vilkårgrunnlag::setSoeknadsdato);
 
         return vilkårgrunnlag;
     }
@@ -139,23 +144,25 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
+        var grunnlagForVilkår = StandardJsonConfig.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));
 
-        Optional.ofNullable(grunnlagForVilkår.bekreftetFødselsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+        Optional.ofNullable(grunnlagForVilkår.bekreftetFødselsdato())
+            .flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlag::setFoedselsdatoBarn);
 
-        Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+        Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato())
+            .flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlag::setTermindato);
 
-        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::name)
-            .map(VedtakXmlUtil::lagStringOpplysning).ifPresent(vilkårgrunnlag::setSoekersRolle);
+        Optional.ofNullable(grunnlagForVilkår.søkerRolle())
+            .map(RegelSøkerRolle::name)
+            .map(VedtakXmlUtil::lagStringOpplysning)
+            .ifPresent(vilkårgrunnlag::setSoekersRolle);
 
-        Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
-            .ifPresent(vilkårgrunnlag::setSoeknadsdato);
+        Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(vilkårgrunnlag::setSoeknadsdato);
 
         return vilkårgrunnlag;
     }
@@ -165,16 +172,14 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(),
-            MedlemskapsvilkårGrunnlag.class
-        );
+        var grunnlagForVilkår = StandardJsonConfig.fromJson(vilkårFraBehandling.getRegelInput(), MedlemskapsvilkårGrunnlag.class);
         vilkårgrunnlag.setErBrukerBorgerAvEUEOS(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerBorgerAvEUEOS()));
         vilkårgrunnlag.setHarBrukerLovligOppholdINorge(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartLovligOppholdINorge()));
         vilkårgrunnlag.setHarBrukerOppholdsrett(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartOppholdsrett()));
         vilkårgrunnlag.setErBrukerBosatt(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartBosatt()));
         vilkårgrunnlag.setErBrukerNordiskstatsborger(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerNorskNordisk()));
-        vilkårgrunnlag.setErBrukerPliktigEllerFrivilligMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartPliktigEllerFrivillig()));
+        vilkårgrunnlag.setErBrukerPliktigEllerFrivilligMedlem(
+            VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartPliktigEllerFrivillig()));
         vilkårgrunnlag.setErBrukerMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerErMedlem()));
         vilkårgrunnlag.setPersonstatus(VedtakXmlUtil.lagStringOpplysning(
             Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(RegelPersonStatusType::getNavn).orElse("-")));

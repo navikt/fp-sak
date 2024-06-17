@@ -6,7 +6,6 @@ import java.util.Objects;
 public record Annenpart(Long gjeldendeVedtakBehandlingId, LocalDateTime søknadOpprettetTidspunkt) {
 
     public Annenpart {
-        Objects.requireNonNull(gjeldendeVedtakBehandlingId,
-            "Uttak bryr seg bare om annenpart hvis det foreligger et vedtak");
+        Objects.requireNonNull(gjeldendeVedtakBehandlingId, "Uttak bryr seg bare om annenpart hvis det foreligger et vedtak");
     }
 }

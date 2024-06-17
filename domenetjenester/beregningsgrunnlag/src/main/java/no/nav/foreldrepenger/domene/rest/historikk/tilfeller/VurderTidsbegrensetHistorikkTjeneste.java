@@ -48,7 +48,8 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
         var fastsatteArbeidsforhold = tidsbegrensetDto.getFastsatteArbeidsforhold();
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         for (var arbeidsforhold : fastsatteArbeidsforhold) {
-            var korrektAndel = periode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            var korrektAndel = periode.getBeregningsgrunnlagPrStatusOgAndelList()
+                .stream()
                 .filter(a -> a.getAndelsnr().equals(arbeidsforhold.getAndelsnr()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Finner ikke andel med andelsnr " + arbeidsforhold.getAndelsnr()));
@@ -56,9 +57,12 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
         }
     }
 
-    private void lagHistorikkInnslag(VurderteArbeidsforholdDto arbeidsforhold, BeregningsgrunnlagPrStatusOgAndel andel,
-                                     HistorikkInnslagTekstBuilder tekstBuilder, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        oppdaterVedEndretVerdi(HistorikkEndretFeltType.ENDRING_TIDSBEGRENSET_ARBEIDSFORHOLD, arbeidsforhold, andel, tekstBuilder, arbeidsforholdOverstyringer);
+    private void lagHistorikkInnslag(VurderteArbeidsforholdDto arbeidsforhold,
+                                     BeregningsgrunnlagPrStatusOgAndel andel,
+                                     HistorikkInnslagTekstBuilder tekstBuilder,
+                                     List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        oppdaterVedEndretVerdi(HistorikkEndretFeltType.ENDRING_TIDSBEGRENSET_ARBEIDSFORHOLD, arbeidsforhold, andel, tekstBuilder,
+            arbeidsforholdOverstyringer);
     }
 
     private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
@@ -68,9 +72,13 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
         return endringTidsbegrensetArbeidsforhold ? HistorikkEndretFeltVerdiType.TIDSBEGRENSET_ARBEIDSFORHOLD : HistorikkEndretFeltVerdiType.IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD;
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, VurderteArbeidsforholdDto arbeidsforhold, BeregningsgrunnlagPrStatusOgAndel andel,
-                                        HistorikkInnslagTekstBuilder tekstBuilder, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(), andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
+    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                        VurderteArbeidsforholdDto arbeidsforhold,
+                                        BeregningsgrunnlagPrStatusOgAndel andel,
+                                        HistorikkInnslagTekstBuilder tekstBuilder,
+                                        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
+            andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isOpprinneligVerdi());
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isTidsbegrensetArbeidsforhold());
         if (opprinneligVerdi != nyVerdi) {

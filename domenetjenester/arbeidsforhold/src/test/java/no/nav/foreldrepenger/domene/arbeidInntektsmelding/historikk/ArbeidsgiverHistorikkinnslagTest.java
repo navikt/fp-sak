@@ -26,23 +26,25 @@ class ArbeidsgiverHistorikkinnslagTest {
     void tester_virksomhet_med_ekstern_ref() {
         var opplysninger = new ArbeidsgiverOpplysninger("999999999", "Bedrift A/S");
 
-        var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.of(EksternArbeidsforholdRef.ref("ARB-0001")));
+        var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger,
+            Optional.of(EksternArbeidsforholdRef.ref("ARB-0001")));
 
         assertThat(tekst).isEqualTo("Bedrift A/S (999999999) ...0001");
     }
 
     @Test
     void tester_privatperson_med_ekstern_ref() {
-        var opplysninger = new ArbeidsgiverOpplysninger(new AktørId("9999999999999"), "12.12.1992", "Borghild", LocalDate.of(1992,12,12));
+        var opplysninger = new ArbeidsgiverOpplysninger(new AktørId("9999999999999"), "12.12.1992", "Borghild", LocalDate.of(1992, 12, 12));
 
-        var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.of(EksternArbeidsforholdRef.ref("ARB-0001")));
+        var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger,
+            Optional.of(EksternArbeidsforholdRef.ref("ARB-0001")));
 
         assertThat(tekst).isEqualTo("Borghild (12.12.1992) ...0001");
     }
 
     @Test
     void tester_privatperson_med_kort_ekstern_ref() {
-        var opplysninger = new ArbeidsgiverOpplysninger(new AktørId("9999999999999"), "12.12.1992", "Borghild", LocalDate.of(1992,12,12));
+        var opplysninger = new ArbeidsgiverOpplysninger(new AktørId("9999999999999"), "12.12.1992", "Borghild", LocalDate.of(1992, 12, 12));
 
         var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.of(EksternArbeidsforholdRef.ref("1")));
 

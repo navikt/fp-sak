@@ -67,8 +67,7 @@ public class AnkeVurderingTjeneste {
         relasjonEventPubliserer.fireEvent(ankeBehandling);
     }
 
-    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,
-                                                       AnkeVurderingResultatEntitet.Builder builder) {
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder) {
         lagreAnkeVurderingResultat(behandling, builder);
     }
 
@@ -84,12 +83,9 @@ public class AnkeVurderingTjeneste {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var behandlingResultatType = AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(ankeVurdering, omgjør);
         if (behandlingsresultat != null) {
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                    .medBehandlingResultatType(behandlingResultatType);
+            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(behandlingResultatType);
         } else {
-            Behandlingsresultat.builder()
-                    .medBehandlingResultatType(behandlingResultatType)
-                    .buildFor(behandling);
+            Behandlingsresultat.builder().medBehandlingResultatType(behandlingResultatType).buildFor(behandling);
         }
     }
 

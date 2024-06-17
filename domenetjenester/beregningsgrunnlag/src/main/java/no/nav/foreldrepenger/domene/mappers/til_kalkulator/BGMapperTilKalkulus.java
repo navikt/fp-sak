@@ -44,11 +44,13 @@ public class BGMapperTilKalkulus {
     private static SammenligningsgrunnlagType finnSGType(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
         if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erSelvstendigNæringsdrivende())) {
             return SammenligningsgrunnlagType.SAMMENLIGNING_SN;
-        } else if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erFrilanser()
-            || st.getAktivitetStatus().erArbeidstaker())) {
+        } else if (beregningsgrunnlagEntitet.getAktivitetStatuser()
+            .stream()
+            .anyMatch(st -> st.getAktivitetStatus().erFrilanser() || st.getAktivitetStatus().erArbeidstaker())) {
             return SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
         }
-        throw new IllegalStateException("Klarte ikke utlede sammenligningstype for gammelt grunnlag. Aktivitetstatuser var " + beregningsgrunnlagEntitet.getAktivitetStatuser());
+        throw new IllegalStateException(
+            "Klarte ikke utlede sammenligningstype for gammelt grunnlag. Aktivitetstatuser var " + beregningsgrunnlagEntitet.getAktivitetStatuser());
     }
 
     public static BeregningsgrunnlagAktivitetStatusDto.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatus fraFpsak) {
@@ -70,7 +72,8 @@ public class BGMapperTilKalkulus {
 
         //legg til
         fraFpsak.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(KodeverkTilKalkulusMapper.mapPeriodeårsak(periodeÅrsak)));
-        fraFpsak.getBeregningsgrunnlagPrStatusOgAndelList().forEach( statusOgAndel -> builder.leggTilBeregningsgrunnlagPrStatusOgAndel(mapStatusOgAndel(statusOgAndel)));
+        fraFpsak.getBeregningsgrunnlagPrStatusOgAndelList()
+            .forEach(statusOgAndel -> builder.leggTilBeregningsgrunnlagPrStatusOgAndel(mapStatusOgAndel(statusOgAndel)));
 
         return builder;
     }
@@ -89,7 +92,8 @@ public class BGMapperTilKalkulus {
         var builder = BeregningsgrunnlagPrStatusOgAndelDto.ny()
             .medAktivitetStatus(KodeverkTilKalkulusMapper.mapAktivitetstatus(fraFpsak.getAktivitetStatus()))
             .medAndelsnr(fraFpsak.getAndelsnr())
-            .medArbforholdType(fraFpsak.getArbeidsforholdType() == null ? null : KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(fraFpsak.getArbeidsforholdType()))
+            .medArbforholdType(fraFpsak.getArbeidsforholdType() == null ? null : KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(
+                fraFpsak.getArbeidsforholdType()))
             .medAvkortetBrukersAndelPrÅr(mapTilBeløp(fraFpsak.getAvkortetBrukersAndelPrÅr()))
             .medAvkortetPrÅr(mapTilBeløp(fraFpsak.getAvkortetPrÅr()))
             .medAvkortetRefusjonPrÅr(mapTilBeløp(fraFpsak.getAvkortetRefusjonPrÅr()))
@@ -104,9 +108,14 @@ public class BGMapperTilKalkulus {
             .medMaksimalRefusjonPrÅr(mapTilBeløp(fraFpsak.getMaksimalRefusjonPrÅr()))
             .medRedusertRefusjonPrÅr(mapTilBeløp(fraFpsak.getRedusertRefusjonPrÅr()))
             .medÅrsbeløpFraTilstøtendeYtelse(mapTilBeløp(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse()))
-            .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategori()))
-            .medInntektskategoriAutomatiskFordeling(fraFpsak.getInntektskategoriAutomatiskFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategoriAutomatiskFordeling()))
-            .medInntektskategoriManuellFordeling(fraFpsak.getInntektskategoriManuellFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategoriManuellFordeling()))
+            .medInntektskategori(
+                fraFpsak.getInntektskategori() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategori()))
+            .medInntektskategoriAutomatiskFordeling(
+                fraFpsak.getInntektskategoriAutomatiskFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(
+                    fraFpsak.getInntektskategoriAutomatiskFordeling()))
+            .medInntektskategoriManuellFordeling(
+                fraFpsak.getInntektskategoriManuellFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(
+                    fraFpsak.getInntektskategoriManuellFordeling()))
             .medKilde(KodeverkTilKalkulusMapper.mapAndelkilde(fraFpsak.getKilde()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraFpsak.getOrginalDagsatsFraTilstøtendeYtelse());
 
@@ -116,10 +125,13 @@ public class BGMapperTilKalkulus {
         }
 
         if (fraFpsak.getPgiSnitt() != null) {
-            builder.medPgi(mapTilBeløp(fraFpsak.getPgiSnitt()), List.of(mapTilBeløp(fraFpsak.getPgi1()), mapTilBeløp(fraFpsak.getPgi2()), mapTilBeløp(fraFpsak.getPgi3())));
+            builder.medPgi(mapTilBeløp(fraFpsak.getPgiSnitt()),
+                List.of(mapTilBeløp(fraFpsak.getPgi1()), mapTilBeløp(fraFpsak.getPgi2()), mapTilBeløp(fraFpsak.getPgi3())));
         }
 
-        fraFpsak.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(BGMapperTilKalkulus.magBGAndelArbeidsforhold(bgAndelArbeidsforhold)));
+        fraFpsak.getBgAndelArbeidsforhold()
+            .ifPresent(
+                bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(BGMapperTilKalkulus.magBGAndelArbeidsforhold(bgAndelArbeidsforhold)));
         return builder;
     }
 

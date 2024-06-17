@@ -32,7 +32,9 @@ public class UtflyttingForretningshendelseHåndterer implements Forretningshende
     }
 
     @Override
-    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                           ForretningshendelseType forretningshendelseType,
+                                           BehandlingÅrsakType behandlingÅrsakType) {
         forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
     }
 

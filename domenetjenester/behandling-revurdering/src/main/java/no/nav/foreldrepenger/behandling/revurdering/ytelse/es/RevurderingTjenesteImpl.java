@@ -59,24 +59,20 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     }
 
     @Override
-    public Behandling opprettManuellRevurdering(Fagsak fagsak,
-                                                BehandlingÅrsakType revurderingsÅrsak,
-                                                OrganisasjonsEnhet enhet,
-                                                String opprettetAv) {
+    public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet, String opprettetAv) {
         return opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet, opprettetAv);
     }
 
     @Override
-    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak,
-                                                   BehandlingÅrsakType revurderingsÅrsak,
-                                                   OrganisasjonsEnhet enhet) {
+    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
         return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet, null);
     }
 
     private Behandling opprettRevurdering(Fagsak fagsak,
                                           BehandlingÅrsakType revurderingsÅrsak,
                                           boolean manueltOpprettet,
-                                          OrganisasjonsEnhet enhet, String opprettetAv) {
+                                          OrganisasjonsEnhet enhet,
+                                          String opprettetAv) {
         var origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
@@ -84,14 +80,14 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
 
         // deretter opprett kontekst for revurdering og opprett
-        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet, opprettetAv);
+        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet,
+            opprettetAv);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
         revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
 
         // Kopier søknadsdata
-        søknadRepository.hentSøknadHvisEksisterer(origBehandling.getId())
-            .ifPresent(s -> søknadRepository.lagreOgFlush(revurdering, s));
+        søknadRepository.hentSøknadHvisEksisterer(origBehandling.getId()).ifPresent(s -> søknadRepository.lagreOgFlush(revurdering, s));
         kopierAlleGrunnlagFraTidligereBehandling(origBehandling, revurdering);
         return revurdering;
     }
@@ -101,18 +97,14 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var orginalBehandlingId = original.getId();
         var nyBehandlingId = ny.getId();
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
-            familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId,
-                nyBehandlingId);
-            if (ny.harBehandlingÅrsak(
-                BehandlingÅrsakType.RE_HENDELSE_FØDSEL)) { // Unngå manuell re-evaluering i tilfelle "automatisk" revurdering
+            familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId, nyBehandlingId);
+            if (ny.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)) { // Unngå manuell re-evaluering i tilfelle "automatisk" revurdering
                 personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
                 medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
                 vergeRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
             } else {
-                personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId,
-                    nyBehandlingId);
-                medlemskapRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId,
-                    nyBehandlingId);
+                personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId, nyBehandlingId);
+                medlemskapRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(orginalBehandlingId, nyBehandlingId);
             }
         } else {
             familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);

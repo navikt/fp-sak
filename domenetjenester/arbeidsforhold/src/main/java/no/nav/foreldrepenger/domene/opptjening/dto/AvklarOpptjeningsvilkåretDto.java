@@ -28,7 +28,8 @@ public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
     }
 
     public AvklarOpptjeningsvilkåretDto(String begrunnelse,
-            @Size(min = 4, max = 4) @Pattern(regexp = InputValideringRegex.KODEVERK) String avslagskode, boolean erVilkarOk) {
+                                        @Size(min = 4, max = 4) @Pattern(regexp = InputValideringRegex.KODEVERK) String avslagskode,
+                                        boolean erVilkarOk) {
         super(begrunnelse);
         this.avslagskode = avslagskode;
         this.erVilkarOk = erVilkarOk;

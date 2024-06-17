@@ -20,7 +20,7 @@ public class BeregningsresultatXmlTjenesteImpl extends BeregningsresultatXmlTjen
 
     @Inject
     public BeregningsresultatXmlTjenesteImpl(@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste,
-                                                     @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) YtelseXmlTjeneste ytelseXmlTjeneste) {
+                                             @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) YtelseXmlTjeneste ytelseXmlTjeneste) {
         super(beregningsgrunnlagXmlTjeneste, ytelseXmlTjeneste);
     }
 

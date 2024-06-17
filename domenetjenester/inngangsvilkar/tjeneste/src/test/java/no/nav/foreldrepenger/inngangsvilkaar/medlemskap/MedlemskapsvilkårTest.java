@@ -78,7 +78,7 @@ class MedlemskapsvilkårTest {
     @BeforeEach
     public void before() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         this.oversetter = new MedlemsvilkårOversetter(repositoryProvider, personopplysningTjeneste, iayTjeneste);
         this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap(oversetter);
     }
@@ -129,7 +129,6 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = JA
      * <p>
      * Forventet: Oppfylt
-     *
      */
     @Test
     void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() {
@@ -349,8 +348,10 @@ class MedlemskapsvilkårTest {
         // Arrange
         var land = Landkoder.ARG;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, land, PersonstatusType.BOSA);
-        scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(false)
-                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
+        scenario.medMedlemskap()
+            .medBosattVurdering(true)
+            .medLovligOppholdVurdering(false)
+            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         var behandling = lagre(scenario);
 
         // Act
@@ -377,10 +378,9 @@ class MedlemskapsvilkårTest {
     void skal_vurdere_annen_statsborger_med_oppholdstillatelse_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.ARG,
-            OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusYears(1));
-        scenario.medMedlemskap().medBosattVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.ARG, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSTIDSPUNKT.minusYears(1),
+            SKJÆRINGSTIDSPUNKT.plusYears(1));
+        scenario.medMedlemskap().medBosattVurdering(true).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         var behandling = lagre(scenario);
 
         // Act
@@ -471,31 +471,31 @@ class MedlemskapsvilkårTest {
      * Lager minimalt testscenario med en medlemsperiode som indikerer om søker er
      * medlem eller ikke.
      */
-    private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType, Landkoder statsborgerskap,
+    private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType,
+                                                          Landkoder statsborgerskap,
                                                           PersonstatusType personstatusType) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(SKJÆRINGSTIDSPUNKT)
-                        .medNavnPå("navn navnesen")
-                        .medUtstedtDato(LocalDate.now()));
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(SKJÆRINGSTIDSPUNKT)
+                .medNavnPå("navn navnesen")
+                .medUtstedtDato(LocalDate.now()));
         if (dekningType != null) {
-            scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder()
-                    .medDekningType(dekningType)
-                    .medMedlemskapType(MedlemskapType.ENDELIG)
-                    .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1))
-                    .build());
+            scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medDekningType(dekningType)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1))
+                .build());
         }
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .personstatus(personstatusType)
-                .statsborgerskap(statsborgerskap)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .personstatus(personstatusType)
+            .statsborgerskap(statsborgerskap)
+            .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;
     }
@@ -504,25 +504,29 @@ class MedlemskapsvilkårTest {
         leggTilSøker(scenario, personstatus, statsborgerskapLand, null, null, null);
     }
 
-    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Landkoder statsborgerskapLand,
-                              OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
+    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario,
+                              PersonstatusType personstatus,
+                              Landkoder statsborgerskapLand,
+                              OppholdstillatelseType opphold,
+                              LocalDate oppholdFom,
+                              LocalDate oppholdTom) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var barnAktørId = AktørId.dummy();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var fødtBarn = builderForRegisteropplysninger
-                .medPersonas()
-                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
-                .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
-                .build();
+        var fødtBarn = builderForRegisteropplysninger.medPersonas()
+            .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
+            .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
+            .build();
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .statsborgerskap(statsborgerskapLand)
-                .personstatus(personstatus)
-                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null);
-        if (opphold != null) søker.opphold(opphold, oppholdFom, oppholdTom);
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .statsborgerskap(statsborgerskapLand)
+            .personstatus(personstatus)
+            .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null);
+        if (opphold != null) {
+            søker.opphold(opphold, oppholdFom, oppholdTom);
+        }
         scenario.medRegisterOpplysninger(søker.build());
         scenario.medRegisterOpplysninger(fødtBarn);
     }
@@ -545,10 +549,14 @@ class MedlemskapsvilkårTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), aggregatBuilder);
     }
 
-    private AktørArbeid lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-            LocalDate fom, LocalDate tom, ArbeidType arbeidType, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
-        var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
-                .getAktørArbeidBuilder(aktørId);
+    private AktørArbeid lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder,
+                                       AktørId aktørId,
+                                       String virksomhetOrgnr,
+                                       LocalDate fom,
+                                       LocalDate tom,
+                                       ArbeidType arbeidType,
+                                       Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
+        var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
 
         Opptjeningsnøkkel opptjeningsnøkkel;
         var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
@@ -563,9 +571,7 @@ class MedlemskapsvilkårTest {
 
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
-        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .medArbeidType(arbeidType)
-                .medArbeidsgiver(arbeidsgiver);
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale).medArbeidType(arbeidType).medArbeidsgiver(arbeidsgiver);
 
         yrkesaktivitetBuilder.medArbeidsforholdId(arbeidsforholdRef.orElse(null));
 
@@ -574,8 +580,11 @@ class MedlemskapsvilkårTest {
         return aktørArbeidBuilder.build();
     }
 
-    private void lagInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-            LocalDate fom, LocalDate tom) {
+    private void lagInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder,
+                            AktørId aktørId,
+                            String virksomhetOrgnr,
+                            LocalDate fom,
+                            LocalDate tom) {
         var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
@@ -583,9 +592,9 @@ class MedlemskapsvilkårTest {
         Stream.of(InntektsKilde.INNTEKT_BEREGNING, InntektsKilde.INNTEKT_SAMMENLIGNING, InntektsKilde.INNTEKT_OPPTJENING).forEach(kilde -> {
             var inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
             var inntektspost = InntektspostBuilder.ny()
-                    .medBeløp(BigDecimal.valueOf(35000))
-                    .medPeriode(fom, tom)
-                    .medInntektspostType(InntektspostType.LØNN);
+                .medBeløp(BigDecimal.valueOf(35000))
+                .medPeriode(fom, tom)
+                .medInntektspostType(InntektspostType.LØNN);
             inntektBuilder.leggTilInntektspost(inntektspost).medArbeidsgiver(yrkesaktivitetBuilder.build().getArbeidsgiver());
             aktørInntektBuilder.leggTilInntekt(inntektBuilder);
             inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);

@@ -53,22 +53,22 @@ class StønadskontoSaldoTjenesteTest {
     void skal_regne_ut_saldo_per_aktivitet() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto();
-        var konto = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var konto = behandlingMedKonto(behandling,
+            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
-        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
-            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(
-            new Trekkdager(10)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(new Trekkdager(10))
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(arbeidsgiver, null)
-                .build()).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.TEN)
-            .build();
+                .build()).medTrekkdager(new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
@@ -80,29 +80,25 @@ class StønadskontoSaldoTjenesteTest {
         assertThat(saldoUtregning.getMaxDager(Stønadskontotype.FELLESPERIODE)).isEqualTo(15);
         assertThat(saldoUtregning.stønadskontoer()).hasSize(1);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)).isEqualTo(12);
-        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(
-            5);
+        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(5);
         var orgnummer = new Orgnummer(arbeidsgiver.getIdentifikator());
-        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE,
-            AktivitetIdentifikator.forArbeid(orgnummer, null))).isEqualTo(12);
+        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forArbeid(orgnummer, null))).isEqualTo(12);
     }
 
     @Test
     void skal_regne_ut_for_arbeidstaker_uten_arbeidsgiver() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto();
-        var kontoer = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var kontoer = behandlingMedKonto(behandling,
+            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
-        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
-            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(null, null)
-                .build()).medTrekkdager(new Trekkdager(10))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.TEN)
-            .build();
+                .build()).medTrekkdager(new Trekkdager(10)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet);
         lagreUttak(uttak, kontoer, behandling.getId());
@@ -120,66 +116,46 @@ class StønadskontoSaldoTjenesteTest {
         var arbeidsforholdRef1 = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdRef2 = InternArbeidsforholdRef.nyRef();
         var aktørId = AktørId.dummy();
-        var stønadskonto = Stønadskonto.builder()
-            .medMaxDager(15)
-            .medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .build();
+        var stønadskonto = Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build();
         var behandling = behandlingMedKonto(aktørId);
         var konto = behandlingMedKonto(behandling, stønadskonto);
 
         //Periode med bare frilans
         var uttak = new UttakResultatPerioderEntitet();
-        var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(enOnsdag, enOnsdag).medResultatType(
-            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var uttakFrilansAktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS)
-            .build();
-        var frilansAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode1,
-            uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+        var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(enOnsdag, enOnsdag).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
+        var uttakFrilansAktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build();
+        var frilansAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode1, uttakFrilansAktivitet).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
         uttaksperiode1.leggTilAktivitet(frilansAktivitet);
         uttak.leggTilPeriode(uttaksperiode1);
 
         //Periode med arbeidsgiver + frilans
-        var uttaksperiode2 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(1),
-            enOnsdag.plusDays(1)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var uttakAktivitetArbeidsgiver1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
-            UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, arbeidsforholdRef1).build();
-        var arbeidsgiverAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2,
-            uttakAktivitetArbeidsgiver1).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
+        var uttaksperiode2 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(1), enOnsdag.plusDays(1)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var uttakAktivitetArbeidsgiver1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, arbeidsforholdRef1)
             .build();
-        var frilansAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2,
-            uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+        var arbeidsgiverAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2, uttakAktivitetArbeidsgiver1).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
+        var frilansAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode2, uttakFrilansAktivitet).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(uttaksperiode2);
         uttaksperiode2.leggTilAktivitet(frilansAktivitet2);
         uttaksperiode2.leggTilAktivitet(arbeidsgiverAktivitet1);
 
         //Periode med arbeidsgiver med 2 arbeidsforhold + frilans
-        var uttaksperiode3 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(2),
-            enOnsdag.plusDays(2)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        var uttakAktivitetArbeidsgiver2 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
-            UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, arbeidsforholdRef2).build();
-        var arbeidsgiverAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
-            uttakAktivitetArbeidsgiver2).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
+        var uttaksperiode3 = new UttakResultatPeriodeEntitet.Builder(enOnsdag.plusDays(2), enOnsdag.plusDays(2)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var uttakAktivitetArbeidsgiver2 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, arbeidsforholdRef2)
             .build();
-        var arbeidsgiverAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
-            uttakAktivitetArbeidsgiver1).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
-        var frilansAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3,
-            uttakFrilansAktivitet).medTrekkdager(new Trekkdager(3))
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+        var arbeidsgiverAktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3, uttakAktivitetArbeidsgiver2).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
+        var arbeidsgiverAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3, uttakAktivitetArbeidsgiver1).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
+        var frilansAktivitet3 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode3, uttakFrilansAktivitet).medTrekkdager(
+            new Trekkdager(3)).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(uttaksperiode3);
         uttaksperiode3.leggTilAktivitet(frilansAktivitet3);
         uttaksperiode3.leggTilAktivitet(arbeidsgiverAktivitet2);
@@ -189,23 +165,19 @@ class StønadskontoSaldoTjenesteTest {
 
         var saldoUtregning = tjeneste.finnSaldoUtregning(input(behandling));
 
-        var aktivitet1 = AktivitetIdentifikator.forArbeid(
-            new Orgnummer(uttakAktivitetArbeidsgiver1.getArbeidsgiver().get().getIdentifikator()),
+        var aktivitet1 = AktivitetIdentifikator.forArbeid(new Orgnummer(uttakAktivitetArbeidsgiver1.getArbeidsgiver().get().getIdentifikator()),
             uttakAktivitetArbeidsgiver1.getArbeidsforholdRef().getReferanse());
-        var aktivitet2 = AktivitetIdentifikator.forArbeid(
-            new Orgnummer(uttakAktivitetArbeidsgiver2.getArbeidsgiver().get().getIdentifikator()),
+        var aktivitet2 = AktivitetIdentifikator.forArbeid(new Orgnummer(uttakAktivitetArbeidsgiver2.getArbeidsgiver().get().getIdentifikator()),
             uttakAktivitetArbeidsgiver2.getArbeidsforholdRef().getReferanse());
 
-        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(
-            6);
+        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(6);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, aktivitet1)).isEqualTo(6);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, aktivitet2)).isEqualTo(6);
     }
 
     private UttakInput input(Behandling behandling) {
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(),
-                List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1)));
         return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
     }
 
@@ -213,22 +185,22 @@ class StønadskontoSaldoTjenesteTest {
     void skal_returnere_alle_aktiviteter_hvis_ingen_trekkdager() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto();
-        var konto = behandlingMedKonto(behandling, Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
+        var konto = behandlingMedKonto(behandling,
+            Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         var uttak = new UttakResultatPerioderEntitet();
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(
             PeriodeResultatType.MANUELL_BEHANDLING, PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(
-            Trekkdager.ZERO).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkdager(Trekkdager.ZERO)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(arbeidsgiver, null)
-                .build()).medTrekkdager(Trekkdager.ZERO)
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsprosent(BigDecimal.TEN)
-            .build();
+                .build()).medTrekkdager(Trekkdager.ZERO).medTrekkonto(UttakPeriodeType.FELLESPERIODE).medArbeidsprosent(BigDecimal.TEN).build();
         uttak.leggTilPeriode(uttaksperiode);
         uttaksperiode.leggTilAktivitet(aktivitet1);
         uttaksperiode.leggTilAktivitet(aktivitet2);
@@ -240,8 +212,7 @@ class StønadskontoSaldoTjenesteTest {
         assertThat(saldoUtregning.getMaxDager(Stønadskontotype.FELLESPERIODE)).isEqualTo(15);
         assertThat(saldoUtregning.stønadskontoer()).hasSize(1);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)).isEqualTo(15);
-        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(
-            15);
+        assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE, AktivitetIdentifikator.forFrilans())).isEqualTo(15);
         assertThat(saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE,
             AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null))).isEqualTo(15);
     }
@@ -268,17 +239,14 @@ class StønadskontoSaldoTjenesteTest {
     }
 
     private Stønadskontoberegning behandlingMedKonto(Behandling behandling, Stønadskonto konto) {
-        var kontoer = Stønadskontoberegning.builder()
-            .medStønadskonto(konto)
-            .medRegelEvaluering("asd")
-            .medRegelInput("awd")
-            .build();
+        var kontoer = Stønadskontoberegning.builder().medStønadskonto(konto).medRegelEvaluering("asd").medRegelInput("awd").build();
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), kontoer);
         return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
+            repositoryProvider.getFagsakRelasjonRepository());
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var utregnetTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
         return new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(), utregnetTjeneste);

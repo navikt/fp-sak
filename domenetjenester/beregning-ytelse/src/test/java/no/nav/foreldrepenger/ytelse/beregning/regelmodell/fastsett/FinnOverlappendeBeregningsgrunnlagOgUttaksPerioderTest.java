@@ -42,8 +42,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 40;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -74,8 +73,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 40;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -106,8 +104,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 50;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -137,8 +134,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 50;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -168,8 +164,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 60;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -199,8 +194,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 60;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -230,8 +224,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 50;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -261,8 +254,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 50;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -293,8 +285,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 40;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -325,8 +316,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 0;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, false);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, false);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -351,8 +341,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var utbetalingsgrad = 50;
         var dagsatsBruker = redusertBrukersAndel.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
         var redDagsatsBruker = getDagsats(0.50 * redusertBrukersAndel.doubleValue());
-        var mellomregning = settOppGraderingScenarioForAndreStatuser(redusertBrukersAndel, stillingsgrad,
-                utbetalingsgrad, AktivitetStatus.SN, true);
+        var mellomregning = settOppGraderingScenarioForAndreStatuser(redusertBrukersAndel, stillingsgrad, utbetalingsgrad, AktivitetStatus.SN, true);
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
         var evaluation = regel.evaluate(mellomregning);
@@ -413,8 +402,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var utbetalingsgrad = 66;
         var dagsatsBruker = redusertBrukersAndel.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
         var redDagsatsBruker = getDagsats(0.66 * redusertBrukersAndel.doubleValue());
-        var mellomregning = settOppGraderingScenarioForAndreStatuser(redusertBrukersAndel, stillingsgrad,
-                utbetalingsgrad, AktivitetStatus.DP, true);
+        var mellomregning = settOppGraderingScenarioForAndreStatuser(redusertBrukersAndel, stillingsgrad, utbetalingsgrad, AktivitetStatus.DP, true);
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
         var evaluation = regel.evaluate(mellomregning);
@@ -438,8 +426,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 0;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr,
-                stillingsgrad, nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -467,8 +454,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 50; // Gir 50% utbetalingsgrad
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr,
-                stillingsgrad, nyArbeidstidProsent, false);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, false);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -496,8 +482,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 40;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-                nyArbeidstidProsent, true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -530,8 +515,8 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         var nyArbeidstidProsent = 40;
         var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
         var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
-        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
-            nyArbeidstidProsent, BigDecimal.valueOf(36), true);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, BigDecimal.valueOf(36),
+            true);
 
         // Act
         var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
@@ -553,21 +538,25 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         assertThat(andel.get(1).getDagsatsFraBg()).isEqualTo(dagsatsArbeidsgiver);
     }
 
-    private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus, BigDecimal stillingsgrad,
-                                                                        BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, BigDecimal redusertBrukersAndel, boolean erGradering) {
+    private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus,
+                                                                        BigDecimal stillingsgrad,
+                                                                        BigDecimal arbeidstidsprosent,
+                                                                        BigDecimal utbetalingsgrad,
+                                                                        BigDecimal redusertBrukersAndel,
+                                                                        boolean erGradering) {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(14);
 
         var grunnlag = lagBeregningsgrunnlag(fom, tom, aktivitetStatus, redusertBrukersAndel);
         var uttakResultat = new UttakResultat(
-                lagUttakResultatPeriode(fom, tom, stillingsgrad, arbeidstidsprosent, utbetalingsgrad, aktivitetStatus, erGradering));
+            lagUttakResultatPeriode(fom, tom, stillingsgrad, arbeidstidsprosent, utbetalingsgrad, aktivitetStatus, erGradering));
         var input = new BeregningsresultatGrunnlag(grunnlag, uttakResultat);
         var output = Beregningsresultat.opprett();
         return new BeregningsresultatRegelmodellMellomregning(input, output);
     }
 
     private BeregningsresultatRegelmodellMellomregning lagMellomregningForOppholdsPeriode(AktivitetStatus aktivitetStatus,
-            BigDecimal redusertBrukersAndel) {
+                                                                                          BigDecimal redusertBrukersAndel) {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(14);
 
@@ -578,8 +567,13 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         return new BeregningsresultatRegelmodellMellomregning(input, output);
     }
 
-    private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent,
-            BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
+    private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom,
+                                                               LocalDate tom,
+                                                               BigDecimal stillingsgrad,
+                                                               BigDecimal arbeidstidsprosent,
+                                                               BigDecimal utbetalingsgrad,
+                                                               AktivitetStatus aktivitetStatus,
+                                                               boolean erGradering) {
 
         var uttakAktivitet = UttakAktivitet.ny(aktivitetStatus, utbetalingsgrad, true)
             .medArbeidsforhold(arbeidsforhold)
@@ -611,16 +605,20 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         }
     }
 
-    private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr, int redRefusjonPrÅr,
+    private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr,
+                                                                                int redRefusjonPrÅr,
                                                                                 BigDecimal stillingsgrad,
-                                                                                int nyArbeidstidProsent, boolean erGradering) {
+                                                                                int nyArbeidstidProsent,
+                                                                                boolean erGradering) {
         var utbetalingsgrad = BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(nyArbeidstidProsent));
         return settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, utbetalingsgrad, erGradering);
     }
 
-    private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr, int redRefusjonPrÅr,
+    private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr,
+                                                                                int redRefusjonPrÅr,
                                                                                 BigDecimal stillingsgrad,
-                                                                                int nyArbeidstidProsent, BigDecimal utbGrad,
+                                                                                int nyArbeidstidProsent,
+                                                                                BigDecimal utbGrad,
                                                                                 boolean erGradering) {
         arbeidsforhold = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr);
         prArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.opprett(arbeidsforhold, null)
@@ -639,10 +637,12 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     private BeregningsresultatRegelmodellMellomregning settOppGraderingScenarioForAndreStatuser(BigDecimal redusertBrukersAndel,
-            BigDecimal stillingsgrad, int utbetalingsgrad,
-            AktivitetStatus aktivitetStatus, boolean erGradering) {
+                                                                                                BigDecimal stillingsgrad,
+                                                                                                int utbetalingsgrad,
+                                                                                                AktivitetStatus aktivitetStatus,
+                                                                                                boolean erGradering) {
         return lagMellomregning(aktivitetStatus, stillingsgrad, BigDecimal.ZERO, BigDecimal.valueOf(utbetalingsgrad), redusertBrukersAndel,
-                erGradering);
+            erGradering);
     }
 
     private BeregningsresultatRegelmodellMellomregning settOppScenarioMedOppholdsperiodeForSN(BigDecimal redusertBrukersAndel) {

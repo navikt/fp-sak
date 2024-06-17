@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -96,11 +95,15 @@ class BeregningUttakTjenesteTest {
         assertThat(andelGraderingArbeidsgiver1).hasSize(1);
         var graderingerArbeidsgiver1 = andelGraderingArbeidsgiver1.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver1).hasSize(2);
-        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())));
-        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
+        assertThat(graderingerArbeidsgiver1).anySatisfy(
+            gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())));
+        assertThat(graderingerArbeidsgiver1).anySatisfy(
+            gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
         assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
-        assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
-        assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
+        assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(),
+            gradering2.getArbeidsprosent());
+        assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(),
+            gradering2.getArbeidsprosent());
 
         var andelGraderingArbeidsgiver2 = forArbeidsgiver(andelGraderingList, arbeidsgiver2, AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver2).hasSize(1);

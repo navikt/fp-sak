@@ -75,11 +75,7 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         var forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builder()
-                    .aktørId(AktørId.dummy())
-                    .navn("Forelder")
-            )
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(AktørId.dummy()).navn("Forelder"))
             .build();
 
         scenario.medRegisterOpplysninger(forelder);
@@ -95,8 +91,8 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
-            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         vilkårBuilder.buildFor(behandling);
     }

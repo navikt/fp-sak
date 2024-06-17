@@ -37,8 +37,7 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        tjeneste = new FamilieHendelseTjeneste(mock(FamiliehendelseEventPubliserer.class),
-            repositoryProvider.getFamilieHendelseRepository());
+        tjeneste = new FamilieHendelseTjeneste(mock(FamiliehendelseEventPubliserer.class), repositoryProvider.getFamilieHendelseRepository());
     }
 
     @Test
@@ -59,7 +58,8 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var termindato = NÅ.plusWeeks(16);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("LEGENS ISNDASD ASD")
                 .medUtstedtDato(termindato)
                 .medTermindato(termindato));
@@ -80,9 +80,9 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var fødselsdatoBarn2 = NÅ.minusYears(2);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(NÅ))
-            .leggTilBarn(fødselsdatoBarn).leggTilBarn(fødselsdatoBarn2);
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(NÅ))
+            .leggTilBarn(fødselsdatoBarn)
+            .leggTilBarn(fødselsdatoBarn2);
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
@@ -117,18 +117,18 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var tdato = LocalDate.now().minusDays(2);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
                 .medUtstedtDato(LocalDate.now())
                 .medTermindato(tdato))
             .medAntallBarn(1);
-        scenario.medOverstyrtHendelse(scenario.medOverstyrtHendelse()
-            .medFødselsDato(tdato)
-            .medAntallBarn(1));
+        scenario.medOverstyrtHendelse(scenario.medOverstyrtHendelse().medFødselsDato(tdato).medAntallBarn(1));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(), List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
+        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(),
+            List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
 
         // Assert
         var aggregat = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -144,13 +144,15 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var tdato = LocalDate.now().minusDays(2);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
                 .medUtstedtDato(LocalDate.now())
                 .medTermindato(tdato))
             .medAntallBarn(1);
         scenario.medOverstyrtHendelse(scenario.medOverstyrtHendelse()
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
                 .medUtstedtDato(LocalDate.now())
                 .medTermindato(tdato.plusDays(1)))
@@ -158,7 +160,8 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(), List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
+        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(),
+            List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
 
         // Assert
         var aggregat = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -190,8 +193,7 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var intervaller = FamilieHendelseTjeneste.utledPerioderForRegisterinnhenting(grunnlag);
 
         assertThat(intervaller).hasSize(1);
-        assertThat(intervaller.get(0)).isEqualByComparingTo(new LocalDateInterval(termindato.minusWeeks(19),
-            termindato.plusWeeks(6)));
+        assertThat(intervaller.get(0)).isEqualByComparingTo(new LocalDateInterval(termindato.minusWeeks(19), termindato.plusWeeks(6)));
     }
 
 

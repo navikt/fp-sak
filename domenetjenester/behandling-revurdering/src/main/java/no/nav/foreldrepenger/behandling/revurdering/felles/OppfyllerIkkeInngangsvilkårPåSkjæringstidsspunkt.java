@@ -14,10 +14,12 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
     }
 
     public static boolean vurder(Behandlingsresultat revurdering) {
-        return revurdering.isVilkårAvslått() || revurdering.getVilkårResultat().getVilkårene().stream()
-                .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType())) // Medlemskapvilkår vurderes senere separat.
-                .map(Vilkår::getGjeldendeVilkårUtfall)
-                .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
+        return revurdering.isVilkårAvslått() || revurdering.getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType())) // Medlemskapvilkår vurderes senere separat.
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {

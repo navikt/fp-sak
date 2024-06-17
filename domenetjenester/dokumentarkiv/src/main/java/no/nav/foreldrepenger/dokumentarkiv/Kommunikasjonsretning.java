@@ -16,11 +16,8 @@ public enum Kommunikasjonsretning {
      */
     NOTAT("N");
 
-    private static final Map<String, Kommunikasjonsretning> KOMMUNIKASJONSRETNING_MAP = Map.ofEntries(
-        Map.entry(INN.kommunikasjonsretningCode, INN),
-        Map.entry(UT.kommunikasjonsretningCode, UT),
-        Map.entry(NOTAT.kommunikasjonsretningCode, NOTAT)
-    );
+    private static final Map<String, Kommunikasjonsretning> KOMMUNIKASJONSRETNING_MAP = Map.ofEntries(Map.entry(INN.kommunikasjonsretningCode, INN),
+        Map.entry(UT.kommunikasjonsretningCode, UT), Map.entry(NOTAT.kommunikasjonsretningCode, NOTAT));
 
     private String kommunikasjonsretningCode;
 

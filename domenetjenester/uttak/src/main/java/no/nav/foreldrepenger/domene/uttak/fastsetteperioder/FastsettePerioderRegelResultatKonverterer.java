@@ -68,8 +68,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     @Inject
-    public FastsettePerioderRegelResultatKonverterer(FpUttakRepository fpUttakRepository,
-                                                     YtelsesFordelingRepository ytelsesfordelingRepository) {
+    public FastsettePerioderRegelResultatKonverterer(FpUttakRepository fpUttakRepository, YtelsesFordelingRepository ytelsesfordelingRepository) {
         this.fpUttakRepository = fpUttakRepository;
         this.ytelsesfordelingRepository = ytelsesfordelingRepository;
     }
@@ -87,9 +86,8 @@ public class FastsettePerioderRegelResultatKonverterer {
 
         var uttakAktiviteter = lagUttakAktiviteter(resultat);
         for (var fastsettePeriodeResultat : resultatSomSkalKonverteres) {
-            var periode = lagUttakResultatPeriode(fastsettePeriodeResultat,
-                periodeSomHarUtledetResultat(fastsettePeriodeResultat, periodeSøknader), uttakAktiviteter,
-                new UttakYrkesaktiviteter(input), grunnlag);
+            var periode = lagUttakResultatPeriode(fastsettePeriodeResultat, periodeSomHarUtledetResultat(fastsettePeriodeResultat, periodeSøknader),
+                uttakAktiviteter, new UttakYrkesaktiviteter(input), grunnlag);
             perioder.leggTilPeriode(periode);
         }
         if (ref.erRevurdering()) {
@@ -100,30 +98,23 @@ public class FastsettePerioderRegelResultatKonverterer {
 
     private void prependPerioderFraOriginalBehandling(BehandlingReferanse ref, UttakResultatPerioderEntitet perioder) {
         var originalBehandling = ref.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalStateException(
-                "Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
         var opprinneligUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
         if (opprinneligUttak.isPresent()) {
-            var endringsdato = ytelsesfordelingRepository.hentAggregat(ref.behandlingId())
-                .getGjeldendeEndringsdato();
-            var perioderFørEndringsdato = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak.get(),
-                endringsdato);
+            var endringsdato = ytelsesfordelingRepository.hentAggregat(ref.behandlingId()).getGjeldendeEndringsdato();
+            var perioderFørEndringsdato = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak.get(), endringsdato);
             prependPerioder(perioderFørEndringsdato, perioder);
         }
     }
 
-    private void prependPerioder(List<UttakResultatPeriodeEntitet> perioderFørEndringsdato,
-                                 UttakResultatPerioderEntitet perioderEtterEndringsdato) {
+    private void prependPerioder(List<UttakResultatPeriodeEntitet> perioderFørEndringsdato, UttakResultatPerioderEntitet perioderEtterEndringsdato) {
         for (var periodeFørEndringsdato : perioderFørEndringsdato) {
             perioderEtterEndringsdato.leggTilPeriode(periodeFørEndringsdato);
         }
     }
 
     private List<PeriodeSøknad> lagPeriodeSøknader(OppgittFordelingEntitet oppgittFordeling) {
-        return oppgittFordeling.getPerioder()
-            .stream()
-            .map(this::lagPeriodeSøknad)
-            .toList();
+        return oppgittFordeling.getPerioder().stream().map(this::lagPeriodeSøknad).toList();
     }
 
     private Set<UttakAktivitetEntitet> lagUttakAktiviteter(List<FastsettePeriodeResultat> resultat) {
@@ -134,19 +125,13 @@ public class FastsettePerioderRegelResultatKonverterer {
             .collect(Collectors.toSet());
     }
 
-    private UttakAktivitetEntitet riktigUttakAktivitet(AktivitetIdentifikator aktivitet,
-                                                       Set<UttakAktivitetEntitet> uttakAktiviteter) {
-        return uttakAktiviteter.stream()
-            .filter(uttakAktivitet -> {
-                var identifikator = Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator())
-                    .map(ArbeidsgiverIdentifikator::value)
-                    .orElse(null);
-                return Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType())
-                    && Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().getReferanse())
-                    && Objects.equals(identifikator, uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null));
-            })
-            .findFirst()
-            .orElse(null);
+    private UttakAktivitetEntitet riktigUttakAktivitet(AktivitetIdentifikator aktivitet, Set<UttakAktivitetEntitet> uttakAktiviteter) {
+        return uttakAktiviteter.stream().filter(uttakAktivitet -> {
+            var identifikator = Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ArbeidsgiverIdentifikator::value).orElse(null);
+            return Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType()) && Objects.equals(aktivitet.getArbeidsforholdId(),
+                uttakAktivitet.getArbeidsforholdRef().getReferanse()) && Objects.equals(identifikator,
+                uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null));
+        }).findFirst().orElse(null);
     }
 
     private UttakResultatPeriodeEntitet lagUttakResultatPeriode(FastsettePeriodeResultat resultat,
@@ -163,8 +148,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         if (!erOppholdsperiode(uttakPeriode)) {
             guardMinstEnAktivitet(uttakPeriode);
             for (var aktivitet : uttakPeriode.getAktiviteter()) {
-                var periodeAktivitet = lagPeriodeAktivitet(uttakAktiviteter, uttakPeriode, periode, aktivitet,
-                    uttakYrkesaktiviteter);
+                var periodeAktivitet = lagPeriodeAktivitet(uttakAktiviteter, uttakPeriode, periode, aktivitet, uttakYrkesaktiviteter);
                 periode.leggTilAktivitet(periodeAktivitet);
             }
         }
@@ -175,36 +159,47 @@ public class FastsettePerioderRegelResultatKonverterer {
 
     private void loggManueltSamtidigUttak(FastsettePeriodeResultat resultat, RegelGrunnlag grunnlag) {
         try {
-            if (!resultat.isManuellBehandling() || !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.uttakPeriode().getManuellbehandlingårsak())) {
+            if (!resultat.isManuellBehandling() || !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(
+                resultat.uttakPeriode().getManuellbehandlingårsak())) {
                 return;
             }
             var periode = resultat.uttakPeriode();
 
             var annenpartOverlappOpt = Optional.ofNullable(grunnlag.getAnnenPart())
-                .map(AnnenPart::getUttaksperioder).orElse(List.of()).stream()
+                .map(AnnenPart::getUttaksperioder)
+                .orElse(List.of())
+                .stream()
                 .filter(a -> a.overlapper(periode))
                 .findFirst();
-            if (annenpartOverlappOpt.isEmpty()) return;
+            if (annenpartOverlappOpt.isEmpty()) {
+                return;
+            }
             var annenpartOverlapp = annenpartOverlappOpt.get();
-            var annenpartAntallAktiviteter = annenpartOverlapp.getAktiviteter().stream()
-                .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
-            var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter().stream()
+            var annenpartAntallAktiviteter = annenpartOverlapp.getAktiviteter().stream().filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
+            var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter()
+                .stream()
                 .map(AnnenpartUttakPeriodeAktivitet::getUtbetalingsgrad)
-                .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling).min(Comparator.naturalOrder()).map(
-                    no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue).orElse(BigDecimal.ZERO);
-            var antallAktiviteter = periode.getAktiviteter().stream()
-                .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
-            var utbetalingsgrad = periode.getAktiviteter().stream()
+                .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling)
+                .min(Comparator.naturalOrder())
+                .map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue)
+                .orElse(BigDecimal.ZERO);
+            var antallAktiviteter = periode.getAktiviteter().stream().filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
+            var utbetalingsgrad = periode.getAktiviteter()
+                .stream()
                 .map(UttakPeriodeAktivitet::getUtbetalingsgrad)
                 .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling)
-                .min(Comparator.naturalOrder()).map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue).orElse(BigDecimal.ZERO);
-            var samtidig = periode.erSamtidigUttak() ;
+                .min(Comparator.naturalOrder())
+                .map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue)
+                .orElse(BigDecimal.ZERO);
+            var samtidig = periode.erSamtidigUttak();
             var gradering = periode.erGraderingInnvilget();
             var annenpartSamtidig = annenpartOverlapp.isSamtidigUttak();
-            var harRedusert = (antallAktiviteter == 1 || !gradering) && new BigDecimal(100).subtract(annenpartUtbetalingsgrad).compareTo(new BigDecimal(20)) >= 0;
-            LOG.info("SAMTIDIG-PØLSE redusert {} fom {} samtidig {} gradering {} antAktivitet {} utbetgrad {} annenpartSamtidig {} annenpartAntAkt {} annenpartUtbetgrad {}",
-                harRedusert, periode.getFom(), samtidig, gradering,
-                antallAktiviteter, utbetalingsgrad, annenpartSamtidig, annenpartAntallAktiviteter, annenpartUtbetalingsgrad);
+            var harRedusert =
+                (antallAktiviteter == 1 || !gradering) && new BigDecimal(100).subtract(annenpartUtbetalingsgrad).compareTo(new BigDecimal(20)) >= 0;
+            LOG.info(
+                "SAMTIDIG-PØLSE redusert {} fom {} samtidig {} gradering {} antAktivitet {} utbetgrad {} annenpartSamtidig {} annenpartAntAkt {} annenpartUtbetgrad {}",
+                harRedusert, periode.getFom(), samtidig, gradering, antallAktiviteter, utbetalingsgrad, annenpartSamtidig, annenpartAntallAktiviteter,
+                annenpartUtbetalingsgrad);
         } catch (Exception e) {
 
         }
@@ -215,8 +210,8 @@ public class FastsettePerioderRegelResultatKonverterer {
     private void guardMinstEnAktivitet(UttakPeriode uttakPeriode) {
         if (uttakPeriode.getAktiviteter().isEmpty()) {
             throw new IllegalStateException(
-                "Forventer minst en aktivitet i uttaksperiode " + uttakPeriode.getFom() + " - " + uttakPeriode.getTom()
-                    + " - " + uttakPeriode.getStønadskontotype());
+                "Forventer minst en aktivitet i uttaksperiode " + uttakPeriode.getFom() + " - " + uttakPeriode.getTom() + " - "
+                    + uttakPeriode.getStønadskontotype());
         }
     }
 
@@ -235,15 +230,12 @@ public class FastsettePerioderRegelResultatKonverterer {
             .build();
     }
 
-    private BigDecimal finnArbeidsprosent(UttakPeriode uttakPeriode,
-                                          UttakPeriodeAktivitet aktivitet,
-                                          UttakYrkesaktiviteter uttakYrkesaktiviteter) {
+    private BigDecimal finnArbeidsprosent(UttakPeriode uttakPeriode, UttakPeriodeAktivitet aktivitet, UttakYrkesaktiviteter uttakYrkesaktiviteter) {
         if (aktivitet.isSøktGradering()) {
             return uttakPeriode.getArbeidsprosent();
         }
         if (erUtsettelsePgaArbeid(uttakPeriode) && erArbeidMedArbeidsgiver(aktivitet)) {
-            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(
-                mapArbeidsgiver(aktivitet.getIdentifikator()),
+            return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(mapArbeidsgiver(aktivitet.getIdentifikator()),
                 InternArbeidsforholdRef.ref(aktivitet.getIdentifikator().getArbeidsforholdId()), uttakPeriode.getFom());
         }
         return BigDecimal.ZERO;
@@ -262,8 +254,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return new Trekkdager(aktivitet.getTrekkdager().decimalValue());
     }
 
-    private UttakResultatPeriodeSøknadEntitet periodeSomHarUtledetResultat(FastsettePeriodeResultat resultat,
-                                                                           List<PeriodeSøknad> periodeSøknader) {
+    private UttakResultatPeriodeSøknadEntitet periodeSomHarUtledetResultat(FastsettePeriodeResultat resultat, List<PeriodeSøknad> periodeSøknader) {
         return periodeSøknader.stream()
             .filter(søknad -> søknad.harUtledet(resultat.uttakPeriode()))
             .map(søknad -> søknad.entitet)
@@ -279,26 +270,21 @@ public class FastsettePerioderRegelResultatKonverterer {
         var manuellBehandlingÅrsak = UttakEnumMapper.map(resultat.uttakPeriode().getManuellbehandlingårsak());
         var builder = resultat.isManuellBehandling() ? UttakResultatDokRegelEntitet.medManuellBehandling(
             manuellBehandlingÅrsak) : UttakResultatDokRegelEntitet.utenManuellBehandling();
-        return builder.medRegelEvaluering(resultat.evalueringResultat())
-            .medRegelInput(resultat.innsendtGrunnlag())
-            .build();
+        return builder.medRegelEvaluering(resultat.evalueringResultat()).medRegelInput(resultat.innsendtGrunnlag()).build();
     }
 
     private UttakAktivitetEntitet lagUttakAktivitet(AktivitetIdentifikator aktivitetIdentifikator) {
         var builder = new UttakAktivitetEntitet.Builder();
         var arbeidsgiverIdentifikator = aktivitetIdentifikator.getArbeidsgiverIdentifikator();
         if (arbeidsgiverIdentifikator != null) {
-            var arbeidsforholdRef =
-                aktivitetIdentifikator.getArbeidsforholdId() == null ? null : InternArbeidsforholdRef.ref(
-                    aktivitetIdentifikator.getArbeidsforholdId());
+            var arbeidsforholdRef = aktivitetIdentifikator.getArbeidsforholdId() == null ? null : InternArbeidsforholdRef.ref(
+                aktivitetIdentifikator.getArbeidsforholdId());
             if (arbeidsgiverIdentifikator instanceof Orgnummer) {
                 builder.medArbeidsforhold(Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value()), arbeidsforholdRef);
             } else if (arbeidsgiverIdentifikator instanceof no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId) {
-                builder.medArbeidsforhold(Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value())),
-                    arbeidsforholdRef);
+                builder.medArbeidsforhold(Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value())), arbeidsforholdRef);
             } else {
-                throw new IllegalStateException(
-                    "Støtter ikke arbeidsgiver type " + aktivitetIdentifikator.getArbeidsgiverIdentifikator().getClass());
+                throw new IllegalStateException("Støtter ikke arbeidsgiver type " + aktivitetIdentifikator.getArbeidsgiverIdentifikator().getClass());
             }
         }
 
@@ -323,8 +309,8 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                    UttakResultatDokRegelEntitet dokRegel,
                                                    UttakResultatPeriodeSøknadEntitet periodeSøknad) {
         var periodeResultatType = UttakEnumMapper.map(uttakPeriode.getPerioderesultattype());
-        return new UttakResultatPeriodeEntitet.Builder(uttakPeriode.getFom(), uttakPeriode.getTom()).medResultatType(
-            periodeResultatType, UttakEnumMapper.map(uttakPeriode.getPeriodeResultatÅrsak()))
+        return new UttakResultatPeriodeEntitet.Builder(uttakPeriode.getFom(), uttakPeriode.getTom()).medResultatType(periodeResultatType,
+                UttakEnumMapper.map(uttakPeriode.getPeriodeResultatÅrsak()))
             .medDokRegel(dokRegel)
             .medGraderingInnvilget(uttakPeriode.erGraderingInnvilget())
             .medUtsettelseType(toUtsettelseType(uttakPeriode))
@@ -351,16 +337,14 @@ public class FastsettePerioderRegelResultatKonverterer {
                 case FEDREKVOTE -> OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
                 case FELLESPERIODE -> OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER;
                 case FORELDREPENGER -> OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER;
-                default -> throw new IllegalArgumentException(
-                    "Utvikler-feil: Kom ut av regel med stønadskontotype" + stønadskontotype);
+                default -> throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med stønadskontotype" + stønadskontotype);
             };
         }
 
         return OppholdÅrsak.UDEFINERT;
     }
 
-    private no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak tilOverføringÅrsak(
-        UttakPeriode uttakPeriode) {
+    private no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak tilOverføringÅrsak(UttakPeriode uttakPeriode) {
         var overføringÅrsak = uttakPeriode.getOverføringÅrsak();
         if (Objects.equals(overføringÅrsak, OverføringÅrsak.INNLEGGELSE)) {
             return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
@@ -389,8 +373,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private PeriodeSøknad lagPeriodeSøknad(OppgittPeriodeEntitet oppgittPeriode) {
-        var builder = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
+        var builder = new UttakResultatPeriodeSøknadEntitet.Builder().medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
             .medUttakPeriodeType(oppgittPeriode.getPeriodeType())
             .medMottattDato(oppgittPeriode.getMottattDato())
             .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
@@ -406,8 +389,8 @@ public class FastsettePerioderRegelResultatKonverterer {
     private record PeriodeSøknad(UttakResultatPeriodeSøknadEntitet entitet, LocalDate fom, LocalDate tom) {
 
         boolean harUtledet(UttakPeriode uttakPeriode) {
-            return (uttakPeriode.getFom().isEqual(fom) || uttakPeriode.getFom().isAfter(fom)) && (
-                    uttakPeriode.getTom().isEqual(tom) || uttakPeriode.getTom().isBefore(tom));
+            return (uttakPeriode.getFom().isEqual(fom) || uttakPeriode.getFom().isAfter(fom)) && (uttakPeriode.getTom().isEqual(tom)
+                || uttakPeriode.getTom().isBefore(tom));
         }
     }
 }

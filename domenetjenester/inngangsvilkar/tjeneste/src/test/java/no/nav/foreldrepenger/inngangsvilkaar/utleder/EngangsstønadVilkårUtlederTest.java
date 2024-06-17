@@ -62,8 +62,8 @@ class EngangsstønadVilkårUtlederTest {
     void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medAdoptererAlene(true)
-            .medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medAdoptererAlene(true).medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -83,8 +83,11 @@ class EngangsstønadVilkårUtlederTest {
     void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon_ikke_alene() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now())
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
+                .medOmsorgsovertakelseDato(LocalDate.now())
+                .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ANDRE_FORELDER_DØD);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -104,8 +107,11 @@ class EngangsstønadVilkårUtlederTest {
     void skal_opprette_vilkår_når_far_søker_om_omsorgsovertakelse_ved_fødsel() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET).medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
+                .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET)
+                .medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG_F);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();

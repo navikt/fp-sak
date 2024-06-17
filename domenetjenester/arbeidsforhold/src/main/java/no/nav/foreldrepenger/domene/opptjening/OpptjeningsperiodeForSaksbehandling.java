@@ -78,11 +78,9 @@ public class OpptjeningsperiodeForSaksbehandling {
             return false;
         }
         var other = (OpptjeningsperiodeForSaksbehandling) o;
-        return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
-                Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
-                Objects.equals(erPeriodeEndret, other.erPeriodeEndret) &&
-                Objects.equals(erManueltRegistrert, other.erManueltRegistrert) &&
-                Objects.equals(begrunnelse, other.begrunnelse);
+        return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) && Objects.equals(grupperingNøkkel, other.grupperingNøkkel)
+            && Objects.equals(erPeriodeEndret, other.erPeriodeEndret) && Objects.equals(erManueltRegistrert, other.erManueltRegistrert)
+            && Objects.equals(begrunnelse, other.begrunnelse);
     }
 
     @Override
@@ -93,19 +91,11 @@ public class OpptjeningsperiodeForSaksbehandling {
 
     @Override
     public String toString() {
-        return "OpptjeningsperiodeForSaksbehandling{" +
-                "opptjeningAktivitetType=" + opptjeningAktivitetType +
-                ", grupperingNøkkel=" + grupperingNøkkel +
-                ", arbeidsgiver=" + arbeidsgiver +
-                ", stillingsprosent=" + stillingsprosent +
-                ", periode=" + periode +
-                ", vurderingsStatus=" + vurderingsStatus +
-                ", erPeriodeEndret=" + erPeriodeEndret +
-                ", erManueltRegistrert=" + erManueltRegistrert +
-                ", begrunnelse='" + begrunnelse + '\'' +
-                ", manueltBehandlet=" + manueltBehandlet +
-                ", arbeidsgiverUtlandNavn='" + arbeidsgiverUtlandNavn + '\'' +
-                '}';
+        return "OpptjeningsperiodeForSaksbehandling{" + "opptjeningAktivitetType=" + opptjeningAktivitetType + ", grupperingNøkkel="
+            + grupperingNøkkel + ", arbeidsgiver=" + arbeidsgiver + ", stillingsprosent=" + stillingsprosent + ", periode=" + periode
+            + ", vurderingsStatus=" + vurderingsStatus + ", erPeriodeEndret=" + erPeriodeEndret + ", erManueltRegistrert=" + erManueltRegistrert
+            + ", begrunnelse='" + begrunnelse + '\'' + ", manueltBehandlet=" + manueltBehandlet + ", arbeidsgiverUtlandNavn='"
+            + arbeidsgiverUtlandNavn + '\'' + '}';
     }
 
     public static class Builder {

@@ -13,8 +13,10 @@ public enum NAVSkjema {
     SKJEMA_ENGANGSSTØNAD_ADOPSJON("SESA", "NAV 14-05.08", "Søknad om engangsstønad ved adopsjon"),
     SKJEMA_FORELDREPENGER_FØDSEL("SFPF", "NAV 14-05.09", "Søknad om foreldrepenger ved fødsel"),
     SKJEMA_FLEKSIBELT_UTTAK("SFUT", "NAV 14-16.05", "Søknad om endring eller nytt uttak av foreldrepenger"),
-    SKJEMA_INNTEKTSOPPLYSNING_SELVSTENDIG("SIOS", "NAV 14-35.01", "Inntektsopplysninger for selvstendig næringsdrivende og frilansere som skal ha foreldrepenger eller svangerskapspenger"),
-    SKJEMA_INNTEKTSOPPLYSNINGER("SIOP", "NAV 08-30.01", "Inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger og omsorgspenger"),
+    SKJEMA_INNTEKTSOPPLYSNING_SELVSTENDIG("SIOS", "NAV 14-35.01",
+        "Inntektsopplysninger for selvstendig næringsdrivende og frilansere som skal ha foreldrepenger eller svangerskapspenger"),
+    SKJEMA_INNTEKTSOPPLYSNINGER("SIOP", "NAV 08-30.01",
+        "Inntektsopplysninger for arbeidstaker som skal ha sykepenger foreldrepenger svangerskapspenger pleie-/opplæringspenger og omsorgspenger"),
     SKJEMA_KLAGE_DOKUMENT("SKLAGE", "NAV 90-00.08", "Klage/anke"),
     SKJEMA_FORELDREPENGER_ENDRING("SEND", "NAV 14-05.10", "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 

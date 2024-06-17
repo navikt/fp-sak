@@ -66,8 +66,7 @@ public class NaturalYtelse implements IndexKey {
         if (!(o instanceof NaturalYtelse that)) {
             return false;
         }
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(type, that.type);
+        return Objects.equals(periode, that.periode) && Objects.equals(type, that.type);
     }
 
     @Override
@@ -77,10 +76,6 @@ public class NaturalYtelse implements IndexKey {
 
     @Override
     public String toString() {
-        return "NaturalYtelseEntitet{" +
-                "periode=" + periode +
-                ", beloepPerMnd=" + beloepPerMnd +
-                ", type=" + type +
-                '}';
+        return "NaturalYtelseEntitet{" + "periode=" + periode + ", beloepPerMnd=" + beloepPerMnd + ", type=" + type + '}';
     }
 }

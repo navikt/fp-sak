@@ -60,13 +60,14 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         mellomliggende.removeAll(aksjonspunktDefinisjonerEtterTil);
 
         List<Aksjonspunkt> avbrutte = new ArrayList<>();
-        behandling.getAksjonspunkter().stream()
-                .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon()))
-                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-                .forEach(a -> {
-                    avbrytAksjonspunkt(a);
-                    avbrutte.add(a);
-                });
+        behandling.getAksjonspunkter()
+            .stream()
+            .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon()))
+            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+            .forEach(a -> {
+                avbrytAksjonspunkt(a);
+                avbrutte.add(a);
+            });
 
         if (skalBesøkeStegene(transisjonEvent.getTransisjonIdentifikator())) {
             if (!medInngangFørsteSteg) {
@@ -75,8 +76,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
             }
 
             var finalFørsteSteg = førsteSteg;
-            modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, false)
-                    .forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
+            modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, false).forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
 
         }
         // Lagre oppdateringer; eventhåndteringen skal være autonom og selv ferdigstille
@@ -96,8 +96,10 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         serviceProvider.getAksjonspunktKontrollRepository().setTilAvbrutt(a);
     }
 
-    protected void hoppFramover(BehandlingStegModell stegModell, BehandlingTransisjonEvent transisjonEvent, BehandlingStegType sisteSteg,
-            final BehandlingStegType finalFørsteSteg) {
+    protected void hoppFramover(BehandlingStegModell stegModell,
+                                BehandlingTransisjonEvent transisjonEvent,
+                                BehandlingStegType sisteSteg,
+                                final BehandlingStegType finalFørsteSteg) {
         stegModell.getSteg().vedTransisjon(transisjonEvent.getKontekst(), stegModell, TransisjonType.HOPP_OVER_FRAMOVER, finalFørsteSteg, sisteSteg);
     }
 

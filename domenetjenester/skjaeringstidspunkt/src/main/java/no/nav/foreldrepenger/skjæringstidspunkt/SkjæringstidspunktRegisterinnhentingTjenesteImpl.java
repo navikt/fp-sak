@@ -9,7 +9,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
-/** Brukes som factory for å gi spesifikk tjeneste avh. av ytelse. */
+/**
+ * Brukes som factory for å gi spesifikk tjeneste avh. av ytelse.
+ */
 public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private BehandlingRepository behandlingRepository;
@@ -45,15 +47,17 @@ public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements Skjær
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return svangerskapspenger.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         }
-        throw new IllegalStateException("Utvikler-feil: har ikke " + SkjæringstidspunktRegisterinnhentingTjeneste.class.getName() + " for behandling "
-            + behandlingId + ", ytelseType=" + ytelseType);
+        throw new IllegalStateException(
+            "Utvikler-feil: har ikke " + SkjæringstidspunktRegisterinnhentingTjeneste.class.getName() + " for behandling " + behandlingId
+                + ", ytelseType=" + ytelseType);
     }
 
     @Override
     public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var ytelseType = behandling.getFagsakYtelseType();
-        return FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? foreldrepenger.vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall) : intervall;
+        return FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? foreldrepenger.vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId,
+            intervall) : intervall;
     }
 
 }

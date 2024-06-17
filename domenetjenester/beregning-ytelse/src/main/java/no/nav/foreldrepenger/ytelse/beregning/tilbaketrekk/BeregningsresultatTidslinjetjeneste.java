@@ -29,7 +29,6 @@ public class BeregningsresultatTidslinjetjeneste {
     }
 
     /**
-     *
      * @param ref revurderingens behandlingreferanse
      * @return tidslinje over revurderingen og originalbehandlingens beregningsresultat
      */
@@ -45,7 +44,8 @@ public class BeregningsresultatTidslinjetjeneste {
         var originaltBeregningsresultat = ref.getOriginalBehandlingId().flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
 
         var resultatperiodeRevurdering = revurderingBeregningsresultat.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> resultatperiodeOriginal = originaltBeregningsresultat.isPresent() ? originaltBeregningsresultat.get().getBeregningsresultatPerioder() : Collections.emptyList();
+        List<BeregningsresultatPeriode> resultatperiodeOriginal = originaltBeregningsresultat.isPresent() ? originaltBeregningsresultat.get()
+            .getBeregningsresultatPerioder() : Collections.emptyList();
 
         return mapTidslinje(resultatperiodeOriginal, resultatperiodeRevurdering);
     }
@@ -58,9 +58,7 @@ public class BeregningsresultatTidslinjetjeneste {
 
     private LocalDateTimeline<BRAndelSammenligning> mapTidslinje(List<BeregningsresultatPeriode> originaltBeregningsresultat,
                                                                  List<BeregningsresultatPeriode> revurderingBeregningsresultat) {
-        return MapBRAndelSammenligningTidslinje.opprettTidslinje(
-            originaltBeregningsresultat,
-            revurderingBeregningsresultat);
+        return MapBRAndelSammenligningTidslinje.opprettTidslinje(originaltBeregningsresultat, revurderingBeregningsresultat);
     }
 
 }

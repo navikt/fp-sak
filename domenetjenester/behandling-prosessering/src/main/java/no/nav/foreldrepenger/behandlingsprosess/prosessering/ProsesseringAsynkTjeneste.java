@@ -47,7 +47,7 @@ public class ProsesseringAsynkTjeneste {
      * Sjekker om prosess tasks pågår nå for angitt behandling. Returnerer neste
      * utestående tasks per gruppe for status (KLAR, FEILET, VENTER), men ikke
      * FERDIG, SUSPENDERT (unntatt der matcher angitt gruppe)
-     *
+     * <p>
      * Hvis gruppe angis sjekkes kun angitt gruppe. Dersom denne er null returneres
      * status for alle åpne grupper (ikke-ferdig) for angitt behandling. Tasks som
      * er {@link ProsessTaskStatus#FERDIG} ignoreres i resultatet når gruppe ikke er
@@ -70,14 +70,11 @@ public class ProsesseringAsynkTjeneste {
     private Map<String, ProsessTaskData> nesteProsessTaskPerGruppe(Map<String, List<ProsessTaskData>> tasks) {
         // velg top task per gruppe
 
-        return tasks.values().stream()
-                .filter(prosessTaskData -> !prosessTaskData.isEmpty())
-                .map(/*
-                 * NB: avhenger av enum ordinal!
-                 */prosessTaskData -> prosessTaskData
-                        .stream().min(Comparator.comparing(ProsessTaskData::getSekvens)
-                                .thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed())).get())
-                .collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
+        return tasks.values().stream().filter(prosessTaskData -> !prosessTaskData.isEmpty()).map(/*
+         * NB: avhenger av enum ordinal!
+         */prosessTaskData -> prosessTaskData.stream()
+            .min(Comparator.comparing(ProsessTaskData::getSekvens).thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed()))
+            .get()).collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
     }
 
     private boolean angittGruppeErFerdig(String gruppe, Map<String, ProsessTaskData> nestePerGruppe) {

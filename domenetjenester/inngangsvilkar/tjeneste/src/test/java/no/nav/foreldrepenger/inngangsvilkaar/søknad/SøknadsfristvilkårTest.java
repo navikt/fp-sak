@@ -29,7 +29,8 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
 
     @Test
@@ -38,13 +39,12 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medElektroniskRegistrert(true);
         scenario.medSøknad().medMottattDato(LocalDate.now().plusMonths(6));
-        scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.medBekreftetHendelse().medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(
+            lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -56,11 +56,11 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
 
         // Arrange
-        var behandling = mockBehandling(true, LocalDate.now().plusMonths(6).plusDays(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT),
-            LocalDate.now());
+        var behandling = mockBehandling(true, LocalDate.now().plusMonths(6).plusDays(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT), LocalDate.now());
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(
+            lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -75,7 +75,8 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var behandling = mockBehandling(false, LocalDate.now().minusMonths(6), LocalDate.now());
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(
+            lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -87,8 +88,7 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         scenario.medSøknad().medElektroniskRegistrert(elektronisk);
         scenario.medSøknad().medMottattDato(mottakDato);
         scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(omsorgsovertakelsesDato));
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsesDato));
         return scenario.lagre(repositoryProvider);
     }
 
@@ -193,7 +193,8 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private void assertOppfylt(Behandling behandling) {
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(
+            lagRef(behandling));
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -201,7 +202,8 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(
+            lagRef(behandling));
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 

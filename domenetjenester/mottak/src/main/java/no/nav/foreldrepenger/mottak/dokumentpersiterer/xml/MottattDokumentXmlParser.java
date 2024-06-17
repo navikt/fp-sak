@@ -20,11 +20,10 @@ public final class MottattDokumentXmlParser {
             new DokumentParserKonfig(no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.JAXB_CLASS,
                 no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.XSD_LOCATION));
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(InntektsmeldingConstants.NAMESPACE,
-            new DokumentParserKonfig(InntektsmeldingConstants.JAXB_CLASS,
-                InntektsmeldingConstants.XSD_LOCATION));
+            new DokumentParserKonfig(InntektsmeldingConstants.JAXB_CLASS, InntektsmeldingConstants.XSD_LOCATION));
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(SøknadConstants.NAMESPACE,
-            new DokumentParserKonfig(SøknadConstants.JAXB_CLASS, SøknadConstants.XSD_LOCATION,
-                SøknadConstants.ADDITIONAL_XSD_LOCATION, SøknadConstants.ADDITIONAL_CLASSES));
+            new DokumentParserKonfig(SøknadConstants.JAXB_CLASS, SøknadConstants.XSD_LOCATION, SøknadConstants.ADDITIONAL_XSD_LOCATION,
+                SøknadConstants.ADDITIONAL_CLASSES));
     }
 
 
@@ -41,11 +40,8 @@ public final class MottattDokumentXmlParser {
             if (dokumentParserKonfig == null) {
                 throw new TekniskException("FP-958724", "Fant ikke xsd for namespacet " + namespace);
             }
-            mottattDokument = JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass,
-                xml,
-                dokumentParserKonfig.xsdLocation,
-                dokumentParserKonfig.additionalXsd,
-                dokumentParserKonfig.additionalClasses);
+            mottattDokument = JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, xml, dokumentParserKonfig.xsdLocation,
+                dokumentParserKonfig.additionalXsd, dokumentParserKonfig.additionalClasses);
             return MottattDokumentWrapper.tilXmlWrapper(mottattDokument);
         } catch (Exception e) {
             throw parseException(namespace);

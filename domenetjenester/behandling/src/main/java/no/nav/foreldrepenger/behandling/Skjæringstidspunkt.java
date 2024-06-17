@@ -54,7 +54,7 @@ public class Skjæringstidspunkt {
 
     public LocalDate getUtledetSkjæringstidspunkt() {
         Objects.requireNonNull(utledetSkjæringstidspunkt,
-                "Utvikler-feil: utledetSkjæringstidspunkt er ikke satt. Sørg for at det er satt ifht. anvendelse");
+            "Utvikler-feil: utledetSkjæringstidspunkt er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return utledetSkjæringstidspunkt;
     }
 
@@ -64,7 +64,7 @@ public class Skjæringstidspunkt {
      */
     public LocalDate getSkjæringstidspunktOpptjening() {
         Objects.requireNonNull(skjæringstidspunktOpptjening,
-                "Utvikler-feil: skjæringstidspunktOpptjening er ikke satt. Sørg for at det er satt ifht. anvendelse");
+            "Utvikler-feil: skjæringstidspunktOpptjening er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return skjæringstidspunktOpptjening;
     }
 
@@ -76,49 +76,67 @@ public class Skjæringstidspunkt {
         return skjæringstidspunktBeregning;
     }
 
-    /** Første uttaksdato er første dag stønadsperioden løper - dvs min(innvilget eller avslag søknadsfrist). Uten hensyn til tidlig fødsel */
+    /**
+     * Første uttaksdato er første dag stønadsperioden løper - dvs min(innvilget eller avslag søknadsfrist). Uten hensyn til tidlig fødsel
+     */
     public LocalDate getFørsteUttaksdato() {
         Objects.requireNonNull(førsteUttaksdato, "Utvikler-feil: førsteUttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdato;
     }
 
-    /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
+    /**
+     * Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring.
+     */
     public LocalDate getFørsteUttaksdatoGrunnbeløp() {
         Objects.requireNonNull(førsteUttaksdatoGrunnbeløp, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdatoGrunnbeløp;
     }
 
-    /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
+    /**
+     * Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring.
+     */
     public Optional<LocalDate> getFørsteUttaksdatoSøknad() {
         return Optional.ofNullable(førsteUttaksdatoSøknad);
     }
 
-    /** Sak relatert til termin/fødsel - alternativet er adopsjon/omsorgsovertagelse */
+    /**
+     * Sak relatert til termin/fødsel - alternativet er adopsjon/omsorgsovertagelse
+     */
     public boolean gjelderFødsel() {
         return this.gjelderFødsel;
     }
 
-    /** Gjeldende dato for fødsel, termin, eller omsorgsovertagelse. Kan være null dersom behandling før søknad */
+    /**
+     * Gjeldende dato for fødsel, termin, eller omsorgsovertagelse. Kan være null dersom behandling før søknad
+     */
     public LocalDate getFamiliehendelsedato() {
         return familiehendelsedato;
     }
 
-    /** Bekreftet dato for fødsel, termin, eller omsorgsovertagelse. */
+    /**
+     * Bekreftet dato for fødsel, termin, eller omsorgsovertagelse.
+     */
     public Optional<LocalDate> getBekreftetFamiliehendelsedato() {
         return Optional.ofNullable(bekreftetFamiliehendelsedato);
     }
 
-    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
+    /**
+     * Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler
+     */
     public boolean kreverSammenhengendeUttak() {
         return this.kreverSammenhengendeUttak;
     }
 
-    /** Skal behandles etter nytt regelverk for balansert arbeids/familieliv 2022. True = gamle regler */
+    /**
+     * Skal behandles etter nytt regelverk for balansert arbeids/familieliv 2022. True = gamle regler
+     */
     public boolean utenMinsterett() {
         return utenMinsterett;
     }
 
-    /** Søkt om justering av første uttaksdato fra termin til fødsel når fødsel blir registrert. Kan påvirke STP */
+    /**
+     * Søkt om justering av første uttaksdato fra termin til fødsel når fødsel blir registrert. Kan påvirke STP
+     */
     public boolean uttakSkalJusteresTilFødselsdato() {
         return uttakSkalJusteresTilFødselsdato;
     }
@@ -137,10 +155,9 @@ public class Skjæringstidspunkt {
             return false;
         }
         var other = (Skjæringstidspunkt) obj;
-        return Objects.equals(this.utledetSkjæringstidspunkt, other.utledetSkjæringstidspunkt)
-                && Objects.equals(this.skjæringstidspunktBeregning, other.skjæringstidspunktBeregning)
-                && Objects.equals(this.skjæringstidspunktOpptjening, other.skjæringstidspunktOpptjening)
-                && Objects.equals(this.førsteUttaksdato, other.førsteUttaksdato);
+        return Objects.equals(this.utledetSkjæringstidspunkt, other.utledetSkjæringstidspunkt) && Objects.equals(this.skjæringstidspunktBeregning,
+            other.skjæringstidspunktBeregning) && Objects.equals(this.skjæringstidspunktOpptjening, other.skjæringstidspunktOpptjening)
+            && Objects.equals(this.førsteUttaksdato, other.førsteUttaksdato);
     }
 
     @Override

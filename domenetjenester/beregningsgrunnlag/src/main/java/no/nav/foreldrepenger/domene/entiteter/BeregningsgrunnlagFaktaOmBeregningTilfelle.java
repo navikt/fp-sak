@@ -36,8 +36,8 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle extends BaseEntitet {
     @JoinColumn(name = "BEREGNINGSGRUNNLAG_ID", nullable = false, updatable = false, unique = true)
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
-    @Convert(converter= FaktaOmBeregningTilfelle.KodeverdiConverter.class)
-    @Column(name="fakta_beregning_tilfelle", nullable = false)
+    @Convert(converter = FaktaOmBeregningTilfelle.KodeverdiConverter.class)
+    @Column(name = "fakta_beregning_tilfelle", nullable = false)
     private FaktaOmBeregningTilfelle faktaOmBeregningTilfelle = FaktaOmBeregningTilfelle.UDEFINERT;
 
     public BeregningsgrunnlagFaktaOmBeregningTilfelle(BeregningsgrunnlagFaktaOmBeregningTilfelle beregningsgrunnlagFaktaOmBeregningTilfelle) {
@@ -60,8 +60,7 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle extends BaseEntitet {
         if (!(o instanceof BeregningsgrunnlagFaktaOmBeregningTilfelle that)) {
             return false;
         }
-        return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) &&
-                Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
+        return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) && Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
     }
 
     @Override

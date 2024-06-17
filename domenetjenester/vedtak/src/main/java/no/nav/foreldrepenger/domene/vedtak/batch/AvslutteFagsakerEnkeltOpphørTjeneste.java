@@ -72,11 +72,13 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
         var baseline = LocalTime.now();
 
         for (var fagsak : aktuelleFagsaker) {
-            var sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
+            var sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+                .orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
 
             if (!alleBarnaErDøde(sisteBehandling) && erBehandlingResultatOpphørt(sisteBehandling)) {
                 var opphørsdato = hentSisteUtbetalingsdato(sisteBehandling).plusDays(1);
-                LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
+                LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}",
+                    fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
 
                 if (LocalDate.now().isAfter(leggPåSøknadsfristMåneder(opphørsdato))) {
                     var callId = MDCOperations.getCallId();
@@ -99,7 +101,9 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
 
     private LocalDate hentSisteUtbetalingsdato(Behandling sisteBehandling) {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(sisteBehandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> p.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder())
@@ -109,8 +113,10 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
     private boolean alleBarnaErDøde(Behandling behandling) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList())
-            .stream().allMatch(b-> b.getDødsdato().isPresent());
+            .map(FamilieHendelseEntitet::getBarna)
+            .orElse(Collections.emptyList())
+            .stream()
+            .allMatch(b -> b.getDødsdato().isPresent());
     }
 
     private boolean erBehandlingResultatOpphørt(Behandling behandling) {

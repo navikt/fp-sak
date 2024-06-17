@@ -100,7 +100,7 @@ public class StønadsperioderInnhenter {
     }
 
     public void innhentNesteSak(Behandling behandling) {
-        var muligsak= finnSenereStønadsperiode(behandling).orElse(null);
+        var muligsak = finnSenereStønadsperiode(behandling).orElse(null);
         if (muligsak != null) {
             nesteSakRepository.lagreNesteSak(behandling.getId(), muligsak.saksnummer(), muligsak.startdato(), muligsak.fhdato());
         } else {
@@ -110,8 +110,7 @@ public class StønadsperioderInnhenter {
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
         var funnetId = nesteSakRepository.hentGrunnlag(behandlingId).map(NesteSakGrunnlagEntitet::getId);
-        return funnetId
-            .map(id -> EndringsresultatSnapshot.medSnapshot(NesteSakGrunnlagEntitet.class, id))
+        return funnetId.map(id -> EndringsresultatSnapshot.medSnapshot(NesteSakGrunnlagEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(NesteSakGrunnlagEntitet.class));
     }
 
@@ -120,18 +119,20 @@ public class StønadsperioderInnhenter {
     }
 
     Optional<MuligSak> finnSenereStønadsperiode(Behandling behandling) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) return Optional.empty();
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            return Optional.empty();
+        }
 
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         var forrigeInnvilgetFom = stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak());
         var aktuellAntattFørstedag = stp.getUtledetSkjæringstidspunkt(); // I tilfelle 1gang eller søknad om tidligere dager
         // OBS - følge med på denne for tilfelle av fedre som kan søke uttak for B1 etter at mor har fått B2
-        var brukStartdato = forrigeInnvilgetFom.filter(d -> d.isBefore(aktuellAntattFørstedag)).isPresent() ?
-            forrigeInnvilgetFom.get() : aktuellAntattFørstedag;
+        var brukStartdato = forrigeInnvilgetFom.filter(d -> d.isBefore(aktuellAntattFørstedag))
+            .isPresent() ? forrigeInnvilgetFom.get() : aktuellAntattFørstedag;
         var fhDato = finnFamilieHendelseDato(behandling);
-        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(),
-            SaksForhold.EGEN_SAK, brukStartdato, fhDato.orElse(null));
+        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(), SaksForhold.EGEN_SAK, brukStartdato,
+            fhDato.orElse(null));
 
         var egneMuligeSaker = utledEgneMuligeSaker(behandling, egenSak);
 
@@ -166,7 +167,8 @@ public class StønadsperioderInnhenter {
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);
         // Finn mødres saker der bruker er implisert
-        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !RelasjonsRolleType.erMor(
+            behandling.getFagsak().getRelasjonsRolleType())) {
             leggTilMuligeSakerForAnnenPart(behandling, egenSak, alleEgneSaker, egneMuligeSaker);
         }
         return egneMuligeSaker;
@@ -178,14 +180,20 @@ public class StønadsperioderInnhenter {
         var fagsakerSomReferererId = new HashSet<>(fagsakerSomRefererer.stream().map(Fagsak::getId).toList());
         // Legg til eventuelle tilfelle der saker er koblet uten at det er oppgitt annen part
         for (var f : alleEgneSaker) {
-            fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
+            fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f)
+                .flatMap(fr -> fr.getRelatertFagsak(f))
                 .filter(anpa -> !fagsakerSomReferererId.contains(anpa.getId()))
-                .ifPresent(anpa -> { fagsakerSomRefererer.add(anpa); fagsakerSomReferererId.add(anpa.getId()); });
+                .ifPresent(anpa -> {
+                    fagsakerSomRefererer.add(anpa);
+                    fagsakerSomReferererId.add(anpa.getId());
+                });
         }
         // Filtrer på saker som ikke er koblet med aktuell sak, saker som er foreldrepenger og mors sak, saker med vedtak + uttak/utbetaling
         fagsakerSomRefererer.stream()
-            .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
-                .filter(f2 -> f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
+            .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f)
+                .flatMap(fr -> fr.getRelatertFagsak(f))
+                .filter(f2 -> f2.getSaksnummer().equals(egenSak.saksnummer()))
+                .isEmpty())
             .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
             .filter(this::harInnvilgetVedtak)
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.ANNEN_PART_SAK).stream())
@@ -193,7 +201,8 @@ public class StønadsperioderInnhenter {
     }
 
     private List<Fagsak> getAlleEgneSaker(Behandling behandling, MuligSak egenSak) {
-        return fagsakRepository.hentForBruker(behandling.getAktørId()).stream()
+        return fagsakRepository.hentForBruker(behandling.getAktørId())
+            .stream()
             .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
             .filter(f -> f.getOpprettetTidspunkt().isAfter(behandling.getFagsak().getOpprettetTidspunkt().minusMonths(40)))
             .filter(f -> !egenSak.saksnummer().equals(f.getSaksnummer()))
@@ -201,14 +210,13 @@ public class StønadsperioderInnhenter {
     }
 
     private Optional<MuligSak> opprettMuligSak(Behandling behandling, Fagsak fagsak, SaksForhold type) {
-        var fhDato = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
-            .flatMap(this::finnFamilieHendelseDato);
+        var fhDato = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).flatMap(this::finnFamilieHendelseDato);
         // Dersom aktuell sak er svp så ser vi på mors fp/svp-sak alene eller så ser vi på stønadsperioden
-        var startDato = FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) ?
-            stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(fagsak).map(LocalDateInterval::getFomDato) :
-            stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak);
+        var startDato = FagsakYtelseType.SVANGERSKAPSPENGER.equals(
+            behandling.getFagsakYtelseType()) ? stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(fagsak)
+            .map(LocalDateInterval::getFomDato) : stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak);
 
-        return  startDato.map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(null)));
+        return startDato.map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(null)));
     }
 
     private Optional<LocalDate> finnFamilieHendelseDato(Behandling behandling) {
@@ -224,8 +232,12 @@ public class StønadsperioderInnhenter {
             .isPresent();
     }
 
-    public record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {}
+    public record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {
+    }
 
-    public enum SaksForhold { EGEN_SAK, ANNEN_PART_SAK }
+    public enum SaksForhold {
+        EGEN_SAK,
+        ANNEN_PART_SAK
+    }
 
 }

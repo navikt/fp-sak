@@ -50,11 +50,9 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
 
     public OppdateringResultat lagHistorikk(FordelBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(
-            behandlingId);
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
         var perioder = beregningsgrunnlag.getBeregningsgrunnlagPerioder();
-        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
-            .getArbeidsforholdOverstyringer();
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         var tekstBuilder = historikkTjenesteAdapter.tekstBuilder();
         for (var endretPeriode : dto.getEndretBeregningsgrunnlagPerioder()) {
             lagHistorikk(tekstBuilder, perioder, endretPeriode, arbeidsforholdOverstyringer);
@@ -72,8 +70,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         var korrektPeriode = getKorrektPeriode(perioder, endretPeriode);
         for (var endretAndel : endretPeriode.getAndeler()) {
             var endring = lagEndringsoppsummeringForHistorikk(endretAndel).build();
-            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, endring, korrektPeriode, tekstBuilder,
-                arbeidsforholdOverstyringer);
+            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, endring, korrektPeriode, tekstBuilder, arbeidsforholdOverstyringer);
         }
     }
 
@@ -129,12 +126,10 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         if (!harEndringSomGirHistorikk(endring)) {
             return;
         }
-        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-            endring.getAktivitetStatus(), endring.getArbeidsgiver(), endring.getArbeidsforholdRef(),
-            arbeidsforholdOverstyringer);
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(endring.getAktivitetStatus(),
+            endring.getArbeidsgiver(), endring.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
         var endretFeltType = finnEndretFeltType(endring);
-        historikkBuilder.medNavnOgGjeldendeFra(endretFeltType, arbeidsforholdInfo,
-            korrektPeriode.getBeregningsgrunnlagPeriodeFom());
+        historikkBuilder.medNavnOgGjeldendeFra(endretFeltType, arbeidsforholdInfo, korrektPeriode.getBeregningsgrunnlagPeriodeFom());
         lagHistorikkForRefusjon(historikkBuilder, endring);
         lagHistorikkForInntekt(historikkBuilder, endring);
         lagHistorikkForInntektskategori(historikkBuilder, endring);
@@ -150,8 +145,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     }
 
     private void lagHistorikkForInntekt(HistorikkInnslagTekstBuilder historikkBuilder, Lønnsendring endring) {
-        historikkBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKT, endring.getGammelArbeidsinntektPrÅr(),
-            endring.getNyArbeidsinntektPrÅr());
+        historikkBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKT, endring.getGammelArbeidsinntektPrÅr(), endring.getNyArbeidsinntektPrÅr());
     }
 
     private void lagHistorikkForInntektskategori(HistorikkInnslagTekstBuilder historikkBuilder, Lønnsendring endring) {
@@ -162,28 +156,26 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     }
 
     private void lagHistorikkForRefusjon(HistorikkInnslagTekstBuilder historikkBuilder, Lønnsendring endring) {
-        if (endring.getNyTotalRefusjonPrÅr() != null && endring.getArbeidsgiver().isPresent()
-            && endring.getArbeidsforholdRef().isPresent()) {
+        if (endring.getNyTotalRefusjonPrÅr() != null && endring.getArbeidsgiver().isPresent() && endring.getArbeidsforholdRef().isPresent()) {
             var forrigeRefusjon = endring.getGammelRefusjonPrÅr();
             if (!endring.getNyTotalRefusjonPrÅr().equals(forrigeRefusjon)) {
-                historikkBuilder.medEndretFelt(HistorikkEndretFeltType.NYTT_REFUSJONSKRAV,
-                    BigDecimal.valueOf(forrigeRefusjon), endring.getNyTotalRefusjonPrÅr());
+                historikkBuilder.medEndretFelt(HistorikkEndretFeltType.NYTT_REFUSJONSKRAV, BigDecimal.valueOf(forrigeRefusjon),
+                    endring.getNyTotalRefusjonPrÅr());
             }
         }
     }
 
     private boolean harEndringSomGirHistorikk(Lønnsendring endring) {
-        var harEndringIRefusjon = endring.getNyTotalRefusjonPrÅr() != null && !endring.getNyTotalRefusjonPrÅr()
-            .equals(endring.getGammelRefusjonPrÅr());
-        var harEndringIInntektskategori = endring.getNyInntektskategori() != null && !endring.getNyInntektskategori()
-            .equals(endring.getGammelInntektskategori());
-        var harEndringIInntekt = endring.getGammelArbeidsinntekt() == null || !endring.getGammelArbeidsinntekt()
-            .equals(endring.getNyArbeidsinntektPrÅr());
+        var harEndringIRefusjon =
+            endring.getNyTotalRefusjonPrÅr() != null && !endring.getNyTotalRefusjonPrÅr().equals(endring.getGammelRefusjonPrÅr());
+        var harEndringIInntektskategori =
+            endring.getNyInntektskategori() != null && !endring.getNyInntektskategori().equals(endring.getGammelInntektskategori());
+        var harEndringIInntekt =
+            endring.getGammelArbeidsinntekt() == null || !endring.getGammelArbeidsinntekt().equals(endring.getNyArbeidsinntektPrÅr());
         return harEndringIInntekt || harEndringIRefusjon || harEndringIInntektskategori || endring.isNyAndel();
     }
 
-    private BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder,
-                                                        FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
+    private BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder, FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
         return perioder.stream()
             .filter(periode -> periode.getBeregningsgrunnlagPeriodeFom().equals(endretPeriode.getFom()))
             .findFirst()
@@ -203,13 +195,11 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
                                  List<HistorikkinnslagDel> historikkDeler,
                                  HistorikkInnslagTekstBuilder tekstBuilder,
                                  String begrunnelse) {
-        var erBegrunnelseSatt = historikkDeler.stream()
-            .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
+        var erBegrunnelseSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt) {
             var erBegrunnelseEndret = param.erBegrunnelseEndret();
             if (erBegrunnelseEndret) {
-                var erSkjermlenkeSatt = historikkDeler.stream()
-                    .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+                var erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
                 tekstBuilder.medBegrunnelse(begrunnelse, true);
                 if (!erSkjermlenkeSatt) {
                     tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
@@ -219,10 +209,8 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         }
     }
 
-    private void settSkjermlenkeOmIkkeSatt(List<HistorikkinnslagDel> historikkDeler,
-                                           HistorikkInnslagTekstBuilder tekstBuilder) {
-        var erSkjermlenkeSatt = historikkDeler.stream()
-            .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+    private void settSkjermlenkeOmIkkeSatt(List<HistorikkinnslagDel> historikkDeler, HistorikkInnslagTekstBuilder tekstBuilder) {
+        var erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt && !historikkDeler.isEmpty()) {
             tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
         }

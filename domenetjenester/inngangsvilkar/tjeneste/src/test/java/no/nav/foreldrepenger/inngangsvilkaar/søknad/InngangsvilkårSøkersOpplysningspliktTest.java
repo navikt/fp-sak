@@ -33,8 +33,7 @@ class InngangsvilkårSøkersOpplysningspliktTest {
     @Test
     void komplett_søknad_skal_medføre_oppfylt() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(true);
+        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(true);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
@@ -48,8 +47,7 @@ class InngangsvilkårSøkersOpplysningspliktTest {
     @Test
     void ikke_komplett_søknad_skal_medføre_manuell_vurdering() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(false);
+        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(false);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
@@ -64,11 +62,8 @@ class InngangsvilkårSøkersOpplysningspliktTest {
     @Test
     void revurdering_for_foreldrepenger_skal_alltid_medføre_oppfylt() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(false);
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
+        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(false);
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
 
         var vilkårData = testObjekt.vurderVilkår(lagRef(revurdering));
 

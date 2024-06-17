@@ -31,8 +31,7 @@ class VentPåSykemeldingTest {
         lagYtelseAnvist(ytelseBuilder, periode);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isEmpty();
@@ -46,8 +45,7 @@ class VentPåSykemeldingTest {
         lagYtelseAnvist(ytelseBuilder, periode);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isEmpty();
@@ -61,8 +59,7 @@ class VentPåSykemeldingTest {
         lagYtelseAnvist(ytelseBuilder, periode);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isEmpty();
@@ -77,8 +74,7 @@ class VentPåSykemeldingTest {
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.ARBEIDSTAKER);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isEmpty();
@@ -93,8 +89,7 @@ class VentPåSykemeldingTest {
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isPresent();
@@ -112,8 +107,7 @@ class VentPåSykemeldingTest {
         lagYtelseGrunnlag(ytelseBuilderFRI, Arbeidskategori.DAGPENGER);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Arrays.asList(ytelseBuilderFRI.build(), ytelseBuilderSP.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Arrays.asList(ytelseBuilderFRI.build(), ytelseBuilderSP.build())), STP, STP);
 
         // Assert
         assertThat(frist).isPresent();
@@ -166,8 +160,7 @@ class VentPåSykemeldingTest {
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        var frist = VentPåSykemelding.utledVenteFrist(
-            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+        var frist = VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
 
         // Assert
         assertThat(frist).isPresent();
@@ -178,8 +171,7 @@ class VentPåSykemeldingTest {
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
         lagYtelseAnvist(ytelseBuilder, periode);
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
-        return VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())),
-            skjæringstidspunkt, dagensDato);
+        return VentPåSykemelding.utledVenteFrist(new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), skjæringstidspunkt, dagensDato);
 
     }
 
@@ -188,11 +180,8 @@ class VentPåSykemeldingTest {
     }
 
     private void lagYtelseAnvist(YtelseBuilder builder, DatoIntervallEntitet periode) {
-        builder.medYtelseAnvist(builder.getAnvistBuilder()
-            .medAnvistPeriode(periode)
-            .medBeløp(BigDecimal.ZERO)
-            .medUtbetalingsgradProsent(BigDecimal.ZERO)
-            .build());
+        builder.medYtelseAnvist(
+            builder.getAnvistBuilder().medAnvistPeriode(periode).medBeløp(BigDecimal.ZERO).medUtbetalingsgradProsent(BigDecimal.ZERO).build());
     }
 
     private void lagYtelseGrunnlag(YtelseBuilder builder, Arbeidskategori arbeidskategori) {
@@ -204,9 +193,7 @@ class VentPåSykemeldingTest {
             .build());
     }
 
-    private YtelseBuilder lagYtelse(RelatertYtelseType type,
-                                    DatoIntervallEntitet periode,
-                                    RelatertYtelseTilstand status) {
+    private YtelseBuilder lagYtelse(RelatertYtelseType type, DatoIntervallEntitet periode, RelatertYtelseTilstand status) {
         return YtelseBuilder.oppdatere(Optional.empty())
             .medPeriode(periode)
             .medYtelseType(type)

@@ -17,7 +17,6 @@ public class FordelBeregningsgrunnlagPeriodeDto {
     private LocalDate tom;
 
 
-
     FordelBeregningsgrunnlagPeriodeDto() {
         // Jackson
     }

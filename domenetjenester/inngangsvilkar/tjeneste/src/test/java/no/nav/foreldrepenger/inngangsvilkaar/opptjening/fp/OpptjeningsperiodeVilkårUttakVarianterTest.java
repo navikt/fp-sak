@@ -51,8 +51,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
     private MinsterettBehandling2022 minsterett2022;
     @Mock
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
-    private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
-        Period.parse("P1Y"), Period.parse("P6M"));
+    private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P1Y"), Period.parse("P6M"));
 
     @BeforeEach
     void setUp() {
@@ -67,10 +66,10 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil, utsettelse2021,
+            minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste);
 
         when(ytelseMaksdatoTjeneste.beregnMorsMaksdato(any(), any())).thenReturn(Optional.of(morsmaksdato));
 
@@ -99,8 +98,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var behandling = scenario.lagre(repositoryProvider);
 
         var ref = lagRef(behandling);
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
-            .vurderVilkår(ref);
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(ref);
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isTrue();
@@ -114,10 +112,10 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil, utsettelse2021,
+            minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste);
 
         when(ytelseMaksdatoTjeneste.beregnMorsMaksdato(any(), any())).thenReturn(Optional.of(morsmaksdato));
 
@@ -146,8 +144,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var behandling = scenario.lagre(repositoryProvider);
 
         var ref = lagRef(behandling);
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
-            .vurderVilkår(ref);
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(ref);
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isTrue();
@@ -161,10 +158,10 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil, utsettelse2021,
+            minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste);
 
         lenient().when(ytelseMaksdatoTjeneste.beregnMorsMaksdato(any(), any())).thenReturn(Optional.of(morsmaksdato));
 
@@ -193,8 +190,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var behandling = scenario.lagre(repositoryProvider);
 
         var ref = lagRef(behandling);
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
-            .vurderVilkår(ref);
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(ref);
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isFalse();
@@ -208,19 +204,23 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var førsteUttaksdato = termindato.minusDays(3);
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil, utsettelse2021,
+            minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste);
 
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(førsteUttaksdato, førsteUttaksdato.plusDays(8))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
-        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1)
+        scenario.medBekreftetHendelse()
+            .medFødselsDato(fødselsdato)
+            .medAntallBarn(1)
             .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
-        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1)
+        scenario.medSøknadHendelse()
+            .medFødselsDato(fødselsdato)
+            .medAntallBarn(1)
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var barnAktørId = AktørId.dummy();
@@ -240,8 +240,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
         var behandling = scenario.lagre(repositoryProvider);
 
         var ref = lagRef(behandling);
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
-            .vurderVilkår(ref);
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(ref);
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().utenMinsterett()).isFalse();
@@ -249,8 +248,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
 }

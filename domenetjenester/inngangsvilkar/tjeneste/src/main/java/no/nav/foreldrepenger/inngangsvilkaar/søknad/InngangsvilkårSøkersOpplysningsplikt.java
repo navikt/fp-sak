@@ -48,7 +48,8 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
             return oppfylt;
         }
 
-        var søknadKomplett = this.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ytelseType, behandlingType).erForsendelsesgrunnlagKomplett(ref);
+        var søknadKomplett = this.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ytelseType, behandlingType)
+            .erForsendelsesgrunnlagKomplett(ref);
         if (søknadKomplett) {
             return oppfylt;
         }

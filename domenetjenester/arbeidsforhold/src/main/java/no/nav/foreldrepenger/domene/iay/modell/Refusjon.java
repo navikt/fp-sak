@@ -50,8 +50,7 @@ public class Refusjon implements IndexKey {
         if (!(o instanceof Refusjon that)) {
             return false;
         }
-        return Objects.equals(refusjonsbeløpMnd, that.refusjonsbeløpMnd) &&
-                Objects.equals(fom, that.fom);
+        return Objects.equals(refusjonsbeløpMnd, that.refusjonsbeløpMnd) && Objects.equals(fom, that.fom);
     }
 
     @Override

@@ -21,11 +21,8 @@ public record FødselsvilkårGrunnlagLegacy(@JsonProperty("soekersKjonn") RegelK
                                           @JsonDeserialize(using = LegacyLocalDateDeserializer.class) @JsonProperty("dagensdato") @JsonAlias("soeknadsdato") LocalDate behandlingsdato,
                                           @JsonDeserialize(using = LegacyLocalDateDeserializer.class) @JsonProperty("bekreftetFoedselsdato") LocalDate bekreftetFødselsdato,
                                           @JsonDeserialize(using = LegacyLocalDateDeserializer.class) @JsonProperty("bekreftetTermindato") LocalDate terminbekreftelseTermindato,
-                                          int antallBarn,
-                                          boolean erFødselRegistreringFristUtløpt,
-                                          boolean erMorForSykVedFødsel,
-                                          boolean erSøktOmTermin,
-                                          boolean erBehandlingsdatoEtterTidligsteDato,
+                                          int antallBarn, boolean erFødselRegistreringFristUtløpt, boolean erMorForSykVedFødsel,
+                                          boolean erSøktOmTermin, boolean erBehandlingsdatoEtterTidligsteDato,
                                           @JsonProperty("erTerminBekreftelseUtstedtEtterXUker") boolean erTerminbekreftelseUtstedtEtterTidligsteDato,
                                           boolean farMedmorUttakRundtFødsel) implements VilkårGrunnlag {
 

@@ -50,18 +50,18 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
     void setUp(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
         historikkRepository = new HistorikkRepository(entityManager);
-        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class),
-            provider.getBehandlingRepository());
+        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class), provider.getBehandlingRepository());
 
         new ArbeidsgiverOpplysninger(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN ));
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN));
 
-        arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkAdapter, arbeidsgiverTjeneste );
+        arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkAdapter, arbeidsgiverTjeneste);
     }
 
     @Test
     void lagTekstMedArbeidsgiver() {
-        var avklarteArbForhold = List.of(new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
+        var avklarteArbForhold = List.of(
+            new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
             new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON));
 
         arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold, "begrunnelse");

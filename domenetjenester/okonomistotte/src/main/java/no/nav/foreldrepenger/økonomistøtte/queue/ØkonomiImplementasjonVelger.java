@@ -32,7 +32,8 @@ public class ØkonomiImplementasjonVelger {
 
     @Inject
     public ØkonomiImplementasjonVelger(@KonfigVerdi(value = "test.only.disable.mq", defaultVerdi = "false") Boolean disableMq,
-                                       @Mq ØkonomioppdragJmsProducer mqØkonomiProducer, @TestOnlyMqDisabled ØkonomioppdragJmsProducer vtpØkonomiProducer) {
+                                       @Mq ØkonomioppdragJmsProducer mqØkonomiProducer,
+                                       @TestOnlyMqDisabled ØkonomioppdragJmsProducer vtpØkonomiProducer) {
         if (disableMq) {
             if (Environment.current().isProd()) {
                 throw new IllegalStateException("Skal ikke bruke test.only.disable.mq i produksjon. MQ er påkrevet i miljøet.");

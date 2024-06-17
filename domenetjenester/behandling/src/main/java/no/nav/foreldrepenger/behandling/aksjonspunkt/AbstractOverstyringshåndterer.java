@@ -17,8 +17,7 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
         // for CDI proxy
     }
 
-    protected AbstractOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    protected AbstractOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         this.historikkAdapter = historikkAdapter;
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
     }
@@ -51,16 +50,14 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
     protected abstract void lagHistorikkInnslag(Behandling behandling, T dto);
 
     protected void lagHistorikkInnslagForOverstyrtVilkår(String begrunnelse, boolean vilkårOppfylt, SkjermlenkeType skjermlenkeType) {
-        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT
-                : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
-        var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT
-                : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
+        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
+        var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
 
         getHistorikkAdapter().tekstBuilder()
-                .medHendelse(HistorikkinnslagType.OVERSTYRT)
-                .medBegrunnelse(begrunnelse)
-                .medSkjermlenke(skjermlenkeType)
-                .medEndretFelt(HistorikkEndretFeltType.OVERSTYRT_VURDERING, fraVerdi, tilVerdi);
+            .medHendelse(HistorikkinnslagType.OVERSTYRT)
+            .medBegrunnelse(begrunnelse)
+            .medSkjermlenke(skjermlenkeType)
+            .medEndretFelt(HistorikkEndretFeltType.OVERSTYRT_VURDERING, fraVerdi, tilVerdi);
     }
 
     protected HistorikkTjenesteAdapter getHistorikkAdapter() {

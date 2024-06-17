@@ -107,9 +107,8 @@ class DokumentArkivTjenesteTest {
     @Test
     void skalRetunereDokumenterAvVariantFormatARKIV() {
         var response = lagResponse();
-        response.getJournalposter().addAll(List.of(createJournalpost(Variantformat.ORIGINAL),
-                createJournalpost(Variantformat.ARKIV),
-                createJournalpost(Variantformat.ARKIV),
+        response.getJournalposter()
+            .addAll(List.of(createJournalpost(Variantformat.ORIGINAL), createJournalpost(Variantformat.ARKIV), createJournalpost(Variantformat.ARKIV),
                 createJournalpost(Variantformat.ORIGINAL)));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
@@ -122,15 +121,18 @@ class DokumentArkivTjenesteTest {
     @Test
     void skalRetunereDokumentListeMedSisteTidspunktØverst() {
         var response = lagResponse();
-        response.getJournalposter().addAll(List.of(
-            createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
-            createJournalpost(Variantformat.ARKIV, YESTERDAY.minusHours(1), Journalposttype.I)));
+        response.getJournalposter()
+            .addAll(List.of(createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
+                createJournalpost(Variantformat.ARKIV, YESTERDAY.minusHours(1), Journalposttype.I)));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
         var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterCached(SAF_SAK);
 
-        assertThat(arkivDokuments.stream().anyMatch(d -> d.getTidspunkt().equals(NOW) && Kommunikasjonsretning.UT.equals(d.getKommunikasjonsretning()))).isTrue();
-        assertThat(arkivDokuments.stream().anyMatch(d -> d.getTidspunkt().equals(YESTERDAY.minusHours(1)) && Kommunikasjonsretning.INN.equals(d.getKommunikasjonsretning()))).isTrue();
+        assertThat(arkivDokuments.stream()
+            .anyMatch(d -> d.getTidspunkt().equals(NOW) && Kommunikasjonsretning.UT.equals(d.getKommunikasjonsretning()))).isTrue();
+        assertThat(arkivDokuments.stream()
+            .anyMatch(
+                d -> d.getTidspunkt().equals(YESTERDAY.minusHours(1)) && Kommunikasjonsretning.INN.equals(d.getKommunikasjonsretning()))).isTrue();
     }
 
     @Test
@@ -138,19 +140,19 @@ class DokumentArkivTjenesteTest {
         var lege = DokumentTypeId.LEGEERKLÆRING;
         var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         var response = lagResponse();
-        response.getJournalposter().addAll(List.of(
-            createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
-            createJournalpost(Variantformat.ARKIV, YESTERDAY.minusDays(1), Journalposttype.I)));
-        response.getJournalposter().get(1).getDokumenter().addAll(List.of(
-            createDokumentinfo(Variantformat.ARKIV, null, lege.getNavn()),
-            createDokumentinfo(Variantformat.ARKIV, null, innlegg.getNavn())));
+        response.getJournalposter()
+            .addAll(List.of(createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
+                createJournalpost(Variantformat.ARKIV, YESTERDAY.minusDays(1), Journalposttype.I)));
+        response.getJournalposter()
+            .get(1)
+            .getDokumenter()
+            .addAll(List.of(createDokumentinfo(Variantformat.ARKIV, null, lege.getNavn()),
+                createDokumentinfo(Variantformat.ARKIV, null, innlegg.getNavn())));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, LocalDate.MIN);
 
-        assertThat(arkivDokumentTypeIds)
-                .contains(DokumentTypeId.LEGEERKLÆRING)
-                .contains(DokumentTypeId.DOK_INNLEGGELSE);
+        assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING).contains(DokumentTypeId.DOK_INNLEGGELSE);
     }
 
     @Test
@@ -158,13 +160,11 @@ class DokumentArkivTjenesteTest {
         var lege = DokumentTypeId.LEGEERKLÆRING;
         var arbeid = DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER;
         var response = lagResponse();
-        response.getJournalposter().addAll(List.of(
-            createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.I),
-            createJournalpost(Variantformat.ARKIV, YESTERDAY.minusDays(1), Journalposttype.I)));
-        response.getJournalposter().get(0).getDokumenter().add(
-            createDokumentinfo(Variantformat.ARKIV, null, lege.getNavn()));
-        response.getJournalposter().get(1).getDokumenter().add(
-            createDokumentinfo(Variantformat.ARKIV, null, arbeid.getNavn()));
+        response.getJournalposter()
+            .addAll(List.of(createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.I),
+                createJournalpost(Variantformat.ARKIV, YESTERDAY.minusDays(1), Journalposttype.I)));
+        response.getJournalposter().get(0).getDokumenter().add(createDokumentinfo(Variantformat.ARKIV, null, lege.getNavn()));
+        response.getJournalposter().get(1).getDokumenter().add(createDokumentinfo(Variantformat.ARKIV, null, arbeid.getNavn()));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
 
@@ -177,11 +177,9 @@ class DokumentArkivTjenesteTest {
     @Test
     void skal_kalle_web_service_og_oversette_fra_() {
         // Arrange
-        final byte[] bytesForventet = { 1, 2, 7 };
-        var headers = HttpHeaders.of(Map.of(
-            CONTENT_TYPE, List.of(DEFAULT_CONTENT_TYPE_SAF),
-            CONTENT_DISPOSITION, List.of(DEFAULT_CONTENT_DISPOSITION_SAF)
-        ), (x, y) -> true);
+        final byte[] bytesForventet = {1, 2, 7};
+        var headers = HttpHeaders.of(
+            Map.of(CONTENT_TYPE, List.of(DEFAULT_CONTENT_TYPE_SAF), CONTENT_DISPOSITION, List.of(DEFAULT_CONTENT_DISPOSITION_SAF)), (x, y) -> true);
         var httpRespons = mock(HttpResponse.class);
         when(httpRespons.body()).thenReturn(bytesForventet);
         when(httpRespons.headers()).thenReturn(headers);
@@ -199,13 +197,11 @@ class DokumentArkivTjenesteTest {
 
     @Test
     void skalBrukeHeadereHvisSatt() {
-        final byte[] bytesForventet = { 1, 2, 7 };
+        final byte[] bytesForventet = {1, 2, 7};
         var contentTypeForventet = "application/jpeg";
         var contentDispForventet = "filename=bilde.jpeg";
-        var headers = HttpHeaders.of(Map.of(
-                CONTENT_TYPE, List.of(contentTypeForventet),
-                CONTENT_DISPOSITION, List.of(contentDispForventet)
-        ), (x, y) -> true);
+        var headers = HttpHeaders.of(Map.of(CONTENT_TYPE, List.of(contentTypeForventet), CONTENT_DISPOSITION, List.of(contentDispForventet)),
+            (x, y) -> true);
 
         var dokumentrespons = tilDokumentRespons(bytesForventet, headers);
         assertThat(dokumentrespons.innhold()).isEqualTo(bytesForventet);
@@ -215,7 +211,7 @@ class DokumentArkivTjenesteTest {
 
     @Test
     void skalBrukePDFSomDefaultNårHeadereIkkeErSatt() {
-        final byte[] bytesForventet = { 1, 2, 7 };
+        final byte[] bytesForventet = {1, 2, 7};
         var headers = HttpHeaders.of(Map.of(), (x, y) -> true);
 
         var dokumentrespons = tilDokumentRespons(bytesForventet, headers);
@@ -232,8 +228,7 @@ class DokumentArkivTjenesteTest {
         return createJournalpost(variantFormatKonst, NOW, Journalposttype.U);
     }
 
-    private Journalpost createJournalpost(Variantformat variantFormatKonst, LocalDateTime sendt,
-                                          Journalposttype kommunikasjonsretning) {
+    private Journalpost createJournalpost(Variantformat variantFormatKonst, LocalDateTime sendt, Journalposttype kommunikasjonsretning) {
         var zone = ZoneId.systemDefault();
         var journalpost = new Journalpost();
         journalpost.setJournalpostId(JOURNAL_ID.getVerdi());
@@ -244,8 +239,8 @@ class DokumentArkivTjenesteTest {
         journalpost.setTilleggsopplysninger(List.of(new Tilleggsopplysning(DokumentArkivTjeneste.FP_DOK_TYPE, SØK_ENG_FØDSEL.getOffisiellKode())));
         journalpost.setDatoOpprettet(Date.from(Instant.from(sendt.toInstant(zone.getRules().getOffset(sendt)))));
         journalpost.setDokumenter(new ArrayList<>());
-        journalpost.getDokumenter().add(createDokumentinfo(variantFormatKonst,
-            NAVSkjema.SKJEMA_ENGANGSSTØNAD_FØDSEL.getOffisiellKode(), SØK_ENG_FØDSEL.getNavn()));
+        journalpost.getDokumenter()
+            .add(createDokumentinfo(variantFormatKonst, NAVSkjema.SKJEMA_ENGANGSSTØNAD_FØDSEL.getOffisiellKode(), SØK_ENG_FØDSEL.getNavn()));
         return journalpost;
     }
 

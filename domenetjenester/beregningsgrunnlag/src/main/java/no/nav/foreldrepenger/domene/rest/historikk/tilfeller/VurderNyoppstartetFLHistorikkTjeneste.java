@@ -21,15 +21,19 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var nyoppstartetDto = dto.getVurderNyoppstartetFL();
         var opprinneligErNyoppstartetFLVerdi = getOpprinneligErNyoppstartetFLVerdi(forrigeGrunnlag);
         lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi, tekstBuilder);
     }
 
     private Boolean getOpprinneligErNyoppstartetFLVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
-        return forrigeGrunnlag
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
+        return forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0))
             .stream()
             .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
@@ -39,15 +43,18 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
             .orElse(null);
     }
 
-    private void lagHistorikkInnslag(VurderNyoppstartetFLDto dto, Boolean opprinneligErNyoppstartetFLVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void lagHistorikkInnslag(VurderNyoppstartetFLDto dto,
+                                     Boolean opprinneligErNyoppstartetFLVerdi,
+                                     HistorikkInnslagTekstBuilder tekstBuilder) {
         oppdaterVedEndretVerdi(dto, opprinneligErNyoppstartetFLVerdi, tekstBuilder);
     }
 
     private void oppdaterVedEndretVerdi(VurderNyoppstartetFLDto dto,
-                                        Boolean opprinneligNyoppstartetFLVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
+                                        Boolean opprinneligNyoppstartetFLVerdi,
+                                        HistorikkInnslagTekstBuilder tekstBuilder) {
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyoppstartetFLVerdi);
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
-        if(opprinneligVerdi != nyVerdi) {
+        if (opprinneligVerdi != nyVerdi) {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANSVIRKSOMHET, opprinneligVerdi, nyVerdi);
         }
     }

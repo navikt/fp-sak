@@ -36,7 +36,6 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
     private static final Logger LOG = LoggerFactory.getLogger(UtflyttingForretningshendelseSaksvelger.class);
 
 
-
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -57,14 +56,15 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(UtflyttingForretningshendelse forretningshendelse) {
 
-        var saker = forretningshendelse.aktørIdListe().stream()
+        var saker = forretningshendelse.aktørIdListe()
+            .stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(f -> erFagsakPassendeForUtflyttingHendelse(forretningshendelse, f))
             .toList();
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
-            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype()) || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
+            saker.forEach(
+                f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
         } else if (Endringstype.OPPRETTET.equals(forretningshendelse.endringstype())) {
             var begrunnelse = String.format("Folkeregisteret har registrert utflyttingsdato %s",
                 forretningshendelse.utflyttingsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
@@ -80,7 +80,9 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
             LOG.info("Hendelser: Utflyttingshendelse uten utflyttingsdato {}", forretningshendelse);
             return false;
         }
-        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId())) return true;
+        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId())) {
+            return true;
+        }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             // Utflytting før fødsel
             return behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId())
@@ -91,9 +93,12 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
         // Utflytting mens det finnes innvilget ytelse
         var ytelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-            .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+            .max(Comparator.naturalOrder())
+            .orElse(Tid.TIDENES_BEGYNNELSE);
         return forretningshendelse.utflyttingsdato().minusDays(1).isBefore(ytelseTom);
     }
 }

@@ -70,8 +70,8 @@ class FødselForretningshendelseHåndtererESTest {
 
     @BeforeEach
     public void setUp() {
-        håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
-            behandlingProsesseringTjeneste, behandlingsoppretter, familieHendelseTjeneste, personinfoAdapter, køKontroller);
+        håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller, behandlingProsesseringTjeneste,
+            behandlingsoppretter, familieHendelseTjeneste, personinfoAdapter, køKontroller);
         håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
     }
 
@@ -96,15 +96,17 @@ class FødselForretningshendelseHåndtererESTest {
         var fødselsdato = LocalDate.now().minusDays(2);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato, 2).medAntallBarn(2);
-        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato,2 ).medAntallBarn(2);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato, 2).medAntallBarn(2);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
 
-        håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller, behandlingProsesseringTjeneste, behandlingsoppretter,
-            new FamilieHendelseTjeneste(null, scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository()), personinfoAdapter, køKontroller);
+        håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller, behandlingProsesseringTjeneste,
+            behandlingsoppretter, new FamilieHendelseTjeneste(null, scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository()),
+            personinfoAdapter, køKontroller);
         håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
 
-        when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(lagBarn(fødselsdato).build(),lagBarn(fødselsdato).build()));
+        when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(
+            List.of(lagBarn(fødselsdato).build(), lagBarn(fødselsdato).build()));
 
         // Act
         håndterer.håndterÅpenBehandling(behandling, RE_HENDELSE_FØDSEL);
@@ -125,7 +127,8 @@ class FødselForretningshendelseHåndtererESTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
         behandling.avsluttBehandling();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.TRUE);
 
         // Act
@@ -144,7 +147,8 @@ class FødselForretningshendelseHåndtererESTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
         behandling.avsluttBehandling();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.FALSE);
 
         // Act
@@ -152,7 +156,7 @@ class FødselForretningshendelseHåndtererESTest {
 
         // Assert
         verifyNoInteractions(behandlingsoppretter);
-        verify(beregningRepository).skalReberegne(eq(behandling.getId()),any());
+        verify(beregningRepository).skalReberegne(eq(behandling.getId()), any());
     }
 
     @Test
@@ -163,7 +167,8 @@ class FødselForretningshendelseHåndtererESTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
         behandling.avsluttBehandling();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.TRUE);
 
         // Act
@@ -182,7 +187,8 @@ class FødselForretningshendelseHåndtererESTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
         behandling = scenario.lagMocked();
         behandling.avsluttBehandling();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now().minusDays(70)).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now().minusDays(70)).build());
         lenient().when(beregningRepository.skalReberegne(anyLong(), any())).thenReturn(Boolean.TRUE);
 
         // Act

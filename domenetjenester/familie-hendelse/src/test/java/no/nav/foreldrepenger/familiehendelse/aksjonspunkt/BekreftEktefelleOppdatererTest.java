@@ -45,17 +45,12 @@ class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
 
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
 
-        scenario.medSøknad()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
-        scenario.medBekreftetHendelse().medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now())
-            .medAdoptererAlene(true));
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
+        scenario.medBekreftetHendelse()
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()).medAdoptererAlene(true));
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
@@ -65,8 +60,8 @@ class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new BekreftEktefelleOppdaterer(lagMockHistory(), familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new BekreftEktefelleOppdaterer(lagMockHistory(), familieHendelseTjeneste).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

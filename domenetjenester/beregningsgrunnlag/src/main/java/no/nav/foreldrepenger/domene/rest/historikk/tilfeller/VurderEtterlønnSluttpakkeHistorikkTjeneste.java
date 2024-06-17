@@ -23,13 +23,20 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         if (dto.getFaktaOmBeregningTilfeller().contains(FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE)) {
             lagHistorikkForVurdering(dto, tekstBuilder, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         }
     }
 
-    private void lagHistorikkForVurdering(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
+    private void lagHistorikkForVurdering(FaktaBeregningLagreDto dto,
+                                          HistorikkInnslagTekstBuilder tekstBuilder,
+                                          Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var vurderDto = dto.getVurderEtterlønnSluttpakke();
         var opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.flatMap(this::hentOpprinneligVerdiErEtterlønnSluttpakke);
         lagHistorikkinnslagVurderEtterlønnSluttpakke(vurderDto, opprinneligVerdiEtterlønnSLuttpakke.orElse(null), tekstBuilder);
@@ -45,10 +52,12 @@ public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregnin
         return Optional.empty();
     }
 
-    private void lagHistorikkinnslagVurderEtterlønnSluttpakke(VurderEtterlønnSluttpakkeDto dto, Boolean opprinneligVerdiErEtterlønnSluttpakke, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void lagHistorikkinnslagVurderEtterlønnSluttpakke(VurderEtterlønnSluttpakkeDto dto,
+                                                              Boolean opprinneligVerdiErEtterlønnSluttpakke,
+                                                              HistorikkInnslagTekstBuilder tekstBuilder) {
         if (!dto.erEtterlønnSluttpakke().equals(opprinneligVerdiErEtterlønnSluttpakke)) {
-            tekstBuilder
-                .medEndretFelt(HistorikkEndretFeltType.VURDER_ETTERLØNN_SLUTTPAKKE, opprinneligVerdiErEtterlønnSluttpakke, dto.erEtterlønnSluttpakke());
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.VURDER_ETTERLØNN_SLUTTPAKKE, opprinneligVerdiErEtterlønnSluttpakke,
+                dto.erEtterlønnSluttpakke());
         }
     }
 

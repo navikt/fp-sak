@@ -19,7 +19,6 @@ import no.nav.fpsak.nare.specification.Specification;
  * <p>
  * VilkårUtfall OPPFYLT:<br>
  * - Barn under 15 år ved omsorgsovertakelsen og ikke ektefelle/samboers barn<br>
- *
  */
 @RuleDocumentation(value = AdopsjonsvilkårForeldrepenger.ID, specificationReference = "https://confluence.adeo.no/pages/viewpage.action?pageId=183700165")
 public class AdopsjonsvilkårForeldrepenger implements RuleService<AdopsjonsvilkårGrunnlag> {

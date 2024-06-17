@@ -38,7 +38,9 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     }
 
     @Inject
-    public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, BehandlingRepositoryProvider repositoryProvider,
+    public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository,
+                                          FagsakRelasjonLåsRepository relasjonLåsRepository,
+                                          BehandlingRepositoryProvider repositoryProvider,
                                           OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
                                           OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon,
                                           FagsakRepository fagsakRepository) {
@@ -50,7 +52,11 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public void prosesser(ProsessTaskData prosessTaskData,
+                          Optional<FagsakRelasjon> relasjon,
+                          FagsakRelasjonLås relasjonLås,
+                          Optional<FagsakLås> fagsak1Lås,
+                          Optional<FagsakLås> fagsak2Lås) {
         var fagsakId = prosessTaskData.getFagsakId();
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
@@ -65,7 +71,12 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     }
 
-    private void oppdaterFagsakRelasjonAvslutningsdato(Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås, Long fagsakId, FagsakYtelseType ytelseType) {
+    private void oppdaterFagsakRelasjonAvslutningsdato(Optional<FagsakRelasjon> relasjon,
+                                                       FagsakRelasjonLås relasjonLås,
+                                                       Optional<FagsakLås> fagsak1Lås,
+                                                       Optional<FagsakLås> fagsak2Lås,
+                                                       Long fagsakId,
+                                                       FagsakYtelseType ytelseType) {
         relasjon.ifPresent(
             fagsakRelasjon -> oppdaterAvslutningsdatoFagsakRelasjon.oppdaterFagsakRelasjonAvslutningsdato(fagsakRelasjon, fagsakId, relasjonLås,
                 fagsak1Lås, fagsak2Lås, ytelseType));

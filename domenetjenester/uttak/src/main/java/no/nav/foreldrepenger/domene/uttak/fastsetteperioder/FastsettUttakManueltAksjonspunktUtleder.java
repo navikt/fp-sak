@@ -55,8 +55,8 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
-        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
-            || input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
+        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT) || input.harBehandlingÅrsak(
+            BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE);
         }
         var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
@@ -72,7 +72,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElseThrow();
         for (var periode : uttakResultat.getGjeldendePerioder().getPerioder()) {
-            if (periode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)){
+            if (periode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)) {
                 return Optional.of(fastsettUttakAksjonspunkt());
             }
         }
@@ -86,7 +86,8 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         }
         var aktørArbeid = input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
         var filter = new YrkesaktivitetFilter(aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of()));
-        var representantVedUttak = filter.getFrilansOppdrag().stream()
+        var representantVedUttak = filter.getFrilansOppdrag()
+            .stream()
             .filter(ya -> STORTINGET.equals(ya.getArbeidsgiver()))
             .anyMatch(ya -> filter.getAnsettelsesPerioderFrilans(ya).stream().map(AktivitetsAvtale::getPeriode).anyMatch(intervall::overlapper));
 
@@ -110,7 +111,9 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private Optional<DatoIntervallEntitet> uttaksIntervall(Long behandlingId) {
         var uttakPerioder = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
-            .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder)
+            .orElse(List.of());
         var min = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         var max = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getTom).max(Comparator.naturalOrder());
         return min.map(fom -> DatoIntervallEntitet.fraOgMedTilOgMed(fom, max.orElse(Tid.TIDENES_ENDE)));

@@ -37,15 +37,13 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     private static final AktørId AKTØR_ID_FAR = AktørId.dummy();
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
-    private final AnnenForelderHarRettAksjonspunktUtleder aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(
-        repositoryProvider, new PersonopplysningerForUttakStub(),
-        new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+    private final AnnenForelderHarRettAksjonspunktUtleder aksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider,
+        new PersonopplysningerForUttakStub(), new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
 
     @Test
     void aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_ikke_rett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
 
@@ -69,8 +67,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
             .medAnnenpart(annenpart);
-        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
-            ytelsespesifiktGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null, ytelsespesifiktGrunnlag);
     }
 
     private Skjæringstidspunkt lagSkjæringstidspunkt(LocalDate dato) {
@@ -80,8 +77,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Test
     void aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
 
@@ -103,18 +99,15 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
 
         var morEngang = mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
-        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
-            .medBekreftetHendelse(familieHendelse);
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser, null, true));
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse).medBekreftetHendelse(familieHendelse);
+        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser, null, true));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -127,18 +120,15 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
 
         var morEngang = mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
-        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
-            .medBekreftetHendelse(familieHendelse);
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser,null, false));
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse).medBekreftetHendelse(familieHendelse);
+        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser, null, false));
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
@@ -151,8 +141,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
 
         mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
         var overstyrt = new OppgittRettighetEntitet(null, null, true, null, null);
@@ -161,10 +150,10 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
-        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
-            .medBekreftetHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse).medBekreftetHendelse(familieHendelse);
         var uføreBuilder = UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AKTØR_ID_MOR)
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AKTØR_ID_MOR)
             .medRegisterUføretrygd(false, null, null);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
@@ -181,18 +170,17 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
 
         var morEngang = mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.bareSøkerRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
-        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
-            .medBekreftetHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse).medBekreftetHendelse(familieHendelse);
         var uføreBuilder = UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AKTØR_ID_MOR)
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AKTØR_ID_MOR)
             .medRegisterUføretrygd(false, null, null);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
@@ -203,20 +191,23 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     }
 
 
-    private UttakInput lagInputUføre(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart, boolean annenForelderES,
+    private UttakInput lagInputUføre(Behandling behandling,
+                                     FamilieHendelser familieHendelser,
+                                     Annenpart annenpart,
+                                     boolean annenForelderES,
                                      UføretrygdGrunnlagEntitet.Builder uføreBuilder) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
-            .medAnnenpart(null).medUføretrygdGrunnlag(uføreBuilder.build()).medAnnenpart(annenpart);
-        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
-            ytelsespesifiktGrunnlag);
+            .medAnnenpart(null)
+            .medUføretrygdGrunnlag(uføreBuilder.build())
+            .medAnnenpart(annenpart);
+        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null, ytelsespesifiktGrunnlag);
     }
 
     @Test
     void ingen_aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_rett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
@@ -234,8 +225,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);
@@ -252,8 +242,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Test
     void ikke_aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_og_søker_har_aleneomsorg() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);
@@ -270,8 +259,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Test
     void ingen_aksjonspunkt_dersom_har_ikke_oppgitt_annenpart() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);

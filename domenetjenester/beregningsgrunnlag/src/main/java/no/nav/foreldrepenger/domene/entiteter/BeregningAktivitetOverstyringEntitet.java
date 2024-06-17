@@ -47,12 +47,12 @@ public class BeregningAktivitetOverstyringEntitet extends BaseEntitet {
     @Embedded
     private InternArbeidsforholdRef arbeidsforholdRef;
 
-    @Convert(converter= BeregningAktivitetHandlingType.KodeverdiConverter.class)
-    @Column(name="handling_type", nullable = false)
+    @Convert(converter = BeregningAktivitetHandlingType.KodeverdiConverter.class)
+    @Column(name = "handling_type", nullable = false)
     private BeregningAktivitetHandlingType handlingType;
 
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
-    @Column(name="opptjening_aktivitet_type", nullable = false)
+    @Column(name = "opptjening_aktivitet_type", nullable = false)
     private OpptjeningAktivitetType opptjeningAktivitetType;
 
     @JsonBackReference
@@ -94,11 +94,11 @@ public class BeregningAktivitetOverstyringEntitet extends BaseEntitet {
 
     public BeregningAktivitetNøkkel getNøkkel() {
         return BeregningAktivitetNøkkel.builder()
-                .medArbeidsgiverIdentifikator(getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
-                .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
-                .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .medFom(periode.getFomDato())
-                .build();
+            .medArbeidsgiverIdentifikator(getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
+            .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
+            .medOpptjeningAktivitetType(opptjeningAktivitetType)
+            .medFom(periode.getFomDato())
+            .build();
     }
 
     void setBeregningAktivitetOverstyringer(BeregningAktivitetOverstyringerEntitet overstyringerEntitet) {

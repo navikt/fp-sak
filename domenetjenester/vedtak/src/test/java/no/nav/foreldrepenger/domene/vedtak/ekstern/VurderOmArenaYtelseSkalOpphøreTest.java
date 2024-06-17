@@ -80,9 +80,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         this.entityManager = entityManager;
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(
-            beregningsresultatRepository,
-            iayTjeneste, behandlingVedtakRepository, null);
+        vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(beregningsresultatRepository, iayTjeneste, behandlingVedtakRepository,
+            null);
     }
 
     @Test
@@ -91,7 +90,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var vedtaksDato = SKJÆRINGSTIDSPUNKT.minusDays(7);
         byggScenarioUtenYtelseIArena();
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), SKJÆRINGSTIDSPUNKT, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), SKJÆRINGSTIDSPUNKT,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -110,7 +110,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -124,9 +125,11 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var ytelseVedtakTOM = LocalDate.of(2018, 8, 26);
         var vedtaksDato = LocalDate.of(2018, 11, 14);
         var startDatoFP = LocalDate.of(2018, 4, 6);
-        byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato.atStartOfDay(), DatoIntervallEntitet.fraOgMedTilOgMed(startDatoFP, startDatoFP.plusWeeks(34)), Fagsystem.ARENA);
+        byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato.atStartOfDay(),
+            DatoIntervallEntitet.fraOgMedTilOgMed(startDatoFP, startDatoFP.plusWeeks(34)), Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -142,7 +145,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -158,7 +162,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -174,7 +179,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -190,7 +196,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -205,7 +212,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT.minusDays(1);
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, SKJÆRINGSTIDSPUNKT, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -221,7 +229,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT.plusDays(10);
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -237,7 +246,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -253,7 +263,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT; // 2019-02-08
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -269,7 +280,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT; // 2019-02-08
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -285,7 +297,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT; // 2019-02-08
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -301,7 +314,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         var startDatoFP = SKJÆRINGSTIDSPUNKT; // 2019-02-08
         byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -319,7 +333,8 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
             DatoIntervallEntitet.fraOgMedTilOgMed(startDatoFP, startDatoFP.plusMonths(1)),
             DatoIntervallEntitet.fraOgMedTilOgMed(startDatoFP.plusMonths(4), startDatoFP.plusMonths(6)), Fagsystem.ARENA);
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP,
+            vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -328,19 +343,32 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         byggScenario(now(), now().plusDays(15), now(), now(), now(), Fagsystem.INFOTRYGD);
     }
 
-    private void byggScenario(LocalDate ytelserFom, LocalDate ytelserTom, LocalDate t1, LocalDate vedtaksdato,
-                              LocalDate startdatoFP, Fagsystem fagsystem) {
+    private void byggScenario(LocalDate ytelserFom,
+                              LocalDate ytelserTom,
+                              LocalDate t1,
+                              LocalDate vedtaksdato,
+                              LocalDate startdatoFP,
+                              Fagsystem fagsystem) {
         byggScenario(ytelserFom, ytelserTom, t1, vedtaksdato.atStartOfDay(),
             DatoIntervallEntitet.fraOgMedTilOgMed(startdatoFP, startdatoFP.plusDays(90)), fagsystem);
     }
 
-    private void byggScenario(LocalDate ytelserFom, LocalDate ytelserTom, LocalDate t1, LocalDateTime vedtakstidspunkt,
-                              DatoIntervallEntitet fpIntervall, Fagsystem fagsystem) {
+    private void byggScenario(LocalDate ytelserFom,
+                              LocalDate ytelserTom,
+                              LocalDate t1,
+                              LocalDateTime vedtakstidspunkt,
+                              DatoIntervallEntitet fpIntervall,
+                              Fagsystem fagsystem) {
         byggScenario(ytelserFom, ytelserTom, t1, vedtakstidspunkt, fpIntervall, null, fagsystem);
     }
 
-    private void byggScenario(LocalDate ytelserFom, LocalDate ytelserTom, LocalDate t1, LocalDateTime vedtakstidspunkt,
-                              DatoIntervallEntitet fpIntervall, DatoIntervallEntitet fpIntervall2, Fagsystem fagsystem) {
+    private void byggScenario(LocalDate ytelserFom,
+                              LocalDate ytelserTom,
+                              LocalDate t1,
+                              LocalDateTime vedtakstidspunkt,
+                              DatoIntervallEntitet fpIntervall,
+                              DatoIntervallEntitet fpIntervall2,
+                              Fagsystem fagsystem) {
         behandling = lagre(scenario);
 
         // Legg til ytelse
@@ -362,9 +390,7 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Legg til behandling resultat
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         entityManager.persist(behandlingsresultat);
         entityManager.persist(behandling);
         entityManager.flush();
@@ -387,12 +413,14 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ytelserFom, ytelserTom))
             .medStatus(RelatertYtelseTilstand.LØPENDE)
             .medYtelseType(RelatertYtelseType.DAGPENGER);
-        byggYtelserAnvist(ytelserFom, ytelserTom, t1, ytelseBuilder).forEach(
-            ytelseBuilder::medYtelseAnvist);
+        byggYtelserAnvist(ytelserFom, ytelserTom, t1, ytelseBuilder).forEach(ytelseBuilder::medYtelseAnvist);
         return ytelseBuilder;
     }
 
-    private List<YtelseAnvist> byggYtelserAnvist(LocalDate yaFom, @SuppressWarnings("unused") LocalDate yaTom, LocalDate t1, YtelseBuilder ytelseBuilder) {
+    private List<YtelseAnvist> byggYtelserAnvist(LocalDate yaFom,
+                                                 @SuppressWarnings("unused") LocalDate yaTom,
+                                                 LocalDate t1,
+                                                 YtelseBuilder ytelseBuilder) {
         // Man må sende meldekort hver 2 uker.
         final long ytelseDagerMellomrom = 13;
         List<YtelseAnvist> ytelseAnvistList = new ArrayList<>();
@@ -413,15 +441,13 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         return ytelseAnvistList;
     }
 
-    private BeregningsresultatPeriode byggBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat,
-                                                                    LocalDate fom, LocalDate tom) {
-        return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+    private BeregningsresultatPeriode byggBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(beregningsresultat);
     }
 
     private BeregningsresultatAndel byggAndel(BeregningsresultatPeriode bp) {
-        return BeregningsresultatAndel.builder().medDagsats(1000)
+        return BeregningsresultatAndel.builder()
+            .medDagsats(1000)
             .medDagsatsFraBg(1000)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(100))

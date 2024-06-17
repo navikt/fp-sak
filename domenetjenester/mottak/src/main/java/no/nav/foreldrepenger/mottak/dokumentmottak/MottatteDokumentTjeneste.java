@@ -41,7 +41,6 @@ public class MottatteDokumentTjeneste {
     }
 
     /**
-     *
      * @param fristForInnsendingAvDokumentasjon - Frist i uker fom siste vedtaksdato
      */
     @Inject
@@ -95,7 +94,8 @@ public class MottatteDokumentTjeneste {
 
     public List<MottattDokument> hentMottatteDokumentVedlegg(Long behandlingId) {
         var spesialtyper = DokumentTypeId.getSpesialTyperKoder();
-        return mottatteDokumentRepository.hentMottatteDokument(behandlingId).stream()
+        return mottatteDokumentRepository.hentMottatteDokument(behandlingId)
+            .stream()
             .filter(m -> !spesialtyper.contains(m.getDokumentType()))
             .toList();
     }
@@ -120,16 +120,20 @@ public class MottatteDokumentTjeneste {
     public boolean harFristForInnsendingAvDokGåttUt(Fagsak sak) {
         Objects.requireNonNull(sak, "Fagsak");
         var behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
-        return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(b.getId()))
+        return behandlingOptional.flatMap(
+                b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(b.getId()))
             .map(BehandlingVedtak::getVedtaksdato)
-            .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
+            .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon)))
+            .orElse(Boolean.FALSE);
     }
 
     private boolean erAvsluttetPgaManglendeDokumentasjon(Behandling behandling) {
         Objects.requireNonNull(behandling, "Behandling");
         var bRes = behandlingRepositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId());
         return bRes.filter(br -> BehandlingResultatType.AVSLÅTT.equals(br.getBehandlingResultatType()))
-            .map(Behandlingsresultat::getAvslagsårsak).map(Avslagsårsak.MANGLENDE_DOKUMENTASJON::equals).orElse(Boolean.FALSE);
+            .map(Behandlingsresultat::getAvslagsårsak)
+            .map(Avslagsårsak.MANGLENDE_DOKUMENTASJON::equals)
+            .orElse(Boolean.FALSE);
     }
 
 }

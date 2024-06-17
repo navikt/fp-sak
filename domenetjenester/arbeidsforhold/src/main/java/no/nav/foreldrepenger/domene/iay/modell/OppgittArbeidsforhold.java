@@ -38,8 +38,8 @@ public class OppgittArbeidsforhold implements IndexKey {
         this.periode = oppgittArbeidsforhold.periode;
         this.erUtenlandskInntekt = oppgittArbeidsforhold.erUtenlandskInntekt;
         this.arbeidType = oppgittArbeidsforhold.arbeidType;
-        this.utenlandskVirksomhet = oppgittArbeidsforhold.utenlandskVirksomhet != null ?
-            new OppgittUtenlandskVirksomhet(oppgittArbeidsforhold.utenlandskVirksomhet) : null;
+        this.utenlandskVirksomhet =
+            oppgittArbeidsforhold.utenlandskVirksomhet != null ? new OppgittUtenlandskVirksomhet(oppgittArbeidsforhold.utenlandskVirksomhet) : null;
     }
 
     @Override
@@ -80,9 +80,8 @@ public class OppgittArbeidsforhold implements IndexKey {
             return false;
         }
 
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(arbeidType, that.arbeidType) &&
-                Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+        return Objects.equals(periode, that.periode) && Objects.equals(arbeidType, that.arbeidType) && Objects.equals(utenlandskVirksomhet,
+            that.utenlandskVirksomhet);
     }
 
     @Override
@@ -92,12 +91,8 @@ public class OppgittArbeidsforhold implements IndexKey {
 
     @Override
     public String toString() {
-        return "OppgittArbeidsforholdImpl{" +
-                "periode=" + periode +
-                ", erUtenlandskInntekt=" + erUtenlandskInntekt +
-                ", arbeidType=" + arbeidType +
-                ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-                '}';
+        return "OppgittArbeidsforholdImpl{" + "periode=" + periode + ", erUtenlandskInntekt=" + erUtenlandskInntekt + ", arbeidType=" + arbeidType
+            + ", utenlandskVirksomhet=" + utenlandskVirksomhet + '}';
     }
 
     void setPeriode(DatoIntervallEntitet periode) {

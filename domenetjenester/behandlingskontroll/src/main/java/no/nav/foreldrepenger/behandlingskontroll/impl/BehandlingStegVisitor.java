@@ -43,7 +43,7 @@ class BehandlingStegVisitor {
     private final BehandlingskontrollKontekst kontekst;
     private final BehandlingModell behandlingModell;
     private final BehandlingStegKonfigurasjon behandlingStegKonfigurasjon = new BehandlingStegKonfigurasjon(
-            EnumSet.allOf(BehandlingStegStatus.class));
+        EnumSet.allOf(BehandlingStegStatus.class));
 
     private final BehandlingskontrollEventPubliserer eventPubliserer;
 
@@ -53,8 +53,10 @@ class BehandlingStegVisitor {
 
     private final BehandlingStegModell stegModell;
 
-    BehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider, Behandling behandling,
-            BehandlingStegModell stegModell, BehandlingskontrollKontekst kontekst) {
+    BehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider,
+                          Behandling behandling,
+                          BehandlingStegModell stegModell,
+                          BehandlingskontrollKontekst kontekst) {
 
         this.stegModell = Objects.requireNonNull(stegModell, "BehandlingStegModell");
         this.behandling = Objects.requireNonNull(behandling, "behandling");
@@ -126,12 +128,14 @@ class BehandlingStegVisitor {
         return stegResultat;
     }
 
-    private void avsluttSteg(BehandlingStegType stegType, BehandlingStatus førStatus, BehandlingStegStatus førsteStegStatus,
-            StegProsesseringResultat stegResultat,
-            List<Aksjonspunkt> funnetAksjonspunkter) {
+    private void avsluttSteg(BehandlingStegType stegType,
+                             BehandlingStatus førStatus,
+                             BehandlingStegStatus førsteStegStatus,
+                             StegProsesseringResultat stegResultat,
+                             List<Aksjonspunkt> funnetAksjonspunkter) {
 
         LOG.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat,
-                funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
+            funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
 
         var stegTilstandFør = behandling.getSisteBehandlingStegTilstand();
 
@@ -155,11 +159,13 @@ class BehandlingStegVisitor {
         }
     }
 
-    private BehandlingTransisjonEvent opprettEvent(StegProsesseringResultat stegResultat, StegTransisjon transisjon,
-            BehandlingStegTilstand fraTilstand, BehandlingStegType tilSteg) {
+    private BehandlingTransisjonEvent opprettEvent(StegProsesseringResultat stegResultat,
+                                                   StegTransisjon transisjon,
+                                                   BehandlingStegTilstand fraTilstand,
+                                                   BehandlingStegType tilSteg) {
 
         return new BehandlingTransisjonEvent(kontekst, stegResultat.getTransisjon(), fraTilstand, tilSteg,
-                transisjon.getMålstegHvisHopp().isPresent());
+            transisjon.getMålstegHvisHopp().isPresent());
     }
 
     private BehandlingStegType finnFremoverhoppSteg(BehandlingStegType stegType, StegTransisjon transisjon) {
@@ -187,29 +193,27 @@ class BehandlingStegVisitor {
     }
 
     private void fyrEventBehandlingStegOvergang(BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
-        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, forrigeTilstand,
-                nyTilstand, kontekst);
+        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, forrigeTilstand, nyTilstand, kontekst);
 
         eventPubliserer.fireEvent(event);
     }
 
     private void fyrEventBehandlingStegTilbakeføring(Optional<BehandlingStegTilstand> forrige, Optional<BehandlingStegTilstand> ny) {
-        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(
-                behandlingModell, BehandlingModellImpl.tilBehandlingsStegSnapshot(forrige), BehandlingModellImpl.tilBehandlingsStegSnapshot(ny),
-                kontekst);
+        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, BehandlingModellImpl.tilBehandlingsStegSnapshot(forrige),
+            BehandlingModellImpl.tilBehandlingsStegSnapshot(ny), kontekst);
 
         eventPubliserer.fireEvent(event);
     }
 
     private void oppdaterBehandlingStegStatus(Behandling behandling,
-            BehandlingStegType stegType,
-            BehandlingStegStatus førsteStegStatus,
-            BehandlingStegStatus nyStegStatus) {
+                                              BehandlingStegType stegType,
+                                              BehandlingStegStatus førsteStegStatus,
+                                              BehandlingStegStatus nyStegStatus) {
         var behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
         if (behandlingStegTilstand.isPresent() && erForskjellig(førsteStegStatus, nyStegStatus)) {
-                InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
-                behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-                eventPubliserer.fireEvent(kontekst, stegType, førsteStegStatus, nyStegStatus);
+            InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
+            behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+            eventPubliserer.fireEvent(kontekst, stegType, førsteStegStatus, nyStegStatus);
 
         }
     }
@@ -225,16 +229,17 @@ class BehandlingStegVisitor {
             // statusen
             return nåBehandlingStegStatus;
         }
-        var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream()
-                .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
+        var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter()
+            .stream()
+            .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
 
-        return måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
-                : behandlingStegKonfigurasjon.getStartet();
+        return måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang() : behandlingStegKonfigurasjon.getStartet();
     }
 
     private boolean skalHåndteresHer(BehandlingStegType stegType, Aksjonspunkt ap, VurderingspunktType vurderingspunktType) {
-        return ap.getAksjonspunktDefinisjon().getBehandlingSteg().equals(stegType)
-                && ap.getAksjonspunktDefinisjon().getVurderingspunktType().equals(vurderingspunktType);
+        return ap.getAksjonspunktDefinisjon().getBehandlingSteg().equals(stegType) && ap.getAksjonspunktDefinisjon()
+            .getVurderingspunktType()
+            .equals(vurderingspunktType);
     }
 
     private boolean erForbiInngang(BehandlingStegStatus nåBehandlingStegStatus) {
@@ -291,9 +296,7 @@ class BehandlingStegVisitor {
 
     private boolean harÅpneAksjonspunkter(Behandling behandling, BehandlingStegType behandlingStegType) {
 
-        return behandling.getÅpneAksjonspunkter()
-                .stream()
-                .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
+        return behandling.getÅpneAksjonspunkter().stream().anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
     }
 
     private BehandlingStegStatus håndterTilbakeføringTilTidligereSteg(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType) {
@@ -304,8 +307,7 @@ class BehandlingStegVisitor {
         if (!åpneAksjonspunkter.isEmpty()) {
             var aksjonspunkter = åpneAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList();
             var nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
-            var nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
-                    aksjonspunkter);
+            var nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(), aksjonspunkter);
 
             // oppdater inneværende steg
             oppdaterBehandlingStegStatus(behandling, inneværendeBehandlingStegType, inneværendeBehandlingStegStatus, tilbakeførtStegStatus);
@@ -317,8 +319,9 @@ class BehandlingStegVisitor {
         return tilbakeførtStegStatus;
     }
 
-    private void oppdaterBehandlingStegType(BehandlingStegType nesteStegType, BehandlingStegStatus nesteStegStatus,
-            BehandlingStegStatus sluttStegStatusVedOvergang) {
+    private void oppdaterBehandlingStegType(BehandlingStegType nesteStegType,
+                                            BehandlingStegStatus nesteStegStatus,
+                                            BehandlingStegStatus sluttStegStatusVedOvergang) {
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
 
         var siste = behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null);
@@ -356,12 +359,12 @@ class BehandlingStegVisitor {
         List<Aksjonspunkt> gjenværendeÅpneAksjonspunkt = new ArrayList<>(behandling.getÅpneAksjonspunkter());
 
         behandlingModell.hvertStegFraOgMed(aktivtBehandlingSteg)
-                .forEach(bsm -> filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt));
+            .forEach(bsm -> filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt));
 
         if (!gjenværendeÅpneAksjonspunkt.isEmpty()) {
             throw new IllegalStateException(
-                    "Utvikler-feil: Det er definert aksjonspunkt [" + gjenværendeÅpneAksjonspunkt + "] som ikke er håndtert av noe steg"
-                            + (aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg));
+                "Utvikler-feil: Det er definert aksjonspunkt [" + gjenværendeÅpneAksjonspunkt + "] som ikke er håndtert av noe steg" + (
+                    aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg));
         }
     }
 

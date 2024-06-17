@@ -1,7 +1,7 @@
-
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-/**Mappes til riktig aksjonspunktDef
+/**
+ * Mappes til riktig aksjonspunktDef
  * enten i en inngangsvilkårkontekts
  * eller i en revuderingskontekts
  */

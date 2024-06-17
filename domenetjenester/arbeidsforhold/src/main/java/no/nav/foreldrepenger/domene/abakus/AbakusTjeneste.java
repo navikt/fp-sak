@@ -200,12 +200,13 @@ public class AbakusTjeneste {
             if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                 return responseHandler.handleResponse(rawResponse);
             }
-            if (Set.of(HttpURLConnection.HTTP_NOT_MODIFIED, HttpURLConnection.HTTP_NO_CONTENT, HttpURLConnection.HTTP_ACCEPTED).contains(responseCode)) {
+            if (Set.of(HttpURLConnection.HTTP_NOT_MODIFIED, HttpURLConnection.HTTP_NO_CONTENT, HttpURLConnection.HTTP_ACCEPTED)
+                .contains(responseCode)) {
                 return null;
             }
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke hente grunnlag fra abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
-                endpoint, rawResponse.statusCode(), responseBody);
+            var feilmelding = String.format("Kunne ikke hente grunnlag fra abakus: %s, HTTP status=%s. HTTP Errormessage=%s", endpoint,
+                rawResponse.statusCode(), responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
             }
@@ -216,7 +217,7 @@ public class AbakusTjeneste {
         }
     }
 
-    private static final class AbakusResponseHandler<T>  {
+    private static final class AbakusResponseHandler<T> {
 
         private final ObjectReader reader;
 
@@ -264,7 +265,8 @@ public class AbakusTjeneste {
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre mottatte inntektsmeldinger for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Kunne ikke lagre mottatte inntektsmeldinger for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getKoblingReferanse(), endpointMottaInntektsmeldinger, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
@@ -285,7 +287,8 @@ public class AbakusTjeneste {
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Kunne ikke lagre oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getKoblingReferanse(), endpointMottaOppgittOpptjening, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
@@ -305,7 +308,8 @@ public class AbakusTjeneste {
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre overstyrt oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Kunne ikke lagre overstyrt oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getKoblingReferanse(), endpointLagreOverstyrtOppgittOpptjening, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
@@ -325,7 +329,8 @@ public class AbakusTjeneste {
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre oppgitt opptjening og nullstille overstyrt for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Kunne ikke lagre oppgitt opptjening og nullstille overstyrt for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getKoblingReferanse(), endpointLagreOppgittOpptjeningNullstillOverstyring, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
@@ -346,7 +351,8 @@ public class AbakusTjeneste {
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getGammelReferanse(), dto.getNyReferanse(), endpointKopierGrunnlag, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
@@ -362,12 +368,14 @@ public class AbakusTjeneste {
 
         var request = RestRequest.newRequest(method, endpointKopierGrunnlagBeholdIM, restConfig);
 
-        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus. Uten nye inntektsmeldinger", dto.getGammelReferanse(), dto.getNyReferanse());
+        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus. Uten nye inntektsmeldinger", dto.getGammelReferanse(),
+            dto.getNyReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             var responseBody = rawResponse.body();
-            var feilmelding = String.format("Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+            var feilmelding = String.format(
+                "Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getGammelReferanse(), dto.getNyReferanse(), endpointKopierGrunnlagBeholdIM, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);

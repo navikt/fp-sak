@@ -2,13 +2,12 @@ package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
-import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
+import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 
 class FraEntitetTilBehandlingsmodellMapperTest {
 
@@ -27,14 +26,20 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetRegAkt.getBeregningAktiviteter()).hasSameSizeAs(faktiskRegAkt.getBeregningAktiviteter());
 
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getPeriode()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getPeriode());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getArbeidsgiver()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getArbeidsgiver());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getArbeidsgiver()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(0).getArbeidsgiver());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType());
 
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getPeriode()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getPeriode());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getArbeidsforholdRef()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getArbeidsforholdRef());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getArbeidsforholdRef()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(1).getArbeidsforholdRef());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType()).isEqualTo(
+            faktiskRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType());
 
         // Assert oversyrte aktiviteter
         var faktiskOsAkt = bg.getOverstyrteEllerRegisterAktiviteter();
@@ -44,9 +49,12 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetOsAkt.getBeregningAktiviteter()).hasSameSizeAs(faktiskOsAkt.getBeregningAktiviteter());
 
         assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getPeriode()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getPeriode());
-        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
-        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getArbeidsgiver()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getArbeidsgiver());
-        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType());
+        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(
+            faktiskOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
+        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getArbeidsgiver()).isEqualTo(
+            faktiskOsAkt.getBeregningAktiviteter().get(0).getArbeidsgiver());
+        assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType()).isEqualTo(
+            faktiskOsAkt.getBeregningAktiviteter().get(0).getOpptjeningAktivitetType());
 
         // Assert beregningsgrunnlag
         var faktiskBG = bg.getBeregningsgrunnlag().get();
@@ -58,7 +66,8 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetBG.getAktivitetStatuser()).hasSameSizeAs(faktiskBG.getAktivitetStatuser());
 
         // Aktivitetstatus
-        assertThat(mappetBG.getAktivitetStatuser().get(0).getAktivitetStatus()).isEqualTo(faktiskBG.getAktivitetStatuser().get(0).getAktivitetStatus());
+        assertThat(mappetBG.getAktivitetStatuser().get(0).getAktivitetStatus()).isEqualTo(
+            faktiskBG.getAktivitetStatuser().get(0).getAktivitetStatus());
         assertThat(mappetBG.getAktivitetStatuser().get(0).getHjemmel()).isEqualTo(faktiskBG.getAktivitetStatuser().get(0).getHjemmel());
 
         // Sammenligningsgrunnlag
@@ -84,7 +93,8 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetPeriode.getBeregningsgrunnlagPeriodeTom()).isEqualTo(faktiskPeriode.getBeregningsgrunnlagPeriodeTom());
         assertThat(mappetPeriode.getBeregningsgrunnlagPeriodeÅrsaker()).isEmpty();
         assertThat(mappetPeriode.getDagsats()).isEqualTo(faktiskPeriode.getDagsats());
-        assertThat(mappetPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size()).isEqualTo(faktiskPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size());
+        assertThat(mappetPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size()).isEqualTo(
+            faktiskPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size());
 
         // Beregningsgrunnlagandel
         var mappetAndel = mappetPeriode.getBeregningsgrunnlagPrStatusOgAndelList().get(0);

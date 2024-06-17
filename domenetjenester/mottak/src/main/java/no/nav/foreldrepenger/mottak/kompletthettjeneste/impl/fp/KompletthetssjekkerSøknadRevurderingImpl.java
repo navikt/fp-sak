@@ -59,8 +59,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
     public KompletthetssjekkerSøknadRevurderingImpl(DokumentArkivTjeneste dokumentArkivTjeneste,
                                                     BehandlingRepositoryProvider repositoryProvider,
                                                     @KonfigVerdi(value = "fp.ventefrist.tidlig.soeknad", defaultVerdi = "P4W") Period ventefristForTidligSøknad) {
-        super(ventefristForTidligSøknad,
-            repositoryProvider.getSøknadRepository(), repositoryProvider.getMottatteDokumentRepository());
+        super(ventefristForTidligSøknad, repositoryProvider.getSøknadRepository(), repositoryProvider.getMottatteDokumentRepository());
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -87,8 +86,10 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
         var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).filter(vedtaksdato::isAfter).orElse(vedtaksdato);
 
-        Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), sammenligningsdato));
-        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId()).stream()
+        Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(
+            dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), sammenligningsdato));
+        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId())
+            .stream()
             .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
             .map(MottattDokument::getDokumentType)
             .forEach(arkivDokumentTypeIds::add);
@@ -121,9 +122,9 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             } else if ((UtsettelseÅrsak.INSTITUSJON_SØKER.equals(årsak) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(årsak))
                 && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_INNLEGGELSE)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_INNLEGGELSE));
-            }  else if (UtsettelseÅrsak.HV_OVELSE.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_HV)) {
+            } else if (UtsettelseÅrsak.HV_OVELSE.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_HV)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_HV));
-            }   else if (UtsettelseÅrsak.NAV_TILTAK.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_NAV_TILTAK)) {
+            } else if (UtsettelseÅrsak.NAV_TILTAK.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_NAV_TILTAK)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_NAV_TILTAK));
             }
         });

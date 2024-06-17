@@ -102,7 +102,8 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     private Utfall erGiftMed(PersonopplysningerAggregat personopplysninger, Region region) {
         var ektefelleHarRegion = personopplysninger.getEktefelle()
-            .map(e -> personopplysninger.harStatsborgerskapRegionVedSkjæringstidspunkt(e.getAktørId(), region)).orElse(Boolean.FALSE);
+            .map(e -> personopplysninger.harStatsborgerskapRegionVedSkjæringstidspunkt(e.getAktørId(), region))
+            .orElse(Boolean.FALSE);
         if (ektefelleHarRegion) {
             return JA;
         }
@@ -118,8 +119,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
             var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.aktørId())).før(vurderingstidspunkt);
-            inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
-                .anyMatch(ip -> intervall3mnd.overlapper(ip.getPeriode()));
+            inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream().anyMatch(ip -> intervall3mnd.overlapper(ip.getPeriode()));
         }
 
         return inntektSiste3M ? JA : NEI;

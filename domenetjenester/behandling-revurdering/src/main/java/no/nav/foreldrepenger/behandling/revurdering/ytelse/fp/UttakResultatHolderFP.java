@@ -37,10 +37,13 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
 
     @Override
     public LocalDate getSisteDagAvSistePeriode() {
-        return uttakresultat.map(ForeldrepengerUttak::getGjeldendePerioder).orElse(Collections.emptyList()).stream()
-                .filter(ForeldrepengerUttakPeriode::isInnvilget)
-                .map(ForeldrepengerUttakPeriode::getTom)
-                .max(Comparator.naturalOrder()).orElse(LocalDate.MIN);
+        return uttakresultat.map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(ForeldrepengerUttakPeriode::isInnvilget)
+            .map(ForeldrepengerUttakPeriode::getTom)
+            .max(Comparator.naturalOrder())
+            .orElse(LocalDate.MIN);
     }
 
     @Override
@@ -58,8 +61,10 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
     }
 
     private Optional<ForeldrepengerUttakPeriode> finnSisteUttaksperiode() {
-        return uttakresultat.map(ForeldrepengerUttak::getGjeldendePerioder).orElse(Collections.emptyList()).stream()
-                .max(Comparator.comparing(ForeldrepengerUttakPeriode::getFom));
+        return uttakresultat.map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(Collections.emptyList())
+            .stream()
+            .max(Comparator.comparing(ForeldrepengerUttakPeriode::getFom));
     }
 
     @Override
@@ -74,7 +79,10 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
         var originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
         return uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull)
+            .toSegments()
+            .stream()
+            .map(LocalDateSegment::getValue)
+            .filter(Objects::nonNull)
             .map(WrapUttakPeriode::getP)
             .anyMatch(ForeldrepengerUttakPeriode::harAktivtUttak);
     }
@@ -99,14 +107,14 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
 
     private LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder) {
         return new LocalDateTimeline<>(uttaksPerioder.stream()
-                .map(p -> new WrapUttakPeriode(p.getTidsperiode(), p))
-                .map(w -> new LocalDateSegment<>(w.getI(), w))
-                .toList())
-                        .compress(WrapUttakPeriode::erLikeNaboer, this::kombinerLikeNaboer);
+            .map(p -> new WrapUttakPeriode(p.getTidsperiode(), p))
+            .map(w -> new LocalDateSegment<>(w.getI(), w))
+            .toList()).compress(WrapUttakPeriode::erLikeNaboer, this::kombinerLikeNaboer);
     }
 
-    private LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i, LocalDateSegment<WrapUttakPeriode> lhs,
-            LocalDateSegment<WrapUttakPeriode> rhs) {
+    private LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i,
+                                                                  LocalDateSegment<WrapUttakPeriode> lhs,
+                                                                  LocalDateSegment<WrapUttakPeriode> rhs) {
         if (lhs == null) {
             return rhs;
         }
@@ -116,8 +124,9 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         return new LocalDateSegment<>(i, new WrapUttakPeriode(i, lhs.getValue(), rhs.getValue()));
     }
 
-    private LocalDateSegment<WrapUttakPeriode> fjernLikePerioder(LocalDateInterval i, LocalDateSegment<WrapUttakPeriode> lhs,
-            LocalDateSegment<WrapUttakPeriode> rhs) {
+    private LocalDateSegment<WrapUttakPeriode> fjernLikePerioder(LocalDateInterval i,
+                                                                 LocalDateSegment<WrapUttakPeriode> lhs,
+                                                                 LocalDateSegment<WrapUttakPeriode> rhs) {
         if (lhs == null) {
             return rhs;
         }
@@ -143,17 +152,19 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         WrapUttakPeriode(LocalDateInterval i, ForeldrepengerUttakPeriode p) {
             this.i = i;
             this.p = p;
-            this.t = p.getAktiviteter().stream()
-                    .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
-                            Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
+            this.t = p.getAktiviteter()
+                .stream()
+                .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
+                    Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
         }
 
         WrapUttakPeriode(LocalDateInterval i, WrapUttakPeriode p1, WrapUttakPeriode p2) {
             this.i = i;
             this.p = p1.getP();
-            this.t = Stream.of(p1.getP().getAktiviteter(), p2.getP().getAktiviteter()).flatMap(Collection::stream)
-                    .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
-                            Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
+            this.t = Stream.of(p1.getP().getAktiviteter(), p2.getP().getAktiviteter())
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(ForeldrepengerUttakPeriodeAktivitet::getUttakAktivitet,
+                    Collectors.reducing(Trekkdager.ZERO, ForeldrepengerUttakPeriodeAktivitet::getTrekkdager, Trekkdager::add)));
         }
 
         public LocalDateInterval getI() {
@@ -187,8 +198,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
                 return false;
             }
             var wrapUP = (WrapUttakPeriode) o;
-            return p.erLikBortsettFraPeriode(wrapUP.getP()) &&
-                    Objects.equals(t, wrapUP.t);
+            return p.erLikBortsettFraPeriode(wrapUP.getP()) && Objects.equals(t, wrapUP.t);
         }
 
     }

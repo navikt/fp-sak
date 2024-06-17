@@ -41,16 +41,13 @@ public class BeregningDtoTjeneste {
     private BeregningsgrunnlagGUIInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagGUIInput input,
                                                                      BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet,
                                                                      Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
-        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
-            beregningsgrunnlagGrunnlagEntitet);
+        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet);
         var inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
         if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
-            var orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
-                orginaltGrunnlag.get());
+            var orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(orginaltGrunnlag.get());
             // Burde egentlig fikset konstruktøren så man ikke trenger ta med avklaringsbehov igjen her, men alt dette skal vekk når fpsak kaller kalulus direkte
-            return inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(
-                orginaltBG).medAvklaringsbehov(input.getAvklaringsbehov());
+            return inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(orginaltBG).medAvklaringsbehov(input.getAvklaringsbehov());
         }
         // Burde egentlig fikset konstruktøren så man ikke trenger ta med avklaringsbehov igjen her, men alt dette skal vekk når fpsak kaller kalulus direkte
         return inputMedBg.medAvklaringsbehov(input.getAvklaringsbehov());

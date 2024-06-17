@@ -14,7 +14,8 @@ class SjekkOmBrukerHarFåttUtbetaltForeldrepenger extends LeafSpecification<Bere
 
     @Override
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
-        var utbetaltForeldrepenger = regelModell.getBeregningsresultatPerioder().stream()
+        var utbetaltForeldrepenger = regelModell.getBeregningsresultatPerioder()
+            .stream()
             .flatMap(p -> p.getBeregningsresultatAndelList().stream())
             .anyMatch(andel -> andel.getDagsats() > 0);
 

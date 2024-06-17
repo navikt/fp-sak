@@ -18,8 +18,7 @@ final class HistorikkInnsalgFeil {
         var requiredKoder = map(requiredFelt);
         var foundKoder = map(foundFelter);
         return new TekniskException("FP-876694",
-            String.format("Historikkinnslag %s ikke riktig bygd. Required: %s. Found: %s", type, requiredKoder,
-                foundKoder));
+            String.format("Historikkinnslag %s ikke riktig bygd. Required: %s. Found: %s", type, requiredKoder, foundKoder));
     }
 
     private static List<String> map(Collection<HistorikkinnslagFeltType> feltTyper) {
@@ -27,8 +26,7 @@ final class HistorikkInnsalgFeil {
     }
 
     static TekniskException manglerMinstEtFeltForHistorikkinnslag(String type, List<String> manglendeFelt) {
-        return new TekniskException("FP-876693",
-            String.format("For type %s, forventer minst et felt av type %s", type, manglendeFelt));
+        return new TekniskException("FP-876693", String.format("For type %s, forventer minst et felt av type %s", type, manglendeFelt));
     }
 
     static TekniskException ukjentHistorikkinnslagType(String kode) {

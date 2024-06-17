@@ -79,7 +79,8 @@ class MorErDødEndringIdentifisererTest {
         var erEndret = differ.erForeldreDødsdatoEndret();
 
         // Assert
-        assertThat(erEndret).as("Forventer at endring om mors død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
+        assertThat(erEndret).as("Forventer at endring om mors død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.")
+            .isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysning(LocalDate dødsdatoMor) {
@@ -91,7 +92,10 @@ class MorErDødEndringIdentifisererTest {
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_SØKER, AKTØRID_BARN, RelasjonsRolleType.BARN));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_BARN, AKTØRID_MOR, RelasjonsRolleType.MORA));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_MOR, AKTØRID_BARN, RelasjonsRolleType.BARN));
-        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AKTØRID_MOR).build()).build();
+        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
+            .medRegistrertVersjon(builder)
+            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AKTØRID_MOR).build())
+            .build();
     }
 
     private PersonopplysningGrunnlagEntitet opprettTomtPersonopplysningGrunnlag() {

@@ -18,12 +18,14 @@ final class AktivitetStatusMapper {
     }
 
     static {
-        Map<no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus, AktivitetStatus> map = new EnumMap<>(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.class);
+        Map<no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus, AktivitetStatus> map = new EnumMap<>(
+            no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.class);
         map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.AAP, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
         map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.BA, AktivitetStatus.BRUKERS_ANDEL);
         map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.DP, AktivitetStatus.DAGPENGER);
         map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.MS, AktivitetStatus.MILITÆR_ELLER_SIVIL);
-        map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.SN, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+        map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.SN,
+            AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         map.put(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.KUN_YTELSE, AktivitetStatus.KUN_YTELSE);
         REGEL_TIL_VL_MAP = Collections.unmodifiableMap(map);
     }

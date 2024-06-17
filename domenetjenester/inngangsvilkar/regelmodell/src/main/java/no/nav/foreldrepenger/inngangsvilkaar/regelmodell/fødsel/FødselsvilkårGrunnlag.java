@@ -10,16 +10,12 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public record FødselsvilkårGrunnlag(@JsonProperty("soekersKjonn") RegelKjønn søkersKjønn,
-                                    @JsonProperty("soekerRolle") RegelSøkerRolle søkerRolle,
+public record FødselsvilkårGrunnlag(@JsonProperty("soekersKjonn") RegelKjønn søkersKjønn, @JsonProperty("soekerRolle") RegelSøkerRolle søkerRolle,
                                     @JsonProperty("dagensdato") LocalDate behandlingsdato,
                                     @JsonProperty("bekreftetFoedselsdato") LocalDate bekreftetFødselsdato,
-                                    @JsonProperty("bekreftetTermindato") LocalDate terminbekreftelseTermindato,
-                                    int antallBarn,
-                                    boolean erFødselRegistreringFristUtløpt,
-                                    boolean erMorForSykVedFødsel, // Legacy - tilfelle før WLB
-                                    boolean erSøktOmTermin,
-                                    boolean erBehandlingsdatoEtterTidligsteDato,
+                                    @JsonProperty("bekreftetTermindato") LocalDate terminbekreftelseTermindato, int antallBarn,
+                                    boolean erFødselRegistreringFristUtløpt, boolean erMorForSykVedFødsel, // Legacy - tilfelle før WLB
+                                    boolean erSøktOmTermin, boolean erBehandlingsdatoEtterTidligsteDato,
                                     @JsonProperty("erTerminBekreftelseUtstedtEtterXUker") boolean erTerminbekreftelseUtstedtEtterTidligsteDato,
                                     boolean farMedmorUttakRundtFødsel) implements VilkårGrunnlag {
 

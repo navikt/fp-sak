@@ -24,8 +24,7 @@ public class Virkedager {
         try {
             var padBefore = fom.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
             var padAfter = DayOfWeek.SUNDAY.getValue() - tom.getDayOfWeek().getValue();
-            var virkedagerPadded = Math.toIntExact(
-                ChronoUnit.WEEKS.between(fom.minusDays(padBefore), tom.plusDays(padAfter).plusDays(1L)) * 5L);
+            var virkedagerPadded = Math.toIntExact(ChronoUnit.WEEKS.between(fom.minusDays(padBefore), tom.plusDays(padAfter).plusDays(1L)) * 5L);
             var virkedagerPadding = Math.min(padBefore, 5) + Math.max(padAfter - 2, 0);
             return virkedagerPadded - virkedagerPadding;
         } catch (ArithmeticException var6) {

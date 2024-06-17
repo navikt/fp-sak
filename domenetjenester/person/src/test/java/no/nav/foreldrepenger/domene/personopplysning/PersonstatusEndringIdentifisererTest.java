@@ -37,10 +37,8 @@ class PersonstatusEndringIdentifisererTest {
 
     @Test
     void testPersonstatusUendret_flere_statuser() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
@@ -49,10 +47,8 @@ class PersonstatusEndringIdentifisererTest {
 
     @Test
     void testPersonstatusEndret_ekstra_status_lagt_til() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA, PersonstatusType.UREG));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA, PersonstatusType.UREG));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
@@ -61,10 +57,8 @@ class PersonstatusEndringIdentifisererTest {
 
     @Test
     void testPersonstatusEndret_status_endret_type() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.UREG, PersonstatusType.FOSV));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.UREG, PersonstatusType.FOSV));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
@@ -73,10 +67,9 @@ class PersonstatusEndringIdentifisererTest {
 
     @Test
     void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
-                personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
+            personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
@@ -86,10 +79,9 @@ class PersonstatusEndringIdentifisererTest {
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<PersonstatusEntitet> personstatuser) {
         var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
-        new LinkedList<>(personstatuser)
-                .descendingIterator()
-                .forEachRemaining(
-                        ps -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, ps.getPeriode()).medPersonstatus(ps.getPersonstatus())));
+        new LinkedList<>(personstatuser).descendingIterator()
+            .forEachRemaining(
+                ps -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, ps.getPeriode()).medPersonstatus(ps.getPersonstatus())));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 
@@ -99,8 +91,8 @@ class PersonstatusEndringIdentifisererTest {
         // Opprett personstatuser med forskjellig fra og med dato. Går 1 mnd tilbake for
         // hver status.
         IntStream.range(0, personstatuser.size())
-                .forEach(i -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(i)))
-                        .medPersonstatus(personstatuser.get(i))));
+            .forEach(i -> builder1.leggTil(builder1.getPersonstatusBuilder(AKTØRID, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(i)))
+                .medPersonstatus(personstatuser.get(i))));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 }

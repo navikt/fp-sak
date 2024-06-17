@@ -41,8 +41,7 @@ public class KopierUtbetResultatTjeneste {
     }
 
     public boolean kanKopiereForrigeUtbetResultat(BehandlingReferanse ref) {
-        var forrigeResOpt = ref.getOriginalBehandlingId()
-            .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid));
+        var forrigeResOpt = ref.getOriginalBehandlingId().flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid));
 
         if (forrigeResOpt.isEmpty()) {
             return false;
@@ -65,8 +64,7 @@ public class KopierUtbetResultatTjeneste {
 
     public void kopierOgLagreUtbetBeregningsresultat(BehandlingReferanse ref) {
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        var forrigeRes = ref.getOriginalBehandlingId()
-            .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid)).orElseThrow();
+        var forrigeRes = ref.getOriginalBehandlingId().flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid)).orElseThrow();
         var forrigeUtbetResultat = forrigeRes.getUtbetBeregningsresultatFP();
         var skulleHindreTilbaketrekkIForrigeBehandling = forrigeRes.skalHindreTilbaketrekk().orElseThrow();
 
@@ -104,10 +102,8 @@ public class KopierUtbetResultatTjeneste {
             var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(utbPeriode.getBeregningsresultatPeriodeFom(), utbPeriode.getBeregningsresultatPeriodeTom())
                 .build(nyttUtbetResultat);
-            utbPeriode.getBeregningsresultatAndelList().forEach(andel ->
-                BeregningsresultatAndel.builder(Kopimaskin.deepCopy(andel))
-                    .build(beregningsresultatPeriode)
-            );
+            utbPeriode.getBeregningsresultatAndelList()
+                .forEach(andel -> BeregningsresultatAndel.builder(Kopimaskin.deepCopy(andel)).build(beregningsresultatPeriode));
         });
         return nyttUtbetResultat;
     }

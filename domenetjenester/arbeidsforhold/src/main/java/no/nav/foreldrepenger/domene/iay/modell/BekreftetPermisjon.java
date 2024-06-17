@@ -47,8 +47,7 @@ public class BekreftetPermisjon {
         if (!(o instanceof BekreftetPermisjon that)) {
             return false;
         }
-        return Objects.equals(periode, that.periode)
-                && Objects.equals(status, that.status);
+        return Objects.equals(periode, that.periode) && Objects.equals(status, that.status);
     }
 
     @Override
@@ -58,10 +57,7 @@ public class BekreftetPermisjon {
 
     @Override
     public String toString() {
-        return "BekreftetPermisjon<" +
-                "periode=" + periode +
-                ", status=" + status +
-                '>';
+        return "BekreftetPermisjon<" + "periode=" + periode + ", status=" + status + '>';
     }
 
 }

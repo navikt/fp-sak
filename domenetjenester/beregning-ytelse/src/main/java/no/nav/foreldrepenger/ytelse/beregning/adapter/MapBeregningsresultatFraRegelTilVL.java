@@ -23,7 +23,8 @@ public final class MapBeregningsresultatFraRegelTilVL {
         return eksisterendeResultat;
     }
 
-    private static no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, BeregningsresultatEntitet eksisterendeResultat) {
+    private static no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode,
+                                                                                                                       BeregningsresultatEntitet eksisterendeResultat) {
         var nyPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(resultatPeriode.getFom(), resultatPeriode.getTom())
             .build(eksisterendeResultat);
@@ -31,7 +32,8 @@ public final class MapBeregningsresultatFraRegelTilVL {
         return nyPeriode;
     }
 
-    private static BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
+    private static BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra,
+                                                       no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
         var dagsats = nullSafeLong(bra.getDagsats()).intValue();
         var dagsatsFraBg = nullSafeLong(bra.getDagsatsFraBg()).intValue();
         return BeregningsresultatAndel.builder()
@@ -42,8 +44,7 @@ public final class MapBeregningsresultatFraRegelTilVL {
             .medUtbetalingsgrad(bra.getUtbetalingsgrad())
             .medDagsatsFraBg(dagsatsFraBg)
             .medAktivitetStatus(AktivitetStatusMapper.fraRegelTilVl(bra))
-            .medArbeidsforholdRef(bra.getArbeidsforhold() == null
-                ? null : InternArbeidsforholdRef.ref(bra.getArbeidsforhold().arbeidsforholdId()))
+            .medArbeidsforholdRef(bra.getArbeidsforhold() == null ? null : InternArbeidsforholdRef.ref(bra.getArbeidsforhold().arbeidsforholdId()))
             .medInntektskategori(InntektskategoriMapper.fraRegelTilVL(bra.getInntektskategori()))
             .build(brp);
     }

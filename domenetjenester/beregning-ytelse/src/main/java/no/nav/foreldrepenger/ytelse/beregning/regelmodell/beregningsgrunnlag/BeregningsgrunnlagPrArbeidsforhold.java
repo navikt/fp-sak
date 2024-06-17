@@ -3,9 +3,7 @@ package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public record BeregningsgrunnlagPrArbeidsforhold(Arbeidsforhold arbeidsforhold,
-                                                 BigDecimal redusertRefusjonPrÅr,
-                                                 BigDecimal redusertBrukersAndelPrÅr,
+public record BeregningsgrunnlagPrArbeidsforhold(Arbeidsforhold arbeidsforhold, BigDecimal redusertRefusjonPrÅr, BigDecimal redusertBrukersAndelPrÅr,
                                                  Inntektskategori inntektskategori) {
 
     public Long getDagsatsBruker() {
@@ -17,7 +15,7 @@ public record BeregningsgrunnlagPrArbeidsforhold(Arbeidsforhold arbeidsforhold,
     }
 
     public String getArbeidsgiverId() {
-        return arbeidsforhold == null ? null: arbeidsforhold.identifikator();
+        return arbeidsforhold == null ? null : arbeidsforhold.identifikator();
     }
 
     private long avrundTilDagsats(BigDecimal verdi) {

@@ -14,8 +14,7 @@ public class BehandlingGrunnlagBygger {
     public Behandling.Builder byggGrunnlag(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        return new Behandling.Builder()
-            .berørtBehandling(fpGrunnlag.isBerørtBehandling())
+        return new Behandling.Builder().berørtBehandling(fpGrunnlag.isBerørtBehandling())
             .søkerErMor(søkerErMor(ref))
             .kreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
     }

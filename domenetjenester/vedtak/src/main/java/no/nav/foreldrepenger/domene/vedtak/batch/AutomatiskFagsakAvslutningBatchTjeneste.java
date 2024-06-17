@@ -12,9 +12,9 @@ import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
  * Henter ut løpende Fagsaker og avslutter dem hvis det ikke er noen åpne behandlinger
  * og alle perioden for ytelsesvedtaket er passert
- *
+ * <p>
  * Skal kjøre en gang i døgnet
- *
+ * <p>
  * Kan kjøres med parameter date=<Datoen man vil batchen skal kjøres for(på format dd-MM-yyyy)>
  */
 

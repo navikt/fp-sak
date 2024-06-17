@@ -43,8 +43,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
     }
 
     @Inject
-    public VedtakAvstemPeriodeTask(InformasjonssakRepository informasjonssakRepository,
-                                   ProsessTaskTjeneste taskTjeneste) {
+    public VedtakAvstemPeriodeTask(InformasjonssakRepository informasjonssakRepository, ProsessTaskTjeneste taskTjeneste) {
         super();
         this.informasjonssakRepository = informasjonssakRepository;
         this.taskTjeneste = taskTjeneste;
@@ -57,10 +56,12 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
         var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tidsrom = Integer.parseInt(prosessTaskData.getPropertyValue(LOG_TIDSROM));
         var baseline = LocalDateTime.now();
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        if (MDCOperations.getCallId() == null) {
+            MDCOperations.putCallId();
+        }
         var callId = MDCOperations.getCallId();
-        var saker = vedtak ? informasjonssakRepository.finnSakerDerVedtakOpprettetInnenIntervall(fom, tom, YTELSER) :
-            informasjonssakRepository.finnSakerMedVedtakDerSakOpprettetInnenIntervall(fom, tom, YTELSER);
+        var saker = vedtak ? informasjonssakRepository.finnSakerDerVedtakOpprettetInnenIntervall(fom, tom,
+            YTELSER) : informasjonssakRepository.finnSakerMedVedtakDerSakOpprettetInnenIntervall(fom, tom, YTELSER);
         var gruppe = new ProsessTaskGruppe();
         List<ProsessTaskData> tasks = new ArrayList<>();
         saker.forEach(f -> {

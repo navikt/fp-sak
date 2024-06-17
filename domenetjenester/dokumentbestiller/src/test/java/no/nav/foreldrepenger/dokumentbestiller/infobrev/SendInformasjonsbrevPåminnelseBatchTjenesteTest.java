@@ -9,9 +9,6 @@ import java.util.Properties;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.SendInformasjonsbrevPåminnelseBatchTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -88,8 +85,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_barnet_er_dødt(EntityManager em) {
         // Arrange
         var behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
-        var fødtBarnInfo = new FødtBarnInfo.Builder()
-            .medIdent(new PersonIdent("11"))
+        var fødtBarnInfo = new FødtBarnInfo.Builder().medIdent(new PersonIdent("11"))
             .medFødselsdato(LocalDate.now().plusDays(2))
             .medDødsdato(LocalDate.now().plusDays(2))
             .build();
@@ -152,14 +148,11 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     }
 
     private MorOgFarBehandling opprettTestdata(EntityManager em, LocalDate fødselsdato) {
-        var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(fødselsdato.minusDays(40));
+        var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(fødselsdato.minusDays(40));
         var aktørIdFar = new AktørId("1111111111111");
         scenarioMor.medSøknadAnnenPart().medAktørId(aktørIdFar).medNavn("Bruker Brukersen").build();
 
-        scenarioMor.medBekreftetHendelse()
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(1);
+        scenarioMor.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
 
         scenarioMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         var behandlingMor = scenarioMor.lagre(repositoryProvider);
@@ -169,7 +162,8 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
 
         var kontoMor = Stønadskontoberegning.builder()
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
-            .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
+            .medRegelInput("{ blablabla }")
+            .medRegelEvaluering("{ blablabla }");
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandlingMor.getFagsak(), behandlingMor.getId(), kontoMor.build());
@@ -183,7 +177,8 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
 
         var kontoFar = Stønadskontoberegning.builder()
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FEDREKVOTE).medMaxDager(75).build())
-            .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
+            .medRegelInput("{ blablabla }")
+            .medRegelEvaluering("{ blablabla }");
         repositoryProvider.getFagsakRelasjonRepository().lagre(fagsakFar, behandlingFar.getId(), kontoFar.build());
 
         em.flush();
@@ -191,5 +186,6 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
         return new MorOgFarBehandling(em.find(Behandling.class, behandlingMor.getId()), em.find(Behandling.class, behandlingFar.getId()));
     }
 
-    private record MorOgFarBehandling(Behandling behandlingMor, Behandling behandlingFar) {}
+    private record MorOgFarBehandling(Behandling behandlingMor, Behandling behandlingFar) {
+    }
 }

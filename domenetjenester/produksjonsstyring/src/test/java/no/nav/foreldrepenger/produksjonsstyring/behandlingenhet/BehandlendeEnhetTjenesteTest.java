@@ -78,9 +78,9 @@ class BehandlendeEnhetTjenesteTest {
     void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
         lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(ENHET_NORMAL);
-        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.empty());
 
-        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(), 1, FAR_AKTØR_ID);
         behandlingMor.setBehandlendeEnhet(ENHET_NORMAL);
         var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, MOR_AKTØR_ID);
         behandlingFar.setBehandlendeEnhet(ENHET_KODE_6);
@@ -97,14 +97,15 @@ class BehandlendeEnhetTjenesteTest {
     }
 
 
-
     private Behandling opprettBehandlingMorSøkerFødselTermin(LocalDate termindato, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -117,9 +118,7 @@ class BehandlendeEnhetTjenesteTest {
     private Behandling opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(antallBarn);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(antallBarn);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -133,9 +132,7 @@ class BehandlendeEnhetTjenesteTest {
     private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, AktørId annenPart) {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
-            .medAntallBarn(antallBarnSøknad);
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnSøknad);
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -149,10 +146,7 @@ class BehandlendeEnhetTjenesteTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 

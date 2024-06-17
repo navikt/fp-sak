@@ -35,7 +35,9 @@ public class BeregningRefusjonOverstyringerEntitet extends BaseEntitet {
     }
 
     public BeregningRefusjonOverstyringerEntitet(BeregningRefusjonOverstyringerEntitet beregningRefusjonOverstyringerEntitet) {
-        beregningRefusjonOverstyringerEntitet.getRefusjonOverstyringer().stream().map(BeregningRefusjonOverstyringEntitet::new)
+        beregningRefusjonOverstyringerEntitet.getRefusjonOverstyringer()
+            .stream()
+            .map(BeregningRefusjonOverstyringEntitet::new)
             .forEach(this::leggTilRefusjonOverstyring);
     }
 

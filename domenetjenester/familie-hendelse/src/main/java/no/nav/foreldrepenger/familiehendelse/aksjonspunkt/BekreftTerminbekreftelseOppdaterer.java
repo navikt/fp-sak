@@ -70,7 +70,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             if (erEndret) {
                 opprettHistorikkinnslag(param, dto);
             }
-        }  else if (grunnlag.getOverstyrtVersjon().isEmpty()) {
+        } else if (grunnlag.getOverstyrtVersjon().isEmpty()) {
             historikkAdapter.tekstBuilder()
                 .medEndretFelt(HistorikkEndretFeltType.TERMINBEKREFTELSE, null, "godkjent")
                 .medBegrunnelse(dto.getBegrunnelse())
@@ -80,8 +80,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         if (FamilieHendelseType.TERMIN.equals(grunnlag.getGjeldendeVersjon().getType())) {
-            oppdatertOverstyrtHendelse
-                .tilbakestillBarn()
+            oppdatertOverstyrtHendelse.tilbakestillBarn()
                 .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
                     .medNavnPå(grunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
                     .medTermindato(dto.getTermindato())
@@ -90,12 +89,10 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         } else {
             // Hvis man nå av en eller annen grunn har aksjonspunkt avklar termin når typen er fødsel.
-            oppdatertOverstyrtHendelse
-                .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
-                    .medNavnPå(grunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
-                    .medTermindato(dto.getTermindato())
-                    .medUtstedtDato(dto.getUtstedtdato()))
-                .medAntallBarn(dto.getAntallBarn());
+            oppdatertOverstyrtHendelse.medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
+                .medNavnPå(grunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
+                .medTermindato(dto.getTermindato())
+                .medUtstedtDato(dto.getUtstedtdato())).medAntallBarn(dto.getAntallBarn());
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
 
@@ -116,8 +113,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         return builder.build();
     }
 
-    private void opprettHistorikkinnslag(AksjonspunktOppdaterParameter param,
-                                         BekreftTerminbekreftelseAksjonspunktDto dto) {
+    private void opprettHistorikkinnslag(AksjonspunktOppdaterParameter param, BekreftTerminbekreftelseAksjonspunktDto dto) {
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL)
@@ -140,8 +136,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     }
 
     private TerminbekreftelseEntitet getGjeldendeTerminbekreftelse(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getGjeldendeTerminbekreftelse()
-            .orElseThrow(() -> new IllegalStateException("Har ikke terminbekreftelse når forventet"));
+        return grunnlag.getGjeldendeTerminbekreftelse().orElseThrow(() -> new IllegalStateException("Har ikke terminbekreftelse når forventet"));
     }
 
     private LocalDate getUtstedtdato(FamilieHendelseGrunnlagEntitet grunnlag) {

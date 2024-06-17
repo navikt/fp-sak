@@ -63,12 +63,8 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse()
-                .medFødselsDato(fødselsdato)
-                .medAntallBarn(1);
-        scenario.medBekreftetHendelse()
-                .medFødselsDato(fødselsdato)
-                .medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.FIN);
         var behandling = lagre(scenario);
 
@@ -88,23 +84,24 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(fødselsdato)
                 .medUtstedtDato(fødselsdato.minusMonths(2))
                 .medNavnPå("LEGEN MIN"));
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(fødselsdato)
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(fødselsdato.minusMonths(2)));
 
-        scenario.medBekreftetHendelse()
-                .medFødselsDato(fødselsdato.minusDays(12))
-                .medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato.minusDays(12)).medAntallBarn(1);
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.BEL);
         scenario.medSøknadDato(fødselsdato.minusMonths(2).plusWeeks(1));
-        scenario.medSøknad()
-                .medMottattDato(fødselsdato.minusMonths(2).plusWeeks(1));
+        scenario.medSøknad().medMottattDato(fødselsdato.minusMonths(2).plusWeeks(1));
         var behandling = lagre(scenario);
 
         // Act
@@ -141,17 +138,20 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var aktørId1 = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(termindato));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.FIN);
         var behandling = lagre(scenario);
 
@@ -163,7 +163,8 @@ class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     private Optional<MedlemResultat> kallTjeneste(Behandling behandling, LocalDate dato) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato)
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(dato)
             .medUtledetMedlemsintervall(new LocalDateInterval(dato.minusWeeks(4), dato.plusWeeks(4)))
             .build());
         return tjeneste.utledVedSTP(ref);
@@ -176,17 +177,20 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var aktørId1 = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(termindato));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.CAN);
         var behandling = lagre(scenario);
 
@@ -208,30 +212,31 @@ class AvklarOmSøkerOppholderSegINorgeTest {
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        var gift = builderForRegisteropplysninger
-                .medPersonas()
-                .mann(annenPartAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.FIN)
-                .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
-                .build();
+        var gift = builderForRegisteropplysninger.medPersonas()
+            .mann(annenPartAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.FIN)
+            .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
+            .build();
         scenario.medRegisterOpplysninger(gift);
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.ESP)
-                .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.ESP)
+            .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
+            .build();
 
         scenario.medRegisterOpplysninger(søker);
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato)
                 .medNavnPå("LEGEN MIN"));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknad().medMottattDato(LocalDate.now());
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
@@ -256,30 +261,31 @@ class AvklarOmSøkerOppholderSegINorgeTest {
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.ESP)
-                .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.ESP)
+            .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
+            .build();
 
-        var gift = builderForRegisteropplysninger
-                .medPersonas()
-                .mann(annenPartAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.CAN)
-                .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
-                .build();
+        var gift = builderForRegisteropplysninger.medPersonas()
+            .mann(annenPartAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.CAN)
+            .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
+            .build();
 
         scenario.medRegisterOpplysninger(gift);
         scenario.medRegisterOpplysninger(søker);
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato)
                 .medNavnPå("LEGEN MIN"));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknad().medMottattDato(LocalDate.now());
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
@@ -301,11 +307,15 @@ class AvklarOmSøkerOppholderSegINorgeTest {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         var termindato = LocalDate.now().plusDays(40);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
                 .medNavnPå("LEGEN MIN"));
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
                 .medNavnPå("LEGEN MIN"));
@@ -327,11 +337,8 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
         var aktørInntekt = builder.getAktørInntektBuilder(aktørId);
         aktørInntekt.leggTilInntekt(InntektBuilder.oppdatere(empty())
-                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING)
-                .leggTilInntektspost(InntektspostBuilder.ny()
-                        .medBeløp(BigDecimal.TEN)
-                        .medInntektspostType(InntektspostType.LØNN)
-                        .medPeriode(fom, tom)));
+            .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING)
+            .leggTilInntektspost(InntektspostBuilder.ny().medBeløp(BigDecimal.TEN).medInntektspostType(InntektspostType.LØNN).medPeriode(fom, tom)));
         builder.leggTilAktørInntekt(aktørInntekt);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
@@ -346,11 +353,15 @@ class AvklarOmSøkerOppholderSegINorgeTest {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         var termindato = LocalDate.now().plusDays(40);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
                 .medNavnPå("LEGEN MIN"));
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
                 .medNavnPå("LEGEN MIN"));
@@ -375,17 +386,20 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var aktørId1 = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(termindato));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
         var behandling = lagre(scenario);
 
@@ -404,11 +418,15 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var tom = LocalDate.now().minusWeeks(58L);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato.minusMonths(2))
                 .medNavnPå("LEGEN MIN"));
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato.minusMonths(2))
                 .medNavnPå("LEGEN MIN"));
@@ -433,17 +451,20 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var aktørId1 = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
 
-        scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(termindato));
-        scenario.medSøknad()
-                .medMottattDato(LocalDate.now());
+        scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
         var behandling = lagre(scenario);
 
@@ -456,11 +477,10 @@ class AvklarOmSøkerOppholderSegINorgeTest {
     private AktørId leggTilSøker(AbstractTestScenario<?> scenario, AdresseType adresseType, Landkoder adresseLand) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var persona = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
-                .personstatus(PersonstatusType.UDEFINERT)
-                .statsborgerskap(adresseLand);
+        var persona = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
+            .personstatus(PersonstatusType.UDEFINERT)
+            .statsborgerskap(adresseLand);
 
         var adresseBuilder = PersonAdresse.builder().adresselinje1("Portveien 2").land(adresseLand);
         persona.adresse(adresseType, adresseBuilder);

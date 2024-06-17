@@ -29,7 +29,8 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
     private final UttakRepositoryStubProvider uttakRepositoryProvider = new UttakRepositoryStubProvider();
-    private final VurderUttakDokumentasjonAksjonspunktUtleder utleder = new VurderUttakDokumentasjonAksjonspunktUtleder(new YtelseFordelingTjeneste(uttakRepositoryProvider.getYtelsesFordelingRepository()),
+    private final VurderUttakDokumentasjonAksjonspunktUtleder utleder = new VurderUttakDokumentasjonAksjonspunktUtleder(
+        new YtelseFordelingTjeneste(uttakRepositoryProvider.getYtelsesFordelingRepository()),
         new AktivitetskravDokumentasjonUtleder(new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository())));
 
     @Test
@@ -69,15 +70,15 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var behandling = scenario.lagre(uttakRepositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
         var utledetAp = utleder.utledAksjonspunktFor(input);
 
         assertThat(utledetAp).isTrue();
 
         var behov = utleder.utledDokumentasjonVurderingBehov(input)
-            .stream().sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
+            .stream()
+            .sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
             .toList();
         assertThat(behov).hasSize(4);
         assertThat(behov.get(0).måVurderes()).isTrue();
@@ -104,8 +105,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var behandling = scenario.lagre(uttakRepositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), LocalDate.now(), List.of(), 0);
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
         var aksjonspunktDefinisjon = utleder.utledAksjonspunktFor(input);
         var behov = utleder.utledDokumentasjonVurderingBehov(input);

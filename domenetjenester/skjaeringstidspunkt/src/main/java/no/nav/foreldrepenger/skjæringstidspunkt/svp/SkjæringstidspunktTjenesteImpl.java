@@ -64,7 +64,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var førsteUttakSøknadOpt = Optional.ofNullable(førsteØnskedeUttaksdag(behandling));
-        var førsteUttakSøknad = førsteUttakSøknadOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
+        var førsteUttakSøknad = førsteUttakSøknadOpt.orElseGet(
+            LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttakSøknad);
 
         var builder = Skjæringstidspunkt.builder()
@@ -164,7 +165,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private static Optional<LocalDate> tidligsteDatoFraTilrettelegginger(SvpTilretteleggingerEntitet tilrettelegginger) {
         return Optional.ofNullable(tilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
             .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
             .min(Comparator.naturalOrder());
@@ -172,11 +175,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private Optional<LocalDate> finnFørsteDatoMedUttak(Behandling behandling) {
         var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of());
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of());
         if (!finnesPerioderMedUtbetaling(perioder)) {
-            return perioder.stream()
-                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
-                .min(Comparator.naturalOrder());
+            return perioder.stream().map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).min(Comparator.naturalOrder());
         }
         return perioder.stream()
             .filter(it -> it.getDagsats() > 0)
@@ -185,8 +187,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private Long originalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
+        return behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
     }
 
     private boolean finnesPerioderMedUtbetaling(List<BeregningsresultatPeriode> perioder) {
@@ -194,23 +195,23 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDate utledTidligste(LocalDate første, LocalDate andre) {
-        return første.isBefore(andre) ? første :  andre;
+        return første.isBefore(andre) ? første : andre;
     }
 
     private LocalDate utledSkjæringstidspunktRegisterinnhenting(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId)
-            .or(() -> BehandlingType.REVURDERING.equals(behandling.getType()) ?
-                svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling)) : Optional.empty());
+            .or(() -> BehandlingType.REVURDERING.equals(behandling.getType()) ? svangerskapspengerRepository.hentGrunnlag(
+                originalBehandling(behandling)) : Optional.empty());
 
-        var tidligsteTilretteleggingsDatoOpt = svpGrunnlagOpt
-            .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+        var tidligsteTilretteleggingsDatoOpt = svpGrunnlagOpt.map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
             .min(Comparator.naturalOrder());
 
-        return tidligsteTilretteleggingsDatoOpt
-            .or(() -> opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)))
+        return tidligsteTilretteleggingsDatoOpt.or(() -> opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)))
             .orElseGet(LocalDate::now);
     }
 

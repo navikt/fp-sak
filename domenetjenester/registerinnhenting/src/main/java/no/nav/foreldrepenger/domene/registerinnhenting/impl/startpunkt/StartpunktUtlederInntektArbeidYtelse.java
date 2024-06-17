@@ -72,11 +72,14 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref, boolean vurderArbeidsforhold,
-                                                                          UUID grunnlagId1, UUID grunnlagId2) {
+    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref,
+                                                                          boolean vurderArbeidsforhold,
+                                                                          UUID grunnlagId1,
+                                                                          UUID grunnlagId2) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Revurderinger skal normalt begynne i uttak.
-        var defaultStartpunktForRegisterEndringer = BehandlingType.FØRSTEGANGSSØKNAD.equals(ref.behandlingType()) ? StartpunktType.OPPTJENING : StartpunktType.UDEFINERT;
+        var defaultStartpunktForRegisterEndringer = BehandlingType.FØRSTEGANGSSØKNAD.equals(
+            ref.behandlingType()) ? StartpunktType.OPPTJENING : StartpunktType.UDEFINERT;
 
         var grunnlag1 = iayTjeneste.hentGrunnlagPåId(ref.behandlingId(), grunnlagId1);
         var grunnlag2 = iayTjeneste.hentGrunnlagPåId(ref.behandlingId(), grunnlagId2);
@@ -105,12 +108,14 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             var måVurderePermisjonUtenSluttdato = sjekkOmMåVurderePermisjonerUtenSluttdato(ref, iayGrunnlag);
 
             if (erPåkrevdManuelleAvklaringer) {
-                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
+                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD,
+                    "manuell vurdering av arbeidsforhold");
             } else {
                 ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(ref);
             }
-            if (måVurderePermisjonUtenSluttdato && !erPåkrevdManuelleAvklaringer){
-                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold pga permisjon");
+            if (måVurderePermisjonUtenSluttdato && !erPåkrevdManuelleAvklaringer) {
+                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD,
+                    "manuell vurdering av arbeidsforhold pga permisjon");
             } else {
                 ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
             }
@@ -161,7 +166,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
      */
     private void ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        var aksjonspunkter = behandling.getAksjonspunkter().stream()
+        var aksjonspunkter = behandling.getAksjonspunkter()
+            .stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .toList();
@@ -171,7 +177,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     private void ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        var aksjonspunkter = behandling.getAksjonspunkter().stream()
+        var aksjonspunkter = behandling.getAksjonspunkter()
+            .stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .toList();
@@ -184,7 +191,11 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkter);
     }
 
-    private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {
+    private void leggTilStartpunkt(List<StartpunktType> startpunkter,
+                                   UUID grunnlagId1,
+                                   UUID grunnlagId2,
+                                   StartpunktType startpunkt,
+                                   String endringLoggtekst) {
         startpunkter.add(startpunkt);
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(klassenavn, startpunkt, endringLoggtekst, grunnlagId1, grunnlagId2);
     }

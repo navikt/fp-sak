@@ -27,8 +27,7 @@ public class RelevantOpptjeningMapper {
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(Collections.emptyList());
-        var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
-            iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
+        var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
             .filter(opp -> finnesInntektsmeldingForEllerKanBeregnesUten(opp, inntektsmeldinger, yrkesfilter, ref.getUtledetSkjæringstidspunkt()))
@@ -43,32 +42,30 @@ public class RelevantOpptjeningMapper {
             // Ikke et arbeidsforhold, trenger ikke ta stilling til IM
             return true;
         }
-        var inntektsmeldingerForArbeidsforholdHosAG = inntektsmeldinger.stream()
-            .filter(im -> im.getArbeidsgiver().equals(getArbeidsgiver(opp)))
+        var inntektsmeldingerForArbeidsforholdHosAG = inntektsmeldinger.stream().filter(im -> im.getArbeidsgiver().equals(getArbeidsgiver(opp)))
             // Trenger ikke se på inntektsmeldinger med arbeidsforholdId som ikke er knyttet til et reelt arbeidsforhold
-            .filter(im -> harArbeidsforholdIdSomEksisterer(im, yrkesfilter, utledetSkjæringstidspunkt))
-            .toList();
+            .filter(im -> harArbeidsforholdIdSomEksisterer(im, yrkesfilter, utledetSkjæringstidspunkt)).toList();
         if (inntektsmeldingerForArbeidsforholdHosAG.isEmpty()) {
             return true;
         }
         if (opp.arbeidsforholdId() == null) {
             return true;
         }
-        return inntektsmeldingerForArbeidsforholdHosAG.stream()
-            .anyMatch(im -> im.getArbeidsforholdRef().gjelderFor(opp.arbeidsforholdId()));
+        return inntektsmeldingerForArbeidsforholdHosAG.stream().anyMatch(im -> im.getArbeidsforholdRef().gjelderFor(opp.arbeidsforholdId()));
     }
 
     private static boolean harArbeidsforholdIdSomEksisterer(Inntektsmelding inntektsmelding,
                                                             YrkesaktivitetFilter yrkesfilter,
                                                             LocalDate utledetSkjæringstidspunkt) {
-        return yrkesfilter.getYrkesaktiviteter().stream()
+        return yrkesfilter.getYrkesaktiviteter()
+            .stream()
             .filter(ya -> starterFørStp(ya.getAlleAktivitetsAvtaler(), utledetSkjæringstidspunkt))
             .anyMatch(ya -> ya.gjelderFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef()));
     }
 
     private static boolean starterFørStp(Collection<AktivitetsAvtale> alleAktivitetsAvtaler, LocalDate utledetSkjæringstidspunkt) {
-        return alleAktivitetsAvtaler.stream().anyMatch(aa -> aa.erAnsettelsesPeriode() &&
-            aa.getPeriode().getFomDato().isBefore(utledetSkjæringstidspunkt));
+        return alleAktivitetsAvtaler.stream()
+            .anyMatch(aa -> aa.erAnsettelsesPeriode() && aa.getPeriode().getFomDato().isBefore(utledetSkjæringstidspunkt));
     }
 
     private static Arbeidsgiver getArbeidsgiver(OpptjeningAktiviteter.OpptjeningPeriode opp) {

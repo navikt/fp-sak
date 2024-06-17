@@ -42,12 +42,11 @@ class BehandlingRelaterteYtelserMapperTest {
     @Test
     void skal_returnerer_tilgrensende_ytelser_for_soker() {
         var ytelser = List.of(
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
-                        I_DAG.plusDays(360)),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
-                        I_DAG.plusDays(200)),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
-                        null));
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
+                I_DAG.plusDays(200)),
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
 
@@ -61,14 +60,12 @@ class BehandlingRelaterteYtelserMapperTest {
     @Test
     void skal_returnerer_tilgrensende_ytelser_for_annen_forelder() {
         var ytelser = List.of(
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
-                        I_DAG.plusDays(360)),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
-                        I_DAG.plusDays(200)),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(5),
-                        null),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.ENSLIG_FORSØRGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
-                        null));
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
+                I_DAG.plusDays(200)),
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(5), null),
+            opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.ENSLIG_FORSØRGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
 
@@ -94,9 +91,8 @@ class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     void skal_returnerer_6_tom_tilgrensende_ytelser_for_soker() {
-        @SuppressWarnings("unchecked")
-        List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(Collections.EMPTY_LIST,
-                RELATERT_YTELSE_TYPER_FOR_SØKER);
+        @SuppressWarnings("unchecked") List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(
+            Collections.EMPTY_LIST, RELATERT_YTELSE_TYPER_FOR_SØKER);
 
         assertThat(resultatListe).hasSize(11);
         IntStream.range(0, RELATERT_YTELSE_TYPER_FOR_SØKER.size()).forEach(i -> {
@@ -107,9 +103,8 @@ class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     void skal_returnerer_2_tom_tilgrensende_ytelser_for_soker() {
-        @SuppressWarnings("unchecked")
-        List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(Collections.EMPTY_LIST,
-                RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
+        @SuppressWarnings("unchecked") List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(
+            Collections.EMPTY_LIST, RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
 
         assertThat(resultatListe).hasSize(2);
         IntStream.range(0, RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER.size()).forEach(i -> {
@@ -121,23 +116,22 @@ class BehandlingRelaterteYtelserMapperTest {
     @Test
     void skal_returnerer_sortert_tilgrensende_ytelser_for_soker() {
         var tilgrensendeYtelser = List.of(
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
-                        I_DAG.minusDays(365), I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
-                        I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(265),
-                        I_DAG.plusDays(260)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, null, null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(165),
-                        I_DAG.plusDays(160)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(65),
-                        I_DAG.plusDays(60)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseTilstand.AVSLUTTET,
-                        I_DAG.minusDays(500), I_DAG.plusDays(400)));
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(265),
+                I_DAG.plusDays(260)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, null, null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(165),
+                I_DAG.plusDays(160)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(65),
+                I_DAG.plusDays(60)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseTilstand.AVSLUTTET,
+                I_DAG.minusDays(500), I_DAG.plusDays(400)));
 
-        var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser,
-                RELATERT_YTELSE_TYPER_FOR_SØKER);
+        var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser, RELATERT_YTELSE_TYPER_FOR_SØKER);
 
         assertThat(resultatListe).hasSize(11);
         assertThat(resultatListe.get(0).relatertYtelseNavn()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getNavn());
@@ -159,23 +153,21 @@ class BehandlingRelaterteYtelserMapperTest {
     @Test
     void skal_returnerer_sortert_tilgrensende_ytelser_for_annen_forelder() {
         var tilgrensendeYtelser = List.of(
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
-                        I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
-                        I_DAG.minusDays(365), I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
-                        I_DAG.minusDays(165), I_DAG.plusDays(160)),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
-                        null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.plusMonths(5),
-                        null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, null, null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG, null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ENGANGSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
-                        I_DAG.plusDays(400)));
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                I_DAG.plusDays(360)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(165),
+                I_DAG.plusDays(160)),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.plusMonths(5), null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, null, null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG, null),
+            opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ENGANGSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
+                I_DAG.plusDays(400)));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser,
-                RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
+            RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
 
         assertThat(resultatListe).hasSize(2);
         assertThat(resultatListe.get(0).relatertYtelseNavn()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getNavn());
@@ -193,18 +185,18 @@ class BehandlingRelaterteYtelserMapperTest {
     }
 
     private Ytelse opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType ytelseType,
-            RelatertYtelseTilstand ytelseTilstand,
-            LocalDate iverksettelsesDato,
-            LocalDate opphoerFomDato) {
+                                                               RelatertYtelseTilstand ytelseTilstand,
+                                                               LocalDate iverksettelsesDato,
+                                                               LocalDate opphoerFomDato) {
 
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         var ytelserBuilder = builder.getAktørYtelseBuilder(AktørId.dummy());
         var ytelse = ytelserBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, ytelseType, new Saksnummer("22"))
-                .medYtelseType(ytelseType)
-                .medStatus(ytelseTilstand)
-                .medPeriode(opphoerFomDato == null
-                        ? DatoIntervallEntitet.fraOgMed(iverksettelsesDato)
-                        : DatoIntervallEntitet.fraOgMedTilOgMed(iverksettelsesDato, opphoerFomDato));
+            .medYtelseType(ytelseType)
+            .medStatus(ytelseTilstand)
+            .medPeriode(
+                opphoerFomDato == null ? DatoIntervallEntitet.fraOgMed(iverksettelsesDato) : DatoIntervallEntitet.fraOgMedTilOgMed(iverksettelsesDato,
+                    opphoerFomDato));
 
         ytelserBuilder.leggTilYtelse(ytelse);
         builder.leggTilAktørYtelse(ytelserBuilder);

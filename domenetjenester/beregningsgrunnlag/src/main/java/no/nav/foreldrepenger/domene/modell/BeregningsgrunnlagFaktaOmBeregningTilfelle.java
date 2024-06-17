@@ -8,6 +8,7 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle {
 
     private Beregningsgrunnlag beregningsgrunnlag;
     private FaktaOmBeregningTilfelle faktaOmBeregningTilfelle = FaktaOmBeregningTilfelle.UDEFINERT;
+
     public FaktaOmBeregningTilfelle getFaktaOmBeregningTilfelle() {
         return faktaOmBeregningTilfelle;
     }
@@ -17,8 +18,7 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle {
         if (!(o instanceof BeregningsgrunnlagFaktaOmBeregningTilfelle that)) {
             return false;
         }
-        return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) &&
-                Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
+        return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) && Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
     }
 
     @Override

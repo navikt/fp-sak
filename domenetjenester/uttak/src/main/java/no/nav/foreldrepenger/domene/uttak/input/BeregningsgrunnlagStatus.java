@@ -16,15 +16,15 @@ public class BeregningsgrunnlagStatus {
     private final Arbeidsgiver arbeidsgiver;
     private final AktivitetStatus aktivitetStatus;
 
-    public BeregningsgrunnlagStatus(AktivitetStatus aktivitetStatus,
-                                    Arbeidsgiver arbeidsgiver,
-                                    InternArbeidsforholdRef arbeidsforholdRef) {
+    public BeregningsgrunnlagStatus(AktivitetStatus aktivitetStatus, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         this.arbeidsforholdRef = arbeidsforholdRef;
         this.arbeidsgiver = arbeidsgiver;
         this.aktivitetStatus = aktivitetStatus;
     }
 
-    /** Andel uten arbeidsgiver. (eks frilanser, selvstendig næringsdrivende). */
+    /**
+     * Andel uten arbeidsgiver. (eks frilanser, selvstendig næringsdrivende).
+     */
     public BeregningsgrunnlagStatus(AktivitetStatus aktivitetStatus) {
         this(aktivitetStatus, null, null);
     }
@@ -32,9 +32,8 @@ public class BeregningsgrunnlagStatus {
     public AktivitetIdentifikator toUttakAktivitetIdentifikator() {
         if (erArbeidstaker()) {
             var arbeidsgiver = getArbeidsgiver();
-            var arbeidsgiverIdentifikator = arbeidsgiver.map(a -> a.getErVirksomhet() ?
-                new Orgnummer(a.getIdentifikator()) : new AktørId(a.getIdentifikator()))
-                .orElse(null);
+            var arbeidsgiverIdentifikator = arbeidsgiver.map(
+                a -> a.getErVirksomhet() ? new Orgnummer(a.getIdentifikator()) : new AktørId(a.getIdentifikator())).orElse(null);
             var arbeidsforholdId = getArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse).orElse(null);
             return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, arbeidsforholdId);
         }
@@ -69,11 +68,9 @@ public class BeregningsgrunnlagStatus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "aktivitetStatus=" + aktivitetStatus
-            + (arbeidsgiver == null ? "" : ", arbeidsgiver=" + arbeidsgiver)
-            + (arbeidsforholdRef == null ? "" : ", arbeidsforholdRef=" + arbeidsforholdRef)
-            + ">";
+        return getClass().getSimpleName() + "<" + "aktivitetStatus=" + aktivitetStatus + (
+            arbeidsgiver == null ? "" : ", arbeidsgiver=" + arbeidsgiver) + (
+            arbeidsforholdRef == null ? "" : ", arbeidsforholdRef=" + arbeidsforholdRef) + ">";
     }
 
     @Override
@@ -85,8 +82,7 @@ public class BeregningsgrunnlagStatus {
             return false;
         }
         var other = (BeregningsgrunnlagStatus) obj;
-        return Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef)
-            && Objects.equals(this.arbeidsgiver, other.arbeidsgiver)
+        return Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef) && Objects.equals(this.arbeidsgiver, other.arbeidsgiver)
             && Objects.equals(this.aktivitetStatus, other.aktivitetStatus);
     }
 

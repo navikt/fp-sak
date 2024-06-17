@@ -39,8 +39,7 @@ public class ArbeidGrunnlagBygger {
         var arbeid = new Arbeid.Builder();
 
         var beregningsgrunnlagStatuser = input.getBeregningsgrunnlagStatuser();
-        var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(
-            input.getBehandlingReferanse().behandlingId());
+        var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId());
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
         if (beregningsgrunnlagStatuser.isEmpty()) {
@@ -54,12 +53,10 @@ public class ArbeidGrunnlagBygger {
             arbeid.arbeidsforhold(arbeidsforhold);
         });
 
-        ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream()
-            .map(OppgittPeriodeEntitet::getFom)
-            .forEach(fom -> {
-                var sumStillingsprosent =  uttakYrkesaktiviteter.summerStillingsprosentAlleYrkesaktiviteter(fom);
-                arbeid.endringAvStilling(new EndringAvStilling(fom, sumStillingsprosent));
-            });
+        ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream().map(OppgittPeriodeEntitet::getFom).forEach(fom -> {
+            var sumStillingsprosent = uttakYrkesaktiviteter.summerStillingsprosentAlleYrkesaktiviteter(fom);
+            arbeid.endringAvStilling(new EndringAvStilling(fom, sumStillingsprosent));
+        });
 
         return arbeid;
     }
@@ -75,8 +72,7 @@ public class ArbeidGrunnlagBygger {
         return resultat;
     }
 
-    private LocalDate finnStartdato(UttakYrkesaktiviteter uttakYrkesaktiviteter,
-                                    BeregningsgrunnlagStatus statusPeriode) {
+    private LocalDate finnStartdato(UttakYrkesaktiviteter uttakYrkesaktiviteter, BeregningsgrunnlagStatus statusPeriode) {
         return statusPeriode.getArbeidsgiver()
             .flatMap(ag -> uttakYrkesaktiviteter.finnStartdato(ag, statusPeriode.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef())))
             .orElse(LocalDate.MIN);

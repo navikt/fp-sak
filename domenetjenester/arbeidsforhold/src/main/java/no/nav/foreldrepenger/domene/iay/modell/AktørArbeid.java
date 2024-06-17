@@ -49,7 +49,9 @@ public class AktørArbeid implements IndexKey {
         this.aktørId = aktørId;
     }
 
-    /** Ufiltrert liste av yrkesaktiviteter. */
+    /**
+     * Ufiltrert liste av yrkesaktiviteter.
+     */
     public Collection<Yrkesaktivitet> hentAlleYrkesaktiviteter() {
         return Set.copyOf(yrkesaktiviter);
     }
@@ -86,8 +88,7 @@ public class AktørArbeid implements IndexKey {
             yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType));
         } else {
             var nøkkel = new Opptjeningsnøkkel(yrkesaktivitetKladd);
-            yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType)
-                    && new Opptjeningsnøkkel(ya).matcher(nøkkel));
+            yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).matcher(nøkkel));
         }
     }
 
@@ -120,10 +121,7 @@ public class AktørArbeid implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "aktørId=" + aktørId +
-                ", yrkesaktiviteter=" + yrkesaktiviter +
-                '>';
+        return getClass().getSimpleName() + "<" + "aktørId=" + aktørId + ", yrkesaktiviteter=" + yrkesaktiviter + '>';
     }
 
 }

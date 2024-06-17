@@ -30,7 +30,7 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
     ;
 
     private static final Set<ArbeidsforholdHandlingType> MED_OVERSTYRT_PERIODE = Set.of(BRUK_MED_OVERSTYRT_PERIODE, BASERT_PÅ_INNTEKTSMELDING,
-            LAGT_TIL_AV_SAKSBEHANDLER);
+        LAGT_TIL_AV_SAKSBEHANDLER);
 
     private static final Map<String, ArbeidsforholdHandlingType> KODER = new LinkedHashMap<>();
 

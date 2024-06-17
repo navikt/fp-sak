@@ -65,17 +65,22 @@ public class Kompletthetskontroller {
         mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
 
         // Vurder kompletthet etter at dokument knyttet til behandling - med mindre man venter på registrering av papirsøknad
-        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList();
+        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT)
+            .stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .toList();
         var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, åpneAksjonspunkter);
 
         if (!kompletthetResultat.erOppfylt() && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
-            var åpenKompletthet = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD).orElseThrow();
+            var åpenKompletthet = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)
+                .orElseThrow();
             if (!kompletthetResultat.erFristUtløpt() && !Objects.equals(åpenKompletthet.getVenteårsak(), kompletthetResultat.venteårsak())) {
-                behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
+                behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD,
+                    kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
             }
         }
-        if (kompletthetResultat.erOppfylt() && (kompletthetModell.erKompletthetssjekkEllerPassert(behandlingId)
-            || behandling.isBehandlingPåVent() || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
+        if (kompletthetResultat.erOppfylt() && (kompletthetModell.erKompletthetssjekkEllerPassert(behandlingId) || behandling.isBehandlingPåVent()
+            || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
             spolKomplettBehandlingTilStartpunkt(behandling, grunnlagSnapshot);
             if (kompletthetModell.erKompletthetssjekkPassert(behandlingId)) {
                 behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
@@ -99,8 +104,8 @@ public class Kompletthetskontroller {
             if (!kompletthetResultat.erOppfylt()) {
                 // Et av kompletthetskriteriene er ikke oppfylt, og evt. brev er sendt ut. Logger historikk og avbryter
                 if (!kompletthetResultat.erFristUtløpt()) {
-                    dokumentmottakerFelles.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling,
-                        HistorikkinnslagType.BEH_VENT, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
+                    dokumentmottakerFelles.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, HistorikkinnslagType.BEH_VENT,
+                        kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
                 }
                 return;
             }
@@ -113,11 +118,14 @@ public class Kompletthetskontroller {
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
             behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
             behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
-        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
+        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(
+            AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
+        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(
+            AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-        } else if (BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
+        } else if (BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(
+            AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
     }

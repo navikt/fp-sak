@@ -37,8 +37,7 @@ public class BehandlingRevurderingTjeneste {
     }
 
     @Inject
-    public BehandlingRevurderingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    public BehandlingRevurderingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
 
         this.entityManager = Objects.requireNonNull(behandlingRepositoryProvider.getEntityManager(), "entityManager");
         this.behandlingRepository = Objects.requireNonNull(behandlingRepositoryProvider.getBehandlingRepository());
@@ -60,9 +59,7 @@ public class BehandlingRevurderingTjeneste {
             for (var behandlingId : behandlingsIder) {
                 behandlingLåsRepository.taLås(behandlingId);
             }
-            return behandlingsIder.stream()
-                .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
-                .toList();
+            return behandlingsIder.stream().map(behandlingId -> behandlingRepository.hentBehandling(behandlingId)).toList();
         }
         return Collections.emptyList();
     }
@@ -97,17 +94,13 @@ public class BehandlingRevurderingTjeneste {
     }
 
     public Optional<Behandling> finnÅpenYtelsesbehandling(Long fagsakId) {
-        var åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
-            .filter(beh -> !beh.erKøet())
-            .toList();
+        var åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream().filter(beh -> !beh.erKøet()).toList();
         check(åpenBehandling.size() <= 1, "Kan maks ha én åpen ytelsesbehandling");
         return optionalFirst(åpenBehandling);
     }
 
     public Optional<Behandling> finnKøetYtelsesbehandling(Long fagsakId) {
-        var køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
-            .filter(Behandling::erKøet)
-            .toList();
+        var køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream().filter(Behandling::erKøet).toList();
         check(køetBehandling.size() <= 1, "Kan maks ha én køet ytelsesbehandling");
         return optionalFirst(køetBehandling);
     }
@@ -116,12 +109,12 @@ public class BehandlingRevurderingTjeneste {
         Objects.requireNonNull(fagsakId, "fagsakId");
 
         var query = entityManager.createQuery("""
-            SELECT b.id from Behandling b
-            where fagsak.id=:fagsakId
-             and status not in (:avsluttet)
-             and behandlingType in (:behandlingType)
-             order by opprettetTidspunkt desc
-           """, Long.class);
+             SELECT b.id from Behandling b
+             where fagsak.id=:fagsakId
+              and status not in (:avsluttet)
+              and behandlingType in (:behandlingType)
+              order by opprettetTidspunkt desc
+            """, Long.class);
         query.setParameter("fagsakId", fagsakId);
         query.setParameter(AVSLUTTET_KEY, BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("behandlingType", BehandlingType.getYtelseBehandlingTyper());

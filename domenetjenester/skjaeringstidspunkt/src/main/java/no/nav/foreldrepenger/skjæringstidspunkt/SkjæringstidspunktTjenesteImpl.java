@@ -28,7 +28,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.behandlingRepository = behandlingRepository;
         this.engangsstønadTjeneste = engangsstønadTjeneste;
         this.foreldrepengerTjeneste = foreldrepengerTjeneste;
-        this.svangerskapspengerTjeneste =svangerskapspengerTjeneste;
+        this.svangerskapspengerTjeneste = svangerskapspengerTjeneste;
     }
 
     @Override

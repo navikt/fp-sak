@@ -51,14 +51,12 @@ class IAYDtoMapperLagretKonverteringTest {
 
         var aggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandlingId);
         var aktørInntektBuilder = aggregatBuilder.getAktørInntektBuilder(aktørId);
-        var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING,
-                new Opptjeningsnøkkel(null, ORGNR, null));
+        var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, new Opptjeningsnøkkel(null, ORGNR, null));
         var inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
 
         var aktørArbeidBuilder = aggregatBuilder.getAktørArbeidBuilder(aktørId);
-        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
-                new Opptjeningsnøkkel(null, ORGNR, null),
-                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(new Opptjeningsnøkkel(null, ORGNR, null),
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
 
         var aktørYtelseBuilder = aggregatBuilder.getAktørYtelseBuilder(aktørId);
         aktørYtelseBuilder.leggTilYtelse(lagYtelse(aktørYtelseBuilder));
@@ -69,39 +67,32 @@ class IAYDtoMapperLagretKonverteringTest {
         var fraOgMed = DATO.minusWeeks(1);
         var tilOgMed = DATO.plusMonths(1);
 
-        var permisjon = permisjonBuilder
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medPeriode(fraOgMed, tilOgMed)
-                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMISJON)
-                .build();
+        var permisjon = permisjonBuilder.medProsentsats(BigDecimal.valueOf(100))
+            .medPeriode(fraOgMed, tilOgMed)
+            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMISJON)
+            .build();
 
-        var aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
-                .medSisteLønnsendringsdato(fraOgMed);
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
+            .medSisteLønnsendringsdato(fraOgMed);
 
-        var yrkesaktivitet = yrkesaktivitetBuilder
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .leggTilPermisjon(permisjon)
-                .build();
+        var yrkesaktivitet = yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .leggTilPermisjon(permisjon)
+            .build();
 
-        var aktørArbeid = aktørArbeidBuilder
-                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        var aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
-        var inntektspost = inntektspostBuilder
-                .medBeløp(BigDecimal.TEN)
-                .medPeriode(fraOgMed, tilOgMed)
-                .medInntektspostType(InntektspostType.YTELSE)
-                .medInntektYtelse(null);
+        var inntektspost = inntektspostBuilder.medBeløp(BigDecimal.TEN)
+            .medPeriode(fraOgMed, tilOgMed)
+            .medInntektspostType(InntektspostType.YTELSE)
+            .medInntektYtelse(null);
 
-        inntektBuilder
-                .leggTilInntektspost(inntektspost)
-                .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
-                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
+        inntektBuilder.leggTilInntektspost(inntektspost)
+            .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
+            .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
 
-        var aktørInntekt = aktørInntektBuilder
-                .leggTilInntekt(inntektBuilder);
+        var aktørInntekt = aktørInntektBuilder.leggTilInntekt(inntektBuilder);
 
         aggregatBuilder.leggTilAktørInntekt(aktørInntekt);
         aggregatBuilder.leggTilAktørArbeid(aktørArbeid);
@@ -118,26 +109,22 @@ class IAYDtoMapperLagretKonverteringTest {
         var ytelselseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, RelatertYtelseType.SYKEPENGER, sakId);
         ytelselseBuilder.tilbakestillAnvisteYtelser();
         return ytelselseBuilder.medKilde(Fagsystem.INFOTRYGD)
-                .medYtelseType(RelatertYtelseType.FORELDREPENGER)
-                .medStatus(RelatertYtelseTilstand.AVSLUTTET)
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM_DATO, TOM_DATO))
-                .medSaksnummer(sakId)
-                .medYtelseGrunnlag(
-                        ytelselseBuilder.getGrunnlagBuilder()
-                                .medOpprinneligIdentdato(OPPRINNELIG_IDENTDATO)
-                                .medInntektsgrunnlagProsent(new BigDecimal(99.00))
-                                .medDekningsgradProsent(new BigDecimal(98.00))
-                                .medYtelseStørrelse(YtelseStørrelseBuilder.ny()
-                                        .medBeløp(new BigDecimal(100000.50))
-                                        .medVirksomhet(ORGNR)
-                                        .build())
-                                .medVedtaksDagsats(new Beløp(557))
-                                .build())
-                .medYtelseAnvist(ytelselseBuilder.getAnvistBuilder()
-                        .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ANVIST_FOM, ANVIST_TOM))
-                        .medDagsats(new BigDecimal(500.00))
-                        .medUtbetalingsgradProsent(null)
-                        .build());
+            .medYtelseType(RelatertYtelseType.FORELDREPENGER)
+            .medStatus(RelatertYtelseTilstand.AVSLUTTET)
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM_DATO, TOM_DATO))
+            .medSaksnummer(sakId)
+            .medYtelseGrunnlag(ytelselseBuilder.getGrunnlagBuilder()
+                .medOpprinneligIdentdato(OPPRINNELIG_IDENTDATO)
+                .medInntektsgrunnlagProsent(new BigDecimal(99.00))
+                .medDekningsgradProsent(new BigDecimal(98.00))
+                .medYtelseStørrelse(YtelseStørrelseBuilder.ny().medBeløp(new BigDecimal(100000.50)).medVirksomhet(ORGNR).build())
+                .medVedtaksDagsats(new Beløp(557))
+                .build())
+            .medYtelseAnvist(ytelselseBuilder.getAnvistBuilder()
+                .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ANVIST_FOM, ANVIST_TOM))
+                .medDagsats(new BigDecimal(500.00))
+                .medUtbetalingsgradProsent(null)
+                .build());
     }
 
 }

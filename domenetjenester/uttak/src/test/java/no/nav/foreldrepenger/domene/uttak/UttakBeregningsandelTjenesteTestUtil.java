@@ -22,7 +22,7 @@ public class UttakBeregningsandelTjenesteTestUtil {
     }
 
     public UttakBeregningsandelTjenesteTestUtil leggTilFrilans() {
-        this.bgStatuser.add(new BeregningsgrunnlagStatus(AktivitetStatus.FRILANSER,null, null));
+        this.bgStatuser.add(new BeregningsgrunnlagStatus(AktivitetStatus.FRILANSER, null, null));
         return this;
     }
 

@@ -66,8 +66,7 @@ class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest {
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medPeriode(fedrekvoteFom.minusWeeks(1), fedrekvoteFom.minusDays(1))
             .build();
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true));
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true));
         var behandling = scenario.lagre(repositoryProvider);
 
         var tjeneste = tjeneste(repositoryProvider);
@@ -80,7 +79,6 @@ class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest {
     private SøknadsperiodeFristTjeneste tjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new SøknadsperiodeFristTjenesteImpl(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getSøknadRepository());
     }
-
 
 
 }

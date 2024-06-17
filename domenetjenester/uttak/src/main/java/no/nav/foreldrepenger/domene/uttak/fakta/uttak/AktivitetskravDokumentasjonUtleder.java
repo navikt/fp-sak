@@ -48,8 +48,9 @@ public class AktivitetskravDokumentasjonUtleder {
         var behandlingReferanse = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle()) || ytelseFordelingAggregat.robustHarAleneomsorg(input.getBehandlingReferanse().relasjonRolle())
-            || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet()) || MorsAktivitet.IKKE_OPPGITT.equals(periode.getMorsAktivitet())) {
+        if (helePeriodenErHelg(periode) || RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle())
+            || ytelseFordelingAggregat.robustHarAleneomsorg(input.getBehandlingReferanse().relasjonRolle()) || familieHendelse.erStebarnsadopsjon()
+            || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet()) || MorsAktivitet.IKKE_OPPGITT.equals(periode.getMorsAktivitet())) {
             return Optional.empty();
         }
 
@@ -100,6 +101,7 @@ public class AktivitetskravDokumentasjonUtleder {
     private boolean annenpartHarForeldrepengerUtbetaling(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         return ytelsespesifiktGrunnlag.getAnnenpart()
             .flatMap(a -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(a.gjeldendeVedtakBehandlingId()))
-            .stream().anyMatch(ForeldrepengerUttak::harUtbetaling);
+            .stream()
+            .anyMatch(ForeldrepengerUttak::harUtbetaling);
     }
 }

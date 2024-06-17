@@ -32,7 +32,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
-public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTjeneste  {
+public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTjeneste {
 
     private static final Period SENESTE_UTTAK_FØR_TERMIN = Period.ofWeeks(3);
 
@@ -70,9 +70,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
         var brukfrist = søknadsperiode != null ? Søknadsfrister.søknadsfristDagytelse(søknadsperiode.getFomDato()) : null;
 
-        var builder = Søknadsfristdatoer.builder()
-            .medSøknadGjelderPeriode(søknadsperiode)
-            .medUtledetSøknadsfrist(brukfrist);
+        var builder = Søknadsfristdatoer.builder().medSøknadGjelderPeriode(søknadsperiode).medUtledetSøknadsfrist(brukfrist);
         søknad.ifPresent(s -> builder.medSøknadMottattDato(s.getMottattDato()));
         søknad.filter(s -> brukfrist != null && s.getMottattDato().isAfter(brukfrist))
             .ifPresent(s -> builder.medDagerOversittetFrist(DAYS.between(brukfrist, s.getMottattDato())));
@@ -82,7 +80,9 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     public static Optional<LocalDate> utledNettoSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
         var tilrettelegginger = grunnlag.getGjeldendeVersjon();
         return Optional.ofNullable(tilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
             .map(BeregnTilrettleggingsdato::tidligstTilretteleggingFraTilrettelegging)
             .min(Comparator.naturalOrder());
@@ -91,7 +91,9 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     public static Optional<DatoerSøknadsfrist> utledFørsteSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
         var tilrettelegginger = grunnlag.getGjeldendeVersjon();
         return Optional.of(tilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
             .map(SøknadsperiodeFristTjenesteImpl::hentTidligsteFraDato)
             .flatMap(Optional::stream)
@@ -101,22 +103,26 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     private static Optional<TilretteleggingFOM> hentTidligsteFraDato(SvpTilretteleggingEntitet tilrettelegging) {
-        var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
             .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
-        var delvisTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var delvisTilrettelegging = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
             .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
-        var slutteArbeid = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var slutteArbeid = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
             .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
-        return  Stream.of(helTilrettelegging, delvisTilrettelegging, slutteArbeid)
+        return Stream.of(helTilrettelegging, delvisTilrettelegging, slutteArbeid)
             .flatMap(Optional::stream)
             .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
     }
 
-    public record DatoerSøknadsfrist(LocalDate førsteUttakDato, LocalDate tidligstMottatt ) {}
+    public record DatoerSøknadsfrist(LocalDate førsteUttakDato, LocalDate tidligstMottatt) {
+    }
 
     private static Optional<LocalDate> utledTilretteleggingTomFraTermin(FamilieHendelseEntitet familieHendelse) {
         var fh = Optional.ofNullable(familieHendelse).filter(FamilieHendelseEntitet::getGjelderFødsel);
@@ -127,8 +133,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         if (termindatoMinusFFF.isPresent() && fødselsdato.filter(f -> f.isBefore(termindatoMinusFFF.get())).isPresent()) {
             return fødselsdato.map(f -> f.minusDays(1));
         }
-        return termindatoMinusFFF
-            .or(() -> fh.map(FamilieHendelseEntitet::getSkjæringstidspunkt).map(d -> d.minus(SENESTE_UTTAK_FØR_TERMIN)))
+        return termindatoMinusFFF.or(() -> fh.map(FamilieHendelseEntitet::getSkjæringstidspunkt).map(d -> d.minus(SENESTE_UTTAK_FØR_TERMIN)))
             .map(t -> t.minusDays(1));
     }
 

@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @Stereotype
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Documented
 public @interface BehandlingStegRef {
 
@@ -78,13 +78,18 @@ public @interface BehandlingStegRef {
         private Lookup() {
         }
 
-        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseType, BehandlingType behandlingType,
-                BehandlingStegType behandlingStegRef) {
+        public static <I> Optional<I> find(Class<I> cls,
+                                           FagsakYtelseType ytelseType,
+                                           BehandlingType behandlingType,
+                                           BehandlingStegType behandlingStegRef) {
             return find(cls, (CDI<I>) CDI.current(), ytelseType, behandlingType, behandlingStegRef);
         }
 
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType,
-                BehandlingStegType behandlingStegRef) {
+        public static <I> Optional<I> find(Class<I> cls,
+                                           Instance<I> instances,
+                                           FagsakYtelseType ytelseType,
+                                           BehandlingType behandlingType,
+                                           BehandlingStegType behandlingStegRef) {
             Objects.requireNonNull(instances, "instances");
 
             for (var fagsakLiteral : coalesce(ytelseType, FagsakYtelseType.UDEFINERT)) {
@@ -102,8 +107,9 @@ public @interface BehandlingStegRef {
                         return Optional.of(getInstance(cinst));
                     }
                     if (cinst.isAmbiguous()) {
-                        throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
-                            + fagsakLiteral + ", behandlingType=" + behandlingLiteral + ", behandlingStegRef=" + behandlingStegRef);
+                        throw new IllegalStateException(
+                            "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral + ", behandlingType="
+                                + behandlingLiteral + ", behandlingStegRef=" + behandlingStegRef);
                     }
                 }
 
@@ -112,16 +118,14 @@ public @interface BehandlingStegRef {
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
-            return cls != null
-                    ? instances.select(cls, anno)
-                    : instances.select(anno);
+            return cls != null ? instances.select(cls, anno) : instances.select(anno);
         }
 
         private static <I> I getInstance(Instance<I> inst) {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
                 throw new IllegalStateException(
-                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
@@ -143,7 +147,7 @@ public @interface BehandlingStegRef {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE })
+    @Target({ElementType.TYPE})
     @Documented
     @interface ContainerOfBehandlingStegRef {
         BehandlingStegRef[] value();

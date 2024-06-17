@@ -63,9 +63,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Inject
     public BehandlingProsesseringTjenesteImpl(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            RegisterdataEndringshåndterer registerdataEndringshåndterer,
-            EndringsresultatSjekker endringsresultatSjekker,
-            ProsessTaskTjeneste taskTjeneste) {
+                                              RegisterdataEndringshåndterer registerdataEndringshåndterer,
+                                              EndringsresultatSjekker endringsresultatSjekker,
+                                              ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.registerdataEndringshåndterer = registerdataEndringshåndterer;
         this.endringsresultatSjekker = endringsresultatSjekker;
@@ -124,8 +124,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public Optional<String> finnesTasksForPolling(Behandling behandling) {
-        return erAlleredeOpprettetOppdateringFor(behandling)
-            .or(() -> finnesFeiletOppdateringFor(behandling));
+        return erAlleredeOpprettetOppdateringFor(behandling).or(() -> finnesFeiletOppdateringFor(behandling));
     }
 
     @Override
@@ -143,12 +142,11 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     // Til bruk ved gjenopptak fra vent (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
     public String opprettTasksForFortsettBehandling(Behandling behandling) {
-        return erAlleredeOpprettetOppdateringFor(behandling)
-            .orElseGet(() -> {
-                var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 1);
-                taskData.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
-                return lagreEnkeltTask(taskData);
-            });
+        return erAlleredeOpprettetOppdateringFor(behandling).orElseGet(() -> {
+            var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 1);
+            taskData.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
+            return lagreEnkeltTask(taskData);
+        });
     }
 
     @Override
@@ -159,7 +157,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+    public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling,
+                                                                          BehandlingStegType behandlingStegType,
                                                                           LocalDateTime nesteKjøringEtter) {
         var taskData = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, 2);
         taskData.setProperty(FortsettBehandlingTask.GJENOPPTA_STEG, behandlingStegType.getKode());
@@ -170,12 +169,10 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     // (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, LocalDateTime nesteKjøringEtter) {
-        return erAlleredeOpprettetOppdateringFor(behandling)
-            .or(() -> finnesFeiletOppdateringFor(behandling))
-            .orElseGet(() -> {
-                var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter, 3);
-                return taskTjeneste.lagre(gruppe);
-            });
+        return erAlleredeOpprettetOppdateringFor(behandling).or(() -> finnesFeiletOppdateringFor(behandling)).orElseGet(() -> {
+            var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter, 3);
+            return taskTjeneste.lagre(gruppe);
+        });
     }
 
     // Robust task til bruk ved batch-gjenopptak fra vent - forutsetter sjekk på at ikke allerede finnes
@@ -207,7 +204,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
         if (behandling.erYtelseBehandling() && registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
             leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter, prioritet);
-            var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter, prioritet);
+            var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter,
+                prioritet);
             var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
             registerdataOppdatererTask.setPayload(StandardJsonConfig.toJson(snapshot));
             gruppe.addNesteSekvensiell(registerdataOppdatererTask);
@@ -226,7 +224,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter, prioritet));
         }
         gruppe.addNesteParallell(tasker);
-        var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter, prioritet);
+        var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling,
+            nesteKjøringEtter, prioritet);
         gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
     }
 
@@ -246,7 +245,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
-        return taskTjeneste.finnAlleStatuser(List.of(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR)).stream()
+        return taskTjeneste.finnAlleStatuser(List.of(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR))
+            .stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
@@ -254,7 +254,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
-        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
+        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET)
+            .stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
@@ -263,7 +264,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public Set<Long> behandlingerMedFeiletProsessTask() {
-        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
+        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET)
+            .stream()
             .filter(it -> TASK_FORTSETT.equals(it.taskType()) || TASK_START.equals(it.taskType()))
             .map(ProsessTaskData::getBehandlingId)
             .filter(Objects::nonNull)

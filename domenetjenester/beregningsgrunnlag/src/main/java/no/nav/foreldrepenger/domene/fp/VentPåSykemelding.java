@@ -29,9 +29,7 @@ class VentPåSykemelding {
      * @return Returnerer tom Optional om vi ikke skal opprette vente punkt.
      * Returnerer en Optional med en LocalDate (frist vi skal vente til) dersom vi skal vente
      */
-    public static Optional<LocalDate> utledVenteFrist(YtelseFilter filter,
-                                                      LocalDate skjæringstidspunkt,
-                                                      LocalDate dagensDato) {
+    public static Optional<LocalDate> utledVenteFrist(YtelseFilter filter, LocalDate skjæringstidspunkt, LocalDate dagensDato) {
         var alleSykepengerBasertPåDagpenger = filter.før(skjæringstidspunkt)
             .filter(y -> RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType()))
             .filter(yt -> erBasertPåDagpenger(yt.getYtelseGrunnlag()))
@@ -49,8 +47,7 @@ class VentPåSykemelding {
             return Optional.empty();
         }
 
-        var finnesNødvendigSykemelding = finnesSykemeldingPåSkjæringstidspunktet(løpendeSPBasertPåDagpenger,
-            skjæringstidspunkt);
+        var finnesNødvendigSykemelding = finnesSykemeldingPåSkjæringstidspunktet(løpendeSPBasertPåDagpenger, skjæringstidspunkt);
         return finnesNødvendigSykemelding ? Optional.empty() : utledFrist(skjæringstidspunkt, dagensDato);
 
     }
@@ -71,18 +68,15 @@ class VentPåSykemelding {
         return Optional.empty();
     }
 
-    private static boolean finnesSykemeldingPåSkjæringstidspunktet(List<Ytelse> løpendeSPBasertPåDagpenger,
-                                                                   LocalDate skjæringstidspunkt) {
+    private static boolean finnesSykemeldingPåSkjæringstidspunktet(List<Ytelse> løpendeSPBasertPåDagpenger, LocalDate skjæringstidspunkt) {
         return løpendeSPBasertPåDagpenger.stream()
             .map(Ytelse::getYtelseAnvist)
             .flatMap(Collection::stream)
-            .anyMatch(ya -> ya.getAnvistFOM().isBefore(skjæringstidspunkt) && !ya.getAnvistTOM()
-                .isBefore(skjæringstidspunkt));
+            .anyMatch(ya -> ya.getAnvistFOM().isBefore(skjæringstidspunkt) && !ya.getAnvistTOM().isBefore(skjæringstidspunkt));
     }
 
     private static boolean erBasertPåDagpenger(Optional<YtelseGrunnlag> ytelseGrunnlag) {
-        return ytelseGrunnlag.map(
-            yg -> ARBEIDSKATEGORIER_DAGPENGER.contains(yg.getArbeidskategori().orElse(Arbeidskategori.UDEFINERT)))
+        return ytelseGrunnlag.map(yg -> ARBEIDSKATEGORIER_DAGPENGER.contains(yg.getArbeidskategori().orElse(Arbeidskategori.UDEFINERT)))
             .orElse(false);
     }
 }

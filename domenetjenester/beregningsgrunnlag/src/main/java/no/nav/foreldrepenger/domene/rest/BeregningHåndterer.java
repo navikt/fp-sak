@@ -49,92 +49,75 @@ public class BeregningHåndterer {
     }
 
     public void håndterAvklarAktiviteter(BeregningsgrunnlagInput input, AvklarteAktiviteterDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input, AksjonspunktDefinisjon.AVKLAR_AKTIVITETER);
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
+            AksjonspunktDefinisjon.AVKLAR_AKTIVITETER);
         var resultatFraKalkulus = AvklarAktiviteterHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
-    public void håndterFastsettBGTidsbegrensetArbeidsforhold(BeregningsgrunnlagInput input,
-                                                             FastsettBGTidsbegrensetArbeidsforholdDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+    public void håndterFastsettBGTidsbegrensetArbeidsforhold(BeregningsgrunnlagInput input, FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
-        var resultatFraKalkulus = FastsettBGTidsbegrensetArbeidsforholdHåndterer.håndter(håndterBeregningsgrunnlagInput,
-            dto);
+        var resultatFraKalkulus = FastsettBGTidsbegrensetArbeidsforholdHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
-    public void håndterFastsettBeregningsgrunnlagATFL(BeregningsgrunnlagInput input,
-                                                      FastsettBeregningsgrunnlagATFLDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+    public void håndterFastsettBeregningsgrunnlagATFL(BeregningsgrunnlagInput input, FastsettBeregningsgrunnlagATFLDto dto) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
         var resultatFraKalkulus = FastsettBeregningsgrunnlagATFLHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultatFraKalkulus);
     }
 
-    public void håndterBeregningAktivitetOverstyring(BeregningsgrunnlagInput input,
-                                                     List<BeregningsaktivitetLagreDto> overstyrAktiviteter) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+    public void håndterBeregningAktivitetOverstyring(BeregningsgrunnlagInput input, List<BeregningsaktivitetLagreDto> overstyrAktiviteter) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER);
-        var grunnlag = AvklarAktiviteterHåndterer.håndterOverstyring(overstyrAktiviteter,
-            håndterBeregningsgrunnlagInput);
+        var grunnlag = AvklarAktiviteterHåndterer.håndterOverstyring(overstyrAktiviteter, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), grunnlag);
     }
 
-    public void håndterBeregningsgrunnlagOverstyring(BeregningsgrunnlagInput input,
-                                                     OverstyrBeregningsgrunnlagDto overstyrBeregningsgrunnlagDto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+    public void håndterBeregningsgrunnlagOverstyring(BeregningsgrunnlagInput input, OverstyrBeregningsgrunnlagDto overstyrBeregningsgrunnlagDto) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
-        var resultat = BeregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(håndterBeregningsgrunnlagInput,
-            overstyrBeregningsgrunnlagDto);
+        var resultat = BeregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(håndterBeregningsgrunnlagInput, overstyrBeregningsgrunnlagDto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterFastsettBruttoForSNNyIArbeidslivet(BeregningsgrunnlagInput input,
                                                           FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET);
-        var resultat = FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer.oppdater(
-            håndterBeregningsgrunnlagInput, dto);
+        var resultat = FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer.oppdater(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     public void håndterFordelBeregningsgrunnlag(BeregningsgrunnlagInput input, FordelBeregningsgrunnlagDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG);
         var resultat = FordelBeregningsgrunnlagHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
-    public void håndterVurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input,
-                                                        VurderRefusjonBeregningsgrunnlagDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input, AksjonspunktDefinisjon.VURDER_REFUSJON_BERGRUNN);
+    public void håndterVurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input, VurderRefusjonBeregningsgrunnlagDto dto) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
+            AksjonspunktDefinisjon.VURDER_REFUSJON_BERGRUNN);
         var resultat = VurderRefusjonBeregningsgrunnlagHåndterer.håndter(dto, håndterBeregningsgrunnlagInput);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
 
     public void håndterVurderFaktaOmBeregning(BeregningsgrunnlagInput input, FaktaBeregningLagreDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
         var resultat = BeregningFaktaOgOverstyringHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
-    public void håndterVurderVarigEndretNyoppstartetSN(BeregningsgrunnlagInput input,
-                                                       Integer bruttoBeregningsgrunnlag) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
+    public void håndterVurderVarigEndretNyoppstartetSN(BeregningsgrunnlagInput input, Integer bruttoBeregningsgrunnlag) {
+        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
-        var resultat = VurderVarigEndretEllerNyoppstartetHåndterer.håndter(håndterBeregningsgrunnlagInput, bruttoBeregningsgrunnlag, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+        var resultat = VurderVarigEndretEllerNyoppstartetHåndterer.håndter(håndterBeregningsgrunnlagInput, bruttoBeregningsgrunnlag,
+            AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 

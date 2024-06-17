@@ -57,8 +57,8 @@ class FastsettePerioderRegelResultatKonvertererTest {
 
     private UttakInput lagInput(Behandling behandling, LocalDate stp) {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
-        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
-            new ForeldrepengerGrunnlag()).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
+        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()), new ForeldrepengerGrunnlag()).medBeregningsgrunnlagStatuser(
+            beregningsandelTjeneste.hentStatuser());
     }
 
     @Test
@@ -73,8 +73,7 @@ class FastsettePerioderRegelResultatKonvertererTest {
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT)
             .build();
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));
         var behandling = scenario.lagre(repositoryProvider);
         var stillingsprosent = BigDecimal.valueOf(50);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
@@ -82,13 +81,12 @@ class FastsettePerioderRegelResultatKonvertererTest {
         byggArbeidForBehandling(behandling, arbeidsgiver, stillingsprosent);
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.nullRef());
 
-        var aktivitet = new UttakPeriodeAktivitet(
-            AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null), Utbetalingsgrad.TEN,
-            Trekkdager.ZERO, false);
-        var uttakOppgittPeriode = OppgittPeriode.forUtsettelse(periodeFom, periodeTom,
-            UtsettelseÅrsak.ARBEID, periodeFom, periodeFom, null, null);
+        var aktivitet = new UttakPeriodeAktivitet(AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null),
+            Utbetalingsgrad.TEN, Trekkdager.ZERO, false);
+        var uttakOppgittPeriode = OppgittPeriode.forUtsettelse(periodeFom, periodeTom, UtsettelseÅrsak.ARBEID, periodeFom, periodeFom, null, null);
         var uttakPeriode = new UttakPeriode(uttakOppgittPeriode, Perioderesultattype.INNVILGET, null,
-            InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), SamtidigUttaksprosent.ZERO, Stønadskontotype.MØDREKVOTE);
+            InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), SamtidigUttaksprosent.ZERO,
+            Stønadskontotype.MØDREKVOTE);
         var fastsetteResultat = List.of(new FastsettePeriodeResultat(uttakPeriode, null, null, null));
         var input = lagInput(behandling, periodeFom);
         var konvertert = konverterer.konverter(input, fastsetteResultat, null);
@@ -102,9 +100,7 @@ class FastsettePerioderRegelResultatKonvertererTest {
         assertThat(utsettelse.getPeriodeSøknad().get().getDokumentasjonVurdering()).isEqualTo(oppgittPeriode.getDokumentasjonVurdering());
     }
 
-    private void byggArbeidForBehandling(Behandling behandling,
-                                         Arbeidsgiver arbeidsgiver,
-                                         BigDecimal stillingsprosent) {
+    private void byggArbeidForBehandling(Behandling behandling, Arbeidsgiver arbeidsgiver, BigDecimal stillingsprosent) {
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(behandling.getAktørId());
 

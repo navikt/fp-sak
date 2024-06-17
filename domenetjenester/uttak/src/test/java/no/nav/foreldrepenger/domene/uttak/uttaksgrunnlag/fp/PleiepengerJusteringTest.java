@@ -33,29 +33,17 @@ class PleiepengerJusteringTest {
     void pleiepenger_med_utbetaling_skal_opprette_utsettelse() {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
-        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1),
-            of(2020, 1, 13));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval1)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
-        var pleiepengerUtenUtbetalingInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 14),
-            of(2020, 1, 14));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerUtenUtbetalingInterval)
-            .medUtbetalingsgradProsent(BigDecimal.ZERO)
-            .build());
-        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 15),
-            of(2020, 1, 15));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval2)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval1).medUtbetalingsgradProsent(BigDecimal.TEN).build());
+        var pleiepengerUtenUtbetalingInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 14), of(2020, 1, 14));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerUtenUtbetalingInterval).medUtbetalingsgradProsent(BigDecimal.ZERO).build());
+        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 15), of(2020, 1, 15));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval2).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny().medPeriode(of(2019, 12, 10), of(2020, 4, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
         assertThat(resultat).hasSize(5);
@@ -90,19 +78,12 @@ class PleiepengerJusteringTest {
     @Test
     void annen_ytelse_med_utbetaling_skal_opprette_ikke_utsettelse() {
         var aktørId = AktørId.dummy();
-        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
-            .medKilde(Fagsystem.K9SAK)
-            .medYtelseType(RelatertYtelseType.SYKEPENGER);
+        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty()).medKilde(Fagsystem.K9SAK).medYtelseType(RelatertYtelseType.SYKEPENGER);
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny().medPeriode(of(2019, 12, 10), of(2020, 4, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
         assertThat(resultat).hasSize(1);
@@ -119,15 +100,10 @@ class PleiepengerJusteringTest {
             .medKilde(Fagsystem.INFOTRYGD)
             .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny().medPeriode(of(2019, 12, 10), of(2020, 4, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
         assertThat(resultat).hasSize(1);
@@ -139,20 +115,13 @@ class PleiepengerJusteringTest {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval1)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval1).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 5), of(2020, 1, 10));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval2)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval2).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny().medPeriode(of(2019, 12, 10), of(2020, 4, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
         assertThat(resultat).hasSize(3);
@@ -174,10 +143,8 @@ class PleiepengerJusteringTest {
         var pleiepengerFom = of(2020, 1, 15);
         var pleiepengerTom = of(2020, 2, 13);
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(pleiepengerFom, pleiepengerTom);
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
         var mødrekvote1 = OppgittPeriodeBuilder.ny()
             .medPeriode(of(2020, 1, 1), of(2020, 2, 1))
@@ -207,8 +174,7 @@ class PleiepengerJusteringTest {
         var pleiepengerIFp2 = pleiepenger(of(2021, 2, 5), of(2021, 2, 5));
         var pleiepengerEtterFp = pleiepenger(of(2021, 3, 15), of(2021, 3, 20));
         var pleiepengerUtsettelser = List.of(pleiepengerFørFp, pleiepengerEtterFp, pleiepengerIFp1, pleiepengerIFp2);
-        var foreldrepenger = List.of(
-            OppgittPeriodeBuilder.ny().medPeriodeType(MØDREKVOTE).medPeriode(of(2021, 1, 1), of(2021, 3, 3)).build());
+        var foreldrepenger = List.of(OppgittPeriodeBuilder.ny().medPeriodeType(MØDREKVOTE).medPeriode(of(2021, 1, 1), of(2021, 3, 3)).build());
         var resultat = PleiepengerJustering.combine(pleiepengerUtsettelser, foreldrepenger);
         assertThat(resultat).hasSize(5);
         assertThat(resultat.get(0).getFom()).isEqualTo(of(2021, 1, 1));
@@ -233,10 +199,8 @@ class PleiepengerJusteringTest {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 2, 1), of(2020, 5, 5));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriode(pleiepengerInterval.getFomDato().plusWeeks(1), pleiepengerInterval.getTomDato().minusWeeks(1))
@@ -255,19 +219,11 @@ class PleiepengerJusteringTest {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 2, 1));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2020, 1, 1), of(2020, 1, 10))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
-        var mødrekvote2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2020, 1, 15), of(2020, 2, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote1 = OppgittPeriodeBuilder.ny().medPeriode(of(2020, 1, 1), of(2020, 1, 10)).medPeriodeType(MØDREKVOTE).build();
+        var mødrekvote2 = OppgittPeriodeBuilder.ny().medPeriode(of(2020, 1, 15), of(2020, 2, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2));
 
         assertThat(resultat).hasSize(1);
@@ -280,23 +236,14 @@ class PleiepengerJusteringTest {
     void skal_slå_sammen_utsettelser_hvis_anviste_perioder_har_hull_i_helger() {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
-        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 23),
-            of(2021, 8, 27));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval1)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
-        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 30),
-            of(2021, 9, 3));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval2)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 23), of(2021, 8, 27));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval1).medUtbetalingsgradProsent(BigDecimal.TEN).build());
+        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 30), of(2021, 9, 3));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval2).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2021, 8, 23), of(2021, 10, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny().medPeriode(of(2021, 8, 23), of(2021, 10, 1)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
         assertThat(resultat).hasSize(2);
@@ -313,10 +260,8 @@ class PleiepengerJusteringTest {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 2, 1));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of());
 
@@ -327,21 +272,12 @@ class PleiepengerJusteringTest {
     void skal_ikke_feile_hvis_overlapp_i_oppgitte_perioder() {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
-        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 15),
-            of(2020, 1, 15));
-        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
-            .medAnvistPeriode(pleiepengerInterval)
-            .medUtbetalingsgradProsent(BigDecimal.TEN)
-            .build());
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 15), of(2020, 1, 15));
+        ytelseBuilder.medYtelseAnvist(
+            ytelseBuilder.getAnvistBuilder().medAnvistPeriode(pleiepengerInterval).medUtbetalingsgradProsent(BigDecimal.TEN).build());
         var iay = iay(aktørId, ytelseBuilder);
-        var mødrekvote1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
-        var mødrekvote2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(of(2020, 1, 1), of(2020, 5, 5))
-            .medPeriodeType(MØDREKVOTE)
-            .build();
+        var mødrekvote1 = OppgittPeriodeBuilder.ny().medPeriode(of(2019, 12, 10), of(2020, 4, 1)).medPeriodeType(MØDREKVOTE).build();
+        var mødrekvote2 = OppgittPeriodeBuilder.ny().medPeriode(of(2020, 1, 1), of(2020, 5, 5)).medPeriodeType(MØDREKVOTE).build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2));
 
         assertThat(resultat).hasSize(2);

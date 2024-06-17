@@ -19,9 +19,9 @@ import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 
 public class HtmlTransformerProvider {
 
-    private static Map<String, String> namespaces = Collections.unmodifiableMap(Stream.of(
-            new AbstractMap.SimpleEntry<>(ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
-            new AbstractMap.SimpleEntry<>(VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
+    private static Map<String, String> namespaces = Collections.unmodifiableMap(
+        Stream.of(new AbstractMap.SimpleEntry<>(ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
+                new AbstractMap.SimpleEntry<>(VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
             .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
 
     private static Map<String, Templates> templates = new ConcurrentHashMap<>();
@@ -30,7 +30,8 @@ public class HtmlTransformerProvider {
     }
 
     private static String getXslFileForNamespace(String namespace) {
-        return namespaces.getOrDefault(namespace, "vedtakXmlTilHtml_v2.xsl"); //Vi defaulter til versjon 2 da den skal være generell og forhåpentligvis også fungere med framtidige versjoner
+        return namespaces.getOrDefault(namespace,
+            "vedtakXmlTilHtml_v2.xsl"); //Vi defaulter til versjon 2 da den skal være generell og forhåpentligvis også fungere med framtidige versjoner
     }
 
     private static Templates lagTemplate(String xslTransformerFilename) {
@@ -38,10 +39,10 @@ public class HtmlTransformerProvider {
 
         var classLoader = Thread.currentThread().getContextClassLoader();
         // FIXME (ToreEndestad): Denne kan caches statisk og gjenbrukes (template)
-        try(var inputStream = classLoader.getResourceAsStream(xslTransformerFilename)) {
+        try (var inputStream = classLoader.getResourceAsStream(xslTransformerFilename)) {
             return factory.newTemplates(new StreamSource(inputStream));
         } catch (TransformerConfigurationException | IOException e) {
-            throw new IllegalStateException("Kunne ikke lese template: " + xslTransformerFilename , e);
+            throw new IllegalStateException("Kunne ikke lese template: " + xslTransformerFilename, e);
         }
     }
 

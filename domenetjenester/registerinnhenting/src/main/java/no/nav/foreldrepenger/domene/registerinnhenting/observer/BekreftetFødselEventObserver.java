@@ -53,9 +53,8 @@ public class BekreftetFødselEventObserver {
 
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
-        if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) &&
-            FagsakYtelseType.FORELDREPENGER.equals(event.getYtelseType()) &&
-            event.getSisteBekreftetDato() != null) {
+        if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) && FagsakYtelseType.FORELDREPENGER.equals(
+            event.getYtelseType()) && event.getSisteBekreftetDato() != null) {
             var brukFødselsdato = VirkedagUtil.fomVirkedag(event.getSisteBekreftetDato());
             vurderNyStartdato(behandlingRepository.hentBehandling(event.getBehandlingId()), brukFødselsdato);
         }
@@ -63,12 +62,10 @@ public class BekreftetFødselEventObserver {
 
     private void vurderNyStartdato(Behandling behandling, LocalDate gjeldendeFødselsdato) {
         if (RelasjonsRolleType.MORA.equals(behandling.getFagsak().getRelasjonsRolleType())) {
-            getNåværendeAvklartStartdato(behandling)
-                .filter(gjeldendeFødselsdato::isBefore)
-                .ifPresent(avklartStartdato -> {
-                    LOG.info("Fødselshendelse behandlingId {}: Bekreftet fødsel {} er før avklart startdato {}, nullstiller avklart startdato",
-                        behandling.getId(), gjeldendeFødselsdato, avklartStartdato);
-                    nullstillStartdatoOgOpprettHistorikkInnslag(behandling, avklartStartdato, gjeldendeFødselsdato);
+            getNåværendeAvklartStartdato(behandling).filter(gjeldendeFødselsdato::isBefore).ifPresent(avklartStartdato -> {
+                LOG.info("Fødselshendelse behandlingId {}: Bekreftet fødsel {} er før avklart startdato {}, nullstiller avklart startdato",
+                    behandling.getId(), gjeldendeFødselsdato, avklartStartdato);
+                nullstillStartdatoOgOpprettHistorikkInnslag(behandling, avklartStartdato, gjeldendeFødselsdato);
             });
         }
     }
@@ -84,8 +81,7 @@ public class BekreftetFødselEventObserver {
 
         var entitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medFørsteUttaksdato(null);
 
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medAvklarteDatoer(entitet.build());
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medAvklarteDatoer(entitet.build());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         historikkinnslagTjeneste.opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(behandling, gammelStartdato, nyBekreftetFødselsdato);

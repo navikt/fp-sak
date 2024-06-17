@@ -31,12 +31,14 @@ public class VurderATOgFLISammeOrgHistorikkTjeneste extends FaktaOmBeregningHist
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        inntektHistorikkTjeneste.lagHistorikk(
-            tekstBuilder,
-            MapTilLønnsendring.mapLønnsendringFraATogFLSammeOrg(dto, nyttBeregningsgrunnlag,
-            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)),
-            iayGrunnlag);
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, MapTilLønnsendring.mapLønnsendringFraATogFLSammeOrg(dto, nyttBeregningsgrunnlag,
+            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)), iayGrunnlag);
     }
 
 }

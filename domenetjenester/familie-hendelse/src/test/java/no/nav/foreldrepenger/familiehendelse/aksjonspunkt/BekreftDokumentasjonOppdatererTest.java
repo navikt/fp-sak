@@ -45,8 +45,7 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
-            repositoryProvider.getFamilieHendelseRepository());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
@@ -63,11 +62,11 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
             .leggTilBarn(new UidentifisertBarnEntitet(opprinneligFødselsdato));
-        scenario.medBekreftetHendelse().medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(opprinneligOvertakelsesdato)).leggTilBarn(opprinneligFødselsdato);
+        scenario.medBekreftetHendelse()
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
+            .leggTilBarn(opprinneligFødselsdato);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
@@ -76,12 +75,11 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         // Dto
         Map<Integer, LocalDate> bekreftedeFødselsdatoer = new HashMap<>();
         bekreftedeFødselsdatoer.put(1, bekreftetFødselsdato);
-        var dto = new BekreftDokumentertDatoAksjonspunktDto("begrunnelse", bekreftetOvertakelsesdato,
-            bekreftedeFødselsdatoer);
+        var dto = new BekreftDokumentertDatoAksjonspunktDto("begrunnelse", bekreftetOvertakelsesdato, bekreftedeFødselsdatoer);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -96,7 +94,10 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, opprinneligFødselsdato.format(formatterer), bekreftetFødselsdato.format(formatterer));
     }
 
-    private void assertFelt(HistorikkinnslagDel historikkinnslagDel, HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
+    private void assertFelt(HistorikkinnslagDel historikkinnslagDel,
+                            HistorikkEndretFeltType historikkEndretFeltType,
+                            String fraVerdi,
+                            String tilVerdi) {
         var feltOpt = historikkinnslagDel.getEndretFelt(historikkEndretFeltType);
         var feltNavn = historikkEndretFeltType.getKode();
         assertThat(feltOpt).as("endretFelt[" + feltNavn + "]").hasValueSatisfying(felt -> {

@@ -40,22 +40,19 @@ public class MapTilLønnsendring {
                     .medNyArbeidsinntektPrÅr(fastsatteVerdier.finnEllerUtregnFastsattBeløpPrÅr().intValue())
                     .build();
             }
-            return lagLønnsendringForNyAndelFraAndelsreferanse(andel, periode, periodeForrigeGrunnlag,
-                fastsatteVerdier);
+            return lagLønnsendringForNyAndelFraAndelsreferanse(andel, periode, periodeForrigeGrunnlag, fastsatteVerdier);
         }
         var andelIAktivt = finnKorrektAndelIPeriode(periode, andel.getAndelsnr());
-        var andelFraForrige = periodeForrigeGrunnlag.flatMap(
-            p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
+        var andelFraForrige = periodeForrigeGrunnlag.flatMap(p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
         return new Lønnsendring.Builder().medGammelInntektskategori(
-            andelFraForrige.map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori).orElse(null))
+                andelFraForrige.map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori).orElse(null))
             .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
             .medGammelArbeidsinntekt(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
             .medGammelArbeidsinntektPrÅr(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
-            .medGammelRefusjonPrÅr(
-                andelFraForrige.flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
-                    .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
-                    .map(BigDecimal::intValue)
-                    .orElse(0))
+            .medGammelRefusjonPrÅr(andelFraForrige.flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
+                .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
+                .map(BigDecimal::intValue)
+                .orElse(0))
             .medNyArbeidsinntekt(fastsatteVerdier.getFastsattBeløp())
             .medNyArbeidsinntektPrÅr(fastsatteVerdier.finnEllerUtregnFastsattBeløpPrÅr().intValue())
             .medAktivitetStatus(andelIAktivt.getAktivitetStatus())
@@ -69,8 +66,7 @@ public class MapTilLønnsendring {
                                                                             Optional<BeregningsgrunnlagPeriode> periodeForrigeGrunnlag,
                                                                             FastsatteVerdierDto fastsatteVerdier) {
         var endringBuilder = new Lønnsendring.Builder();
-        var forrigeAndelOpt = periodeForrigeGrunnlag.flatMap(
-            p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
+        var forrigeAndelOpt = periodeForrigeGrunnlag.flatMap(p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
         if (!andel.getNyAndel() && forrigeAndelOpt.isPresent()) {
             var forrigeAndel = forrigeAndelOpt.get();
             endringBuilder.medNyAndel(false)
@@ -78,13 +74,10 @@ public class MapTilLønnsendring {
                 .medArbeidsforholdRef(forrigeAndel.getArbeidsforholdRef().orElse(null))
                 .medArbeidsgiver(forrigeAndel.getArbeidsgiver().orElse(null))
                 .medGammelArbeidsinntekt(finnBeregnetPrMnd(forrigeAndel))
-                .medGammelArbeidsinntektPrÅr(
-                    forrigeAndel.getBeregnetPrÅr() == null ? null : forrigeAndel.getBeregnetPrÅr().intValue())
+                .medGammelArbeidsinntektPrÅr(forrigeAndel.getBeregnetPrÅr() == null ? null : forrigeAndel.getBeregnetPrÅr().intValue())
                 .medGammelInntektskategori(forrigeAndel.getInntektskategori())
-                .medGammelRefusjonPrÅr(forrigeAndel.getBgAndelArbeidsforhold()
-                    .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
-                    .map(BigDecimal::intValue)
-                    .orElse(0));
+                .medGammelRefusjonPrÅr(
+                    forrigeAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getRefusjonskravPrÅr).map(BigDecimal::intValue).orElse(0));
         } else {
             var andelSomErKopiert = finnKorrektAndelIPeriode(periode, andel.getAndelsnr());
             endringBuilder.medNyAndel(true)
@@ -114,13 +107,13 @@ public class MapTilLønnsendring {
             .getBesteberegningAndelListe()
             .stream()
             .filter(a -> !a.getNyAndel())
-            .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(),
-                dtoAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg))
+            .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(), dtoAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag,
+                forrigeBg))
             .collect(Collectors.toList());
         var nyDagpengeAndel = dto.getBesteberegningAndeler().getNyDagpengeAndel();
         if (nyDagpengeAndel != null) {
-            var lønnsendringForNyAndel = mapTilLønnsendring(AktivitetStatus.DAGPENGER,
-                nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg);
+            var lønnsendringForNyAndel = mapTilLønnsendring(AktivitetStatus.DAGPENGER, nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(),
+                nyttBeregningsgrunnlag, forrigeBg);
             endringer.add(lønnsendringForNyAndel);
         }
         return endringer;
@@ -142,8 +135,7 @@ public class MapTilLønnsendring {
         return dto.getFastsattUtenInntektsmelding()
             .getAndelListe()
             .stream()
-            .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(), mapTilFastsatteVerdier(dtoAndel),
-                nyttBeregningsgrunnlag, forrigeBg))
+            .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(), mapTilFastsatteVerdier(dtoAndel), nyttBeregningsgrunnlag, forrigeBg))
             .toList();
     }
 
@@ -175,8 +167,7 @@ public class MapTilLønnsendring {
                                                   BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
                                                   Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         if (aktivitetStatus.equals(AktivitetStatus.ARBEIDSTAKER)) {
-            throw new IllegalArgumentException(
-                "Utviklerfeil: Kan ikke sette lønnsendring basert på status med flere andeler. Bruk andelsnr.");
+            throw new IllegalArgumentException("Utviklerfeil: Kan ikke sette lønnsendring basert på status med flere andeler. Bruk andelsnr.");
         }
         var andel = finnKorrektAndelIFørstePeriode(nyttBeregningsgrunnlag, aktivitetStatus).orElseThrow(
             () -> new IllegalStateException("Utviklerfeil: Fant ikke andel for aktivitetStatus " + aktivitetStatus));
@@ -192,8 +183,7 @@ public class MapTilLønnsendring {
             .orElse(null);
     }
 
-    private static Integer finnGammelMånedsinntekt(Optional<BeregningsgrunnlagEntitet> forrigeBg,
-                                                   AktivitetStatus aktivitetStatus) {
+    private static Integer finnGammelMånedsinntekt(Optional<BeregningsgrunnlagEntitet> forrigeBg, AktivitetStatus aktivitetStatus) {
         return forrigeBg.flatMap(bg -> finnKorrektAndelIFørstePeriode(bg, aktivitetStatus))
             .stream()
             .filter(BeregningsgrunnlagPrStatusOgAndel::getFastsattAvSaksbehandler)
@@ -203,8 +193,7 @@ public class MapTilLønnsendring {
             .orElse(null);
     }
 
-    private static Inntektskategori finnGammelInntektskategori(Optional<BeregningsgrunnlagEntitet> forrigeBg,
-                                                               Long andelsnr) {
+    private static Inntektskategori finnGammelInntektskategori(Optional<BeregningsgrunnlagEntitet> forrigeBg, Long andelsnr) {
         return forrigeBg.flatMap(bg -> finnKorrektAndelIFørstePeriodeFraForrige(bg, andelsnr))
             .filter(BeregningsgrunnlagPrStatusOgAndel::getFastsattAvSaksbehandler)
             .map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori)
@@ -226,9 +215,7 @@ public class MapTilLønnsendring {
             .build();
     }
 
-    private static Lønnsendring mapAndelTilLønnsendring(BeregningsgrunnlagPrStatusOgAndel andel,
-                                                        Integer forrigeInntekt,
-                                                        Integer nyArbeidsinntekt) {
+    private static Lønnsendring mapAndelTilLønnsendring(BeregningsgrunnlagPrStatusOgAndel andel, Integer forrigeInntekt, Integer nyArbeidsinntekt) {
         return Lønnsendring.Builder.ny()
             .medAktivitetStatus(andel.getAktivitetStatus())
             .medArbeidsgiver(andel.getArbeidsgiver().orElse(null))
@@ -245,29 +232,20 @@ public class MapTilLønnsendring {
         return beregnet.intValue() / MND_I_1_ÅR;
     }
 
-    private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIPeriode(BeregningsgrunnlagPeriode periode,
-                                                                              Long andelsnr) {
+    private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIPeriode(BeregningsgrunnlagPeriode periode, Long andelsnr) {
         return finnKorrektAndelIPeriodeHvisFinnes(periode, andelsnr).orElseThrow(
             () -> new IllegalStateException("Utviklerfeil: Fant ikke andel for andelsnr i aktivt grunnlag" + andelsnr));
     }
 
-    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIPeriodeHvisFinnes(
-        BeregningsgrunnlagPeriode periode,
-        Long andelsnr) {
-        return periode.getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
-            .filter(bgAndel -> andelsnr.equals(bgAndel.getAndelsnr()))
-            .findFirst();
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIPeriodeHvisFinnes(BeregningsgrunnlagPeriode periode, Long andelsnr) {
+        return periode.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(bgAndel -> andelsnr.equals(bgAndel.getAndelsnr())).findFirst();
     }
 
-    private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIFørstePeriode(BeregningsgrunnlagEntitet bg,
-                                                                                    Long andelsnr) {
+    private static BeregningsgrunnlagPrStatusOgAndel finnKorrektAndelIFørstePeriode(BeregningsgrunnlagEntitet bg, Long andelsnr) {
         return finnKorrektAndelIPeriode(bg.getBeregningsgrunnlagPerioder().get(0), andelsnr);
     }
 
-    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIFørstePeriodeFraForrige(
-        BeregningsgrunnlagEntitet bg,
-        Long andelsnr) {
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnKorrektAndelIFørstePeriodeFraForrige(BeregningsgrunnlagEntitet bg, Long andelsnr) {
         return finnKorrektAndelIPeriodeHvisFinnes(bg.getBeregningsgrunnlagPerioder().get(0), andelsnr);
     }
 

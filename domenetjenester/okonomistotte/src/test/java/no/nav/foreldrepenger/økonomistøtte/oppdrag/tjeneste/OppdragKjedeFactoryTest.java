@@ -63,11 +63,8 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_søtte_fullstendig_opphør() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(p1)
-                .medSats(Satsen.dagsats(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
                 .medSats(Satsen.dagsats(2000))
@@ -94,11 +91,8 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_støtte_opphør_fra_spesifikk_dato() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(p1)
-                .medSats(Satsen.dagsats(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
                 .medSats(Satsen.dagsats(2000))
@@ -122,19 +116,15 @@ class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Satsen.dagsats(1100), fagsystemId,
-            p2del1.getTom().plusDays(1));
+        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Satsen.dagsats(1100), fagsystemId, p2del1.getTom().plusDays(1));
     }
 
     @Test
     @Disabled("Feiler på mandager")
     public void skal_støtte_fotsettelse_etter_opphør() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(p1)
-                .medSats(Satsen.dagsats(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
                 .medSats(Satsen.dagsats(2000))
@@ -155,18 +145,14 @@ class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertLik(resultat.getOppdragslinjer().get(0), p2del1, Satsen.dagsats(2000), fagsystemId,
-            DelytelseId.parse("FOO-1-2"));
+        assertLik(resultat.getOppdragslinjer().get(0), p2del1, Satsen.dagsats(2000), fagsystemId, DelytelseId.parse("FOO-1-2"));
     }
 
     @Test
     void skal_støtte_endring_fra_spesifikk_dato_inne_i_periode_fra_tilkjent_ytelse() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(p1)
-                .medSats(Satsen.dagsats(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2del1)
                 .medSats(Satsen.dagsats(1500))
@@ -204,11 +190,8 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_opphøre_fra_starten_og_sende_alle_perioder_når_det_legges_til_en_tidligere_periode() {
         var eksisterendeKjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .medPeriode(p2)
-                .medSats(Satsen.dagsats(1000))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FOO-1-1")).medPeriode(p2).medSats(Satsen.dagsats(1000)).build())
             .build();
 
         var nyttVedtak = Ytelse.builder()
@@ -217,8 +200,7 @@ class OppdragKjedeFactoryTest {
             .build();
 
         var factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-1"));
-        var linjer = factory.lagOppdragskjedeForYtelse(eksisterendeKjede, nyttVedtak)
-            .getOppdragslinjer();
+        var linjer = factory.lagOppdragskjedeForYtelse(eksisterendeKjede, nyttVedtak).getOppdragslinjer();
         assertThat(linjer).hasSize(3);
         var opphørsdato = p2.getFom();
         assertOpphørslinje(linjer.get(0), p2, Satsen.dagsats(1000), fagsystemId, opphørsdato);
@@ -229,11 +211,8 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_søtte_fullstendig_opphør_av_feriepenger() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(mai)
-                .medSats(Satsen.engang(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(mai).medSats(Satsen.engang(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .build();
         var nyYtelse = Ytelse.builder().build();
 
@@ -248,11 +227,8 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_ikke_bruke_opphørslinje_men_bare_overskrive_forrige_periode_ved_endring_i_feriepenger() {
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(mai)
-                .medSats(Satsen.engang(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(mai).medSats(Satsen.engang(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .build();
         var nyYtelse = Ytelse.builder().leggTilPeriode(new YtelsePeriode(mai, Satsen.engang(1001))).build();
 
@@ -261,8 +237,7 @@ class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertLik(resultat.getOppdragslinjer().get(0), mai, Satsen.engang(1001), fagsystemId,
-            DelytelseId.parse("FOO-1-1"));
+        assertLik(resultat.getOppdragslinjer().get(0), mai, Satsen.engang(1001), fagsystemId, DelytelseId.parse("FOO-1-1"));
     }
 
     @Test
@@ -273,11 +248,8 @@ class OppdragKjedeFactoryTest {
         var helePeriode = Periode.of(dag1, dag3);
 
         var tidligereOppdrag = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder()
-                .medPeriode(helePeriode)
-                .medSats(Satsen.dagsats(1000))
-                .medDelytelseId(DelytelseId.parse("FOO-1-1"))
-                .build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(helePeriode).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .build();
         var nyYtelse = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(Periode.of(dag1, dag1), Satsen.dagsats(1000)))
@@ -304,12 +276,41 @@ class OppdragKjedeFactoryTest {
     @Test
     void skal_håndtere_at_første_dato_i_kjeden_ikke_er_i_første_linje() {
         var kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-05.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-100")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medRefDelytelseId(DelytelseId.parse("x-1-100")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medOpphørFomDato(LocalDate.of(2020, 3, 2)).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("01.03.2020-01.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-103")).medRefDelytelseId(DelytelseId.parse("x-1-101")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-02.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-104")).medRefDelytelseId(DelytelseId.parse("x-1-103")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("05.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-105")).medRefDelytelseId(DelytelseId.parse("x-1-104")).build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("02.03.2020-05.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-100"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("06.03.2020-06.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-101"))
+                .medRefDelytelseId(DelytelseId.parse("x-1-100"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("06.03.2020-06.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-101"))
+                .medOpphørFomDato(LocalDate.of(2020, 3, 2))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("01.03.2020-01.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-103"))
+                .medRefDelytelseId(DelytelseId.parse("x-1-101"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("02.03.2020-02.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-104"))
+                .medRefDelytelseId(DelytelseId.parse("x-1-103"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p("05.03.2020-06.03.2020"))
+                .medSats(Satsen.dagsats(1))
+                .medDelytelseId(DelytelseId.parse("x-1-105"))
+                .medRefDelytelseId(DelytelseId.parse("x-1-104"))
+                .build())
             .build();
 
         var nyYtelse = Ytelse.builder()
@@ -323,11 +324,8 @@ class OppdragKjedeFactoryTest {
         var resultat = factory.lagOppdragskjedeFraFellesEndringsdato(kjede, nyYtelse, false, LocalDate.of(2020, 3, 1));
 
         var endelig = kjede.leggTil(resultat);
-        assertThat(endelig.tilYtelse().getPerioder()).containsExactly(
-            new YtelsePeriode(p("01.03.2020-01.03.2020"), Satsen.dagsats(2)),
-            new YtelsePeriode(p("02.03.2020-05.03.2020"), Satsen.dagsats(2)),
-            new YtelsePeriode(p("06.03.2020-06.03.2020"), Satsen.dagsats(2))
-        );
+        assertThat(endelig.tilYtelse().getPerioder()).containsExactly(new YtelsePeriode(p("01.03.2020-01.03.2020"), Satsen.dagsats(2)),
+            new YtelsePeriode(p("02.03.2020-05.03.2020"), Satsen.dagsats(2)), new YtelsePeriode(p("06.03.2020-06.03.2020"), Satsen.dagsats(2)));
 
         //TODO lag test som sjekker oppdragslinjene direkte
     }
@@ -339,11 +337,7 @@ class OppdragKjedeFactoryTest {
     }
 
 
-    public void assertLik(OppdragLinje linje,
-                          Periode p,
-                          Satsen sats,
-                          FagsystemId fagsystemId,
-                          DelytelseId refDelytelseId) {
+    public void assertLik(OppdragLinje linje, Periode p, Satsen sats, FagsystemId fagsystemId, DelytelseId refDelytelseId) {
         assertThat(linje.getPeriode()).isEqualTo(p);
         assertThat(linje.getSats()).isEqualTo(sats);
         assertThat(linje.getUtbetalingsgrad()).isNull();
@@ -352,11 +346,7 @@ class OppdragKjedeFactoryTest {
         assertThat(linje.getOpphørFomDato()).isNull();
     }
 
-    public void assertOpphørslinje(OppdragLinje linje,
-                                   Periode p,
-                                   Satsen sats,
-                                   FagsystemId fagsystemId,
-                                   LocalDate opphørsdato) {
+    public void assertOpphørslinje(OppdragLinje linje, Periode p, Satsen sats, FagsystemId fagsystemId, LocalDate opphørsdato) {
         assertThat(linje.getPeriode()).isEqualTo(p);
         assertThat(linje.getSats()).isEqualTo(sats);
         assertThat(linje.getUtbetalingsgrad()).isNull();

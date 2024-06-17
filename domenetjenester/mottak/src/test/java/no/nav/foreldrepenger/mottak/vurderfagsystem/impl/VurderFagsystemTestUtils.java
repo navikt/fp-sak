@@ -34,8 +34,7 @@ public class VurderFagsystemTestUtils {
 
     public static Optional<Behandling> byggBehandlingMedEndretDato(Fagsak fagsak, int dagerSidenSisteBehandling) {
 
-        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak)
-                .medOpprettetDato(LocalDateTime.now().minusDays(dagerSidenSisteBehandling));
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medOpprettetDato(LocalDateTime.now().minusDays(dagerSidenSisteBehandling));
         var behandling = behandlingBuilder.build();
         return Optional.of(behandling);
     }
@@ -66,9 +65,13 @@ public class VurderFagsystemTestUtils {
         return vfData;
     }
 
-    public static VurderFagsystem byggVurderFagsystemForInntektsmelding(String årsakInnsending, BehandlingTema behandlingTema,
-            LocalDateTime forsendelseMottatt,
-            AktørId aktørId, JournalpostId journalpostId, String arbeidsforholdsid, String setArbeidsgiverIdentifikator) {
+    public static VurderFagsystem byggVurderFagsystemForInntektsmelding(String årsakInnsending,
+                                                                        BehandlingTema behandlingTema,
+                                                                        LocalDateTime forsendelseMottatt,
+                                                                        AktørId aktørId,
+                                                                        JournalpostId journalpostId,
+                                                                        String arbeidsforholdsid,
+                                                                        String setArbeidsgiverIdentifikator) {
         var fagsystem = new VurderFagsystem();
         fagsystem.setAktørId(aktørId);
         fagsystem.setJournalpostId(journalpostId);
@@ -85,9 +88,13 @@ public class VurderFagsystemTestUtils {
         return behandlingBuilder.build();
     }
 
-    public static VurderFagsystem byggVurderFagsystemMedAnnenPart(BehandlingTema behandlingTema, AktørId annenPartId, Saksnummer saksnr,
-            AktørId aktørId,
-            JournalpostId journalpostId, LocalDate barnTermindato, LocalDate barnFødselsdato) {
+    public static VurderFagsystem byggVurderFagsystemMedAnnenPart(BehandlingTema behandlingTema,
+                                                                  AktørId annenPartId,
+                                                                  Saksnummer saksnr,
+                                                                  AktørId aktørId,
+                                                                  JournalpostId journalpostId,
+                                                                  LocalDate barnTermindato,
+                                                                  LocalDate barnFødselsdato) {
         var fagsystem = new VurderFagsystem();
         fagsystem.setAnnenPart(annenPartId);
         fagsystem.setSaksnummer(saksnr);
@@ -103,9 +110,9 @@ public class VurderFagsystemTestUtils {
     public static Fagsak buildFagsakMedUdefinertRelasjon(Long fagsakid, boolean erAvsluttet) {
         var navBruker = BehandlingslagerTestUtil.lagNavBruker();
         var fagsak = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.MORA)
-                .medBruker(navBruker)
-                .medSaksnummer(new Saksnummer(fagsakid + ""))
-                .build();
+            .medBruker(navBruker)
+            .medSaksnummer(new Saksnummer(fagsakid + ""))
+            .build();
         fagsak.setId(fagsakid);
         fagsak.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         if (erAvsluttet) {

@@ -19,7 +19,6 @@ import no.nav.fpsak.nare.specification.Specification;
  * VilkårUtfall OPPFYLT:<br>
  * - Fødsel registrert og søker er barnets far/medmor (FARA)<br>
  * - Fødsel ikke registert, mor er for syk til å ta vare på barnet, og søker er barnets far/medmor (FARA)<br>
- *
  */
 @RuleDocumentation(value = FødselsvilkårFar.ID, specificationReference = "https://confluence.adeo.no/pages/viewpage.action?pageId=198890456")
 public class FødselsvilkårFar implements RuleService<FødselsvilkårGrunnlag> {
@@ -36,23 +35,20 @@ public class FødselsvilkårFar implements RuleService<FødselsvilkårGrunnlag> 
     public Specification<FødselsvilkårGrunnlag> getSpecification() {
         var rs = new Ruleset<FødselsvilkårGrunnlag>();
 
-        Specification<FødselsvilkårGrunnlag> kanMorTaSegAvBarnetEtterFødselNode =
-            rs.hvisRegel("FP_VK_11.4", "Er det sannsynlig at mor er så syk etter fødselen at hun ikke kan ta seg av barnet ...")
-                .hvis(new SjekkMorForSykTilÅTaVarePåBarn(), new Oppfylt())
-                .ellers(new IkkeOppfylt(SjekkMorForSykTilÅTaVarePåBarn.MOR_IKKE_FOR_SYK_TIL_Å_TA_VARE_PÅ_BARN));
+        Specification<FødselsvilkårGrunnlag> kanMorTaSegAvBarnetEtterFødselNode = rs.hvisRegel("FP_VK_11.4",
+                "Er det sannsynlig at mor er så syk etter fødselen at hun ikke kan ta seg av barnet ...")
+            .hvis(new SjekkMorForSykTilÅTaVarePåBarn(), new Oppfylt())
+            .ellers(new IkkeOppfylt(SjekkMorForSykTilÅTaVarePåBarn.MOR_IKKE_FOR_SYK_TIL_Å_TA_VARE_PÅ_BARN));
 
-        Specification<FødselsvilkårGrunnlag> farMedmorUttakRundtFødselNode =
-            rs.hvisRegel("FP_VK_11.5", "Omfattes saken av regler for balansert arbeidsliv ...")
-                .hvis(new SjekkFarMedmorUttakRundtFødsel(), new Oppfylt())
-                .ellers(kanMorTaSegAvBarnetEtterFødselNode);
+        Specification<FødselsvilkårGrunnlag> farMedmorUttakRundtFødselNode = rs.hvisRegel("FP_VK_11.5",
+                "Omfattes saken av regler for balansert arbeidsliv ...")
+            .hvis(new SjekkFarMedmorUttakRundtFødsel(), new Oppfylt())
+            .ellers(kanMorTaSegAvBarnetEtterFødselNode);
 
-        Specification<FødselsvilkårGrunnlag> harSøktOmTerminNode =
-            rs.hvisRegel("FP_VK_11.3", "Har søker familierelasjon far/medmor til barnet ...")
-                .hvis(new SjekkSøktOmTermin(), farMedmorUttakRundtFødselNode)
-                .ellers(new IkkeOppfylt(SjekkSøktOmTermin.IKKE_OPPFYLT_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR));
+        Specification<FødselsvilkårGrunnlag> harSøktOmTerminNode = rs.hvisRegel("FP_VK_11.3", "Har søker familierelasjon far/medmor til barnet ...")
+            .hvis(new SjekkSøktOmTermin(), farMedmorUttakRundtFødselNode)
+            .ellers(new IkkeOppfylt(SjekkSøktOmTermin.IKKE_OPPFYLT_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR));
 
-        return rs.hvisRegel("FP_VK_11.2", "Er fødsel bekreftet ...")
-                .hvis(new SjekkFødselErRegistrert(), new Oppfylt())
-                .ellers(harSøktOmTerminNode);
+        return rs.hvisRegel("FP_VK_11.2", "Er fødsel bekreftet ...").hvis(new SjekkFødselErRegistrert(), new Oppfylt()).ellers(harSøktOmTerminNode);
     }
 }

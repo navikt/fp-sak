@@ -28,10 +28,7 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_bruker() {
 
-        var resultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("regelsporing")
-            .build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("regelsporing").build();
 
         var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
         var periode = BeregningsresultatPeriode.builder()
@@ -55,8 +52,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
         assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
@@ -72,10 +68,7 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_to_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver() {
 
-        var resultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("regelsporing")
-            .build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("regelsporing").build();
 
         var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
@@ -95,8 +88,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver2, periode, arbeidsforholdRef2, dagsats2);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse1, arbeidsforholdReferanse2);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
         assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(2);
@@ -124,10 +116,7 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver() {
 
-        var resultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("regelsporing")
-            .build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("regelsporing").build();
 
         var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
         var periode = BeregningsresultatPeriode.builder()
@@ -140,8 +129,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
         assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
@@ -158,10 +146,7 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver_aggregert() {
 
-        var resultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("regelsporing")
-            .build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("regelsporing").build();
 
         var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
         var periode = BeregningsresultatPeriode.builder()
@@ -172,8 +157,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
         assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
@@ -190,10 +174,7 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_dagpenger() {
 
-        var resultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("regelsporing")
-            .build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("regelsporing").build();
 
         var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
@@ -212,8 +193,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
         assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
@@ -222,7 +202,6 @@ class VedtattYtelseForeldrepengerMapperTest {
         assertThat(anvisninger.get(0).getAndeler().get(0).getDagsats().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(dagsats));
         assertThat(anvisninger.get(0).getAndeler().get(0).getRefusjonsgrad().getVerdi()).isEqualByComparingTo(BigDecimal.ZERO);
     }
-
 
 
     private void fullRefusjon(Arbeidsgiver arbeidsgiver, BeregningsresultatPeriode periode, InternArbeidsforholdRef arbeidsforholdRef, int dagsats) {

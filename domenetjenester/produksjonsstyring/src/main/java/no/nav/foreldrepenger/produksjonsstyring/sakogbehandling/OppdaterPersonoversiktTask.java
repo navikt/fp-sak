@@ -66,8 +66,8 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var behandling = behandlingId != null ? behandlingRepository.hentBehandlingReadOnly(behandlingId) :
-            behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
+        var behandling = behandlingId != null ? behandlingRepository.hentBehandlingReadOnly(
+            behandlingId) : behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
         if (behandling == null) {
             return;
         }
@@ -76,8 +76,9 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
         var behandlingType = BehandlingType.fraKode(prosessTaskData.getPropertyValue(PH_TYPE_KEY));
         var tidspunkt = LocalDateTime.parse(prosessTaskData.getPropertyValue(PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         var enhet = behandlingId != null ? behandling.getBehandlendeEnhet() : getBehandlendeEnhetForSak(behandling);
-        var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
-            .hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
+        var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon)
+            .orElse(null));
         var erAvsluttet = BehandlingStatus.AVSLUTTET.equals(behandlingStatus);
         var hendelseType = erAvsluttet ? "behandlingAvsluttet" : "behandlingOpprettet";
 
@@ -88,7 +89,8 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
         var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
         var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseType, callId, behandling.getAktørId(),
             tidspunkt, behandlingType, behandlingRef, behandlingTema, enhet, ident, erAvsluttet);
-        hendelseProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
+        hendelseProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()),
+            StandardJsonConfig.toJson(personSoB));
     }
 
     private String createUniqueKey(String behandlingsId, String event) {

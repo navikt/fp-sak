@@ -28,16 +28,23 @@ public class SettFagsakRelasjonAvslutningsdatoTask extends FagsakRelasjonProsess
     }
 
     @Inject
-    public SettFagsakRelasjonAvslutningsdatoTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, FagsakRelasjonRepository fagsakRelasjonRepository,
+    public SettFagsakRelasjonAvslutningsdatoTask(FagsakLåsRepository fagsakLåsRepository,
+                                                 FagsakRelasjonLåsRepository relasjonLåsRepository,
+                                                 FagsakRelasjonRepository fagsakRelasjonRepository,
                                                  OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon) {
         super(fagsakLåsRepository, relasjonLåsRepository, fagsakRelasjonRepository);
         this.oppdaterAvslutningsdatoFagsakRelasjon = oppdaterAvslutningsdatoFagsakRelasjon;
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public void prosesser(ProsessTaskData prosessTaskData,
+                          Optional<FagsakRelasjon> relasjon,
+                          FagsakRelasjonLås relasjonLås,
+                          Optional<FagsakLås> fagsak1Lås,
+                          Optional<FagsakLås> fagsak2Lås) {
         var fagsakId = prosessTaskData.getFagsakId();
-        relasjon.ifPresent(fagsakRelasjon -> oppdaterAvslutningsdatoFagsakRelasjon.oppdaterFagsakRelasjonAvslutningsdato(fagsakRelasjon, fagsakId, relasjonLås,
-            fagsak1Lås, fagsak2Lås, fagsakRelasjon.getFagsakNrEn().getYtelseType()));
-        }
+        relasjon.ifPresent(
+            fagsakRelasjon -> oppdaterAvslutningsdatoFagsakRelasjon.oppdaterFagsakRelasjonAvslutningsdato(fagsakRelasjon, fagsakId, relasjonLås,
+                fagsak1Lås, fagsak2Lås, fagsakRelasjon.getFagsakNrEn().getYtelseType()));
+    }
 }

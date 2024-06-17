@@ -21,9 +21,7 @@ public class IAYScenarioBuilder extends AbstractIAYTestScenario<IAYScenarioBuild
 
     private IAYScenarioBuilder(FagsakYtelseType ytelseType, RelasjonsRolleType rolle, NavBrukerKjønn kjønn) {
         super(ytelseType, rolle, kjønn);
-        medSøknad()
-                .medRelasjonsRolleType(rolle)
-                .medSøknadsdato(LocalDate.now());
+        medSøknad().medRelasjonsRolleType(rolle).medSøknadsdato(LocalDate.now());
     }
 
     public static IAYScenarioBuilder morSøker(FagsakYtelseType ytelseType) {

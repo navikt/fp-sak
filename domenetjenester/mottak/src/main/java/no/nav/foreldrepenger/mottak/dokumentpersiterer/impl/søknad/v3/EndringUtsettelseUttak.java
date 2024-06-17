@@ -34,11 +34,13 @@ public class EndringUtsettelseUttak {
         var utsettelseFom = perioder.stream()
             .filter(p -> p instanceof Utsettelsesperiode || p instanceof Oppholdsperiode)
             .map(LukketPeriodeMedVedlegg::getFom)
-            .min(Comparator.naturalOrder()).orElse(null);
+            .min(Comparator.naturalOrder())
+            .orElse(null);
         var uttakFom = perioder.stream()
             .filter(p -> p instanceof Uttaksperiode || p instanceof Overfoeringsperiode)
             .map(LukketPeriodeMedVedlegg::getFom)
-            .min(Comparator.naturalOrder()).orElse(null);
+            .min(Comparator.naturalOrder())
+            .orElse(null);
 
         return new SøknadUtsettelseUttakDato(utsettelseFom, uttakFom);
     }

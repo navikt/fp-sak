@@ -8,14 +8,12 @@ final class VilkårUtlederFeil {
     }
 
     static TekniskException behandlingsmotivKanIkkeUtledes(Long behandlingId) {
-        var msg = String.format("Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres",
-            behandlingId);
+        var msg = String.format("Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres", behandlingId);
         return new TekniskException("FP-768017", msg);
     }
 
     static TekniskException kunneIkkeUtledeVilkårFor(Long behandlingId, String behandlingsmotiv) {
-        var msg = String.format(
-            "Kan ikke utlede vilkår for behandlingId %s. Mangler konfigurasjon for behandlingsmotiv %s", behandlingId,
+        var msg = String.format("Kan ikke utlede vilkår for behandlingId %s. Mangler konfigurasjon for behandlingsmotiv %s", behandlingId,
             behandlingsmotiv);
         return new TekniskException("FP-768018", msg);
     }

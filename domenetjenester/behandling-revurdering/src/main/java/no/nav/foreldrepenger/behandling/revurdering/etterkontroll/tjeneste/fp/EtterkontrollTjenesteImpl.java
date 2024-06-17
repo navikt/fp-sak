@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -51,11 +51,11 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     @Inject
     public EtterkontrollTjenesteImpl(HistorikkRepository historikkRepository,
-            BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
-            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
-            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
+                                     ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
+                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.revurderingTjeneste = revurderingTjeneste;
@@ -65,8 +65,9 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
-            List<FødtBarnInfo> barnFraRegister) {
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling,
+                                                               FamilieHendelseGrunnlagEntitet grunnlag,
+                                                               List<FødtBarnInfo> barnFraRegister) {
         if (grunnlag == null) {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
         }
@@ -79,8 +80,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         var fagsak = behandling.getFagsak();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
-        var behandlingMedforelder = behandlingRevurderingTjeneste
-            .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
+        var behandlingMedforelder = behandlingRevurderingTjeneste.finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
         var åpenBehandlingMedforelder = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(behandling.getFagsak())
             .flatMap(fmf -> behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fmf.getId()))
             .isPresent();
@@ -88,15 +88,16 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         if (behandlingMedforelder.isPresent()) {
             // For dette tilfellet vil enten begge sakene etterkontrolleres samtidig - eller bare ene forelder mangler registrering.
             LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(),
-                    fagsak.getId());
+                fagsak.getId());
             var denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
-            if (denneStarterUttakFørst || !åpenBehandlingMedforelder || BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(årsak)) { // Først eller etterregistrerte foreldre
+            if (denneStarterUttakFørst || !åpenBehandlingMedforelder || BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(
+                årsak)) { // Først eller etterregistrerte foreldre
                 behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
             } else {
                 enkøBehandling(revurdering);
                 revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(revurdering.getId(), fagsak.getId(),
-                        HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+                    HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
             }
         } else {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
@@ -117,8 +118,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             return Optional.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         }
         // Tilfelle av etterregistrert far/medmor, eller avvik i antall barn
-        return antallBarnSakBekreftet == 0 ? Optional.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-                : Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+        return
+            antallBarnSakBekreftet == 0 ? Optional.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL) : Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
     }
 
     private int finnAntallBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -130,8 +131,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private int finnAntallOverstyrtManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn)
-                .orElse(0);
+        return grunnlag.getOverstyrtVersjon()
+            .filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType()))
+            .map(FamilieHendelseEntitet::getAntallBarn)
+            .orElse(0);
     }
 
     private boolean denneForelderHarTidligstUttak(Behandling behandling, Behandling annenForelder) {
@@ -149,7 +152,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     public void enkøBehandling(Behandling behandling) {
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
-                Venteårsak.VENT_ÅPEN_BEHANDLING);
+            Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
 }

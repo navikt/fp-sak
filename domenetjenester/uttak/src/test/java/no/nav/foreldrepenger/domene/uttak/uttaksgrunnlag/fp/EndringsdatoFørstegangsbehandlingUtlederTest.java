@@ -33,13 +33,11 @@ class EndringsdatoFørstegangsbehandlingUtlederTest {
     void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_det_ikke_finnes_manuell_vurdering() {
         // Arrange
         var perioder = opprettOppgittePerioder();
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(perioder, false));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFordeling(new OppgittFordelingEntitet(perioder, false));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            perioder);
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), perioder);
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT);
@@ -53,8 +51,7 @@ class EndringsdatoFørstegangsbehandlingUtlederTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            opprettOppgittePerioder());
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), opprettOppgittePerioder());
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT);
@@ -68,8 +65,7 @@ class EndringsdatoFørstegangsbehandlingUtlederTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            opprettOppgittePerioder());
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), opprettOppgittePerioder());
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT.minusDays(1));

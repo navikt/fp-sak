@@ -18,8 +18,8 @@ class GrensesnittavstemmingBatchArgumentsTest {
     public static final String TOM = "tom";
     public static final String FOM = "fom";
 
-    private final GrensesnittavstemmingBatchTjeneste mock =
-        new GrensesnittavstemmingBatchTjeneste(mock(ØkonomioppdragRepository.class), mock(GrensesnittavstemmingJmsProducer.class));
+    private final GrensesnittavstemmingBatchTjeneste mock = new GrensesnittavstemmingBatchTjeneste(mock(ØkonomioppdragRepository.class),
+        mock(GrensesnittavstemmingJmsProducer.class));
 
     @Test
     void skal_parse_antall_dager() {

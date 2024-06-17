@@ -22,7 +22,8 @@ class FpUttakRepositoryStub extends FpUttakRepository {
     }
 
     @Override
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, Stønadskontoberegning stønadskontoberegning,
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      Stønadskontoberegning stønadskontoberegning,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         opprinnelig.put(behandlingId, opprinneligPerioder);
         if (stønadskontoberegning != null) {
@@ -31,8 +32,7 @@ class FpUttakRepositoryStub extends FpUttakRepository {
     }
 
     @Override
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
-                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet opprinneligPerioder) {
         // Nullstilling er forventet - fjerner evt overstyring
         lagreOpprinneligUttakResultatPerioder(behandlingId, null, opprinneligPerioder);
     }
@@ -49,11 +49,11 @@ class FpUttakRepositoryStub extends FpUttakRepository {
         if (opprinneligUttak == null) {
             return Optional.empty();
         }
-        return Optional.of(new UttakResultatEntitet.Builder(behandlingsresultatRepository.hent(behandlingId))
-            .medStønadskontoberegning(kontoer.get(behandlingId))
-            .medOpprinneligPerioder(opprinneligUttak)
-            .medOverstyrtPerioder(overstyrt.get(behandlingId))
-            .build());
+        return Optional.of(
+            new UttakResultatEntitet.Builder(behandlingsresultatRepository.hent(behandlingId)).medStønadskontoberegning(kontoer.get(behandlingId))
+                .medOpprinneligPerioder(opprinneligUttak)
+                .medOverstyrtPerioder(overstyrt.get(behandlingId))
+                .build());
     }
 
     @Override

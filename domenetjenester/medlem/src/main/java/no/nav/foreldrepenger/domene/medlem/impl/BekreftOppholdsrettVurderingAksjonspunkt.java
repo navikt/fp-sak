@@ -18,8 +18,7 @@ public class BekreftOppholdsrettVurderingAksjonspunkt {
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         var vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
 
-        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap)
-            .medOppholdsrettVurdering(adapter.getOppholdsrettVurdering())
+        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap).medOppholdsrettVurdering(adapter.getOppholdsrettVurdering())
             .medLovligOppholdVurdering(adapter.getLovligOppholdVurdering())
             .medErEosBorger(adapter.getErEosBorger())
             .medBegrunnelse(adapter.getBegrunnelse())

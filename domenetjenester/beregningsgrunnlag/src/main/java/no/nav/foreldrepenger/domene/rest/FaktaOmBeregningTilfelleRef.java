@@ -22,14 +22,13 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 
 /**
  * Marker tilfelle av fakta om beregning for å skille ulike implementasjoner for f.eks. oppdaterere og historikk.
- *
  */
 @Repeatable(FaktaOmBeregningTilfelleRef.ContainerOfFaktaOmBeregningTilfelleRef.class)
 @Qualifier
 @Stereotype
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
+@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
 @Documented
 public @interface FaktaOmBeregningTilfelleRef {
 
@@ -42,7 +41,9 @@ public @interface FaktaOmBeregningTilfelleRef {
      */
     FaktaOmBeregningTilfelle value();
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class FaktaOmBeregningTilfelleRefLiteral extends AnnotationLiteral<FaktaOmBeregningTilfelleRef> implements FaktaOmBeregningTilfelleRef {
 
         private FaktaOmBeregningTilfelle tilfelle;
@@ -104,7 +105,7 @@ public @interface FaktaOmBeregningTilfelleRef {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
+    @Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
     @Documented
     @interface ContainerOfFaktaOmBeregningTilfelleRef {
         FaktaOmBeregningTilfelleRef[] value();

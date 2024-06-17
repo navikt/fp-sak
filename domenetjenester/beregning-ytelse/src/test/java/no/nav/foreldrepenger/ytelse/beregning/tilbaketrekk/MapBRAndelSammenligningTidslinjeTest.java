@@ -40,8 +40,8 @@ class MapBRAndelSammenligningTidslinjeTest {
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        var tidslinje = MapBRAndelSammenligningTidslinje
-                .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
+        var tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3),
+            Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(3);
@@ -64,8 +64,8 @@ class MapBRAndelSammenligningTidslinjeTest {
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        var tidslinje = MapBRAndelSammenligningTidslinje
-                .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
+        var tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3),
+            Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
@@ -100,9 +100,8 @@ class MapBRAndelSammenligningTidslinjeTest {
         lagAndelForPeriode(nyPeriode3, AG1, REF1);
 
         // Act
-        var tidslinje = MapBRAndelSammenligningTidslinje
-                .opprettTidslinjeTest(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3),
-                        dagensdato);
+        var tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3),
+            Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3), dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
@@ -111,12 +110,15 @@ class MapBRAndelSammenligningTidslinjeTest {
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(nyAndel), Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Arrays.asList(nyAndel, nyAndel2), Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(2), STP.plusDays(26), STP.plusDays(29), Collections.singletonList(nyAndel),
-                Collections.singletonList(gammelAndel));
+            Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(3), STP.plusDays(30), STP.plusDays(40), Collections.singletonList(nyAndel), Collections.emptyList());
     }
 
-    private void assertSegment(LocalDateSegment<BRAndelSammenligning> segment, LocalDate fom, LocalDate tom,
-            List<BeregningsresultatAndel> nyeForventedeAndeler, List<BeregningsresultatAndel> forrigeForventedeAndeler) {
+    private void assertSegment(LocalDateSegment<BRAndelSammenligning> segment,
+                               LocalDate fom,
+                               LocalDate tom,
+                               List<BeregningsresultatAndel> nyeForventedeAndeler,
+                               List<BeregningsresultatAndel> forrigeForventedeAndeler) {
         assertThat(segment.getFom()).isEqualTo(fom);
         assertThat(segment.getTom()).isEqualTo(tom);
 
@@ -132,23 +134,21 @@ class MapBRAndelSammenligningTidslinjeTest {
 
     private BeregningsresultatAndel lagAndelForPeriode(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(false)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(900)
-                .medDagsatsFraBg(900)
-                .medArbeidsgiver(arbeidsgiver)
-                .medArbeidsforholdRef(ref)
-                .build(periode);
+            .medBrukerErMottaker(false)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(900)
+            .medDagsatsFraBg(900)
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsforholdRef(ref)
+            .build(periode);
     }
 
     private BeregningsresultatPeriode lagResultatMedPeriode(LocalDate fom, LocalDate tom) {
         var resultat = BeregningsresultatEntitet.builder().medRegelInput("test").medRegelSporing("test").build();
-        return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-                .build(resultat);
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(resultat);
     }
 
 }

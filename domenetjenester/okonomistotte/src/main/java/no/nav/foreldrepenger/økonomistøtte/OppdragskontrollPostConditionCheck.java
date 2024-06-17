@@ -17,12 +17,9 @@ public class OppdragskontrollPostConditionCheck {
 
     private static void valider(Oppdrag110 oppdrag110) {
         if (oppdrag110.getOppdragslinje150Liste().isEmpty()) {
-            throw new TekniskException(
-                "FP-611541",
-                String.format("PostCondition feilet for generert oppdrag. Fagområde=%s fagsystemid=%s. Oppdrag110 inneholder ingen oppdragslinjer. Det er ikke forventet.",
-                    oppdrag110.getKodeFagomrade(),
-                    oppdrag110.getFagsystemId())
-            );
+            throw new TekniskException("FP-611541", String.format(
+                "PostCondition feilet for generert oppdrag. Fagområde=%s fagsystemid=%s. Oppdrag110 inneholder ingen oppdragslinjer. Det er ikke forventet.",
+                oppdrag110.getKodeFagomrade(), oppdrag110.getFagsystemId()));
         }
     }
 }

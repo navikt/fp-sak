@@ -20,9 +20,7 @@ class SammenlignBeregningsresultatTest {
     @Test
     void skal_ikke_finne_diff_når_to_entiteter_er_like() {
         var stp = LocalDate.now();
-        var builder1 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder1 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
         var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -39,9 +37,7 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        var builder2 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder2 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -66,12 +62,9 @@ class SammenlignBeregningsresultatTest {
     @Test
     void skal_finne_diff_når_to_entiteter_har_ulike_start_på_periode() {
         var stp = LocalDate.now();
-        var builder1 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder1 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
-        var brPeriode1 = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15)) // ulik
+        var brPeriode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15)) // ulik
             .build(beregningsresultat1);
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
@@ -85,9 +78,7 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        var builder2 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder2 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -112,9 +103,7 @@ class SammenlignBeregningsresultatTest {
     @Test
     void skal_finne_diff_når_to_entiteter_har_ulike_utbetalingsgrad_på_andel() {
         var stp = LocalDate.now();
-        var builder1 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder1 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
         var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15))
@@ -131,9 +120,7 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        var builder2 = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+        var builder2 = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))

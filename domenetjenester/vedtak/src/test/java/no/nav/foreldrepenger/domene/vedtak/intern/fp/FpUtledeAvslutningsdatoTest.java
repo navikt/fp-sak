@@ -96,16 +96,15 @@ class FpUtledeAvslutningsdatoTest {
     public void setUp() {
         when(stønadskontoSaldoTjeneste.finnSaldoUtregning(any(UttakInput.class))).thenReturn(saldoUtregning);
 
-        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
-            stønadskontoSaldoTjeneste);
+        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository, stønadskontoSaldoTjeneste);
 
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
 
-        fpUtledeAvslutningsdato = new FpUtledeAvslutningsdato(repositoryProvider,
-            stønadskontoSaldoTjeneste, uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
+        fpUtledeAvslutningsdato = new FpUtledeAvslutningsdato(repositoryProvider, stønadskontoSaldoTjeneste, uttakInputTjeneste,
+            maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
@@ -117,8 +116,7 @@ class FpUtledeAvslutningsdatoTest {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
 
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
@@ -141,8 +139,7 @@ class FpUtledeAvslutningsdatoTest {
         var dødsdato = fødselsdato.plusWeeks(1);
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
 
         var familieHendelseDødeBarn = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(new Barn(dødsdato)), 1);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
@@ -157,11 +154,13 @@ class FpUtledeAvslutningsdatoTest {
 
         var forventetAvslutningsdatoMin = dødsdato.plusDays(1)
             .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
-            .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+            .plusMonths(SØKNADSFRIST_I_MÅNEDER)
+            .with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING - 1);
 
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin,
+            forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -171,8 +170,7 @@ class FpUtledeAvslutningsdatoTest {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
 
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
@@ -191,14 +189,14 @@ class FpUtledeAvslutningsdatoTest {
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
 
     }
+
     @Test
     void avslutningsdatoVedOpphørOgIkkeKobletTilAnnenPart() {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
-        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(
+            Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.OPPHØR));
 
@@ -219,20 +217,23 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato)
+            .plusDays(1)
+            .plusMonths(SØKNADSFRIST_I_MÅNEDER)
+            .with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING - 1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin,
+            forventetAvslutningsdatoMax);
     }
 
     @Test
     void avslutningsdatoVedOpphørOgErKobletTilAnnenPart() {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
-        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, Dekningsgrad._80, null, null)));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(
+            Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, Dekningsgrad._80, null, null)));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.OPPHØR));
 
@@ -253,10 +254,14 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato)
+            .plusDays(1)
+            .plusMonths(SØKNADSFRIST_I_MÅNEDER)
+            .with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING - 1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin,
+            forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -265,8 +270,7 @@ class FpUtledeAvslutningsdatoTest {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
 
         var periodeStartDato = LocalDate.now().minusDays(10);
         var periodeAvsluttetDato = LocalDate.now().plusDays(10);
@@ -285,10 +289,14 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato)
+            .plusDays(1)
+            .plusMonths(SØKNADSFRIST_I_MÅNEDER)
+            .with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING - 1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin,
+            forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -296,8 +304,7 @@ class FpUtledeAvslutningsdatoTest {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET));
 
@@ -334,8 +341,7 @@ class FpUtledeAvslutningsdatoTest {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET));
 
@@ -343,15 +349,17 @@ class FpUtledeAvslutningsdatoTest {
         var fødselsdato = dato.minusMonths(20);
         var fødselsdatoNyttBarn = dato.plusWeeks(2);
         var periodeAvsluttetDato = dato.plusDays(20);
-        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(fødselsdato, periodeAvsluttetDato));
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(fødselsdato, periodeAvsluttetDato));
 
 
         var familieHendelse2 = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse2))
-            .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medSaksnummer(new Saksnummer("1234")).medBehandlingId(1234L)
-                .medStartdato(fødselsdatoNyttBarn).medHendelsedato(fødselsdatoNyttBarn.plusWeeks(3)).build());
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse2))
+            .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+                .medSaksnummer(new Saksnummer("1234"))
+                .medBehandlingId(1234L)
+                .medStartdato(fødselsdatoNyttBarn)
+                .medHendelsedato(fødselsdatoNyttBarn.plusWeeks(3))
+                .build());
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
@@ -363,10 +371,13 @@ class FpUtledeAvslutningsdatoTest {
         var trekkdager = new Trekkdager(0);
         when(saldoUtregning.restSaldoEtterNesteStønadsperiode()).thenReturn(trekkdager);
 
-        var forventetAvslutningsdatoMin = fødselsdatoNyttBarn.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+        var forventetAvslutningsdatoMin = fødselsdatoNyttBarn.plusMonths(3)
+            .with(TemporalAdjusters.lastDayOfMonth())
+            .with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING - 1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin,
+            forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -374,8 +385,7 @@ class FpUtledeAvslutningsdatoTest {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
-            Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET));
 
@@ -383,15 +393,17 @@ class FpUtledeAvslutningsdatoTest {
         var fødselsdato = dato.minusMonths(10);
         var fødselsdatoNyttBarn = dato.plusWeeks(2);
         var periodeAvsluttetDato = dato.plusDays(20);
-        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(fødselsdato, periodeAvsluttetDato));
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(lagUttakResultat(fødselsdato, periodeAvsluttetDato));
 
 
         var familieHendelse2 = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse2))
-            .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medSaksnummer(new Saksnummer("1234")).medBehandlingId(1234L)
-                .medStartdato(fødselsdatoNyttBarn).medHendelsedato(fødselsdatoNyttBarn.plusWeeks(3)).build());
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse2))
+            .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+                .medSaksnummer(new Saksnummer("1234"))
+                .medBehandlingId(1234L)
+                .medStartdato(fødselsdatoNyttBarn)
+                .medHendelsedato(fødselsdatoNyttBarn.plusWeeks(3))
+                .build());
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
@@ -428,13 +440,12 @@ class FpUtledeAvslutningsdatoTest {
     }
 
     private Optional<UttakResultatEntitet> lagUttakResultat(LocalDate fom, LocalDate tom) {
-        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET,
-            PeriodeResultatÅrsak.UKJENT).build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
         var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);
         var behandlingsresultat = new Behandlingsresultat.Builder().build();
 
-        return Optional.of(
-            new UttakResultatEntitet.Builder(behandlingsresultat).medOpprinneligPerioder(perioder).build());
+        return Optional.of(new UttakResultatEntitet.Builder(behandlingsresultat).medOpprinneligPerioder(perioder).build());
     }
 }

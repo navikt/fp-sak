@@ -61,7 +61,7 @@ class InnsynTjenesteTest {
     public void oppsett() {
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
         var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
-                mock(ProsessTaskTjeneste.class));
+            mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
     }
 
@@ -101,10 +101,10 @@ class InnsynTjenesteTest {
 
     private InnsynEntitet lagResultat(Behandling innsynbehandling, InnsynResultatType delvisInnvilget) {
         return InnsynEntitet.InnsynBuilder.builder()
-                .medMottattDato(LocalDate.of(2019, 7, 3))
-                .medBehandlingId(innsynbehandling.getId())
-                .medBegrunnelse("foo")
-                .medInnsynResultatType(delvisInnvilget)
-                .build();
+            .medMottattDato(LocalDate.of(2019, 7, 3))
+            .medBehandlingId(innsynbehandling.getId())
+            .medBegrunnelse("foo")
+            .medInnsynResultatType(delvisInnvilget)
+            .build();
     }
 }

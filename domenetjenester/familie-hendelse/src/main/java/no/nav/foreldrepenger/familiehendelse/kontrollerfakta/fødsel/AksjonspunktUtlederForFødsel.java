@@ -52,8 +52,8 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
 
         // Sjekk om registrert eller allerede overstyrt fødsel. Deretter om frist utløpt
         if (erFødselenRegistrertITps(familieHendelseGrunnlag) == JA) {
-            return samsvarerAntallBarnISøknadMedAntallBarnITps(familieHendelseGrunnlag) == NEI ?
-                opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
+            return samsvarerAntallBarnISøknadMedAntallBarnITps(familieHendelseGrunnlag) == NEI ? opprettListeForAksjonspunkt(
+                SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
         }
         if (finnesOverstyrtFødsel(familieHendelseGrunnlag) == JA) {
             return INGEN_AKSJONSPUNKTER;
@@ -63,7 +63,8 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         }
         // Vent på registrering - vurder om det er riktig for FP
         if (harSøkerOppgittFødselISøknad(familieHendelseGrunnlag) == JA) {
-            return singletonList(opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.AVV_FODSEL, utledVentefrist(familieHendelseGrunnlag)));
+            return singletonList(
+                opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.AVV_FODSEL, utledVentefrist(familieHendelseGrunnlag)));
         }
         // Vurder tilbakemeldinger her (skrivefeil etc)
         if (finnesOverstyrtTermin(familieHendelseGrunnlag) == JA) {
@@ -74,12 +75,13 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     Utfall erSøkerRegistrertArbeidstakerMedLøpendeArbeidsforholdIAARegisteret(AksjonspunktUtlederInput param) {
-        return harArbeidsforholdMedArbeidstyperSomAngitt(param) ?  JA : NEI;
+        return harArbeidsforholdMedArbeidstyperSomAngitt(param) ? JA : NEI;
     }
 
     Utfall samsvarerAntallBarnISøknadMedAntallBarnITps(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getSøknadVersjon().getAntallBarn().equals(grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0)) ?
-            JA : NEI;
+        return grunnlag.getSøknadVersjon()
+            .getAntallBarn()
+            .equals(grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0)) ? JA : NEI;
     }
 
     Utfall erFristForRegistreringAvFødselPassert(FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -87,7 +89,9 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     LocalDateTime utledVentefrist(FamilieHendelseGrunnlagEntitet grunnlag) {
-        var venteFrist = grunnlag.getSøknadVersjon().getBarna().stream()
+        var venteFrist = grunnlag.getSøknadVersjon()
+            .getBarna()
+            .stream()
             .map(barn -> barn.getFødselsdato().plus(FamilieHendelseTjeneste.VENT_FØDSELSREGISTRERING_AUTOPUNKT))
             .findFirst()
             .orElse(LocalDate.now());
@@ -95,23 +99,27 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     Utfall harSøkerOppgittFødselISøknad(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return FamilieHendelseType.TERMIN.equals(grunnlag.getSøknadVersjon().getType()) || grunnlag.getSøknadVersjon().getBarna().isEmpty() ? NEI : JA;
+        return
+            FamilieHendelseType.TERMIN.equals(grunnlag.getSøknadVersjon().getType()) || grunnlag.getSøknadVersjon().getBarna().isEmpty() ? NEI : JA;
     }
 
     Utfall erFødselenRegistrertITps(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty() ? NEI : JA;
+        return familieHendelseGrunnlag.getBekreftetVersjon()
+            .map(FamilieHendelseEntitet::getBarna)
+            .orElse(Collections.emptyList())
+            .isEmpty() ? NEI : JA;
     }
 
     Utfall finnesOverstyrtFødsel(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         return familieHendelseGrunnlag.getOverstyrtVersjon()
             .filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType()))
-            .map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty() ? NEI : JA;
+            .map(FamilieHendelseEntitet::getBarna)
+            .orElse(Collections.emptyList())
+            .isEmpty() ? NEI : JA;
     }
 
     Utfall finnesOverstyrtTermin(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return familieHendelseGrunnlag.getOverstyrtVersjon()
-            .filter(fh -> FamilieHendelseType.TERMIN.equals(fh.getType()))
-            .isEmpty() ? NEI : JA;
+        return familieHendelseGrunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.TERMIN.equals(fh.getType())).isEmpty() ? NEI : JA;
     }
 
     private boolean harArbeidsforholdMedArbeidstyperSomAngitt(AksjonspunktUtlederInput param) {
@@ -125,15 +133,14 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         var grunnlag = grunnlagOpt.get();
         var stp = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
-                .før(skjæringstidspunkt);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(
+            skjæringstidspunkt);
 
         return harArbeidsforholdMedLøpendeAktivitetsavtale(filter, stp);
     }
 
     private boolean harArbeidsforholdMedLøpendeAktivitetsavtale(YrkesaktivitetFilter filter, DatoIntervallEntitet skjæringstidspunkt) {
-        return filter.getAnsettelsesPerioder().stream()
-            .anyMatch(aa -> aa.getErLøpende() || aa.getPeriode().overlapper(skjæringstidspunkt));
+        return filter.getAnsettelsesPerioder().stream().anyMatch(aa -> aa.getErLøpende() || aa.getPeriode().overlapper(skjæringstidspunkt));
     }
 
     protected abstract List<AksjonspunktResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param);

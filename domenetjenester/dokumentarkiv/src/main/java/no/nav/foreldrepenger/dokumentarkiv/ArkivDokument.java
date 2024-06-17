@@ -48,12 +48,15 @@ public class ArkivDokument {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ArkivDokument) o;
-        return Objects.equals(dokumentId, that.dokumentId) &&
-            Objects.equals(tittel, that.tittel) &&
-            Objects.equals(dokumentTypeId, that.dokumentTypeId);
+        return Objects.equals(dokumentId, that.dokumentId) && Objects.equals(tittel, that.tittel) && Objects.equals(dokumentTypeId,
+            that.dokumentTypeId);
     }
 
     @Override
@@ -90,12 +93,12 @@ public class ArkivDokument {
             return this;
         }
 
-        public Builder medAlleDokumenttyper(Set<DokumentTypeId> dokumentTypeId){
+        public Builder medAlleDokumenttyper(Set<DokumentTypeId> dokumentTypeId) {
             this.arkivDokument.getAlleDokumenttyper().addAll(dokumentTypeId);
             return this;
         }
 
-        public Builder medVariantFormater(Set<VariantFormat> variantFormater){
+        public Builder medVariantFormater(Set<VariantFormat> variantFormater) {
             this.arkivDokument.getTilgjengeligSom().addAll(variantFormater);
             return this;
         }

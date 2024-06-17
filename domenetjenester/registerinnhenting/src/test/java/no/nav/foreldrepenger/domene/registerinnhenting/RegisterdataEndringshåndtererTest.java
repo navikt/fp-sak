@@ -78,16 +78,13 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
         snapshotFør = EndringsresultatSnapshot.opprett();
 
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer,
-            repositoryProvider.getFamilieHendelseRepository());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
     }
 
     @Test
     void skal_returnere_når_behandling_er_før_registerinnhenting() {
         // Arrange
-        var behandling = scenarioFødsel
-            .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP)
-            .lagre(repositoryProvider);
+        var behandling = scenarioFødsel.medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP).lagre(repositoryProvider);
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.FALSE);
         // Act
         var skalinnhente = lagRegisterdataEndringshåndterer().skalInnhenteRegisteropplysningerPåNytt(behandling);
@@ -100,9 +97,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     void skal_returnere_når_forrige_innhenting_var_i_inneværende_døgn() {
         // Arrange
         scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now());
-        var behandling = scenarioFødsel
-            .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP)
-            .lagre(repositoryProvider);
+        var behandling = scenarioFødsel.medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP).lagre(repositoryProvider);
         // Act
         var skalinnhente = lagRegisterdataEndringshåndterer().skalInnhenteRegisteropplysningerPåNytt(behandling);
 
@@ -123,12 +118,11 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
         var idDiff = EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 2L);
         var sporingDiff = EndringsresultatDiff.medDiffPåSporedeFelt(idDiff, true, null);
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
-            .thenReturn(sporingDiff);
+        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(
+            sporingDiff);
 
         // Act
-        lagRegisterdataEndringshåndterer()
-            .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
+        lagRegisterdataEndringshåndterer().utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
 
         // Assert
         verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any());
@@ -158,19 +152,19 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         // Arrange
         var søker = opprettSøkerinfo();
 
-        scenarioFødsel
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
+        scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
             .medSøker(søker)
             .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
-        scenarioFødsel.medSøknadHendelse().medTerminbekreftelse(scenarioFødsel.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().minusDays(30))
-            .medUtstedtDato(LocalDate.now())
-            .medNavnPå("Legen min"));
+        scenarioFødsel.medSøknadHendelse()
+            .medTerminbekreftelse(scenarioFødsel.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now().minusDays(30))
+                .medUtstedtDato(LocalDate.now())
+                .medNavnPå("Legen min"));
         var behandling = scenarioFødsel.lagre(repositoryProvider);
 
         // Act
-        lagRegisterdataEndringshåndterer()
-            .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
+        lagRegisterdataEndringshåndterer().utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
 
         // Assert
         var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
@@ -185,18 +179,22 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         var søker = opprettSøkerinfo();
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
 
-        var scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fDato)).medBehandlingType(BehandlingType.REVURDERING)
-            .medSøknadDato(fDato).medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
-            .medSøker(søker).medBehandlingStegStart(BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+        var scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(List.of(fDato))
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medSøknadDato(fDato)
+            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
+            .medSøker(søker)
+            .medBehandlingStegStart(BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.setStartpunkt(StartpunktType.OPPTJENING);
 
         // Act
-        lagRegisterdataEndringshåndterer()
-            .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
+        lagRegisterdataEndringshåndterer().utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
 
         // Assert
-        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(EndringsresultatDiff.class), eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET));
+        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(EndringsresultatDiff.class),
+            eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET));
     }
 
     @Test
@@ -205,19 +203,18 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         var opplysningerOppdatertTidspunkt = LocalDateTime.now().minusDays(1);
         var søker = opprettSøkerinfo();
 
-        scenarioAdopsjon
-            .medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt)
+        scenarioAdopsjon.medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt)
             .medSøker(søker)
             .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
-        scenarioAdopsjon.medSøknadHendelse().leggTilBarn(LocalDate.now())
+        scenarioAdopsjon.medSøknadHendelse()
+            .leggTilBarn(LocalDate.now())
             .medAdopsjon(scenarioAdopsjon.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         var behandling = scenarioAdopsjon.lagre(repositoryProvider);
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
-            .thenReturn(EndringsresultatDiff.opprettForSporingsendringer());
+        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(
+            EndringsresultatDiff.opprettForSporingsendringer());
 
         // Act
-        lagRegisterdataEndringshåndterer()
-            .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
+        lagRegisterdataEndringshåndterer().utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
 
         // Assert
         var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
@@ -228,21 +225,14 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private RegisterdataEndringshåndterer lagRegisterdataEndringshåndterer() {
 
         var durationInstance = "PT10H";
-        return new RegisterdataEndringshåndterer(
-            repositoryProvider,
-            durationInstance,
-            endringskontroller,
-            endringsresultatSjekker,
-            familieHendelseTjeneste,
-            behandlingÅrsakTjeneste);
+        return new RegisterdataEndringshåndterer(repositoryProvider, durationInstance, endringskontroller, endringsresultatSjekker,
+            familieHendelseTjeneste, behandlingÅrsakTjeneste);
     }
 
     private Personinfo opprettSøkerinfo() {
-        var familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN
-        );
+        var familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN);
 
-        return new Personinfo.Builder()
-            .medAktørId(SØKER_AKTØR_ID)
+        return new Personinfo.Builder().medAktørId(SØKER_AKTØR_ID)
             .medPersonIdent(new PersonIdent(FNR_FORELDER))
             .medNavn("Navn Navnesen")
             .medFødselsdato(FORELDER_FØDSELSDATO)

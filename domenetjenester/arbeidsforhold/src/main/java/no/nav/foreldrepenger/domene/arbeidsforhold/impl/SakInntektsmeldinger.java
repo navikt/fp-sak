@@ -22,7 +22,7 @@ public class SakInntektsmeldinger {
 
     public void leggTil(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime grunnlagOpprettetTidspunkt, Inntektsmelding inntektsmelding) {
         data.computeIfAbsent(new Key(behandlingId, grunnlagEksternReferanse, grunnlagOpprettetTidspunkt), k -> new LinkedHashSet<>())
-                .add(inntektsmelding);
+            .add(inntektsmelding);
     }
 
     public Saksnummer getSaksnummer() {

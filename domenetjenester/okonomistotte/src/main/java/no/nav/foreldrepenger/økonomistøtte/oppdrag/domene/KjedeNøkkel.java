@@ -18,18 +18,11 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
     private final Integer knektKjedeDel;
 
     public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
-        return KjedeNøkkel.builder()
-            .medKlassekode(klassekode)
-            .medBetalingsmottaker(betalingsmottaker)
-            .build();
+        return KjedeNøkkel.builder().medKlassekode(klassekode).medBetalingsmottaker(betalingsmottaker).build();
     }
 
     public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, int feriepengeÅr) {
-        return KjedeNøkkel.builder()
-            .medKlassekode(klassekode)
-            .medBetalingsmottaker(betalingsmottaker)
-            .medOpptjeningsÅr(feriepengeÅr)
-            .build();
+        return KjedeNøkkel.builder().medKlassekode(klassekode).medBetalingsmottaker(betalingsmottaker).medOpptjeningsÅr(feriepengeÅr).build();
     }
 
     public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, LocalDate feriepengerMaksdato) {
@@ -69,14 +62,15 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (KjedeNøkkel) o;
-        return Objects.equals(klassekode, that.klassekode) &&
-            Objects.equals(betalingsmottaker, that.betalingsmottaker) &&
-            Objects.equals(feriepengeMaksdato, that.feriepengeMaksdato) &&
-            Objects.equals(knektKjedeDel, that.knektKjedeDel)
-            ;
+        return Objects.equals(klassekode, that.klassekode) && Objects.equals(betalingsmottaker, that.betalingsmottaker) && Objects.equals(
+            feriepengeMaksdato, that.feriepengeMaksdato) && Objects.equals(knektKjedeDel, that.knektKjedeDel);
     }
 
     @Override
@@ -86,12 +80,9 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
     @Override
     public String toString() {
-        return "KjedeNøkkel{" +
-            "klassekode=" + klassekode +
-            ", betalingsmottaker=" + betalingsmottaker +
-            (feriepengeMaksdato != null ? ", feriepengemaksdato=" + feriepengeMaksdato : "") +
-            (knektKjedeDel != null ? ", knektKjedeDel=" + knektKjedeDel : "") +
-            '}';
+        return "KjedeNøkkel{" + "klassekode=" + klassekode + ", betalingsmottaker=" + betalingsmottaker + (
+            feriepengeMaksdato != null ? ", feriepengemaksdato=" + feriepengeMaksdato : "") + (
+            knektKjedeDel != null ? ", knektKjedeDel=" + knektKjedeDel : "") + '}';
     }
 
     @Override
@@ -100,7 +91,8 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         if (mottakerSammenligning != 0) {
             return mottakerSammenligning;
         }
-        var klassekodeSammenligning = Integer.compare(ØkonomiKodeKlassifikSortering.getSorteringsplassering(getKlassekode()), ØkonomiKodeKlassifikSortering.getSorteringsplassering(o.getKlassekode()));
+        var klassekodeSammenligning = Integer.compare(ØkonomiKodeKlassifikSortering.getSorteringsplassering(getKlassekode()),
+            ØkonomiKodeKlassifikSortering.getSorteringsplassering(o.getKlassekode()));
         if (klassekodeSammenligning != 0) {
             return klassekodeSammenligning;
         }

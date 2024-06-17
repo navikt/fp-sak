@@ -41,15 +41,13 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void utenTomUtenPermisjon() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(A))
-                .medBeskrivelse(BESKRIVELSE_1);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(A)).medBeskrivelse(BESKRIVELSE_1);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .build();
         var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().build();
 
         // Act
@@ -62,20 +60,18 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void utenTomMedPermisjonIMidten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(A))
-                .medBeskrivelse(BESKRIVELSE_1);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(A)).medBeskrivelse(BESKRIVELSE_1);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(C, D)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(C, D)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(C, D);
 
         // Act
@@ -98,20 +94,18 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void utenTomMedPermisjonIStarten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(A))
-                .medBeskrivelse(BESKRIVELSE_1);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(A)).medBeskrivelse(BESKRIVELSE_1);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(A, B)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(A, B)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(A, B);
 
         // Act
@@ -129,20 +123,18 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void utenTomMedPermisjonISlutten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(A))
-                .medBeskrivelse(BESKRIVELSE_1);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(A)).medBeskrivelse(BESKRIVELSE_1);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(E, Tid.TIDENES_ENDE)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(E, Tid.TIDENES_ENDE)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(E, Tid.TIDENES_ENDE);
 
         // Act
@@ -160,20 +152,18 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void utenTomMedPermisjonHelePerioden() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(A))
-                .medBeskrivelse(BESKRIVELSE_1);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(A)).medBeskrivelse(BESKRIVELSE_1);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(A, Tid.TIDENES_ENDE)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(A, Tid.TIDENES_ENDE)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(A, Tid.TIDENES_ENDE);
 
         // Act
@@ -186,19 +176,15 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void toAnsettelsesPerioderIngenPermisjon() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(C, D))
-                .medBeskrivelse(BESKRIVELSE_2);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(C, D)).medBeskrivelse(BESKRIVELSE_2);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .build();
         var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().build();
 
         // Act
@@ -211,24 +197,20 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void toAnsettelsesPerioderPermisjonIMidten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(C))
-                .medBeskrivelse(BESKRIVELSE_2);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(C)).medBeskrivelse(BESKRIVELSE_2);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(B, D)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(B, D)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(B, D);
 
         // Act
@@ -251,31 +233,23 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void treAnsettelsesPerioderPermisjonIMidten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(C, D))
-                .medBeskrivelse(BESKRIVELSE_2);
-        var ap3 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(E))
-                .medBeskrivelse(BESKRIVELSE_3);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(C, D)).medBeskrivelse(BESKRIVELSE_2);
+        var ap3 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(E)).medBeskrivelse(BESKRIVELSE_3);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .leggTilAktivitetsAvtale(ap3)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(LocalDate.of(2019, Month.MARCH, 1),
-                            LocalDate.of(2019, Month.MARCH, 31))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
-        var grunnlag = grunnlagMedBekreftetPermisjon(LocalDate.of(2019, Month.MARCH, 1),
-                LocalDate.of(2019, Month.MARCH, 31));
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .leggTilAktivitetsAvtale(ap3)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(LocalDate.of(2019, Month.MARCH, 1), LocalDate.of(2019, Month.MARCH, 31))
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
+        var grunnlag = grunnlagMedBekreftetPermisjon(LocalDate.of(2019, Month.MARCH, 1), LocalDate.of(2019, Month.MARCH, 31));
 
         // Act
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
@@ -307,24 +281,20 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void toAnsettelsesPerioderPermisjonIStarten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(C))
-                .medBeskrivelse(BESKRIVELSE_2);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(C)).medBeskrivelse(BESKRIVELSE_2);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(A, D)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(A, D)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(A, D);
 
         // Act
@@ -342,24 +312,20 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void toAnsettelsesPerioderPermisjonISlutten() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(C))
-                .medBeskrivelse(BESKRIVELSE_2);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(C)).medBeskrivelse(BESKRIVELSE_2);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(E, Tid.TIDENES_ENDE)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(E, Tid.TIDENES_ENDE)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(E, Tid.TIDENES_ENDE);
 
         // Act
@@ -382,24 +348,20 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
     @Test
     void toAnsettelsesPerioderMedPermisjonHelePerioden() {
         // Arrange
-        var ap1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
-                .medBeskrivelse(BESKRIVELSE_1);
-        var ap2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(C))
-                .medBeskrivelse(BESKRIVELSE_2);
+        var ap1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B)).medBeskrivelse(BESKRIVELSE_1);
+        var ap2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(C)).medBeskrivelse(BESKRIVELSE_2);
         var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(ap1)
-                .leggTilAktivitetsAvtale(ap2)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdId(REF)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(A, Tid.TIDENES_ENDE)
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-                        .build())
-                .build();
+            .leggTilAktivitetsAvtale(ap1)
+            .leggTilAktivitetsAvtale(ap2)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(A, Tid.TIDENES_ENDE)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build())
+            .build();
         var grunnlag = grunnlagMedBekreftetPermisjon(A, Tid.TIDENES_ENDE);
 
         // Act
@@ -413,10 +375,6 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         var overstyringBuilder = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(ARBEIDSGIVER, REF);
         overstyringBuilder.medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
-        return InntektArbeidYtelseGrunnlagBuilder.nytt()
-                .medInformasjon(arbeidsforholdInformasjonBuilder
-                        .leggTil(overstyringBuilder)
-                        .build())
-                .build();
+        return InntektArbeidYtelseGrunnlagBuilder.nytt().medInformasjon(arbeidsforholdInformasjonBuilder.leggTil(overstyringBuilder).build()).build();
     }
 }

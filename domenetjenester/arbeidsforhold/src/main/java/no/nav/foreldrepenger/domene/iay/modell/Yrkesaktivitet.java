@@ -49,7 +49,9 @@ public class Yrkesaktivitet implements IndexKey {
         this.navnArbeidsgiverUtland = yrkesaktivitet.getNavnArbeidsgiverUtland();
 
         // NB må aksessere felt her heller en getter siden getter filtrerer
-        this.aktivitetsAvtale = yrkesaktivitet.aktivitetsAvtale.stream().map(AktivitetsAvtale::new).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.aktivitetsAvtale = yrkesaktivitet.aktivitetsAvtale.stream()
+            .map(AktivitetsAvtale::new)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
         this.permisjon = yrkesaktivitet.permisjon.stream().map(p -> {
             var permisjonEntitet = new Permisjon(p);
@@ -147,9 +149,9 @@ public class Yrkesaktivitet implements IndexKey {
 
     boolean erArbeidsforholdAktivt(LocalDate dato) {
         return this.getAlleAktivitetsAvtaler()
-                .stream()
-                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-                .anyMatch(aa -> aa.getPeriode().inkluderer(dato));
+            .stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .anyMatch(aa -> aa.getPeriode().inkluderer(dato));
     }
 
     /**
@@ -200,10 +202,9 @@ public class Yrkesaktivitet implements IndexKey {
         if (!(obj instanceof Yrkesaktivitet other)) {
             return false;
         }
-        return Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef()) &&
-                Objects.equals(this.getNavnArbeidsgiverUtland(), other.getNavnArbeidsgiverUtland()) &&
-                Objects.equals(this.getArbeidType(), other.getArbeidType()) &&
-                Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
+        return Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef()) && Objects.equals(this.getNavnArbeidsgiverUtland(),
+            other.getNavnArbeidsgiverUtland()) && Objects.equals(this.getArbeidType(), other.getArbeidType()) && Objects.equals(
+            this.getArbeidsgiver(), other.getArbeidsgiver());
     }
 
     @Override
@@ -213,11 +214,8 @@ public class Yrkesaktivitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "YrkesaktivitetEntitet{" +
-                "arbeidsgiver=" + arbeidsgiver +
-                ", arbeidsforholdRef=" + arbeidsforholdRef +
-                ", arbeidType=" + arbeidType +
-                '}';
+        return "YrkesaktivitetEntitet{" + "arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef + ", arbeidType=" + arbeidType
+            + '}';
     }
 
     void fjernAnsettelsesPeriode(DatoIntervallEntitet aktivitetsPeriode) {

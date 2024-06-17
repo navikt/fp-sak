@@ -12,7 +12,6 @@ class MottattDokumentSorterer {
     }
 
     static Comparator<MottattDokument> sorterMottattDokument() {
-        return Comparator.comparing(MottattDokument::getMottattDato)
-            .thenComparing(MottattDokument::getKanalreferanse, nullSafeStringComparator);
+        return Comparator.comparing(MottattDokument::getMottattDato).thenComparing(MottattDokument::getKanalreferanse, nullSafeStringComparator);
     }
 }

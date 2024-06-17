@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @Qualifier
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Documented
 public @interface VilkårTypeRef {
 
@@ -28,7 +28,9 @@ public @interface VilkårTypeRef {
      */
     VilkårType value();
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class VilkårTypeRefLiteral extends AnnotationLiteral<VilkårTypeRef> implements VilkårTypeRef {
 
         private VilkårType vilkårType;

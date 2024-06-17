@@ -36,73 +36,90 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var mottarYtelseDto = dto.getMottarYtelse();
         var forrigeBG = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         if (erFrilanser(nyttBeregningsgrunnlag) && mottarYtelseDto.getFrilansMottarYtelse() != null) {
-                lagHistorikkinnslagForFrilans(forrigeBG, mottarYtelseDto, tekstBuilder);
+            lagHistorikkinnslagForFrilans(forrigeBG, mottarYtelseDto, tekstBuilder);
         }
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
-        mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse()
-            .forEach(a -> {
-                var matchetAndel = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream()
-                    .filter(andel -> a.getAndelsnr() == andel.getAndelsnr()).findFirst();
-                matchetAndel.ifPresent(andel -> {
-                    var mottarYtelseVerdi = mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse().stream()
-                        .filter(mottarYtelseAndel -> mottarYtelseAndel.getAndelsnr() == andel.getAndelsnr())
-                        .findFirst().map(ArbeidstakerandelUtenIMMottarYtelseDto::getMottarYtelse);
-                    lagHistorikkinnslagForArbeidstakerUtenIM(forrigeBG, andel, mottarYtelseVerdi, tekstBuilder, arbeidsforholdOverstyringer);
-                });
+        mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse().forEach(a -> {
+            var matchetAndel = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder()
+                .get(0)
+                .getBeregningsgrunnlagPrStatusOgAndelList()
+                .stream()
+                .filter(andel -> a.getAndelsnr() == andel.getAndelsnr())
+                .findFirst();
+            matchetAndel.ifPresent(andel -> {
+                var mottarYtelseVerdi = mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse()
+                    .stream()
+                    .filter(mottarYtelseAndel -> mottarYtelseAndel.getAndelsnr() == andel.getAndelsnr())
+                    .findFirst()
+                    .map(ArbeidstakerandelUtenIMMottarYtelseDto::getMottarYtelse);
+                lagHistorikkinnslagForArbeidstakerUtenIM(forrigeBG, andel, mottarYtelseVerdi, tekstBuilder, arbeidsforholdOverstyringer);
             });
+        });
     }
 
     private boolean erFrilanser(BeregningsgrunnlagEntitet nyttBeregningsgrunnlag) {
-        return nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream().anyMatch(a -> a.getAktivitetStatus().erFrilanser());
+        return nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .get(0)
+            .getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
+            .anyMatch(a -> a.getAktivitetStatus().erFrilanser());
     }
 
-    private void lagHistorikkinnslagForArbeidstakerUtenIM(Optional<BeregningsgrunnlagEntitet> forrigeBG, BeregningsgrunnlagPrStatusOgAndel andel,
-                                                          Optional<Boolean> mottarYtelseVerdi, HistorikkInnslagTekstBuilder tekstBuilder,
+    private void lagHistorikkinnslagForArbeidstakerUtenIM(Optional<BeregningsgrunnlagEntitet> forrigeBG,
+                                                          BeregningsgrunnlagPrStatusOgAndel andel,
+                                                          Optional<Boolean> mottarYtelseVerdi,
+                                                          HistorikkInnslagTekstBuilder tekstBuilder,
                                                           List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         mottarYtelseVerdi.ifPresent(mottarYtelse -> {
             var mottarYtelseForrige = finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(andel, forrigeBG);
-                if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelse)){
-                    var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
-                        andel.getArbeidsgiver(),
-                        andel.getArbeidsforholdRef(),
-                        arbeidsforholdOverstyringer);
-                    tekstBuilder
-                        .medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_ARBEID, andelsInfo,
-                            mottarYtelseForrige.orElse(null), mottarYtelse);
-                }
+            if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelse)) {
+                var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
+                    andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_ARBEID, andelsInfo, mottarYtelseForrige.orElse(null), mottarYtelse);
             }
-        );
+        });
     }
 
-    private void lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG, MottarYtelseDto mottarYtelseDto,
+    private void lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG,
+                                               MottarYtelseDto mottarYtelseDto,
                                                HistorikkInnslagTekstBuilder tekstBuilder) {
         var mottarYtelseForrige = finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(forrigeBG);
         if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelseDto.getFrilansMottarYtelse())) {
-            tekstBuilder
-                .medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_FRILANS, mottarYtelseForrige.orElse(null), mottarYtelseDto.getFrilansMottarYtelse());
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_FRILANS, mottarYtelseForrige.orElse(null),
+                mottarYtelseDto.getFrilansMottarYtelse());
         }
     }
 
     private Optional<Boolean> finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(Optional<BeregningsgrunnlagEntitet> forrigeBG) {
-        return forrigeBG
-            .stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+        return forrigeBG.stream()
+            .flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
             .flatMap(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .filter(andel -> andel.getAktivitetStatus().erFrilanser())
-            .findFirst().stream()
-            .flatMap(andel -> andel.mottarYtelse().stream()).findFirst();
+            .findFirst()
+            .stream()
+            .flatMap(andel -> andel.mottarYtelse().stream())
+            .findFirst();
     }
 
-    private Optional<Boolean> finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(BeregningsgrunnlagPrStatusOgAndel andelINyttBg, Optional<BeregningsgrunnlagEntitet> forrigeBG) {
-        return forrigeBG
-            .stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+    private Optional<Boolean> finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(BeregningsgrunnlagPrStatusOgAndel andelINyttBg,
+                                                                               Optional<BeregningsgrunnlagEntitet> forrigeBG) {
+        return forrigeBG.stream()
+            .flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
             .flatMap(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .filter(andel -> andel.gjelderSammeArbeidsforhold(andelINyttBg))
-            .findFirst().stream()
-            .flatMap(andel -> andel.mottarYtelse().stream()).findFirst();
+            .findFirst()
+            .stream()
+            .flatMap(andel -> andel.mottarYtelse().stream())
+            .findFirst();
     }
 
 }

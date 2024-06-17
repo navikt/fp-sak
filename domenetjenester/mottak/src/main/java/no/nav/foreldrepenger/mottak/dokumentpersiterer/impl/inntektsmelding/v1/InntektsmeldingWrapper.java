@@ -100,10 +100,7 @@ public class InntektsmeldingWrapper extends MottattDokumentWrapper<Inntektsmeldi
             return Optional.ofNullable(getSkjema().getSkjemainnhold().getStartdatoForeldrepengeperiode().getValue());
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
-            var førsteFraværsdag = getSkjema().getSkjemainnhold()
-                .getArbeidsforhold()
-                .getValue()
-                .getFoersteFravaersdag();
+            var førsteFraværsdag = getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getFoersteFravaersdag();
             return Optional.ofNullable(førsteFraværsdag != null ? førsteFraværsdag.getValue() : null);
         }
         return Optional.empty();

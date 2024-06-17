@@ -46,11 +46,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new HashMap<>();
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
 
-    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-            NavBrukerKjønn kjønn) {
-        this.fagsakBuilder = FagsakBuilder
-                .nyFagsak(fagsakYtelseType, brukerRolle)
-                .medBrukerKjønn(kjønn);
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, NavBrukerKjønn kjønn) {
+        this.fagsakBuilder = FagsakBuilder.nyFagsak(fagsakYtelseType, brukerRolle).medBrukerKjønn(kjønn);
     }
 
     public Behandling lagre(BehandlingskontrollServiceProvider repositoryProvider) {
@@ -119,14 +116,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void leggTilAksjonspunkter(Behandling behandling) {
-        aksjonspunktDefinisjoner.forEach(
-                (apDef, stegType) -> {
-                    if (stegType != null) {
-                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
-                    } else {
-                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
-                    }
-                });
+        aksjonspunktDefinisjoner.forEach((apDef, stegType) -> {
+            if (stegType != null) {
+                AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
+            } else {
+                AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
+            }
+        });
     }
 
     public static class NavBrukerBuilder {

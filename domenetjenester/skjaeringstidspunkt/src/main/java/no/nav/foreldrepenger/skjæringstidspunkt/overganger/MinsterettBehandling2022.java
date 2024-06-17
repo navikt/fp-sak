@@ -29,8 +29,7 @@ public class MinsterettBehandling2022 {
     }
 
     @Inject
-    public MinsterettBehandling2022(BehandlingRepositoryProvider repositoryProvider,
-                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    public MinsterettBehandling2022(BehandlingRepositoryProvider repositoryProvider, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -53,8 +52,10 @@ public class MinsterettBehandling2022 {
     private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Behandling behandling) {
         var fagsak = behandling.getFagsak();
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
-            .flatMap(r -> r.getRelatertFagsak(fagsak)).map(Fagsak::getId)
-            .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).map(Behandling::getId)
+            .flatMap(r -> r.getRelatertFagsak(fagsak))
+            .map(Fagsak::getId)
+            .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+            .map(Behandling::getId)
             .flatMap(familieHendelseRepository::hentAggregatHvisEksisterer);
     }
 

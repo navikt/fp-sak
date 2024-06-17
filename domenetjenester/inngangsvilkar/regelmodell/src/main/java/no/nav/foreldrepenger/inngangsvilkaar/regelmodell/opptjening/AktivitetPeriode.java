@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-/** Beskriver aktivitet for en angitt periode. */
+/**
+ * Beskriver aktivitet for en angitt periode.
+ */
 public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
 
     @JsonProperty("datoIntervall")
@@ -23,15 +25,15 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
     protected AktivitetPeriode() {
     }
 
-    public AktivitetPeriode(LocalDateInterval datoIntervall,
-                            Aktivitet aktivitet,
-                            VurderingsStatus vurderingsStatus) {
+    public AktivitetPeriode(LocalDateInterval datoIntervall, Aktivitet aktivitet, VurderingsStatus vurderingsStatus) {
         this.datoIntervall = datoIntervall;
         this.aktivitet = aktivitet;
         this.vurderingsStatus = vurderingsStatus;
     }
 
-    /** Returner dag intervall. */
+    /**
+     * Returner dag intervall.
+     */
     public LocalDateInterval getDatoIntervall() {
         return datoIntervall;
     }
@@ -59,8 +61,7 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
             return false;
         }
         var other = (AktivitetPeriode) obj;
-        return Objects.equals(getAktivitet(), other.getAktivitet())
-                && Objects.equals(getDatoIntervall(), other.getDatoIntervall());
+        return Objects.equals(getAktivitet(), other.getAktivitet()) && Objects.equals(getDatoIntervall(), other.getDatoIntervall());
     }
 
     @Override
@@ -73,7 +74,7 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
         return getClass().getSimpleName() + "<datoIntervall=" + datoIntervall + ", aktivitet=" + getAktivitet() + ">";
     }
 
-     public enum VurderingsStatus {
+    public enum VurderingsStatus {
         TIL_VURDERING,
         VURDERT_GODKJENT,
         VURDERT_UNDERKJENT

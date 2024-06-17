@@ -16,7 +16,7 @@ public class KodeverkFraKalkulusMapper {
     }
 
     public static AktivitetStatus mapAktivitetstatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus aks) {
-        return switch(aks) {
+        return switch (aks) {
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER -> AktivitetStatus.ARBEIDSTAKER;
             case DAGPENGER -> AktivitetStatus.DAGPENGER;
@@ -31,7 +31,8 @@ public class KodeverkFraKalkulusMapper {
             case KUN_YTELSE -> AktivitetStatus.KUN_YTELSE;
             case VENTELØNN_VARTPENGER -> AktivitetStatus.VENTELØNN_VARTPENGER;
             case UDEFINERT -> AktivitetStatus.UDEFINERT;
-            case MIDLERTIDIG_INAKTIV, SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER, TTLSTØTENDE_YTELSE -> throw new IllegalStateException(ukjentKodeFeil("aktivitetstatus", aks.getKode()));
+            case MIDLERTIDIG_INAKTIV, SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER, TTLSTØTENDE_YTELSE ->
+                throw new IllegalStateException(ukjentKodeFeil("aktivitetstatus", aks.getKode()));
         };
     }
 
@@ -44,7 +45,8 @@ public class KodeverkFraKalkulusMapper {
             case FASTSETT_MAANEDSINNTEKT_FL -> FaktaOmBeregningTilfelle.FASTSETT_MAANEDSINNTEKT_FL;
             case FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING -> FaktaOmBeregningTilfelle.FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
             case VURDER_LØNNSENDRING -> FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING;
-            case FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING -> FaktaOmBeregningTilfelle.FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
+            case FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING ->
+                FaktaOmBeregningTilfelle.FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
             case VURDER_AT_OG_FL_I_SAMME_ORGANISASJON -> FaktaOmBeregningTilfelle.VURDER_AT_OG_FL_I_SAMME_ORGANISASJON;
             case FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE -> FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE;
             case VURDER_ETTERLØNN_SLUTTPAKKE -> FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE;
@@ -71,8 +73,8 @@ public class KodeverkFraKalkulusMapper {
             case GRADERING_OPPHØRER -> PeriodeÅrsak.GRADERING_OPPHØRER;
             case ENDRING_I_AKTIVITETER_SØKT_FOR -> PeriodeÅrsak.ENDRING_I_AKTIVITETER_SØKT_FOR;
             case REFUSJON_AVSLÅTT -> PeriodeÅrsak.REFUSJON_AVSLÅTT;
-            case TILKOMMET_INNTEKT, REPRESENTERER_STORTINGET_AVSLUTTET, REPRESENTERER_STORTINGET,
-                TILKOMMET_INNTEKT_AVSLUTTET, TILKOMMET_INNTEKT_MANUELT -> throw new IllegalStateException(ukjentKodeFeil("PeriodeÅrsak", periodeÅrsak.getKode()));
+            case TILKOMMET_INNTEKT, REPRESENTERER_STORTINGET_AVSLUTTET, REPRESENTERER_STORTINGET, TILKOMMET_INNTEKT_AVSLUTTET,
+                 TILKOMMET_INNTEKT_MANUELT -> throw new IllegalStateException(ukjentKodeFeil("PeriodeÅrsak", periodeÅrsak.getKode()));
         };
     }
 
@@ -97,7 +99,8 @@ public class KodeverkFraKalkulusMapper {
             case UTENLANDSK_ARBEIDSFORHOLD -> OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD;
             case UTDANNINGSPERMISJON -> OpptjeningAktivitetType.UTDANNINGSPERMISJON;
             case UDEFINERT -> OpptjeningAktivitetType.UDEFINERT;
-            case SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER -> throw new IllegalStateException(ukjentKodeFeil("opptjeningAktivitetType", opptjeningtype.getKode()));
+            case SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER ->
+                throw new IllegalStateException(ukjentKodeFeil("opptjeningAktivitetType", opptjeningtype.getKode()));
         };
     }
 
@@ -124,7 +127,8 @@ public class KodeverkFraKalkulusMapper {
             case SAMMENLIGNING_AT_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
             case SAMMENLIGNING_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_SN;
             case SAMMENLIGNING_ATFL_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_ATFL_SN;
-            case SAMMENLIGNING_MIDL_INAKTIV -> throw new IllegalArgumentException(ukjentKodeFeil("sammenligningsgrunnlagtype", sammenligningsgrunnlagType.getKode()));
+            case SAMMENLIGNING_MIDL_INAKTIV ->
+                throw new IllegalArgumentException(ukjentKodeFeil("sammenligningsgrunnlagtype", sammenligningsgrunnlagType.getKode()));
         };
     }
 
@@ -158,7 +162,8 @@ public class KodeverkFraKalkulusMapper {
             case FASTSATT_INN -> BeregningsgrunnlagTilstand.FASTSATT_INN;
             case FASTSATT -> BeregningsgrunnlagTilstand.FASTSATT;
             case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
-            case VURDERT_TILKOMMET_INNTEKT, VURDERT_TILKOMMET_INNTEKT_UT -> throw new IllegalArgumentException(ukjentKodeFeil("BeregningsgrunnlagTilstand", beregningsgrunnlagTilstand.getKode()));
+            case VURDERT_TILKOMMET_INNTEKT, VURDERT_TILKOMMET_INNTEKT_UT ->
+                throw new IllegalArgumentException(ukjentKodeFeil("BeregningsgrunnlagTilstand", beregningsgrunnlagTilstand.getKode()));
         };
     }
 }

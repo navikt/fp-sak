@@ -51,20 +51,18 @@ public class FødselTjeneste {
     public List<FødtBarnInfo> hentFødteBarnInfoFor(FagsakYtelseType ytelseType, AktørId bruker, List<LocalDateInterval> intervaller) {
         var request = new HentPersonQueryRequest();
         request.setIdent(bruker.getId());
-        var projection = new PersonResponseProjection()
-                .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
-                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+        var projection = new PersonResponseProjection().doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
+            .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
         var person = pdlKlient.hentPerson(ytelseType, request, projection);
 
         List<FødtBarnInfo> alleBarn = new ArrayList<>();
-        person.getDoedfoedtBarn().stream()
-                .filter(df -> df.getDato() != null)
-                .map(FødselTjeneste::fraDødfødsel)
-                .forEach(alleBarn::add);
-        if (!alleBarn.isEmpty())
+        person.getDoedfoedtBarn().stream().filter(df -> df.getDato() != null).map(FødselTjeneste::fraDødfødsel).forEach(alleBarn::add);
+        if (!alleBarn.isEmpty()) {
             LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
-        person.getForelderBarnRelasjon().stream()
+        }
+        person.getForelderBarnRelasjon()
+            .stream()
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
             .filter(Objects::nonNull)
@@ -72,66 +70,66 @@ public class FødselTjeneste {
             .filter(Objects::nonNull)
             .forEach(alleBarn::add);
 
-        return alleBarn.stream()
-                .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato())))
-                .toList();
+        return alleBarn.stream().filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato()))).toList();
     }
 
     public List<PersonIdent> hentForeldreTil(FagsakYtelseType ytelseType, PersonIdent barn) {
         var request = new HentPersonQueryRequest();
         request.setIdent(barn.getIdent());
-        var projection = new PersonResponseProjection()
-                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+        var projection = new PersonResponseProjection().forelderBarnRelasjon(
+            new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
         var person = pdlKlient.hentPerson(ytelseType, request, projection);
 
-        return person.getForelderBarnRelasjon().stream()
-                .filter(f -> !ForelderBarnRelasjonRolle.BARN.equals(f.getRelatertPersonsRolle()))
-                .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
-                .filter(Objects::nonNull)
-                .map(PersonIdent::fra)
-                .toList();
+        return person.getForelderBarnRelasjon()
+            .stream()
+            .filter(f -> !ForelderBarnRelasjonRolle.BARN.equals(f.getRelatertPersonsRolle()))
+            .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
+            .filter(Objects::nonNull)
+            .map(PersonIdent::fra)
+            .toList();
     }
 
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {
         var dato = LocalDate.parse(barn.getDato(), DateTimeFormatter.ISO_LOCAL_DATE);
-        return new FødtBarnInfo.Builder()
-                .medFødselsdato(dato)
-                .medDødsdato(dato)
-                .build();
+        return new FødtBarnInfo.Builder().medFødselsdato(dato).medDødsdato(dato).build();
     }
 
     private FødtBarnInfo fraIdent(FagsakYtelseType ytelseType, String barnIdent) {
         var request = new HentPersonQueryRequest();
         request.setIdent(barnIdent);
-        var projection = new PersonResponseProjection()
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
-                .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
+        var projection = new PersonResponseProjection().foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
+            .doedsfall(new DoedsfallResponseProjection().doedsdato())
+            .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
         var barn = pdlKlient.hentPerson(ytelseType, request, projection);
 
-        var fødselsdato = barn.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var dødssdato = barn.getDoedsfall().stream()
-                .map(Doedsfall::getDoedsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var pdlStatus = barn.getFolkeregisterpersonstatus().stream()
+        var fødselsdato = barn.getFoedselsdato()
+            .stream()
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElse(null);
+        var dødssdato = barn.getDoedsfall()
+            .stream()
+            .map(Doedsfall::getDoedsdato)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElse(null);
+        var pdlStatus = barn.getFolkeregisterpersonstatus()
+            .stream()
             .map(Folkeregisterpersonstatus::getStatus)
-            .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
+            .findFirst()
+            .map(PersonstatusType::fraFregPersonstatus)
+            .orElse(PersonstatusType.UDEFINERT);
 
         // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
         if (PersonstatusType.UTPE.equals(pdlStatus) && fødselsdato == null) {
             return null;
         }
 
-        return new FødtBarnInfo.Builder()
-                .medIdent(new PersonIdent(barnIdent))
-                .medFødselsdato(fødselsdato)
-                .medDødsdato(dødssdato)
-                .build();
+        return new FødtBarnInfo.Builder().medIdent(new PersonIdent(barnIdent)).medFødselsdato(fødselsdato).medDødsdato(dødssdato).build();
     }
 
 }

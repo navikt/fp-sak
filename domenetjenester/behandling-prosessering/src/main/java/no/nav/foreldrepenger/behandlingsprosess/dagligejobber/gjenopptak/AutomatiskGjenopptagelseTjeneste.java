@@ -51,7 +51,7 @@ public class AutomatiskGjenopptagelseTjeneste {
             .filter(b -> !feileteBehandlinger.contains(b.getId()))
             .forEach(behandling -> opprettProsessTasks(behandling, callId, dato, baseline, 1439));
         LOG.info("BATCH Gjenoppta utgang");
-        return  "-" + behandlingListe.size();
+        return "-" + behandlingListe.size();
     }
 
     private void opprettProsessTasks(Behandling behandling, String callId, LocalDate dato, LocalTime baseline, int spread) {
@@ -68,7 +68,8 @@ public class AutomatiskGjenopptagelseTjeneste {
         var callId = ensureCallId();
         LOG.info("BATCH Gjenoppliv inngang");
         var feileteBehandlinger = behandlingProsesseringTjeneste.behandlingerMedFeiletProsessTask();
-        var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt().stream()
+        var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt()
+            .stream()
             .filter(b -> !feileteBehandlinger.contains(b.getId()))
             .toList();
         var dato = LocalDate.now();

@@ -33,7 +33,9 @@ public class DødfødselForretningshendelseHåndterer implements Forretningshend
     }
 
     @Override
-    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                           ForretningshendelseType forretningshendelseType,
+                                           BehandlingÅrsakType behandlingÅrsakType) {
         if (!forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling)) {
             forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
         }

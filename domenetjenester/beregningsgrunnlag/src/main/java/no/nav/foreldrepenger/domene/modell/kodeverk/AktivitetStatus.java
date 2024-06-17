@@ -74,14 +74,14 @@ public enum AktivitetStatus implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    private static final Set<AktivitetStatus> AT_STATUSER = new HashSet<>(Arrays.asList(ARBEIDSTAKER,
-        KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_AT_FL));
+    private static final Set<AktivitetStatus> AT_STATUSER = new HashSet<>(
+        Arrays.asList(ARBEIDSTAKER, KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_AT_FL));
 
-    private static final Set<AktivitetStatus> SN_STATUSER = new HashSet<>(Arrays.asList(SELVSTENDIG_NÆRINGSDRIVENDE,
-        KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_FL_SN));
+    private static final Set<AktivitetStatus> SN_STATUSER = new HashSet<>(
+        Arrays.asList(SELVSTENDIG_NÆRINGSDRIVENDE, KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_FL_SN));
 
-    private static final Set<AktivitetStatus> FL_STATUSER = new HashSet<>(Arrays.asList(FRILANSER,
-        KOMBINERT_AT_FL_SN, KOMBINERT_AT_FL, KOMBINERT_FL_SN));
+    private static final Set<AktivitetStatus> FL_STATUSER = new HashSet<>(
+        Arrays.asList(FRILANSER, KOMBINERT_AT_FL_SN, KOMBINERT_AT_FL, KOMBINERT_FL_SN));
 
     public boolean erArbeidstaker() {
         return AT_STATUSER.contains(this);

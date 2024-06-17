@@ -61,14 +61,16 @@ public class UføreInnhenter {
 
     public void innhentUføretrygd(Behandling behandling) {
         // 14-14 Bare Far/Medmor har rett
-        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ||
-            RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
+        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) || RelasjonsRolleType.erMor(
+            behandling.getFagsak().getRelasjonsRolleType())) {
             return;
         }
         var annenpartAktørId = poRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
-            .map(OppgittAnnenPartEntitet::getAktørId).orElse(null);
+            .map(OppgittAnnenPartEntitet::getAktørId)
+            .orElse(null);
         var harGrunnlagForAnnenPart = uføretrygdRepository.hentGrunnlag(behandling.getId())
-            .filter(g -> annenpartAktørId != null && annenpartAktørId.equals(g.getAktørIdAnnenPart())).isPresent();
+            .filter(g -> annenpartAktørId != null && annenpartAktørId.equals(g.getAktørIdAnnenPart()))
+            .isPresent();
         // Mangler annenpart eller har allerede innhentet Venter ikke oppdatering av uførestatus
         if (annenpartAktørId == null || harGrunnlagForAnnenPart) {
             return;
@@ -76,7 +78,9 @@ public class UføreInnhenter {
 
         var yfAggregat = yfRepository.hentAggregatHvisEksisterer(behandling.getId());
         var finnesPerioderMedMorAktivitetUfør = yfAggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
-            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
+            .map(OppgittFordelingEntitet::getPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> UttakPeriodeType.FORELDREPENGER.equals(p.getPeriodeType()))
             .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));
         var oppgittRettighetMorUfør = yfAggregat.map(YtelseFordelingAggregat::getOppgittRettighet)
@@ -91,8 +95,7 @@ public class UføreInnhenter {
     }
 
     private void innhentOgLagre(Behandling behandling, AktørId annenpartAktørId, LocalDate startDato) {
-        var uføreperiode = personinfoAdapter.hentFnr(annenpartAktørId)
-            .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato));
+        var uføreperiode = personinfoAdapter.hentFnr(annenpartAktørId).flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato));
         uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpartAktørId, uføreperiode.isPresent(),
             uføreperiode.map(Uføreperiode::uforetidspunkt).orElse(null), uføreperiode.map(Uføreperiode::virkningsdato).orElse(null));
     }
@@ -113,24 +116,28 @@ public class UføreInnhenter {
     }
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
-        if (!BehandlingType.REVURDERING.equals(behandling.getType())) return Optional.empty();
+        if (!BehandlingType.REVURDERING.equals(behandling.getType())) {
+            return Optional.empty();
+        }
         return uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
-            .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
+            .map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(List.of())
+            .stream()
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private boolean uttakResultatMedInnvilgetUføre(Behandling behandling) {
-        return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-            uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
-            .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
+        return BehandlingType.REVURDERING.equals(behandling.getType()) && uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
+            .map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(List.of())
+            .stream()
             .filter(ForeldrepengerUttakPeriode::isInnvilget)
             .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));
     }
 
     private Long originalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
+        return behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
     }
 
 }

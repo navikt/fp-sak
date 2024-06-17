@@ -28,16 +28,11 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 @ApplicationScoped
 public class FødselsvilkårOversetter {
 
-    private static final Map<NavBrukerKjønn, RegelKjønn> MAP_KJØNN = Map.of(
-        NavBrukerKjønn.KVINNE, RegelKjønn.KVINNE,
-        NavBrukerKjønn.MANN, RegelKjønn.MANN
-    );
+    private static final Map<NavBrukerKjønn, RegelKjønn> MAP_KJØNN = Map.of(NavBrukerKjønn.KVINNE, RegelKjønn.KVINNE, NavBrukerKjønn.MANN,
+        RegelKjønn.MANN);
 
-    private static final Map<RelasjonsRolleType, RegelSøkerRolle> MAP_ROLLE_TYPE = Map.of(
-        RelasjonsRolleType.MORA, RegelSøkerRolle.MORA,
-        RelasjonsRolleType.MEDMOR, RegelSøkerRolle.MEDMOR,
-        RelasjonsRolleType.FARA, RegelSøkerRolle.FARA
-    );
+    private static final Map<RelasjonsRolleType, RegelSøkerRolle> MAP_ROLLE_TYPE = Map.of(RelasjonsRolleType.MORA, RegelSøkerRolle.MORA,
+        RelasjonsRolleType.MEDMOR, RegelSøkerRolle.MEDMOR, RelasjonsRolleType.FARA, RegelSøkerRolle.FARA);
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -77,13 +72,9 @@ public class FødselsvilkårOversetter {
         var behandlingsdatoEtterTidligsteDato = erBehandlingsdatoEtterTidligsteDato(gjeldendeTermindato);
         var terminbekreftelseUtstedtEtterTidligsteDato = erTerminbekreftelseUtstedtEtterTidligsteDato(gjeldendeTermindato, gjeldendeUtstedtDato);
 
-        return new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(),
-            bekreftetFødselsDato, gjeldendeTermindato,
-            antallbarn,
-            fristRegistreringUtløpt,
-            morForSykVedFødsel, søktOmTermin,
-            behandlingsdatoEtterTidligsteDato,
-            terminbekreftelseUtstedtEtterTidligsteDato, medFarMedmorUttakRundtFødsel);
+        return new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(), bekreftetFødselsDato, gjeldendeTermindato, antallbarn,
+            fristRegistreringUtløpt, morForSykVedFødsel, søktOmTermin, behandlingsdatoEtterTidligsteDato, terminbekreftelseUtstedtEtterTidligsteDato,
+            medFarMedmorUttakRundtFødsel);
     }
 
     /**

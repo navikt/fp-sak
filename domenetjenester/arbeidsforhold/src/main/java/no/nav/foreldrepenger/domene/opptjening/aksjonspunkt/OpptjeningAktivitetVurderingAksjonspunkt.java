@@ -16,7 +16,7 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
     private AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening;
 
     public OpptjeningAktivitetVurderingAksjonspunkt(AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
-            AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
+                                                    AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
         this.vurderOppgittOpptjening = vurderOppgittOpptjening;
         this.vurderBekreftetOpptjening = vurderBekreftetOpptjening;
     }
@@ -28,10 +28,10 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse,
-            Yrkesaktivitet overstyrtAktivitet,
-            InntektArbeidYtelseGrunnlag iayGrunnlag,
-            boolean harVærtSaksbehandlet) {
+                                         BehandlingReferanse behandlingReferanse,
+                                         Yrkesaktivitet overstyrtAktivitet,
+                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                         boolean harVærtSaksbehandlet) {
         return vurderStatus(type, behandlingReferanse, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet, null, null);
     }
 
@@ -64,10 +64,14 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      * @param behandlingReferanse
      * @return vurderingsstatus
      */
-    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet,
-            boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse, AktivitetsAvtale ansettelsesPeriode) {
+    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter,
+                                          Yrkesaktivitet registerAktivitet,
+                                          Yrkesaktivitet overstyrtAktivitet,
+                                          boolean harVærtSaksbehandlet,
+                                          BehandlingReferanse behandlingReferanse,
+                                          AktivitetsAvtale ansettelsesPeriode) {
         if (vurderBekreftetOpptjening.girAksjonspunktForAnsettelsesperiode(filter, behandlingReferanse.behandlingId(), registerAktivitet,
-                overstyrtAktivitet, ansettelsesPeriode)) {
+            overstyrtAktivitet, ansettelsesPeriode)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
             }
@@ -100,10 +104,13 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      * @param harVærtSaksbehandlet har saksbehandler tatt stilling til dette
      * @return vurderingsstatus
      */
-    private VurderingsStatus vurderNæring(BehandlingReferanse behandlingReferanse, Yrkesaktivitet overstyrtAktivitet,
-            InntektArbeidYtelseGrunnlag iayGrunnlag, Skjæringstidspunkt skjæringstidspunkt, boolean harVærtSaksbehandlet) {
-        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(),
-                iayGrunnlag, skjæringstidspunkt)) {
+    private VurderingsStatus vurderNæring(BehandlingReferanse behandlingReferanse,
+                                          Yrkesaktivitet overstyrtAktivitet,
+                                          InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                          Skjæringstidspunkt skjæringstidspunkt,
+                                          boolean harVærtSaksbehandlet) {
+        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), iayGrunnlag,
+            skjæringstidspunkt)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
             }

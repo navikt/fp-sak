@@ -31,17 +31,17 @@ public class IAYFraDtoMapper {
      */
     public InntektArbeidYtelseGrunnlag mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto dto, boolean erAktivtGrunnlag) {
         var builder = InntektArbeidYtelseGrunnlagBuilder.ny(UUID.fromString(dto.getGrunnlagReferanse()),
-                dto.getGrunnlagTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+            dto.getGrunnlagTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
         builder.medErAktivtGrunnlag(erAktivtGrunnlag);
         return mapTilGrunnlagInklusivRegisterdata(dto, builder);
     }
 
     /**
      * @see #mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto,
-     *      boolean)
+     * boolean)
      */
     public InntektArbeidYtelseGrunnlag mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto dto,
-            InntektArbeidYtelseGrunnlagBuilder builder) {
+                                                                          InntektArbeidYtelseGrunnlagBuilder builder) {
         mapSaksbehandlerDataTilBuilder(dto, builder);
         mapTilGrunnlagBuilder(dto, builder);
 
@@ -61,7 +61,7 @@ public class IAYFraDtoMapper {
         var tidspunkt = register.getOpprettetTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
 
         var registerBuilder = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), register.getEksternReferanse(), tidspunkt,
-                VersjonType.REGISTER);
+            VersjonType.REGISTER);
 
         var aktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, registerBuilder).map(register.getArbeid());
         var aktørInntekt = new MapAktørInntekt.MapFraDto(aktørId, registerBuilder).map(register.getInntekt());
@@ -94,7 +94,7 @@ public class IAYFraDtoMapper {
         if (overstyrt != null) {
             var tidspunkt = overstyrt.getOpprettetTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
             var saksbehandlerOverstyringer = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), overstyrt.getEksternReferanse(),
-                    tidspunkt, VersjonType.SAKSBEHANDLET);
+                tidspunkt, VersjonType.SAKSBEHANDLET);
             var overstyrtAktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, saksbehandlerOverstyringer).map(overstyrt.getArbeid());
             overstyrtAktørArbeid.forEach(saksbehandlerOverstyringer::leggTilAktørArbeid);
             builder.medData(saksbehandlerOverstyringer);

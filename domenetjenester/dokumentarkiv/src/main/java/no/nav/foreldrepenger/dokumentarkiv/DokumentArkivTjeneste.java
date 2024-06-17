@@ -79,9 +79,8 @@ public class DokumentArkivTjeneste {
     }
 
     static DokumentRespons tilDokumentRespons(byte[] innhold, HttpHeaders headers) {
-        return new DokumentRespons(innhold,
-                headers.firstValue(CONTENT_TYPE).orElse(DEFAULT_CONTENT_TYPE_SAF),
-                headers.firstValue(CONTENT_DISPOSITION).orElse(DEFAULT_CONTENT_DISPOSITION_SAF));
+        return new DokumentRespons(innhold, headers.firstValue(CONTENT_TYPE).orElse(DEFAULT_CONTENT_TYPE_SAF),
+            headers.firstValue(CONTENT_DISPOSITION).orElse(DEFAULT_CONTENT_DISPOSITION_SAF));
     }
 
     public String hentStrukturertDokument(JournalpostId journalpostId, String dokumentId) {
@@ -90,18 +89,15 @@ public class DokumentArkivTjeneste {
     }
 
     public List<ArkivJournalPost> hentAlleDokumenterCached(Saksnummer saksnummer) {
-        return hentAlleJournalposterForSakCached(saksnummer).stream()
-            .map(this::kopiMedKunArkivdokument)
-            .filter(Objects::nonNull)
-            .toList();
+        return hentAlleJournalposterForSakCached(saksnummer).stream().map(this::kopiMedKunArkivdokument).filter(Objects::nonNull).toList();
     }
 
     private ArkivJournalPost kopiMedKunArkivdokument(ArkivJournalPost journalPost) {
         var hoved = Optional.ofNullable(journalPost.getHovedDokument()).filter(this::erDokumentArkiv);
-        var andre = journalPost.getAndreDokument().stream()
-            .filter(this::erDokumentArkiv)
-            .toList();
-        if (hoved.isEmpty() && andre.isEmpty()) return null;
+        var andre = journalPost.getAndreDokument().stream().filter(this::erDokumentArkiv).toList();
+        if (hoved.isEmpty() && andre.isEmpty()) {
+            return null;
+        }
 
         return ArkivJournalPost.Builder.ny()
             .medJournalpostId(journalPost.getJournalpostId())
@@ -133,12 +129,12 @@ public class DokumentArkivTjeneste {
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
         query.setFoerste(1000);
 
-        var projection = new DokumentoversiktResponseProjection()
-            .journalposter(standardJournalpostProjection());
+        var projection = new DokumentoversiktResponseProjection().journalposter(standardJournalpostProjection());
 
         var resultat = safKlient.dokumentoversiktFagsak(query, projection);
 
-        return resultat.getJournalposter().stream()
+        return resultat.getJournalposter()
+            .stream()
             .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
             .map(this::mapTilArkivJournalPost)
             .toList();
@@ -160,12 +156,12 @@ public class DokumentArkivTjeneste {
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
         query.setFoerste(1000);
 
-        var projection = new DokumentoversiktResponseProjection()
-            .journalposter(utgåendeProjection());
+        var projection = new DokumentoversiktResponseProjection().journalposter(utgåendeProjection());
 
         var resultat = safKlient.dokumentoversiktFagsak(query, projection);
 
-        return resultat.getJournalposter().stream()
+        return resultat.getJournalposter()
+            .stream()
             .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
             .filter(j -> Journalposttype.U.equals(j.getJournalposttype()))
             .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående)
@@ -179,28 +175,28 @@ public class DokumentArkivTjeneste {
 
         var resultat = safKlient.hentJournalpostInfo(query, utgåendeProjection());
 
-        return Optional.ofNullable(resultat)
-            .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående).orElse(List.of()).stream().findFirst();
+        return Optional.ofNullable(resultat).map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående).orElse(List.of()).stream().findFirst();
     }
 
     private static JournalpostResponseProjection utgåendeProjection() {
-        return new JournalpostResponseProjection()
-            .journalpostId()
+        return new JournalpostResponseProjection().journalpostId()
             .tittel()
-            .dokumenter(new DokumentInfoResponseProjection()
-                .dokumentInfoId()
-                .dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
+            .dokumenter(
+                new DokumentInfoResponseProjection().dokumentInfoId().dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
     }
 
     private static List<ArkivDokumentUtgående> mapTilArkivDokumentUtgående(Journalpost journalpost) {
-        return Optional.ofNullable(journalpost.getDokumenter()).orElse(List.of()).stream()
+        return Optional.ofNullable(journalpost.getDokumenter())
+            .orElse(List.of())
+            .stream()
             .filter(d -> d.getDokumentvarianter().stream().filter(Objects::nonNull).anyMatch(v -> Variantformat.ARKIV.equals(v.getVariantformat())))
             .map(d -> mapTilArkivDokumentUtgående(journalpost, d))
             .toList();
     }
 
     private static ArkivDokumentUtgående mapTilArkivDokumentUtgående(Journalpost journalpost, DokumentInfo dokumentInfo) {
-        return new ArkivDokumentUtgående(journalpost.getTittel(), new JournalpostId(journalpost.getJournalpostId()), dokumentInfo.getDokumentInfoId());
+        return new ArkivDokumentUtgående(journalpost.getTittel(), new JournalpostId(journalpost.getJournalpostId()),
+            dokumentInfo.getDokumentInfoId());
     }
 
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
@@ -208,12 +204,10 @@ public class DokumentArkivTjeneste {
         var innkommendeJournalposter = hentAlleJournalposterForSak(saksnummer).stream()
             .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()));
         if (LocalDate.MIN.equals(mottattEtterDato)) {
-            dokumenttyper.addAll(innkommendeJournalposter
-                .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
-                .collect(Collectors.toSet()));
+            dokumenttyper.addAll(innkommendeJournalposter.flatMap(jp -> ekstraherJournalpostDTID(jp).stream()).collect(Collectors.toSet()));
         } else {
-            dokumenttyper.addAll(innkommendeJournalposter
-                .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
+            dokumenttyper.addAll(innkommendeJournalposter.filter(
+                    jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
                 .collect(Collectors.toSet()));
         }
@@ -238,15 +232,13 @@ public class DokumentArkivTjeneste {
     }
 
     private JournalpostResponseProjection standardJournalpostProjection() {
-        return new JournalpostResponseProjection()
-            .journalpostId()
+        return new JournalpostResponseProjection().journalpostId()
             .journalposttype()
             .tittel()
             .journalstatus()
             .datoOpprettet()
             .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())
-            .dokumenter(new DokumentInfoResponseProjection()
-                .dokumentInfoId()
+            .dokumenter(new DokumentInfoResponseProjection().dokumentInfoId()
                 .tittel()
                 .brevkode()
                 .dokumentvarianter(new DokumentvariantResponseProjection().variantformat())
@@ -255,11 +247,11 @@ public class DokumentArkivTjeneste {
 
     private ArkivJournalPost mapTilArkivJournalPost(Journalpost journalpost) {
 
-        var dokumenter = journalpost.getDokumenter().stream()
-            .map(this::mapTilArkivDokument)
-            .toList();
+        var dokumenter = journalpost.getDokumenter().stream().map(this::mapTilArkivDokument).toList();
 
-        var doktypeFraTilleggsopplysning = Optional.ofNullable(journalpost.getTilleggsopplysninger()).orElse(List.of()).stream()
+        var doktypeFraTilleggsopplysning = Optional.ofNullable(journalpost.getTilleggsopplysninger())
+            .orElse(List.of())
+            .stream()
             .filter(to -> FP_DOK_TYPE.equals(to.getNokkel()))
             .map(to -> DokumentTypeId.finnForKodeverkEiersKode(to.getVerdi()))
             .collect(Collectors.toSet());
@@ -267,7 +259,8 @@ public class DokumentArkivTjeneste {
         var alleTyper = new HashSet<>(doktypeFraDokumenter);
         alleTyper.addAll(doktypeFraTilleggsopplysning);
         if (!doktypeFraTilleggsopplysning.isEmpty() && !doktypeFraDokumenter.containsAll(doktypeFraTilleggsopplysning)) {
-            LOG.info("DokArkivTjenest ulike dokumenttyper fra dokument {} fra tilleggsopplysning {}", doktypeFraDokumenter, doktypeFraTilleggsopplysning);
+            LOG.info("DokArkivTjenest ulike dokumenttyper fra dokument {} fra tilleggsopplysning {}", doktypeFraDokumenter,
+                doktypeFraTilleggsopplysning);
         } else if (doktypeFraTilleggsopplysning.isEmpty()) {
             LOG.info("DokArkivTjenest journalpost {} uten tilleggsopplysninger", journalpost.getJournalpostId());
         }
@@ -277,7 +270,8 @@ public class DokumentArkivTjeneste {
         var builder = ArkivJournalPost.Builder.ny()
             .medJournalpostId(new JournalpostId(journalpost.getJournalpostId()))
             .medBeskrivelse(journalpost.getTittel())
-            .medTidspunkt(journalpost.getDatoOpprettet() == null ? null : LocalDateTime.ofInstant(journalpost.getDatoOpprettet().toInstant(), ZoneId.systemDefault()))
+            .medTidspunkt(journalpost.getDatoOpprettet() == null ? null : LocalDateTime.ofInstant(journalpost.getDatoOpprettet().toInstant(),
+                ZoneId.systemDefault()))
             .medKommunikasjonsretning(Kommunikasjonsretning.fromKommunikasjonsretningCode(journalpost.getJournalposttype().name()));
         hoveddokument.ifPresent(builder::medHoveddokument);
         dokumenter.stream()
@@ -288,7 +282,8 @@ public class DokumentArkivTjeneste {
 
     private ArkivDokument mapTilArkivDokument(DokumentInfo dokumentInfo) {
         var alleDokumenttyper = utledDokumentType(dokumentInfo);
-        var varianter = dokumentInfo.getDokumentvarianter().stream()
+        var varianter = dokumentInfo.getDokumentvarianter()
+            .stream()
             .filter(Objects::nonNull)
             .map(Dokumentvariant::getVariantformat)
             .map(Variantformat::name)

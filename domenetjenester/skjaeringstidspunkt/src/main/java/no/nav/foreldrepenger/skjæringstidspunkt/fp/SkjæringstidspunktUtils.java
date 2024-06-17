@@ -33,7 +33,7 @@ public class SkjæringstidspunktUtils {
     private final Period grenseverdiEtter;
 
     /**
-     *  @param grenseverdiAvvikFør - Maks avvik før/etter STP for registerinnhenting før justering av perioden
+     * @param grenseverdiAvvikFør   - Maks avvik før/etter STP for registerinnhenting før justering av perioden
      * @param grenseverdiAvvikEtter
      */
     @Inject
@@ -64,8 +64,8 @@ public class SkjæringstidspunktUtils {
         if (bekreftetSkjæringstidspunkt == null) {
             return false;
         }
-        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør)
-            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
+        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør) || vurderEndringEtter(
+            oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
     }
 
     private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
@@ -86,23 +86,27 @@ public class SkjæringstidspunktUtils {
         return period.getDays() + period.getMonths() * 30 + period.getYears() * 12 * 30;
     }
 
-    LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
+    LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling,
+                                                   LocalDate førsteUttaksDato,
                                                    Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag,
-                                                   Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
+                                                   Optional<LocalDate> morsMaksDato,
+                                                   boolean utenMinsterett) {
 
-        return familieHendelseGrunnlag
-            .map(g -> evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato,g, morsMaksDato, utenMinsterett))
+        return familieHendelseGrunnlag.map(g -> evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato, g, morsMaksDato, utenMinsterett))
             .orElse(førsteUttaksDato);
     }
 
-    private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
-                                                          FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
+    private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling,
+                                                          LocalDate førsteUttaksDato,
+                                                          FamilieHendelseGrunnlagEntitet fhGrunnlag,
+                                                          Optional<LocalDate> morsMaksDato,
+                                                          boolean utenMinsterett) {
         var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon()
             .getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato() : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
         var gjeldendeTermindato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
         var fagsakÅrsak = finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon());
-        var søkerRolle =  finnFagsakSøkerRolle(behandling);
+        var søkerRolle = finnFagsakSøkerRolle(behandling);
         if (fagsakÅrsak == null || søkerRolle == null) {
             throw new IllegalArgumentException("Utvikler-feil: Finner ikke årsak/rolle for behandling:" + behandling.getId());
         }

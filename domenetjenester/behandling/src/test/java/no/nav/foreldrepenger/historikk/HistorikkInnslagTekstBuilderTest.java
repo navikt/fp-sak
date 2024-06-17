@@ -59,10 +59,9 @@ class HistorikkInnslagTekstBuilderTest {
 
         vurderingUtenVilkar.add(vurderPåNytt3);
 
-        var deler = tekstBuilder
-                .medTotrinnsvurdering(vurdering, vurderingUtenVilkar)
-                .medHendelse(HistorikkinnslagType.SAK_RETUR)
-                .build(historikkinnslag);
+        var deler = tekstBuilder.medTotrinnsvurdering(vurdering, vurderingUtenVilkar)
+            .medHendelse(HistorikkinnslagType.SAK_RETUR)
+            .build(historikkinnslag);
 
         assertThat(deler).hasSize(3);
         var historikkinnslagDel = deler.get(0);
@@ -70,7 +69,7 @@ class HistorikkInnslagTekstBuilderTest {
         assertThat(aksjonspunkter).hasSize(1);
         var aksjonspunkt = aksjonspunkter.get(0);
         assertThat(aksjonspunkt.getAksjonspunktDefinisjon()).as("aksjonspunktKode")
-                .isEqualTo(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD);
+            .isEqualTo(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD);
         assertThat(aksjonspunkt.erGodkjent()).as("godkjent").isFalse();
         assertThat(aksjonspunkt.getBegrunnelse()).as("begrunnelse").isEqualTo("Ikke enig.");
     }

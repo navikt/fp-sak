@@ -16,6 +16,8 @@ public interface KontrollerFaktaInngangsVilkårUtleder {
 
     List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, BehandlingStegType steg);
 
-    boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType, AksjonspunktDefinisjon aksjonspunktDefinisjon);
+    boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref,
+                                                      StartpunktType startpunktType,
+                                                      AksjonspunktDefinisjon aksjonspunktDefinisjon);
 
 }

@@ -132,8 +132,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
+        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.comparing(Function.identity()))
+            .get();
         var endringsdato = sistePeriodeTom.plusMonths(18);
 
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
@@ -147,8 +150,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        var oppdragslinje150OpphørtListe = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(Oppdragslinje150::gjelderOpphør).toList();
+        var oppdragslinje150OpphørtListe = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(Oppdragslinje150::gjelderOpphør)
+            .toList();
         assertThat(oppdragslinje150OpphørtListe).isNotEmpty();
     }
 
@@ -166,8 +172,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
+        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.comparing(Function.identity()))
+            .get();
         var endringsdato = sistePeriodeTom.plusMonths(18);
 
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
@@ -181,8 +190,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        var oppdragslinje150OpphørtListe = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(Oppdragslinje150::gjelderOpphør).toList();
+        var oppdragslinje150OpphørtListe = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(Oppdragslinje150::gjelderOpphør)
+            .toList();
         assertThat(oppdragslinje150OpphørtListe).isNotEmpty();
     }
 
@@ -199,8 +211,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
+        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.comparing(Function.identity()))
+            .get();
         var endringsdato = sistePeriodeTom.plusDays(1);
 
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
@@ -232,11 +247,14 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
+        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.comparing(Function.identity()))
+            .get();
         var endringsdato = sistePeriodeTom.plusDays(1);
-        var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, virksomhet,
-            virksomhet, true);
+        var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
+            virksomhet, virksomhet, true);
 
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
@@ -260,8 +278,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
+        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+            .get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(true, true);
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
@@ -271,8 +292,12 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst().get();
+        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(Oppdragslinje150::gjelderOpphør)
+            .findFirst()
+            .get();
         assertThat(oppdragslinje150Opphørt.getDatoStatusFom()).isEqualTo(førsteDatoVedtakFom);
     }
 
@@ -286,11 +311,14 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
+        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+            .get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
-        var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, virksomhet,
-            virksomhet2, true);
+        var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
+            virksomhet, virksomhet2, true);
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
@@ -312,8 +340,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
+        var førsteDatoVedtakFom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+            .get();
         var endringsdato = førsteDatoVedtakFom.minusDays(5);
         var beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(false, true);
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
@@ -323,8 +354,12 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst().get();
+        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(Oppdragslinje150::gjelderOpphør)
+            .findFirst()
+            .get();
         assertThat(oppdragslinje150Opphørt.getDatoStatusFom()).isEqualTo(førsteDatoVedtakFom);
     }
 
@@ -334,7 +369,12 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var stønadsdatoFom = LocalDate.now().plusDays(3);
         var stønadsdatoTom = stønadsdatoFom.plusDays(10);
 
-        var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(Boolean.FALSE).build();
+        var originaltOppdrag = Oppdragskontroll.builder()
+            .medBehandlingId(BEHANDLING_ID)
+            .medSaksnummer(SAKSNUMMER)
+            .medProsessTaskId(PROSESS_TASK_ID)
+            .medVenterKvittering(Boolean.FALSE)
+            .build();
         var oppdragAg = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(KodeFagområde.FPREF)
@@ -352,14 +392,19 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             .medTypeSats(TypeSats.DAG)
             .medDelytelseId(Long.parseLong(SAKSNUMMER.getVerdi() + "100100"))
             .medUtbetalingsgrad(Utbetalingsgrad._100)
-            .medOppdrag110(oppdragAg).build();
+            .medOppdrag110(oppdragAg)
+            .build();
 
-        Refusjonsinfo156.builder().medMaksDato(stønadsdatoTom).medDatoFom(stønadsdatoFom).medRefunderesId(virksomhet).medOppdragslinje150(oppdragLinjeAg).build();
+        Refusjonsinfo156.builder()
+            .medMaksDato(stønadsdatoTom)
+            .medDatoFom(stønadsdatoFom)
+            .medRefunderesId(virksomhet)
+            .medOppdragslinje150(oppdragLinjeAg)
+            .build();
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdragAg);
 
         // Tilkyent ytelse i revurdering
-        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
-            .medRegelSporing("clob2").build();
+        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
 
         var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 3, 10);
         var andelArb = buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
@@ -375,19 +420,29 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst();
+        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(Oppdragslinje150::gjelderOpphør)
+            .findFirst();
         assertThat(oppdragslinje150Opphørt).isPresent();
 
-        var oppdragslinje150Feriepenger = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(o150 -> !o150.gjelderOpphør()).findFirst();
+        var oppdragslinje150Feriepenger = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(o150 -> !o150.gjelderOpphør())
+            .findFirst();
         assertThat(oppdragslinje150Feriepenger).isPresent();
 
-        var sisteOppdragsDatoTom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
+        var sisteOppdragsDatoTom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder()
+            .stream()
+            .max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom);
         assertThat(sisteOppdragsDatoTom).isPresent();
 
-        var førsteOppdragsDatoFom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+        var førsteOppdragsDatoFom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder()
+            .stream()
+            .min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom);
         assertThat(førsteOppdragsDatoFom).isPresent();
 
@@ -417,8 +472,11 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom).max(Comparator.comparing(Function.identity())).get();
+        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.comparing(Function.identity()))
+            .get();
         var endringsdato = sistePeriodeTom.plusDays(1);
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, endringsdato.plusDays(1), endringsdato.plusDays(10));
@@ -462,15 +520,15 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         //Assert
         var forrigeYtelseStartDato = brPeriode.getBeregningsresultatPeriodeFom();
-        var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
+        var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .toList();
         assertThat(opp150RevurderingListe).hasSize(1);
         assertThat(opp150RevurderingListe).allSatisfy(oppdragslinje150 -> {
-                assertThat(oppdragslinje150.gjelderOpphør()).isTrue();
-                assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(forrigeYtelseStartDato);
-            }
-        );
+            assertThat(oppdragslinje150.gjelderOpphør()).isTrue();
+            assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(forrigeYtelseStartDato);
+        });
     }
 
     @Test
@@ -498,13 +556,15 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         assertThat(oppdrag110Bruker.getOmpostering116()).isNotPresent();
     }
 
-    private void verifiserOppdrag110OgOppdragslinje150(Oppdragskontroll oppdragskontroll, List<Oppdrag110> originaltOpp110Liste, boolean medFlereKlassekode) {
+    private void verifiserOppdrag110OgOppdragslinje150(Oppdragskontroll oppdragskontroll,
+                                                       List<Oppdrag110> originaltOpp110Liste,
+                                                       boolean medFlereKlassekode) {
         var nyOppdr110Liste = oppdragskontroll.getOppdrag110Liste();
         for (var oppdr110Revurd : nyOppdr110Liste) {
             assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
-            assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
-                assertThat(oppdrag110.getFagsystemId()).isEqualTo(oppdr110Revurd.getFagsystemId()));
+            assertThat(originaltOpp110Liste).anySatisfy(
+                oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(oppdr110Revurd.getFagsystemId()));
         }
         var opp150RevurderingListe = nyOppdr110Liste.stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
         var opp150OriginalListe = originaltOpp110Liste.stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
@@ -515,8 +575,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             OppdragskontrollTestVerktøy.verifiserDelYtelseOgFagsystemIdForFlereKlassekode(opp150RevurderingListe, opp150OriginalListe);
         }
         for (var opp150Revurdering : opp150RevurderingListe) {
-            assertThat(opp150OriginalListe).allSatisfy(opp150 ->
-                assertThat(opp150.getDelytelseId()).isNotEqualTo(opp150Revurdering.getDelytelseId()));
+            assertThat(opp150OriginalListe).allSatisfy(
+                opp150 -> assertThat(opp150.getDelytelseId()).isNotEqualTo(opp150Revurdering.getDelytelseId()));
             if (!gjelderFagområdeBruker(opp150Revurdering.getOppdrag110())) {
                 assertThat(opp150Revurdering.getRefusjonsinfo156()).isNotNull();
             }
@@ -529,30 +589,28 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     private void verifiserOPPHForBrukerIENDR(Oppdragskontroll oppdragRevurdering, List<Oppdrag110> originaltOpp110Liste, LocalDate endringsdato) {
-        var nyOppdr110Bruker = oppdragRevurdering.getOppdrag110Liste()
-            .stream()
-            .filter(this::gjelderFagområdeBruker)
-            .findFirst();
+        var nyOppdr110Bruker = oppdragRevurdering.getOppdrag110Liste().stream().filter(this::gjelderFagområdeBruker).findFirst();
         assertThat(nyOppdr110Bruker).isPresent();
-        assertThat(nyOppdr110Bruker).hasValueSatisfying(opp110 ->
-        {
+        assertThat(nyOppdr110Bruker).hasValueSatisfying(opp110 -> {
             assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             assertThat(opp110.getOppdragslinje150Liste()).isNotEmpty();
-            assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
-                assertThat(oppdrag110.getFagsystemId()).isEqualTo(nyOppdr110Bruker.get().getFagsystemId()));
+            assertThat(originaltOpp110Liste).anySatisfy(
+                oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(nyOppdr110Bruker.get().getFagsystemId()));
         });
         verifiserOppdragslinje150_OPPH_Bruker_I_ENDR(originaltOpp110Liste, nyOppdr110Bruker.get(), endringsdato);
     }
 
-    private void verifiserOppdragslinje150_OPPH_Bruker_I_ENDR(List<Oppdrag110> opp110OriginalListe, Oppdrag110 nyOpp110Bruker, LocalDate endringsdato) {
+    private void verifiserOppdragslinje150_OPPH_Bruker_I_ENDR(List<Oppdrag110> opp110OriginalListe,
+                                                              Oppdrag110 nyOpp110Bruker,
+                                                              LocalDate endringsdato) {
         var originaltOpp150BrukerListe = opp110OriginalListe.stream()
             .filter(this::gjelderFagområdeBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .toList();
         var revurderingOpp150BrukerListe = nyOpp110Bruker.getOppdragslinje150Liste();
 
-        assertThat(revurderingOpp150BrukerListe).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
+        assertThat(revurderingOpp150BrukerListe).anySatisfy(
+            opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
 
         for (var ix = 0; ix < revurderingOpp150BrukerListe.size(); ix++) {
             var revurderingOpp150Bruker = revurderingOpp150BrukerListe.get(ix);
@@ -564,8 +622,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             assertThat(revurderingOpp150Bruker.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH);
             var førsteDatoVedtakFom = OppdragskontrollTestVerktøy.finnFørsteDatoVedtakFom(originaltOpp150BrukerListe, originaltOpp150Bruker);
             var datoStatusFom = førsteDatoVedtakFom.isAfter(endringsdato) ? førsteDatoVedtakFom : endringsdato;
-            assertThat(revurderingOpp150Bruker.getDatoStatusFom()).isEqualTo(revurderingOpp150Bruker.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)
-                ? LocalDate.of(I_ÅR + 1, 5, 1) : datoStatusFom);
+            assertThat(revurderingOpp150Bruker.getDatoStatusFom()).isEqualTo(
+                revurderingOpp150Bruker.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER) ? LocalDate.of(I_ÅR + 1, 5, 1) : datoStatusFom);
             assertThat(revurderingOpp150Bruker.getSats()).isEqualTo(originaltOpp150Bruker.getSats());
         }
     }
@@ -586,41 +644,39 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
     private void verifiserAlleOppdragOpphørt(List<Oppdrag110> originaltOpp110Liste, List<Oppdrag110> nyOppdr110Liste) {
         for (var originalt : originaltOpp110Liste) {
-            var nyttOppdrag = nyOppdr110Liste.stream()
-                .filter(nytt -> originalt.getFagsystemId() == nytt.getFagsystemId())
-                .findFirst().orElse(null);
+            var nyttOppdrag = nyOppdr110Liste.stream().filter(nytt -> originalt.getFagsystemId() == nytt.getFagsystemId()).findFirst().orElse(null);
             assertThat(nyttOppdrag).isNotNull();
-            var klassifikasjoner = originalt.getOppdragslinje150Liste().stream()
-                .map(Oppdragslinje150::getKodeKlassifik)
-                .distinct()
-                .toList();
+            var klassifikasjoner = originalt.getOppdragslinje150Liste().stream().map(Oppdragslinje150::getKodeKlassifik).distinct().toList();
             for (var klassifikasjon : klassifikasjoner) {
-                var opphørslinje = nyttOppdrag.getOppdragslinje150Liste().stream()
+                var opphørslinje = nyttOppdrag.getOppdragslinje150Liste()
+                    .stream()
                     .filter(opp150 -> klassifikasjon.equals(opp150.getKodeKlassifik()))
                     .filter(opp150 -> KodeEndringLinje.ENDR.equals(opp150.getKodeEndringLinje()))
                     .filter(opp150 -> KodeStatusLinje.OPPH.equals(opp150.getKodeStatusLinje()))
                     .findFirst();
-                assertThat(opphørslinje)
-                    .as("Mangler oppdragslinje med opphør for klassifikasjon %s i oppdrag %s", klassifikasjon,
-                        nyttOppdrag.getFagsystemId())
-                    .isNotEmpty();
+                assertThat(opphørslinje).as("Mangler oppdragslinje med opphør for klassifikasjon %s i oppdrag %s", klassifikasjon,
+                    nyttOppdrag.getFagsystemId()).isNotEmpty();
             }
         }
     }
 
     private void verifiserOppdragslinje150MedFlereKategorier_OPPH(Oppdragskontroll oppdragRevurdering, Oppdragskontroll originaltOppdrag) {
-        var originaltOppLinjePerKodeKl = originaltOppdrag.getOppdrag110Liste().stream()
+        var originaltOppLinjePerKodeKl = originaltOppdrag.getOppdrag110Liste()
+            .stream()
             .filter(this::gjelderFagområdeBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
-        var nyOpp150LinjePerKodeKl = oppdragRevurdering.getOppdrag110Liste().stream()
+        var nyOpp150LinjePerKodeKl = oppdragRevurdering.getOppdrag110Liste()
+            .stream()
             .filter(this::gjelderFagområdeBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
 
         for (var kodeKlassifik : originaltOppLinjePerKodeKl.keySet()) {
-            var sisteOriginaltOppdragsLinje = originaltOppLinjePerKodeKl.get(kodeKlassifik).stream()
-                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId)).get();
+            var sisteOriginaltOppdragsLinje = originaltOppLinjePerKodeKl.get(kodeKlassifik)
+                .stream()
+                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+                .get();
             var sisteNyOppdragsLinje = nyOpp150LinjePerKodeKl.get(kodeKlassifik).get(0);
             assertThat(sisteOriginaltOppdragsLinje.getDelytelseId()).isEqualTo(sisteNyOppdragsLinje.getDelytelseId());
             assertThat(sisteNyOppdragsLinje.getRefDelytelseId()).isNull();
@@ -636,10 +692,13 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         for (var nyOpp150 : nyOpp150Liste) {
             var originaltOpp150 = originaltOpp150Liste.stream()
-                .filter(oppdragslinje150 -> oppdragslinje150.getDatoVedtakFom().equals(nyOpp150.getDatoVedtakFom())
-                    && oppdragslinje150.getDatoVedtakTom().equals(nyOpp150.getDatoVedtakTom())
-                    && oppdragslinje150.getOppdrag110().getKodeFagomrade().equals(nyOpp150.getOppdrag110().getKodeFagomrade()))
-                .findFirst().get();
+                .filter(
+                    oppdragslinje150 -> oppdragslinje150.getDatoVedtakFom().equals(nyOpp150.getDatoVedtakFom()) && oppdragslinje150.getDatoVedtakTom()
+                        .equals(nyOpp150.getDatoVedtakTom()) && oppdragslinje150.getOppdrag110()
+                        .getKodeFagomrade()
+                        .equals(nyOpp150.getOppdrag110().getKodeFagomrade()))
+                .findFirst()
+                .get();
             assertThat(nyOpp150.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
             assertThat(nyOpp150.getRefDelytelseId()).isNull();
             assertThat(nyOpp150.getRefFagsystemId()).isNull();

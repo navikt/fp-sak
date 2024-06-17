@@ -11,22 +11,19 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Hjelpeklasse som tilbyr bygging av en mapping mellom kodelisteinnslag og noe annet.
- *
+ * <p>
  * Kodelisteinnslag kan ikke brukes som case i en switch, så denne klassen er et kompakt og effektivt alternativ
  * som også støtter toveis mapping.
  */
 public class KodeMapper<K extends Kodeverdi, O> {
-    private final List<Kodemapping<K,O>> mappinger;
+    private final List<Kodemapping<K, O>> mappinger;
 
-    private KodeMapper(List<Kodemapping<K,O>> mappinger) {
+    private KodeMapper(List<Kodemapping<K, O>> mappinger) {
         this.mappinger = Collections.unmodifiableList(mappinger);
     }
 
     public Optional<O> map(K k) {
-        return mappinger.stream()
-            .filter(mapping -> mapping.key().equals(k))
-            .map(Kodemapping::mapped)
-            .findAny();
+        return mappinger.stream().filter(mapping -> mapping.key().equals(k)).map(Kodemapping::mapped).findAny();
     }
 
     public static <R extends Kodeverdi, T> Builder<R, T> medMapping(R r, T t) {
@@ -57,11 +54,10 @@ public class KodeMapper<K extends Kodeverdi, O> {
         }
 
         public KodeMapper<R, T> build() {
-            return new KodeMapper<>(IntStream.range(0, rs.size())
-                .mapToObj(i -> new Kodemapping<R,T>(rs.get(i), ts.get(i)))
-                .toList());
+            return new KodeMapper<>(IntStream.range(0, rs.size()).mapToObj(i -> new Kodemapping<R, T>(rs.get(i), ts.get(i))).toList());
         }
     }
 
-    private record Kodemapping<R extends Kodeverdi, O>(R key, O mapped) {}
+    private record Kodemapping<R extends Kodeverdi, O>(R key, O mapped) {
+    }
 }

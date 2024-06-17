@@ -67,12 +67,10 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     @BeforeEach
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
-            new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
-            lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
+        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(lagMockHistory(),
+            arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
     }
@@ -83,8 +81,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         var bg = buildOgLagreBeregningsgrunnlag(false);
 
         //Dto
-        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse",
-            Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
+        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
 
         // Act
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
@@ -100,13 +97,11 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         var feltList = del.getEndredeFelt();
         assertThat(feltList).hasSize(1);
         assertThat(feltList.get(0)).satisfies(felt -> {
-            assertThat(felt.getNavn()).as("navn")
-                .isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
+            assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("200000");
         });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
     }
 
     @Test
@@ -135,8 +130,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("4000");
         });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
@@ -148,9 +142,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
-        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(GRUNNBELØP)
-            .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
+        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(GRUNNBELØP).medSkjæringstidspunkt(LocalDate.now().minusDays(5));
 
         var fom = LocalDate.now().minusDays(20);
         leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagBuilder, fom, erFrilans);
@@ -158,17 +150,15 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         return beregningsgrunnlagBuilder.build();
     }
 
-    private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder,
-                                                  LocalDate fomDato,
-                                                  boolean erFrilans) {
-        var beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(fomDato, null);
+    private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder, LocalDate fomDato, boolean erFrilans) {
+        var beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(fomDato, null);
         leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder, virk, erFrilans);
         beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeBuilder);
     }
 
     private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder,
-                                                          Virksomhet virksomheten, boolean erFrilans) {
+                                                          Virksomhet virksomheten,
+                                                          boolean erFrilans) {
 
         var builder = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)

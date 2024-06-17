@@ -128,8 +128,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     @Test
     void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
         var behandling = opprettBehandling(FØDSELSDATO);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1))
             .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO)), 1));
 
         var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
@@ -162,9 +161,9 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     @Test
     void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bostedsadresse() {
         var behandling = opprettBehandlingForFødselMedLikBostedsadresse(FØDSELSDATO);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(), new Barn()), 2))
-            .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(FØDSELSDATO), new Barn()), 2));
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(
+                FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(), new Barn()), 2))
+            .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 2));
 
         var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
@@ -172,8 +171,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandling(LocalDate førsteUttaksdato) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(førsteUttaksdato).build());
 
         var rettighet = OppgittRettighetEntitet.beggeRett();
@@ -189,12 +187,11 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselMedLikBostedsadresse(LocalDate fødselsdato) {
-       return opprettBehandlingForFødselSammeBosted(fødselsdato);
+        return opprettBehandlingForFødselSammeBosted(fødselsdato);
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker() {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_FAR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_FAR_AKTØR_ID);
         var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
@@ -206,8 +203,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(LocalDate fødselsdato) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
@@ -222,8 +218,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(LocalDate fødselsdato) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
@@ -238,8 +233,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForBekreftetFødselMedSøknadsperioder(List<OppgittPeriodeEntitet> søknadsPerioder) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
 
         var rettighet = OppgittRettighetEntitet.beggeRett();

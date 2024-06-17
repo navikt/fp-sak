@@ -79,8 +79,10 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         setCallIdForHendelse(mottattHendelse);
         LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 
-        if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) return;
-        if (!mottakRepository.hendelseErNy(KABAL+mottattHendelse.eventId().toString())) {
+        if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) {
+            return;
+        }
+        if (!mottakRepository.hendelseErNy(KABAL + mottattHendelse.eventId().toString())) {
             LOG.warn("KABAL mottatt hendelse på nytt key={} hendelse={}", key, mottattHendelse);
             return;
         }
@@ -103,7 +105,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             LOG.warn("KABAL mottatt hendelse for behandling som ikke er klage eller anke hendelse={} type={}", mottattHendelse, behandling.getType());
             return;
         }
-        mottakRepository.registrerMottattHendelse(KABAL+ mottattHendelse.eventId());
+        mottakRepository.registrerMottattHendelse(KABAL + mottattHendelse.eventId());
         var task = ProsessTaskData.forProsessTask(MottaFraKabalTask.class);
         task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         task.setCallIdFraEksisterende();
@@ -112,16 +114,27 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
 
         if (KabalHendelse.BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
-            mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
-                .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+            mottattHendelse.detaljer()
+                .klagebehandlingAvsluttet()
+                .journalpostReferanser()
+                .stream()
+                .findFirst()
+                .ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
         } else if (KabalHendelse.BehandlingEventType.ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().utfall().name());
-            task.setProperty(MottaFraKabalTask.OVERSENDTR_KEY, mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().sendtTilTrygderetten()
-                .toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+            task.setProperty(MottaFraKabalTask.OVERSENDTR_KEY, mottattHendelse.detaljer()
+                .ankeITrygderettenbehandlingOpprettet()
+                .sendtTilTrygderetten()
+                .toLocalDate()
+                .format(DateTimeFormatter.ISO_LOCAL_DATE));
         } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
-            mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()
-                .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+            mottattHendelse.detaljer()
+                .ankebehandlingAvsluttet()
+                .journalpostReferanser()
+                .stream()
+                .findFirst()
+                .ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
         } else if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.FEILOPPRETTET_TYPE_KEY, mottattHendelse.detaljer().behandlingFeilregistrert().type().name());
         }

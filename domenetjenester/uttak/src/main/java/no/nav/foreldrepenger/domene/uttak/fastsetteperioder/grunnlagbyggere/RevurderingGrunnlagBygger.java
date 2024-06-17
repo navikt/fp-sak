@@ -32,8 +32,7 @@ public class RevurderingGrunnlagBygger {
     }
 
     @Inject
-    public RevurderingGrunnlagBygger(YtelsesFordelingRepository ytelsesFordelingRepository,
-                                     FpUttakRepository fpUttakRepository) {
+    public RevurderingGrunnlagBygger(YtelsesFordelingRepository ytelsesFordelingRepository, FpUttakRepository fpUttakRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.fpUttakRepository = fpUttakRepository;
     }
@@ -44,9 +43,7 @@ public class RevurderingGrunnlagBygger {
             return Optional.empty();
         }
         var endringsdato = endringsdato(input);
-        return Optional.of(new Revurdering.Builder()
-            .endringsdato(endringsdato)
-            .gjeldendeVedtak(vedtak(input, endringsdato)));
+        return Optional.of(new Revurdering.Builder().endringsdato(endringsdato).gjeldendeVedtak(vedtak(input, endringsdato)));
     }
 
     private Vedtak.Builder vedtak(UttakInput input, LocalDate endringsdato) {
@@ -71,8 +68,7 @@ public class RevurderingGrunnlagBygger {
 
     private FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         var resultatType = periode.getResultatType();
-        return new FastsattUttakPeriode.Builder()
-            .aktiviteter(map(periode.getAktiviteter()))
+        return new FastsattUttakPeriode.Builder().aktiviteter(map(periode.getAktiviteter()))
             .flerbarnsdager(periode.isFlerbarnsdager())
             .samtidigUttak(periode.isSamtidigUttak())
             .tidsperiode(periode.getFom(), periode.getTom())

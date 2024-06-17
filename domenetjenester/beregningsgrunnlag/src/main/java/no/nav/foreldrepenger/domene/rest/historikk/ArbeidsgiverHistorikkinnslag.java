@@ -31,8 +31,7 @@ public class ArbeidsgiverHistorikkinnslag {
     private String lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver arbeidsgiver,
                                                         InternArbeidsforholdRef arbeidsforholdRef,
                                                         List<ArbeidsforholdOverstyring> overstyringer) {
-        if (arbeidsgiver != null && arbeidsforholdRef != null
-            && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
+        if (arbeidsgiver != null && arbeidsforholdRef != null && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
             return lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, arbeidsforholdRef, overstyringer);
         }
         if (arbeidsgiver != null) {
@@ -41,8 +40,7 @@ public class ArbeidsgiverHistorikkinnslag {
         throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");
     }
 
-    private String lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver arbeidsgiver,
-                                                        List<ArbeidsforholdOverstyring> overstyringer) {
+    private String lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
         return lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer);
     }
 
@@ -50,9 +48,9 @@ public class ArbeidsgiverHistorikkinnslag {
                                                                 Optional<Arbeidsgiver> arbeidsgiver,
                                                                 Optional<InternArbeidsforholdRef> arbeidsforholdRef,
                                                                 List<ArbeidsforholdOverstyring> overstyringer) {
-        return arbeidsgiver.map(arbGiv -> arbeidsforholdRef.isPresent() && arbeidsforholdRef.get()
-            .gjelderForSpesifiktArbeidsforhold() ? lagArbeidsgiverHistorikkinnslagTekst(arbGiv, arbeidsforholdRef.get(),
-            overstyringer) : lagArbeidsgiverHistorikkinnslagTekst(arbGiv, overstyringer))
+        return arbeidsgiver.map(arbGiv ->
+                arbeidsforholdRef.isPresent() && arbeidsforholdRef.get().gjelderForSpesifiktArbeidsforhold() ? lagArbeidsgiverHistorikkinnslagTekst(
+                    arbGiv, arbeidsforholdRef.get(), overstyringer) : lagArbeidsgiverHistorikkinnslagTekst(arbGiv, overstyringer))
             .orElse(aktivitetStatus.getNavn());
     }
 
@@ -89,8 +87,7 @@ public class ArbeidsgiverHistorikkinnslag {
 
     }
 
-    public String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver,
-                                          List<ArbeidsforholdOverstyring> arbeidsforholOverstyringer) {
+    public String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> arbeidsforholOverstyringer) {
         var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         var sb = new StringBuilder();
         var arbeidsgiverNavn = opplysninger.getNavn();

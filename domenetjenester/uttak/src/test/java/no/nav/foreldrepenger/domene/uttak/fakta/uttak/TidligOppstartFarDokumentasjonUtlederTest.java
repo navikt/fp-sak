@@ -33,10 +33,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
     @Test
     void farEllerMedmorSøktOmTidligOppstartFellesperiode() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(FOM, FOM.plusWeeks(1))
-            .build();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FELLESPERIODE).medPeriode(FOM, FOM.plusWeeks(1)).build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -44,8 +41,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -54,10 +51,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
     @Test
     void farEllerMedmorSøktOmTidligOppstartFedrekvote() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .medPeriode(FOM, FOM.plusWeeks(1))
-            .build();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FEDREKVOTE).medPeriode(FOM, FOM.plusWeeks(1)).build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -65,8 +59,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -89,8 +83,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -99,10 +93,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
     @Test
     void farEllerMedmorSøktOmTidligOppstartForeldrepengerBfhr() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(FOM, FOM.plusWeeks(1))
-            .build();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER).medPeriode(FOM, FOM.plusWeeks(1)).build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
@@ -110,8 +101,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -120,10 +111,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
     @Test
     void farEllerMedmorSøktOmTidligOppstartForeldrepengerAleneomsorg() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(FOM, FOM.plusWeeks(1))
-            .build();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER).medPeriode(FOM, FOM.plusWeeks(1)).build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
@@ -131,8 +119,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -153,8 +141,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -176,8 +164,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -200,8 +188,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM, FOM, List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -228,8 +216,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM.plusWeeks(3), FOM.plusWeeks(3), List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM.plusWeeks(3), FOM.plusWeeks(3), List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 
@@ -251,7 +239,8 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM.plusWeeks(1), FOM.plusWeeks(1), List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(FOM.plusWeeks(1), FOM.plusWeeks(1), List.of(), 1)));
         var input = getInput(behandling, foreldrepengerGrunnlag);
         var behov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, yfa);
 

@@ -18,28 +18,26 @@ public class LagBeregningsgrunnlagTjeneste {
                                                            List<ÅpenDatoIntervallEntitet> perioder,
                                                            LagAndelTjeneste lagAndelTjeneste) {
         var bgBuilder = Beregningsgrunnlag.builder()
-                .medSkjæringstidspunkt(skjæringstidspunktBeregning)
-                .medGrunnbeløp(BigDecimal.valueOf(91425L))
-            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build());
+            .medSkjæringstidspunkt(skjæringstidspunktBeregning)
+            .medGrunnbeløp(BigDecimal.valueOf(91425L))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build());
 
         for (var datoPeriode : perioder) {
-            var periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
-                    skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
+            var periode = byggBGPeriode(datoPeriode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
             bgBuilder.leggTilBeregningsgrunnlagPeriode(periode);
         }
         return bgBuilder.build();
     }
 
     private static BeregningsgrunnlagPeriode byggBGPeriode(ÅpenDatoIntervallEntitet datoPeriode,
-            boolean medOppjustertDagsat,
-            boolean skalDeleAndelMellomArbeidsgiverOgBruker,
-            LagAndelTjeneste lagAndelTjeneste) {
+                                                           boolean medOppjustertDagsat,
+                                                           boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+                                                           LagAndelTjeneste lagAndelTjeneste) {
         var andeler = lagAndelTjeneste.lagAndeler(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
         var totalDagsats = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).reduce(Long::sum).orElse(null);
         var periodeBuilder = BeregningsgrunnlagPeriode.builder()
-                .medDagsats(totalDagsats)
-                .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato());
+            .medDagsats(totalDagsats)
+            .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato());
         andeler.forEach(periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
         return periodeBuilder.build();
     }

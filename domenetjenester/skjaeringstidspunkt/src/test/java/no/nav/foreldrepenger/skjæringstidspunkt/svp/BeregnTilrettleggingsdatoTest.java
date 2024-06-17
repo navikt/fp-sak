@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * a == helTilrettelegging
  * b == delvisTilrettelegging
  * c == slutteArbeid
- *
+ * <p>
  * Reflekterer hva søker oppgir i SVP-søknaden.
  */
 class BeregnTilrettleggingsdatoTest {

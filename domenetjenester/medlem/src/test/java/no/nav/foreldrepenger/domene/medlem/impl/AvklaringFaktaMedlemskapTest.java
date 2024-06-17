@@ -65,12 +65,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
 
-        var gyldigPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medErMedlem(true)
-            .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
-            .build();
+        var gyldigPeriode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.ENDELIG).medErMedlem(true).medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL).build();
         scenario.leggTilMedlemskapPeriode(gyldigPeriode);
 
         leggTilSøker(scenario);
@@ -88,14 +84,14 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO_FØDSEL)
             .medUtledetMedlemsintervall(new LocalDateInterval(SKJÆRINGSDATO_FØDSEL.minusWeeks(4), SKJÆRINGSDATO_FØDSEL.plusWeeks(4)))
-            .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL).build());
+            .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL)
+            .build());
     }
 
     @Test
     void skal_ikke_opprette_aksjonspunkt_ved_dekningsgrad_lik_ikke_medlem() {
         // Arrange
-        var gyldigPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FTL_2_9_1_B)
+        var gyldigPeriode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_9_1_B)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
@@ -120,8 +116,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     void skal_få_aksjonspunkt_når_dekningsrad_er_av_type_uavklart() {
         // Arrange
-        var gyldigPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.OPPHOR)
+        var gyldigPeriode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.OPPHOR)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
@@ -147,12 +142,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_ulik_usa() {
         // Arrange
-        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medErMedlem(true)
-            .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
-            .build();
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
+            .medMedlemskapType(MedlemskapType.ENDELIG).medErMedlem(true).medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL).build();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
@@ -173,12 +164,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_utvandret() {
         // Arrange
-        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medErMedlem(true)
-            .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
-            .build();
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
+            .medMedlemskapType(MedlemskapType.ENDELIG).medErMedlem(true).medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL).build();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
@@ -199,8 +186,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     void skal_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_lik_usa() {
         // Arrange
-        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.UNNTATT)
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.UNNTATT)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
@@ -353,7 +339,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL.plusYears(1));
+        leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1),
+            SKJÆRINGSDATO_FØDSEL.plusYears(1));
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -371,7 +358,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.ARG, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1), Tid.TIDENES_ENDE);
+        leggTilSøker(scenario, Landkoder.ARG, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1),
+            Tid.TIDENES_ENDE);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -389,7 +377,8 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.USA, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.USA, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1),
+            SKJÆRINGSDATO_FØDSEL);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -408,8 +397,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, PersonstatusType personstatus) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
+        var søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
             .personstatus(personstatus)
             .statsborgerskap(statsborgerskap)
@@ -418,12 +406,15 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         return søkerAktørId;
     }
 
-    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, PersonstatusType personstatus,
-                                 OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
+    private AktørId leggTilSøker(AbstractTestScenario<?> scenario,
+                                 Landkoder statsborgerskap,
+                                 PersonstatusType personstatus,
+                                 OppholdstillatelseType opphold,
+                                 LocalDate oppholdFom,
+                                 LocalDate oppholdTom) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
+        var søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
             .personstatus(personstatus)
             .statsborgerskap(statsborgerskap)

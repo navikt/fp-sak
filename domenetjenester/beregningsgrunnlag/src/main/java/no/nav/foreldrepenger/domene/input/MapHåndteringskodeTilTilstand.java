@@ -18,7 +18,8 @@ public final class MapHåndteringskodeTilTilstand {
         MAP.put(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, BeregningsgrunnlagTilstand.FORESLÅTT_UT);
         MAP.put(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, BeregningsgrunnlagTilstand.FORESLÅTT_2_UT);
         MAP.put(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD, BeregningsgrunnlagTilstand.FORESLÅTT_UT);
-        MAP.put(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE, BeregningsgrunnlagTilstand.FORESLÅTT_2_UT);
+        MAP.put(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE,
+            BeregningsgrunnlagTilstand.FORESLÅTT_2_UT);
         MAP.put(AksjonspunktDefinisjon.VURDER_REFUSJON_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
         MAP.put(AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FASTSATT_INN);
     }

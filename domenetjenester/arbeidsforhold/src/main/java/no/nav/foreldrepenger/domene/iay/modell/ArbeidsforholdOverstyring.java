@@ -135,8 +135,7 @@ public class ArbeidsforholdOverstyring implements IndexKey {
     }
 
     public boolean kreverIkkeInntektsmelding() {
-        return Set.of(LAGT_TIL_AV_SAKSBEHANDLER, BRUK_UTEN_INNTEKTSMELDING,
-                BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG).contains(handling);
+        return Set.of(LAGT_TIL_AV_SAKSBEHANDLER, BRUK_UTEN_INNTEKTSMELDING, BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG).contains(handling);
     }
 
     @Override
@@ -152,8 +151,7 @@ public class ArbeidsforholdOverstyring implements IndexKey {
         if (!(o instanceof ArbeidsforholdOverstyring that)) {
             return false;
         }
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
     }
 
     @Override
@@ -163,11 +161,8 @@ public class ArbeidsforholdOverstyring implements IndexKey {
 
     @Override
     public String toString() {
-        return "ArbeidsforholdOverstyringEntitet{" +
-                "arbeidsgiver=" + arbeidsgiver +
-                ", arbeidsforholdRef=" + arbeidsforholdRef +
-                ", handling=" + handling +
-                '}';
+        return "ArbeidsforholdOverstyringEntitet{" + "arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef + ", handling="
+            + handling + '}';
     }
 
     public Stillingsprosent getStillingsprosent() {

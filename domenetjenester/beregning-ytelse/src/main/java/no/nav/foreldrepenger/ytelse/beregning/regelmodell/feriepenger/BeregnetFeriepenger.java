@@ -5,7 +5,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 
 public class BeregnetFeriepenger extends LeafSpecification<BeregningsresultatFeriepengerRegelModell> {
 
-    public BeregnetFeriepenger(){
+    public BeregnetFeriepenger() {
         super("Beregnet");
     }
 

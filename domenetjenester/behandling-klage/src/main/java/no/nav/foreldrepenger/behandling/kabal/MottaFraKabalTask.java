@@ -91,7 +91,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
 
     private void klageAvsluttet(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
         var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
-            .map(KabalUtfall::valueOf).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall"));
+            .map(KabalUtfall::valueOf)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall"));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var klageBehandling = behandlingRepository.hentBehandling(behandlingId);
         kabalTjeneste.settKabalReferanse(klageBehandling, ref);
@@ -145,7 +146,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     // Konvensjon: Dersom hendelse har kilderef = ANKE så er det en overført anke, ellers er anken opprettet i/av Kabal
     private void ankeTrygdrett(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
         var sendtTrygderetten = Optional.ofNullable(prosessTaskData.getPropertyValue(OVERSENDTR_KEY))
-            .map(v -> LocalDate.parse(v, DateTimeFormatter.ISO_LOCAL_DATE)).orElseThrow();
+            .map(v -> LocalDate.parse(v, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElseThrow();
         håndterAnkeAvsluttetEllerTrygderett(prosessTaskData, behandlingId, ref, sendtTrygderetten);
     }
 
@@ -188,9 +190,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kabalBehandlingType = Optional.ofNullable(prosessTaskData.getPropertyValue(FEILOPPRETTET_TYPE_KEY))
             .map(KabalHendelse.BehandlingType::valueOf)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal feilregistrert men mangler type behandling"));
-        var behandling = KabalHendelse.BehandlingType.KLAGE.equals(kabalBehandlingType) ? behandlingRepository.hentBehandling(behandlingId) :
-            kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
-                .orElseThrow(() -> new IllegalStateException("Finner ike ankebehandling for behandling " + behandlingId));
+        var behandling = KabalHendelse.BehandlingType.KLAGE.equals(kabalBehandlingType) ? behandlingRepository.hentBehandling(
+            behandlingId) : kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
+            .orElseThrow(() -> new IllegalStateException("Finner ike ankebehandling for behandling " + behandlingId));
         kabalTjeneste.settKabalReferanse(behandling, ref);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
         kabalTjeneste.settKabalReferanse(behandling, ref);

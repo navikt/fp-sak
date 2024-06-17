@@ -31,8 +31,7 @@ public class NavBrukerTjeneste {
     }
 
     @Inject
-    public NavBrukerTjeneste(NavBrukerRepository brukerRepository,
-                             PersoninfoAdapter personinfoAdapter) {
+    public NavBrukerTjeneste(NavBrukerRepository brukerRepository, PersoninfoAdapter personinfoAdapter) {
         this.brukerRepository = brukerRepository;
         this.personinfoAdapter = personinfoAdapter;
     }
@@ -47,8 +46,9 @@ public class NavBrukerTjeneste {
 
     private Optional<NavBruker> hentMedRefresh(AktørId aktørId) {
         var bruker = brukerRepository.hent(aktørId);
-        if (bruker.isEmpty())
+        if (bruker.isEmpty()) {
             return bruker;
+        }
         var refreshGrense = LocalDateTime.now().minus(REFRESH_INTERVAL);
         var sistoppdatert = bruker.map(b -> b.getEndretTidspunkt() == null ? b.getOpprettetTidspunkt() : b.getEndretTidspunkt())
             .orElseGet(() -> refreshGrense.minus(REFRESH_INTERVAL));

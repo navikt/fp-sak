@@ -7,16 +7,18 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-/** Input data til AksjonspunktOppdaterere. */
+/**
+ * Input data til AksjonspunktOppdaterere.
+ */
 public final class AksjonspunktOppdaterParameter {
     private final BehandlingReferanse ref;
     private final boolean erBegrunnelseEndret;
 
     private AksjonspunktOppdaterParameter(BehandlingReferanse ref, String begrunnelse, Aksjonspunkt aksjonspunkt) {
         this.ref = ref;
-        this.erBegrunnelseEndret = begrunnelse != null
-                ? Optional.ofNullable(aksjonspunkt).map(ap -> !Objects.equals(aksjonspunkt.getBegrunnelse(), begrunnelse)).orElse(Boolean.FALSE)
-                : Boolean.FALSE;
+        this.erBegrunnelseEndret = begrunnelse != null ? Optional.ofNullable(aksjonspunkt)
+            .map(ap -> !Objects.equals(aksjonspunkt.getBegrunnelse(), begrunnelse))
+            .orElse(Boolean.FALSE) : Boolean.FALSE;
     }
 
     public AksjonspunktOppdaterParameter(BehandlingReferanse ref, BekreftetAksjonspunktDto dto, Aksjonspunkt aksjonspunkt) {
@@ -27,7 +29,8 @@ public final class AksjonspunktOppdaterParameter {
      * Test-only
      */
     public AksjonspunktOppdaterParameter(BehandlingReferanse ref, BekreftetAksjonspunktDto dto) {
-        this(ref, dto, null);}
+        this(ref, dto, null);
+    }
 
     public Long getBehandlingId() {
         return ref.behandlingId();

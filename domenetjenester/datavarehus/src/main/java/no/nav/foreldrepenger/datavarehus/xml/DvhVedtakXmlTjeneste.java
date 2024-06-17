@@ -65,12 +65,14 @@ public class DvhVedtakXmlTjeneste {
         var ytelseType = fagsak.getYtelseType();
         var ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
 
-        FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
+        FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType)
+            .orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setPersonopplysninger(vedtak, ref);
 
         behandlingsresultatXmlTjenester.setBehandlingresultat(vedtak, behandling);
 
-        FagsakYtelseTypeRef.Lookup.find(oppdragXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
+        FagsakYtelseTypeRef.Lookup.find(oppdragXmlTjenester, ytelseType)
+            .orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setOppdrag(vedtak, behandling);
 
         return genererXml(behandlingId, vedtak);
@@ -78,11 +80,8 @@ public class DvhVedtakXmlTjeneste {
 
     private String genererXml(Long behandlingId, Vedtak vedtak) {
         try {
-            return JaxbHelper.marshalAndValidateJaxb(VedtakConstants.JAXB_CLASS,
-                vedtak,
-                VedtakConstants.XSD_LOCATION,
-                VedtakConstants.ADDITIONAL_XSD_LOCATIONS,
-                VedtakConstants.ADDITIONAL_CLASSES);
+            return JaxbHelper.marshalAndValidateJaxb(VedtakConstants.JAXB_CLASS, vedtak, VedtakConstants.XSD_LOCATION,
+                VedtakConstants.ADDITIONAL_XSD_LOCATIONS, VedtakConstants.ADDITIONAL_CLASSES);
         } catch (JAXBException | SAXException e) {
             throw VedtakXmlFeil.serialiseringsfeil(behandlingId, e);
         }

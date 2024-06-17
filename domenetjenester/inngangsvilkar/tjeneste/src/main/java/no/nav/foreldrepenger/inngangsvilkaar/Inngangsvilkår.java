@@ -7,8 +7,7 @@ public interface Inngangsvilkår {
     /**
      * Vurder vilkår og returner utfall
      *
-     * @param ref
-     *            - med grunnlag som skal vurderes
+     * @param ref - med grunnlag som skal vurderes
      * @return {@link VilkårData} som beskriver utfall
      */
     VilkårData vurderVilkår(BehandlingReferanse ref);

@@ -88,11 +88,11 @@ class UtsettelseDokumentasjonUtlederTest {
     @Test
     void utsettelse_innleggelse_barn_med_innleggelse_pleiepenger_trenger_vurdering() {
         var pleiepenger = periodeMedUtsettelse(UtsettelseÅrsak.INSTITUSJON_BARN);
-        var vurderingBehov = utledVurderingBehov(pleiepenger, pleiepenger.getFom(), List.of(new PleiepengerInnleggelseEntitet.Builder()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(pleiepenger.getFom(), pleiepenger.getTom()))
+        var vurderingBehov = utledVurderingBehov(pleiepenger, pleiepenger.getFom(), List.of(
+            new PleiepengerInnleggelseEntitet.Builder().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(pleiepenger.getFom(), pleiepenger.getTom()))
                 .medPleiepengerSaksnummer(new Saksnummer("000"))
                 .medPleietrengendeAktørId(AktørId.dummy())
-            .build()));
+                .build()));
         assertThat(vurderingBehov).isEmpty();
     }
 
@@ -100,7 +100,8 @@ class UtsettelseDokumentasjonUtlederTest {
         return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, oppgittPeriode.getFom().minusMonths(2), true, List.of());
     }
 
-    private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, LocalDate familiehendelse,
+    private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
+                                                                            LocalDate familiehendelse,
                                                                             List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, false, pleiepengerInnleggelser);
     }
@@ -109,7 +110,8 @@ class UtsettelseDokumentasjonUtlederTest {
         return OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medÅrsak(utsettelseÅrsak)
-            .medPeriode(LocalDate.of(2018, 3, 15), LocalDate.of(2018, 3, 15)).build();
+            .medPeriode(LocalDate.of(2018, 3, 15), LocalDate.of(2018, 3, 15))
+            .build();
     }
 
 }

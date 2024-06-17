@@ -57,14 +57,10 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var oppdrag110List = oppdrag.getOppdrag110Liste();
         assertThat(oppdrag110List).hasSize(2);
         //Oppdrag110 - Bruker
-        var oppdrag110_Bruker = oppdrag110List.stream()
-            .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst();
+        var oppdrag110_Bruker = oppdrag110List.stream().filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).findFirst();
         assertThat(oppdrag110_Bruker).isPresent();
         //Oppdrag110 - Arbeidsgiver
-        var oppdrag110_Arbeidsgiver = oppdrag110List.stream()
-            .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst();
+        var oppdrag110_Arbeidsgiver = oppdrag110List.stream().filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).findFirst();
         assertThat(oppdrag110_Arbeidsgiver).isPresent();
         //Oppdragslinje150 - Bruker
         var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
@@ -72,11 +68,8 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(opp150.getKodeKlassifik()))).hasSize(1);
         //Oppdragslinje150 - Arbeidsgiver
         var opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
-        assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                KodeKlassifik.SVP_REFUSJON_AG,
-                KodeKlassifik.SVP_FERIEPENGER_AG)
-            ));
+        assertThat(opp150List_Arbeidsgiver).anySatisfy(
+            opp150 -> assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(KodeKlassifik.SVP_REFUSJON_AG, KodeKlassifik.SVP_FERIEPENGER_AG)));
     }
 
     @Test
@@ -91,7 +84,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
 
         var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, baseDato.plusDays(1), baseDato.plusDays(31));
         var andelBruker_2 = buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
-        var andelArbeidsgiver_2 =buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
+        var andelArbeidsgiver_2 = buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
 
         var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 100L, baseDato);
@@ -113,14 +106,10 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var oppdrag110List = oppdrag.getOppdrag110Liste();
         assertThat(oppdrag110List).hasSize(2);
         //Oppdrag110 - Bruker
-        var oppdrag110_Bruker = oppdrag110List.stream()
-            .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst();
+        var oppdrag110_Bruker = oppdrag110List.stream().filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).findFirst();
         assertThat(oppdrag110_Bruker).isPresent();
         //Oppdrag110 - Arbeidsgiver
-        var oppdrag110_Arbeidsgiver = oppdrag110List.stream()
-            .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst();
+        var oppdrag110_Arbeidsgiver = oppdrag110List.stream().filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).findFirst();
         assertThat(oppdrag110_Arbeidsgiver).isPresent();
         //Oppdragslinje150 - Bruker
         var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
@@ -129,11 +118,8 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(opp150.getKodeKlassifik()))).hasSize(1);
         //Oppdragslinje150 - Arbeidsgiver
         var opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
-        assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                KodeKlassifik.SVP_REFUSJON_AG,
-                KodeKlassifik.SVP_FERIEPENGER_AG)
-            ));
+        assertThat(opp150List_Arbeidsgiver).anySatisfy(
+            opp150 -> assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(KodeKlassifik.SVP_REFUSJON_AG, KodeKlassifik.SVP_FERIEPENGER_AG)));
     }
 
     @Test
@@ -158,12 +144,14 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         var oppdragskontroll = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Først sørge for at begge feriepengene er FPATFER - slik som tidligere sendte oppdrag vil være
-        var original150L = oppdragskontroll.getOppdrag110Liste().stream()
+        var original150L = oppdragskontroll.getOppdrag110Liste()
+            .stream()
             .map(Oppdrag110::getOppdragslinje150Liste)
             .flatMap(Collection::stream)
             .filter(o150 -> o150.getKodeKlassifik().gjelderFeriepenger())
             .toList();
-        original150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))
+        original150L.stream()
+            .filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))
             .forEach(o150 -> o150.setKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER));
         assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(1);
         assertThat(original150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(0);
@@ -184,7 +172,9 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
 
         var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());
 
-        var ny150L = oppdragRevurdering.orElseThrow().getOppdrag110Liste().stream()
+        var ny150L = oppdragRevurdering.orElseThrow()
+            .getOppdrag110Liste()
+            .stream()
             .map(Oppdrag110::getOppdragslinje150Liste)
             .flatMap(Collection::stream)
             .filter(o150 -> o150.getKodeKlassifik().gjelderFeriepenger())
@@ -192,8 +182,12 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
 
         // Validere at eneste endring er opphør av FPATFER og innvilget FPADATFER
         assertThat(ny150L).hasSize(2);
-        assertThat(ny150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeStatusLinje.OPPH.equals(o150.getKodeStatusLinje()))).hasSize(1);
-        assertThat(ny150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeEndringLinje.NY.equals(o150.getKodeEndringLinje()))).hasSize(1);
+        assertThat(ny150L.stream()
+            .filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeStatusLinje.OPPH.equals(
+                o150.getKodeStatusLinje()))).hasSize(1);
+        assertThat(ny150L.stream()
+            .filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeEndringLinje.NY.equals(
+                o150.getKodeEndringLinje()))).hasSize(1);
 
     }
 }

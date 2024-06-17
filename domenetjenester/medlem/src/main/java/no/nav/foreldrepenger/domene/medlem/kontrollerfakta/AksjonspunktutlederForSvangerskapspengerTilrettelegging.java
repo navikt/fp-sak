@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 @ApplicationScoped
-public class AksjonspunktutlederForSvangerskapspengerTilrettelegging  implements AksjonspunktUtleder {
+public class AksjonspunktutlederForSvangerskapspengerTilrettelegging implements AksjonspunktUtleder {
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         return Collections.singletonList(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING));

@@ -46,9 +46,8 @@ public class AvklaringFaktaMedlemskap {
         var behandlingId = behandling.getId();
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
-        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent()
-            ? medlemskap.get().getRegistrertMedlemskapPerioder()
-            : Collections.emptySet();
+        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent() ? medlemskap.get()
+            .getRegistrertMedlemskapPerioder() : Collections.emptySet();
 
         var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
 
@@ -80,7 +79,8 @@ public class AvklaringFaktaMedlemskap {
             var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
             var region = statsborgerskap(personopplysninger, vurderingsdato);
             return switch (region) {
-                case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
+                case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(
+                    MedlemResultat.AVKLAR_OPPHOLDSRETT);
                 case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
                 case NORDISK -> Optional.empty();
             };
@@ -105,8 +105,7 @@ public class AvklaringFaktaMedlemskap {
     }
 
     private Utfall harDekningsgrad(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        var medlemskapDekningTypes = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
-            vurderingsdato);
+        var medlemskapDekningTypes = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomAvklartMedlemskap(medlemskapDekningTypes) ? JA : NEI;
     }
 
@@ -126,8 +125,7 @@ public class AvklaringFaktaMedlemskap {
     }
 
     private Utfall erUavklart(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
-            vurderingsdato);
+        var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomUavklartMedlemskap(medlemskapDekningTyper) ? JA : NEI;
     }
 
@@ -150,8 +148,7 @@ public class AvklaringFaktaMedlemskap {
         var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
             var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.aktørId())).før(vurderingsdato);
-            inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
-                .anyMatch(ip -> siste3Mnd.overlapper(ip.getPeriode()));
+            inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream().anyMatch(ip -> siste3Mnd.overlapper(ip.getPeriode()));
         }
         return inntektSiste3M ? JA : NEI;
     }
@@ -166,6 +163,8 @@ public class AvklaringFaktaMedlemskap {
     }
 
     enum Statsborgerskapsregioner {
-        NORDISK, EØS, TREDJE_LANDS_BORGER
+        NORDISK,
+        EØS,
+        TREDJE_LANDS_BORGER
     }
 }

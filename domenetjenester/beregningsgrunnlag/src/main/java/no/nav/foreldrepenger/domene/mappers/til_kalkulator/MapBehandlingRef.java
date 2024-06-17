@@ -12,11 +12,8 @@ public class MapBehandlingRef {
 
     public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse) {
         return KoblingReferanse.fra(KodeverkTilKalkulusMapper.mapFagsakytelsetype(behandlingReferanse.fagsakYtelseType()),
-            new AktørId(behandlingReferanse.aktørId().getId()),
-            behandlingReferanse.behandlingId(),
-            behandlingReferanse.behandlingUuid(),
-            behandlingReferanse.getOriginalBehandlingId(),
-            mapSkjæringstidspunkt(behandlingReferanse.getSkjæringstidspunkt()));
+            new AktørId(behandlingReferanse.aktørId().getId()), behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid(),
+            behandlingReferanse.getOriginalBehandlingId(), mapSkjæringstidspunkt(behandlingReferanse.getSkjæringstidspunkt()));
     }
 
     private static Skjæringstidspunkt mapSkjæringstidspunkt(no.nav.foreldrepenger.behandling.Skjæringstidspunkt skjæringstidspunkt) {

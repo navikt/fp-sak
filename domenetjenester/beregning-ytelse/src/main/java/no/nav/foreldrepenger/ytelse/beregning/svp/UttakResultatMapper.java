@@ -22,7 +22,8 @@ public class UttakResultatMapper implements UttakResultatRepoMapper {
     }
 
     @Inject
-    public UttakResultatMapper(SvangerskapspengerUttakResultatRepository uttakResultatRepository, MapUttakResultatFraVLTilRegel mapUttakResultatFraVLTilRegelSVP) {
+    public UttakResultatMapper(SvangerskapspengerUttakResultatRepository uttakResultatRepository,
+                               MapUttakResultatFraVLTilRegel mapUttakResultatFraVLTilRegelSVP) {
         this.svangerskapspengerUttakResultatRepository = uttakResultatRepository;
         this.mapper = mapUttakResultatFraVLTilRegelSVP;
     }

@@ -44,11 +44,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner
-            .beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
         // Assert
-        assertThat(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(58.57));
+        assertThat(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().get(0).getUtbetalingsgrad()).isEqualByComparingTo(
+            BigDecimal.valueOf(58.57));
     }
 
     @Test
@@ -62,11 +63,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(40)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(40)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 5, 1), LocalDate.of(2019, 5, 31)));
@@ -84,11 +85,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale3 = aktivitetsAvtaleBuilder3.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner
-                .beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3),
+            svpTilrettelegging, terminDato, Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
@@ -112,12 +114,12 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -125,11 +127,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
@@ -155,13 +158,13 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(34)))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging2, BigDecimal.valueOf(50)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(34)))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging2, BigDecimal.valueOf(50)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -169,11 +172,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging2.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging2, slutteArbeid.minusDays(1));
@@ -197,10 +201,10 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -208,11 +212,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag);
 
@@ -231,10 +236,10 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(35)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(35)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -242,11 +247,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
@@ -267,10 +273,10 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(35)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(35)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -278,11 +284,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
 
@@ -301,10 +308,10 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -312,11 +319,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(sluttetIArbeid, terminDatoMinus3UkerOg1Dag);
 
@@ -335,11 +343,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(jordmorsdato))
-                .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(jordmorsdato))
+            .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag));
@@ -347,11 +355,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, sluttetIArbeid.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(sluttetIArbeid, terminDatoMinus3UkerOg1Dag);
@@ -373,11 +382,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(ingenTilrettelegging(sluttetIArbeid))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -385,11 +394,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminDatoMinus3UkerOg1Dag);
@@ -411,11 +421,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -423,11 +433,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, helTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(helTilrettelegging, delvisTilrettelegging.minusDays(1));
@@ -451,11 +462,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -463,11 +474,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var tredjePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3);
 
@@ -486,10 +498,10 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -497,11 +509,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3);
 
@@ -521,17 +534,18 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
-                .medArbeidType(ArbeidType.FRILANSER)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
+            .medArbeidType(ArbeidType.FRILANSER)
+            .medArbeidsgiver(test123)
+            .build();
 
         // Act
         var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregnUtenAAreg(svpTilrettelegging, terminDato);
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, helTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(helTilrettelegging, delvisTilrettelegging.minusDays(1));
@@ -555,11 +569,11 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
-                .medArbeidType(ArbeidType.FRILANSER)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(66)))
+            .medArbeidType(ArbeidType.FRILANSER)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag.minusDays(5)));
@@ -567,11 +581,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, helTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(helTilrettelegging, delvisTilrettelegging.minusDays(1));
@@ -596,12 +611,12 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -609,11 +624,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
@@ -637,12 +653,12 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -655,11 +671,12 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging,
+            terminDato, Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, slutteArbeid.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
@@ -681,12 +698,12 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -699,10 +716,11 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2),
-                svpTilrettelegging, terminDato, Collections.emptyList());
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2), svpTilrettelegging,
+            terminDato, Collections.emptyList());
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
@@ -723,12 +741,11 @@ class UtbetalingsgradBeregnerTest {
         var terminDatoMinus3UkerOg1Dag = terminDato.minusWeeks(3).minusDays(1);
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), Tid.TIDENES_ENDE));
@@ -746,10 +763,11 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale3 = aktivitetsAvtaleBuilder3.build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner
-                .beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3), svpTilrettelegging, terminDato, Collections.emptyList());
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale, aktivitetsAvtale2, aktivitetsAvtale3),
+            svpTilrettelegging, terminDato, Collections.emptyList());
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
 
@@ -766,26 +784,25 @@ class UtbetalingsgradBeregnerTest {
         var terminDatoMinus3UkerOg1Dag = terminDato.minusWeeks(3).minusDays(1);
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktiviteter = List.of(
-                // første arbeidsforhold
-                lagAktivitetsAvtale(LocalDate.of(2019, 7, 1), LocalDate.of(9999, 12, 31), BigDecimal.valueOf(100)),
-                lagAktivitetsAvtale(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 30), BigDecimal.valueOf(100)),
-                lagAktivitetsAvtale(LocalDate.of(2019, 5, 1), LocalDate.of(2019, 5, 31), BigDecimal.valueOf(100)),
-                // andre arbeidsforhold
-                lagAktivitetsAvtale(LocalDate.of(2019, 1, 1), LocalDate.of(9999, 12, 31), BigDecimal.valueOf(0)));
+            // første arbeidsforhold
+            lagAktivitetsAvtale(LocalDate.of(2019, 7, 1), LocalDate.of(9999, 12, 31), BigDecimal.valueOf(100)),
+            lagAktivitetsAvtale(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 30), BigDecimal.valueOf(100)),
+            lagAktivitetsAvtale(LocalDate.of(2019, 5, 1), LocalDate.of(2019, 5, 31), BigDecimal.valueOf(100)),
+            // andre arbeidsforhold
+            lagAktivitetsAvtale(LocalDate.of(2019, 1, 1), LocalDate.of(9999, 12, 31), BigDecimal.valueOf(0)));
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato,
-                Collections.emptyList());
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(slutteArbeid, terminDatoMinus3UkerOg1Dag);
 
@@ -802,22 +819,20 @@ class UtbetalingsgradBeregnerTest {
         var terminDatoMinus3UkerOg1Dag = terminDato.minusWeeks(3).minusDays(1);
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(50)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(50)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var arbeidsforholdStart = LocalDate.of(2019, 6, 1);
-        var aktiviteter = List.of(
-                lagAktivitetsAvtale(arbeidsforholdStart, LocalDate.of(9999, 12, 31), BigDecimal.valueOf(100)));
+        var aktiviteter = List.of(lagAktivitetsAvtale(arbeidsforholdStart, LocalDate.of(9999, 12, 31), BigDecimal.valueOf(100)));
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato,
-                Collections.emptyList());
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, arbeidsforholdStart.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsforholdStart, delvisTilrettelegging.minusDays(1));
@@ -839,12 +854,11 @@ class UtbetalingsgradBeregnerTest {
         var terminDatoMinus3UkerOg1Dag = terminDato.minusWeeks(3).minusDays(1);
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(ingenTilrettelegging(ingenTilrettelegging))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(ingenTilrettelegging(ingenTilrettelegging))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 2, 1), LocalDate.of(2019, 2, 28));
         var periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), LocalDate.of(9999, 12, 31));
@@ -854,20 +868,16 @@ class UtbetalingsgradBeregnerTest {
         var periode6 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 8, 1), LocalDate.of(2019, 1, 31));
         var periode7 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 7, 1), LocalDate.of(2018, 7, 31));
 
-        var aktiviteter = List.of(
-                lagAktivitetsAvtale(periode1, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode2, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode3, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode4, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode5, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode6, BigDecimal.valueOf(0.00)),
-                lagAktivitetsAvtale(periode7, BigDecimal.valueOf(0.00)));
+        var aktiviteter = List.of(lagAktivitetsAvtale(periode1, BigDecimal.valueOf(0.00)), lagAktivitetsAvtale(periode2, BigDecimal.valueOf(0.00)),
+            lagAktivitetsAvtale(periode3, BigDecimal.valueOf(0.00)), lagAktivitetsAvtale(periode4, BigDecimal.valueOf(0.00)),
+            lagAktivitetsAvtale(periode5, BigDecimal.valueOf(0.00)), lagAktivitetsAvtale(periode6, BigDecimal.valueOf(0.00)),
+            lagAktivitetsAvtale(periode7, BigDecimal.valueOf(0.00)));
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato,
-                Collections.emptyList());
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(aktiviteter, svpTilrettelegging, terminDato, Collections.emptyList());
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDatoMinus3UkerOg1Dag);
 
@@ -884,28 +894,27 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var overstyrtUtbetalingsgrad = BigDecimal.valueOf(10);
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(new TilretteleggingFOM.Builder()
-                        .medStillingsprosent(BigDecimal.valueOf(60))
-                        .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
-                        .medFomDato(jordmorsdato)
-                        .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
-                        .build())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(new TilretteleggingFOM.Builder().medStillingsprosent(BigDecimal.valueOf(60))
+                .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+                .medFomDato(jordmorsdato)
+                .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
+                .build())
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato));
         aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(100));
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato.minusWeeks(3).minusDays(1));
 
@@ -924,25 +933,23 @@ class UtbetalingsgradBeregnerTest {
         var aktørId = AktørId.dummy();
         var test123 = Arbeidsgiver.person(aktørId);
 
-        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(new TilretteleggingFOM.Builder()
-                        .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
-                        .medFomDato(jordmorsdato)
-                        .build())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(
+                new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING).medFomDato(jordmorsdato).build())
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2019, 8, 20)));
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, Collections.emptyList());
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            Collections.emptyList());
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato.minusWeeks(3).minusDays(1));
 
@@ -962,12 +969,12 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-                .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
-                .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
-                .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(test123)
-                .build();
+            .medTilretteleggingFom(helTilrettelegging(helTilrettelegging))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(45)))
+            .medTilretteleggingFom(ingenTilrettelegging(slutteArbeid))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato));
@@ -976,16 +983,17 @@ class UtbetalingsgradBeregnerTest {
 
         var permisjonBuilder = YrkesaktivitetBuilder.nyPermisjonBuilder();
         var velferdspermisjon = permisjonBuilder.medPeriode(jordmorsdato, terminDato)
-                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
-                .medProsentsats(BigDecimal.valueOf(20))
-                .build();
+            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+            .medProsentsats(BigDecimal.valueOf(20))
+            .build();
 
         // Act
-        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale),
-                svpTilrettelegging, terminDato, List.of(velferdspermisjon));
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner.beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato,
+            List.of(velferdspermisjon));
 
-        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
-                .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
+        var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad()
+            .stream()
+            .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
         var førstePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1));
         var andrePeriode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, slutteArbeid.minusDays(1));
@@ -1017,20 +1025,24 @@ class UtbetalingsgradBeregnerTest {
 
     private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging, BigDecimal stillingsprosent) {
         return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
-                .medFomDato(delvisTilrettelegging)
-                .medStillingsprosent(stillingsprosent).build();
+            .medFomDato(delvisTilrettelegging)
+            .medStillingsprosent(stillingsprosent)
+            .build();
     }
-    private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
+
+    private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging,
+                                                     BigDecimal stillingsprosent,
+                                                     BigDecimal overstyrtUtbetalingsgrad) {
         return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
             .medFomDato(delvisTilrettelegging)
             .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
-            .medStillingsprosent(stillingsprosent).build();
+            .medStillingsprosent(stillingsprosent)
+            .build();
     }
 
     private TilretteleggingFOM helTilrettelegging(LocalDate helTilrettelegging) {
-        return new TilretteleggingFOM.Builder()
-                .medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
-                .medFomDato(helTilrettelegging)
-                .build();
+        return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
+            .medFomDato(helTilrettelegging)
+            .build();
     }
 }

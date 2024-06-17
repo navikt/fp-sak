@@ -43,15 +43,15 @@ class RegelBeregnFeriepengerTest {
 
         var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1, periode2))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -60,8 +60,11 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 3, 23));
 
-        resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .stream()
+            .flatMap(p -> p.getBeregningsresultatAndelList().stream())
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         var andelArbeidsgiver1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(1);
         var andelBruker2 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(2);
@@ -71,10 +74,10 @@ class RegelBeregnFeriepengerTest {
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
-        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2754));
-        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2295));
+        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2754));
+        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2295));
         assertThat(andelBruker3.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(76.5));
         assertThat(andelArbeidsgiver3.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(204));
     }
@@ -97,15 +100,15 @@ class RegelBeregnFeriepengerTest {
 
         var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode0, periode1, periode2))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode0, periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -114,14 +117,13 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 3, 23));
 
-        resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .forEach(andel -> {
-                    if (andel.getDagsats() > 0) {
-                        assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1);
-                    } else {
-                        assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
-                    }
-                });
+        resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream()).forEach(andel -> {
+            if (andel.getDagsats() > 0) {
+                assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1);
+            } else {
+                assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
+            }
+        });
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().get(0);
         var andelArbeidsgiver1 = resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().get(1);
         var andelBruker2 = resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().get(2);
@@ -131,10 +133,10 @@ class RegelBeregnFeriepengerTest {
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
-        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2754));
-        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2295));
+        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2754));
+        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2295));
         assertThat(andelBruker3.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(76.5));
         assertThat(andelArbeidsgiver3.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(204));
     }
@@ -155,15 +157,15 @@ class RegelBeregnFeriepengerTest {
         byggAndelerForPeriode(periode2, 460, 1000, arbeidsforhold1);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1, periode2))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(false)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(false)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -172,8 +174,11 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 3, 23));
 
-        resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .stream()
+            .flatMap(p -> p.getBeregningsresultatAndelList().stream())
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         var andelArbeidsgiver1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(1);
         var andelBruker2 = resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().get(0);
@@ -201,15 +206,15 @@ class RegelBeregnFeriepengerTest {
         var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -218,11 +223,27 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 17));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 4));
 
-        assertThat(resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).toList()).hasSize(6);
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
-        resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
-        resultat.resultat().beregningsresultatPerioder().get(2).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        assertThat(resultat.resultat()
+            .beregningsresultatPerioder()
+            .stream()
+            .flatMap(p -> p.getBeregningsresultatAndelList().stream())
+            .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream())
+            .toList()).hasSize(6);
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(1)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(2)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         var andelArbeidsgiver1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(1);
@@ -233,10 +254,10 @@ class RegelBeregnFeriepengerTest {
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
-        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2754));
-        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-                .isEqualByComparingTo(BigDecimal.valueOf(2295));
+        assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2754));
+        assertThat(andelArbeidsgiver2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(
+            BigDecimal.valueOf(2295));
         assertThat(andelBruker4.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(178.5));
         assertThat(andelArbeidsgiver4.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(306));
     }
@@ -256,15 +277,15 @@ class RegelBeregnFeriepengerTest {
         var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart, periode3annenPart);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(false)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(false)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -273,10 +294,18 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 17));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 3));
 
-        assertThat(resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).toList()).hasSize(2);
-        var aPeriode1 = resultat.resultat().beregningsresultatPerioder().stream()
-            .filter(p -> p.getPeriode().equals(periode1.getPeriode())).findFirst().orElseThrow();
+        assertThat(resultat.resultat()
+            .beregningsresultatPerioder()
+            .stream()
+            .flatMap(p -> p.getBeregningsresultatAndelList().stream())
+            .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream())
+            .toList()).hasSize(2);
+        var aPeriode1 = resultat.resultat()
+            .beregningsresultatPerioder()
+            .stream()
+            .filter(p -> p.getPeriode().equals(periode1.getPeriode()))
+            .findFirst()
+            .orElseThrow();
         aPeriode1.getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
         var andelBruker1 = aPeriode1.getBeregningsresultatAndelList().get(0);
@@ -300,15 +329,15 @@ class RegelBeregnFeriepengerTest {
         var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.SJØMANN))
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
+            .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.SJØMANN))
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -317,12 +346,21 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 11, 1));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2019, 2, 21));
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(2));
-        resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList()
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
-        resultat.resultat().beregningsresultatPerioder().get(2).getBeregningsresultatAndelList()
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(2));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(1)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(2)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         var andelBruker2 = resultat.resultat().beregningsresultatPerioder().get(2).getBeregningsresultatAndelList().get(0);
         var andelArbeidsgiver = resultat.resultat().beregningsresultatPerioder().get(2).getBeregningsresultatAndelList().get(1);
@@ -340,15 +378,15 @@ class RegelBeregnFeriepengerTest {
         byggAndelerForPeriode(periode1, 1000, 0, arbeidsforhold1);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1))
-                .medAnnenPartsBeregningsresultatPerioder(Collections.emptyList())
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Collections.emptySet())
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(60)
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1))
+            .medAnnenPartsBeregningsresultatPerioder(Collections.emptyList())
+            .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Collections.emptySet())
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(60)
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -357,8 +395,11 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 11, 1));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 12, 31));
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
-                .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
         var andelBruker1 = resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4386));
@@ -372,15 +413,15 @@ class RegelBeregnFeriepengerTest {
         byggAndelerForPeriode(periode2, 300, 200, arbeidsforhold1);
 
         var regelModell = BeregningsresultatFeriepengerGrunnlag.builder()
-                .medBeregningsresultatPerioder(List.of(periode1, periode2))
-                .medAnnenPartsBeregningsresultatPerioder(List.of())
-                .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER))
-                .medArbeidstakerVedSkjæringstidspunkt(true)
-                .medAnnenPartsInntektskategorier(Set.of())
-                .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-                .medErForelder1(true)
-                .medAntallDagerFeriepenger(64) // SVP-spesifikt
-                .build();
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(List.of())
+            .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
+            .medAnnenPartsInntektskategorier(Set.of())
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(64) // SVP-spesifikt
+            .build();
 
         // Act
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(regelModell);
@@ -389,11 +430,20 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 5));
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
             .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
-        assertThat(resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0).getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp())
-            .isEqualByComparingTo(BigDecimal.valueOf(3213));
+        assertThat(resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
+            .get(0)
+            .getBeregningsresultatFeriepengerPrÅrListe()
+            .get(0)
+            .getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(3213));
     }
 
     @Test
@@ -420,7 +470,10 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.regelSporing()).isNotNull();
         assertThat(resultat.resultat().feriepengerPeriode()).isNull();
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
             .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
     }
 
@@ -449,7 +502,10 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.regelSporing()).isNotNull();
         assertThat(resultat.resultat().feriepengerPeriode()).isNull();
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
             .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
     }
 
@@ -480,22 +536,43 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 3, 10));
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 6, 7));
 
-        resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
             .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
-        resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList()
-            .stream().filter(p -> Inntektskategori.ARBEIDSTAKER.equals(p.getInntektskategori()))
+        resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(1)
+            .getBeregningsresultatAndelList()
+            .stream()
+            .filter(p -> Inntektskategori.ARBEIDSTAKER.equals(p.getInntektskategori()))
             .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
-        assertThat(resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0).getInntektskategori()).isEqualTo(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        assertThat(resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0).getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
+        assertThat(resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0).getInntektskategori()).isEqualTo(
+            Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
+        assertThat(resultat.resultat()
+            .beregningsresultatPerioder()
+            .get(0)
+            .getBeregningsresultatAndelList()
+            .get(0)
+            .getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
 
         var p2 = resultat.resultat().beregningsresultatPerioder().get(1);
-        assertThat(p2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a.getInntektskategori())).findFirst())
-            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
-        assertThat(p2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && a.erBrukerMottaker()).findFirst())
-            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4080)));
-        assertThat(p2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && !a.erBrukerMottaker()).findFirst())
-            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1632)));
+        assertThat(p2.getBeregningsresultatAndelList()
+            .stream()
+            .filter(a -> Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a.getInntektskategori()))
+            .findFirst()).hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+        assertThat(p2.getBeregningsresultatAndelList()
+            .stream()
+            .filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && a.erBrukerMottaker())
+            .findFirst()).hasValueSatisfying(
+            a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4080)));
+        assertThat(p2.getBeregningsresultatAndelList()
+            .stream()
+            .filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && !a.erBrukerMottaker())
+            .findFirst()).hasValueSatisfying(
+            a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1632)));
 
     }
 
@@ -505,22 +582,22 @@ class RegelBeregnFeriepengerTest {
 
     private void byggAndelerForPeriode(BeregningsresultatPeriode periode, int dagsats, int refusjon, Arbeidsforhold arbeidsforhold1) {
         periode.addBeregningsresultatAndel(BeregningsresultatAndel.builder()
-                .medDagsats((long) dagsats)
-                .medDagsatsFraBg((long) dagsats)
-                .medAktivitetStatus(AktivitetStatus.ATFL)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medBrukerErMottaker(true)
-                .medArbeidsforhold(arbeidsforhold1)
-                .build());
+            .medDagsats((long) dagsats)
+            .medDagsatsFraBg((long) dagsats)
+            .medAktivitetStatus(AktivitetStatus.ATFL)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medBrukerErMottaker(true)
+            .medArbeidsforhold(arbeidsforhold1)
+            .build());
         if (refusjon > 0) {
             periode.addBeregningsresultatAndel(BeregningsresultatAndel.builder()
-                    .medDagsats((long) refusjon)
-                    .medDagsatsFraBg((long) refusjon)
-                    .medAktivitetStatus(AktivitetStatus.ATFL)
-                    .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                    .medBrukerErMottaker(false)
-                    .medArbeidsforhold(arbeidsforhold1)
-                    .build());
+                .medDagsats((long) refusjon)
+                .medDagsatsFraBg((long) refusjon)
+                .medAktivitetStatus(AktivitetStatus.ATFL)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medBrukerErMottaker(false)
+                .medArbeidsforhold(arbeidsforhold1)
+                .build());
         }
     }
 

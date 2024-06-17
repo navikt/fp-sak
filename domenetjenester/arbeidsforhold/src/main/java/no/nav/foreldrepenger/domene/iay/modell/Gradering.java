@@ -32,7 +32,7 @@ public class Gradering implements IndexKey, Comparable<Gradering> {
 
     public Gradering(LocalDate fom, LocalDate tom, BigDecimal arbeidstidProsent) {
         this(tom == null ? DatoIntervallEntitet.fraOgMed(fom) : DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom),
-                new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent, "arbeidstidProsent")));
+            new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent, "arbeidstidProsent")));
     }
 
     Gradering(Gradering gradering) {
@@ -50,15 +50,15 @@ public class Gradering implements IndexKey, Comparable<Gradering> {
 
     /**
      * En arbeidstaker kan kombinere foreldrepenger med deltidsarbeid.
-     *
+     * <p>
      * Når arbeidstakeren jobber deltid, utgjør foreldrepengene differansen mellom
      * deltidsarbeidet og en 100 prosent stilling. Det er ingen nedre eller øvre
      * grense for hvor mye eller lite arbeidstakeren kan arbeide.
-     *
+     * <p>
      * Eksempel Arbeidstaker A har en 100 % stilling og arbeider fem dager i uken.
      * Arbeidstakeren ønsker å arbeide to dager i uken i foreldrepengeperioden.
      * Arbeidstids- prosenten blir da 40 %.
-     *
+     * <p>
      * Arbeidstaker B har en 80 % stilling og arbeider fire dager i uken.
      * Arbeidstakeren ønsker å arbeide to dager i uken i foreldrepengeperioden.
      * Arbeidstidprosenten blir også her 40 %.
@@ -71,10 +71,7 @@ public class Gradering implements IndexKey, Comparable<Gradering> {
 
     @Override
     public String toString() {
-        return "GraderingEntitet{" +
-                "periode=" + periode +
-                ", arbeidstidProsent=" + arbeidstidProsent +
-                '}';
+        return "GraderingEntitet{" + "periode=" + periode + ", arbeidstidProsent=" + arbeidstidProsent + '}';
     }
 
     @Override

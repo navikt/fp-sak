@@ -78,7 +78,8 @@ public class EndringsdatoTjeneste {
     }
 
     private YtelseVerdi filtrer(YtelseVerdi verdi, LocalDate dato) {
-        if (ignorerDagsatsIHelg && (verdi == null || verdi.getSats().getSatsType() == SatsType.DAG && (dato.getDayOfWeek() == DayOfWeek.SUNDAY || dato.getDayOfWeek() == DayOfWeek.SATURDAY))) {
+        if (ignorerDagsatsIHelg && (verdi == null || verdi.getSats().getSatsType() == SatsType.DAG && (dato.getDayOfWeek() == DayOfWeek.SUNDAY
+            || dato.getDayOfWeek() == DayOfWeek.SATURDAY))) {
             return null;
         }
         return verdi;

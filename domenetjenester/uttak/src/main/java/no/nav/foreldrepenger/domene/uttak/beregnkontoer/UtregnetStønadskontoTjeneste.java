@@ -24,8 +24,7 @@ public class UtregnetStønadskontoTjeneste {
 
 
     @Inject
-    public UtregnetStønadskontoTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                        ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public UtregnetStønadskontoTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste, ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -53,10 +52,12 @@ public class UtregnetStønadskontoTjeneste {
     }
 
     public static boolean harSammeAntallStønadsdager(Map<StønadskontoType, Integer> forrigeUtregning, Map<StønadskontoType, Integer> nyUtregning) {
-        var forrigeDager = forrigeUtregning.entrySet().stream()
+        var forrigeDager = forrigeUtregning.entrySet()
+            .stream()
             .filter(e -> e.getKey().erStønadsdager())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        var nyeDager = nyUtregning.entrySet().stream()
+        var nyeDager = nyUtregning.entrySet()
+            .stream()
             .filter(e -> e.getKey().erStønadsdager())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return forrigeDager.equals(nyeDager);
@@ -75,7 +76,7 @@ public class UtregnetStønadskontoTjeneste {
             return nyutregnetFellesperiode < eksisterendeFellesperiode;
         } else {
             // Endret fra Foreldrepenger til Kvoter eller omvendt
-            return (nyutregnetForeldrepenger > 0 && eksisterendeFellesperiode > 0) ||  (nyutregnetFellesperiode > 0 && eksisterendeForeldrepenger > 0);
+            return (nyutregnetForeldrepenger > 0 && eksisterendeFellesperiode > 0) || (nyutregnetFellesperiode > 0 && eksisterendeForeldrepenger > 0);
         }
     }
 

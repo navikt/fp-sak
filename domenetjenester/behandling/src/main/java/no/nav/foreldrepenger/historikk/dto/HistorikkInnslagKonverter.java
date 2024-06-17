@@ -41,11 +41,14 @@ public final class HistorikkInnslagKonverter {
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker,
-            List<JournalpostId> journalPosterForSak, URI dokumentPath) {
+                                                                   List<JournalpostId> journalPosterForSak,
+                                                                   URI dokumentPath) {
         return lenker.stream().map(lenke -> map(lenke, journalPosterForSak, dokumentPath)).toList();
     }
 
-    private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
+    private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke,
+                                                       List<JournalpostId> journalPosterForSak,
+                                                       URI dokumentPath) {
         var aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
         var dto = new HistorikkInnslagDokumentLinkDto();
         dto.setTag(lenke.getLinkTekst());

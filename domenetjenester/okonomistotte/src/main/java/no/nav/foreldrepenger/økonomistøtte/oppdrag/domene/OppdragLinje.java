@@ -26,7 +26,12 @@ public class OppdragLinje {
             .build();
     }
 
-    private OppdragLinje(Periode periode, Satsen sats, Utbetalingsgrad utbetalingsgrad, DelytelseId delytelseId, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
+    private OppdragLinje(Periode periode,
+                         Satsen sats,
+                         Utbetalingsgrad utbetalingsgrad,
+                         DelytelseId delytelseId,
+                         DelytelseId refDelytelseId,
+                         LocalDate opphørFomDato) {
         this.periode = periode;
         this.sats = sats;
         this.utbetalingsgrad = utbetalingsgrad;
@@ -65,15 +70,15 @@ public class OppdragLinje {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (OppdragLinje) o;
-        return periode.equals(that.periode) &&
-            sats.equals(that.sats) &&
-            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
-            delytelseId.equals(that.delytelseId) &&
-            Objects.equals(refDelytelseId, that.refDelytelseId) &&
-            Objects.equals(opphørFomDato, that.opphørFomDato);
+        return periode.equals(that.periode) && sats.equals(that.sats) && Objects.equals(utbetalingsgrad, that.utbetalingsgrad) && delytelseId.equals(
+            that.delytelseId) && Objects.equals(refDelytelseId, that.refDelytelseId) && Objects.equals(opphørFomDato, that.opphørFomDato);
     }
 
     @Override
@@ -83,15 +88,12 @@ public class OppdragLinje {
 
     @Override
     public String toString() {
-        return "OppdragLinje{" +
-            "delytelseId=" + delytelseId +
-            ", periode=" + periode +
-            ", sats=" + sats +
-            (utbetalingsgrad != null ? ", utbetalingsgrad=" + utbetalingsgrad : "") +
-            (refDelytelseId != null ? ", refDelytelseId=" + refDelytelseId : "") +
-            (opphørFomDato != null ? ", opphørFomDato=" + opphørFomDato : "") +
-            '}';
+        return "OppdragLinje{" + "delytelseId=" + delytelseId + ", periode=" + periode + ", sats=" + sats + (
+            utbetalingsgrad != null ? ", utbetalingsgrad=" + utbetalingsgrad : "") + (
+            refDelytelseId != null ? ", refDelytelseId=" + refDelytelseId : "") + (opphørFomDato != null ? ", opphørFomDato=" + opphørFomDato : "")
+            + '}';
     }
+
     public static class Builder {
 
         private Periode periode;

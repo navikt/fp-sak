@@ -31,10 +31,13 @@ public class FastsettInntektBesteberegningHistorikkTjeneste extends FaktaOmBereg
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        inntektHistorikkTjeneste.lagHistorikk(
-            tekstBuilder,
-            MapTilLønnsendring.mapTilLønnsendringFraBesteberegning(dto, nyttBeregningsgrunnlag, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)),
-            iayGrunnlag);
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, MapTilLønnsendring.mapTilLønnsendringFraBesteberegning(dto, nyttBeregningsgrunnlag,
+            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)), iayGrunnlag);
     }
 }

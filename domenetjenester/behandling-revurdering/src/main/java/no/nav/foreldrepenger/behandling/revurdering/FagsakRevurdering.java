@@ -28,13 +28,12 @@ class FagsakRevurdering {
     }
 
     private boolean kanVilkårRevurderes(Behandling behandling) {
-        return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()
-                .stream().noneMatch(this::erAvslagPåManglendeDokumentasjon);
+        return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().stream().noneMatch(this::erAvslagPåManglendeDokumentasjon);
     }
 
     private boolean erAvslagPåManglendeDokumentasjon(Vilkår vilkår) {
-        return vilkår.getVilkårType().equals(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                && vilkår.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT);
+        return vilkår.getVilkårType().equals(VilkårType.SØKERSOPPLYSNINGSPLIKT) && vilkår.getGjeldendeVilkårUtfall()
+            .equals(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
     private Optional<Behandling> hentBehandlingMedVedtak(Fagsak fagsak) {

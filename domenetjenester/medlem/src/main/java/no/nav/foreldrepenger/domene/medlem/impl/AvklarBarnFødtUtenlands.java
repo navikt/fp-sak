@@ -52,7 +52,7 @@ public class AvklarBarnFødtUtenlands {
     }
 
     private Utfall erFødselBekreftet(FamilieHendelseEntitet bekreftet) {
-        return bekreftet != null && ! bekreftet.getBarna().isEmpty() ? JA : NEI;
+        return bekreftet != null && !bekreftet.getBarna().isEmpty() ? JA : NEI;
     }
 
     private Utfall erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(FamilieHendelseEntitet bekreftet, Long behandlingId) {
@@ -110,14 +110,17 @@ public class AvklarBarnFødtUtenlands {
 
     private boolean erFødselsdatoInnenforEtUtenlandsopphold(LocalDate barnetsFødselsdato, Set<MedlemskapOppgittLandOppholdEntitet> utenlandsopphold) {
         for (var utenlandsoppholdet : utenlandsopphold) {
-            if (erBarnetFødtUnderDetteUtenlandsoppholdet(barnetsFødselsdato, utenlandsoppholdet.getPeriodeFom(), utenlandsoppholdet.getPeriodeTom())) {
+            if (erBarnetFødtUnderDetteUtenlandsoppholdet(barnetsFødselsdato, utenlandsoppholdet.getPeriodeFom(),
+                utenlandsoppholdet.getPeriodeTom())) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean erBarnetFødtUnderDetteUtenlandsoppholdet(LocalDate barnetsFødselsdato, LocalDate startUtenlandsopphold, LocalDate sluttUtenlandsopphold) {
+    private boolean erBarnetFødtUnderDetteUtenlandsoppholdet(LocalDate barnetsFødselsdato,
+                                                             LocalDate startUtenlandsopphold,
+                                                             LocalDate sluttUtenlandsopphold) {
         return barnetsFødselsdato.isAfter(startUtenlandsopphold) && barnetsFødselsdato.isBefore(sluttUtenlandsopphold);
     }
 }

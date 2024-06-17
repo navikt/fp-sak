@@ -20,7 +20,6 @@ public final class TidsperiodeForbeholdtMor {
     }
 
     public static LocalDate tilOgMed(LocalDate familiehendelse) {
-        return familiehendelse.plusWeeks(UttakParametre.ukerReservertMorEtterFødsel(familiehendelse))
-            .minusDays(1);
+        return familiehendelse.plusWeeks(UttakParametre.ukerReservertMorEtterFødsel(familiehendelse)).minusDays(1);
     }
 }

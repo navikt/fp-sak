@@ -33,8 +33,8 @@ public class KlassekodeUtleder {
 
     public static KodeKlassifik utledForFeriepenger(FamilieYtelseType familieYtelseType, int opptjeningsår, LocalDate feriepengerDødsdato) {
         // Bruk gammel mapping for opptjeningsår før 2023 + dødsfallstilfelle i 2023 (1 så langt)
-        if (opptjeningsår < FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR ||
-            (opptjeningsår == FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR && feriepengerDødsdato != null && feriepengerDødsdato.getYear() == FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR)) {
+        if (opptjeningsår < FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR || (opptjeningsår == FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR
+            && feriepengerDødsdato != null && feriepengerDødsdato.getYear() == FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR)) {
             return KodeKlassifik.FERIEPENGER_BRUKER;
         } else {
             return switch (familieYtelseType) {

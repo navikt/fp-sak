@@ -43,8 +43,8 @@ public class BeregnTilrettleggingsperioderTjeneste {
 
     @Inject
     public BeregnTilrettleggingsperioderTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
-            InntektArbeidYtelseTjeneste iayTjeneste,
-            FamilieHendelseRepository familieHendelseRepository) {
+                                                 InntektArbeidYtelseTjeneste iayTjeneste,
+                                                 FamilieHendelseRepository familieHendelseRepository) {
 
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.iayTjeneste = iayTjeneste;
@@ -58,8 +58,8 @@ public class BeregnTilrettleggingsperioderTjeneste {
      *
      * @param behandlingReferanse {@link BehandlingReferanse}
      * @return liste med Tilrettleggingsperiode
-     *         {@link TilretteleggingMedUtbelingsgrad} NB! kan gi tom liste hvis det
-     *         ikke finnes datagrunnlag
+     * {@link TilretteleggingMedUtbelingsgrad} NB! kan gi tom liste hvis det
+     * ikke finnes datagrunnlag
      */
     public List<TilretteleggingMedUtbelingsgrad> beregnPerioder(BehandlingReferanse behandlingReferanse) {
         var gjeldendeTilretteleggingerSomSkalBrukes = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())
@@ -74,32 +74,29 @@ public class BeregnTilrettleggingsperioderTjeneste {
         var termindato = finnTermindato(behandlingReferanse.behandlingId());
         var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.behandlingId());
 
-        var filter = grunnlag
-                .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
-                .orElse(YrkesaktivitetFilter.EMPTY);
+        var filter = grunnlag.map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
+            .orElse(YrkesaktivitetFilter.EMPTY);
 
         // beregner i henhold til stillingsprosent på arbeidsforholdene i AA-reg
         var ordinæreArbeidsforhold = gjeldendeTilretteleggingerSomSkalBrukes.stream()
-                .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
-                        && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
-                .map(a -> {
-                    var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
-                            a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
-                            a.getBehovForTilretteleggingFom());
-                    Collection<Permisjon> velferdspermisjonerForArbeid = filter
-                            .getPermisjonerForArbeid(a.getArbeidsgiver().get(),
-                                    a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get()
-                                            : InternArbeidsforholdRef.nullRef(),
-                                    a.getBehovForTilretteleggingFom())
-                            .stream()
-                            .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
-                            .toList();
+            .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent() && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(
+                tilrettelegging.getArbeidType()))
+            .map(a -> {
+                var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
+                    a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
+                    a.getBehovForTilretteleggingFom());
+                Collection<Permisjon> velferdspermisjonerForArbeid = filter.getPermisjonerForArbeid(a.getArbeidsgiver().get(),
+                        a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
+                        a.getBehovForTilretteleggingFom())
+                    .stream()
+                    .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
+                    .toList();
 
-                    LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
-                        tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
-                    return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
-                })
-                .collect(Collectors.toList());
+                LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
+                    tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
+                return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
+            })
+            .collect(Collectors.toList());
 
         // beregner i henhold til stillingsprosent på 100% (Frilans og Selvstendig)
         var frilansOgSelvstendigNæringsdrivende = gjeldendeTilretteleggingerSomSkalBrukes.stream()
@@ -113,14 +110,14 @@ public class BeregnTilrettleggingsperioderTjeneste {
             return ordinæreArbeidsforhold;
         }
         throw new IllegalStateException(
-                "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.behandlingId());
+            "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.behandlingId());
     }
 
 
     private Optional<AktørArbeid> finnSaksbehandletEllerRegister(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {
         if (g.harBlittSaksbehandlet()) {
             return g.getSaksbehandletVersjon()
-                    .flatMap(aggregat -> aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
+                .flatMap(aggregat -> aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
         }
         return g.getAktørArbeidFraRegister(aktørId);
     }

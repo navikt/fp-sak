@@ -33,7 +33,7 @@ public class DokVurderingKopierer {
         }
 
         var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
-        var tidslinjeSammenlignNysøknad =  lagSammenligningTimeline(nysøknad);
+        var tidslinjeSammenlignNysøknad = lagSammenligningTimeline(nysøknad);
         var nysøknadTidslinje = lagSøknadsTimeline(nysøknad);
 
         for (var f : tidligereFordelinger) {
@@ -44,8 +44,7 @@ public class DokVurderingKopierer {
         }
 
         // Vedtaksperioder fra forrige uttaksresultat - bruker sammenhengende = true for å få med avslåtte
-        var perioderForrigeUttak = forrigeUttak
-            .map(uttak -> VedtaksperioderHelper.opprettOppgittePerioder(uttak, List.of(), tidligstedato, true))
+        var perioderForrigeUttak = forrigeUttak.map(uttak -> VedtaksperioderHelper.opprettOppgittePerioder(uttak, List.of(), tidligstedato, true))
             .orElse(List.of());
         var filtrertForrigeUttak = perioderForFordeling(perioderForrigeUttak, tidligstedato);
         if (!filtrertForrigeUttak.isEmpty()) {
@@ -72,21 +71,22 @@ public class DokVurderingKopierer {
         }
 
         // Bygg tidslinjer for uttaksperioder
-        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioder));
+        var tidslinjeSammenlignForrigeSøknad = new LocalDateTimeline<>(fraOppgittePerioder(perioder));
 
         // Finn sammenfallende perioder - søkt likt innen samme peride
-        var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, DokVurderingKopierer::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
+        var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, DokVurderingKopierer::leftIfEqualsRight,
+            LocalDateTimeline.JoinStyle.INNER_JOIN);
 
         // Bygg tidslinjer over vurdering - men kun de som finnes for sammenfallende (like nok) perioder
-        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder), StandardCombinators::min)
-            .intersection(tidslinjeSammenfallForrigeSøknad).filterValue(Objects::nonNull).compress();
+        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder),
+            StandardCombinators::min).intersection(tidslinjeSammenfallForrigeSøknad).filterValue(Objects::nonNull).compress();
 
         if (tidslinjeVurderingForrigeSøknad.isEmpty()) {
             return tidslinje;
         }
 
-        var oppdatertTidslinje = tidslinje.combine(tidslinjeVurderingForrigeSøknad,
-            DokVurderingKopierer::oppdaterMedVurdering, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+        var oppdatertTidslinje = tidslinje.combine(tidslinjeVurderingForrigeSøknad, DokVurderingKopierer::oppdaterMedVurdering,
+            LocalDateTimeline.JoinStyle.LEFT_JOIN);
         return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), DokVurderingKopierer::oppgittPeriodeSplitter);
     }
 
@@ -105,16 +105,18 @@ public class DokVurderingKopierer {
     }
 
     // Combinator som oppdaterer dokumentasjonsvurdering
-    private static LocalDateSegment<OppgittPeriodeEntitet> oppdaterMedVurdering(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> periode, LocalDateSegment<DokumentasjonVurdering> vurdering) {
+    private static LocalDateSegment<OppgittPeriodeEntitet> oppdaterMedVurdering(LocalDateInterval di,
+                                                                                LocalDateSegment<OppgittPeriodeEntitet> periode,
+                                                                                LocalDateSegment<DokumentasjonVurdering> vurdering) {
         periode.getValue().setDokumentasjonVurdering(vurdering != null && vurdering.getValue() != null ? vurdering.getValue() : null);
         return periode;
     }
 
     private static LocalDateSegment<SammenligningPeriodeForDokVurdering> leftIfEqualsRight(LocalDateInterval dateInterval,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> lhs,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> rhs) {
-        return lhs != null && rhs != null && Objects.equals(lhs.getValue(), rhs.getValue()) ?
-            new LocalDateSegment<>(dateInterval, lhs.getValue()) : null;
+                                                                                           LocalDateSegment<SammenligningPeriodeForDokVurdering> lhs,
+                                                                                           LocalDateSegment<SammenligningPeriodeForDokVurdering> rhs) {
+        return lhs != null && rhs != null && Objects.equals(lhs.getValue(), rhs.getValue()) ? new LocalDateSegment<>(dateInterval,
+            lhs.getValue()) : null;
     }
 
     private static List<LocalDateSegment<SammenligningPeriodeForDokVurdering>> fraOppgittePerioder(List<OppgittPeriodeEntitet> perioder) {

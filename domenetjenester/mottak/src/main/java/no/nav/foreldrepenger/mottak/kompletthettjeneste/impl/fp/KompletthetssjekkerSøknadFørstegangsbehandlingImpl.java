@@ -35,10 +35,9 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
 
     @Inject
     public KompletthetssjekkerSøknadFørstegangsbehandlingImpl(DokumentArkivTjeneste dokumentArkivTjeneste,
-                                                            BehandlingRepositoryProvider repositoryProvider,
-                                                            @KonfigVerdi(value = "fp.ventefrist.tidlig.soeknad", defaultVerdi = "P4W") Period ventefristForTidligSøknad) {
-        super(ventefristForTidligSøknad,
-            repositoryProvider.getSøknadRepository(), repositoryProvider.getMottatteDokumentRepository());
+                                                              BehandlingRepositoryProvider repositoryProvider,
+                                                              @KonfigVerdi(value = "fp.ventefrist.tidlig.soeknad", defaultVerdi = "P4W") Period ventefristForTidligSøknad) {
+        super(ventefristForTidligSøknad, repositoryProvider.getSøknadRepository(), repositoryProvider.getMottatteDokumentRepository());
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }

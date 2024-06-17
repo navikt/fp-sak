@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD_KODE)
-public class Foreldreansvarsvilkår2AksjonspunktDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto{
+public class Foreldreansvarsvilkår2AksjonspunktDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto {
 
 
     @NotNull

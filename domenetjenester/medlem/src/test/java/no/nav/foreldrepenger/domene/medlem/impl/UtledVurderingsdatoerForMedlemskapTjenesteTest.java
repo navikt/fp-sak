@@ -83,22 +83,20 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         scenario.medDefaultSøknadTerminbekreftelse();
-        var periode = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
-                .medKildeType(MedlemskapKildeType.AVGSYS)
-                .medBeslutningsdato(LocalDate.of(2014, 3, 5))
-                .medMedlId(1L)
-                .build();
-        var periode2 = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
-                .medKildeType(MedlemskapKildeType.AVGSYS)
-                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-                .medMedlId(1L)
-                .build();
+        var periode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
+            .medKildeType(MedlemskapKildeType.AVGSYS)
+            .medBeslutningsdato(LocalDate.of(2014, 3, 5))
+            .medMedlId(1L)
+            .build();
+        var periode2 = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
+            .medKildeType(MedlemskapKildeType.AVGSYS)
+            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+            .medMedlId(1L)
+            .build();
 
         scenario.leggTilMedlemskapPeriode(periode);
         scenario.leggTilMedlemskapPeriode(periode2);
@@ -122,22 +120,20 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         scenario.medDefaultSøknadTerminbekreftelse();
-        var periode = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
-                .medKildeType(MedlemskapKildeType.AVGSYS)
-                .medBeslutningsdato(LocalDate.of(2014, 3, 5))
-                .medMedlId(1L)
-                .build();
-        var periode2 = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
-                .medKildeType(MedlemskapKildeType.AVGSYS)
-                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-                .medMedlId(1L)
-                .build();
+        var periode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
+            .medKildeType(MedlemskapKildeType.AVGSYS)
+            .medBeslutningsdato(LocalDate.of(2014, 3, 5))
+            .medMedlId(1L)
+            .build();
+        var periode2 = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
+            .medKildeType(MedlemskapKildeType.AVGSYS)
+            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+            .medMedlId(1L)
+            .build();
 
         scenario.leggTilMedlemskapPeriode(periode);
         scenario.leggTilMedlemskapPeriode(periode2);
@@ -148,14 +144,13 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var revurderingId = revudering.getId();
 
         var endringsdato = startdato.plusMonths(1);
-        var endretPeriode = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(endringsdato, TIDENES_ENDE)
-                .medKildeType(MedlemskapKildeType.AVGSYS)
-                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-                .medMedlId(1L)
-                .build();
+        var endretPeriode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medPeriode(endringsdato, TIDENES_ENDE)
+            .medKildeType(MedlemskapKildeType.AVGSYS)
+            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+            .medMedlId(1L)
+            .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(revurderingId, List.of(periode, endretPeriode));
 
         // Act
@@ -203,15 +198,20 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var aktørId = scenario.getDefaultBrukerAktørId();
 
         var personopplysningBuilder = scenario.opprettBuilderForRegisteropplysninger();
-        personopplysningBuilder.leggTilPersonopplysninger(
-            Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                .fødselsdato(startdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
+        personopplysningBuilder.leggTilPersonopplysninger(Personopplysning.builder()
+                .aktørId(aktørId)
+                .sivilstand(SivilstandType.GIFT)
+                .fødselsdato(startdato)
+                .brukerKjønn(NavBrukerKjønn.KVINNE)
+                .navn("Marie Curie"))
             .leggTilStatsborgerskap(
                 Statsborgerskap.builder().aktørId(aktørId).periode(startdato, startdato.plusYears(1)).statsborgerskap(Landkoder.ARG))
             .leggTilStatsborgerskap(
                 Statsborgerskap.builder().aktørId(aktørId).periode(startdato.plusYears(1), startdato.plusYears(2)).statsborgerskap(Landkoder.ESP))
-            .leggTilStatsborgerskap(
-                Statsborgerskap.builder().aktørId(aktørId).periode(startdato.plusYears(2), startdato.plusYears(3).minusWeeks(1)).statsborgerskap(Landkoder.NOR));
+            .leggTilStatsborgerskap(Statsborgerskap.builder()
+                .aktørId(aktørId)
+                .periode(startdato.plusYears(2), startdato.plusYears(3).minusWeeks(1))
+                .statsborgerskap(Landkoder.NOR));
 
         scenario.medRegisterOpplysninger(personopplysningBuilder.build());
 
@@ -242,13 +242,10 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
-                PersonopplysningVersjonType.REGISTRERT);
-        var førsteÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, førsteÅr)
-                .medPersonstatus(PersonstatusType.BOSA);
-        var andreÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, andreÅr)
-                .medPersonstatus(PersonstatusType.UTVA);
-        var tredjeÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, tredjeÅr)
-                .medPersonstatus(PersonstatusType.DØD);
+            PersonopplysningVersjonType.REGISTRERT);
+        var førsteÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, førsteÅr).medPersonstatus(PersonstatusType.BOSA);
+        var andreÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, andreÅr).medPersonstatus(PersonstatusType.UTVA);
+        var tredjeÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, tredjeÅr).medPersonstatus(PersonstatusType.DØD);
         personInformasjonBuilder.leggTil(førsteÅrBosa);
         personInformasjonBuilder.leggTil(andreÅrBosa);
         personInformasjonBuilder.leggTil(tredjeÅrBosa);
@@ -279,13 +276,12 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
-                PersonopplysningVersjonType.REGISTRERT);
-        var bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr,
-                AdresseType.BOSTEDSADRESSE).medLand(Landkoder.XUK.getKode());
-        var utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr,
-                AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR.getKode());
-        var bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr,
-                AdresseType.POSTADRESSE_UTLAND);
+            PersonopplysningVersjonType.REGISTRERT);
+        var bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr, AdresseType.BOSTEDSADRESSE)
+            .medLand(Landkoder.XUK.getKode());
+        var utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr, AdresseType.BOSTEDSADRESSE)
+            .medLand(Landkoder.NOR.getKode());
+        var bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr, AdresseType.POSTADRESSE_UTLAND);
         personInformasjonBuilder.leggTil(bostedFørsteÅr);
         personInformasjonBuilder.leggTil(utlandAndreÅr);
         personInformasjonBuilder.leggTil(bostedTredjeÅr);
@@ -314,8 +310,8 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
             PersonopplysningVersjonType.REGISTRERT);
-        var midlertidig = personInformasjonBuilder
-            .getOppholdstillatelseBuilder(søkerAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(startdato.minusMonths(15), startdato.plusMonths(9)))
+        var midlertidig = personInformasjonBuilder.getOppholdstillatelseBuilder(søkerAktørId,
+                DatoIntervallEntitet.fraOgMedTilOgMed(startdato.minusMonths(15), startdato.plusMonths(9)))
             .medOppholdstillatelse(OppholdstillatelseType.MIDLERTIDIG);
         personInformasjonBuilder.leggTil(midlertidig);
 
@@ -345,13 +341,10 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
-                PersonopplysningVersjonType.REGISTRERT);
-        var bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr,
-                AdresseType.BOSTEDSADRESSE);
-        var utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr,
-                AdresseType.POSTADRESSE_UTLAND);
-        var bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr,
-                AdresseType.BOSTEDSADRESSE);
+            PersonopplysningVersjonType.REGISTRERT);
+        var bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr, AdresseType.BOSTEDSADRESSE);
+        var utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr, AdresseType.POSTADRESSE_UTLAND);
+        var bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr, AdresseType.BOSTEDSADRESSE);
         personInformasjonBuilder.leggTil(bostedFørsteÅr);
         personInformasjonBuilder.leggTil(utlandAndreÅr);
         personInformasjonBuilder.leggTil(bostedTredjeÅr);
@@ -374,22 +367,19 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {
-        var nyPeriode = new MedlemskapPerioderBuilder()
-                .medPeriode(datoMedEndring, null)
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medKildeType(MedlemskapKildeType.MEDL)
-                .medMedlId(2L)
-                .build();
+        var nyPeriode = new MedlemskapPerioderBuilder().medPeriode(datoMedEndring, null)
+            .medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medKildeType(MedlemskapKildeType.MEDL)
+            .medMedlId(2L)
+            .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, List.of(periode, nyPeriode));
     }
 
     private Behandling opprettRevudering(Behandling behandling) {
-        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
-                .medOriginalBehandlingId(behandling.getId());
+        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA).medOriginalBehandlingId(behandling.getId());
 
-        var revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(revurderingÅrsak).build();
+        var revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).medBehandlingÅrsak(revurderingÅrsak).build();
 
         var behandlingId = behandling.getId();
         // TODO(FC): Her burde kanskje behandlingId vært låst inntil revurdering er
@@ -413,30 +403,26 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
-        return new MedlemskapPerioderBuilder()
-                .medDekningType(dekningType)
-                .medMedlemskapType(MedlemskapType.FORELOPIG)
-                .medPeriode(fom, tom)
-                .medKildeType(MedlemskapKildeType.MEDL)
-                .medMedlId(1L)
-                .build();
+        return new MedlemskapPerioderBuilder().medDekningType(dekningType)
+            .medMedlemskapType(MedlemskapType.FORELOPIG)
+            .medPeriode(fom, tom)
+            .medKildeType(MedlemskapKildeType.MEDL)
+            .medMedlId(1L)
+            .build();
     }
 
     private UttakResultatPerioderEntitet lagUttaksPeriode() {
         var idag = LocalDate.now();
-        var periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
-        var uttakAktivtet = new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
-                .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-                .medUtbetalingsgrad(new Utbetalingsgrad(100))
-                .medArbeidsprosent(BigDecimal.valueOf(100L))
-                .medErSøktGradering(true)
-                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
-                .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
+        var uttakAktivtet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
+            .build();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet).medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .medArbeidsprosent(BigDecimal.valueOf(100L))
+            .medErSøktGradering(true)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .build();
         periode.leggTilAktivitet(periodeAktivitet);
         var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);

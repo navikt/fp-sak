@@ -43,7 +43,7 @@ class FødselsvilkårOversetterTest {
     @BeforeEach
     public void oppsett() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         fødselsoversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, null);
     }
 
@@ -86,39 +86,34 @@ class FødselsvilkårOversetterTest {
         assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 
-    private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
-            RelasjonsRolleType rolle) {
+    private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato, RelasjonsRolleType rolle) {
         // Arrange
         var søknadFødselsdato = now.plusDays(2);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        scenario.medSøknad()
-                .medSøknadsdato(søknadsdato);
+        scenario.medSøknad().medSøknadsdato(søknadsdato);
 
         scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
 
         scenario.medBekreftetHendelse()
-                // Fødsel
-                .leggTilBarn(fødselFødselsdato)
-                .medAntallBarn(1);
+            // Fødsel
+            .leggTilBarn(fødselFødselsdato).medAntallBarn(1);
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var barnAktørId = AktørId.dummy();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var fødtBarn = builderForRegisteropplysninger
-                .medPersonas()
-                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
-                .relasjonTil(søkerAktørId, rolle, null)
-                .build();
+        var fødtBarn = builderForRegisteropplysninger.medPersonas()
+            .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
+            .relasjonTil(søkerAktørId, rolle, null)
+            .build();
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.NOR)
-                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.NOR)
+            .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
+            .build();
         scenario.medRegisterOpplysninger(søker);
         scenario.medRegisterOpplysninger(fødtBarn);
 

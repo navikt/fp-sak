@@ -68,9 +68,6 @@ class OppdragKvitteringTjenesteTest {
     }
 
     private OppdragKvittering lagOppdragKvittering(Oppdrag110 oppdrag110, Alvorlighetsgrad alvorlighetsgrad) {
-        return OppdragKvittering.builder()
-            .medOppdrag110(oppdrag110)
-            .medAlvorlighetsgrad(alvorlighetsgrad)
-            .build();
+        return OppdragKvittering.builder().medOppdrag110(oppdrag110).medAlvorlighetsgrad(alvorlighetsgrad).build();
     }
 }

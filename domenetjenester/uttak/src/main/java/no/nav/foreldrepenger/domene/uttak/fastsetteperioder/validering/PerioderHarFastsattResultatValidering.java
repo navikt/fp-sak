@@ -11,9 +11,8 @@ class PerioderHarFastsattResultatValidering implements OverstyrUttakPerioderVali
     @Override
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
         for (var periode : nyePerioder) {
-            if (periode.getResultatType() == null
-                || periode.getResultatType() == PeriodeResultatType.MANUELL_BEHANDLING
-                || (periode.getResultatÅrsak().equals(PeriodeResultatÅrsak.UKJENT) && !periode.isOpphold())) {
+            if (periode.getResultatType() == null || periode.getResultatType() == PeriodeResultatType.MANUELL_BEHANDLING || (
+                periode.getResultatÅrsak().equals(PeriodeResultatÅrsak.UKJENT) && !periode.isOpphold())) {
                 throw OverstyrUttakValideringFeil.periodeManglerResultat(periode.getTidsperiode());
             }
         }

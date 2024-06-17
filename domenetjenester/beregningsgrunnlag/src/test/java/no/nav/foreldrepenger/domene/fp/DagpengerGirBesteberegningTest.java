@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class DagpengerGirBesteberegningTest {
-    private static final LocalDate STP = LocalDate.of(2020,6,2);
+    private static final LocalDate STP = LocalDate.of(2020, 6, 2);
 
     @Test
     void skal_gi_true_ved_sykepenger_på_dagpenger_på_stp() {
@@ -36,9 +36,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
-            Collections.singletonList(ytelseBuilder.build()),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2), Collections.singletonList(ytelseBuilder.build()), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -56,9 +54,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
-            Collections.singletonList(ytelseBuilder.build()),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2), Collections.singletonList(ytelseBuilder.build()), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -75,9 +71,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
-            Collections.singletonList(ytelseBuilder.build()),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2), Collections.singletonList(ytelseBuilder.build()), STP);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -88,9 +82,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
-            Collections.emptyList(),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode), Collections.emptyList(), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -101,9 +93,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode = new Periode(STP.minusDays(1), STP.plusDays(20));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
-            Collections.emptyList(),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode), Collections.emptyList(), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -115,9 +105,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode = new Periode(STP.minusDays(30), STP);
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
-            Collections.emptyList(),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode), Collections.emptyList(), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -128,9 +116,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.minusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
-            Collections.emptyList(),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode), Collections.emptyList(), STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -141,9 +127,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.minusDays(2));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
-            Collections.emptyList(),
-            STP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode), Collections.emptyList(), STP);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -161,9 +145,7 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
-            Collections.singletonList(ytelseBuilder.build()),
-            mandagSTP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2), Collections.singletonList(ytelseBuilder.build()), mandagSTP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -182,19 +164,15 @@ class DagpengerGirBesteberegningTest {
         // Act
         var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
-            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
-            Collections.singletonList(ytelseBuilder.build()),
-            mandagSTP);
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2), Collections.singletonList(ytelseBuilder.build()), mandagSTP);
 
         // Assert
         assertThat(resultat).isFalse();
     }
 
     private void lagYtelseAnvist(YtelseBuilder builder, DatoIntervallEntitet periode) {
-        builder.medYtelseAnvist(builder.getAnvistBuilder().medAnvistPeriode(periode)
-            .medBeløp(BigDecimal.ZERO)
-            .medUtbetalingsgradProsent(BigDecimal.ZERO)
-            .build());
+        builder.medYtelseAnvist(
+            builder.getAnvistBuilder().medAnvistPeriode(periode).medBeløp(BigDecimal.ZERO).medUtbetalingsgradProsent(BigDecimal.ZERO).build());
     }
 
     private void lagYtelseGrunnlag(YtelseBuilder builder, Arbeidskategori arbeidskategori) {

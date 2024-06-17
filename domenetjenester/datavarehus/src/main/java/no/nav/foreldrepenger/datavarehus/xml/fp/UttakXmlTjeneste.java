@@ -78,20 +78,17 @@ public class UttakXmlTjeneste {
 
     private void setUttaksresultatPerioder(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
         var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-        uttakResultat.ifPresent(uttakResultatEntitet ->
-            setUttakResultatPerioder(uttakForeldrepenger, uttakResultatEntitet.getGjeldendePerioder())
-        );
+        uttakResultat.ifPresent(uttakResultatEntitet -> setUttakResultatPerioder(uttakForeldrepenger, uttakResultatEntitet.getGjeldendePerioder()));
     }
 
     private void setFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(ytelseFordelingAggregat -> setUttakFordelingPerioder(uttakForeldrepenger, ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()));
+        ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .ifPresent(ytelseFordelingAggregat -> setUttakFordelingPerioder(uttakForeldrepenger,
+                ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()));
     }
 
     private void setUttakFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, List<OppgittPeriodeEntitet> perioderDomene) {
-        var kontrakt = perioderDomene
-            .stream()
-            .map(this::konverterFraDomene)
-            .toList();
+        var kontrakt = perioderDomene.stream().map(this::konverterFraDomene).toList();
         var fordelingPerioder = new UttakForeldrepenger.FordelingPerioder();
         fordelingPerioder.getFordelingPeriode().addAll(kontrakt);
         uttakForeldrepenger.setFordelingPerioder(fordelingPerioder);
@@ -101,16 +98,14 @@ public class UttakXmlTjeneste {
         var kontrakt = new FordelingPeriode();
         kontrakt.setMorsAktivitet(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getMorsAktivitet()));
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
-        kontrakt.setPeriodetype(periodeDomene.isOpphold() ? VedtakXmlUtil.lagOppholdPeriodeTypeKodeverkOpplysning()
-            : VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeType()));
+        kontrakt.setPeriodetype(
+            periodeDomene.isOpphold() ? VedtakXmlUtil.lagOppholdPeriodeTypeKodeverkOpplysning() : VedtakXmlUtil.lagKodeverksOpplysning(
+                periodeDomene.getPeriodeType()));
         return kontrakt;
     }
 
     private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<ForeldrepengerUttakPeriode> perioderDomene) {
-        var kontrakt = perioderDomene
-            .stream()
-            .map(this::konverterFraDomene)
-            .toList();
+        var kontrakt = perioderDomene.stream().map(this::konverterFraDomene).toList();
         uttakForeldrepenger.getUttaksresultatPerioder().addAll(kontrakt);
     }
 
@@ -120,7 +115,8 @@ public class UttakXmlTjeneste {
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
         kontrakt.setPeriodeResultatType(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getResultatType()));
         kontrakt.setPerioderesultataarsak(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getResultatÅrsak()));
-        Optional.ofNullable(periodeDomene.getManuellBehandlingÅrsak()).ifPresent(aarsak -> kontrakt.setManuellbehandlingaarsak(VedtakXmlUtil.lagKodeverksOpplysning(aarsak)));
+        Optional.ofNullable(periodeDomene.getManuellBehandlingÅrsak())
+            .ifPresent(aarsak -> kontrakt.setManuellbehandlingaarsak(VedtakXmlUtil.lagKodeverksOpplysning(aarsak)));
         kontrakt.setBegrunnelse(VedtakXmlUtil.lagStringOpplysning(periodeDomene.getBegrunnelse()));
         setUttaksresultatPeriodeAktiviteter(kontrakt, periodeDomene.getAktiviteter());
         kontrakt.setGraderingInnvilget(VedtakXmlUtil.lagBooleanOpplysning(periodeDomene.isGraderingInnvilget()));
@@ -134,10 +130,7 @@ public class UttakXmlTjeneste {
                                                      List<ForeldrepengerUttakPeriodeAktivitet> aktiviteterDomene) {
         var tidsperiode = uttaksresultatPeriodeKontrakt.getPeriode();
         var antVirkedager = Virkedager.beregnAntallVirkedager(tidsperiode.getFom(), tidsperiode.getTom());
-        var resultat = aktiviteterDomene
-            .stream()
-            .map(periode -> konverterFraDomene(periode, antVirkedager))
-            .toList();
+        var resultat = aktiviteterDomene.stream().map(periode -> konverterFraDomene(periode, antVirkedager)).toList();
         uttaksresultatPeriodeKontrakt.getUttaksresultatPeriodeAktiviteter().addAll(resultat);
     }
 
@@ -157,13 +150,13 @@ public class UttakXmlTjeneste {
             kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsforholdRef().getReferanse()));
         });
         kontrakt.setArbeidstidsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getArbeidsprosent()));
-        if(periodeAktivitet.getUtbetalingsgrad() != null) {
+        if (periodeAktivitet.getUtbetalingsgrad() != null) {
             kontrakt.setUtbetalingsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getUtbetalingsgrad().decimalValue()));
         }
 
         kontrakt.setUttakarbeidtype(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getUttakArbeidType()));
         kontrakt.setGradering(VedtakXmlUtil.lagBooleanOpplysning(periodeAktivitet.isSøktGraderingForAktivitetIPeriode()));
-        if(periodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
+        if (periodeAktivitet.isSøktGraderingForAktivitetIPeriode()) {
             kontrakt.setGraderingsdager(VedtakXmlUtil.lagIntOpplysning(antVirkedager));
         }
         return kontrakt;
@@ -171,7 +164,7 @@ public class UttakXmlTjeneste {
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
         var kontoutregning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
-        if(!kontoutregning.isEmpty()){
+        if (!kontoutregning.isEmpty()) {
             setStoenadskontoer(uttakForeldrepenger, kontoutregning);
         }
     }

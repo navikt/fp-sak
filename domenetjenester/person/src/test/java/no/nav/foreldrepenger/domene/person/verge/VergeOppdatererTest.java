@@ -68,8 +68,8 @@ class VergeOppdatererTest {
         var behandling = opprettBehandling();
         var dto = opprettDtoVerge();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -78,8 +78,10 @@ class VergeOppdatererTest {
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE.getKode()));
-        assertThat(del.getHendelse()).as("hendelse").hasValueSatisfying(hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE.getKode()));
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE.getKode()));
+        assertThat(del.getHendelse()).as("hendelse")
+            .hasValueSatisfying(hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE.getKode()));
     }
 
     private AvklarVergeDto opprettDtoVerge() {

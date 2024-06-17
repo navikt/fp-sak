@@ -186,11 +186,8 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     }
 
     private Behandling opprettBehandlingForFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødsel();
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato, antallBarnSøknad)
-            .medAntallBarn(antallBarnSøknad);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato, antallBarnSøknad).medAntallBarn(antallBarnSøknad);
         scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
@@ -202,13 +199,13 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     }
 
     private Behandling opprettBehandlingMedOppgittTerminOgArbeidsForhold(LocalDate termindato, LocalDate tilOgMed) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_AKTØR_ID)
-            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_AKTØR_ID).medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -218,27 +215,29 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     }
 
     private Behandling opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate termindato) {
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(GITT_AKTØR_ID)
-            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(GITT_AKTØR_ID).medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
 
         return scenario.lagre(repositoryProvider);
     }
 
-    private void lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String orgNr, LocalDate tilOgMed) {
-        var aktørArbeidBuilder =
-            inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
+    private void lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder,
+                                AktørId aktørId,
+                                String orgNr,
+                                LocalDate tilOgMed) {
+        var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
 
         var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forOrgnummer(orgNr),
             ArbeidType.FORENKLET_OPPGJØRSORDNING);
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
-        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(50), tilOgMed)));
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(
+            aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(50), tilOgMed)));
 
         yrkesaktivitetBuilder.medArbeidType(ArbeidType.FORENKLET_OPPGJØRSORDNING);
 
@@ -250,10 +249,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 }

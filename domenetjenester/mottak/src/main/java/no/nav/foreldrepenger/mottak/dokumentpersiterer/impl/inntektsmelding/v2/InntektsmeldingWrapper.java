@@ -71,7 +71,9 @@ public class InntektsmeldingWrapper extends MottattDokumentWrapper<Inntektsmeldi
 
     @Override
     public KontaktinformasjonIM finnKontaktinformasjon() {
-        var kontaktinfo = Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsgiver()).map(JAXBElement::getValue).map(Arbeidsgiver::getKontaktinformasjon);
+        var kontaktinfo = Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsgiver())
+            .map(JAXBElement::getValue)
+            .map(Arbeidsgiver::getKontaktinformasjon);
         var navn = kontaktinfo.map(Kontaktinformasjon::getKontaktinformasjonNavn).orElse("Kontaktperson ikke oppgitt");
         var nummer = kontaktinfo.map(Kontaktinformasjon::getTelefonnummer).orElse("Telefonnummer ikke oppgitt");
         return new KontaktinformasjonIM(navn, nummer);
@@ -108,10 +110,7 @@ public class InntektsmeldingWrapper extends MottattDokumentWrapper<Inntektsmeldi
             return Optional.ofNullable(getSkjema().getSkjemainnhold().getStartdatoForeldrepengeperiode().getValue());
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
-            var førsteFraværsdag = getSkjema().getSkjemainnhold()
-                .getArbeidsforhold()
-                .getValue()
-                .getFoersteFravaersdag();
+            var førsteFraværsdag = getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getFoersteFravaersdag();
             return Optional.ofNullable(førsteFraværsdag != null ? førsteFraværsdag.getValue() : null);
         }
         return Optional.empty();

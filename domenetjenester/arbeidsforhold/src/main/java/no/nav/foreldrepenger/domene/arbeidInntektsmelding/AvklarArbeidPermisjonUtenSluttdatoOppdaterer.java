@@ -39,7 +39,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
     private ArbeidPermHistorikkInnslagTjeneste arbeidPermHistorikkInnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
-    AvklarArbeidPermisjonUtenSluttdatoOppdaterer(){
+    AvklarArbeidPermisjonUtenSluttdatoOppdaterer() {
         //CDI
     }
 
@@ -56,7 +56,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
     public OppdateringResultat oppdater(BekreftArbeidMedPermisjonUtenSluttdatoDto bekreftetArbforholdDto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for behandlingId: "+ behandlingId));
+            .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for behandlingId: " + behandlingId));
 
 
         var arbeidsforholdInformasjonBuilder = arbeidsforholdAdministrasjonTjeneste.opprettBuilderFor(behandlingId);
@@ -73,78 +73,83 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
                 var eksisterendeOverstyring = hentEksisterendeOverstyringHvisFinnes(iayGrunnlag, internRef, arbeidsgiver).orElse(null);
                 arbeidsforholdInformasjonBuilder.fjernOverstyringVedrørende(arbeidsgiver, internRef);
                 var overstyringBuilderForPermisjon = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, internRef)
-                    .medBekreftetPermisjon(new BekreftetPermisjon(permisjonsperiode.getFomDato(), permisjonsperiode.getTomDato(), avklartPermisjonsstatus));
+                    .medBekreftetPermisjon(
+                        new BekreftetPermisjon(permisjonsperiode.getFomDato(), permisjonsperiode.getTomDato(), avklartPermisjonsstatus));
 
                 if (eksisterendeOverstyring != null) {
                     mapFraEksisterende(overstyringBuilderForPermisjon, eksisterendeOverstyring);
                 } else {
-                    overstyringBuilderForPermisjon
-                        .medHandling(ArbeidsforholdHandlingType.BRUK);
+                    overstyringBuilderForPermisjon.medHandling(ArbeidsforholdHandlingType.BRUK);
                 }
 
                 arbeidsforholdInformasjonBuilder.leggTil(overstyringBuilderForPermisjon);
 
             } else {
-                throw new IllegalStateException("Ugyldig permisjonsstaus for arbeidsgiverIdent : "+ avklartArbeidsForhold.arbeidsgiverIdent());
+                throw new IllegalStateException("Ugyldig permisjonsstaus for arbeidsgiverIdent : " + avklartArbeidsForhold.arbeidsgiverIdent());
             }
         }
-        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold(), bekreftetArbforholdDto.getBegrunnelse());
-        arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, arbeidsforholdInformasjonBuilder );
+        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold(),
+            bekreftetArbforholdDto.getBegrunnelse());
+        arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, arbeidsforholdInformasjonBuilder);
         return OppdateringResultat.utenTransisjon().build();
     }
 
     private void mapFraEksisterende(ArbeidsforholdOverstyringBuilder builder, ArbeidsforholdOverstyring eksisterendeOverstyring) {
-        builder
-            .medAngittArbeidsgiverNavn(eksisterendeOverstyring.getArbeidsgiverNavn())
+        builder.medAngittArbeidsgiverNavn(eksisterendeOverstyring.getArbeidsgiverNavn())
             .medHandling(eksisterendeOverstyring.getHandling() != null ? eksisterendeOverstyring.getHandling() : ArbeidsforholdHandlingType.BRUK)
             .medAngittStillingsprosent(eksisterendeOverstyring.getStillingsprosent())
             .medBeskrivelse(eksisterendeOverstyring.getBegrunnelse());
 
-        if(eksisterendeOverstyring.getArbeidsforholdOverstyrtePerioder() != null) {
+        if (eksisterendeOverstyring.getArbeidsforholdOverstyrtePerioder() != null) {
             mapOverstyrtePerioder(eksisterendeOverstyring.getArbeidsforholdOverstyrtePerioder(), builder);
         }
     }
 
     private void mapOverstyrtePerioder(List<ArbeidsforholdOverstyrtePerioder> overstyrtePerioder, ArbeidsforholdOverstyringBuilder builder) {
         overstyrtePerioder.forEach(
-            osp-> builder.leggTilOverstyrtPeriode(osp.getOverstyrtePeriode().getFomDato(), osp.getOverstyrtePeriode().getTomDato()));
+            osp -> builder.leggTilOverstyrtPeriode(osp.getOverstyrtePeriode().getFomDato(), osp.getOverstyrtePeriode().getTomDato()));
     }
 
     private Optional<ArbeidsforholdOverstyring> hentEksisterendeOverstyringHvisFinnes(InntektArbeidYtelseGrunnlag iayGrunnlag,
                                                                                       InternArbeidsforholdRef internRef,
                                                                                       Arbeidsgiver arbeidsgiver) {
-        return iayGrunnlag.getArbeidsforholdOverstyringer().stream()
+        return iayGrunnlag.getArbeidsforholdOverstyringer()
+            .stream()
             .filter(os -> os.getArbeidsgiver().equals(arbeidsgiver) && os.getArbeidsforholdRef().equals(internRef))
             .findFirst();
     }
 
-    private DatoIntervallEntitet hentPermisjonsperiodeForArbeidsforholdet(AvklarPermisjonUtenSluttdatoDto avklartArbeidsForhold, Yrkesaktivitet yrkesaktiviet) {
-        return yrkesaktiviet.getPermisjon().stream()
-            .filter( p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
+    private DatoIntervallEntitet hentPermisjonsperiodeForArbeidsforholdet(AvklarPermisjonUtenSluttdatoDto avklartArbeidsForhold,
+                                                                          Yrkesaktivitet yrkesaktiviet) {
+        return yrkesaktiviet.getPermisjon()
+            .stream()
+            .filter(p -> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
             .map(Permisjon::getPeriode)
             .max(Comparator.naturalOrder())
-            .orElseThrow(() -> new IllegalStateException("Finner ikke permisjon uten sluttdato for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
+            .orElseThrow(() -> new IllegalStateException(
+                "Finner ikke permisjon uten sluttdato for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
     }
 
     private Yrkesaktivitet hentYrkesaktivietForArbeidsforholdet(AksjonspunktOppdaterParameter param,
-                                            InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                            AvklarPermisjonUtenSluttdatoDto avklartArbeidsForhold) {
-        return new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId())).getYrkesaktiviteter().stream()
+                                                                InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                                AvklarPermisjonUtenSluttdatoDto avklartArbeidsForhold) {
+        return new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
+            iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId())).getYrkesaktiviteter()
+            .stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(avklartArbeidsForhold.arbeidsgiverIdent()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(avklartArbeidsForhold.internArbeidsforholdId())))
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
+            .orElseThrow(() -> new IllegalStateException(
+                "Finner ikke arbeidsinformasjon for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
     }
 
     private boolean erGyldigPermisjonStatus(BekreftetPermisjonStatus permisjonStatus) {
-        return BekreftetPermisjonStatus.BRUK_PERMISJON.equals(permisjonStatus)
-            || BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON.equals(permisjonStatus);
+        return BekreftetPermisjonStatus.BRUK_PERMISJON.equals(permisjonStatus) || BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON.equals(
+            permisjonStatus);
     }
 
     private Arbeidsgiver hentArbeidsgiver(String identifikator) {
-        return OrgNummer.erGyldigOrgnr(identifikator)
-            ? Arbeidsgiver.virksomhet(identifikator)
-            : Arbeidsgiver.person(new AktørId(identifikator));
+        return OrgNummer.erGyldigOrgnr(identifikator) ? Arbeidsgiver.virksomhet(identifikator) : Arbeidsgiver.person(new AktørId(identifikator));
 
     }
 }

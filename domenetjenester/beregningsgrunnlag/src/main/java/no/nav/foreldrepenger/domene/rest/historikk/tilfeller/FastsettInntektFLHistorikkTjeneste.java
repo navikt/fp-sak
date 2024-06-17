@@ -33,12 +33,14 @@ public class FastsettInntektFLHistorikkTjeneste extends FaktaOmBeregningHistorik
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var lønnsendring = MapTilLønnsendring.mapTilLønnsendring(
-            AktivitetStatus.FRILANSER,
-            dto.getFastsettMaanedsinntektFL().getMaanedsinntekt(),
-            nyttBeregningsgrunnlag,
-            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var lønnsendring = MapTilLønnsendring.mapTilLønnsendring(AktivitetStatus.FRILANSER, dto.getFastsettMaanedsinntektFL().getMaanedsinntekt(),
+            nyttBeregningsgrunnlag, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, List.of(lønnsendring), iayGrunnlag);
     }
 }

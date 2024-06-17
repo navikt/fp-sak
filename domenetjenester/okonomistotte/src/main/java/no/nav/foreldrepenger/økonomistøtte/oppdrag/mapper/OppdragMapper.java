@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
-import static no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OmposteringUtil.erOpphørForMottaker;
-import static no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OmposteringUtil.harGjeldendeUtbetalingerFraTidligere;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -40,9 +37,7 @@ public class OppdragMapper {
         this.fnrBruker = fnrBruker;
         this.tidligereOppdrag = tidligereOppdrag;
         this.input = input;
-        this.ansvarligSaksbehandler = input.getAnsvarligSaksbehandler() != null
-            ? input.getAnsvarligSaksbehandler()
-            : "VL";
+        this.ansvarligSaksbehandler = input.getAnsvarligSaksbehandler() != null ? input.getAnsvarligSaksbehandler() : "VL";
     }
 
     public void mapTilOppdrag110(Oppdrag oppdrag, Oppdragskontroll oppdragskontroll) {
@@ -60,13 +55,13 @@ public class OppdragMapper {
         // - det er ikke en utbetaling til ny mottaker
         // - mottaker har gjeldende utbetalinger fra tidligere
         // - gjeldende oppdrag fører ikke til full opphør for mottaker
-//        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
-//        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
-//            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
-//            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
-//            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
-//            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
-//        }
+        //        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
+        //        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
+        //            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
+        //            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
+        //            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
+        //            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
+        //        }
 
         var oppdrag110 = builder.build();
 
@@ -80,7 +75,9 @@ public class OppdragMapper {
         }
     }
 
-    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel, LocalDate vedtaksdato) {
+    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag,
+                                                                           final KjedeNøkkel kjedeNøkkel,
+                                                                           LocalDate vedtaksdato) {
         Refusjonsinfo156.Builder refusjonsinfoBuilder = null;
         if (kjedeNøkkel.getBetalingsmottaker().erArbeidsgiver()) {
             var mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
@@ -144,9 +141,8 @@ public class OppdragMapper {
     }
 
     private Ompostering116 opprettOmpostering116(Oppdrag oppdrag, boolean brukInntrekk) {
-        var ompostering116Builder = new Ompostering116.Builder()
-            .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medOmPostering(brukInntrekk);
+        var ompostering116Builder = new Ompostering116.Builder().medTidspktReg(
+            ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now())).medOmPostering(brukInntrekk);
         if (brukInntrekk) {
             ompostering116Builder.medDatoOmposterFom(finnDatoOmposterFom(oppdrag));
         }

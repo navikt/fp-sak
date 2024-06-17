@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 
-public record Arbeidsforhold(String identifikator,
-                             ReferanseType referanseType,
-                             String arbeidsforholdId,
-                             boolean frilanser) {
+public record Arbeidsforhold(String identifikator, ReferanseType referanseType, String arbeidsforholdId, boolean frilanser) {
 
     public static Arbeidsforhold frilansArbeidsforhold() {
         return new Arbeidsforhold(null, null, null, true);

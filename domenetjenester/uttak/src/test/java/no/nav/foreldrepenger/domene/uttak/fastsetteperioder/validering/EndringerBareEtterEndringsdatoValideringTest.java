@@ -53,10 +53,7 @@ class EndringerBareEtterEndringsdatoValideringTest {
     }
 
     private ForeldrepengerUttakPeriode periode(LocalDate fom, LocalDate tom, PeriodeResultatType resultatType) {
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(fom, tom))
-            .medResultatType(resultatType)
-            .build();
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(new LocalDateInterval(fom, tom)).medResultatType(resultatType).build();
     }
 
 

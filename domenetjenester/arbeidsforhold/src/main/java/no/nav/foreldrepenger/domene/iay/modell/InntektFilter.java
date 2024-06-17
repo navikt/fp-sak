@@ -87,8 +87,7 @@ public class InntektFilter {
     }
 
     public List<Inntekt> getAlleInntekter(InntektsKilde kilde) {
-        return inntekter.stream().filter(it -> kilde == null || kilde.equals(it.getInntektsKilde()))
-                .toList();
+        return inntekter.stream().filter(it -> kilde == null || kilde.equals(it.getInntektsKilde())).toList();
     }
 
     public List<Inntekt> getAlleInntekter() {
@@ -123,11 +122,9 @@ public class InntektFilter {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + "<inntekter(" + inntekter.size() + ")"
-                + (skjæringstidspunkt == null ? "" : ", skjæringstidspunkt=" + skjæringstidspunkt)
-                + (venstreSideASkjæringstidspunkt == null ? "" : ", venstreSideASkjæringstidspunkt=" + venstreSideASkjæringstidspunkt)
-                + ">";
+        return getClass().getSimpleName() + "<inntekter(" + inntekter.size() + ")" + (
+            skjæringstidspunkt == null ? "" : ", skjæringstidspunkt=" + skjæringstidspunkt) + (
+            venstreSideASkjæringstidspunkt == null ? "" : ", venstreSideASkjæringstidspunkt=" + venstreSideASkjæringstidspunkt) + ">";
     }
 
     private boolean filtrerInntektspost(Inntekt inntekt, Inntektspost ip) {
@@ -139,14 +136,11 @@ public class InntektFilter {
      * definert
      */
     private Collection<Inntektspost> getInntektsposter(Collection<Inntekt> inntekter) {
-        return inntekter.stream()
-                .flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip)))
-                .toList();
+        return inntekter.stream().flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip))).toList();
     }
 
     private Collection<Inntektspost> getFiltrertInntektsposter(Inntekt inntekt) {
-        return inntekt.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(inntekt, ip))
-                .toList();
+        return inntekt.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(inntekt, ip)).toList();
     }
 
     private boolean skalMedEtterSkjæringstidspunktVurdering(Inntektspost inntektspost) {
@@ -176,20 +170,19 @@ public class InntektFilter {
     }
 
     public InntektFilter filter(Predicate<Inntekt> filterFunc) {
-        return copyWith(getAlleInntekter().stream().filter(filterFunc).toList(), skjæringstidspunkt,
-                venstreSideASkjæringstidspunkt);
+        return copyWith(getAlleInntekter().stream().filter(filterFunc).toList(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
     }
 
     public InntektFilter filter(BiPredicate<Inntekt, Inntektspost> filterFunc) {
-        var copy = copyWith(getAlleInntekter().stream()
-                .filter(i -> i.getAlleInntektsposter().stream().anyMatch(ip -> filterFunc.test(i, ip)))
-                .toList(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
+        var copy = copyWith(
+            getAlleInntekter().stream().filter(i -> i.getAlleInntektsposter().stream().anyMatch(ip -> filterFunc.test(i, ip))).toList(),
+            skjæringstidspunkt, venstreSideASkjæringstidspunkt);
 
         if (copy.inntektspostFilter == null) {
             copy.inntektspostFilter = filterFunc;
         } else {
-            copy.inntektspostFilter = (inntekt, inntektspost) -> filterFunc.test(inntekt, inntektspost)
-                    && this.inntektspostFilter.test(inntekt, inntektspost);
+            copy.inntektspostFilter = (inntekt, inntektspost) -> filterFunc.test(inntekt, inntektspost) && this.inntektspostFilter.test(inntekt,
+                inntektspost);
         }
         return copy;
     }

@@ -26,8 +26,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtleder {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
-    public AvklarLøpendeOmsorgAksjonspunktUtleder(PersonopplysningerForUttak personopplysninger,
-                                                  UttakRepositoryProvider repositoryProvider) {
+    public AvklarLøpendeOmsorgAksjonspunktUtleder(PersonopplysningerForUttak personopplysninger, UttakRepositoryProvider repositoryProvider) {
         this.personopplysninger = personopplysninger;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     }
@@ -46,12 +45,12 @@ public class AvklarLøpendeOmsorgAksjonspunktUtleder {
             return Optional.empty();
         }
         // Trenger ikke rebekrefte
-        if (BehandlingType.REVURDERING.equals(ref.behandlingType())
-            && ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId()).filter(a -> Boolean.TRUE.equals(a.getOverstyrtOmsorg())).isPresent()) {
+        if (BehandlingType.REVURDERING.equals(ref.behandlingType()) && ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId())
+            .filter(a -> Boolean.TRUE.equals(a.getOverstyrtOmsorg()))
+            .isPresent()) {
             return Optional.empty();
         }
-        if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
-            && !personopplysninger.barnHarSammeBosted(ref)) {
+        if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA && !personopplysninger.barnHarSammeBosted(ref)) {
             return Optional.of(AVKLAR_LØPENDE_OMSORG);
         }
         return Optional.empty();

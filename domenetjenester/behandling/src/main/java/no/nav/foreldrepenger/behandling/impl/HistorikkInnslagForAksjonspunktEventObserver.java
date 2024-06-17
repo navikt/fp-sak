@@ -55,10 +55,10 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
     }
 
     private void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId,
-            Long fagsakId,
-            HistorikkinnslagType historikkinnslagType,
-            LocalDateTime fristTid,
-            Venteårsak venteårsak) {
+                                                                      Long fagsakId,
+                                                                      HistorikkinnslagType historikkinnslagType,
+                                                                      LocalDateTime fristTid,
+                                                                      Venteårsak venteårsak) {
         var builder = new HistorikkInnslagTekstBuilder();
         if (fristTid != null) {
             builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());
@@ -69,8 +69,9 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             builder.medÅrsak(venteårsak);
         }
         var historikkinnslag = new Historikkinnslag();
-        var erSystemBruker = Optional.ofNullable(KontekstHolder.getKontekst().getIdentType()).filter(IdentType::erSystem).isPresent() ||
-            Optional.ofNullable(KontekstHolder.getKontekst().getUid()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isPresent();
+        var erSystemBruker =
+            Optional.ofNullable(KontekstHolder.getKontekst().getIdentType()).filter(IdentType::erSystem).isPresent() || Optional.ofNullable(
+                KontekstHolder.getKontekst().getUid()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isPresent();
         historikkinnslag.setAktør(erSystemBruker ? HistorikkAktør.VEDTAKSLØSNINGEN : HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandlingId);
@@ -88,7 +89,8 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
                 // Unngå dobbelinnslag (innslag ved manuellTaAvVent) + konvensjon med påVent->SBH=null og manuellGjenoppta->SBH=ident
                 var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(ktx.getBehandlingId()))
-                    .map(Behandling::getAnsvarligSaksbehandler).isPresent();
+                    .map(Behandling::getAnsvarligSaksbehandler)
+                    .isPresent();
                 if (!manueltTattAvVent) {
                     opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN,
                         null, null);

@@ -79,10 +79,11 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
         }
         if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevanteFagsaker.get(0))) {
-            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ?
-                new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
+            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ? new BehandlendeFagsystem(
+                VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
-        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostIdLog(), relevanteFagsaker.get(0).getSaksnummer());
+        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostIdLog(),
+            relevanteFagsaker.get(0).getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
@@ -119,7 +120,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && sakerGittYtelseType.isEmpty()) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType()
+            && sakerGittYtelseType.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         return fellesUtils.standardUstrukturertDokumentVurdering(sakerGittYtelseType).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
@@ -145,7 +147,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .map(Fagsak::getSaksnummer)
             .toList();
         if (!aktuelleSakerForMatch.isEmpty()) {
-            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere aktuelle saker {}", vurderFagsystem.getJournalpostIdLog(), aktuelleSakerForMatch);
+            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere aktuelle saker {}", vurderFagsystem.getJournalpostIdLog(),
+                aktuelleSakerForMatch);
         }
         return aktuelleSakerForMatch.isEmpty() ? new BehandlendeFagsystem(VEDTAKSLØSNING) : new BehandlendeFagsystem(MANUELL_VURDERING);
     }
@@ -162,7 +165,9 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     }
 
     private Boolean fagsakManglerSøknad(Fagsak fagsak) {
-        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).map(behandling -> svangerskapspengerRepository.hentGrunnlag(behandling.getId()).isEmpty()).orElse(true);
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+            .map(behandling -> svangerskapspengerRepository.hentGrunnlag(behandling.getId()).isEmpty())
+            .orElse(true);
     }
 
     private Boolean hendelseDatoIPeriode(FamilieHendelseEntitet familieHendelse) {

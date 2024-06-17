@@ -35,9 +35,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class OppgaveTjenesteTest {
 
     private static final String FNR = "00000000000";
-    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
-            Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
+    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
+        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -59,9 +58,9 @@ class OppgaveTjenesteTest {
     }
 
     private OppgaveTjeneste lagTjeneste(AbstractTestScenario<?> scenario) {
-        var provider =  scenario.mockBehandlingRepositoryProvider();
-        return new OppgaveTjeneste(provider.getFagsakRepository(), provider.getBehandlingRepository(),
-            oppgaveRestKlient, taskTjeneste, personinfoAdapter);
+        var provider = scenario.mockBehandlingRepositoryProvider();
+        return new OppgaveTjeneste(provider.getFagsakRepository(), provider.getBehandlingRepository(), oppgaveRestKlient, taskTjeneste,
+            personinfoAdapter);
     }
 
     @Test
@@ -71,8 +70,7 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010",
-                "bla bla");
+        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010", "bla bla");
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -85,7 +83,8 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(List.of(OPPGAVE));
+        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(
+            List.of(OPPGAVE));
         when(oppgaveRestKlient.finnÅpneOppgaverAvType(eq(Oppgavetype.VURDER_KONSEKVENS_YTELSE), any(), any(), any())).thenReturn(List.of());
 
         var harVurderDok = tjeneste.harÅpneVurderDokumentOppgaver(behandling.getAktørId());
@@ -130,8 +129,7 @@ class OppgaveTjenesteTest {
 
         assertThat(request.tema()).isEqualTo("STO");
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
-        assertThat(request.beskrivelse())
-                .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
+        assertThat(request.beskrivelse()).isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
@@ -148,15 +146,13 @@ class OppgaveTjenesteTest {
         var førsteUttaksdato = LocalDate.of(2019, 2, 1);
         var vedtaksdato = LocalDate.of(2019, 1, 15);
         var personIdent = new PersonIdent(FNR);
-        var beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
-                "Saksnummer: %s," +
-                "Vedtaksdato: %s," +
-                "Dato for første utbetaling: %s," +
-                "Fødselsnummer arbeidsgiver: %s", behandling.getFagsak().getSaksnummer().getVerdi(),
-                vedtaksdato, førsteUttaksdato, personIdent.getIdent());
+        var beskrivelse = String.format(
+            "Refusjon til privat arbeidsgiver," + "Saksnummer: %s," + "Vedtaksdato: %s," + "Dato for første utbetaling: %s,"
+                + "Fødselsnummer arbeidsgiver: %s", behandling.getFagsak().getSaksnummer().getVerdi(), vedtaksdato, førsteUttaksdato,
+            personIdent.getIdent());
 
-        var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
-                førsteUttaksdato, vedtaksdato, behandling.getAktørId());
+        var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(), førsteUttaksdato, vedtaksdato,
+            behandling.getAktørId());
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());

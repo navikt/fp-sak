@@ -44,23 +44,28 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var grunnlag2 = (long) id2;
 
         if (erSkjæringstidspunktEndret(ref)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
+                StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erAntallBekreftedeBarnEndret(grunnlag1, grunnlag2)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "antall barn", grunnlag1, grunnlag2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET,
+                "antall barn", grunnlag1, grunnlag2);
             return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         }
         if (erTilkommetRegisterDødfødselMedDekningsgrad80(ref, grunnlag1, grunnlag2)) {
             if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "antall barn", grunnlag1, grunnlag2);
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD,
+                    "antall barn", grunnlag1, grunnlag2);
                 return StartpunktType.DEKNINGSGRAD;
             } else {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "antall barn", grunnlag1, grunnlag2);
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING,
+                    "antall barn", grunnlag1, grunnlag2);
                 return StartpunktType.BEREGNING;
             }
         }
-        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "familiehendelse", grunnlag1, grunnlag2);
+        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+            "familiehendelse", grunnlag1, grunnlag2);
         return StartpunktType.UTTAKSVILKÅR;
     }
 
@@ -72,7 +77,8 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var nyBekreftetFødselsdato = ref.getSkjæringstidspunkt().getBekreftetFamiliehendelsedato().orElse(null);
         var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
-            .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
+            .flatMap(FamilieHendelseEntitet::getFødselsdato)
+            .orElse(null);
 
         /*
          * Logikk hovedsaklig knyttet til mor som har STP 3 uker før termin og tilfelle av fødsel før STP.
@@ -85,7 +91,8 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
                     return true;
                 }
             }
-            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && ref.getSkjæringstidspunkt().uttakSkalJusteresTilFødselsdato() && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
+            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && ref.getSkjæringstidspunkt().uttakSkalJusteresTilFødselsdato()
+                && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
                 var nyFørsteUttaksdato = VirkedagUtil.fomVirkedag(nyBekreftetFødselsdato);
                 if (!nyFørsteUttaksdato.equals(nySkjæringstidspunkt) || origSkjæringstidspunkt.filter(nyFørsteUttaksdato::equals).isEmpty()) {
                     return true;

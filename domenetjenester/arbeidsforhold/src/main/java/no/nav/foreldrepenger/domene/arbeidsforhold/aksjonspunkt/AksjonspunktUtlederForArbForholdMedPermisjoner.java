@@ -63,9 +63,7 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
     }
 
     private Boolean erEndringssøknad(BehandlingReferanse referanse) {
-        return søknadRepository.hentSøknadHvisEksisterer(referanse.behandlingId())
-            .map(SøknadEntitet::erEndringssøknad)
-            .orElse(false);
+        return søknadRepository.hentSøknadHvisEksisterer(referanse.behandlingId()).map(SøknadEntitet::erEndringssøknad).orElse(false);
     }
 }
 

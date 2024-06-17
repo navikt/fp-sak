@@ -30,8 +30,7 @@ public class UtsettelseBehandling2021 {
     }
 
     @Inject
-    public UtsettelseBehandling2021(BehandlingRepositoryProvider repositoryProvider,
-                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    public UtsettelseBehandling2021(BehandlingRepositoryProvider repositoryProvider, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -44,7 +43,9 @@ public class UtsettelseBehandling2021 {
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
-    public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
+    public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref,
+                                                FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1,
+                                                FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
         var sammenhengendeGrunnlag1 = utsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
         var sammenhengendeGrunnlag2 = utsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
         var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.behandlingId());
@@ -61,8 +62,10 @@ public class UtsettelseBehandling2021 {
     private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Behandling behandling) {
         var fagsak = behandling.getFagsak();
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
-            .flatMap(r -> r.getRelatertFagsak(fagsak)).map(Fagsak::getId)
-            .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).map(Behandling::getId)
+            .flatMap(r -> r.getRelatertFagsak(fagsak))
+            .map(Fagsak::getId)
+            .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+            .map(Behandling::getId)
             .flatMap(familieHendelseRepository::hentAggregatHvisEksisterer);
     }
 }

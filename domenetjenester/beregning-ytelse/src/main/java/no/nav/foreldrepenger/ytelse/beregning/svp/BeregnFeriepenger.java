@@ -24,7 +24,6 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     }
 
     /**
-     *
      * @param antallDagerFeriepenger - Antall dager i feriepengerperioden for svangerskapspenger
      */
     @Inject

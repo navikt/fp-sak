@@ -41,14 +41,17 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
 
             oppdragXml.setLinjeId(VedtakXmlUtil.lagLongOpplysning(oppdragslinje150.getId()));
 
-            if(oppdragslinje150.getDelytelseId() != null)
+            if (oppdragslinje150.getDelytelseId() != null) {
                 oppdragXml.setDelytelseId(VedtakXmlUtil.lagLongOpplysning(oppdragslinje150.getDelytelseId()));
+            }
 
-            if(oppdragslinje150.getRefDelytelseId() != null)
+            if (oppdragslinje150.getRefDelytelseId() != null) {
                 oppdragXml.setRefDelytelseId(VedtakXmlUtil.lagLongOpplysning(oppdragslinje150.getRefDelytelseId()));
+            }
 
             oppdragXml.setUtbetalesTilId(VedtakXmlUtil.lagStringOpplysning(oppdragslinje150.getUtbetalesTilId()));
-            oppdragXml.setRefunderesId(VedtakXmlUtil.lagStringOpplysning(oppdragslinje150.getRefusjonsinfo156() == null ? null : oppdragslinje150.getRefusjonsinfo156().getRefunderesId()));
+            oppdragXml.setRefunderesId(VedtakXmlUtil.lagStringOpplysning(
+                oppdragslinje150.getRefusjonsinfo156() == null ? null : oppdragslinje150.getRefusjonsinfo156().getRefunderesId()));
 
             vedtak.getOppdrag().add(oppdragXml);
         }

@@ -17,9 +17,10 @@ class HenleggelseTransisjon implements StegTransisjon {
 
     @Override
     public BehandlingStegModell nesteSteg(BehandlingStegModell nåværendeSteg) {
-        var funnetMålsteg = nåværendeSteg.getBehandlingModell().hvertStegEtter(nåværendeSteg.getBehandlingStegType())
-                .filter(s -> s.getBehandlingStegType().equals(BehandlingStegType.IVERKSETT_VEDTAK))
-                .findFirst();
+        var funnetMålsteg = nåværendeSteg.getBehandlingModell()
+            .hvertStegEtter(nåværendeSteg.getBehandlingStegType())
+            .filter(s -> s.getBehandlingStegType().equals(BehandlingStegType.IVERKSETT_VEDTAK))
+            .findFirst();
         if (funnetMålsteg.isPresent()) {
             return funnetMålsteg.get();
         }

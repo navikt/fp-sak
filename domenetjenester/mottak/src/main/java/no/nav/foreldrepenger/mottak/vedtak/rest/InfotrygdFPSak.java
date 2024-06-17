@@ -8,9 +8,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 // Brukes ikke av mottak, men av egen innsynsløsning / ui.
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpsak.it.fp.sak.url",
-    endpointDefault = "http://fp-infotrygd-foreldrepenger/sak",
-    scopesProperty = "fpsak.it.fp.scopes", scopesDefault = "api://prod-fss.teamforeldrepenger.fp-infotrygd-foreldrepenger/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpsak.it.fp.sak.url", endpointDefault = "http://fp-infotrygd-foreldrepenger/sak", scopesProperty = "fpsak.it.fp.scopes", scopesDefault = "api://prod-fss.teamforeldrepenger.fp-infotrygd-foreldrepenger/.default")
 public class InfotrygdFPSak extends AbstractInfotrygdSaker {
 
     public InfotrygdFPSak() {

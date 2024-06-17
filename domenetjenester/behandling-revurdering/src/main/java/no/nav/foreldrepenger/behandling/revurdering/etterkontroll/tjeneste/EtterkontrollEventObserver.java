@@ -48,8 +48,8 @@ public class EtterkontrollEventObserver {
      */
     @Inject
     public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository,
-            FamilieHendelseRepository familieHendelseRepository,
-            @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
+                                      FamilieHendelseRepository familieHendelseRepository,
+                                      @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
         this.etterkontrollRepository = etterkontrollRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.etterkontrollTidTilbake = etterkontrollTidTilbake;
@@ -90,11 +90,10 @@ public class EtterkontrollEventObserver {
             var ekTid = ekDato.plus(etterkontrollTidTilbake).atStartOfDay();
             var ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
             if (ekListe.isEmpty()) {
-                var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())
-                        .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-                        .medErBehandlet(false)
-                        .medKontrollTidspunkt(ekTid)
-                        .build();
+                var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                    .medErBehandlet(false)
+                    .medKontrollTidspunkt(ekTid)
+                    .build();
                 etterkontrollRepository.lagre(etterkontroll);
             } else {
                 ekListe.forEach(ek -> {
@@ -112,8 +111,10 @@ public class EtterkontrollEventObserver {
         if (!Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.ENGANGSTØNAD).contains(behandling.getFagsak().getYtelseType())) {
             return Optional.empty();
         }
-        if (familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FamilieHendelseType.FØDSEL::equals)
-                .orElse(false)) {
+        if (familieHendelseGrunnlag.getBekreftetVersjon()
+            .map(FamilieHendelseEntitet::getType)
+            .map(FamilieHendelseType.FØDSEL::equals)
+            .orElse(false)) {
             return Optional.empty();
         }
         return Optional.of(familieHendelseGrunnlag.finnGjeldendeFødselsdato());

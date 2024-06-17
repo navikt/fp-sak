@@ -38,7 +38,8 @@ public class FordelRedigerbarAndelDto {
 
     public FordelRedigerbarAndelDto(@Min(0) @Max(Long.MAX_VALUE) Long andelsnr,
                                     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverId,
-                                    String arbeidsforholdId, @NotNull Boolean nyAndel,
+                                    String arbeidsforholdId,
+                                    @NotNull Boolean nyAndel,
                                     AndelKilde kilde,
                                     AktivitetStatus aktivitetStatus,
                                     OpptjeningAktivitetType arbeidsforholdType,

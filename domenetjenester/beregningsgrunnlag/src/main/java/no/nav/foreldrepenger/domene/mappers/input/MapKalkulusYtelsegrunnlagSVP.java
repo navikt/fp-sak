@@ -28,6 +28,7 @@ public class MapKalkulusYtelsegrunnlagSVP implements MapKalkulusYtelsegrunnlag {
     @Override
     public YtelsespesifiktGrunnlagDto mapYtelsegrunnlag(BehandlingReferanse referanse) {
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(referanse);
-        return new SvangerskapspengerGrunnlag(MapTilrettelegginger.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad), Tid.TIDENES_ENDE);
+        return new SvangerskapspengerGrunnlag(MapTilrettelegginger.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad),
+            Tid.TIDENES_ENDE);
     }
 }

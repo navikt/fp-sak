@@ -92,7 +92,8 @@ public class DokumentmottakerFelles {
     public void opprettTaskForÅVurdereDokument(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) {
         var behandlendeEnhetsId = hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, behandling);
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderDokumentTask.class);
-        Optional.ofNullable(mottattDokument.getJournalpostId()).map(JournalpostId::getVerdi)
+        Optional.ofNullable(mottattDokument.getJournalpostId())
+            .map(JournalpostId::getVerdi)
             .ifPresent(jpid -> prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_JOURNALPOST_ID, jpid));
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, mottattDokument.getDokumentType().getKode());
@@ -103,11 +104,15 @@ public class DokumentmottakerFelles {
 
     public void opprettKøetHistorikk(Behandling køetBehandling, boolean fantesFraFør) {
         if (!fantesFraFør) {
-            opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+            opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null,
+                Venteårsak.VENT_ÅPEN_BEHANDLING);
         }
     }
 
-    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType, LocalDateTime frist, Venteårsak venteårsak) {
+    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling,
+                                                                     HistorikkinnslagType historikkinnslagType,
+                                                                     LocalDateTime frist,
+                                                                     Venteårsak venteårsak) {
         historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, historikkinnslagType, frist, venteårsak);
     }
 
@@ -119,8 +124,8 @@ public class DokumentmottakerFelles {
 
     void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
         var dokType = mottattDokument.getDokumentType();
-        if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
-            DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
+        if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType)
+            || DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
             historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true,
                 mottattDokument.getElektroniskRegistrert(), false);
         } else {
@@ -130,8 +135,8 @@ public class DokumentmottakerFelles {
     }
 
     void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, MottattDokument mottattDokument) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument.getJournalpostId(),
-            mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument.getJournalpostId(), mottattDokument.getDokumentType(),
+            mottattDokument.getElektroniskRegistrert());
     }
 
     String hentBehandlendeEnhetTilVurderDokumentOppgave(MottattDokument dokument, Fagsak sak, Behandling behandling) {
@@ -141,8 +146,9 @@ public class DokumentmottakerFelles {
             return journalEnhet.get().enhetId();
         }
         // Midlertidig for håndtering av feil praksis utsettelse
-        if (fagsakEgenskapRepository != null &&
-            fagsakEgenskapRepository.finnFagsakMarkering(sak.getId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
+        if (fagsakEgenskapRepository != null && fagsakEgenskapRepository.finnFagsakMarkering(sak.getId())
+            .filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals)
+            .isPresent()) {
             return "4863";
         }
         if (behandling == null) {
@@ -218,7 +224,10 @@ public class DokumentmottakerFelles {
         return behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, tidligereBehandling);
     }
 
-    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
+    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak,
+                                                                BehandlingÅrsakType behandlingÅrsakType,
+                                                                Behandling avsluttetBehandling,
+                                                                MottattDokument mottattDokument) {
         var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
@@ -235,9 +244,12 @@ public class DokumentmottakerFelles {
         opprettHistorikk(behandling, mottattDokument);
     }
 
-    public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+    public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument,
+                                                                                 Fagsak fagsak,
+                                                                                 BehandlingÅrsakType behandlingÅrsakType) {
         var forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
-        var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
+        var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling,
+            !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument);
         opprettTaskForÅStarteBehandling(nyBehandling);
         opprettHistorikk(nyBehandling, mottattDokument);
@@ -245,8 +257,9 @@ public class DokumentmottakerFelles {
 
     private Behandling finnEvtForrigeBehandling(MottattDokument mottattDokument, Fagsak fagsak) {
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
-        if (behandling == null && !mottattDokument.getDokumentType().erSøknadType())
+        if (behandling == null && !mottattDokument.getDokumentType().erSøknadType()) {
             throw new IllegalStateException("Fant ingen behandling som passet for saksnummer: " + fagsak.getSaksnummer());
+        }
         return behandling;
     }
 
@@ -254,8 +267,11 @@ public class DokumentmottakerFelles {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).filter(Behandlingsresultat::isBehandlingHenlagt).isPresent();
     }
 
-    void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling,
-                                                  BehandlingÅrsakType behandlingÅrsakType, boolean kanRevurderes) {
+    void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument,
+                                                  Fagsak fagsak,
+                                                  Behandling avsluttetBehandling,
+                                                  BehandlingÅrsakType behandlingÅrsakType,
+                                                  boolean kanRevurderes) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument);
             return;
@@ -278,13 +294,14 @@ public class DokumentmottakerFelles {
     }
 
     boolean harMottattSøknadTidligere(Long behandlingId) {
-        return mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getSøknadTyper()) ||
-            mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getEndringSøknadTyper()) ||
-            mottatteDokumentTjeneste.harMottattDokumentKat(behandlingId, DokumentKategori.SØKNAD);
+        return mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getSøknadTyper())
+            || mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getEndringSøknadTyper())
+            || mottatteDokumentTjeneste.harMottattDokumentKat(behandlingId, DokumentKategori.SØKNAD);
     }
 
     boolean harFagsakMottattSøknadTidligere(Long fagsakId) {
-        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
+        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId)
+            .stream()
             .anyMatch(d -> d.getDokumentType().erSøknadType() || DokumentKategori.SØKNAD.equals(d.getDokumentKategori()));
     }
 
@@ -310,17 +327,16 @@ public class DokumentmottakerFelles {
         var eksisterendeStartdato = eksisterendeStartdatoOpt.orElseThrow();
         var utsettelseFraStart = !søknadUtsettelseUttak.utsettelseFom().isAfter(eksisterendeStartdato);
         // Periodene nedenfor bør matches med InntektsmeldingTjeneste . kanInntektsmeldingBrukesForSkjæringstidspunkt()
-        var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null &&
-            (YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) ||
-                søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2)));
+        var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null && (
+            YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) || søknadUtsettelseUttak.uttakFom()
+                .isBefore(eksisterendeStartdato.plusWeeks(2)));
         return utsettelseFraStart && !utsettelsePeriodeAkseptert;
     }
 
     void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
         var søknadUtsettelseUttak = finnUtsettelseUttak(dokument);
         // Henlegg alle åpne behandlinger - selv berørte, fordi uttaket skal tømmes
-        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsak.getId())
-            .forEach(b -> behandlingsoppretter.henleggBehandling(b));
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsak.getId()).forEach(b -> behandlingsoppretter.henleggBehandling(b));
 
         var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_UTSATT_START);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, dokument, Optional.empty());
@@ -331,9 +347,7 @@ public class DokumentmottakerFelles {
         if (søknadUtsettelseUttak.uttakFom() != null) {
             var nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty());
             behandlingsoppretter.kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(fagsak, revurdering, nyBehandling);
-            var søknadKopi = new MottattDokument.Builder(dokument)
-                .medBehandlingId(nyBehandling.getId())
-                .build();
+            var søknadKopi = new MottattDokument.Builder(dokument).medBehandlingId(nyBehandling.getId()).build();
             mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(søknadKopi);
             historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, søknadKopi.getJournalpostId(), false,
                 søknadKopi.getElektroniskRegistrert(), false);

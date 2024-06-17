@@ -55,7 +55,7 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
     private InternArbeidsforholdRef arbeidsforholdRef;
 
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
-    @Column(name="opptjening_aktivitet_type", nullable = false)
+    @Column(name = "opptjening_aktivitet_type", nullable = false)
     private OpptjeningAktivitetType opptjeningAktivitetType = OpptjeningAktivitetType.UDEFINERT;
 
     public BeregningAktivitetEntitet() {
@@ -95,9 +95,9 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
 
     public BeregningAktivitetNøkkel getNøkkel() {
         var builder = BeregningAktivitetNøkkel.builder()
-                .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .medFom(periode.getFomDato())
-                .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
+            .medOpptjeningAktivitetType(opptjeningAktivitetType)
+            .medFom(periode.getFomDato())
+            .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
         if (arbeidsgiver != null) {
             builder.medArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
         }
@@ -105,13 +105,14 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
     }
 
     public boolean gjelderFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        return Objects.equals(this.getArbeidsgiver(), arbeidsgiver) &&
-                this.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        return Objects.equals(this.getArbeidsgiver(), arbeidsgiver) && this.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     boolean skalBrukes(BeregningAktivitetOverstyringerEntitet overstyringer) {
-        var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
-                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).toList();
+        var overstyringerForAktivitet = overstyringer.getOverstyringer()
+            .stream()
+            .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel()))
+            .toList();
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
         }
@@ -130,10 +131,8 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
             return false;
         }
         var that = (BeregningAktivitetEntitet) o;
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(this.getArbeidsforholdRef(), that.getArbeidsforholdRef()) &&
-                Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType);
+        return Objects.equals(periode, that.periode) && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(this.getArbeidsforholdRef(),
+            that.getArbeidsforholdRef()) && Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType);
     }
 
     @Override
@@ -143,13 +142,8 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "BeregningAktivitetEntitet{" +
-                "id=" + id +
-                ", periode=" + periode +
-                ", arbeidsgiver=" + arbeidsgiver +
-                ", arbeidsforholdRef=" + arbeidsforholdRef +
-                ", opptjeningAktivitetType=" + getOpptjeningAktivitetType().getKode() +
-                '}';
+        return "BeregningAktivitetEntitet{" + "id=" + id + ", periode=" + periode + ", arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef="
+            + arbeidsforholdRef + ", opptjeningAktivitetType=" + getOpptjeningAktivitetType().getKode() + '}';
     }
 
     public static Builder builder() {

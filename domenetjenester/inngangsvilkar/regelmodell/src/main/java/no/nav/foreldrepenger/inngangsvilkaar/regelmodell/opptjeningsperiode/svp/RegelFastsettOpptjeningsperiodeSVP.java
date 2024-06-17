@@ -39,9 +39,8 @@ public class RegelFastsettOpptjeningsperiodeSVP implements RuleService<Opptjenin
         var rs = new Ruleset<OpptjeningsperiodeMellomregning>();
         Specification<OpptjeningsperiodeMellomregning> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
 
-        var fastsettSkjæringsdatoSvp =
-            rs.beregningsRegel("FP_VK 21.1", "Fastsett periode: Svangerskap",
-                new FastsettSkjæringsdatoForSvangerskap(), fastsettOpptjeningsperiode);
+        var fastsettSkjæringsdatoSvp = rs.beregningsRegel("FP_VK 21.1", "Fastsett periode: Svangerskap", new FastsettSkjæringsdatoForSvangerskap(),
+            fastsettOpptjeningsperiode);
 
         // Start fastsett opptjeningsperiode
         return rs.regel(ID, BESKRIVELSE, fastsettSkjæringsdatoSvp);

@@ -17,7 +17,7 @@ class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
         var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);
 
-        var objektFraJson =  StandardJsonConfig.fromJson(json, BekreftTerminbekreftelseAksjonspunktDto.class);
+        var objektFraJson = StandardJsonConfig.fromJson(json, BekreftTerminbekreftelseAksjonspunktDto.class);
 
         assertThat(objektFraJson.getAntallBarn()).isEqualTo(terminbekreftelseAksjonspunktDto.getAntallBarn());
         assertThat(objektFraJson.getTermindato()).isEqualTo(terminbekreftelseAksjonspunktDto.getTermindato());

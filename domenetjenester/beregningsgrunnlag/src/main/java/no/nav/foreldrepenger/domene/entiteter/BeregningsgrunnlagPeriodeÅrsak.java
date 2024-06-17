@@ -37,7 +37,7 @@ public class BeregningsgrunnlagPeriodeÅrsak extends BaseEntitet {
     private BeregningsgrunnlagPeriode beregningsgrunnlagPeriode;
 
     @Convert(converter = PeriodeÅrsak.KodeverdiConverter.class)
-    @Column(name="periode_aarsak", nullable = false)
+    @Column(name = "periode_aarsak", nullable = false)
     private PeriodeÅrsak periodeÅrsak = PeriodeÅrsak.UDEFINERT;
 
     public BeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak beregningsgrunnlagPeriodeÅrsak) {
@@ -77,8 +77,8 @@ public class BeregningsgrunnlagPeriodeÅrsak extends BaseEntitet {
         if (!(obj instanceof BeregningsgrunnlagPeriodeÅrsak other)) {
             return false;
         }
-        return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode())
-                && Objects.equals(this.getPeriodeÅrsak(), other.getPeriodeÅrsak());
+        return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode()) && Objects.equals(this.getPeriodeÅrsak(),
+            other.getPeriodeÅrsak());
     }
 
     public static class Builder {

@@ -25,11 +25,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
                                   KøKontroller køKontroller,
                                   ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                   BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
-        super(dokumentmottakerFelles,
-            behandlingsoppretter,
-            kompletthetskontroller,
-            fpUttakTjeneste,
-                behandlingRevurderingTjeneste,
+        super(dokumentmottakerFelles, behandlingsoppretter, kompletthetskontroller, fpUttakTjeneste, behandlingRevurderingTjeneste,
             behandlingRepository);
         this.køKontroller = køKontroller;
     }
@@ -40,7 +36,8 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
         if (dokumentmottakerFelles.harMottattSøknadTidligere(behandling.getId())) { //#S2
             // Oppdatere behandling gjennom henleggelse
-            var nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            var nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
         } else {
             dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
@@ -67,7 +64,8 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(køetBehandling.getType())) {
                 dokumentmottakerFelles.oppdatereViaHenleggelse(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             } else {
-                dokumentmottakerFelles.oppdatereViaHenleggelseEnkø(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+                dokumentmottakerFelles.oppdatereViaHenleggelseEnkø(køetBehandling, mottattDokument,
+                    getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             }
         } else { //#S10, #S11, #S12 og #S14
             // Oppdater køet behandling med søknad
@@ -88,7 +86,8 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     public void håndterAvsluttetTidligereBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak)) { //#S8
             // Start ny førstegangsbehandling av søknad
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else { //#S9
             // Oppretter revurdering siden det allerede er gjennomført en førstegangsbehandling på fagsaken
             dokumentmottakerFelles.opprettRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
@@ -97,15 +96,21 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
     @Override
     public void håndterUtsattStartdato(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+        dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+            getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
     }
 
     @Override
-    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument,
+                                                     Fagsak fagsak,
+                                                     Behandling avsluttetBehandling,
+                                                     BehandlingÅrsakType behandlingÅrsakType) {
         if (erAvslag(avsluttetBehandling)) { //#S4 #S6
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else if (erOpphør(avsluttetBehandling) && !harInnvilgetPeriode(avsluttetBehandling)) {
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else { // diverse
             dokumentmottakerFelles.standardForAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, avsluttetBehandling,
                 getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), harInnvilgetPeriode(avsluttetBehandling));
@@ -118,28 +123,42 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     }
 
     @Override
-    protected void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling) {
-        if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(sisteAvsluttetBehandling)) {
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+    protected void opprettKøetBehandling(MottattDokument mottattDokument,
+                                         Fagsak fagsak,
+                                         BehandlingÅrsakType behandlingÅrsakType,
+                                         Behandling sisteAvsluttetBehandling) {
+        if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(
+            sisteAvsluttetBehandling)) {
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else {
             dokumentmottakerFelles.opprettKøetRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         }
     }
 
     @Override
-    public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
+    public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak,
+                                                       Long avsluttetMedSøknadBehandlingId,
+                                                       MottattDokument mottattDokument,
+                                                       BehandlingÅrsakType behandlingÅrsakType,
+                                                       boolean opprettSomKøet) {
         var avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
-        var harÅpenBehandling = !behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
-        if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandlingMedSøknad.getId())) {
-            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
+        var harÅpenBehandling = !behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId())
+            .map(Behandling::erSaksbehandlingAvsluttet)
+            .orElse(Boolean.TRUE);
+        if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || dokumentmottakerFelles.erBehandlingHenlagt(
+            avsluttetBehandlingMedSøknad.getId())) {
+            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad,
+                mottattDokument);
         } else {
-            var revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), opprettSomKøet);
+            var revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType),
+                opprettSomKøet);
             dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument);
         }
     }
 
     protected BehandlingÅrsakType getBehandlingÅrsakHvisUdefinert(BehandlingÅrsakType behandlingÅrsakType) {
-        return behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType) ?
-            BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER : behandlingÅrsakType;
+        return behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(
+            behandlingÅrsakType) ? BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER : behandlingÅrsakType;
     }
 }

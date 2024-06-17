@@ -39,14 +39,15 @@ public enum BehandlingStegResultat {
     FREMOVERFØRT;
 
     private static final Map<BehandlingStegResultat, BehandlingStegStatus> MAP_HANDLING_STATUS = Map.ofEntries(
-            Map.entry(BehandlingStegResultat.STARTET, BehandlingStegStatus.STARTET),
-            Map.entry(BehandlingStegResultat.SETT_PÅ_VENT, BehandlingStegStatus.VENTER),
-            Map.entry(BehandlingStegResultat.UTFØRT, BehandlingStegStatus.UTFØRT),
-            Map.entry(BehandlingStegResultat.FREMOVERFØRT, BehandlingStegStatus.FREMOVERFØRT),
-            Map.entry(BehandlingStegResultat.TILBAKEFØRT, BehandlingStegStatus.TILBAKEFØRT));
+        Map.entry(BehandlingStegResultat.STARTET, BehandlingStegStatus.STARTET),
+        Map.entry(BehandlingStegResultat.SETT_PÅ_VENT, BehandlingStegStatus.VENTER),
+        Map.entry(BehandlingStegResultat.UTFØRT, BehandlingStegStatus.UTFØRT),
+        Map.entry(BehandlingStegResultat.FREMOVERFØRT, BehandlingStegStatus.FREMOVERFØRT),
+        Map.entry(BehandlingStegResultat.TILBAKEFØRT, BehandlingStegStatus.TILBAKEFØRT));
 
     static BehandlingStegStatus mapTilStatus(BehandlingStegResultat behandleStegHandling) {
-        return Optional.ofNullable(MAP_HANDLING_STATUS.get(behandleStegHandling)).orElseThrow(() -> new IllegalArgumentException(
+        return Optional.ofNullable(MAP_HANDLING_STATUS.get(behandleStegHandling))
+            .orElseThrow(() -> new IllegalArgumentException(
                 "Utvikler-feil: ukjent mapping fra " + BehandlingStegResultat.class.getSimpleName() + "." + behandleStegHandling));
 
     }

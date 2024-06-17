@@ -26,36 +26,29 @@ public class BRNøkkelMedAndeler {
     }
 
     public List<InternArbeidsforholdRef> getAlleReferanserForDenneNøkkelen() {
-        return andelerTilknyttetNøkkel.stream()
-            .map(BeregningsresultatAndel::getArbeidsforholdRef)
-            .toList();
+        return andelerTilknyttetNøkkel.stream().map(BeregningsresultatAndel::getArbeidsforholdRef).toList();
     }
 
     public List<BeregningsresultatAndel> getBrukersAndelerTilknyttetNøkkel() {
-        return andelerTilknyttetNøkkel.stream()
-            .filter(BeregningsresultatAndel::erBrukerMottaker)
-            .toList();
+        return andelerTilknyttetNøkkel.stream().filter(BeregningsresultatAndel::erBrukerMottaker).toList();
     }
 
     public List<BeregningsresultatAndel> getArbeidsgiversAndelerTilknyttetNøkkel() {
-        return andelerTilknyttetNøkkel.stream()
-            .filter(a -> !a.erBrukerMottaker())
-            .toList();
+        return andelerTilknyttetNøkkel.stream().filter(a -> !a.erBrukerMottaker()).toList();
     }
 
     public List<BeregningsresultatAndel> getAndelerSomHarReferanse() {
-        return andelerTilknyttetNøkkel.stream()
-            .filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .toList();
+        return andelerTilknyttetNøkkel.stream().filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()).toList();
     }
 
     public Optional<BeregningsresultatAndel> getBrukersAndelMedReferanse(InternArbeidsforholdRef ref) {
         var korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
             .toList();
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
+        if (korresponderendeAndeler.size() > 1) {
+            throw new IllegalArgumentException(
+                "Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel + ". Antall matchende aktiviteter var "
+                    + korresponderendeAndeler.size());
         }
         return korresponderendeAndeler.stream().findFirst();
     }
@@ -64,9 +57,10 @@ public class BRNøkkelMedAndeler {
         var korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
             .toList();
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
+        if (korresponderendeAndeler.size() > 1) {
+            throw new IllegalArgumentException(
+                "Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel + ". Antall matchende aktiviteter var "
+                    + korresponderendeAndeler.size());
         }
         return korresponderendeAndeler.stream().findFirst();
     }
@@ -76,9 +70,10 @@ public class BRNøkkelMedAndeler {
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
             .toList();
 
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende andeler var " + korresponderendeAndeler.size());
+        if (korresponderendeAndeler.size() > 1) {
+            throw new IllegalArgumentException(
+                "Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel + ". Antall matchende andeler var "
+                    + korresponderendeAndeler.size());
         }
         return korresponderendeAndeler.stream().findFirst();
     }
@@ -88,9 +83,10 @@ public class BRNøkkelMedAndeler {
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
             .toList();
 
-        if(korresponderendeAndeler.size() > 1) {
-            throw new IllegalArgumentException("Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel
-                + ". Antall matchende andeler var " + korresponderendeAndeler.size());
+        if (korresponderendeAndeler.size() > 1) {
+            throw new IllegalArgumentException(
+                "Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel + ". Antall matchende andeler var "
+                    + korresponderendeAndeler.size());
         }
         return korresponderendeAndeler.stream().findFirst();
     }
@@ -100,14 +96,13 @@ public class BRNøkkelMedAndeler {
      * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
      */
     public List<BeregningsresultatAndel> getAlleBrukersAndelerMedReferanse(InternArbeidsforholdRef ref) {
-        return getBrukersAndelerTilknyttetNøkkel().stream()
-            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .toList();
+        return getBrukersAndelerTilknyttetNøkkel().stream().filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref)).toList();
     }
 
     /**
      * Etter automatisk omfordeling (blant annet) kan vi ha flere like andeler med samme ag og ref.
      * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
+     *
      * @return
      */
     public List<BeregningsresultatAndel> getAlleBrukersAndelerUtenReferanse() {
@@ -121,9 +116,7 @@ public class BRNøkkelMedAndeler {
      * Her må alle returneres. Håndteres manuelt av SBH intill https://jira.adeo.no/browse/TFP-2709 er løst.
      */
     public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerMedReferanse(InternArbeidsforholdRef ref) {
-        return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
-            .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .toList();
+        return getArbeidsgiversAndelerTilknyttetNøkkel().stream().filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref)).toList();
     }
 
     /**
@@ -147,9 +140,7 @@ public class BRNøkkelMedAndeler {
     }
 
     public List<BeregningsresultatAndel> getAlleAndelerMedRefSomIkkeFinnesIListe(List<InternArbeidsforholdRef> referanseliste) {
-        return andelerTilknyttetNøkkel.stream()
-            .filter(a -> !referanseliste.contains(a.getArbeidsforholdRef()))
-            .toList();
+        return andelerTilknyttetNøkkel.stream().filter(a -> !referanseliste.contains(a.getArbeidsforholdRef())).toList();
     }
 
     public boolean erArbeidstaker() {
@@ -161,8 +152,6 @@ public class BRNøkkelMedAndeler {
     }
 
     public List<BeregningsresultatAndel> getAndelerUtenReferanse() {
-        return andelerTilknyttetNøkkel.stream()
-            .filter(a -> !a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .toList();
+        return andelerTilknyttetNøkkel.stream().filter(a -> !a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()).toList();
     }
 }

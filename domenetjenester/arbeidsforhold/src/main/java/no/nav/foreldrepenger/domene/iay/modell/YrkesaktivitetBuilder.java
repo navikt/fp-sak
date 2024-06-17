@@ -106,10 +106,9 @@ public class YrkesaktivitetBuilder {
 
     public AktivitetsAvtaleBuilder getAktivitetsAvtaleBuilder(DatoIntervallEntitet aktivitetsPeriode, boolean erAnsettelsesperioden) {
         var oppdater = AktivitetsAvtaleBuilder.oppdater(kladd.getAlleAktivitetsAvtaler()
-                .stream()
-                .filter(
-                    aa -> aa.matcherPeriode(aktivitetsPeriode) && (!kladd.erArbeidsforhold() || aa.erAnsettelsesPeriode() == erAnsettelsesperioden))
-                .findFirst());
+            .stream()
+            .filter(aa -> aa.matcherPeriode(aktivitetsPeriode) && (!kladd.erArbeidsforhold() || aa.erAnsettelsesPeriode() == erAnsettelsesperioden))
+            .findFirst());
         oppdater.medPeriode(aktivitetsPeriode);
         return oppdater;
     }
@@ -128,7 +127,8 @@ public class YrkesaktivitetBuilder {
      */
     public void fjernAnsettelsesPeriode(DatoIntervallEntitet aktivitetsPeriode) {
         // Disse skal slettes til slutt
-        var ansettelsesperioderSomOverlapper = kladd.getAlleAktivitetsAvtaler().stream()
+        var ansettelsesperioderSomOverlapper = kladd.getAlleAktivitetsAvtaler()
+            .stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .filter(p -> aktivitetsPeriode.overlapper(p.getPeriode()))
             .collect(Collectors.toSet());
@@ -144,20 +144,21 @@ public class YrkesaktivitetBuilder {
         workingSet.forEach(kladd::leggTilAktivitetsAvtale);
     }
 
-    private Collection<AktivitetsAvtale> omsluttetAvAktivitetsperiode(Set<AktivitetsAvtale> ansettelsesperioder, DatoIntervallEntitet aktivitetsPeriode) {
-        return ansettelsesperioder.stream()
-            .filter(p -> p.getPeriode().erOmsluttetAv(aktivitetsPeriode))
-            .collect(Collectors.toSet());
+    private Collection<AktivitetsAvtale> omsluttetAvAktivitetsperiode(Set<AktivitetsAvtale> ansettelsesperioder,
+                                                                      DatoIntervallEntitet aktivitetsPeriode) {
+        return ansettelsesperioder.stream().filter(p -> p.getPeriode().erOmsluttetAv(aktivitetsPeriode)).collect(Collectors.toSet());
     }
 
     private Collection<AktivitetsAvtale> splitOverlappLR(AktivitetsAvtale ansettelsesperiode, DatoIntervallEntitet aktivitetsPeriode) {
         var resultat = new HashSet<AktivitetsAvtale>();
         if (ansettelsesperiode.getPeriode().getFomDato().isBefore(aktivitetsPeriode.getFomDato())) {
-            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(ansettelsesperiode.getPeriode().getFomDato(), aktivitetsPeriode.getFomDato().minusDays(1L));
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(ansettelsesperiode.getPeriode().getFomDato(),
+                aktivitetsPeriode.getFomDato().minusDays(1L));
             resultat.add(nyAktivitetsAvtaleBuilder().medBeskrivelse(ansettelsesperiode.getBeskrivelse()).medPeriode(periode).build());
         }
         if (ansettelsesperiode.getPeriode().getTomDato().isAfter(aktivitetsPeriode.getTomDato())) {
-            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsPeriode.getTomDato().plusDays(1L), ansettelsesperiode.getPeriode().getTomDato());
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsPeriode.getTomDato().plusDays(1L),
+                ansettelsesperiode.getPeriode().getTomDato());
             resultat.add(nyAktivitetsAvtaleBuilder().medBeskrivelse(ansettelsesperiode.getBeskrivelse()).medPeriode(periode).build());
 
         }

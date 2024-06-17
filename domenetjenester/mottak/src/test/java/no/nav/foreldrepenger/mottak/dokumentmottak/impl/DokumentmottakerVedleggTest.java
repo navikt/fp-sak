@@ -84,11 +84,12 @@ class DokumentmottakerVedleggTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
-                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
+            historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         kompletthetskontroller = mock(Kompletthetskontroller.class);
-        dokumentmottaker = new DokumentmottakerVedlegg(behandlingRevurderingTjeneste, dokumentmottakerFelles, kompletthetskontroller, repositoryProvider.getBehandlingRepository());
+        dokumentmottaker = new DokumentmottakerVedlegg(behandlingRevurderingTjeneste, dokumentmottakerFelles, kompletthetskontroller,
+            repositoryProvider.getBehandlingRepository());
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -121,8 +122,7 @@ class DokumentmottakerVedleggTest {
     @Test
     void skal_vurdere_kompletthet_når_ustrukturert_dokument_på_åpen_behandling() {
         // Arrange
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
         var behandling = scenario.lagre(repositoryProvider);
 
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
@@ -143,8 +143,8 @@ class DokumentmottakerVedleggTest {
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlendeEnhet(ENHET.enhetId())
-                .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
+            .medBehandlendeEnhet(ENHET.enhetId())
+            .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
         var behandling = scenario.lagre(repositoryProvider);
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
@@ -172,14 +172,15 @@ class DokumentmottakerVedleggTest {
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlendeEnhet(ENHET.enhetId())
-                .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
+            .medBehandlendeEnhet(ENHET.enhetId())
+            .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
         var behandling = scenario.lagre(repositoryProvider);
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
         mottattDokument.setJournalEnhet(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
-        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), eq(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()))).thenReturn(BehandlendeEnhetTjeneste.getKlageInstans());
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), eq(BehandlendeEnhetTjeneste.getKlageInstans().enhetId())))
+            .thenReturn(BehandlendeEnhetTjeneste.getKlageInstans());
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
@@ -194,8 +195,8 @@ class DokumentmottakerVedleggTest {
         verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
-                .isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()); // Lik enheten som ble satt på behandlingen
+        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(
+            BehandlendeEnhetTjeneste.getKlageInstans().enhetId()); // Lik enheten som ble satt på behandlingen
     }
 
     /**
@@ -239,7 +240,7 @@ class DokumentmottakerVedleggTest {
     void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
         // Arrange - opprette fagsak uten behandling
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                repositoryProvider.getFagsakRepository(), fagsakRelasjonTjeneste);
+            repositoryProvider.getFagsakRepository(), fagsakRelasjonTjeneste);
 
         // Act - send inn endringssøknad
         var fagsakId = fagsak.getId();

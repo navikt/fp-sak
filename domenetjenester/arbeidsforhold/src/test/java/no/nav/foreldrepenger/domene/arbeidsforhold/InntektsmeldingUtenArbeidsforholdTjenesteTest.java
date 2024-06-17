@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     private static final AktørId AKTØR_ID = new AktørId("9999999999999");
-    private static final LocalDate STP = LocalDate.of(2022,1,1);
+    private static final LocalDate STP = LocalDate.of(2022, 1, 1);
 
     @Test
     void skal_ikke_gi_utslag_ved_inntektsmelding_med_arbeidsforhold() {
@@ -93,8 +93,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         // Arrange
         var orgnrIM = "222222222";
         var orgnrArbeidInntekt = "333333333";
-        var ya = List.of(
-            yrkesaktivitet(orgnrArbeidInntekt, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        var ya = List.of(yrkesaktivitet(orgnrArbeidInntekt, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
         var inntektsposter = lagInntektsposter(dagerFørStp(90), dagerEtterStp(60), 100);
         var inntekter = List.of(inntekt(orgnrArbeidInntekt, inntektsposter));
         var inntektsmeldinger = List.of(inntektsmelding(orgnrIM));
@@ -204,14 +203,16 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
 
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utled(InntektArbeidYtelseGrunnlag iay) {
-        return InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(iay.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList()), iay, AKTØR_ID, STP);
+        return InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(
+            iay.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList()), iay, AKTØR_ID, STP);
     }
 
     private OppgittOpptjeningBuilder lagFiske() {
-        return OppgittOpptjeningBuilder.ny().leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(dagerFørStp(100)))
-            .medVirksomhetType(VirksomhetType.FISKE)
-            .medVirksomhet("999999999")));
+        return OppgittOpptjeningBuilder.ny()
+            .leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(dagerFørStp(100)))
+                .medVirksomhetType(VirksomhetType.FISKE)
+                .medVirksomhet("999999999")));
     }
 
     private Map<YearMonth, Integer> lagInntektsposter(LocalDate fom, LocalDate tom, int beløp) {
@@ -271,20 +272,18 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         return YrkesaktivitetBuilder.oppdatere(empty())
             .medArbeidType(arbeidType)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medProsentsats(BigDecimal.ZERO)
-                .medPeriode(periode)
-                .medSisteLønnsendringsdato(periode.getFomDato()))
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medProsentsats(BigDecimal.valueOf(100))
-                .medPeriode(periode));
+            .leggTilAktivitetsAvtale(
+                AktivitetsAvtaleBuilder.ny().medProsentsats(BigDecimal.ZERO).medPeriode(periode).medSisteLønnsendringsdato(periode.getFomDato()))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medProsentsats(BigDecimal.valueOf(100)).medPeriode(periode));
     }
 
     private InntektBuilder inntekt(String orgnr, Map<YearMonth, Integer> månedBeløpMap) {
         var inntektBuilder = InntektBuilder.oppdatere(empty())
             .medInntektsKilde(InntektsKilde.INNTEKT_BEREGNING)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr));
-        månedBeløpMap.entrySet().stream().map(entry -> InntektspostBuilder.ny()
+        månedBeløpMap.entrySet()
+            .stream()
+            .map(entry -> InntektspostBuilder.ny()
                 .medBeløp(BigDecimal.valueOf(entry.getValue()))
                 .medPeriode(entry.getKey().atDay(1), entry.getKey().atDay(entry.getKey().lengthOfMonth())))
             .toList()

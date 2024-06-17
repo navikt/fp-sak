@@ -25,6 +25,7 @@ public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Contro
 
     KafkaStringConsumerStarter() {
     }
+
     @Inject
     public KafkaStringConsumerStarter(VedtaksHendelseHåndterer vedtaksHendelseHåndterer,
                                       BehandlingHendelseHåndterer behandlingHendelseHåndterer,

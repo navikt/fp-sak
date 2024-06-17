@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -17,13 +14,16 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "BGAndelArbeidsforhold")
 @Table(name = "BG_ANDEL_ARBEIDSFORHOLD")
@@ -170,6 +170,7 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
      * Først settes refusjonskravPrÅr, deretter saksbehandletRefusjonPrÅr,
      * deretter fordeltRefusjonPrÅr og til slutt manueltFordeltRefusjonPrÅr.
      * Det er det sist avklarte beløpet som til en hver tid skal være gjeldende.
+     *
      * @return returnerer det refusjonsbeløpet som skal være gjeldende
      */
     public BigDecimal getGjeldendeRefusjon() {
@@ -193,8 +194,7 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
         if (!(obj instanceof BGAndelArbeidsforhold other)) {
             return false;
         }
-        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
-                && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
+        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver()) && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
     }
 
     @Override
@@ -204,17 +204,10 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "orgnr=" + getArbeidsforholdOrgnr() + ", "
-                + "arbeidsgiver=" + arbeidsgiver + ", "
-                + "arbeidsforholdRef=" + arbeidsforholdRef + ", "
-                + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", "
-                + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", "
-                + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", "
-                + "arbeidsperiodeFom=" + arbeidsperiodeFom
-                + "arbeidsperiodeTom=" + arbeidsperiodeTom
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "orgnr=" + getArbeidsforholdOrgnr() + ", " + "arbeidsgiver=" + arbeidsgiver
+            + ", " + "arbeidsforholdRef=" + arbeidsforholdRef + ", " + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", "
+            + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", " + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", "
+            + "arbeidsperiodeFom=" + arbeidsperiodeFom + "arbeidsperiodeTom=" + arbeidsperiodeTom + ">";
     }
 
     public static Builder builder() {
@@ -242,7 +235,7 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
         }
 
         public Builder medArbeidsforholdRef(String arbeidsforholdRef) {
-            return medArbeidsforholdRef(arbeidsforholdRef==null?null:InternArbeidsforholdRef.ref(arbeidsforholdRef));
+            return medArbeidsforholdRef(arbeidsforholdRef == null ? null : InternArbeidsforholdRef.ref(arbeidsforholdRef));
         }
 
         public Builder medArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {

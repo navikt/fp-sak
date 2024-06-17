@@ -30,13 +30,12 @@ public class RegelmodellSøknaderMapper {
     public List<Søknad> hentSøknader(UttakInput input) {
         SvangerskapspengerGrunnlag svpInput = input.getYtelsespesifiktGrunnlag();
         var termindato = finnTermindato(svpInput);
-        return svpInput.getGrunnlagEntitet()
-            .map(gr -> lagSøknader(input, gr, termindato))
-            .orElse(List.of());
+        return svpInput.getGrunnlagEntitet().map(gr -> lagSøknader(input, gr, termindato)).orElse(List.of());
     }
 
     private LocalDate finnTermindato(SvangerskapspengerGrunnlag svpGrunnlag) {
-        return svpGrunnlag.getFamilieHendelse().getTermindato()
+        return svpGrunnlag.getFamilieHendelse()
+            .getTermindato()
             .orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
     }
 
@@ -83,19 +82,18 @@ public class RegelmodellSøknaderMapper {
 
     private BigDecimal finnStillingsprosent(UttakInput input, SvpTilretteleggingEntitet svpTilrettelegging, Arbeidsforhold arbeidsforhold) {
         if (svpTilrettelegging.getArbeidType().equals(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD) && svpTilrettelegging.getArbeidsgiver().isPresent()) {
-            var arbeidsgiver = arbeidsforhold.getArbeidsgiverVirksomhetId() == null ? null : Arbeidsgiver.virksomhet(arbeidsforhold.getArbeidsgiverVirksomhetId());
-            return input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(
-                arbeidsgiver,
-                InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null)),
-                svpTilrettelegging.getBehovForTilretteleggingFom()
-            );
+            var arbeidsgiver =
+                arbeidsforhold.getArbeidsgiverVirksomhetId() == null ? null : Arbeidsgiver.virksomhet(arbeidsforhold.getArbeidsgiverVirksomhetId());
+            return input.getYrkesaktiviteter()
+                .finnStillingsprosentOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null)),
+                    svpTilrettelegging.getBehovForTilretteleggingFom());
         }
         return BigDecimal.valueOf(100L); //Ellers 100% stilling
     }
 
     public static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold,
-                                             Optional<InternArbeidsforholdRef> internArbeidsforholdRef,
-                                             AktivitetType aktivitetType) {
+                                                   Optional<InternArbeidsforholdRef> internArbeidsforholdRef,
+                                                   AktivitetType aktivitetType) {
         if (arbeidsforhold.isEmpty()) {
             return Arbeidsforhold.annet(aktivitetType);
         }

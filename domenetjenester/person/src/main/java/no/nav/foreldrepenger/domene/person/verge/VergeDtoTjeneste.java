@@ -27,8 +27,9 @@ public class VergeDtoTjeneste {
     }
 
     public Optional<VergeDto> lagVergeDto(VergeAggregat vergeAggregat) {
-        if (vergeAggregat == null)
+        if (vergeAggregat == null) {
             return Optional.empty();
+        }
         return vergeAggregat.getVerge().map(v -> mapTilVergeDto(vergeAggregat, v));
     }
 
@@ -56,8 +57,8 @@ public class VergeDtoTjeneste {
     private VergeBackendDto mapTilBackendDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
         return new VergeBackendDto(vergeAggregat.getAktørId().map(AktørId::getId).orElse(null),
             verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
-            verge.getGyldigFom(), verge.getGyldigTom(), verge.getVergeType());
+            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null), verge.getGyldigFom(),
+            verge.getGyldigTom(), verge.getVergeType());
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {

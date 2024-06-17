@@ -53,17 +53,17 @@ class BarnBorteEndringIdentifisererTest {
 
     private Behandling revurdering(Behandling behandlingOrig) {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(behandlingOrig, BehandlingÅrsakType.RE_ANNET)
-                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+            .medOriginalBehandling(behandlingOrig, BehandlingÅrsakType.RE_ANNET)
+            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagre(repositoryProvider);
     }
 
     private Behandling førstegangsbehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagre(repositoryProvider);
     }
 
     BehandlingReferanse lagReferanse(Behandling behandling) {
@@ -95,10 +95,9 @@ class BarnBorteEndringIdentifisererTest {
     }
 
     private Behandling førstegangsbehandling(ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger) {
-        return scenarioMorSøkerForeldrepenger
-                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+        return scenarioMorSøkerForeldrepenger.medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagre(repositoryProvider);
     }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {

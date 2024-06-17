@@ -37,9 +37,6 @@ public class StegTransisjon {
 
     @Override
     public String toString() {
-        return "StegTransisjon{" +
-                "transisjonType=" + transisjonType +
-                ", behandlingStegType=" + behandlingStegType +
-                '}';
+        return "StegTransisjon{" + "transisjonType=" + transisjonType + ", behandlingStegType=" + behandlingStegType + '}';
     }
 }

@@ -52,11 +52,8 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
-        when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(Virksomhet.getBuilder()
-            .medOrgnr(KUNSTIG_ORG)
-            .medNavn("Ukjent Firma")
-            .medRegistrert(LocalDate.now().minusDays(1))
-            .build()));
+        when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(
+            Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusDays(1)).build()));
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         oversetter = new InntektsmeldingOversetter(inntektsmeldingTjeneste, virksomhetTjeneste);
@@ -78,8 +75,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(endringerIRefusjon.size()).as(
-            "Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").isEqualTo(1);
+        assertThat(endringerIRefusjon.size()).as("Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").isEqualTo(1);
     }
 
     @Test
@@ -94,11 +90,10 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
-            .isEqualTo(4);
+        assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.").isEqualTo(4);
 
-        assertThat(naturalYtelser.stream().map(NaturalYtelse::getType).toList()).containsOnly(
-            AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
+        assertThat(naturalYtelser.stream().map(NaturalYtelse::getType).toList()).containsOnly(AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
+            ELEKTRISK_KOMMUNIKASJON);
         assertThat(naturalYtelser.stream().map(NaturalYtelse::getBeloepPerMnd)).containsOnly(new Beløp(100));
     }
 
@@ -134,8 +129,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = opprettBehandling();
         var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
-            .unmarshallXml(mottattDokument.getPayloadXml());
+        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
 
         var wrapperSpied = Mockito.spy(wrapper);
 
@@ -164,9 +158,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
         assertThat(innsendingstidspunkt).isPresent();
         assertThat(innsendingstidspunkt).hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .get()).hasSize(1);
+        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).get()).hasSize(1);
 
     }
 
@@ -175,8 +167,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = opprettBehandling();
         var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
-            .unmarshallXml(mottattDokument.getPayloadXml());
+        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
 
         var wrapperSpied = Mockito.spy(wrapper);
 
@@ -205,9 +196,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
         assertThat(innsendingstidspunkt).isPresent();
         assertThat(innsendingstidspunkt).hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .get()).hasSize(1);
+        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).get()).hasSize(1);
     }
 
     private Behandling opprettScenarioOgLagreInntektsmelding(String inntektsmeldingFilnavn) throws URISyntaxException, IOException {
@@ -225,8 +214,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         return scenario.lagre(repositoryProvider);
     }
 
-    private MottattDokument opprettDokument(Behandling behandling,
-                                            String inntektsmeldingFilnavn) throws IOException, URISyntaxException {
+    private MottattDokument opprettDokument(Behandling behandling, String inntektsmeldingFilnavn) throws IOException, URISyntaxException {
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
         var xml = fileToStringUtil.readFile(inntektsmeldingFilnavn);

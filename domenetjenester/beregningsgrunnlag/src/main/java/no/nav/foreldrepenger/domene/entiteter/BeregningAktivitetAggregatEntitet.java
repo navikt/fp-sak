@@ -37,8 +37,7 @@ public class BeregningAktivitetAggregatEntitet extends BaseEntitet {
 
     public BeregningAktivitetAggregatEntitet(BeregningAktivitetAggregatEntitet beregningAktivitetAggregatEntitet) {
         this.skjæringstidspunktOpptjening = beregningAktivitetAggregatEntitet.getSkjæringstidspunktOpptjening();
-        beregningAktivitetAggregatEntitet.getBeregningAktiviteter().stream().map(BeregningAktivitetEntitet::new)
-            .forEach(this::leggTilAktivitet);
+        beregningAktivitetAggregatEntitet.getBeregningAktiviteter().stream().map(BeregningAktivitetEntitet::new).forEach(this::leggTilAktivitet);
     }
 
     public BeregningAktivitetAggregatEntitet() {
@@ -64,9 +63,7 @@ public class BeregningAktivitetAggregatEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "BeregningAktivitetAggregatEntitet{" +
-                "id=" + id +
-                '}';
+        return "BeregningAktivitetAggregatEntitet{" + "id=" + id + '}';
     }
 
     public static Builder builder() {

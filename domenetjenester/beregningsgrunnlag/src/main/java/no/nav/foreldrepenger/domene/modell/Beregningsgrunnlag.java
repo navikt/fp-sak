@@ -40,10 +40,7 @@ public class Beregningsgrunnlag {
     }
 
     public List<BeregningsgrunnlagPeriode> getBeregningsgrunnlagPerioder() {
-        return beregningsgrunnlagPerioder
-            .stream()
-            .sorted(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
-            .toList();
+        return beregningsgrunnlagPerioder.stream().sorted(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom)).toList();
     }
 
     public Beløp getGrunnbeløp() {
@@ -79,23 +76,16 @@ public class Beregningsgrunnlag {
         if (aktivitetStatuser.size() == 1) {
             return aktivitetStatuser.get(0).getHjemmel();
         }
-        var dagpenger = aktivitetStatuser.stream()
-            .filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel()))
-            .findFirst();
+        var dagpenger = aktivitetStatuser.stream().filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel())).findFirst();
         if (dagpenger.isPresent()) {
             return dagpenger.get().getHjemmel();
         }
-        var gjelder = aktivitetStatuser.stream()
-            .filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel()))
-            .findFirst();
+        var gjelder = aktivitetStatuser.stream().filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel())).findFirst();
         return gjelder.isPresent() ? gjelder.get().getHjemmel() : Hjemmel.F_14_7;
     }
 
     public List<FaktaOmBeregningTilfelle> getFaktaOmBeregningTilfeller() {
-        return faktaOmBeregningTilfeller
-            .stream()
-            .map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle)
-            .toList();
+        return faktaOmBeregningTilfeller.stream().map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle).toList();
     }
 
     public List<SammenligningsgrunnlagPrStatus> getSammenligningsgrunnlagPrStatusListe() {
@@ -124,19 +114,17 @@ public class Beregningsgrunnlag {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "skjæringstidspunkt=" + skjæringstidspunkt + ", "
-            + ", grunnbeløp=" + grunnbeløp
-            + ", beregningsgrunnlagPerioder=" + this.beregningsgrunnlagPerioder
-            + ">";
+        return getClass().getSimpleName() + "<" + "skjæringstidspunkt=" + skjæringstidspunkt + ", " + ", grunnbeløp=" + grunnbeløp
+            + ", beregningsgrunnlagPerioder=" + this.beregningsgrunnlagPerioder + ">";
     }
 
     private void verifiserIngenLikeSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
         var finnesAlleredeSGAForStatus = sammenligningsgrunnlagPrStatusListe.stream()
             .anyMatch(sg -> sg.getSammenligningsgrunnlagType().equals(sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()));
         if (finnesAlleredeSGAForStatus) {
-            throw new IllegalStateException("FEIL: Prøver legge til sammenligningsgrunnlag med status " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType() +
-                " men et sammenligningsgrunnlag med denne statusen finnes allerede på grunnlaget!");
+            throw new IllegalStateException(
+                "FEIL: Prøver legge til sammenligningsgrunnlag med status " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()
+                    + " men et sammenligningsgrunnlag med denne statusen finnes allerede på grunnlaget!");
         }
     }
 

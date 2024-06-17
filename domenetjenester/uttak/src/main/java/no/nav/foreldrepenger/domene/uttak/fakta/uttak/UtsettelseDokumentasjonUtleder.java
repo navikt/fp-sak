@@ -68,8 +68,9 @@ final class UtsettelseDokumentasjonUtleder {
     }
 
     private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsakForInnlagtBarn(OppgittPeriodeEntitet utsettelseInnlagtBarn,
-                                                                                                   List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        return erAvklartAvVedtakOmPleiepenger(utsettelseInnlagtBarn, pleiepengerInnleggelser) ? null : DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_BARN;
+                                                                                         List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        return erAvklartAvVedtakOmPleiepenger(utsettelseInnlagtBarn,
+            pleiepengerInnleggelser) ? null : DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_BARN;
     }
 
     static boolean søktPeriodeInnenforTidsperiodeForbeholdtMor(OppgittPeriodeEntitet søknadsperiode, LocalDate familiehendelse) {
@@ -78,8 +79,8 @@ final class UtsettelseDokumentasjonUtleder {
         return søktTidsperiode.overlapper(tidsperiodeForbeholdtMor);
     }
 
-    private static boolean erAvklartAvVedtakOmPleiepenger(OppgittPeriodeEntitet søknadsperiode, List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        return pleiepengerInnleggelser.stream()
-            .anyMatch(i -> søknadsperiode.getTidsperiode().erOmsluttetAv(i.getPeriode()));
+    private static boolean erAvklartAvVedtakOmPleiepenger(OppgittPeriodeEntitet søknadsperiode,
+                                                          List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        return pleiepengerInnleggelser.stream().anyMatch(i -> søknadsperiode.getTidsperiode().erOmsluttetAv(i.getPeriode()));
     }
 }

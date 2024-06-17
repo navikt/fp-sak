@@ -43,10 +43,9 @@ public class SammenligningsgrunnlagPrStatus {
             return false;
         }
         var other = (SammenligningsgrunnlagPrStatus) obj;
-        return Objects.equals(this.getSammenligningsgrunnlagType(), other.getSammenligningsgrunnlagType())
-                && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
-                && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
-                && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
+        return Objects.equals(this.getSammenligningsgrunnlagType(), other.getSammenligningsgrunnlagType()) && Objects.equals(
+            this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom()) && Objects.equals(this.getSammenligningsperiodeTom(),
+            other.getSammenligningsperiodeTom()) && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
     }
 
     @Override
@@ -56,13 +55,9 @@ public class SammenligningsgrunnlagPrStatus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", "
-                + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", "
-                + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", "
-                + "rapportertPrÅr=" + rapportertPrÅr + ", "
-                + "avvikPromille=" + avvikPromille + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", " + "sammenligningsperiodeFom="
+            + sammenligningsperiode.getFomDato() + ", " + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", " + "rapportertPrÅr="
+            + rapportertPrÅr + ", " + "avvikPromille=" + avvikPromille + ", " + ">";
     }
 
     public static Builder builder() {
@@ -92,7 +87,7 @@ public class SammenligningsgrunnlagPrStatus {
         }
 
         public Builder medAvvikPromille(Long avvikPromille) {
-            if(avvikPromille != null) {
+            if (avvikPromille != null) {
                 sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
             }
             return this;

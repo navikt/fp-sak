@@ -40,21 +40,19 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        var behandling= ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
-        behandlingReferanse = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING).build());
-        when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any())).thenReturn(
-            opptjeningsperioder);
-        var opptjening = new Opptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(28),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1));
+        behandlingReferanse = BehandlingReferanse.fra(behandling,
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING).build());
+        when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any())).thenReturn(opptjeningsperioder);
+        var opptjening = new Opptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(28), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1));
         when(opptjeningsperioderTjeneste.hentOpptjeningHvisFinnes(any())).thenReturn(Optional.of(opptjening));
         opptjeningForBeregningTjeneste = new OpptjeningForBeregningTjeneste(opptjeningsperioderTjeneste);
     }
 
     @Test
     void skal_returnere_empty() {
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse, null);
         assertThat(relevante).isEmpty();
     }
 
@@ -67,8 +65,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
         leggTilFrilansOpptjeningsperiode();
 
         // Act
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, iayTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse,
+            iayTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
 
         // Assert
         assertThat(relevante).hasSize(1);
@@ -81,8 +79,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
         leggTilFrilansOpptjeningsperiode();
 
         // Act
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse,
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertThat(relevante).hasSize(1);
@@ -96,8 +94,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
         leggTilArbeidOpptjeningsperiode();
 
         // Act
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse,
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertThat(relevante).hasSize(2);
@@ -111,8 +109,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
         leggTilUtenlandsArbeidOpptjeningsperiode();
 
         // Act
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse, null);
 
         // Assert
         assertThat(relevante).isEmpty();
@@ -124,8 +121,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
         leggTilVidereEtterutdanningOpptjeningsperiode();
 
         // Act
-        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+        var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(behandlingReferanse, null);
 
         // Assert
         assertThat(relevante).isEmpty();
@@ -133,8 +129,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
     private void leggTilVidereEtterutdanningOpptjeningsperiode() {
         var frilansOpptjening = OpptjeningsperiodeForSaksbehandling.Builder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
+            .medPeriode(
+                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.VIDERE_ETTERUTDANNING)
             .build();
         opptjeningsperioder.add(frilansOpptjening);
@@ -142,8 +138,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
     private void leggTilUtenlandsArbeidOpptjeningsperiode() {
         var frilansOpptjening = OpptjeningsperiodeForSaksbehandling.Builder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
+            .medPeriode(
+                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)
             .build();
         opptjeningsperioder.add(frilansOpptjening);
@@ -162,8 +158,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
     private void leggTilArbeidOpptjeningsperiode() {
         var virksomhet = Arbeidsgiver.virksomhet("123");
         var arbeidOpptjening = OpptjeningsperiodeForSaksbehandling.Builder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
+            .medPeriode(
+                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1)))
             .medOpptjeningsnøkkel(Opptjeningsnøkkel.forArbeidsgiver(virksomhet))
             .medArbeidsgiver(virksomhet)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
@@ -176,8 +172,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
     private OppgittOpptjeningBuilder lagFrilansOppgittOpptjening(LocalDate fom, LocalDate tom) {
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         var annenAktivitet = new OppgittAnnenAktivitet(
-            tom == null ? DatoIntervallEntitet.fraOgMed(fom) : DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom),
-            ArbeidType.FRILANSER);
+            tom == null ? DatoIntervallEntitet.fraOgMed(fom) : DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom), ArbeidType.FRILANSER);
         oppgittOpptjeningBuilder.leggTilAnnenAktivitet(annenAktivitet);
         return oppgittOpptjeningBuilder;
     }

@@ -51,8 +51,11 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     }
 
     @Override
-    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        if (!forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling) && erRelevantForEngangsstønadSak(avsluttetBehandling)) {
+    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                           ForretningshendelseType forretningshendelseType,
+                                           BehandlingÅrsakType behandlingÅrsakType) {
+        if (!forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling) && erRelevantForEngangsstønadSak(
+            avsluttetBehandling)) {
             forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
         }
     }

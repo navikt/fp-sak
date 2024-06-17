@@ -14,22 +14,14 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 public class RegelResultatOversetter {
 
     private static final Map<RegelUtfallMerknad, VilkårUtfallMerknad> UTFALL_MERKNAD_MAP = Map.ofEntries(
-        Map.entry(RegelUtfallMerknad.RVM_1001, VilkårUtfallMerknad.VM_1001),
-        Map.entry(RegelUtfallMerknad.RVM_1002, VilkårUtfallMerknad.VM_1002),
-        Map.entry(RegelUtfallMerknad.RVM_1003, VilkårUtfallMerknad.VM_1003),
-        Map.entry(RegelUtfallMerknad.RVM_1004, VilkårUtfallMerknad.VM_1004),
-        Map.entry(RegelUtfallMerknad.RVM_1005, VilkårUtfallMerknad.VM_1005),
-        Map.entry(RegelUtfallMerknad.RVM_1006, VilkårUtfallMerknad.VM_1006),
-        Map.entry(RegelUtfallMerknad.RVM_1019, VilkårUtfallMerknad.VM_1019),
-        Map.entry(RegelUtfallMerknad.RVM_1020, VilkårUtfallMerknad.VM_1020),
-        Map.entry(RegelUtfallMerknad.RVM_1023, VilkårUtfallMerknad.VM_1023),
-        Map.entry(RegelUtfallMerknad.RVM_1024, VilkårUtfallMerknad.VM_1024),
-        Map.entry(RegelUtfallMerknad.RVM_1025, VilkårUtfallMerknad.VM_1025),
-        Map.entry(RegelUtfallMerknad.RVM_1026, VilkårUtfallMerknad.VM_1026),
-        Map.entry(RegelUtfallMerknad.RVM_1027, VilkårUtfallMerknad.VM_1027),
-        Map.entry(RegelUtfallMerknad.RVM_1028, VilkårUtfallMerknad.VM_1028),
-        Map.entry(RegelUtfallMerknad.RVM_1035, VilkårUtfallMerknad.VM_1035),
-        Map.entry(RegelUtfallMerknad.UDEFINERT, VilkårUtfallMerknad.UDEFINERT));
+        Map.entry(RegelUtfallMerknad.RVM_1001, VilkårUtfallMerknad.VM_1001), Map.entry(RegelUtfallMerknad.RVM_1002, VilkårUtfallMerknad.VM_1002),
+        Map.entry(RegelUtfallMerknad.RVM_1003, VilkårUtfallMerknad.VM_1003), Map.entry(RegelUtfallMerknad.RVM_1004, VilkårUtfallMerknad.VM_1004),
+        Map.entry(RegelUtfallMerknad.RVM_1005, VilkårUtfallMerknad.VM_1005), Map.entry(RegelUtfallMerknad.RVM_1006, VilkårUtfallMerknad.VM_1006),
+        Map.entry(RegelUtfallMerknad.RVM_1019, VilkårUtfallMerknad.VM_1019), Map.entry(RegelUtfallMerknad.RVM_1020, VilkårUtfallMerknad.VM_1020),
+        Map.entry(RegelUtfallMerknad.RVM_1023, VilkårUtfallMerknad.VM_1023), Map.entry(RegelUtfallMerknad.RVM_1024, VilkårUtfallMerknad.VM_1024),
+        Map.entry(RegelUtfallMerknad.RVM_1025, VilkårUtfallMerknad.VM_1025), Map.entry(RegelUtfallMerknad.RVM_1026, VilkårUtfallMerknad.VM_1026),
+        Map.entry(RegelUtfallMerknad.RVM_1027, VilkårUtfallMerknad.VM_1027), Map.entry(RegelUtfallMerknad.RVM_1028, VilkårUtfallMerknad.VM_1028),
+        Map.entry(RegelUtfallMerknad.RVM_1035, VilkårUtfallMerknad.VM_1035), Map.entry(RegelUtfallMerknad.UDEFINERT, VilkårUtfallMerknad.UDEFINERT));
 
     private RegelResultatOversetter() {
     }
@@ -37,7 +29,8 @@ public class RegelResultatOversetter {
     public static VilkårData oversett(VilkårType vilkårType, RegelEvalueringResultat resultat) {
         var vilkårUtfallMerknad = Optional.ofNullable(resultat.merknad())
             .map(MerknadRuleReasonRef::regelUtfallMerknad)
-            .map(RegelResultatOversetter::mapRegelMerknad).orElse(null);
+            .map(RegelResultatOversetter::mapRegelMerknad)
+            .orElse(null);
 
         return new VilkårData(vilkårType, mapRegelResultUtfallToUtfallType(resultat), vilkårUtfallMerknad, List.of(), resultat.regelEvaluering(),
             resultat.regelInput(), resultat.resultatData());

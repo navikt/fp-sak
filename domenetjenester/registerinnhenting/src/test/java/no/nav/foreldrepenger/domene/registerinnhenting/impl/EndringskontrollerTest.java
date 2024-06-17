@@ -67,29 +67,30 @@ class EndringskontrollerTest {
 
     @BeforeEach
     public void before() {
-        lenient().when(kontrollerFaktaTjenesteMock.utledAksjonspunkterTilHøyreForStartpunkt(any(), any(StartpunktType.class))).thenReturn(new ArrayList<>());
+        lenient().when(kontrollerFaktaTjenesteMock.utledAksjonspunkterTilHøyreForStartpunkt(any(), any(StartpunktType.class)))
+            .thenReturn(new ArrayList<>());
         kontrollerFaktaTjenesterMock = new UnitTestLookupInstanceImpl<>(kontrollerFaktaTjenesteMock);
 
-        lenient().when(behandlingskontrollTjenesteMock.finnAksjonspunktDefinisjonerFraOgMed(any(), any(BehandlingStegType.class), anyBoolean())).thenReturn(new HashSet<>());
+        lenient().when(behandlingskontrollTjenesteMock.finnAksjonspunktDefinisjonerFraOgMed(any(), any(BehandlingStegType.class), anyBoolean()))
+            .thenReturn(new HashSet<>());
         startpunktTjenesteProviderMock = new UnitTestLookupInstanceImpl<>(startpunktTjenesteMock);
     }
 
     @Test
     void skal_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_før_nåværende_startpunkt() {
         // Arrange
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.VURDER_UTTAK, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
         var startpunktUttak = StartpunktType.UTTAKSVILKÅR;
         revurdering.setStartpunkt(startpunktUttak);
 
         var startpunktBeregning = StartpunktType.BEREGNING;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktBeregning);
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(
+            startpunktBeregning);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(1);
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
         // Act
         endringskontroller.spolTilStartpunkt(revurdering, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
@@ -101,17 +102,16 @@ class EndringskontrollerTest {
     @Test
     void skal_håndtere_koarb_utgang_til_inngang() {
         // Arrange
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTGANG);
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, BehandlingStegStatus.UTGANG,
+            BehandlingStegStatus.UTGANG);
         var startpunktKoarb = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
 
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktKoarb);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(0); // Samme steg
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
         // Act
         endringskontroller.spolTilStartpunkt(revurdering, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
@@ -125,37 +125,38 @@ class EndringskontrollerTest {
     @Test
     void skal_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_til_venstre_for_aktivt_steg() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_UTTAK, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
 
         var startpunktBeregning = StartpunktType.BEREGNING;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktBeregning);
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(
+            startpunktBeregning);
         var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(1);
 
         // Act
         endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
 
         // Assert
-        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),eq(startpunktBeregning.getBehandlingSteg()));
+        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),
+            eq(startpunktBeregning.getBehandlingSteg()));
     }
 
     @Test
     void skal_ikke_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_udefinert() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
 
         var startpunktUdefinert = StartpunktType.UDEFINERT;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktUdefinert);
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(
+            startpunktUdefinert);
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
         // Act
         endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
@@ -168,18 +169,17 @@ class EndringskontrollerTest {
     @Test
     void skal_ikke_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_etter_nåværende_startpunkt() {
         // Arrange
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
         var startpunktBeregning = StartpunktType.BEREGNING;
         revurdering.setStartpunkt(startpunktBeregning);
 
         var startpunktUttak = StartpunktType.UTTAKSVILKÅR;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktUttak);
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
         // Act
         endringskontroller.spolTilStartpunkt(revurdering, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
@@ -191,17 +191,17 @@ class EndringskontrollerTest {
     @Test
     void skal_ikke_oppdatere_startpunkt_hvis_vi_ikke_har_grunnlag_for_å_si_at_nytt_startpunkt_er_tidligere() {
         // Arrange
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
         var startpunktTypePåBehandling = StartpunktType.UDEFINERT;
         revurdering.setStartpunkt(startpunktTypePåBehandling);
 
         var startpunktUtledetFraEndringssjekk = StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktUtledetFraEndringssjekk);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(
+            startpunktUtledetFraEndringssjekk);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
         // Act
         endringskontroller.spolTilStartpunkt(revurdering, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
@@ -214,17 +214,19 @@ class EndringskontrollerTest {
     void skal_spole_til_start_når_manglende_fødsel_gir_startpunkt_til_venstre_for_aktivt_steg() {
         // Arrange
         var fdato = LocalDate.now().minusWeeks(3);
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fdato))
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(List.of(fdato))
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagMocked();
-        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
         var startpunktTypePåBehandling = StartpunktType.OPPTJENING;
         revurdering.setStartpunkt(startpunktTypePåBehandling);
 
         var startpunktSRB = StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSRB);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(1);
 
         // Act
@@ -242,12 +244,18 @@ class EndringskontrollerTest {
             .medFødselAdopsjonsdato(List.of(fdato))
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().minusDays(5))
-            .medUtstedtDato(LocalDate.now().minusMonths(1))
-            .medNavnPå("Legen min"));
-        scenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now().minusDays(2))
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now().minusDays(5))
+                .medUtstedtDato(LocalDate.now().minusMonths(1))
+                .medNavnPå("Legen min"));
+        scenario.medBekreftetHendelse()
+            .medAntallBarn(1)
+            .medFødselsDato(LocalDate.now().minusDays(2))
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(5))
                 .medUtstedtDato(LocalDate.now().minusMonths(1))
                 .medNavnPå("Legen min"));
@@ -255,7 +263,8 @@ class EndringskontrollerTest {
         var behandling = scenario.lagMocked();
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
 
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
 
         assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
 
@@ -268,8 +277,8 @@ class EndringskontrollerTest {
         // Blir ikke reutledet
         when(kontrollerFaktaTjenesteMock.utledAksjonspunkterFomSteg(any(), any())).thenReturn(Collections.emptyList());
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
 
         // Act
@@ -278,7 +287,8 @@ class EndringskontrollerTest {
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         verify(behandlingskontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(), any(), any());
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erAvbrutt);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(
+            Aksjonspunkt::erAvbrutt);
     }
 
     @Test
@@ -289,11 +299,17 @@ class EndringskontrollerTest {
             .medFødselAdopsjonsdato(List.of(fdato))
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().minusDays(5))
-            .medUtstedtDato(LocalDate.now().minusMonths(1))
-            .medNavnPå("Legen min"));
-        scenario.medOverstyrtHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now().minusDays(5))
+                .medUtstedtDato(LocalDate.now().minusMonths(1))
+                .medNavnPå("Legen min"));
+        scenario.medOverstyrtHendelse()
+            .medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(5))
                 .medUtstedtDato(LocalDate.now().minusMonths(1))
                 .medNavnPå("Legen min"));
@@ -301,7 +317,8 @@ class EndringskontrollerTest {
         var behandling = scenario.lagMocked();
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
 
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
 
         assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
 
@@ -311,11 +328,11 @@ class EndringskontrollerTest {
 
         // Blir ikke reutledet
         when(kontrollerFaktaTjenesteMock.utledAksjonspunkterFomSteg(any(), any())).thenReturn(Collections.emptyList());
-        when(totrinnRepositoryMock.hentTotrinnaksjonspunktvurderinger(any()))
-            .thenReturn(List.of(new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).medGodkjent(false).build()));
+        when(totrinnRepositoryMock.hentTotrinnaksjonspunktvurderinger(any())).thenReturn(
+            List.of(new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).medGodkjent(false).build()));
 
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
 
 
         // Act
@@ -324,67 +341,70 @@ class EndringskontrollerTest {
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         verify(behandlingskontrollTjenesteMock, times(0)).lagreAksjonspunkterAvbrutt(any(), any(), any());
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erOpprettet);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(
+            Aksjonspunkt::erOpprettet);
     }
 
     @Test
     void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTFØRT);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.UTGANG,
+            BehandlingStegStatus.UTFØRT);
 
         var startpunktSrb = StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSrb);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(0);
 
         // Act
         endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
 
         // Assert
-        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),eq(BehandlingStegType.SØKERS_RELASJON_TIL_BARN));
+        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),
+            eq(BehandlingStegType.SØKERS_RELASJON_TIL_BARN));
     }
 
     @Test
     void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_med_op_og_startpunkt_er_senere_steg_som_behandlingen_står_i() {
         // Arrange
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         var behandling = scenario.lagMocked();
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
 
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTFØRT);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, BehandlingStegStatus.UTGANG,
+            BehandlingStegStatus.UTFØRT);
 
         var startpunktSrb = StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSrb);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
-        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT))).thenReturn(0);
-        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT), eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET.getBehandlingSteg()))).thenReturn(-1);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
+        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
+            eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT))).thenReturn(0);
+        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
+            eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET.getBehandlingSteg()))).thenReturn(-1);
 
         // Act
         endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
 
         // Assert
-        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT));
+        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringHvisTidligereBehandlingSteg(any(),
+            eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT));
     }
 
     @Test
     void skal_ikke_spole_til_INNGANG_når_behandlingen_står_i_INNGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .lagMocked();
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG,
+            BehandlingStegStatus.UTFØRT);
 
         var startpunktSrb = StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSrb);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste,
-            totrinnRepositoryMock);
+        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, historikkinnslagTjenesteMock,
+            kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste, totrinnRepositoryMock);
         when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(-1);
 
         // Act

@@ -35,9 +35,11 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
 
     private static boolean finnesManueltOpprettetArbeidsforhold(ManglendeOpplysningerVurderingDto saksbehandlersVurdering,
                                                                 ArbeidsforholdInformasjon informasjon) {
-        return informasjon.getOverstyringer().stream()
-            .anyMatch(os -> os.getArbeidsgiver() != null && os.getArbeidsgiver().getIdentifikator().equals(saksbehandlersVurdering.getArbeidsgiverIdent())
-            && Objects.equals(os.getArbeidsforholdRef().getReferanse(), saksbehandlersVurdering.getInternArbeidsforholdRef()));
+        return informasjon.getOverstyringer()
+            .stream()
+            .anyMatch(
+                os -> os.getArbeidsgiver() != null && os.getArbeidsgiver().getIdentifikator().equals(saksbehandlersVurdering.getArbeidsgiverIdent())
+                    && Objects.equals(os.getArbeidsforholdRef().getReferanse(), saksbehandlersVurdering.getInternArbeidsforholdRef()));
     }
 
     public static Optional<ArbeidsforholdValg> valgSomMåRyddesBortVedOpprettelseAvArbeidsforhold(ManueltArbeidsforholdDto opprettetArbeidsforhold,
@@ -46,8 +48,8 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
             .filter(valg -> valg.getArbeidsgiver().getIdentifikator().equals(opprettetArbeidsforhold.getArbeidsgiverIdent()))
             .toList();
         if (valgSomMatcherManueltArbeidsforhold.size() > 1) {
-            throw new IllegalStateException("Feil: Fant flere valg som matcher manuelt opprettet arbeidsforhold." +
-                " Antall matcher var " + valgSomMatcherManueltArbeidsforhold.size() + " på identifikator " + opprettetArbeidsforhold.getArbeidsgiverIdent());
+            throw new IllegalStateException("Feil: Fant flere valg som matcher manuelt opprettet arbeidsforhold." + " Antall matcher var "
+                + valgSomMatcherManueltArbeidsforhold.size() + " på identifikator " + opprettetArbeidsforhold.getArbeidsgiverIdent());
         }
         return valgSomMatcherManueltArbeidsforhold.stream().findFirst();
     }
@@ -55,27 +57,23 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
     /**
      * Tjeneste som finner valg gjort av saksbehandler som ikke lenger er gyldige i behandlingen,
      * f.eks ved innsending av inntektsmelding
+     *
      * @param valgPåBehandlingen
      * @param manglerPåBehandlingen
      * @return liste over valg som ikke lenger er gydlige
      */
     public static List<ArbeidsforholdValg> finnUgyldigeValgSomErGjort(List<ArbeidsforholdValg> valgPåBehandlingen,
                                                                       List<ArbeidsforholdMangel> manglerPåBehandlingen) {
-        return valgPåBehandlingen.stream()
-            .filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen))
-            .toList();
+        return valgPåBehandlingen.stream().filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen)).toList();
 
     }
 
     private static boolean liggerIMangelListe(ArbeidsforholdValg valg, List<ArbeidsforholdMangel> manglerPåBehandlingen) {
         return manglerPåBehandlingen.stream()
-            .anyMatch(mangel -> mangel.arbeidsgiver().equals(valg.getArbeidsgiver())
-                && mangel.ref().gjelderFor(valg.getArbeidsforholdRef()));
+            .anyMatch(mangel -> mangel.arbeidsgiver().equals(valg.getArbeidsgiver()) && mangel.ref().gjelderFor(valg.getArbeidsforholdRef()));
     }
 
     public static List<ArbeidsforholdOverstyring> finnUgyldigeOverstyringer(List<ArbeidsforholdOverstyring> overstyringer) {
-        return overstyringer.stream()
-            .filter(os -> UGYLDIGE_HANDLINGER.contains(os.getHandling()))
-            .toList();
+        return overstyringer.stream().filter(os -> UGYLDIGE_HANDLINGER.contains(os.getHandling())).toList();
     }
 }

@@ -38,8 +38,7 @@ class FastsettePerioderEndringTjenesteTest {
         var overstyrtPerioder = new UttakResultatPerioderEntitet();
         var overstyrtPeriode = enkeltPeriodeAktivitet(new Trekkdager(10), Utbetalingsgrad.ZERO);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode);
-        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
-            .medOpprinneligPerioder(opprinneligPerioder)
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class)).medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
         var tjeneste = tjeneste(uttakResultat);
@@ -60,16 +59,13 @@ class FastsettePerioderEndringTjenesteTest {
         var opprinneligPeriode = minimumPeriode().build();
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
         var overstyrtPerioder = new UttakResultatPerioderEntitet();
-        var overstyrtPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now().minusWeeks(2))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
-        var overstyrtPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusWeeks(2).plusDays(1), LocalDate.now())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var overstyrtPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1),
+            LocalDate.now().minusWeeks(2)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var overstyrtPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusWeeks(2).plusDays(1), LocalDate.now()).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode1);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode2);
-        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
-            .medOpprinneligPerioder(opprinneligPerioder)
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class)).medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
         var tjeneste = tjeneste(uttakResultat);
@@ -99,8 +95,7 @@ class FastsettePerioderEndringTjenesteTest {
         var opprinneligPerioder = new UttakResultatPerioderEntitet();
         var opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.ZERO);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
-        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
-            .medOpprinneligPerioder(opprinneligPerioder)
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class)).medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(null)
             .build();
         var tjeneste = tjeneste(uttakResultat);
@@ -128,8 +123,7 @@ class FastsettePerioderEndringTjenesteTest {
         overstyrtPeriode.leggTilAktivitet(opprinneligAktivitet1);
         overstyrtPeriode.leggTilAktivitet(opprinneligAktivitet3);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode);
-        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
-            .medOpprinneligPerioder(opprinneligPerioder)
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class)).medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
         var tjeneste = tjeneste(uttakResultat);
@@ -146,8 +140,7 @@ class FastsettePerioderEndringTjenesteTest {
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, Trekkdager trekkdager) {
         var uttakAktivitet = uttakAktivitet();
-        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medArbeidsprosent(BigDecimal.ZERO)
+        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(trekkdager)
             .build();
     }
@@ -156,8 +149,7 @@ class FastsettePerioderEndringTjenesteTest {
         var periodeBuilder = minimumPeriode();
         var periode = periodeBuilder.build();
         var uttakAktivitet = uttakAktivitet();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medArbeidsprosent(BigDecimal.ZERO)
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(trekkdager)
             .medUtbetalingsgrad(utbetalingsgrad)
             .build();
@@ -166,15 +158,14 @@ class FastsettePerioderEndringTjenesteTest {
     }
 
     private UttakAktivitetEntitet uttakAktivitet() {
-        return new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet("orgnr"), InternArbeidsforholdRef.nyRef())
+        return new UttakAktivitetEntitet.Builder().medArbeidsforhold(Arbeidsgiver.virksomhet("orgnr"), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
     }
 
     private UttakResultatPeriodeEntitet.Builder minimumPeriode() {
-        return new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
+        return new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT);
     }
 
     private FastsettePerioderEndringTjeneste tjeneste(UttakResultatEntitet uttakResultat) {

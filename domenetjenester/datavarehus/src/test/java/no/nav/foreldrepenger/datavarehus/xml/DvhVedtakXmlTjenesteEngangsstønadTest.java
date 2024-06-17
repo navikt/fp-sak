@@ -109,15 +109,12 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        var personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
-                familieHendelseRepository,
-                vergeRepository,
-                medlemskapRepository,
-                personopplysningTjeneste, iayTjeneste);
+        var personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles, familieHendelseRepository, vergeRepository,
+            medlemskapRepository, personopplysningTjeneste, iayTjeneste);
         var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
         dvhVedtakXmlTjenesteES = new DvhVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
-                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjenesteEngangsstønad),
-                new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste, null);
+            new UnitTestLookupInstanceImpl<>(personopplysningXmlTjenesteEngangsstønad), new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl),
+            behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste, null);
     }
 
     @Test
@@ -192,27 +189,22 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private Behandling byggAdopsjonMedVedtak(EntityManager em, boolean innvilget) {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
-                .medSaksnummer(SAKSNUMMER);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE).medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
 
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
-                .leggTilBarn(FØDSELSDATO_BARN)
-                .medAntallBarn(1);
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
+            .leggTilBarn(FØDSELSDATO_BARN)
+            .medAntallBarn(1);
 
         return lagreBehandlingOgVedtak(em, innvilget, scenario);
 
     }
 
     private Behandling byggFødselBehandlingMedVedtak(EntityManager em, boolean innvilget) {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
-                .medSaksnummer(SAKSNUMMER);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE).medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(FØDSELSDATO_BARN);
+        scenario.medSøknadHendelse().medFødselsDato(FØDSELSDATO_BARN);
 
         return lagreBehandlingOgVedtak(em, innvilget, scenario);
     }
@@ -222,12 +214,12 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
 
         var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var vedtak = BehandlingVedtak.builder()
-                .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
-                .medIverksettingStatus(IVERKSETTING_STATUS)
-                .medVedtakstidspunkt(VEDTAK_DATO)
-                .medVedtakResultatType(innvilget ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
-                .medBehandlingsresultat(behandling.getBehandlingsresultat())
-                .build();
+            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
+            .medIverksettingStatus(IVERKSETTING_STATUS)
+            .medVedtakstidspunkt(VEDTAK_DATO)
+            .medVedtakResultatType(innvilget ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
+            .medBehandlingsresultat(behandling.getBehandlingsresultat())
+            .build();
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 
         oppdaterMedBehandlingsresultat(em, behandling, innvilget);
@@ -244,8 +236,8 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
             em.persist(vilkårResultat);
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             var beregningResultat = LegacyESBeregningsresultat.builder()
-                    .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                    .buildFor(behandling, bres);
+                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                .buildFor(behandling, bres);
             em.persist(beregningResultat);
         } else {
             var vilkårResultat = VilkårResultat.builder()
@@ -259,11 +251,11 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     private void buildOppdragskontroll(Long behandlingId, Long delytelseId) {
         var oppdrag = Oppdragskontroll.builder()
-                .medBehandlingId(behandlingId)
-                .medSaksnummer(SAKSNUMMER)
-                .medVenterKvittering(false)
-                .medProsessTaskId(56L)
-                .build();
+            .medBehandlingId(behandlingId)
+            .medSaksnummer(SAKSNUMMER)
+            .medVenterKvittering(false)
+            .medProsessTaskId(56L)
+            .build();
 
         var oppdrag110 = buildOppdrag110(oppdrag);
         buildOppdragslinje150(oppdrag110, delytelseId);
@@ -275,36 +267,34 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje(KodeEndringLinje.ENDR)
-                .medKodeStatusLinje(KodeStatusLinje.OPPH)
-                .medDatoStatusFom(LocalDate.now())
-                .medVedtakId("345")
-                .medDelytelseId(delytelseId)
-                .medKodeKlassifik(KodeKlassifik.FPA_SELVSTENDIG)
-                .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-                .medSats(Sats.på(61122L))
-                .medTypeSats(TypeSats.DAG)
-                .medUtbetalesTilId("123456789")
-                .medOppdrag110(oppdrag110)
-                .medRefDelytelseId(1L)
-                .build();
+            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+            .medKodeStatusLinje(KodeStatusLinje.OPPH)
+            .medDatoStatusFom(LocalDate.now())
+            .medVedtakId("345")
+            .medDelytelseId(delytelseId)
+            .medKodeKlassifik(KodeKlassifik.FPA_SELVSTENDIG)
+            .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
+            .medSats(Sats.på(61122L))
+            .medTypeSats(TypeSats.DAG)
+            .medUtbetalesTilId("123456789")
+            .medOppdrag110(oppdrag110)
+            .medRefDelytelseId(1L)
+            .build();
     }
 
     private OppdragKvittering buildOppdragKvittering(Oppdrag110 oppdrag110) {
-        return OppdragKvittering.builder().medOppdrag110(oppdrag110)
-                .medAlvorlighetsgrad(Alvorlighetsgrad.OK)
-                .build();
+        return OppdragKvittering.builder().medOppdrag110(oppdrag110).medAlvorlighetsgrad(Alvorlighetsgrad.OK).build();
     }
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll) {
         return Oppdrag110.builder()
-                .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KodeFagområde.REFUTG)
-                .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
-                .medOppdragGjelderId("12345678901")
-                .medSaksbehId("J5624215")
-                .medAvstemming(Avstemming.ny())
-                .medOppdragskontroll(oppdragskontroll)
-                .build();
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.REFUTG)
+            .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
+            .medOppdragGjelderId("12345678901")
+            .medSaksbehId("J5624215")
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(oppdragskontroll)
+            .build();
     }
 }

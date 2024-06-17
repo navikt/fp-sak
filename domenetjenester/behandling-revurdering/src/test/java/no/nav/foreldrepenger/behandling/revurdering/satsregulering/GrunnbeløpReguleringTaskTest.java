@@ -74,8 +74,8 @@ class GrunnbeløpReguleringTaskTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
-        lenient().when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any())).thenReturn(Optional.of(BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build()));
+        lenient().when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any()))
+            .thenReturn(Optional.of(BeregningsgrunnlagEntitet.ny().medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build()));
         lenient().when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
             .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(TERMINDATO.minusYears(1), TERMINDATO),
                 EKSISTERENDE_G.getVerdi().longValue() + 1000));
@@ -85,8 +85,8 @@ class GrunnbeløpReguleringTaskTest {
     void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
-            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any())).thenReturn(
+            Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -98,26 +98,22 @@ class GrunnbeløpReguleringTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-                behandling.getFagsakId(), BehandlingType.REVURDERING);
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        var årsaker = behandlingÅrsaker.stream()
-                .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .toList();
+        var årsaker = behandlingÅrsaker.stream().map(BehandlingÅrsak::getBehandlingÅrsakType).toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Fagsak fagsak) {
-        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-                fagsak.getId(), BehandlingType.REVURDERING);
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
 
     private GrunnbeløpReguleringTask createTask() {
-        return new GrunnbeløpReguleringTask(repositoryProvider,
-            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, enhetsTjeneste, flytkontroll);
+        return new GrunnbeløpReguleringTask(repositoryProvider, skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository,
+            enhetsTjeneste, flytkontroll);
 
     }
 
@@ -139,8 +135,8 @@ class GrunnbeløpReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
-            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any())).thenReturn(
+            Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -148,8 +144,7 @@ class GrunnbeløpReguleringTaskTest {
         var task = createTask();
         task.doTask(prosessTaskData);
 
-        var regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-                behandling.getFagsakId(), BehandlingType.REVURDERING);
+        var regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(regulering.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING))).isPresent();
         verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
@@ -157,11 +152,11 @@ class GrunnbeløpReguleringTaskTest {
     @Test
     void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
-            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
-        when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
-            .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(EKSISTERENDE_STP_B.minusYears(1), EKSISTERENDE_STP_B),
-                EKSISTERENDE_G.getVerdi().longValue()));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any())).thenReturn(
+            Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
+        when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any())).thenReturn(
+            new BeregningSats(BeregningSatsType.GRUNNBELØP,
+                DatoIntervallEntitet.fraOgMedTilOgMed(EKSISTERENDE_STP_B.minusYears(1), EKSISTERENDE_STP_B), EKSISTERENDE_G.getVerdi().longValue()));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -189,34 +184,34 @@ class GrunnbeløpReguleringTaskTest {
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status) {
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medSøknadDato(TERMINDATO.minusDays(20));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(TERMINDATO.minusDays(20));
 
         scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medNavnPå("Lege Legesen")
-                        .medTermindato(TERMINDATO)
-                        .medUtstedtDato(TERMINDATO.minusDays(40)))
-                .medAntallBarn(1);
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medNavnPå("Lege Legesen")
+                .medTermindato(TERMINDATO)
+                .medUtstedtDato(TERMINDATO.minusDays(40)))
+            .medAntallBarn(1);
 
         scenario.medBekreftetHendelse()
-                .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                        .medNavnPå("Lege Legesen")
-                        .medTermindato(TERMINDATO)
-                        .medUtstedtDato(TERMINDATO.minusDays(40)))
-                .medAntallBarn(1);
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
+                .medNavnPå("Lege Legesen")
+                .medTermindato(TERMINDATO)
+                .medUtstedtDato(TERMINDATO.minusDays(40)))
+            .medAntallBarn(1);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
 
         scenario.medBehandlingVedtak()
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medVedtakstidspunkt(TERMINDATO.minusWeeks(2).atStartOfDay())
-                .medAnsvarligSaksbehandler("Severin Saksbehandler")
-                .build();
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medVedtakstidspunkt(TERMINDATO.minusWeeks(2).atStartOfDay())
+            .medAnsvarligSaksbehandler("Severin Saksbehandler")
+            .build();
 
-        scenario.medBehandlingsresultat(
-                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
 
         var behandling = scenario.lagre(repositoryProvider);
         behandling.setStatus(status);
@@ -224,8 +219,7 @@ class GrunnbeløpReguleringTaskTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        repositoryProvider.getOpptjeningRepository()
-                .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
 
         return behandlingRepository.hentBehandling(behandling.getId());
     }

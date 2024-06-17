@@ -93,19 +93,15 @@ public class OppgittPeriodeUtil {
                                                        OppgittPeriodeEntitet periode2,
                                                        boolean ignorerTidligstMottattDato) {
         //begrunnelse ikke viktig å se på
-        return Objects.equals(periode1.getGraderingAktivitetType(), periode2.getGraderingAktivitetType()) &&
-            Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
-            Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
-            Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&
-            Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
-            Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
-            Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
-            Objects.equals(periode1.getDokumentasjonVurdering(), periode2.getDokumentasjonVurdering()) &&
-            Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
-            Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
-            (ignorerTidligstMottattDato || Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato())) &&
-            Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
-            Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent());
+        return Objects.equals(periode1.getGraderingAktivitetType(), periode2.getGraderingAktivitetType()) && Objects.equals(
+            periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) && Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak())
+            && Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) && Objects.equals(periode1.getMorsAktivitet(),
+            periode2.getMorsAktivitet()) && Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) && Objects.equals(
+            periode1.getPeriodeType(), periode2.getPeriodeType()) && Objects.equals(periode1.getDokumentasjonVurdering(),
+            periode2.getDokumentasjonVurdering()) && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent())
+            && Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) && (ignorerTidligstMottattDato || Objects.equals(
+            periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato())) && Objects.equals(periode1.getÅrsak(), periode2.getÅrsak())
+            && Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent());
     }
 
     private static OppgittPeriodeEntitet slåSammen(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
@@ -117,8 +113,6 @@ public class OppgittPeriodeUtil {
     }
 
     static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
-        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode)
-            .medPeriode(flyttFraHelgTilMandag(nyFom), flyttFraHelgTilFredag(nyTom))
-            .build();
+        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode).medPeriode(flyttFraHelgTilMandag(nyFom), flyttFraHelgTilFredag(nyTom)).build();
     }
 }

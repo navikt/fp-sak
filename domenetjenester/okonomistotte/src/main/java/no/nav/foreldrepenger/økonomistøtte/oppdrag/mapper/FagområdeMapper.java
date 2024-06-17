@@ -9,9 +9,7 @@ public class FagområdeMapper {
     }
 
     public static KodeFagområde tilFagområde(FagsakYtelseType ytelseType, Boolean gjelderRefusjon) {
-        return gjelderRefusjon
-            ? tilFagområdeRefusjon(ytelseType)
-            : tilFagområdeBruker(ytelseType);
+        return gjelderRefusjon ? tilFagområdeRefusjon(ytelseType) : tilFagområdeBruker(ytelseType);
     }
 
     public static KodeFagområde tilFagområdeRefusjon(FagsakYtelseType ytelseType) {

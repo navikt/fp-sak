@@ -214,14 +214,14 @@ class VurderFagsystemTjenesteImplTest {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 40));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 40));
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_2))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_2), 52));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_2)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_2), 52));
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 200));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 200));
 
         var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -352,11 +352,11 @@ class VurderFagsystemTjenesteImplTest {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 140));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 140));
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 452));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 452));
 
         var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -377,8 +377,8 @@ class VurderFagsystemTjenesteImplTest {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1)).thenReturn(
+            byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
 
         var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
@@ -399,7 +399,7 @@ class VurderFagsystemTjenesteImplTest {
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
-                .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
+            .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
 
         List<Fagsak> saksListe = new ArrayList<>();
 

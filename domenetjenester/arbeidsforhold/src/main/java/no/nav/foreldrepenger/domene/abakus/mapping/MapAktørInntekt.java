@@ -58,20 +58,19 @@ class MapAktørInntekt {
 
         private InntektBuilder mapUtbetaling(UtbetalingDto dto) {
             var inntektBuilder = InntektBuilder.oppdatere(Optional.empty())
-                    .medArbeidsgiver(mapArbeidsgiver(dto.getUtbetaler()))
-                    .medInntektsKilde(KodeverkMapper.mapInntektsKildeFraDto(dto.getKilde()));
-            dto.getPoster()
-                    .forEach(post -> inntektBuilder.leggTilInntektspost(mapInntektspost(post)));
+                .medArbeidsgiver(mapArbeidsgiver(dto.getUtbetaler()))
+                .medInntektsKilde(KodeverkMapper.mapInntektsKildeFraDto(dto.getKilde()));
+            dto.getPoster().forEach(post -> inntektBuilder.leggTilInntektspost(mapInntektspost(post)));
             return inntektBuilder;
         }
 
         private InntektspostBuilder mapInntektspost(UtbetalingsPostDto post) {
             return InntektspostBuilder.ny()
-                    .medBeløp(post.getBeløp())
-                    .medInntektspostType(KodeverkMapper.mapInntektspostTypeFraDto(post.getInntektspostType()))
-                    .medPeriode(post.getPeriode().getFom(), post.getPeriode().getTom())
-                    .medSkatteOgAvgiftsregelType(KodeverkMapper.mapSkatteOgAvgiftsregelFraDto(post.getSkattAvgiftType()))
-                    .medInntektYtelse(KodeverkMapper.mapInntektYtelseTypeTilGrunnlag(post.getInntektYtelseType()));
+                .medBeløp(post.getBeløp())
+                .medInntektspostType(KodeverkMapper.mapInntektspostTypeFraDto(post.getInntektspostType()))
+                .medPeriode(post.getPeriode().getFom(), post.getPeriode().getTom())
+                .medSkatteOgAvgiftsregelType(KodeverkMapper.mapSkatteOgAvgiftsregelFraDto(post.getSkattAvgiftType()))
+                .medInntektYtelse(KodeverkMapper.mapInntektYtelseTypeTilGrunnlag(post.getInntektYtelseType()));
         }
 
         private Arbeidsgiver mapArbeidsgiver(Aktør arbeidsgiver) {

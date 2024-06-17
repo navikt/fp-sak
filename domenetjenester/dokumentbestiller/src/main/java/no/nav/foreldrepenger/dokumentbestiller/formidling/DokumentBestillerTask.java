@@ -50,15 +50,9 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
 
-        return new DokumentbestillingV2Dto(
-            behandling.getUuid(),
-            UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
-            mapYtelse(behandling.getFagsakYtelseType()),
-            prosessTaskData.getPropertyValue(DOKUMENT_MAL_TYPE),
-            prosessTaskData.getPayloadAsString(),
-            behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn(),
-            prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK)
-        );
+        return new DokumentbestillingV2Dto(behandling.getUuid(), UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
+            mapYtelse(behandling.getFagsakYtelseType()), prosessTaskData.getPropertyValue(DOKUMENT_MAL_TYPE), prosessTaskData.getPayloadAsString(),
+            behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn(), prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK));
     }
 
     private static YtelseType mapYtelse(FagsakYtelseType fpsakYtelseKode) {

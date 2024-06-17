@@ -26,10 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  * https://confluence.adeo.no/display/MODNAV/PK-42836+-+Funksjonell+beskrivelse
  */
 
-public final class EngangsstønadVilkårUtleder  {
-    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET,
-        SØKNADSFRISTVILKÅRET,
-        SØKERSOPPLYSNINGSPLIKT);
+public final class EngangsstønadVilkårUtleder {
+    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
 
     private EngangsstønadVilkårUtleder() {
     }

@@ -33,8 +33,7 @@ class UttakYrkesaktiviteterTest {
         var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
         var aktivitetsAvtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(1).plusDays(1)))
             .medProsentsats(BigDecimal.valueOf(30));
@@ -48,16 +47,11 @@ class UttakYrkesaktiviteterTest {
             .leggTilAktivitetsAvtale(aktivitetsAvtale2);
         var aktørArbeid = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
             .medAktørId(behandling.getAktørId())
-            .leggTilYrkesaktivitet(yrkesaktivitet
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(arbeidsgiver));
-        var iayAggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
-            .leggTilAktørArbeid(aktørArbeid);
-        var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(iayAggregat)
-            .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
-            .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
+            .leggTilYrkesaktivitet(yrkesaktivitet.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).medArbeidsgiver(arbeidsgiver));
+        var iayAggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER).leggTilAktørArbeid(aktørArbeid);
+        var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(iayAggregat).build();
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()),
+            iayGrunnlag, null).medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
         assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(BigDecimal.valueOf(30));
@@ -69,8 +63,7 @@ class UttakYrkesaktiviteterTest {
         var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
         var aktivitetsavtaleUtenStillingsprosent = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medSisteLønnsendringsdato(LocalDate.now())
             .medPeriode(DatoIntervallEntitet.fraOgMed(dato.minusYears(5)));
@@ -84,16 +77,11 @@ class UttakYrkesaktiviteterTest {
             .leggTilAktivitetsAvtale(aktivitetsavtaleMedStillingsprosent);
         var aktørArbeid = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
             .medAktørId(behandling.getAktørId())
-            .leggTilYrkesaktivitet(yrkesaktivitet
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(arbeidsgiver));
-        var iayAggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
-            .leggTilAktørArbeid(aktørArbeid);
-        var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(iayAggregat)
-            .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
-            .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
+            .leggTilYrkesaktivitet(yrkesaktivitet.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).medArbeidsgiver(arbeidsgiver));
+        var iayAggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER).leggTilAktørArbeid(aktørArbeid);
+        var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(iayAggregat).build();
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()),
+            iayGrunnlag, null).medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
         assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(BigDecimal.TEN);

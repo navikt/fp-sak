@@ -43,24 +43,28 @@ public class ArbeidsforholdTjeneste {
         this.abakusTjeneste = abakusTjeneste;
     }
 
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident, LocalDate dato,
-            FagsakYtelseType ytelseType) {
+    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident,
+                                                                                            LocalDate dato,
+                                                                                            FagsakYtelseType ytelseType) {
         var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
         var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(dato, dato), ytelse);
 
-        return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
-                .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
-                .collect(Collectors.groupingBy(ArbeidsforholdTjeneste::mapTilArbeidsgiver,
-                        flatMapping(
-                                im -> Stream.of(EksternArbeidsforholdRef
-                                        .ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)),
-                                Collectors.toSet())));
+        return abakusTjeneste.hentArbeidsforholdIPerioden(request)
+            .stream()
+            .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
+            .collect(Collectors.groupingBy(ArbeidsforholdTjeneste::mapTilArbeidsgiver, flatMapping(im -> Stream.of(
+                    EksternArbeidsforholdRef.ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)),
+                Collectors.toSet())));
     }
 
-    public List<ArbeidsforholdMedPermisjon> hentArbeidsforholdInfoForEnPeriode(AktørId ident, LocalDate fradato, LocalDate tildato, FagsakYtelseType ytelseType) {
+    public List<ArbeidsforholdMedPermisjon> hentArbeidsforholdInfoForEnPeriode(AktørId ident,
+                                                                               LocalDate fradato,
+                                                                               LocalDate tildato,
+                                                                               FagsakYtelseType ytelseType) {
         var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
         var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(fradato, tildato), ytelse);
-        return abakusTjeneste.hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(request).stream()
+        return abakusTjeneste.hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(request)
+            .stream()
             .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
             .map(ArbeidsforholdTjeneste::mapArbeidsforholdMedPermisjon)
             .toList();
@@ -78,11 +82,10 @@ public class ArbeidsforholdTjeneste {
     }
 
     private static ArbeidsforholdMedPermisjon mapArbeidsforholdMedPermisjon(ArbeidsforholdDto dto) {
-        return new ArbeidsforholdMedPermisjon(
-            mapTilArbeidsgiver(dto),
+        return new ArbeidsforholdMedPermisjon(mapTilArbeidsgiver(dto),
             no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.fraKode(dto.getType().getKode()),
-            dto.getArbeidsforholdId() != null ? EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId().getEksternReferanse()) : EksternArbeidsforholdRef.nullRef(),
-            tilAktivitetsavtale(dto.getArbeidsavtaler()),
+            dto.getArbeidsforholdId() != null ? EksternArbeidsforholdRef.ref(
+                dto.getArbeidsforholdId().getEksternReferanse()) : EksternArbeidsforholdRef.nullRef(), tilAktivitetsavtale(dto.getArbeidsavtaler()),
             tilPermisjoner(dto.getPermisjoner()));
     }
 
@@ -101,14 +104,19 @@ public class ArbeidsforholdTjeneste {
     }
 
     private static Permisjon mapTilPermisjon(PermisjonDto permisjonDto) {
-        return new Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(permisjonDto.getPeriode().getFom(), permisjonDto.getPeriode().getTom()), PermisjonsbeskrivelseType.fraKode(permisjonDto.getType().getKode()), permisjonDto.getProsentsats());
+        return new Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(permisjonDto.getPeriode().getFom(), permisjonDto.getPeriode().getTom()),
+            PermisjonsbeskrivelseType.fraKode(permisjonDto.getType().getKode()), permisjonDto.getProsentsats());
     }
 
     private static AktivitetAvtale mapTilAktivitetsavtale(ArbeidsavtaleDto arbeidsavtaleDto) {
-        return new AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsavtaleDto.periode().getFom(), arbeidsavtaleDto.periode().getTom()), arbeidsavtaleDto.stillingsprosent());
+        return new AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsavtaleDto.periode().getFom(), arbeidsavtaleDto.periode().getTom()),
+            arbeidsavtaleDto.stillingsprosent());
     }
 
-    public record AktivitetAvtale(DatoIntervallEntitet periode, BigDecimal stillingsprosent) {}
-    public record Permisjon(DatoIntervallEntitet periode, PermisjonsbeskrivelseType type, BigDecimal prosent) {}
+    public record AktivitetAvtale(DatoIntervallEntitet periode, BigDecimal stillingsprosent) {
+    }
+
+    public record Permisjon(DatoIntervallEntitet periode, PermisjonsbeskrivelseType type, BigDecimal prosent) {
+    }
 
 }

@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVi
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -58,25 +58,29 @@ public class RevurderingTjenesteFelles {
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
     }
 
-    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
-                                                    boolean manueltOpprettet, OrganisasjonsEnhet enhet, String opprettetAv) {
+    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak,
+                                                    Behandling opprinneligBehandling,
+                                                    boolean manueltOpprettet,
+                                                    OrganisasjonsEnhet enhet,
+                                                    String opprettetAv) {
         var behandlingType = BehandlingType.REVURDERING;
         var revurderingÅrsak = BehandlingÅrsak.builder(revurderingsÅrsak)
-                .medOriginalBehandlingId(opprinneligBehandling.getId())
-                .medManueltOpprettet(manueltOpprettet);
-        if (BehandlingÅrsakType.BERØRT_BEHANDLING.equals(revurderingsÅrsak)
-            && opprinneligBehandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
+            .medOriginalBehandlingId(opprinneligBehandling.getId())
+            .medManueltOpprettet(manueltOpprettet);
+        if (BehandlingÅrsakType.BERØRT_BEHANDLING.equals(revurderingsÅrsak) && opprinneligBehandling.getFagsakYtelseType()
+            .equals(FagsakYtelseType.FORELDREPENGER)) {
             var basis = behandlingRevurderingTjeneste.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje"));
+                .orElseThrow(
+                    () -> new IllegalStateException("Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje"));
             var behandlingsresultat = behandlingsresultatRepository.hent(basis.getId());
             LOG.info("Revurderingtjeneste oppretter berørt pga id {} med resultat {}", basis.getId(),
-                    behandlingsresultat.getBehandlingResultatType().getKode());
+                behandlingsresultat.getBehandlingResultatType().getKode());
         }
         var revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
-                .medBehandlendeEnhet(enhet)
-                .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
-                .medBehandlingÅrsak(revurderingÅrsak).build();
+            .medBehandlendeEnhet(enhet)
+            .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
+            .medBehandlingÅrsak(revurderingÅrsak)
+            .build();
         if (manueltOpprettet && opprettetAv != null) {
             revurdering.setAnsvarligSaksbehandler(opprettetAv);
         }
@@ -88,9 +92,10 @@ public class RevurderingTjenesteFelles {
     }
 
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
-        var kopiertFordeling = forrigeBehandlingFordeling.getPerioder().stream()
-                .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
-                .toList();
+        var kopiertFordeling = forrigeBehandlingFordeling.getPerioder()
+            .stream()
+            .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
+            .toList();
         return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert(),
             forrigeBehandlingFordeling.ønskerJustertVedFødsel());
     }
@@ -103,13 +108,16 @@ public class RevurderingTjenesteFelles {
         kopierVilkårsresultat(origBehandling, revurdering, kontekst, Set.of());
     }
 
-    public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst, Set<VilkårType> nullstilles) {
+    public void kopierVilkårsresultat(Behandling origBehandling,
+                                      Behandling revurdering,
+                                      BehandlingskontrollKontekst kontekst,
+                                      Set<VilkårType> nullstilles) {
         var origVilkårResultat = behandlingsresultatRepository.hent(origBehandling.getId()).getVilkårResultat();
         Objects.requireNonNull(origVilkårResultat, "Vilkårsresultat må være satt på revurderingens originale behandling");
 
         var vilkårBuilder = VilkårResultat.builder();
         origVilkårResultat.getVilkårene()
-                .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
+            .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
         vilkårBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());

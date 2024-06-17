@@ -76,8 +76,7 @@ public class FamilieHendelseTjeneste {
         if (familieHendelseGrunnlag == null || !familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
             return false;
         }
-        return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag).stream()
-            .anyMatch(i -> i.encloses(hendelsedato));
+        return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag).stream().anyMatch(i -> i.encloses(hendelsedato));
     }
 
     public boolean matcherFødselsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate termindato, LocalDate fødselsdato) {
@@ -87,23 +86,28 @@ public class FamilieHendelseTjeneste {
             return false;
         }
         List<LocalDateSegment<Boolean>> søknadSegmenter = new ArrayList<>();
-        if (termindato != null)
+        if (termindato != null) {
             søknadSegmenter.add(intervallForFødselsdato(termindato)); // Holder med ett utvidet intervall - det fra grunnlaget
-        if (fødselsdato != null)
+        }
+        if (fødselsdato != null) {
             søknadSegmenter.add(intervallForFødselsdato(fødselsdato));
+        }
         var tidslineSøknad = new LocalDateTimeline<>(søknadSegmenter, StandardCombinators::alwaysTrueForMatch).compress();
         return utledTidslineFraGrunnlag(grunnlag).intersects(tidslineSøknad);
     }
 
-    public boolean matcherOmsorgsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate omsorgDato, List<LocalDate> omsorgFødselsdatoer) {
+    public boolean matcherOmsorgsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag,
+                                                     LocalDate omsorgDato,
+                                                     List<LocalDate> omsorgFødselsdatoer) {
         // Finn behandling
         if (grunnlag == null || omsorgDato == null || !FamilieHendelseType.gjelderAdopsjon(grunnlag.getGjeldendeVersjon().getType())) {
             return false;
         }
         var omsorgdatoGrunnlag = grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
-        if (omsorgdatoGrunnlag == null || !intervallForFødselsdato(omsorgDato).overlapper(intervallForFødselsdato(omsorgdatoGrunnlag)))
+        if (omsorgdatoGrunnlag == null || !intervallForFødselsdato(omsorgDato).overlapper(intervallForFødselsdato(omsorgdatoGrunnlag))) {
             return false;
-        var intervallerGrunnlag =  utledPerioderForRegisterinnhenting(grunnlag);
+        }
+        var intervallerGrunnlag = utledPerioderForRegisterinnhenting(grunnlag);
         var antallGrunnlag = grunnlag.getGjeldendeAntallBarn();
         return antallGrunnlag == omsorgFødselsdatoer.size() && omsorgFødselsdatoer.stream()
             .allMatch(f -> intervallerGrunnlag.stream().anyMatch(i -> i.encloses(f)));
@@ -117,21 +121,22 @@ public class FamilieHendelseTjeneste {
         if (grunnlag1.getGjeldendeVersjon().getGjelderAdopsjon() && grunnlag2.getGjeldendeVersjon().getGjelderAdopsjon()) {
             var omsorgIntervall1 = intervallForFødselsdato(grunnlag1.getGjeldendeVersjon().getSkjæringstidspunkt());
             var omsorgIntervall2 = intervallForFødselsdato(grunnlag2.getGjeldendeVersjon().getSkjæringstidspunkt());
-            if (!omsorgIntervall1.overlapper(omsorgIntervall2))
+            if (!omsorgIntervall1.overlapper(omsorgIntervall2)) {
                 return false;
+            }
         }
-        var intervallerGrunnlag1 =  utledPerioderForRegisterinnhenting(grunnlag1);
-        var intervallerGrunnlag2 =  utledPerioderForRegisterinnhenting(grunnlag2);
+        var intervallerGrunnlag1 = utledPerioderForRegisterinnhenting(grunnlag1);
+        var intervallerGrunnlag2 = utledPerioderForRegisterinnhenting(grunnlag2);
         int antallGrunnlag1 = grunnlag1.getGjeldendeAntallBarn();
         int antallGrunnlag2 = grunnlag2.getGjeldendeAntallBarn();
-        return antallGrunnlag1 == antallGrunnlag2 &&
-            intervallerGrunnlag1.stream().allMatch(i1 -> intervallerGrunnlag2.stream().anyMatch(i1::overlaps)) &&
-            intervallerGrunnlag2.stream().allMatch(i2 -> intervallerGrunnlag1.stream().anyMatch(i2::overlaps));
+        return antallGrunnlag1 == antallGrunnlag2 && intervallerGrunnlag1.stream()
+            .allMatch(i1 -> intervallerGrunnlag2.stream().anyMatch(i1::overlaps)) && intervallerGrunnlag2.stream()
+            .allMatch(i2 -> intervallerGrunnlag1.stream().anyMatch(i2::overlaps));
     }
 
     private boolean kompatibleTyper(FamilieHendelseEntitet hendelse1, FamilieHendelseEntitet hendelse2) {
-        return hendelse1.getGjelderFødsel() && hendelse2.getGjelderFødsel() || gjelderStebarnsadopsjon(hendelse1, hendelse2) ||
-            hendelse1.getType().equals(hendelse2.getType());
+        return hendelse1.getGjelderFødsel() && hendelse2.getGjelderFødsel() || gjelderStebarnsadopsjon(hendelse1, hendelse2) || hendelse1.getType()
+            .equals(hendelse2.getType());
     }
 
     private boolean gjelderStebarnsadopsjon(FamilieHendelseEntitet hendelse1, FamilieHendelseEntitet hendelse2) {
@@ -167,8 +172,10 @@ public class FamilieHendelseTjeneste {
         var sisteRegistrertFødselsdato = hentRegisterFødselsdato(behandlingId).orElse(null);
 
         var familieHendelseGrunnlag = hentAggregat(behandlingId);
-        if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
-            familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE)) {
+        if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) && familieHendelseGrunnlag.getBekreftetVersjon()
+            .map(FamilieHendelseEntitet::getType)
+            .map(FØDSEL::equals)
+            .orElse(Boolean.FALSE)) {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereRegistrertFødselsdato, sisteRegistrertFødselsdato);
         }
     }
@@ -187,8 +194,10 @@ public class FamilieHendelseTjeneste {
         var sisteGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandlingId).orElse(null);
 
         var familieHendelseGrunnlag = hentAggregat(behandlingId);
-        if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
-            familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).filter(FØDSEL::equals).isPresent()) {
+        if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) && familieHendelseGrunnlag.getOverstyrtVersjon()
+            .map(FamilieHendelseEntitet::getType)
+            .filter(FØDSEL::equals)
+            .isPresent()) {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
@@ -207,8 +216,7 @@ public class FamilieHendelseTjeneste {
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
         var funnetId = familieGrunnlagRepository.hentIdPåAktivFamiliehendelse(behandlingId);
-        return funnetId
-            .map(id -> EndringsresultatSnapshot.medSnapshot(FamilieHendelseGrunnlagEntitet.class, id))
+        return funnetId.map(id -> EndringsresultatSnapshot.medSnapshot(FamilieHendelseGrunnlagEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(FamilieHendelseGrunnlagEntitet.class));
     }
 
@@ -217,7 +225,8 @@ public class FamilieHendelseTjeneste {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var fødselsintervall = utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
 
-        return personopplysninger.getRelasjoner().stream()
+        return personopplysninger.getRelasjoner()
+            .stream()
             .filter(rel -> rel.getAktørId().equals(ref.aktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
             .map(rel -> personopplysninger.getPersonopplysning(rel.getTilAktørId()))
             .filter(barn -> barn != null && erBarnRelatertTilSøknad(fødselsintervall, barn.getFødselsdato()))
@@ -225,8 +234,7 @@ public class FamilieHendelseTjeneste {
     }
 
     private boolean erBarnRelatertTilSøknad(List<LocalDateInterval> relasjonsintervall, LocalDate dato) {
-        return relasjonsintervall.stream()
-            .anyMatch(periode -> periode.encloses(dato));
+        return relasjonsintervall.stream().anyMatch(periode -> periode.encloses(dato));
     }
 
     private Optional<TerminbekreftelseEntitet> hentGjeldendeTerminbekreftelse(Long behandlingId) {
@@ -253,8 +261,8 @@ public class FamilieHendelseTjeneste {
             return false;
         }
         var fhDato = grunnlag.finnGjeldendeFødselsdato();
-        var fhDatoPlussFrist = FamilieHendelseType.FØDSEL.equals(grunnlag.getGjeldendeVersjon().getType()) ?
-            REGISTRERING_FRIST_ETTER_FØDSEL : REGISTRERING_FRIST_ETTER_TERMIN;
+        var fhDatoPlussFrist = FamilieHendelseType.FØDSEL.equals(
+            grunnlag.getGjeldendeVersjon().getType()) ? REGISTRERING_FRIST_ETTER_FØDSEL : REGISTRERING_FRIST_ETTER_TERMIN;
         return LocalDate.now().isAfter(fhDato.plus(fhDatoPlussFrist));
     }
 
@@ -284,8 +292,8 @@ public class FamilieHendelseTjeneste {
     static LocalDateTimeline<Boolean> utledTidslineFraGrunnlag(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         var søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
         // Tar med bekreftet / overstyrt barn hvis finnes
-        List<LocalDateSegment<Boolean>> intervaller = new ArrayList<>(familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
-            .map(FamilieHendelseTjeneste::intervallerForUidentifisertBarn).orElse(List.of()));
+        List<LocalDateSegment<Boolean>> intervaller = new ArrayList<>(
+            familieHendelseGrunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseTjeneste::intervallerForUidentifisertBarn).orElse(List.of()));
 
         if (FamilieHendelseType.FØDSEL.equals(søknadVersjon.getType())) {
             intervaller.addAll(intervallerForUidentifisertBarn(søknadVersjon));
@@ -303,11 +311,13 @@ public class FamilieHendelseTjeneste {
             intervaller.addAll(intervallerForUidentifisertBarn(søknadVersjon));
         }
 
-        return intervaller.isEmpty() ? new LocalDateTimeline<>(List.of()) : new LocalDateTimeline<>(intervaller, StandardCombinators::alwaysTrueForMatch).compress();
+        return intervaller.isEmpty() ? new LocalDateTimeline<>(List.of()) : new LocalDateTimeline<>(intervaller,
+            StandardCombinators::alwaysTrueForMatch).compress();
     }
 
     private static List<LocalDateSegment<Boolean>> intervallerForUidentifisertBarn(FamilieHendelseEntitet familieHendelseEntitet) {
-        return familieHendelseEntitet.getBarna().stream()
+        return familieHendelseEntitet.getBarna()
+            .stream()
             .map(UidentifisertBarn::getFødselsdato)
             .map(dato -> new LocalDateSegment<>(dato.minus(MATCH_INTERVAlL_FØDSEL), dato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE))
             .toList();

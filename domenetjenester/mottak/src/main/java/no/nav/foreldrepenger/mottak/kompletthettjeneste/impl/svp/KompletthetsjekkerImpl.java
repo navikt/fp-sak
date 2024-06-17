@@ -40,7 +40,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Inject
     public KompletthetsjekkerImpl(@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
-                                 KompletthetsjekkerFelles fellesUtil) {
+                                  KompletthetsjekkerFelles fellesUtil) {
         this.kompletthetssjekkerSøknad = kompletthetssjekkerSøknad;
         this.fellesUtil = fellesUtil;
     }
@@ -58,7 +58,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
         var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(ref);
-        return forTidligFrist.map(localDateTime -> KompletthetResultat.ikkeOppfylt(localDateTime, Venteårsak.FOR_TIDLIG_SOKNAD)).orElseGet(KompletthetResultat::oppfylt);
+        return forTidligFrist.map(localDateTime -> KompletthetResultat.ikkeOppfylt(localDateTime, Venteårsak.FOR_TIDLIG_SOKNAD))
+            .orElseGet(KompletthetResultat::oppfylt);
     }
 
     @Override

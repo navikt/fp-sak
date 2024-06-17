@@ -35,8 +35,7 @@ public class RisikovurderingTjeneste {
     }
 
     @Inject
-    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste,
-                                   ProsessTaskTjeneste prosessTaskTjeneste) {
+    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste, ProsessTaskTjeneste prosessTaskTjeneste) {
         this.fpriskTjeneste = fpriskTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
@@ -70,8 +69,9 @@ public class RisikovurderingTjeneste {
         } else {
             LOG.info("Oppretter task for risikoklassifisering på behandling " + referanse.behandlingId());
             var callId = MDCOperations.getCallId();
-            if (callId == null || callId.isBlank())
+            if (callId == null || callId.isBlank()) {
                 callId = MDCOperations.generateCallId();
+            }
             var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
             taskData.setBehandling(referanse.fagsakId(), referanse.behandlingId(), referanse.aktørId().getId());
             taskData.setCallId(callId);
@@ -94,7 +94,8 @@ public class RisikovurderingTjeneste {
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
-        var request = new LagreFaresignalVurderingDto(referanse.behandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
+        var request = new LagreFaresignalVurderingDto(referanse.behandlingUuid(),
+            KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
         fpriskTjeneste.sendRisikovurderingTilFprisk(request);
     }
 

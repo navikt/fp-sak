@@ -28,9 +28,11 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
             .filter(p -> p.getDagsats() > 0)
             .flatMap(StønadsstatistikkUtbetalingPeriodeMapper::mapTilkjentPeriode)
             .collect(Collectors.groupingBy(s -> new Gruppering(s.getValue())))
-            .values().stream()
+            .values()
+            .stream()
             .map(LocalDateTimeline::new)
-            .map(ldt -> ldt.compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer, StandardCombinators::leftOnly))
+            .map(ldt -> ldt.compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer,
+                StandardCombinators::leftOnly))
             .flatMap(LocalDateTimeline::stream)
             .map(s -> new StønadsstatistikkUtbetalingPeriode(s.getFom(), s.getTom(), s.getValue().inntektskategori(), s.getValue().arbeidsgiver(),
                 s.getValue().mottaker(), s.getValue().dagsats(), s.getValue().utbetalingsgrad()))
@@ -39,11 +41,13 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
 
     static Stream<LocalDateSegment<UtbetalingSammenlign>> mapTilkjentPeriode(BeregningsresultatPeriode periode) {
         // Konverterer alle andeler, grupperer på konto, arbeidsgiver og utbetaling, summerer dagsats og returnerer segment
-        return periode.getBeregningsresultatAndelList().stream()
+        return periode.getBeregningsresultatAndelList()
+            .stream()
             .filter(a -> a.getDagsats() > 0)
             .map(StønadsstatistikkUtbetalingPeriodeMapper::mapTilkjentAndel)
             .collect(Collectors.groupingBy(Gruppering::new))
-            .values().stream()
+            .values()
+            .stream()
             .filter(l -> !l.isEmpty())
             .map(l -> mapAndelTilSegment(periode, l));
     }
@@ -79,8 +83,8 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
 
     // For å få til compress - må ha equals som gjøre BigDecimal.compareTo
     private static boolean likeNaboer(UtbetalingSammenlign u1, UtbetalingSammenlign u2) {
-        return u1.inntektskategori() == u2.inntektskategori() && Objects.equals(u1.arbeidsgiver(), u2.arbeidsgiver()) && u1.mottaker() == u2.mottaker()
-            && u1.dagsats() == u2.dagsats() && u1.utbetalingsgrad().compareTo(u2.utbetalingsgrad()) == 0;
+        return u1.inntektskategori() == u2.inntektskategori() && Objects.equals(u1.arbeidsgiver(), u2.arbeidsgiver())
+            && u1.mottaker() == u2.mottaker() && u1.dagsats() == u2.dagsats() && u1.utbetalingsgrad().compareTo(u2.utbetalingsgrad()) == 0;
     }
 
     private static StønadsstatistikkUtbetalingPeriode.Inntektskategori mapInntektskategori(BeregningsresultatAndel andel) {

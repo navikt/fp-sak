@@ -41,15 +41,16 @@ public class ArkivJournalPost {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ArkivJournalPost) o;
-        return Objects.equals(journalpostId, that.journalpostId) &&
-            Objects.equals(hovedDokument, that.hovedDokument) &&
-            Objects.equals(andreDokument, that.andreDokument) &&
-            Objects.equals(kommunikasjonsretning, that.kommunikasjonsretning) &&
-            Objects.equals(beskrivelse, that.beskrivelse) &&
-            Objects.equals(tidspunkt, that.tidspunkt);
+        return Objects.equals(journalpostId, that.journalpostId) && Objects.equals(hovedDokument, that.hovedDokument) && Objects.equals(andreDokument,
+            that.andreDokument) && Objects.equals(kommunikasjonsretning, that.kommunikasjonsretning) && Objects.equals(beskrivelse, that.beskrivelse)
+            && Objects.equals(tidspunkt, that.tidspunkt);
     }
 
     @Override
@@ -83,22 +84,22 @@ public class ArkivJournalPost {
             return this;
         }
 
-        public Builder medKommunikasjonsretning(Kommunikasjonsretning innUtNotat){
+        public Builder medKommunikasjonsretning(Kommunikasjonsretning innUtNotat) {
             this.arkivJournalPost.kommunikasjonsretning = innUtNotat;
             return this;
         }
 
-        public Builder medHoveddokument(ArkivDokument hovedDokument){
+        public Builder medHoveddokument(ArkivDokument hovedDokument) {
             this.arkivJournalPost.hovedDokument = hovedDokument;
             return this;
         }
 
-        public Builder medAndreDokument(List<ArkivDokument> vedlegg){
+        public Builder medAndreDokument(List<ArkivDokument> vedlegg) {
             this.arkivJournalPost.getAndreDokument().addAll(vedlegg);
             return this;
         }
 
-        public Builder leggTillVedlegg(ArkivDokument vedlegg){
+        public Builder leggTillVedlegg(ArkivDokument vedlegg) {
             this.arkivJournalPost.getAndreDokument().add(vedlegg);
             return this;
         }

@@ -46,7 +46,9 @@ public class StønadskontoSaldoTjeneste {
     }
 
     @Inject
-    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger, UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
+    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider,
+                                     KontoerGrunnlagBygger kontoerGrunnlagBygger,
+                                     UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
@@ -71,19 +73,16 @@ public class StønadskontoSaldoTjeneste {
                                                           Map<StønadskontoType, Integer> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
-        var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
-            .map(Annenpart::søknadOpprettetTidspunkt)
-            .orElse(null);
+        var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart().map(Annenpart::søknadOpprettetTidspunkt).orElse(null);
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
-            return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
-                berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
+            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
+            return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker, berørtBehandling, perioderAnnenpart, kontoer,
+                søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling, List.of(), new Kontoer.Builder().build(),
+            søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
@@ -106,11 +105,8 @@ public class StønadskontoSaldoTjeneste {
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var opt = annenPartUttak(foreldrepengerGrunnlag);
-        return opt.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder()
-            .getPerioder()
-            .stream()
-            .map(AnnenPartGrunnlagBygger::map)
-            .toList())
+        return opt.map(
+                uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder().getPerioder().stream().map(AnnenPartGrunnlagBygger::map).toList())
             .orElseGet(List::of);
     }
 
@@ -123,7 +119,8 @@ public class StønadskontoSaldoTjeneste {
     private List<UttakResultatPeriodeEntitet> perioderSøker(Long behandlingId) {
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
             .map(UttakResultatEntitet::getGjeldendePerioder)
-            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
+            .map(UttakResultatPerioderEntitet::getPerioder)
+            .orElse(List.of());
     }
 
     private Map<StønadskontoType, Integer> stønadskontoer(BehandlingReferanse ref) {
@@ -131,13 +128,13 @@ public class StønadskontoSaldoTjeneste {
     }
 
     public int finnStønadRest(SaldoUtregning saldoUtregning) {
-        return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER,
-            Stønadskontotype.FELLESPERIODE).mapToInt(saldoUtregning::saldo).sum();
+        return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER, Stønadskontotype.FELLESPERIODE)
+            .mapToInt(saldoUtregning::saldo)
+            .sum();
     }
 
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
-        return new FastsattUttakPeriode.Builder()
-            .tidsperiode(periode.getFom(), periode.getTom())
+        return new FastsattUttakPeriode.Builder().tidsperiode(periode.getFom(), periode.getTom())
             .aktiviteter(mapTilRegelPeriodeAktiviteter(periode.getAktiviteter()))
             .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .samtidigUttak(periode.isSamtidigUttak())
@@ -153,12 +150,10 @@ public class StønadskontoSaldoTjeneste {
         return aktiviteter.stream().map(StønadskontoSaldoTjeneste::map).toList();
     }
 
-    private static FastsattUttakPeriodeAktivitet map(
-        UttakResultatPeriodeAktivitetEntitet aktivitet) {
+    private static FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var trekkdager = UttakEnumMapper.map(aktivitet.getTrekkdager());
         var stønadskontotype = UttakEnumMapper.map(aktivitet.getTrekkonto());
         var aktivitetIdentifikator = UttakEnumMapper.map(aktivitet.getUttakAktivitet());
-        return new FastsattUttakPeriodeAktivitet(
-            trekkdager, stønadskontotype, aktivitetIdentifikator);
+        return new FastsattUttakPeriodeAktivitet(trekkdager, stønadskontotype, aktivitetIdentifikator);
     }
 }

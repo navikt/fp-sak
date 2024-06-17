@@ -117,12 +117,9 @@ public class YtelseGrunnlag {
         if (!(o instanceof YtelseGrunnlag that)) {
             return false;
         }
-        return Objects.equals(arbeidskategori, that.arbeidskategori) &&
-                Objects.equals(dekngradProsent, that.dekngradProsent) &&
-                Objects.equals(graderingProsent, that.graderingProsent) &&
-                Objects.equals(inntektProsent, that.inntektProsent) &&
-                Objects.equals(opprinneligIdentdato, that.opprinneligIdentdato) &&
-                Objects.equals(vedtaksDagsats, that.vedtaksDagsats);
+        return Objects.equals(arbeidskategori, that.arbeidskategori) && Objects.equals(dekngradProsent, that.dekngradProsent) && Objects.equals(
+            graderingProsent, that.graderingProsent) && Objects.equals(inntektProsent, that.inntektProsent) && Objects.equals(opprinneligIdentdato,
+            that.opprinneligIdentdato) && Objects.equals(vedtaksDagsats, that.vedtaksDagsats);
     }
 
     @Override
@@ -132,13 +129,8 @@ public class YtelseGrunnlag {
 
     @Override
     public String toString() {
-        return "YtelseGrunnlagEntitet{" +
-                "arbeidskategori=" + arbeidskategori +
-                ", dekngradProsent=" + dekngradProsent +
-                ", graderingProsent=" + graderingProsent +
-                ", inntektProsent=" + inntektProsent +
-                ", opprinneligIdentdato=" + opprinneligIdentdato +
-                ", vedtaksDagsats=" + vedtaksDagsats +
-                '}';
+        return "YtelseGrunnlagEntitet{" + "arbeidskategori=" + arbeidskategori + ", dekngradProsent=" + dekngradProsent + ", graderingProsent="
+            + graderingProsent + ", inntektProsent=" + inntektProsent + ", opprinneligIdentdato=" + opprinneligIdentdato + ", vedtaksDagsats="
+            + vedtaksDagsats + '}';
     }
 }

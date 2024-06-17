@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.domene.uttak.input;
 import java.time.LocalDate;
 import java.util.Optional;
 
-/** Barn som inngår i foreldrepengergrunnlaget for ytelsen. */
+/**
+ * Barn som inngår i foreldrepengergrunnlaget for ytelsen.
+ */
 public class Barn {
     private final LocalDate dødsdato;
 

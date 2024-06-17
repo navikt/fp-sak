@@ -34,7 +34,7 @@ class AktørTjenesteTest {
     @Test
     void basics_hent_aktørid() {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
-                .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
+            .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
 
         var optAktørId = aktørTjeneste.hentAktørIdForPersonIdent(fnr);
         assertThat(optAktørId).isPresent();
@@ -44,7 +44,7 @@ class AktørTjenesteTest {
     @Test
     void basics_hent_ident() {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
-                .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
+            .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
 
         var optFnr = aktørTjeneste.hentPersonIdentForAktørId(aktørId);
         assertThat(optFnr).isPresent();

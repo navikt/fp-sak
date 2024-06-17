@@ -19,9 +19,7 @@ class SammenlignBeregningsresultat {
             return false;
         }
         for (var periode1 : liste1) {
-            var matchendePeriode = liste2.stream()
-                .filter(periode2 -> periodeErLik(periode1, periode2))
-                .findFirst();
+            var matchendePeriode = liste2.stream().filter(periode2 -> periodeErLik(periode1, periode2)).findFirst();
             if (matchendePeriode.isEmpty()) {
                 return false;
             }

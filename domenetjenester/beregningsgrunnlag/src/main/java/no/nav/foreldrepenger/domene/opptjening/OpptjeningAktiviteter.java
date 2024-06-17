@@ -29,11 +29,8 @@ public class OpptjeningAktiviteter {
         return Collections.unmodifiableList(opptjeningPerioder);
     }
 
-    public record OpptjeningPeriode(OpptjeningAktivitetType opptjeningAktivitetType,
-                                    Periode periode,
-                                    String arbeidsgiverOrgNummer,
-                                    String arbeidsgiverAktørId,
-                                    InternArbeidsforholdRef arbeidsforholdId) {
+    public record OpptjeningPeriode(OpptjeningAktivitetType opptjeningAktivitetType, Periode periode, String arbeidsgiverOrgNummer,
+                                    String arbeidsgiverAktørId, InternArbeidsforholdRef arbeidsforholdId) {
         public OpptjeningPeriode {
             Objects.requireNonNull(opptjeningAktivitetType, "type");
             Objects.requireNonNull(periode, "periode");
@@ -51,8 +48,8 @@ public class OpptjeningAktiviteter {
         @Override
         public String toString() {
             return "OpptjeningPeriode{" + "opptjeningAktivitetType=" + opptjeningAktivitetType + ", periode=" + periode + ", arbeidsgiverOrgNummer='"
-                + OrgNummer.tilMaskertNummer(arbeidsgiverOrgNummer) + '\'' + ", arbeidsgiverAktørId='" + arbeidsgiverAktørId + '\'' + ", arbeidsforholdId=" + arbeidsforholdId
-                + '}';
+                + OrgNummer.tilMaskertNummer(arbeidsgiverOrgNummer) + '\'' + ", arbeidsgiverAktørId='" + arbeidsgiverAktørId + '\''
+                + ", arbeidsforholdId=" + arbeidsforholdId + '}';
         }
     }
 
@@ -76,39 +73,52 @@ public class OpptjeningAktiviteter {
         return new OpptjeningPeriode(type, periode, arbeidsgiverOrgNummer, null, arbeidsforholdId);
     }
 
-    public static OpptjeningPeriode nyPeriodeOrgnr(OpptjeningAktivitetType type,
-                                                   Periode periode,
-                                                   String arbeidsgiverOrgNummer) {
+    public static OpptjeningPeriode nyPeriodeOrgnr(OpptjeningAktivitetType type, Periode periode, String arbeidsgiverOrgNummer) {
         return new OpptjeningPeriode(type, periode, arbeidsgiverOrgNummer, null, null);
     }
 
-    /** Lag ny opptjening periode for angitt aktivitet uten arbeidsgiver (kan ikke vøre type ARBEID). */
+    /**
+     * Lag ny opptjening periode for angitt aktivitet uten arbeidsgiver (kan ikke vøre type ARBEID).
+     */
     public static OpptjeningPeriode nyPeriode(OpptjeningAktivitetType type, Periode periode) {
         kanIkkeVæreArbeid(type);
         return new OpptjeningPeriode(type, periode, null, null, null);
     }
 
-    /** Lag ny opptjening periode for angitt aktivitet og med privat arbeidsgive (angitt ved aktørId). */
+    /**
+     * Lag ny opptjening periode for angitt aktivitet og med privat arbeidsgive (angitt ved aktørId).
+     */
     public static OpptjeningPeriode nyPeriodeAktør(OpptjeningAktivitetType type, Periode periode, String aktørId) {
         return nyPeriode(type, periode, null, aktørId, null);
     }
 
-    /** Lag ny opptjening periode for angitt aktivitet og med privat arbeidsgive (angitt ved aktørId) og arbeidsforhold ref. */
-    public static OpptjeningPeriode nyPeriodeAktør(OpptjeningAktivitetType type, Periode periode, String aktørId, InternArbeidsforholdRef arbeidsforholdRef) {
+    /**
+     * Lag ny opptjening periode for angitt aktivitet og med privat arbeidsgive (angitt ved aktørId) og arbeidsforhold ref.
+     */
+    public static OpptjeningPeriode nyPeriodeAktør(OpptjeningAktivitetType type,
+                                                   Periode periode,
+                                                   String aktørId,
+                                                   InternArbeidsforholdRef arbeidsforholdRef) {
         return nyPeriode(type, periode, null, aktørId, arbeidsforholdRef);
     }
 
-    /** Med enkel, registrert arbeidsgiver. ArbeidsforholdReferanse optional. */
+    /**
+     * Med enkel, registrert arbeidsgiver. ArbeidsforholdReferanse optional.
+     */
     public static OpptjeningAktiviteter fraOrgnr(OpptjeningAktivitetType type, Periode periode, String orgnr, InternArbeidsforholdRef arbId) {
         return new OpptjeningAktiviteter(nyPeriode(type, periode, orgnr, null, arbId));
     }
 
-    /** Med enkel, registrert arbeidsgiver. Ikke arbeidsforholdReferanse. */
+    /**
+     * Med enkel, registrert arbeidsgiver. Ikke arbeidsforholdReferanse.
+     */
     public static OpptjeningAktiviteter fraOrgnr(OpptjeningAktivitetType type, Periode periode, String orgnr) {
         return new OpptjeningAktiviteter(nyPeriode(type, periode, orgnr, null, null));
     }
 
-    /** Med enkel, privat arbeidsgiver. Merk - angi arbeidsgivers aktørId, ikke søkers. */
+    /**
+     * Med enkel, privat arbeidsgiver. Merk - angi arbeidsgivers aktørId, ikke søkers.
+     */
     public static OpptjeningAktiviteter fraAktørId(OpptjeningAktivitetType type, Periode periode, String arbeidsgiverAktørId) {
         return new OpptjeningAktiviteter(nyPeriode(type, periode, null, arbeidsgiverAktørId, null));
     }
@@ -116,12 +126,16 @@ public class OpptjeningAktiviteter {
     /**
      * Med enkel, privat arbeidsgiver. Merk - angi arbeidsgivers aktørId, ikke søkers.
      */
-    public static OpptjeningAktiviteter fraAktørId(OpptjeningAktivitetType type, Periode periode, String arbeidsgiverAktørId,
+    public static OpptjeningAktiviteter fraAktørId(OpptjeningAktivitetType type,
+                                                   Periode periode,
+                                                   String arbeidsgiverAktørId,
                                                    InternArbeidsforholdRef arbeidsforholdRef) {
         return new OpptjeningAktiviteter(nyPeriode(type, periode, null, arbeidsgiverAktørId, arbeidsforholdRef));
     }
 
-    /** Med enkel, aktivitet uten arbeidsgiver (kan ikke være {@link OpptjeningAktivitetType#ARBEID}. */
+    /**
+     * Med enkel, aktivitet uten arbeidsgiver (kan ikke være {@link OpptjeningAktivitetType#ARBEID}.
+     */
     public static OpptjeningAktiviteter fra(OpptjeningAktivitetType type, Periode periode) {
         kanIkkeVæreArbeid(type);
         return new OpptjeningAktiviteter(nyPeriode(type, periode, null, null, null));

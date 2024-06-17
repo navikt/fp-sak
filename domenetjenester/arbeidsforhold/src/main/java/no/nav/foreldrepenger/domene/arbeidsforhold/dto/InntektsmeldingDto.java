@@ -28,27 +28,21 @@ public class InntektsmeldingDto {
     public InntektsmeldingDto(Inntektsmelding inntektsmelding, Optional<Virksomhet> virksomhet) {
         this.arbeidsgiverReferanse = inntektsmelding.getArbeidsgiver().getIdentifikator();
         var arb = inntektsmelding.getArbeidsgiver();
-        this.arbeidsgiver = arb.getErVirksomhet()
-                ? virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr())).getNavn()
-                : "Privatperson"; // TODO skal navn på privatperson som arbeidsgiver hentes fra et register?
+        this.arbeidsgiver = arb.getErVirksomhet() ? virksomhet.orElseThrow(
+                () -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr()))
+            .getNavn() : "Privatperson"; // TODO skal navn på privatperson som arbeidsgiver hentes fra et register?
         this.arbeidsgiverOrgnr = arb.getIdentifikator();
         this.arbeidsgiverStartdato = inntektsmelding.getStartDatoPermisjon().orElse(null);
         this.innsendingstidspunkt = inntektsmelding.getInnsendingstidspunkt();
 
         var utsettelser = inntektsmelding.getUtsettelsePerioder();
         if (utsettelser != null) {
-            this.utsettelsePerioder.addAll(utsettelser
-                    .stream()
-                    .map(UtsettelsePeriodeDto::new)
-                    .toList());
+            this.utsettelsePerioder.addAll(utsettelser.stream().map(UtsettelsePeriodeDto::new).toList());
         }
 
         var graderinger = inntektsmelding.getGraderinger();
         if (graderinger != null) {
-            this.graderingPerioder.addAll(graderinger
-                    .stream()
-                    .map(GraderingPeriodeDto::new)
-                    .toList());
+            this.graderingPerioder.addAll(graderinger.stream().map(GraderingPeriodeDto::new).toList());
         }
 
         getRefusjonBeløpPerMnd = inntektsmelding.getRefusjonBeløpPerMnd();

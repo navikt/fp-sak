@@ -29,17 +29,12 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,
                                                  BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
-            BeregningTjeneste beregningTjeneste,
-            OpphørUttakTjeneste opphørUttakTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            MedlemTjeneste medlemTjeneste,
-            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
-        super(repositoryProvider,
-                grunnlagRepositoryProvider,
-                beregningTjeneste,
-                medlemTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste);
+                                                 BeregningTjeneste beregningTjeneste,
+                                                 OpphørUttakTjeneste opphørUttakTjeneste,
+                                                 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                 MedlemTjeneste medlemTjeneste,
+                                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+        super(repositoryProvider, grunnlagRepositoryProvider, beregningTjeneste, medlemTjeneste, opphørUttakTjeneste, skjæringstidspunktTjeneste);
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }

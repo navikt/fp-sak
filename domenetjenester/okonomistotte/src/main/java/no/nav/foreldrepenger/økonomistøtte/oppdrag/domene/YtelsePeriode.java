@@ -93,11 +93,7 @@ public class YtelsePeriode {
     }
 
     private static Satsen summerSats(SatsType satsType, Collection<YtelsePeriode> perioder) {
-        var sats = perioder.stream()
-            .map(YtelsePeriode::getSats)
-            .mapToLong(Satsen::getSats)
-            .reduce(Long::sum)
-            .orElseThrow();
+        var sats = perioder.stream().map(YtelsePeriode::getSats).mapToLong(Satsen::getSats).reduce(Long::sum).orElseThrow();
         return new Satsen(satsType, sats);
     }
 
@@ -115,11 +111,14 @@ public class YtelsePeriode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (YtelsePeriode) o;
-        return periode.equals(that.periode) &&
-            verdi.equals(that.verdi);
+        return periode.equals(that.periode) && verdi.equals(that.verdi);
     }
 
     @Override
@@ -129,11 +128,7 @@ public class YtelsePeriode {
 
     @Override
     public String toString() {
-        return "YtelsePeriode{" +
-            "periode=" + periode +
-            ", sats=" + getSats() +
-            ", utbetalingsgrad=" + getUtbetalingsgrad() +
-            '}';
+        return "YtelsePeriode{" + "periode=" + periode + ", sats=" + getSats() + ", utbetalingsgrad=" + getUtbetalingsgrad() + '}';
     }
 
 

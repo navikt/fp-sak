@@ -51,8 +51,6 @@ class TilbakeføringTransisjon implements StegTransisjon {
 
     @Override
     public String toString() {
-        return "TilbakeføringTransisjon{" +
-                "id='" + id + '\'' +
-                '}';
+        return "TilbakeføringTransisjon{" + "id='" + id + '\'' + '}';
     }
 }

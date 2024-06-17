@@ -35,8 +35,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
     }
 
     @Inject
-    public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository,
-            HistorikkTjenesteAdapter historikkAdapter) {
+    public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository, HistorikkTjenesteAdapter historikkAdapter) {
 
         this.opptjeningRepository = opptjeningRepository;
         this.historikkAdapter = historikkAdapter;
@@ -49,9 +48,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
             sjekkOmVilkåretKanSettesTilOppfylt(param.getBehandlingId());
-            return new OppdateringResultat.Builder()
-                .leggTilManueltOppfyltVilkår(VilkårType.OPPTJENINGSVILKÅRET)
-                .build();
+            return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(VilkårType.OPPTJENINGSVILKÅRET).build();
         }
         return OppdateringResultat.utenTransisjon()
             .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
@@ -62,7 +59,10 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
     }
 
     private void sjekkOmVilkåretKanSettesTilOppfylt(Long behandlingId) {
-        var ant = opptjeningRepository.finnOpptjening(behandlingId).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+        var ant = opptjeningRepository.finnOpptjening(behandlingId)
+            .map(Opptjening::getOpptjeningAktivitet)
+            .orElse(List.of())
+            .stream()
             .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
             .count();
         if (ant > 0) {
@@ -74,11 +74,8 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
     }
 
     private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {
-        historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
+        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
 
-        historikkAdapter.tekstBuilder()
-                .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
-                .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
+        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse, param.erBegrunnelseEndret()).medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 }

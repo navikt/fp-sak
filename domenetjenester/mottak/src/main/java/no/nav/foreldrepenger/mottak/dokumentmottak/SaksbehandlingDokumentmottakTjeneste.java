@@ -26,8 +26,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     }
 
     @Inject
-    public SaksbehandlingDokumentmottakTjeneste(ProsessTaskTjeneste taskTjeneste,
-                                                MottatteDokumentTjeneste mottatteDokumentTjeneste) {
+    public SaksbehandlingDokumentmottakTjeneste(ProsessTaskTjeneste taskTjeneste, MottatteDokumentTjeneste mottatteDokumentTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
     }
@@ -45,7 +44,8 @@ public class SaksbehandlingDokumentmottakTjeneste {
     }
 
     public void opprettFraTidligereBehandling(MottattDokument mottattDokument, Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        LOG.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(), behandling.getFagsakId(), mottattDokument.getId());
+        LOG.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(),
+            behandling.getFagsakId(), mottattDokument.getId());
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
@@ -65,7 +65,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     }
 
     private void settÅrsakHvisDefinert(BehandlingÅrsakType behandlingÅrsakType, ProsessTaskData prosessTaskData) {
-        if (behandlingÅrsakType !=null && !BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
+        if (behandlingÅrsakType != null && !BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
             prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, behandlingÅrsakType.getKode());
         }
     }

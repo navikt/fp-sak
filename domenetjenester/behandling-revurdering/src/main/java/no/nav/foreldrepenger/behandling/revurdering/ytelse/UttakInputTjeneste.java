@@ -89,8 +89,7 @@ public class UttakInputTjeneste {
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
-            .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
+        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medMedlemskapOpphørsdato(medlemskapOpphørsdato)
             .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
             .medBehandlingÅrsaker(map(årsaker))
             .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker));
@@ -99,15 +98,15 @@ public class UttakInputTjeneste {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
             var finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag(ref, beregningsgrunnlag.get());
             input = input.medBeregningsgrunnlagStatuser(bgStatuser)
-                    .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
+                .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
         }
         return input;
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {
         var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
-        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste
-                .finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
+        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnAndelerMedGraderingUtenBG(
+            BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
 
         return !andelerMedGraderingUtenBG.isEmpty();
     }
@@ -126,10 +125,11 @@ public class UttakInputTjeneste {
     }
 
     private Set<BeregningsgrunnlagStatus> lagBeregningsgrunnlagStatuser(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-                .flatMap(beregningsgrunnlagPeriode -> beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .map(this::mapAndel)
-                .collect(Collectors.toSet());
+        return beregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
+            .flatMap(beregningsgrunnlagPeriode -> beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+            .map(this::mapAndel)
+            .collect(Collectors.toSet());
     }
 
     private BeregningsgrunnlagStatus mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {

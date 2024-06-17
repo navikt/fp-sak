@@ -38,14 +38,14 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
         var relevanteOpptjeningAktiveter = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
-        var relevanteOpptjeningInntekter = opptjeningTjeneste.hentRelevanteOpptjeningInntekterForVilkårVurdering(behandlingId, aktørId, skjæringstidspunkt);
+        var relevanteOpptjeningInntekter = opptjeningTjeneste.hentRelevanteOpptjeningInntekterForVilkårVurdering(behandlingId, aktørId,
+            skjæringstidspunkt);
         var opptjening = opptjeningTjeneste.hentOpptjening(behandlingId);
 
         var behandlingstidspunkt = LocalDate.now(); // TODO (FC): Avklar hva denne bør være
 
-        var grunnlag = new OpptjeningsgrunnlagAdapter(behandlingstidspunkt, opptjening.getFom(),
-            opptjening.getTom())
-            .mapTilGrunnlag(relevanteOpptjeningAktiveter, relevanteOpptjeningInntekter);
+        var grunnlag = new OpptjeningsgrunnlagAdapter(behandlingstidspunkt, opptjening.getFom(), opptjening.getTom()).mapTilGrunnlag(
+            relevanteOpptjeningAktiveter, relevanteOpptjeningInntekter);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 

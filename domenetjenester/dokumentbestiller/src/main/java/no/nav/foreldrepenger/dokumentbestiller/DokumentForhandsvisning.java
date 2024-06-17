@@ -5,19 +5,15 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 
- public record DokumentForhandsvisning(UUID behandlingUuid,
-                                       DokumentMalType dokumentMal,
-                                       String fritekst,
-                                       String tittel,
-                                       RevurderingVarslingÅrsak revurderingÅrsak,
-                                       DokumentType dokumentType) {
+public record DokumentForhandsvisning(UUID behandlingUuid, DokumentMalType dokumentMal, String fritekst, String tittel,
+                                      RevurderingVarslingÅrsak revurderingÅrsak, DokumentType dokumentType) {
 
     public enum DokumentType {
         AUTOMATISK,
         OVERSTYRT
     }
 
-     public static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 

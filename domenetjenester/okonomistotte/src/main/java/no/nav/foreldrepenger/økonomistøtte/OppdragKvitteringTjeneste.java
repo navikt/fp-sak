@@ -15,7 +15,7 @@ public class OppdragKvitteringTjeneste {
     }
 
     private static boolean erPositivKvittering(OppdragKvittering oppdragKvittering) {
-        return oppdragKvittering.getAlvorlighetsgrad().equals(Alvorlighetsgrad.OK) ||
-            oppdragKvittering.getAlvorlighetsgrad().equals(Alvorlighetsgrad.OK_MED_MERKNAD);
+        return oppdragKvittering.getAlvorlighetsgrad().equals(Alvorlighetsgrad.OK) || oppdragKvittering.getAlvorlighetsgrad()
+            .equals(Alvorlighetsgrad.OK_MED_MERKNAD);
     }
 }

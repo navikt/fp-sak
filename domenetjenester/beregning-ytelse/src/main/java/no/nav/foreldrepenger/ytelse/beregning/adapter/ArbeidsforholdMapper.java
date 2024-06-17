@@ -12,7 +12,8 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arb
 
 public final class ArbeidsforholdMapper {
 
-    private ArbeidsforholdMapper() {}
+    private ArbeidsforholdMapper() {
+    }
 
     public static Arbeidsforhold mapArbeidsforholdFraUttakAktivitet(Optional<Arbeidsgiver> arbeidsgiver,
                                                                     InternArbeidsforholdRef arbeidsforholdRef,

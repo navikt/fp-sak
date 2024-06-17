@@ -28,8 +28,7 @@ class KopierBeregningsgrunnlag {
                                                          BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag) {
-        var kanKopiereFraBekreftet = kanKopiereAktiviteter(aksjonspunkter, nyttGrunnlag, forrigeGrunnlag,
-            forrigeBekreftetGrunnlag);
+        var kanKopiereFraBekreftet = kanKopiereAktiviteter(aksjonspunkter, nyttGrunnlag, forrigeGrunnlag, forrigeBekreftetGrunnlag);
         if (kanKopiereFraBekreftet) {
             return forrigeBekreftetGrunnlag.isPresent();
         }
@@ -62,17 +61,16 @@ class KopierBeregningsgrunnlag {
         var nyttRegister = nyttGrunnlag.getRegisterAktiviteter();
         var forrigeRegister = forrigeGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter);
         return forrigeRegister.map(
-            aktivitetAggregatEntitet -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIAktiviteter(nyttRegister,
-                aktivitetAggregatEntitet)).orElse(false) && (!aksjonspunkter.isEmpty()
-            || forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getOverstyring).isPresent());
+                aktivitetAggregatEntitet -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIAktiviteter(nyttRegister, aktivitetAggregatEntitet))
+            .orElse(false) && (!aksjonspunkter.isEmpty() || forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getOverstyring)
+            .isPresent());
     }
 
 
     private static boolean kanKopiereBeregningsgrunnlag(Set<BeregningAvklaringsbehovResultat> aksjonspunkter,
                                                         BeregningsgrunnlagEntitet nyttBg,
                                                         Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
-        return forrigeBeregningsgrunnlag.map(
-            bg -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(nyttBg, bg)).orElse(false)
+        return forrigeBeregningsgrunnlag.map(bg -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(nyttBg, bg)).orElse(false)
             && !aksjonspunkter.isEmpty();
     }
 

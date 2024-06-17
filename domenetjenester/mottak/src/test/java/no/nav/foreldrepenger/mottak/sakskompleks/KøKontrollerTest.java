@@ -16,13 +16,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -62,16 +62,18 @@ class KøKontrollerTest {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
-        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
-                behandlingRepositoryProvider, taskTjeneste, behandlingRevurderingTjeneste, behandlingsoppretter, flytkontroll);
+        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste, behandlingRepositoryProvider, taskTjeneste,
+            behandlingRevurderingTjeneste, behandlingsoppretter, flytkontroll);
     }
 
     @Test
     void skal_ikke_oppdatere_behandling_med_henleggelse_når_original_behandling_er_siste_vedtak() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(Optional.of(morFgBehandling));
@@ -89,18 +91,23 @@ class KøKontrollerTest {
     void skal_oppdatere_behandling_med_henleggelse_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
-        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
-        var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
+        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .lagMocked();
+        var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
-                .thenReturn(Optional.of(morBerørtBehandling));
-        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
-                .thenReturn(morOppdatertBehandling);
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(
+            Optional.of(morBerørtBehandling));
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling)).thenReturn(morOppdatertBehandling);
 
         // Act
         køKontroller.dekøFørsteBehandlingISakskompleks(farFgBehandling);
@@ -156,15 +163,19 @@ class KøKontrollerTest {
     void sakskompleks_lagre_oppdater_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
         morKøetBehandling.setOpprettetTidspunkt(LocalDateTime.now().minusHours(1));
-        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
+        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
-            .thenReturn(Optional.of(morBerørtBehandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(
+            Optional.of(morBerørtBehandling));
 
         // Act
         køKontroller.håndterSakskompleks(farFgBehandling.getFagsak());
@@ -177,18 +188,23 @@ class KøKontrollerTest {
     void sakskompleks_skal_oppdatere_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
-        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
-        var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
+        var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .lagMocked();
+        var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
-            .thenReturn(Optional.of(morBerørtBehandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(
+            Optional.of(morBerørtBehandling));
         when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
-        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
-            .thenReturn(morOppdatertBehandling);
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling)).thenReturn(morOppdatertBehandling);
 
         // Act
         køKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(morKøetBehandling.getId());

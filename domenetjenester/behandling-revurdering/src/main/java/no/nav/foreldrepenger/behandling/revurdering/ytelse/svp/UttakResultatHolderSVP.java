@@ -60,7 +60,7 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
             .filter(
                 arbeidsforhold -> arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak() != null && !arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak()
                     .equals(ArbeidsforholdIkkeOppfyltÅrsak.INGEN))
-                .count();
+            .count();
         if (antallAvslåtteArbeidsforhold == uttakresultat.get().getUttaksResultatArbeidsforhold().size()) {
             return true;
         }
@@ -100,7 +100,7 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
     }
 
     private boolean erLikresultat(List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> r1,
-            List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> r2) {
+                                  List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> r2) {
         if (r1.size() != r2.size()) {
             return false;
         }
@@ -112,10 +112,8 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
             return false;
         }
         var likeperioder = a1.getPerioder().stream().allMatch(p1 -> a2.getPerioder().stream().anyMatch(p2 -> erLikResPeriode(p1, p2)));
-        return Objects.equals(a1.getArbeidsforholdIkkeOppfyltÅrsak(), a2.getArbeidsforholdIkkeOppfyltÅrsak()) &&
-                Objects.equals(a1.getArbeidsgiver(), a2.getArbeidsgiver()) &&
-                Objects.equals(a1.getArbeidsforholdRef(), a2.getArbeidsforholdRef()) &&
-                likeperioder;
+        return Objects.equals(a1.getArbeidsforholdIkkeOppfyltÅrsak(), a2.getArbeidsforholdIkkeOppfyltÅrsak()) && Objects.equals(a1.getArbeidsgiver(),
+            a2.getArbeidsgiver()) && Objects.equals(a1.getArbeidsforholdRef(), a2.getArbeidsforholdRef()) && likeperioder;
     }
 
     private boolean erLikResPeriode(SvangerskapspengerUttakResultatPeriodeEntitet r1, SvangerskapspengerUttakResultatPeriodeEntitet r2) {
@@ -127,9 +125,10 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
     private List<SvangerskapspengerUttakResultatPeriodeEntitet> finnSisteUttaksperiodePrArbeidsforhold() {
         List<SvangerskapspengerUttakResultatPeriodeEntitet> sistePerioder = new ArrayList<>();
         uttakresultat.ifPresent(ur -> ur.getUttaksResultatArbeidsforhold()
-                .forEach(arbeidsforhold -> arbeidsforhold.getPerioder().stream()
-                        .max(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom))
-                        .ifPresent(sistePerioder::add)));
+            .forEach(arbeidsforhold -> arbeidsforhold.getPerioder()
+                .stream()
+                .max(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getTom))
+                .ifPresent(sistePerioder::add)));
 
         return sistePerioder;
     }

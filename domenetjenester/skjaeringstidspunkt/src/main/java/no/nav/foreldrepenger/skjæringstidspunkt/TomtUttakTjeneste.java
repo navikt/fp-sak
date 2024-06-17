@@ -27,8 +27,7 @@ public class TomtUttakTjeneste {
     }
 
     @Inject
-    public TomtUttakTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                             UtsettelseBehandling2021 utsettelseBehandling2021) {
+    public TomtUttakTjeneste(BehandlingRepositoryProvider repositoryProvider, UtsettelseBehandling2021 utsettelseBehandling2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.utsettelseBehandling2021 = utsettelseBehandling2021;

@@ -16,16 +16,10 @@ class TilgrensendeYtelserTest {
 
     @Test
     void skal_sortere_null_first() {
-        var tilgrensendeYtelser = Arrays.asList(
-                lagTilgrensendeYtelser(I_DAG.minusYears(3)),
-                lagTilgrensendeYtelser(I_DAG.minusDays(2)),
-                lagTilgrensendeYtelser(I_DAG.plusWeeks(3)),
-                lagTilgrensendeYtelser(I_DAG),
-                lagTilgrensendeYtelser(null),
-                lagTilgrensendeYtelser(I_DAG.plusYears(2)),
-                lagTilgrensendeYtelser(I_DAG.minusMonths(1)),
-                lagTilgrensendeYtelser(null),
-                lagTilgrensendeYtelser(I_DAG.minusYears(1)));
+        var tilgrensendeYtelser = Arrays.asList(lagTilgrensendeYtelser(I_DAG.minusYears(3)), lagTilgrensendeYtelser(I_DAG.minusDays(2)),
+            lagTilgrensendeYtelser(I_DAG.plusWeeks(3)), lagTilgrensendeYtelser(I_DAG), lagTilgrensendeYtelser(null),
+            lagTilgrensendeYtelser(I_DAG.plusYears(2)), lagTilgrensendeYtelser(I_DAG.minusMonths(1)), lagTilgrensendeYtelser(null),
+            lagTilgrensendeYtelser(I_DAG.minusYears(1)));
 
         tilgrensendeYtelser.sort(Comparator.naturalOrder());
 

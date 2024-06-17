@@ -51,34 +51,27 @@ public class ForeldrepengerUttakPeriode {
         if (periode.getAktiviteter().size() != aktiviteter.size()) {
             return false;
         }
-        var likeAktivitieter = periode.getAktiviteter().stream()
-            .allMatch(a1 -> getAktiviteter().stream().anyMatch(a1::likBortsettFraTrekkdager));
-        return Objects.equals(periode.getTidsperiode(), getTidsperiode())
-            && harLikeVerdier(periode)
-            && likeAktivitieter;
+        var likeAktivitieter = periode.getAktiviteter().stream().allMatch(a1 -> getAktiviteter().stream().anyMatch(a1::likBortsettFraTrekkdager));
+        return Objects.equals(periode.getTidsperiode(), getTidsperiode()) && harLikeVerdier(periode) && likeAktivitieter;
     }
 
     public boolean erLikBortsettFraPeriode(ForeldrepengerUttakPeriode periode) {
         if (periode.getAktiviteter().size() != getAktiviteter().size()) {
             return false;
         }
-        var likeAktivitieter = periode.getAktiviteter().stream()
+        var likeAktivitieter = periode.getAktiviteter()
+            .stream()
             .allMatch(a1 -> getAktiviteter().stream().anyMatch(a1::likEllerSammeAktivitetZeroTrekkdager));
         return harLikeVerdier(periode) && likeAktivitieter;
     }
 
     private boolean harLikeVerdier(ForeldrepengerUttakPeriode periode) {
-        return Objects.equals(periode.getResultatType(), getResultatType())
-            && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
-            && Objects.equals(periode.isSamtidigUttak(), isSamtidigUttak())
-            && Objects.equals(periode.getSamtidigUttaksprosent(), getSamtidigUttaksprosent())
-            && Objects.equals(periode.isGraderingInnvilget(), isGraderingInnvilget())
-            && Objects.equals(periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak())
-            && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
-            && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
-            && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
-            && Objects.equals(periode.erFraSøknad(), erFraSøknad())
-            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
+        return Objects.equals(periode.getResultatType(), getResultatType()) && Objects.equals(periode.getResultatÅrsak(), getResultatÅrsak())
+            && Objects.equals(periode.isSamtidigUttak(), isSamtidigUttak()) && Objects.equals(periode.getSamtidigUttaksprosent(),
+            getSamtidigUttaksprosent()) && Objects.equals(periode.isGraderingInnvilget(), isGraderingInnvilget()) && Objects.equals(
+            periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak()) && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
+            && Objects.equals(periode.getUtsettelseType(), getUtsettelseType()) && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
+            && Objects.equals(periode.erFraSøknad(), erFraSøknad()) && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 
     public LocalDateInterval getTidsperiode() {
@@ -167,6 +160,7 @@ public class ForeldrepengerUttakPeriode {
     public boolean harUtbetaling() {
         return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().harUtbetaling());
     }
+
     public boolean harRedusertUtbetaling() {
         return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().erRedusert());
     }
@@ -234,28 +228,13 @@ public class ForeldrepengerUttakPeriode {
 
     @Override
     public String toString() {
-        return "ForeldrepengerUttakPeriode{" +
-            "tidsperiode=" + tidsperiode +
-            ", samtidigUttak=" + samtidigUttak +
-            ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-            ", flerbarnsdager=" + flerbarnsdager +
-            ", graderingInnvilget=" + graderingInnvilget +
-            ", utsettelseType=" + utsettelseType +
-            ", resultatType=" + resultatType +
-            ", resultatÅrsak=" + resultatÅrsak +
-            ", graderingAvslagÅrsak=" + graderingAvslagÅrsak +
-            ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak +
-            ", oppholdÅrsak=" + oppholdÅrsak +
-            ", overføringÅrsak=" + overføringÅrsak +
-            ", søktKonto=" + søktKonto +
-            ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
-            ", manueltBehandlet=" + manueltBehandlet +
-            ", mottattDato=" + mottattDato +
-            ", tidligstMottatttDato=" + tidligstMottatttDato +
-            ", morsAktivitet=" + morsAktivitet +
-            ", erFraSøknad=" + erFraSøknad +
-            ", dokumentasjonVurdering=" + dokumentasjonVurdering +
-            '}';
+        return "ForeldrepengerUttakPeriode{" + "tidsperiode=" + tidsperiode + ", samtidigUttak=" + samtidigUttak + ", samtidigUttaksprosent="
+            + samtidigUttaksprosent + ", flerbarnsdager=" + flerbarnsdager + ", graderingInnvilget=" + graderingInnvilget + ", utsettelseType="
+            + utsettelseType + ", resultatType=" + resultatType + ", resultatÅrsak=" + resultatÅrsak + ", graderingAvslagÅrsak="
+            + graderingAvslagÅrsak + ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak + ", oppholdÅrsak=" + oppholdÅrsak + ", overføringÅrsak="
+            + overføringÅrsak + ", søktKonto=" + søktKonto + ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling
+            + ", manueltBehandlet=" + manueltBehandlet + ", mottattDato=" + mottattDato + ", tidligstMottatttDato=" + tidligstMottatttDato
+            + ", morsAktivitet=" + morsAktivitet + ", erFraSøknad=" + erFraSøknad + ", dokumentasjonVurdering=" + dokumentasjonVurdering + '}';
     }
 
     public static class Builder {

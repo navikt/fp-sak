@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 /**
  * Marker type som implementerer interface {@link BehandlingSteg} for å skille
  * ulike implementasjoner av samme steg for ulike behandlingtyper.<br>
- *
+ * <p>
  * NB: Settes kun dersom det er flere implementasjoner av med samme
  * {@link BehandlingStegRef}.
  */
@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @Stereotype
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Documented
 public @interface BehandlingTypeRef {
 
@@ -51,7 +51,9 @@ public @interface BehandlingTypeRef {
      */
     BehandlingType value() default BehandlingType.UDEFINERT;
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class BehandlingTypeRefLiteral extends AnnotationLiteral<BehandlingTypeRef> implements BehandlingTypeRef {
 
         private BehandlingType behandlingType;
@@ -95,9 +97,10 @@ public @interface BehandlingTypeRef {
                         return Optional.of(getInstance(binst));
                     }
                     if (binst.isAmbiguous()) {
-                            throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
-                                    + fagsakLiteral + ", behandlingType=" + behandlingLiteral);
-                        }
+                        throw new IllegalStateException(
+                            "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral + ", behandlingType="
+                                + behandlingLiteral);
+                    }
                 }
 
             }
@@ -108,7 +111,7 @@ public @interface BehandlingTypeRef {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
                 throw new IllegalStateException(
-                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
@@ -122,9 +125,7 @@ public @interface BehandlingTypeRef {
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
-            return cls != null
-                    ? instances.select(cls, anno)
-                    : instances.select(anno);
+            return cls != null ? instances.select(cls, anno) : instances.select(anno);
         }
 
     }
@@ -136,7 +137,7 @@ public @interface BehandlingTypeRef {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER })
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
     @Documented
     @interface ContainerOfBehandlingTypeRef {
         BehandlingTypeRef[] value();

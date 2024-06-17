@@ -72,46 +72,38 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     @BeforeEach
     public void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
-                BehandlingStegType.KONTROLLER_FAKTA);
-        scenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
         var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
-                .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
-                        false);
+            .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
-        var revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
-            behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
-        revurdering = revurderingTjeneste
-                .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                        BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
-        revurderingResultat = repositoryProvider.getBehandlingsresultatRepository()
-                .hentHvisEksisterer(revurdering.getId())
-                .orElse(null);
+        var revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider, behandlingskontrollTjeneste,
+            iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
+        revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+            BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+        revurderingResultat = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(revurdering.getId()).orElse(null);
     }
 
     @Test
     void skal_teste_at_alle_inngangsvilkår_oppfylt_gir_positivt_utfall() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKNADSFRISTVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSPERIODEVILKÅR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.OMSORGSVILKÅRET)
-                .buildFor(revurdering);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKNADSFRISTVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSPERIODEVILKÅR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSVILKÅRET)
+            .buildFor(revurdering);
 
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
-                revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isFalse();
@@ -121,14 +113,13 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     void skal_teste_at_inngangsvilkår_ikke_oppfylt_gir_negativt_utfall() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019)
-                .buildFor(revurdering);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019)
+            .buildFor(revurdering);
 
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
-                revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isTrue();
@@ -138,14 +129,13 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_samme_som_omliggende() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårIkkeVurdert(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .buildFor(revurdering);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårIkkeVurdert(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .buildFor(revurdering);
 
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
-                revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isFalse();
@@ -155,15 +145,14 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     void skal_teste_negativ_medlemsskapsvilkår_gir_negativt_resultat() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025)
-                .buildFor(revurdering);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025)
+            .buildFor(revurdering);
 
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
-                revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isTrue();
@@ -172,8 +161,7 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     @Test
     void skal_teste_at_behandlingsresultatet_fastsettes_korrekt() {
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
-                revurdering, revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering, revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isNotNull();
@@ -181,20 +169,18 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
         assertThat(oppfyllerIkkjeInngangsvilkår.getRettenTil()).isEqualTo(RettenTil.HAR_IKKE_RETT_TIL_FP);
         assertThat(oppfyllerIkkjeInngangsvilkår.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
         assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(
-                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
+        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
     }
 
     @Test
     void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_med_avslagsårsak_null() {
         // Arrange
         VilkårResultat.builder()
-                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG)
-                .buildFor(revurdering);
+            .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG)
+            .buildFor(revurdering);
 
         // Act
-        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
-                revurdering, revurderingResultat);
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering, revurderingResultat);
 
         // Assert
         assertThat(oppfyllerIkkjeInngangsvilkår).isNotNull();
@@ -202,8 +188,7 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
         assertThat(oppfyllerIkkjeInngangsvilkår.getRettenTil()).isEqualTo(RettenTil.HAR_IKKE_RETT_TIL_FP);
         assertThat(oppfyllerIkkjeInngangsvilkår.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
         assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(
-                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
+        assertThat(oppfyllerIkkjeInngangsvilkår.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
     }
 
 }

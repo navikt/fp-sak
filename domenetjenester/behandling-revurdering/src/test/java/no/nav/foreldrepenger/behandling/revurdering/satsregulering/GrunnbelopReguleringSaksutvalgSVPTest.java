@@ -78,7 +78,8 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kan1 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
-        var kan2 = opprettSVP(em, AktivitetStatus.ARBEIDSTAKER, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats, 0); // Ikke uttak, bare utsettelse
+        var kan2 = opprettSVP(em, AktivitetStatus.ARBEIDSTAKER, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats,
+            0); // Ikke uttak, bare utsettelse
         var kan3 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, 6 * gammelSats); // FØR
         var kan4 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
         var kan5 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 4 * gammelSats); // Ikke avkortet

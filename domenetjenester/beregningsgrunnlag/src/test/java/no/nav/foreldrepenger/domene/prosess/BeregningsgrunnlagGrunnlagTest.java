@@ -18,6 +18,7 @@ import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+
 class BeregningsgrunnlagGrunnlagTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -74,9 +75,7 @@ class BeregningsgrunnlagGrunnlagTest {
             .build();
 
         var overstyring = lagOverstyringForBA(beregningAktivitetAAP);
-        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
-            .leggTilOverstyring(overstyring)
-            .build();
+        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder().leggTilOverstyring(overstyring).build();
         var bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
             .medRegisterAktiviteter(registerAktiviteter)
             .medOverstyring(overstyringerEntitet)
@@ -110,9 +109,7 @@ class BeregningsgrunnlagGrunnlagTest {
             .build();
 
         var overstyring = lagOverstyringForBA(beregningAktivitetAAP);
-        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
-            .leggTilOverstyring(overstyring)
-            .build();
+        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder().leggTilOverstyring(overstyring).build();
         var bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
             .medRegisterAktiviteter(registerAktiviteter)
             .medOverstyring(overstyringerEntitet)

@@ -31,7 +31,8 @@ public class MedlemskapPerioderTjeneste {
     // FP VK 2.13 Maskinell avklaring
 
     public boolean brukerMaskineltAvklartSomIkkeMedlem(PersonopplysningerAggregat personopplysningerAggregat,
-                                                       Set<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate skjæringstidspunkt) {
+                                                       Set<MedlemskapPerioderEntitet> medlemskapPerioder,
+                                                       LocalDate skjæringstidspunkt) {
 
         var dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, skjæringstidspunkt);
 
@@ -42,53 +43,44 @@ public class MedlemskapPerioderTjeneste {
         var erPeriodeRegistrertSomUnntatt = erRegistrertSomUnntatt(dekningTyper);
         var harStatsborgerskapUsaEllerPng = harStatsborgerskapUsaEllerPng(personopplysningerAggregat);
 
-        var erIkkeUsaEllerPngOgUntatt = !harStatsborgerskapUsaEllerPng
-            && erPeriodeRegistrertSomUnntatt;
+        var erIkkeUsaEllerPngOgUntatt = !harStatsborgerskapUsaEllerPng && erPeriodeRegistrertSomUnntatt;
 
         // Sammenstill premisser
         return erPeriodeRegistrertSomIkkeMedlem || erIkkeUsaEllerPngOgUntatt;
     }
 
     public boolean erRegistrertSomUnntatt(List<MedlemskapDekningType> dekningTyper) {
-        return dekningTyper.stream()
-            .anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_MEDLEM_UNNTATT::contains);
+        return dekningTyper.stream().anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_MEDLEM_UNNTATT::contains);
     }
 
     public boolean erRegistrertSomIkkeMedlem(List<MedlemskapDekningType> dekningTyper) {
-        return dekningTyper.stream()
-            .anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_IKKE_MEDLEM::contains);
+        return dekningTyper.stream().anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_IKKE_MEDLEM::contains);
     }
 
     // FP VK 2.2 Maskinell avklaring
 
-    public boolean brukerMaskineltAvklartSomFrivilligEllerPliktigMedlem(Set<MedlemskapPerioderEntitet> medlemskapPerioder,
-                                                                        LocalDate vurderingsdato) {
+    public boolean brukerMaskineltAvklartSomFrivilligEllerPliktigMedlem(Set<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate vurderingsdato) {
         var dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return erRegistrertSomFrivilligMedlem(dekningTyper);
     }
 
     public boolean erRegistrertSomFrivilligMedlem(List<MedlemskapDekningType> dekningTyper) {
-        return dekningTyper.stream()
-            .anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM::contains);
+        return dekningTyper.stream().anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM::contains);
     }
 
     public boolean erRegistrertSomAvklartMedlemskap(List<MedlemskapDekningType> dekningTyper) {
-        return dekningTyper.stream()
-            .anyMatch(MedlemskapDekningType.DEKNINGSTYPER::contains);
+        return dekningTyper.stream().anyMatch(MedlemskapDekningType.DEKNINGSTYPER::contains);
     }
 
     public boolean erRegistrertSomUavklartMedlemskap(List<MedlemskapDekningType> dekningTyper) {
-        return dekningTyper.stream()
-            .anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_UAVKLART::contains);
+        return dekningTyper.stream().anyMatch(MedlemskapDekningType.DEKNINGSTYPE_ER_UAVKLART::contains);
     }
 
-    public List<MedlemskapDekningType> finnGyldigeDekningstyper(Collection<MedlemskapPerioderEntitet> medlemskapPerioder,
-                                                                LocalDate skjæringsdato) {
+    public List<MedlemskapDekningType> finnGyldigeDekningstyper(Collection<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate skjæringsdato) {
         return medlemskapPerioder.stream()
-            .filter(periode -> erDatoInnenforLukketPeriode(periode.getFom(), periode.getTom(), skjæringsdato)
-                && periode.getDekningType() != null
-                && !MedlemskapKildeType.LAANEKASSEN.equals(periode.getKildeType())
-                && !MedlemskapType.UNDER_AVKLARING.equals(periode.getMedlemskapType()))
+            .filter(periode -> erDatoInnenforLukketPeriode(periode.getFom(), periode.getTom(), skjæringsdato) && periode.getDekningType() != null
+                && !MedlemskapKildeType.LAANEKASSEN.equals(periode.getKildeType()) && !MedlemskapType.UNDER_AVKLARING.equals(
+                periode.getMedlemskapType()))
             .map(MedlemskapPerioderEntitet::getDekningType)
             .collect(toList());
     }
@@ -103,15 +95,14 @@ public class MedlemskapPerioderTjeneste {
         if (personopplysningerAggregat == null) {
             return false;
         }
-        return personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.USA) ||
-            personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.PNG);
+        return personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.USA)
+            || personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.PNG);
     }
 
     public boolean erStatusUtvandret(PersonopplysningerAggregat bruker) {
-        return bruker != null && bruker.getSøker() != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()) != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()).getPersonstatus() != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()).getPersonstatus().equals(PersonstatusType.UTVA);
+        return bruker != null && bruker.getSøker() != null && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()) != null
+            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()).getPersonstatus() != null && bruker.getPersonstatusFor(
+            bruker.getSøker().getAktørId()).getPersonstatus().equals(PersonstatusType.UTVA);
     }
 
     /**
@@ -120,8 +111,9 @@ public class MedlemskapPerioderTjeneste {
      */
     public boolean harPeriodeUnderAvklaring(Set<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate skjæringsdato) {
         var periodeUnderAvklaring = medlemskapPerioder.stream()
-            .anyMatch(periode -> erDatoInnenforLukketPeriode(periode.getFom(), periode.getTom(), skjæringsdato)
-                && (MedlemskapType.UNDER_AVKLARING.equals(periode.getMedlemskapType()) || MedlemskapKildeType.LAANEKASSEN.equals(periode.getKildeType())));
+            .anyMatch(periode -> erDatoInnenforLukketPeriode(periode.getFom(), periode.getTom(), skjæringsdato) && (
+                MedlemskapType.UNDER_AVKLARING.equals(periode.getMedlemskapType()) || MedlemskapKildeType.LAANEKASSEN.equals(
+                    periode.getKildeType())));
         var åpenPeriode = medlemskapPerioder.stream()
             .anyMatch(periode -> erDatoInnenforÅpenPeriode(periode.getFom(), periode.getTom(), skjæringsdato));
         return periodeUnderAvklaring || åpenPeriode;

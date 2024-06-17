@@ -39,8 +39,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling
 class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
-        Period.parse("P1Y"), Period.parse("P6M"));
+    private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P1Y"), Period.parse("P6M"));
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MinsterettBehandling2022 mockMinsterett;
 
@@ -52,8 +51,8 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P6M"));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
-            fagsakRelasjonTjeneste);
+        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
+            repositoryProvider.getFpUttakRepository(), fagsakRelasjonTjeneste);
         mockMinsterett = mock(MinsterettBehandling2022.class);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil,
@@ -104,7 +103,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
     public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_og_mor_frisk() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false,
-            LocalDate.of(2020,1,1));
+            LocalDate.of(2020, 1, 1));
         when(mockMinsterett.utenMinsterett(any())).thenReturn(true);
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
@@ -141,23 +140,28 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
-    private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,
-                                                      boolean morErSykVedFødsel, boolean erFødsel) {
+    private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle,
+                                                      NavBrukerKjønn kjønn,
+                                                      boolean fødselErBekreftet,
+                                                      boolean morErSykVedFødsel,
+                                                      boolean erFødsel) {
         return lagBehandlingMedFarEllerMedmor(rolle, kjønn, fødselErBekreftet, morErSykVedFødsel, erFødsel, LocalDate.now());
     }
 
-    private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,
-                                                      boolean morErSykVedFødsel, boolean erFødsel, LocalDate fødselsdato) {
+    private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle,
+                                                      NavBrukerKjønn kjønn,
+                                                      boolean fødselErBekreftet,
+                                                      boolean morErSykVedFødsel,
+                                                      boolean erFødsel,
+                                                      LocalDate fødselsdato) {
         // Setup basis scenario
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         if (erFødsel) {
-            scenario.medSøknadHendelse()
-                .medFødselsDato(fødselsdato)
-                .medAntallBarn(1)
-                .medErMorForSykVedFødsel(morErSykVedFødsel);
+            scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1).medErMorForSykVedFødsel(morErSykVedFødsel);
         } else {
             scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                .medTerminbekreftelse(scenario.medSøknadHendelse()
+                    .getTerminbekreftelseBuilder()
                     .medTermindato(fødselsdato)
                     .medUtstedtDato(fødselsdato)
                     .medNavnPå("LEGEN min"))
@@ -171,8 +175,11 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
             scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
         }
         if (morErSykVedFødsel) {
-            scenario.medOverstyrtHendelse().medErMorForSykVedFødsel(true).medAntallBarn(1)
-                .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            scenario.medOverstyrtHendelse()
+                .medErMorForSykVedFødsel(true)
+                .medAntallBarn(1)
+                .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                    .getTerminbekreftelseBuilder()
                     .medTermindato(fødselsdato)
                     .medUtstedtDato(fødselsdato)
                     .medNavnPå("LEGEN min"));
@@ -182,14 +189,9 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var barnAktørId = AktørId.dummy();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var fødtBarn = builderForRegisteropplysninger
-            .medPersonas()
-            .fødtBarn(barnAktørId, fødselsdato)
-            .relasjonTil(søkerAktørId, rolle, null)
-            .build();
+        var fødtBarn = builderForRegisteropplysninger.medPersonas().fødtBarn(barnAktørId, fødselsdato).relasjonTil(søkerAktørId, rolle, null).build();
 
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
+        var søker = builderForRegisteropplysninger.medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.GIFT, kjønn)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)

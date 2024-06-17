@@ -11,6 +11,7 @@ public class ØkonomistøtteUtils {
 
     /**
      * Formats the given LocalDateTime into a String with the given pattern yyyy-MM-dd-HH.mm.ss.SSS
+     *
      * @param dt - the object to transform
      * @return a formated string.
      */

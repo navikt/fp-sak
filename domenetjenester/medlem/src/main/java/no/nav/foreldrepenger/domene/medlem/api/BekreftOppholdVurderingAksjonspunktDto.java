@@ -6,7 +6,10 @@ public class BekreftOppholdVurderingAksjonspunktDto {
     private Boolean erEosBorger;
     private String begrunnelse;
 
-    public BekreftOppholdVurderingAksjonspunktDto(Boolean oppholdsrettVurdering, Boolean lovligOppholdVurdering, Boolean erEosBorger, String begrunnelse) {
+    public BekreftOppholdVurderingAksjonspunktDto(Boolean oppholdsrettVurdering,
+                                                  Boolean lovligOppholdVurdering,
+                                                  Boolean erEosBorger,
+                                                  String begrunnelse) {
         this.oppholdsrettVurdering = oppholdsrettVurdering;
         this.lovligOppholdVurdering = lovligOppholdVurdering;
         this.erEosBorger = erEosBorger;

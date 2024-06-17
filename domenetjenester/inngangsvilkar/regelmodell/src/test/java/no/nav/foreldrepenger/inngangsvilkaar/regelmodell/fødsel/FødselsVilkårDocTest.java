@@ -31,20 +31,16 @@ class FødselsVilkårDocTest {
 
     @Test
     void kanDeserialisereGammeltFormat() throws JsonProcessingException {
-        var gsource = new FødselsvilkårGrunnlag(RegelKjønn.KVINNE, null, LocalDate.of(2021,4,22),
-            null, LocalDate.of(2021,5,20), 1,
-            false, false, true,
-            false, true, false);
+        var gsource = new FødselsvilkårGrunnlag(RegelKjønn.KVINNE, null, LocalDate.of(2021, 4, 22), null, LocalDate.of(2021, 5, 20), 1, false, false,
+            true, false, true, false);
         var grunnlag = deserialiser(gammelJson);
         assertThat(grunnlag).isEqualTo(gsource);
     }
 
     @Test
     void kanSerialisereDeserialisereNyttFormat() throws JsonProcessingException {
-        var gsource = new FødselsvilkårGrunnlag(RegelKjønn.MANN, RegelSøkerRolle.FARA, LocalDate.now().minusWeeks(1),
-            null, LocalDate.now().plusMonths(1), 1,
-            false, false, true,
-            true, true, false);
+        var gsource = new FødselsvilkårGrunnlag(RegelKjønn.MANN, RegelSøkerRolle.FARA, LocalDate.now().minusWeeks(1), null,
+            LocalDate.now().plusMonths(1), 1, false, false, true, true, true, false);
         var serialisert = DefaultJsonMapper.toJson(gsource);
         var grunnlag = deserialiser(serialisert);
         assertThat(grunnlag).isEqualTo(gsource);
@@ -94,8 +90,8 @@ class FødselsVilkårDocTest {
     @Test
     void kanSerialisereDeserialisereEldgammeltFormat() throws JsonProcessingException {
         var grunnlag = DefaultJsonMapper.getObjectMapper().readValue(eldgammelJson, FødselsvilkårGrunnlagLegacy.class);
-        assertThat(grunnlag.behandlingsdato()).isEqualTo(LocalDate.of(2018,2,5));
-        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(LocalDate.of(2017,8,5));
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(LocalDate.of(2018, 2, 5));
+        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(LocalDate.of(2017, 8, 5));
     }
 
 }

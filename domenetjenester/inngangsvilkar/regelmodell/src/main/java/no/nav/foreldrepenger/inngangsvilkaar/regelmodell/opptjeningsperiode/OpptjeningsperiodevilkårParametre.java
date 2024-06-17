@@ -6,10 +6,8 @@ import java.time.Period;
  * Opptjeningsperiodens lengde
  * Tidligste oppstart ytelse før fødsel
  */
-public record OpptjeningsperiodevilkårParametre(Period periodeLengde,
-                                                Period morTidligsteUttakFørTerminPeriode,
-                                                Period morSenesteUttakFørTerminPeriode,
-                                                Period annenTidligsteUttakFørTerminPeriode) {
+public record OpptjeningsperiodevilkårParametre(Period periodeLengde, Period morTidligsteUttakFørTerminPeriode,
+                                                Period morSenesteUttakFørTerminPeriode, Period annenTidligsteUttakFørTerminPeriode) {
 
     public static OpptjeningsperiodevilkårParametre vilkårparametreForeldrepenger(LovVersjoner lovVersjon) {
         if (LovVersjoner.PROP15L2122.equals(lovVersjon)) {

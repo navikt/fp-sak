@@ -30,10 +30,12 @@ class StartpunktUtlederNesteSak implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        var startdato1 = Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long)grunnlagId1))
-            .map(NesteSakGrunnlagEntitet::getStartdato).orElse(null);
-        var startdato2 =Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long)grunnlagId2))
-            .map(NesteSakGrunnlagEntitet::getStartdato).orElse(null);
+        var startdato1 = Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long) grunnlagId1))
+            .map(NesteSakGrunnlagEntitet::getStartdato)
+            .orElse(null);
+        var startdato2 = Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long) grunnlagId2))
+            .map(NesteSakGrunnlagEntitet::getStartdato)
+            .orElse(null);
 
         // Ser kun på endring av startdato for neste stønadsperiode
         if (Objects.equals(startdato1, startdato2)) {

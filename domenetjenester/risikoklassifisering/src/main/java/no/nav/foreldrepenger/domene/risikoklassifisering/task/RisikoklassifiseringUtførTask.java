@@ -58,20 +58,19 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
 
     private RisikovurderingRequestDto opprettRequest(BehandlingReferanse ref) {
         var søkerAktørId = new AktørId(ref.aktørId().getId());
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId())
-            .getUtledetSkjæringstidspunkt();
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt();
         var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(ref.behandlingId(), ref.fagsakYtelseType());
         var konsumentId = ref.behandlingUuid();
         var ytelsetype = mapFagsaktype(ref.fagsakYtelseType());
         var annenPartOpt = mapAnnenPart(ref);
-        return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(), konsumentId, ytelsetype, annenPartOpt.orElse(null));
+        return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(), konsumentId,
+            ytelsetype, annenPartOpt.orElse(null));
     }
 
     private Optional<AnnenPartDto> mapAnnenPart(BehandlingReferanse ref) {
         var oppgittAnnenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(ref.behandlingId());
         if (oppgittAnnenPart.isPresent()) {
-            var aktoerId =
-                oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();
+            var aktoerId = oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();
             if (aktoerId != null) {
                 return Optional.of(new AnnenPartDto(new AktørId(aktoerId), null));
             }
@@ -88,8 +87,8 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
             case FORELDREPENGER -> YtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD -> YtelseType.ENGANGSSTØNAD;
-            case UDEFINERT -> throw new IllegalStateException("Ugyldig FagsakYtelseType forsøkt mappet "
-                + "til RisikovurderingRequest. FagsakYtelseType: " + fagsakYtelseType);
+            case UDEFINERT -> throw new IllegalStateException(
+                "Ugyldig FagsakYtelseType forsøkt mappet " + "til RisikovurderingRequest. FagsakYtelseType: " + fagsakYtelseType);
         };
     }
 

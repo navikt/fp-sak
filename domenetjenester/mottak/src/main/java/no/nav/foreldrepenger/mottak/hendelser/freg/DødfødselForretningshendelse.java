@@ -7,8 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public record DødfødselForretningshendelse(List<AktørId> aktørIdListe,
-                                           LocalDate dødfødselsdato,
+public record DødfødselForretningshendelse(List<AktørId> aktørIdListe, LocalDate dødfødselsdato,
                                            Endringstype endringstype) implements Forretningshendelse {
 
 }

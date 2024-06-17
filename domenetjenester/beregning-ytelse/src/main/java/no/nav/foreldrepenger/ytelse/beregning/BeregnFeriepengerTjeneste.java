@@ -38,8 +38,7 @@ public abstract class BeregnFeriepengerTjeneste {
                                         int antallDagerFeriepenger) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         if (antallDagerFeriepenger == 0) {
-            throw new IllegalStateException(
-                "Injeksjon av antallDagerFeriepenger feilet. antallDagerFeriepenger kan ikke være 0.");
+            throw new IllegalStateException("Injeksjon av antallDagerFeriepenger feilet. antallDagerFeriepenger kan ikke være 0.");
         }
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -54,13 +53,14 @@ public abstract class BeregnFeriepengerTjeneste {
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
         var annenPartArbeidstakerVedSTP = annenPartsBehandling.map(BehandlingReferanse::fra)
-            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
-        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
-            annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
+            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt)
+            .orElse(false);
+        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ? annenPartsBehandling.map(Behandling::getId)
+            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
         var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
 
-        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
+        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad, arbeidstakerVedSTP,
+            finnTigjengeligeFeriepengedager(ref, beregningsresultat));
 
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
@@ -69,7 +69,8 @@ public abstract class BeregnFeriepengerTjeneste {
 
     public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref) {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(ref.behandlingId())
-            .map(br -> avvikBeregnetFeriepengerBeregningsresultat(ref, br)).orElse(false);
+            .map(br -> avvikBeregnetFeriepengerBeregningsresultat(ref, br))
+            .orElse(false);
     }
 
     public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
@@ -77,13 +78,14 @@ public abstract class BeregnFeriepengerTjeneste {
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
         var annenPartArbeidstakerVedSTP = annenPartsBehandling.map(BehandlingReferanse::fra)
-            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
-        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
-            annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
+            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt)
+            .orElse(false);
+        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ? annenPartsBehandling.map(Behandling::getId)
+            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
         var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
 
-        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
+        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad, arbeidstakerVedSTP,
+            finnTigjengeligeFeriepengedager(ref, beregningsresultat));
 
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
@@ -91,8 +93,7 @@ public abstract class BeregnFeriepengerTjeneste {
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(BehandlingReferanse ref) {
-        return finnAnnenPartsFagsak(ref)
-            .flatMap(fagsak -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()));
+        return finnAnnenPartsFagsak(ref).flatMap(fagsak -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()));
     }
 
     private Optional<Fagsak> finnAnnenPartsFagsak(BehandlingReferanse ref) {

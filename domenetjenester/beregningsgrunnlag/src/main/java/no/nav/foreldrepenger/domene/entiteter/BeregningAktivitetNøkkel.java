@@ -22,10 +22,8 @@ public class BeregningAktivitetNøkkel {
         if (!(o instanceof BeregningAktivitetNøkkel that)) {
             return false;
         }
-        return Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType)
-                && Objects.equals(fom, that.fom)
-                && Objects.equals(arbeidsgiverIdentifikator, that.arbeidsgiverIdentifikator)
-                && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
+        return Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType) && Objects.equals(fom, that.fom) && Objects.equals(
+            arbeidsgiverIdentifikator, that.arbeidsgiverIdentifikator) && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
     }
 
     @Override

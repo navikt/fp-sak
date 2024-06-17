@@ -33,11 +33,7 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
                                           KøKontroller køKontroller,
                                           ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                           BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
-        super(dokumentmottakerFelles,
-            behandlingsoppretter,
-            kompletthetskontroller,
-            fpUttakTjeneste,
-                behandlingRevurderingTjeneste,
+        super(dokumentmottakerFelles, behandlingsoppretter, kompletthetskontroller, fpUttakTjeneste, behandlingRevurderingTjeneste,
             behandlingRepository);
         this.køKontroller = køKontroller;
     }
@@ -95,7 +91,10 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
-    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument,
+                                                     Fagsak fagsak,
+                                                     Behandling avsluttetBehandling,
+                                                     BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.standardForAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, avsluttetBehandling,
             getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), true);
     }
@@ -111,10 +110,16 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
-    protected void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling) {
-        if (sisteAvsluttetBehandling != null && dokumentmottakerFelles.skalOppretteNyFørstegangsbehandling(sisteAvsluttetBehandling.getFagsak())) { //#I3 #E6
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-        } else if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(sisteAvsluttetBehandling)) { //#E9
+    protected void opprettKøetBehandling(MottattDokument mottattDokument,
+                                         Fagsak fagsak,
+                                         BehandlingÅrsakType behandlingÅrsakType,
+                                         Behandling sisteAvsluttetBehandling) {
+        if (sisteAvsluttetBehandling != null && dokumentmottakerFelles.skalOppretteNyFørstegangsbehandling(
+            sisteAvsluttetBehandling.getFagsak())) { //#I3 #E6
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+        } else if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(
+            sisteAvsluttetBehandling)) { //#E9
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
         } else { //#E10
             dokumentmottakerFelles.opprettKøetRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
@@ -122,8 +127,8 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     private BehandlingÅrsakType getBehandlingÅrsakHvisUdefinert(BehandlingÅrsakType behandlingÅrsakType) {
-        return behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType) ?
-            BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER : behandlingÅrsakType;
+        return behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(
+            behandlingÅrsakType) ? BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER : behandlingÅrsakType;
     }
 
     private boolean kompletthetErPassert(Behandling behandling) {

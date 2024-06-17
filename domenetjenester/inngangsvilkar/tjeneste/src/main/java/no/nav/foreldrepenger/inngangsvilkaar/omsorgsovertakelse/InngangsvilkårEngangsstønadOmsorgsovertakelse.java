@@ -23,7 +23,7 @@ public class InngangsvilkårEngangsstønadOmsorgsovertakelse implements Inngangs
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
         return new VilkårData(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT,
-                List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET));
+            List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET));
     }
 
 }

@@ -39,28 +39,25 @@ public class FødselsvilkårMor implements RuleService<FødselsvilkårGrunnlag> 
         var rs = new Ruleset<FødselsvilkårGrunnlag>();
 
 
-        Specification<FødselsvilkårGrunnlag> bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode =
-            rs.hvisRegel(ID, "Hvis utstedtdato for terminbekreftelse er innenfor ...")
-                .hvis(new SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker(), new Oppfylt())
-                .ellers(new IkkeOppfylt(SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO));
+        Specification<FødselsvilkårGrunnlag> bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode = rs.hvisRegel(ID,
+                "Hvis utstedtdato for terminbekreftelse er innenfor ...")
+            .hvis(new SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker(), new Oppfylt())
+            .ellers(new IkkeOppfylt(SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO));
 
-        Specification<FødselsvilkårGrunnlag> søknadsdatoPassertXSvangerskapsukeNode =
-            rs.hvisRegel("FP_VK_1.2.1.1", "Hvis søknadsdato har passert X svangerskapsuke ...")
-                .hvis(new SjekkBehandlingsdatoPassertXSvangerskapsUker(), bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode)
-                .ellers(new IkkeOppfylt(SjekkBehandlingsdatoPassertXSvangerskapsUker.IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES));
+        Specification<FødselsvilkårGrunnlag> søknadsdatoPassertXSvangerskapsukeNode = rs.hvisRegel("FP_VK_1.2.1.1",
+                "Hvis søknadsdato har passert X svangerskapsuke ...")
+            .hvis(new SjekkBehandlingsdatoPassertXSvangerskapsUker(), bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode)
+            .ellers(new IkkeOppfylt(SjekkBehandlingsdatoPassertXSvangerskapsUker.IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES));
 
-        Specification<FødselsvilkårGrunnlag> burdeFødselHaInntruffetNode =
-            rs.hvisRegel("FP_VK_1.2.1", "Hvis ikke fødsel burde ha inntruffet ...")
-                .hvis(new SjekkErDetForTidligeForAtFødselBurdeHaInntruffet(), søknadsdatoPassertXSvangerskapsukeNode)
-                .ellers(new IkkeOppfylt(SjekkErDetForTidligeForAtFødselBurdeHaInntruffet.FØDSEL_BURDE_HA_INNTRUFFET));
+        Specification<FødselsvilkårGrunnlag> burdeFødselHaInntruffetNode = rs.hvisRegel("FP_VK_1.2.1", "Hvis ikke fødsel burde ha inntruffet ...")
+            .hvis(new SjekkErDetForTidligeForAtFødselBurdeHaInntruffet(), søknadsdatoPassertXSvangerskapsukeNode)
+            .ellers(new IkkeOppfylt(SjekkErDetForTidligeForAtFødselBurdeHaInntruffet.FØDSEL_BURDE_HA_INNTRUFFET));
 
-        Specification<FødselsvilkårGrunnlag> søkerErMorNode =
-            rs.hvisRegel("FP_VK_1.2.2", "Hvis søker er mor ...")
-                .hvis(new SjekkSøkerErMor(), new Oppfylt())
-                .ellers(new IkkeOppfylt(SjekkSøkerErMor.IKKE_OPPFYLT_FØDSEL_REGISTRERT_SØKER_IKKE_BARNETS_MOR));
+        Specification<FødselsvilkårGrunnlag> søkerErMorNode = rs.hvisRegel("FP_VK_1.2.2", "Hvis søker er mor ...")
+            .hvis(new SjekkSøkerErMor(), new Oppfylt())
+            .ellers(new IkkeOppfylt(SjekkSøkerErMor.IKKE_OPPFYLT_FØDSEL_REGISTRERT_SØKER_IKKE_BARNETS_MOR));
 
-        Specification<FødselsvilkårGrunnlag> harSøkerFødtNode = rs
-            .hvisRegel("FP_VK_1.2", "Hvis ikke fødsel er registert ...")
+        Specification<FødselsvilkårGrunnlag> harSøkerFødtNode = rs.hvisRegel("FP_VK_1.2", "Hvis ikke fødsel er registert ...")
             .hvis(new SjekkFødselErRegistrert(), søkerErMorNode)
             .ellers(burdeFødselHaInntruffetNode);
 

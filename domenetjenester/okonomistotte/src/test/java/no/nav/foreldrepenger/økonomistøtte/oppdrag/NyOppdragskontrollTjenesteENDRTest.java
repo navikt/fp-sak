@@ -94,10 +94,10 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdragRevurdering).isNotNull();
         var oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
-       // assertThat(oppdrag110.getOmpostering116()).isPresent();
-       // var ompostering116 = oppdrag110.getOmpostering116().get();
-       // assertThat(ompostering116.getOmPostering()).isFalse();
-       // assertThat(ompostering116.getDatoOmposterFom()).isNull();
+        // assertThat(oppdrag110.getOmpostering116()).isPresent();
+        // var ompostering116 = oppdrag110.getOmpostering116().get();
+        // assertThat(ompostering116.getOmPostering()).isFalse();
+        // assertThat(ompostering116.getDatoOmposterFom()).isNull();
     }
 
     @Test
@@ -1373,9 +1373,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         });
-        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
-            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .toList();
+        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream().flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream()).toList();
         assertThat(revurderingOpp150Liste).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getDatoStatusFom()).isEqualTo(sistePeriodeTom.minusDays(3));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
@@ -1432,9 +1430,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         });
-        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
-            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .toList();
+        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream().flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream()).toList();
         assertThat(revurderingOpp150Liste).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getDatoVedtakFom()).isEqualTo(sistePeriodeTom.plusDays(1));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
@@ -1490,9 +1486,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         });
-        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
-            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .toList();
+        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream().flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream()).toList();
         assertThat(revurderingOpp150Liste).hasSize(6)
             .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
@@ -1545,9 +1539,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         });
-        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
-            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .toList();
+        var revurderingOpp150Liste = revurderingOppdrag110Liste.stream().flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream()).toList();
         assertThat(revurderingOpp150Liste).hasSize(6)
             .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);

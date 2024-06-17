@@ -71,15 +71,20 @@ public class InntektsmeldingTjeneste {
             .orElse(Collections.emptyList());
     }
 
-    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening,
-            InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
-        var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
-            !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ||
-            ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
+    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref,
+                                                       LocalDate skjæringstidspunktForOpptjening,
+                                                       InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                       boolean filtrerForStartdato) {
+        var skalIkkeFiltrereStartdato =
+            !filtrerForStartdato || !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) || ref.getSkjæringstidspunkt()
+                .kreverSammenhengendeUttak();
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).toList();
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+            .orElse(emptyList())
+            .stream()
+            .filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening))
+            .toList();
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -88,7 +93,8 @@ public class InntektsmeldingTjeneste {
         if (yrkesaktiviteter.isEmpty()) {
             return inntektsmeldinger;
         }
-        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato, iayGrunnlag.getGjeldendeOppgittOpptjening());
+        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato,
+            iayGrunnlag.getGjeldendeOppgittOpptjening());
     }
 
     /**
@@ -101,22 +107,25 @@ public class InntektsmeldingTjeneste {
     public List<Inntektsmelding> hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var originalBehandlingId = ref.getOriginalBehandlingId()
-                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Denne metoden benyttes bare for revurderinger"));
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Denne metoden benyttes bare for revurderinger"));
 
         var revurderingIM = hentIMMedIndexKey(behandlingId);
         var origIM = hentIMMedIndexKey(originalBehandlingId);
-        return revurderingIM.entrySet().stream()
-                .filter(imRevurderingEntry -> !origIM.containsKey(imRevurderingEntry.getKey())
-                        || !Objects.equals(origIM.get(imRevurderingEntry.getKey()).getJournalpostId(),
-                                imRevurderingEntry.getValue().getJournalpostId()))
-                .map(Map.Entry::getValue)
-                .toList();
+        return revurderingIM.entrySet()
+            .stream()
+            .filter(imRevurderingEntry -> !origIM.containsKey(imRevurderingEntry.getKey()) || !Objects.equals(
+                origIM.get(imRevurderingEntry.getKey()).getJournalpostId(), imRevurderingEntry.getValue().getJournalpostId()))
+            .map(Map.Entry::getValue)
+            .toList();
     }
 
     public Optional<Inntektsmelding> hentInntektsMeldingFor(Long behandlingId, JournalpostId journalpostId) {
         var grunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        return grunnlag.getInntektsmeldinger().stream().flatMap(imagg -> imagg.getAlleInntektsmeldinger().stream())
-                .filter(im -> Objects.equals(im.getJournalpostId(), journalpostId)).findFirst();
+        return grunnlag.getInntektsmeldinger()
+            .stream()
+            .flatMap(imagg -> imagg.getAlleInntektsmeldinger().stream())
+            .filter(im -> Objects.equals(im.getJournalpostId(), journalpostId))
+            .findFirst();
     }
 
     /**
@@ -125,7 +134,7 @@ public class InntektsmeldingTjeneste {
      *
      * @param behandlingId iden til behandlingen
      * @return Liste med inntektsmelding som ikke kommer
-     *         {@link InntektsmeldingSomIkkeKommer}
+     * {@link InntektsmeldingSomIkkeKommer}
      */
     public List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(Long behandlingId) {
         List<InntektsmeldingSomIkkeKommer> result = new ArrayList<>();
@@ -169,8 +178,7 @@ public class InntektsmeldingTjeneste {
     public Map<Arbeidsgiver, List<Inntektsmelding>> hentAlleInntektsmeldingerForFagsakInkludertInaktive(Saksnummer saksnummer) {
         var alleInntektsmeldinger = hentAlleInntektsmeldingerForFagsak(saksnummer);
 
-        return alleInntektsmeldinger.stream()
-                .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver));
+        return alleInntektsmeldinger.stream().collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver));
     }
 
     public void lagreInntektsmelding(Saksnummer saksnummer, Long behandlingId, InntektsmeldingBuilder im) {
@@ -182,29 +190,28 @@ public class InntektsmeldingTjeneste {
      * en tom dato som slutter før STP.
      */
     private static List<Inntektsmelding> filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(YrkesaktivitetFilter filter,
-            Collection<Yrkesaktivitet> yrkesaktiviteter,
-            Collection<Inntektsmelding> inntektsmeldinger,
-            LocalDate skjæringstidspunktet,
-            Optional<OppgittOpptjening> oppgittOpptjening) {
+                                                                                            Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                                                            Collection<Inntektsmelding> inntektsmeldinger,
+                                                                                            LocalDate skjæringstidspunktet,
+                                                                                            Optional<OppgittOpptjening> oppgittOpptjening) {
         var kladd = new ArrayList<Inntektsmelding>(inntektsmeldinger);
         List<Inntektsmelding> fjernes = new ArrayList<>();
 
         kladd.forEach(im -> {
             var arbeidsgiverHarVærtRegistrertIOpplysningsperioden = yrkesaktiviteter.stream()
-                    .anyMatch(y -> y.gjelderFor(im.getArbeidsgiver(), InternArbeidsforholdRef.nullRef()));
+                .anyMatch(y -> y.gjelderFor(im.getArbeidsgiver(), InternArbeidsforholdRef.nullRef()));
 
             // Hvis det er opprettet et arbeidsforhold basert på inntektsmeldingen skal aldri dette gjøre at inntektsmeldingen filtreres ut
             var finnesManueltArbeidsforholdTilknyttetIM = finnesManueltOpprettetArbeidsforholdForIM(filter.getArbeidsforholdOverstyringer(), im);
 
-            var skalFjernes = yrkesaktiviteter.stream()
-                    .noneMatch(y -> {
-                        var gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
-                        var ansettelsesPerioder = filter.getAnsettelsesPerioder(y);
-                        return gjelderFor && ansettelsesPerioder.stream()
-                                .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet)
-                                        || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
-                    });
-            if (skalFjernes && !erAmbasade(im) && !harOppgittFiske(oppgittOpptjening) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden && !finnesManueltArbeidsforholdTilknyttetIM) {
+            var skalFjernes = yrkesaktiviteter.stream().noneMatch(y -> {
+                var gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
+                var ansettelsesPerioder = filter.getAnsettelsesPerioder(y);
+                return gjelderFor && ansettelsesPerioder.stream()
+                    .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet) || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
+            });
+            if (skalFjernes && !erAmbasade(im) && !harOppgittFiske(oppgittOpptjening) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden
+                && !finnesManueltArbeidsforholdTilknyttetIM) {
                 fjernes.add(im);
             }
         });
@@ -212,15 +219,16 @@ public class InntektsmeldingTjeneste {
         return List.copyOf(kladd);
     }
 
-    private static boolean finnesManueltOpprettetArbeidsforholdForIM(Collection<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, Inntektsmelding im) {
+    private static boolean finnesManueltOpprettetArbeidsforholdForIM(Collection<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
+                                                                     Inntektsmelding im) {
         return arbeidsforholdOverstyringer.stream()
-            .anyMatch(os -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING.equals(os.getHandling())
-                && os.getArbeidsgiver() != null && os.getArbeidsgiver().equals(im.getArbeidsgiver()) && os.getArbeidsforholdRef().gjelderFor(im.getArbeidsforholdRef()));
+            .anyMatch(os -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING.equals(os.getHandling()) && os.getArbeidsgiver() != null
+                && os.getArbeidsgiver().equals(im.getArbeidsgiver()) && os.getArbeidsforholdRef().gjelderFor(im.getArbeidsforholdRef()));
     }
 
     /**
      * Finner ut om bruker har oppgitt fiske i søknaden under egne næringer.
-     *
+     * <p>
      * Fiske kan deles i lott eller hyre. Lott skal rapporteres som
      * næringsvirksomhet mens hyre skal beregnes som arbeidstaker. Disse
      * virksomhetene er ofte unnlatt rapportering i aareg, og det vil derfor ofte
@@ -236,7 +244,7 @@ public class InntektsmeldingTjeneste {
      */
     private static boolean harOppgittFiske(Optional<OppgittOpptjening> oppgittOpptjening) {
         return oppgittOpptjening.stream()
-                .anyMatch(oo -> oo.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
+            .anyMatch(oo -> oo.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 
     private static boolean erAmbasade(Inntektsmelding im) {
@@ -245,12 +253,11 @@ public class InntektsmeldingTjeneste {
 
     private Map<String, Inntektsmelding> hentIMMedIndexKey(Long behandlingId) {
         var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandlingId)
-                .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-                .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-                .orElse(Collections.emptyList());
+            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+            .orElse(Collections.emptyList());
 
-        return inntektsmeldinger.stream()
-                .collect(Collectors.toMap(Inntektsmelding::getIndexKey, im -> im));
+        return inntektsmeldinger.stream().collect(Collectors.toMap(Inntektsmelding::getIndexKey, im -> im));
     }
 
     private List<Inntektsmelding> hentUtAlleInntektsmeldingeneFraBehandlingene(Collection<Long> behandlingIder) {
@@ -264,9 +271,9 @@ public class InntektsmeldingTjeneste {
 
     private List<Inntektsmelding> hentAlleInntektsmeldinger(Long behandlingId) {
         return iayTjeneste.finnGrunnlag(behandlingId)
-                .map(iayGrunnlag -> iayGrunnlag.getInntektsmeldinger()
-                        .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList()))
-                .orElse(emptyList());
+            .map(
+                iayGrunnlag -> iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList()))
+            .orElse(emptyList());
     }
 
     private boolean kanInntektsmeldingBrukesForSkjæringstidspunkt(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
@@ -274,19 +281,16 @@ public class InntektsmeldingTjeneste {
         var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
         var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
         var imdatoMåned = YearMonth.from(imdato);
-        var ferskNok = imdato.isAfter(tidligsteDato) ||
-            YearMonth.from(tidligsteDato).equals(imdatoMåned) ||
-            sisteBeregningMåned.equals(imdatoMåned);
+        var ferskNok = imdato.isAfter(tidligsteDato) || YearMonth.from(tidligsteDato).equals(imdatoMåned) || sisteBeregningMåned.equals(imdatoMåned);
         if (ferskNok) {
             return true;
         }
         // TODO Er denne nødvendig gitt det over? Sjekke logger etter noen uker
         // Obligatorisk Startdato innfases fram mot sommer 2022. Unntak er hvis begrunnelseForReduksjonEllerIkkeUtbetalt = IkkeFravær
         // Perioder (samme måned eller 2 uker) som godtas bør matche DokumentmottakerFelles . endringSomUtsetterStartdato()
-        var startdatoBetraktning = inntektsmelding.getStartDatoPermisjon().isEmpty() ||
-            inntektsmelding.getStartDatoPermisjon()
-                .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(15)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
-                .isPresent();
+        var startdatoBetraktning = inntektsmelding.getStartDatoPermisjon().isEmpty() || inntektsmelding.getStartDatoPermisjon()
+            .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(15)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
+            .isPresent();
         if (startdatoBetraktning) {
             LOG.info("Inntektsmelding: passerte ikke ferskNok, men OK startdatobetraktning");
         }

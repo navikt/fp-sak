@@ -37,8 +37,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
     }
 
     @Inject
-    public MaksDatoUttakTjenesteImpl(FpUttakRepository fpUttakRepository,
-                                     StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
+    public MaksDatoUttakTjenesteImpl(FpUttakRepository fpUttakRepository, StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.fpUttakRepository = fpUttakRepository;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
     }
@@ -47,8 +46,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.behandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        Optional<UttakResultatEntitet> annenpartResultat =
-            foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
+        Optional<UttakResultatEntitet> annenpartResultat = foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
 
         var sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
 
@@ -56,12 +54,11 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
             var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
             if (ref.relasjonRolle().equals(RelasjonsRolleType.MORA)) {
                 return Optional.of(beregnMaksDato(saldoUtregning,
-                    List.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FELLESPERIODE,
-                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+                    List.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FELLESPERIODE, Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
             }
-            return Optional.of(beregnMaksDato(saldoUtregning,
-                List.of(Stønadskontotype.FEDREKVOTE, Stønadskontotype.FELLESPERIODE,
-                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+            return Optional.of(
+                beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.FEDREKVOTE, Stønadskontotype.FELLESPERIODE, Stønadskontotype.FORELDREPENGER),
+                    sisteUttaksdato.get()));
         }
         return Optional.empty();
     }
@@ -70,8 +67,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.behandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        Optional<UttakResultatEntitet> annenpartResultat =
-            foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
+        Optional<UttakResultatEntitet> annenpartResultat = foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
 
         var sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
 
@@ -100,10 +96,8 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
         List<UttakResultatPeriodeEntitet> allePerioder = new ArrayList<>();
 
-        uttakResultatAnnenPart.ifPresent(
-            uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
-        uttakResultat.ifPresent(
-            uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
+        uttakResultatAnnenPart.ifPresent(uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
+        uttakResultat.ifPresent(uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
 
         return allePerioder.stream()
             .filter(this::erInnvilgetEllerAvslåttMedTrekkdager)
@@ -119,9 +113,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
     }
 
-    private LocalDate beregnMaksDato(SaldoUtregning saldoUtregning,
-                                     List<Stønadskontotype> gyldigeStønadskontoer,
-                                     LocalDate sisteUttaksdato) {
+    private LocalDate beregnMaksDato(SaldoUtregning saldoUtregning, List<Stønadskontotype> gyldigeStønadskontoer, LocalDate sisteUttaksdato) {
         var tilgjengeligeDager = 0;
 
         for (var stønadskonto : gyldigeStønadskontoer) {

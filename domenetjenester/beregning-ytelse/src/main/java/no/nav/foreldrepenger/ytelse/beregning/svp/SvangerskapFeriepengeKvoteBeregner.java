@@ -37,9 +37,12 @@ public class SvangerskapFeriepengeKvoteBeregner {
             return Optional.empty();
         }
         var førsteDagMedFeriepenger = førsteDagMedFeriepengerOpt.get();
-        var brukteFeriedager = annenTilkjentYtelsePåSammeSvangerskap.stream().mapToInt(ty -> finnBrukteFeriepengedager(ty, førsteDagMedFeriepenger)).sum();
+        var brukteFeriedager = annenTilkjentYtelsePåSammeSvangerskap.stream()
+            .mapToInt(ty -> finnBrukteFeriepengedager(ty, førsteDagMedFeriepenger))
+            .sum();
         if (brukteFeriedager > svpFerieKvote) {
-            throw new IllegalStateException("Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var " + brukteFeriedager);
+            throw new IllegalStateException(
+                "Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var " + brukteFeriedager);
         }
         return Optional.of(svpFerieKvote - brukteFeriedager);
     }
@@ -74,7 +77,8 @@ public class SvangerskapFeriepengeKvoteBeregner {
         if (beregningsresultatFeriepenger.getFeriepengerPeriodeFom() == null || beregningsresultatFeriepenger.getFeriepengerPeriodeTom() == null) {
             return Optional.empty();
         }
-        return Optional.of(new LocalDateInterval(beregningsresultatFeriepenger.getFeriepengerPeriodeFom(), beregningsresultatFeriepenger.getFeriepengerPeriodeTom()));
+        return Optional.of(new LocalDateInterval(beregningsresultatFeriepenger.getFeriepengerPeriodeFom(),
+            beregningsresultatFeriepenger.getFeriepengerPeriodeTom()));
     }
 
     private LocalDateInterval lagIntervall(BeregningsresultatPeriode p) {
@@ -83,14 +87,17 @@ public class SvangerskapFeriepengeKvoteBeregner {
     }
 
     private Optional<LocalDate> finnFørsteDagSomGirFeriepenger(BeregningsresultatEntitet beregnetYtelse) {
-        return beregnetYtelse.getBeregningsresultatPerioder().stream()
+        return beregnetYtelse.getBeregningsresultatPerioder()
+            .stream()
             .filter(p -> finnesAndelMedKravPåFeriepengerOgUtbetaling(p.getBeregningsresultatAndelList()))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(LocalDate::compareTo);
     }
 
     private boolean finnesAndelMedKravPåFeriepengerOgUtbetaling(List<BeregningsresultatAndel> andeler) {
-        return andeler.stream().filter(andel -> Inntektskategori.girFeriepenger().contains(andel.getInntektskategori())).anyMatch(andel -> andel.getDagsats() > 0);
+        return andeler.stream()
+            .filter(andel -> Inntektskategori.girFeriepenger().contains(andel.getInntektskategori()))
+            .anyMatch(andel -> andel.getDagsats() > 0);
 
     }
 }

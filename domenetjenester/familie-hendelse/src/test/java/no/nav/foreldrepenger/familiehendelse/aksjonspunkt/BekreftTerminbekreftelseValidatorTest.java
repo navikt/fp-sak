@@ -24,8 +24,7 @@ class BekreftTerminbekreftelseValidatorTest {
     void skal_ikke_validare_ok_når_utstedtdato_er_før_22_svangerskapsuke() {
         var utstedtdato = LocalDate.now().minusWeeks(18).minusDays(4);
         var termindato = LocalDate.now();
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
-            1);
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato, 1);
         var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isTrue();
 
@@ -35,8 +34,7 @@ class BekreftTerminbekreftelseValidatorTest {
     void skal_validare_ok_når_utstedtdato_er_10_uker_og_2_dager_før_termindato() {
         var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(2);
         var termindato = LocalDate.now();
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
-            1);
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato, 1);
 
         var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isFalse();
@@ -47,8 +45,7 @@ class BekreftTerminbekreftelseValidatorTest {
     void skal_validare_ok_når_utstedtdato_er_10_uker_og_1_dager_før_termindato() {
         var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(1);
         var termindato = LocalDate.now();
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
-            1);
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato, 1);
 
         var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isFalse();

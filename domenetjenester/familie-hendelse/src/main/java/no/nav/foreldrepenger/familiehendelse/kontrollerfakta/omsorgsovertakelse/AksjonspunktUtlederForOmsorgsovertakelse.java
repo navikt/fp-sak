@@ -45,7 +45,9 @@ public class AksjonspunktUtlederForOmsorgsovertakelse implements AksjonspunktUtl
     }
 
     private Utfall farAdoptererAlene(Long behandlingId) {
-        return familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeAdopsjon()
-            .map(AdopsjonEntitet::getAdoptererAlene).orElse(false) ? JA : NEI;
+        return familieHendelseTjeneste.hentAggregat(behandlingId)
+            .getGjeldendeAdopsjon()
+            .map(AdopsjonEntitet::getAdoptererAlene)
+            .orElse(false) ? JA : NEI;
     }
 }

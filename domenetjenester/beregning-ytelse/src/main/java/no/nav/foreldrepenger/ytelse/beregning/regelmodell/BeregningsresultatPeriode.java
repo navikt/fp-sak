@@ -48,9 +48,7 @@ public class BeregningsresultatPeriode {
 
     public static BeregningsresultatPeriode copyUtenFeriepenger(BeregningsresultatPeriode periode) {
         var ny = new BeregningsresultatPeriode(periode.periode);
-        periode.beregningsresultatAndelList.stream()
-            .map(BeregningsresultatAndel::copyUtenFeriepenger)
-            .forEach(ny::addBeregningsresultatAndel);
+        periode.beregningsresultatAndelList.stream().map(BeregningsresultatAndel::copyUtenFeriepenger).forEach(ny::addBeregningsresultatAndel);
         return ny;
     }
 }

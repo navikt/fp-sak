@@ -24,7 +24,9 @@ public class VurderBehovForÅHindreTilbaketrekk {
         // Skjuler default konstruktør
     }
 
-    static boolean skalVurdereTilbaketrekk(LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
+    static boolean skalVurdereTilbaketrekk(LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje,
+                                           Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                           LocalDate skjæringstidspunkt) {
 
         // hvis endring i totalDagsats
         for (var segment : brAndelTidslinje.toSegments()) {
@@ -35,27 +37,34 @@ public class VurderBehovForÅHindreTilbaketrekk {
             var originaleAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(originaleAndeler);
             var revurderingAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
 
-            for(var originalAndel : originaleAndelerSortertPåNøkkel) {
-                if (kanAndelerPåNøkkelOmfordeles(revurderingAndelerSortertPåNøkkel, originalAndel))  {
+            for (var originalAndel : originaleAndelerSortertPåNøkkel) {
+                if (kanAndelerPåNøkkelOmfordeles(revurderingAndelerSortertPåNøkkel, originalAndel)) {
                     return true;
                 }
             }
 
-            if (skalVurdereTilbaketrekkForTilkomneAndeler(yrkesaktiviteter, skjæringstidspunkt, originaleAndelerSortertPåNøkkel, revurderingAndelerSortertPåNøkkel)) {
+            if (skalVurdereTilbaketrekkForTilkomneAndeler(yrkesaktiviteter, skjæringstidspunkt, originaleAndelerSortertPåNøkkel,
+                revurderingAndelerSortertPåNøkkel)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean skalVurdereTilbaketrekkForTilkomneAndeler(Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel) {
-        var tilbaketrekkEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter, skjæringstidspunkt);
+    private static boolean skalVurdereTilbaketrekkForTilkomneAndeler(Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                                     LocalDate skjæringstidspunkt,
+                                                                     List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel,
+                                                                     List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel) {
+        var tilbaketrekkEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel,
+            yrkesaktiviteter, skjæringstidspunkt);
         return tilbaketrekkEntry.isPresent();
     }
 
-    private static boolean kanAndelerPåNøkkelOmfordeles(List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel, BRNøkkelMedAndeler originalAndel) {
+    private static boolean kanAndelerPåNøkkelOmfordeles(List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel,
+                                                        BRNøkkelMedAndeler originalAndel) {
         if (originalAndel.erArbeidstaker()) {
-            var andelerIRevurderingGrunnlagMedSammeNøkkel = finnSammenligningsandelMedSammeNøkkel(originalAndel.getNøkkel(), revurderingAndelerSortertPåNøkkel);
+            var andelerIRevurderingGrunnlagMedSammeNøkkel = finnSammenligningsandelMedSammeNøkkel(originalAndel.getNøkkel(),
+                revurderingAndelerSortertPåNøkkel);
             if (andelerIRevurderingGrunnlagMedSammeNøkkel.isPresent()) {
                 // Nøkkelen eksisterer fremdeles, må matche hver andel som tilhører nøkelen i gammelt og nytt grunnlag
                 return nøkkelInneholderAndelerSomMåVurderes(originalAndel, andelerIRevurderingGrunnlagMedSammeNøkkel.get());
@@ -66,7 +75,8 @@ public class VurderBehovForÅHindreTilbaketrekk {
         return false;
     }
 
-    private static boolean nøkkelInneholderAndelerSomMåVurderes(BRNøkkelMedAndeler originalBRNøkkelMedAndeler, BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
+    private static boolean nøkkelInneholderAndelerSomMåVurderes(BRNøkkelMedAndeler originalBRNøkkelMedAndeler,
+                                                                BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
 
         // Hvis det ligger andeler i revurderingen som ikke matcher mot noen andel i originalbehandlingen (ulik arbeidsforholdreferanse) må disse spesialhåndteres, det gjøres her.
         if (andelerIRevurderingUtenMatchIOriginalbehandlingMåVurderes(originalBRNøkkelMedAndeler, revurderingBRNøkkelMedAndeler)) {
@@ -84,20 +94,20 @@ public class VurderBehovForÅHindreTilbaketrekk {
 
     private static boolean andelMåVurderes(BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler, BeregningsresultatAndel originalBrukersAndel) {
         var brukersAndelIRevurdering = revurderingBRNøkkelMedAndeler.getAlleBrukersAndelerMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
-        var arbeidsgiversAndelIRevurdering = revurderingBRNøkkelMedAndeler.getAlleArbeidsgiversAndelerMedReferanse(originalBrukersAndel.getArbeidsforholdRef());
+        var arbeidsgiversAndelIRevurdering = revurderingBRNøkkelMedAndeler.getAlleArbeidsgiversAndelerMedReferanse(
+            originalBrukersAndel.getArbeidsforholdRef());
         var revurderingDagsatsBruker = dagsats(brukersAndelIRevurdering);
         var revurderingDagsatsArbeidsgiver = dagsats(arbeidsgiversAndelIRevurdering);
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalBrukersAndel.getDagsats();
 
-        return KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingDagsatsArbeidsgiver
-        );
+        return KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingDagsatsArbeidsgiver);
     }
 
-    private static boolean andelerIRevurderingUtenMatchIOriginalbehandlingMåVurderes(BRNøkkelMedAndeler originalBRNøkkelMedAndeler, BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
+    private static boolean andelerIRevurderingUtenMatchIOriginalbehandlingMåVurderes(BRNøkkelMedAndeler originalBRNøkkelMedAndeler,
+                                                                                     BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
         // Disse andelene har ikke matchende andel i det gamle grunnlaget
-        var andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt = finnAndelerIRevurderingSomIkkeMatcherSpesifikkeArbeidsforholdIOriginaltResultat(originalBRNøkkelMedAndeler, revurderingBRNøkkelMedAndeler);
+        var andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt = finnAndelerIRevurderingSomIkkeMatcherSpesifikkeArbeidsforholdIOriginaltResultat(
+            originalBRNøkkelMedAndeler, revurderingBRNøkkelMedAndeler);
 
         if (!andelerIRevurderingSomIkkeSvarerTilNoenIOriginalt.isEmpty()) {
             var brukersAndelPåOriginaltResultatUtenReferanse = originalBRNøkkelMedAndeler.getAlleBrukersAndelerUtenReferanse();
@@ -129,15 +139,14 @@ public class VurderBehovForÅHindreTilbaketrekk {
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
 
-        var endringIDagsatsBruker = aggregertBrukersDagsats - brukersAndelPåOriginaltResultat.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
+        var endringIDagsatsBruker =
+            aggregertBrukersDagsats - brukersAndelPåOriginaltResultat.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
 
-        return KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            aggregertArbeidsgiversDagsats
-        );
+        return KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, aggregertArbeidsgiversDagsats);
     }
 
-    private static List<BeregningsresultatAndel> finnAndelerIRevurderingSomIkkeMatcherSpesifikkeArbeidsforholdIOriginaltResultat(BRNøkkelMedAndeler originalBRNøkkelMedAndeler, BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
+    private static List<BeregningsresultatAndel> finnAndelerIRevurderingSomIkkeMatcherSpesifikkeArbeidsforholdIOriginaltResultat(BRNøkkelMedAndeler originalBRNøkkelMedAndeler,
+                                                                                                                                 BRNøkkelMedAndeler revurderingBRNøkkelMedAndeler) {
         var alleReferanserIOriginalbehandlingForNøkkel = originalBRNøkkelMedAndeler.getAlleReferanserForDenneNøkkelen();
         return revurderingBRNøkkelMedAndeler.getAlleAndelerMedRefSomIkkeFinnesIListe(alleReferanserIOriginalbehandlingForNøkkel);
     }
@@ -149,10 +158,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
             var revurderingDagsatsArbeidsgiver = 0;
             var endringIDagsatsBruker = revurderingDagsatsBruker - originalBrukersAndel.getDagsats();
 
-            var skalStoppes = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingDagsatsArbeidsgiver
-            );
+            var skalStoppes = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingDagsatsArbeidsgiver);
             if (skalStoppes) {
                 return true;
             }
@@ -160,12 +166,12 @@ public class VurderBehovForÅHindreTilbaketrekk {
         return false;
     }
 
-    private static Optional<BRNøkkelMedAndeler> finnSammenligningsandelMedSammeNøkkel(AktivitetOgArbeidsgiverNøkkel nøkkel, List<BRNøkkelMedAndeler> liste) {
-        var matchendeNøkler = liste.stream()
-            .filter(a -> Objects.equals(a.getNøkkel(), nøkkel))
-            .toList();
+    private static Optional<BRNøkkelMedAndeler> finnSammenligningsandelMedSammeNøkkel(AktivitetOgArbeidsgiverNøkkel nøkkel,
+                                                                                      List<BRNøkkelMedAndeler> liste) {
+        var matchendeNøkler = liste.stream().filter(a -> Objects.equals(a.getNøkkel(), nøkkel)).toList();
         if (matchendeNøkler.size() > 1) {
-            throw new IllegalStateException("Forventet å ikke finne mer enn en matchende nøkkel i liste for nøkkel " + nøkkel + " men fant " + matchendeNøkler.size());
+            throw new IllegalStateException(
+                "Forventet å ikke finne mer enn en matchende nøkkel i liste for nøkkel " + nøkkel + " men fant " + matchendeNøkler.size());
         }
         return matchendeNøkler.stream().findFirst();
     }

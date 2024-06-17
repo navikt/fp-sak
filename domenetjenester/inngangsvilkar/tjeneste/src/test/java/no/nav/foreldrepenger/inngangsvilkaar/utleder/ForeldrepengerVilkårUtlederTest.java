@@ -36,7 +36,8 @@ class ForeldrepengerVilkårUtlederTest {
         var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_FAR_MEDMOR, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
+        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_FAR_MEDMOR, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR,
+            OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
     }
 
     @Test
@@ -55,7 +56,8 @@ class ForeldrepengerVilkårUtlederTest {
         var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(ADOPSJONSVILKARET_FORELDREPENGER, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
+        assertThat(utledeteVilkår).contains(ADOPSJONSVILKARET_FORELDREPENGER, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR,
+            OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
     }
 
 }

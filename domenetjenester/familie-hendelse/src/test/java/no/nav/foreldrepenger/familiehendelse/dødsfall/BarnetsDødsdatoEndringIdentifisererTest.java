@@ -87,18 +87,23 @@ class BarnetsDødsdatoEndringIdentifisererTest {
         var erEndret = differ.erBarnDødsdatoEndret();
 
         // Assert
-        assertThat(erEndret).as("Forventer at barnets død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
+        assertThat(erEndret).as("Forventer at barnets død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.")
+            .isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdatoBarn, boolean registrerMedBarn) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
-            builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)).medDødsdato(dødsdatoBarn));
+            builder.leggTil(
+                builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)).medDødsdato(dødsdatoBarn));
             builder.leggTil(builder.getRelasjonBuilder(AKTØRID_SØKER, AKTØRID_BARN, RelasjonsRolleType.BARN));
             builder.leggTil(builder.getRelasjonBuilder(AKTØRID_BARN, AKTØRID_SØKER, RelasjonsRolleType.MORA));
         }
-        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).medOppgittAnnenPart(new OppgittAnnenPartBuilder().build()).build();
+        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
+            .medRegistrertVersjon(builder)
+            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().build())
+            .build();
     }
 
     private PersonopplysningGrunnlagEntitet opprettTomtPersonopplysningGrunnlag() {

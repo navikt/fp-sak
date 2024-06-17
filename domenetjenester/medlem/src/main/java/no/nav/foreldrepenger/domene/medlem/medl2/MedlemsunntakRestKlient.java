@@ -16,11 +16,10 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /**
- *             Dokumentasjon https://github.com/navikt/medlemskap-medl/wiki/medl2-%E2%86%92-medlemskap-medl-api
- *             Swagger: ukjent
+ * Dokumentasjon https://github.com/navikt/medlemskap-medl/wiki/medl2-%E2%86%92-medlemskap-medl-api
+ * Swagger: ukjent
  */
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "medl2.rs.url", endpointDefault = "http://medlemskap-medl-api.team-rocket/api/v1/medlemskapsunntak",
-    scopesProperty = "medl2.scopes", scopesDefault = "api://prod-fss.team-rocket.medlemskap-medl-api/.default")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "medl2.rs.url", endpointDefault = "http://medlemskap-medl-api.team-rocket/api/v1/medlemskapsunntak", scopesProperty = "medl2.scopes", scopesDefault = "api://prod-fss.team-rocket.medlemskap-medl-api/.default")
 @ApplicationScoped
 public class MedlemsunntakRestKlient implements Medlemskap {
 

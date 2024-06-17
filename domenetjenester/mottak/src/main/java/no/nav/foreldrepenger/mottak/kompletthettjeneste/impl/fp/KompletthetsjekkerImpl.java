@@ -75,8 +75,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         // Denne fristen skulle egentlig vært samordnet med frist over - men man ønsket få opp IM-mangler uavhengig
         if (!kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
             var ventefristTidligMottattSøknad = fellesUtil.finnVentefristForManglendeVedlegg(behandlingId);
-            return ventefristTidligMottattSøknad
-                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
+            return ventefristTidligMottattSøknad.map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
                 .orElse(KompletthetResultat.fristUtløpt());
         }
         return KompletthetResultat.oppfylt();

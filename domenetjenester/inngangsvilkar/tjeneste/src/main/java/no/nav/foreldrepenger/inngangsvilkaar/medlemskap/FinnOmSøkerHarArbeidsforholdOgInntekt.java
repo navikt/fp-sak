@@ -24,7 +24,8 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
 
         if (inntektArbeidYtelseGrunnlagOptional.isPresent()) {
             var grunnlag = inntektArbeidYtelseGrunnlagOptional.get();
-            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(skjæringstidspunkt);
+            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(
+                skjæringstidspunkt);
 
             if (filter.getYrkesaktiviteter().isEmpty()) {
                 return false;
@@ -46,9 +47,11 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
 
     private static List<Arbeidsgiver> finnRelevanteArbeidsgivereMedLøpendeAvtaleEllerAvtaleSomErGyldigPåStp(LocalDate skjæringstidspunkt,
                                                                                                             YrkesaktivitetFilter filter) {
-        return filter.getYrkesaktiviteter().stream()
+        return filter.getYrkesaktiviteter()
+            .stream()
             .filter(Yrkesaktivitet::erArbeidsforhold)
-            .filter(ya -> filter.getAnsettelsesPerioder(ya).stream()
+            .filter(ya -> filter.getAnsettelsesPerioder(ya)
+                .stream()
                 .anyMatch(aktivitetsAvtale -> periodeOverlapperMedEllerGårOver(skjæringstidspunkt, aktivitetsAvtale)))
             .map(Yrkesaktivitet::getArbeidsgiver)
             .collect(toList());
@@ -61,10 +64,12 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
             .isAfter(skjæringstidspunkt);
     }
 
-    private static boolean sjekkOmGjelderRelevantArbeidsgiverOgNærSkjæringstidspunktet(InntektFilter filter, LocalDate skjæringstidspunkt,
+    private static boolean sjekkOmGjelderRelevantArbeidsgiverOgNærSkjæringstidspunktet(InntektFilter filter,
+                                                                                       LocalDate skjæringstidspunkt,
                                                                                        List<Arbeidsgiver> aktørArbeid) {
         var iDag = LocalDate.now();
-        return filter.anyMatchFilter((inntekt, inntektspost) -> aktørArbeid.contains(inntekt.getArbeidsgiver())
-            && ErInntektNærSkjæringstidspunkt.erNær(inntektspost, skjæringstidspunkt, iDag));
+        return filter.anyMatchFilter(
+            (inntekt, inntektspost) -> aktørArbeid.contains(inntekt.getArbeidsgiver()) && ErInntektNærSkjæringstidspunkt.erNær(inntektspost,
+                skjæringstidspunkt, iDag));
     }
 }

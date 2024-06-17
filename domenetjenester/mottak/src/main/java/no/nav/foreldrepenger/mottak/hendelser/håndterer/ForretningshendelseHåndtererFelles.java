@@ -76,7 +76,8 @@ public class ForretningshendelseHåndtererFelles {
             return;
         }
         var køetBehandling = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null,
+            Venteårsak.VENT_ÅPEN_BEHANDLING);
         køKontroller.enkøBehandling(køetBehandling);
     }
 
@@ -86,17 +87,20 @@ public class ForretningshendelseHåndtererFelles {
             return false;
         }
         var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(åpenEllerForrige));
-        var fødslerFraRegister = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(åpenEllerForrige.getFagsakYtelseType(), åpenEllerForrige.getAktørId(), intervaller);
+        var fødslerFraRegister = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(åpenEllerForrige.getFagsakYtelseType(),
+            åpenEllerForrige.getAktørId(), intervaller);
         var fødslerFraGrunnlag = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(List.of());
         var grunnlagSammenlign = fødslerFraGrunnlag.stream().map(SammenlignBarn::new).toList();
-        return fødslerFraRegister.size() == fødslerFraGrunnlag.size() &&
-            fødslerFraRegister.stream().map(SammenlignBarn::new).allMatch(fbi -> grunnlagSammenlign.stream().anyMatch(ffg -> Objects.equals(fbi, ffg)));
+        return fødslerFraRegister.size() == fødslerFraGrunnlag.size() && fødslerFraRegister.stream()
+            .map(SammenlignBarn::new)
+            .allMatch(fbi -> grunnlagSammenlign.stream().anyMatch(ffg -> Objects.equals(fbi, ffg)));
     }
 
     private record SammenlignBarn(LocalDate fødselsdato, LocalDate dødsdato) {
         public SammenlignBarn(UidentifisertBarn barn) {
             this(barn.getFødselsdato(), barn.getDødsdato().orElse(null));
         }
+
         public SammenlignBarn(FødtBarnInfo barn) {
             this(barn.fødselsdato(), barn.getDødsdato().orElse(null));
         }

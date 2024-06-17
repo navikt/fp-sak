@@ -58,7 +58,6 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
 
-
     public LocalDate utledAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
         var avslutningsdato = avslutningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon).orElse(null);
 
@@ -69,13 +68,14 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
             ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
             var familieHendelser = fpGrunnlag.getFamilieHendelser();
 
-            if (familieHendelser != null ) {
+            if (familieHendelser != null) {
                 var familieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
                 var nesteSakGrunnlag = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
 
                 if (familieHendelse.erAlleBarnDøde()) {
-                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now())));
+                    return leggPåSøknadsfristMåneder(
+                        hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now())));
                 }
 
                 //Nytt barn (ny stønadsperiode)
@@ -101,16 +101,14 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                 if (behandlingErOpphørt(behandling) && !harKoblingTilAnnenPart(behandling.getFagsak())) {
                     return leggPåSøknadsfristMåneder(sisteUttaksdatoFraBeggeParterMedRestOgEnDag);
                 }
-                return avslutningsdatoVedInnvilget(uttakInput, stønadRest,
-                    sisteUttaksdatoFraBeggeParterMedRestOgEnDag, maksDatoFraStp);
+                return avslutningsdatoVedInnvilget(uttakInput, stønadRest, sisteUttaksdatoFraBeggeParterMedRestOgEnDag, maksDatoFraStp);
             }
         }
         return Optional.ofNullable(avslutningsdato).orElseGet(() -> LocalDate.now().plusDays(1));
     }
 
     private LocalDate hentSisteDødsdatoOgEnDag(FamilieHendelse familieHendelse) {
-        return familieHendelse
-            .getBarna()
+        return familieHendelse.getBarna()
             .stream()
             .map(Barn::getDødsdato)
             .flatMap(Optional::stream)
@@ -125,20 +123,21 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                                                   LocalDate maksDatoFraStp) {
         var friUtsettelse = !uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         if (friUtsettelse) {
-            if (stønadRest <= 0)
-            {
+            if (stønadRest <= 0) {
                 return leggPåSøknadsfristMåneder(sisteUttaksdatoFraBeggeParterMedRestOgEnDag);
             } else {
                 return maksDatoFraStp;
             }
         } else {
             var sisteUttaksdatoMedsøknadsfrist = leggPåSøknadsfristMåneder(sisteUttaksdatoFraBeggeParterMedRestOgEnDag);
-            return maksDatoFraStp.isBefore(sisteUttaksdatoMedsøknadsfrist)? maksDatoFraStp : sisteUttaksdatoMedsøknadsfrist;
+            return maksDatoFraStp.isBefore(sisteUttaksdatoMedsøknadsfrist) ? maksDatoFraStp : sisteUttaksdatoMedsøknadsfrist;
         }
     }
 
     private boolean harKoblingTilAnnenPart(Fagsak fagsak) {
-        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).filter(fagsakRelasjon -> fagsakRelasjon.getFagsakNrTo().isPresent()).isPresent();
+        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
+            .filter(fagsakRelasjon -> fagsakRelasjon.getFagsakNrTo().isPresent())
+            .isPresent();
     }
 
     private LocalDate leggPåSøknadsfristMåneder(LocalDate fraDato) {
@@ -157,8 +156,11 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private boolean behandlingErOpphørt(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).filter(Behandlingsresultat::isBehandlingsresultatOpphørt).isPresent();
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(Behandlingsresultat::isBehandlingsresultatOpphørt)
+            .isPresent();
     }
+
     //hvorfor gjør vi denne sjekken mot eksisterende avslutningsdato for fri utsettelse og ikke sammenhengende?
     private static boolean ingenAvslutningsdatoEllerNyDatoErFør(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {
         return avsluttningsdato == null || nyAvsluttningsdato.isBefore(avsluttningsdato);

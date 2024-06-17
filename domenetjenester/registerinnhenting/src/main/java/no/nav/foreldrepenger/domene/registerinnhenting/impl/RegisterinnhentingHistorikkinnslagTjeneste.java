@@ -37,8 +37,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.NYE_REGOPPLYSNINGER);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.NYE_REGOPPLYSNINGER)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.NYE_REGOPPLYSNINGER)
             .medBegrunnelse(HistorikkBegrunnelseType.SAKSBEH_START_PA_NYTT);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
@@ -50,8 +49,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
             .medBegrunnelse("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn());
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
@@ -63,8 +61,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
             .medBegrunnelse(behandlingÅrsakType);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
@@ -76,8 +73,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
             .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, endretFra, endretTil);
 

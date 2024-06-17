@@ -63,8 +63,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                 var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                     .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
-                return resultatBuilder
-                    .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                     .leggTilManueltAvslåttVilkår(vilkår.getVilkårType(), avslagsårsak)
                     .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                     .build();
@@ -82,14 +81,13 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        return new HistorikkAksjonspunktAdapter(behandlingsresultat, historikkAdapter, param)
-            .håndterAksjonspunkt(aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
+        return new HistorikkAksjonspunktAdapter(behandlingsresultat, historikkAdapter, param).håndterAksjonspunkt(aksjonspunktDefinisjon, vilkår,
+            dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
     }
 
     private HistorikkEndretFeltType finnTekstForFelt(Vilkår vilkår) {
         var vilkårType = vilkår.getVilkårType();
-        if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(
-            vilkårType)) {
+        if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårType)) {
             return HistorikkEndretFeltType.FODSELSVILKARET;
         }
         if (VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårType)) {
@@ -100,8 +98,8 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
     private Optional<Vilkår> finnRelevantVilkår(BehandlingReferanse behandlingReferanse) {
 
-        var relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
+        var relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         var vilkårene = behandlingsresultatRepository.hent(behandlingReferanse.behandlingId()).getVilkårResultat().getVilkårene();
 
         return vilkårene.stream().filter(v -> relevanteVilkårTyper.contains(v.getVilkårType())).findFirst();

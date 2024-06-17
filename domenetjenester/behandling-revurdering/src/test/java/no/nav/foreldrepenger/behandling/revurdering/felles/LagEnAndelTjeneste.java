@@ -16,15 +16,13 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 public class LagEnAndelTjeneste implements LagAndelTjeneste {
 
     @Override
-    public List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat,
-                                                              boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
+    public List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         var ds = new Dagsatser(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
-        var bga = BGAndelArbeidsforhold
-                .builder()
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
+        var bga = BGAndelArbeidsforhold.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
+            .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
+            .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         var andel = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)

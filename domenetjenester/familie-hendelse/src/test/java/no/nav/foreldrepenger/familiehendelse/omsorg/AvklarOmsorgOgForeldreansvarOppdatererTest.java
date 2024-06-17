@@ -64,13 +64,12 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
         scenario.medSøknadHendelse()
             .medAntallBarn(2)
-            .leggTilBarn(LocalDate.now().minusYears(1)).leggTilBarn(LocalDate.now().minusYears(1))
+            .leggTilBarn(LocalDate.now().minusYears(1))
+            .leggTilBarn(LocalDate.now().minusYears(1))
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
 
         var forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builderMedDefaultVerdier(forelderId)
-                    .navn("Forelder"))
+            .leggTilPersonopplysninger(Personopplysning.builderMedDefaultVerdier(forelderId).navn("Forelder"))
             .build();
 
         scenario.medRegisterOpplysninger(forelder);
@@ -97,8 +96,8 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, familieHendelseTjeneste, lagMockHistory())
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, familieHendelseTjeneste,
+            lagMockHistory()).oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
     }
@@ -118,23 +117,16 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         var forelderId = AktørId.dummy();
         var dødsdato = LocalDate.now();
         var oppdatertDødsdato = dødsdato.plusDays(1);
-        scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()));
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         var forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builderMedDefaultVerdier(forelderId)
-                    .dødsdato(dødsdato)
-                    .navn("Navn"))
+            .leggTilPersonopplysninger(Personopplysning.builderMedDefaultVerdier(forelderId).dødsdato(dødsdato).navn("Navn"))
             .build();
 
         scenario.medRegisterOpplysninger(forelder);
@@ -148,11 +140,11 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
         // Assert
         assertThat(resultat.getVilkårTyperSomSkalFjernes()).isEmpty();
-        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getMålStatus())))
-            .anySatisfy(ear -> assertThat(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET).isEqualTo(ear.getAksjonspunktDefinisjon()));
+        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getMålStatus()))).anySatisfy(
+            ear -> assertThat(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET).isEqualTo(ear.getAksjonspunktDefinisjon()));
 
-        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getMålStatus())))
-            .allMatch(apr -> !Objects.equals(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, apr.getAksjonspunktDefinisjon()));
+        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getMålStatus()))).allMatch(
+            apr -> !Objects.equals(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, apr.getAksjonspunktDefinisjon()));
 
     }
 
@@ -163,11 +155,9 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         var omsorgsovertakelsesdatoBekreftet = omsorgsovertakelsesdatoOppgitt.plusDays(1);
 
         // Behandling
-        scenario.medSøknad()
-            .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(omsorgsovertakelsesdatoOppgitt));
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsesdatoOppgitt));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.lagre(repositoryProvider);
 

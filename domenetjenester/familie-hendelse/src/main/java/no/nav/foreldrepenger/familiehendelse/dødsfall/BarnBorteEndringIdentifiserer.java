@@ -43,16 +43,15 @@ public class BarnBorteEndringIdentifiserer {
         var søker = nyBehandling.aktørId();
 
         var origBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(origBehandling)
-            .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
+            .map(origGrunnlag -> getBarn(søker, origGrunnlag))
             .orElse(emptyList());
         var nyeBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(nyBehandling.behandlingId())
-            .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
+            .map(origGrunnlag -> getBarn(søker, origGrunnlag))
             .orElse(emptyList());
 
         // Sjekk om noen av de registrerte barna på orig grunnlag har forsvunnet på nytt grunnlag
         return origBarna.stream()
-            .anyMatch(origBarn -> nyeBarna.stream()
-                .noneMatch(nyttBarn -> Objects.equals(nyttBarn.getAktørId(), origBarn.getAktørId())));
+            .anyMatch(origBarn -> nyeBarna.stream().noneMatch(nyttBarn -> Objects.equals(nyttBarn.getAktørId(), origBarn.getAktørId())));
     }
 
     private List<PersonopplysningEntitet> getBarn(AktørId søker, PersonopplysningGrunnlagEntitet grunnlag) {
@@ -60,9 +59,15 @@ public class BarnBorteEndringIdentifiserer {
             return emptyList();
         }
 
-        return grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getRelasjoner).orElse(emptyList()).stream()
+        return grunnlag.getRegisterVersjon()
+            .map(PersonInformasjonEntitet::getRelasjoner)
+            .orElse(emptyList())
+            .stream()
             .filter(rel -> rel.getAktørId().equals(søker) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(relSøkerBarn -> grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonopplysninger).orElse(emptyList()).stream()
+            .map(relSøkerBarn -> grunnlag.getRegisterVersjon()
+                .map(PersonInformasjonEntitet::getPersonopplysninger)
+                .orElse(emptyList())
+                .stream()
                 .filter(person -> person.getAktørId().equals(relSøkerBarn.getTilAktørId()))
                 .findAny()
                 .orElse(null))

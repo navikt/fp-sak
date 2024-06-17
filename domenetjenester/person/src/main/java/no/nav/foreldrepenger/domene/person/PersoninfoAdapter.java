@@ -91,12 +91,15 @@ public class PersoninfoAdapter {
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(FagsakYtelseType ytelseType, PersonIdent personIdent) {
-        return fødselTjeneste.hentForeldreTil(ytelseType, personIdent).stream()
+        return fødselTjeneste.hentForeldreTil(ytelseType, personIdent)
+            .stream()
             .flatMap(p -> aktørConsumer.hentAktørIdForPersonIdent(p).stream())
             .toList();
     }
 
-    public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {
+    public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType ytelseType,
+                                                                       AktørId aktørId,
+                                                                       List<LocalDateInterval> intervaller) {
         return fødselTjeneste.hentFødteBarnInfoFor(ytelseType, aktørId, intervaller);
     }
 

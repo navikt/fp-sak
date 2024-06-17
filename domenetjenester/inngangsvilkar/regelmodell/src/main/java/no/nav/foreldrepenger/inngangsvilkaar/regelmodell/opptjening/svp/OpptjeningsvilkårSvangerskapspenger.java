@@ -21,7 +21,7 @@ import no.nav.fpsak.nare.specification.Specification;
  * Regeltjeneste for vurdering av OpptjeningsVilkåret tilpasset Svangerskapspenger
  * <p>
  * Dette vurderes som følger:
- *
+ * <p>
  * Perioden i arbeidsm må være på eller mer 28 dager, får antatt godkjent i perioden siden innteket ikke har tilkommet på tidspunktet.
  *
  * <p>
@@ -43,7 +43,8 @@ public class OpptjeningsvilkårSvangerskapspenger implements RuleService<Opptjen
 
     @Override
     public Evaluation evaluer(Opptjeningsgrunnlag grunnlag, Object output) {
-        var grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag, OpptjeningsvilkårParametre.opptjeningsparametreSvangerskapspenger());
+        var grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag,
+            OpptjeningsvilkårParametre.opptjeningsparametreSvangerskapspenger());
         var evaluation = getSpecification().evaluate(grunnlagOgMellomregning);
 
         // kopier ut resultater og sett resultater
@@ -58,14 +59,10 @@ public class OpptjeningsvilkårSvangerskapspenger implements RuleService<Opptjen
         var rs = new Ruleset<OpptjeningsvilkårMellomregning>();
 
         Specification<OpptjeningsvilkårMellomregning> sjekkOpptjeningsvilkåret = rs.hvisRegel("FP_VK 23.2", "Hvis tilstrekkelig opptjening")
-                .hvis(new SjekkTilstrekkeligOpptjening(), new Oppfylt())
-                .ellers(new SjekkTilstrekkeligOpptjeningInklAntatt());
+            .hvis(new SjekkTilstrekkeligOpptjening(), new Oppfylt())
+            .ellers(new SjekkTilstrekkeligOpptjeningInklAntatt());
 
-        return new SequenceSpecification<>("FP_VK 23.1",
-                "Sammenstill Arbeid aktivitet med Inntekt",
-                Arrays.asList(
-                        new SjekkInntektSamsvarerMedArbeidAktivitet(),
-                        new BeregnOpptjening(),
-                        sjekkOpptjeningsvilkåret));
+        return new SequenceSpecification<>("FP_VK 23.1", "Sammenstill Arbeid aktivitet med Inntekt",
+            Arrays.asList(new SjekkInntektSamsvarerMedArbeidAktivitet(), new BeregnOpptjening(), sjekkOpptjeningsvilkåret));
     }
 }

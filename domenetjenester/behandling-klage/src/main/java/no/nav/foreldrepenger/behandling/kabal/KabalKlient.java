@@ -14,8 +14,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kabal.api.url", endpointDefault = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak",
-    scopesProperty = "kabal.api.scopes", scopesDefault = "api://prod-gcp.klage.kabal-api/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kabal.api.url", endpointDefault = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak", scopesProperty = "kabal.api.scopes", scopesDefault = "api://prod-gcp.klage.kabal-api/.default")
 public class KabalKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KabalKlient.class);
@@ -30,13 +29,15 @@ public class KabalKlient {
     }
 
     public void sendTilKabal(TilKabalDto request) {
-        if (IS_LOCAL) return; // Har ikke laget kabal-mock i VTP
+        if (IS_LOCAL) {
+            return; // Har ikke laget kabal-mock i VTP
+        }
         try {
             var rrequest = RestRequest.newPOSTJson(request, restConfig.endpoint(), restConfig);
             restClient.sendExpectConflict(rrequest, String.class);
         } catch (Exception e) {
             LOG.warn("KABAL oversend: feil ved sending til KABAL {}", restConfig.endpoint(), e);
-            throw new TekniskException( "FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", restConfig.endpoint()), e);
+            throw new TekniskException("FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", restConfig.endpoint()), e);
         }
     }
 }

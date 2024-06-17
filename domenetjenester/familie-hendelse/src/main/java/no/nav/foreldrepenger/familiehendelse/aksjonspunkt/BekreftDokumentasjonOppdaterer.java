@@ -61,11 +61,9 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
-        oppdatertOverstyrtHendelse
-            .tilbakestillBarn()
+        oppdatertOverstyrtHendelse.tilbakestillBarn()
             .medAntallBarn(dto.getFodselsdatoer().keySet().size())
-            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
+            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder().medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
         dto.getFodselsdatoer()
             .forEach((barnnummer, fødselsdato) -> oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(fødselsdato, barnnummer)));
 
@@ -83,8 +81,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         boolean erEndret;
         var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
-        var originalDato = getOmsorgsovertakelsesdatoForAdopsjon(
-            hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow(IllegalStateException::new));
+        var originalDato = getOmsorgsovertakelsesdatoForAdopsjon(hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow(IllegalStateException::new));
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO, originalDato, dto.getOmsorgsovertakelseDato());
 
         var orginaleFødselsdatoer = getAdopsjonFødselsdatoer(hendelseGrunnlag);
@@ -107,8 +104,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
     private Map<Integer, LocalDate> getAdopsjonFødselsdatoer(FamilieHendelseGrunnlagEntitet grunnlag) {
         return Optional.ofNullable(grunnlag.getGjeldendeBarna())
-            .map(barna -> barna.stream()
-                .collect(toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato)))
+            .map(barna -> barna.stream().collect(toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato)))
             .orElse(emptyMap());
     }
 

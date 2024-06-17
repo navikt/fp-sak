@@ -50,8 +50,7 @@ public class InntektPeriode {
             return false;
         }
         var other = (InntektPeriode) obj;
-        return Objects.equals(aktivitet, other.aktivitet)
-                && Objects.equals(getDatoInterval(), other.getDatoInterval());
+        return Objects.equals(aktivitet, other.aktivitet) && Objects.equals(getDatoInterval(), other.getDatoInterval());
     }
 
     @Override

@@ -92,9 +92,8 @@ public class Permisjon implements IndexKey {
         if (!(obj instanceof Permisjon other)) {
             return false;
         }
-        return Objects.equals(this.permisjonsbeskrivelseType, other.permisjonsbeskrivelseType)
-                && Objects.equals(this.prosentsats, other.prosentsats)
-                && Objects.equals(this.periode, other.periode);
+        return Objects.equals(this.permisjonsbeskrivelseType, other.permisjonsbeskrivelseType) && Objects.equals(this.prosentsats, other.prosentsats)
+            && Objects.equals(this.periode, other.periode);
     }
 
     @Override
@@ -104,12 +103,8 @@ public class Permisjon implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{" +
-                "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType +
-                ", fraOgMed=" + periode.getFomDato() +
-                ", tilOgMed=" + periode.getTomDato() +
-                ", prosentsats=" + prosentsats +
-                '}';
+        return getClass().getSimpleName() + "{" + "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType + ", fraOgMed=" + periode.getFomDato()
+            + ", tilOgMed=" + periode.getTomDato() + ", prosentsats=" + prosentsats + '}';
     }
 
     public Yrkesaktivitet getYrkesaktivitet() {

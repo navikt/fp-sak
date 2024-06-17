@@ -56,9 +56,7 @@ public class BehandlingStatusEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst +
-                ", nyStatus=" + nyStatus +
-                ">";
+        return getClass().getSimpleName() + "<" + kontekst + ", nyStatus=" + nyStatus + ">";
     }
 
     public static class BehandlingAvsluttetEvent extends BehandlingStatusEvent {

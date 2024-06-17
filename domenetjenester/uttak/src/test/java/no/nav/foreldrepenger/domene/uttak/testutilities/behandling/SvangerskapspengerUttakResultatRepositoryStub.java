@@ -12,8 +12,7 @@ class SvangerskapspengerUttakResultatRepositoryStub extends SvangerskapspengerUt
     private final Map<Long, SvangerskapspengerUttakResultatEntitet> map = new ConcurrentHashMap<>();
 
     @Override
-    public void lagre(Long behandlingId,
-                      SvangerskapspengerUttakResultatEntitet svangerskapspengerUttakResultatEntitet) {
+    public void lagre(Long behandlingId, SvangerskapspengerUttakResultatEntitet svangerskapspengerUttakResultatEntitet) {
         map.put(behandlingId, svangerskapspengerUttakResultatEntitet);
     }
 

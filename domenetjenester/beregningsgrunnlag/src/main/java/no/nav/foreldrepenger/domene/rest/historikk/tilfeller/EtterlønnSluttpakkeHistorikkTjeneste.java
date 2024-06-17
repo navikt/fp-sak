@@ -26,11 +26,18 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
     private static final BigDecimal MÅNEDER_I_ET_ÅR = BigDecimal.valueOf(12);
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         lagHistorikkForFastsetting(dto, tekstBuilder, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
     }
 
-    private void lagHistorikkForFastsetting(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
+    private void lagHistorikkForFastsetting(FaktaBeregningLagreDto dto,
+                                            HistorikkInnslagTekstBuilder tekstBuilder,
+                                            Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var fastettDto = dto.getFastsettEtterlønnSluttpakke();
         var fastsattPrMnd = fastettDto.getFastsattPrMnd();
         var fastsattPrMndForrige = forrigeBg.map(this::hentOpprinneligVerdiFastsattEtterlønnSluttpakke).orElse(null);
@@ -54,15 +61,19 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
             .toList();
     }
 
-    private void lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal nyVerdiEtterlønnSLuttpakke, BigDecimal opprinneligEtterlønnSluttpakkeInntekt,
+    private void lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal nyVerdiEtterlønnSLuttpakke,
+                                                                BigDecimal opprinneligEtterlønnSluttpakkeInntekt,
                                                                 HistorikkInnslagTekstBuilder tekstBuilder) {
         var opprinneligInntektInt = opprinneligEtterlønnSluttpakkeInntekt == null ? null : opprinneligEtterlønnSluttpakkeInntekt.intValue();
         oppdaterVedEndretVerdi(nyVerdiEtterlønnSLuttpakke, opprinneligInntektInt, tekstBuilder);
     }
 
-    private void oppdaterVedEndretVerdi(BigDecimal nyVerdiEtterlønnSLuttpakke, Integer opprinneligEtterlønnSluttpakkeInntekt, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void oppdaterVedEndretVerdi(BigDecimal nyVerdiEtterlønnSLuttpakke,
+                                        Integer opprinneligEtterlønnSluttpakkeInntekt,
+                                        HistorikkInnslagTekstBuilder tekstBuilder) {
         if (!Objects.equals(nyVerdiEtterlønnSLuttpakke.intValue(), opprinneligEtterlønnSluttpakkeInntekt)) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_ETTERLØNN_SLUTTPAKKE, opprinneligEtterlønnSluttpakkeInntekt, nyVerdiEtterlønnSLuttpakke.intValue());
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_ETTERLØNN_SLUTTPAKKE, opprinneligEtterlønnSluttpakkeInntekt,
+                nyVerdiEtterlønnSLuttpakke.intValue());
         }
     }
 }

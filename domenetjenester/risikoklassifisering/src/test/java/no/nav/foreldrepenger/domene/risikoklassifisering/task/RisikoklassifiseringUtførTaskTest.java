@@ -59,7 +59,7 @@ class RisikoklassifiseringUtførTaskTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void init(){
+    public void init() {
         risikoklassifiseringUtførTask = new RisikoklassifiseringUtførTask(risikovurderingTjeneste, behandlingRepository, skjæringstidspunktTjeneste,
             opplysningsPeriodeTjeneste, personopplysningRepository);
     }
@@ -70,26 +70,23 @@ class RisikoklassifiseringUtførTaskTest {
         var ref = BehandlingReferanse.fra(behandling);
         forberedelse(ref, true);
         var prosessTaskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-                prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));
+        prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));
         risikoklassifiseringUtførTask.doTask(prosessTaskData);
-        var request = new RisikovurderingRequestDto(
-            new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),
-            LocalDate.now(), ref.behandlingUuid(), YtelseType.ENGANGSSTØNAD,
+        var request = new RisikovurderingRequestDto(new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()),
+            SKJÆRINGSTIDSPUNKT, LocalDate.now(), LocalDate.now(), ref.behandlingUuid(), YtelseType.ENGANGSSTØNAD,
             new AnnenPartDto(new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ANNEN_PART_AKTØR_ID.getId()), null));
         verify(risikovurderingTjeneste).startRisikoklassifisering(ref, request);
     }
 
     private void forberedelse(BehandlingReferanse behandlingref, boolean annenPart) {
-        var skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(behandlingRepository.hentBehandling(BEHANDLING_ID)).thenReturn(behandling);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingref.behandlingId())).thenReturn(skjæringstidspunkt);
         when(opplysningsPeriodeTjeneste.beregn(behandlingref.behandlingId(), behandlingref.fagsakYtelseType())).thenReturn(
             SimpleLocalDateInterval.fraOgMedTomNotNull(LocalDate.now(), LocalDate.now()));
         if (annenPart) {
-            when(personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingref.behandlingId()))
-                .thenReturn(Optional.of(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build()));
+            when(personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingref.behandlingId())).thenReturn(
+                Optional.of(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build()));
         }
         MDC.put("callId", "callId");
     }
@@ -97,8 +94,7 @@ class RisikoklassifiseringUtførTaskTest {
     private void lagBehandling() {
         var terminDato = LocalDate.now().minusDays(70);
 
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medSøknadDato(terminDato.minusDays(20));
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()

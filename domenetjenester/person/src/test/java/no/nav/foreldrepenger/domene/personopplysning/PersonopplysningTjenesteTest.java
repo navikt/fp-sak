@@ -25,8 +25,7 @@ class PersonopplysningTjenesteTest {
 
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var personInformasjon = scenario
-            .opprettBuilderForRegisteropplysninger()
+        var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
             .kvinne(søkerAktørId, SivilstandType.SAMBOER)
             .statsborgerskap(Landkoder.NOR)
@@ -38,9 +37,10 @@ class PersonopplysningTjenesteTest {
         var behandling = scenario.lagMocked();
 
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(tidspunkt)
-                .medUtledetMedlemsintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
-                .medFørsteUttaksdato(tidspunkt).build());
+            .medUtledetSkjæringstidspunkt(tidspunkt)
+            .medUtledetMedlemsintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
+            .medFørsteUttaksdato(tidspunkt)
+            .build());
 
         // Act
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, tidspunkt);

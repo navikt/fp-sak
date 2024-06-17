@@ -44,11 +44,11 @@ class TidligstMottattOppdatererTest {
         var tom = LocalDate.of(2020, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
-                .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-                .medPeriode(fom, tom)
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medTidligstMottattDato(originalTidligstMottattDato)
-                .build());
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fom, tom)
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medTidligstMottattDato(originalTidligstMottattDato)
+            .build());
 
         var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
@@ -57,7 +57,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -84,7 +85,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -115,7 +117,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
@@ -148,7 +151,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode1, periode2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode1, periode2), LocalDate.now(),
+            List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -190,7 +194,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -239,7 +244,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -275,7 +281,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -322,7 +329,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2, søknad0), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2, søknad0), LocalDate.now(),
+            List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -369,7 +377,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(tidligerefordeling),
+            Optional.empty());
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato0);
@@ -434,7 +443,8 @@ class TidligstMottattOppdatererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(),
+            List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -456,19 +466,21 @@ class TidligstMottattOppdatererTest {
 
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
-        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medGraderingArbeidsprosent(BigDecimal.TEN).medTidligstMottattDato(originalTidligstMottattDato).build())
+                .medGraderingArbeidsprosent(BigDecimal.TEN)
+                .medTidligstMottattDato(originalTidligstMottattDato)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medErSøktGradering(true)
-            .medArbeidsprosent(BigDecimal.TEN).build();
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
 
@@ -482,7 +494,8 @@ class TidligstMottattOppdatererTest {
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
 
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(), Optional.of(uttakResultat));
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(),
+            Optional.of(uttakResultat));
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -497,7 +510,6 @@ class TidligstMottattOppdatererTest {
     }
 
 
-
     @Test
     void utviderPeriodeUtenUttakOgLeggerTilSenereUttakFraUR() {
         var fom0 = LocalDate.of(2022, 10, 4);
@@ -508,27 +520,32 @@ class TidligstMottattOppdatererTest {
 
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
-        var uttakPeriode0 = new UttakResultatPeriodeEntitet.Builder(fom0, fom0.plusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).medTidligstMottattDato(originalTidligstMottattDato0).build())
+        var uttakPeriode0 = new UttakResultatPeriodeEntitet.Builder(fom0, fom0.plusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medTidligstMottattDato(originalTidligstMottattDato0)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode0, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
-            .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         perioder.leggTilPeriode(uttakPeriode0);
-        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).medTidligstMottattDato(originalTidligstMottattDato1).build())
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medTidligstMottattDato(originalTidligstMottattDato1)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
-            .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
 
@@ -548,7 +565,8 @@ class TidligstMottattOppdatererTest {
             .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(), Optional.of(uttakResultat));
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(),
+            Optional.of(uttakResultat));
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato0);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato1);
@@ -572,45 +590,53 @@ class TidligstMottattOppdatererTest {
 
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
-        var uttakPeriode1a = new UttakResultatPeriodeEntitet.Builder(fom, fom0.minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID)
+        var uttakPeriode1a = new UttakResultatPeriodeEntitet.Builder(fom, fom0.minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID)
             .medUtsettelseType(UttakUtsettelseType.ARBEID)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medUttakPeriodeType(UttakPeriodeType.UDEFINERT).medMorsAktivitet(MorsAktivitet.UTDANNING).medTidligstMottattDato(originalTidligstMottattDato).build())
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
+                .medMorsAktivitet(MorsAktivitet.UTDANNING)
+                .medTidligstMottattDato(originalTidligstMottattDato)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1a, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(0))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
+            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN))
+            .build();
         perioder.leggTilPeriode(uttakPeriode1a);
-        var uttakPeriode1b = new UttakResultatPeriodeEntitet.Builder(fom0, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID)
+        var uttakPeriode1b = new UttakResultatPeriodeEntitet.Builder(fom0, tom).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID)
             .medUtsettelseType(UttakUtsettelseType.ARBEID)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medUttakPeriodeType(UttakPeriodeType.UDEFINERT).medMorsAktivitet(MorsAktivitet.UTDANNING).medTidligstMottattDato(originalTidligstMottattDato).build())
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
+                .medMorsAktivitet(MorsAktivitet.UTDANNING)
+                .medTidligstMottattDato(originalTidligstMottattDato)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1b, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(0))
             .medTrekkonto(UttakPeriodeType.UDEFINERT)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
+            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN))
+            .build();
         perioder.leggTilPeriode(uttakPeriode1b);
 
-        var uttakPeriode2 = new UttakResultatPeriodeEntitet.Builder(fom2, tom2)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).medMorsAktivitet(MorsAktivitet.UTDANNING).medTidligstMottattDato(originalTidligstMottattDato).build())
+        var uttakPeriode2 = new UttakResultatPeriodeEntitet.Builder(fom2, tom2).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medMorsAktivitet(MorsAktivitet.UTDANNING)
+                .medTidligstMottattDato(originalTidligstMottattDato)
+                .build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode2, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(5))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
-            .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         perioder.leggTilPeriode(uttakPeriode2);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
 
@@ -635,7 +661,8 @@ class TidligstMottattOppdatererTest {
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
             .build();
 
-        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(), List.of(), Optional.of(uttakResultat));
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(), List.of(),
+            Optional.of(uttakResultat));
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);

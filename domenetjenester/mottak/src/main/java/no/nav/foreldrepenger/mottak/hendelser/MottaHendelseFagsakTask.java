@@ -34,7 +34,7 @@ public class MottaHendelseFagsakTask extends FagsakProsessTask {
     public MottaHendelseFagsakTask(ForretningshendelseMottak forretningshendelseMottak, BehandlingRepositoryProvider repositoryProvider) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.forretningshendelseMottak = forretningshendelseMottak;
-        this.   behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
     @Override

@@ -40,15 +40,14 @@ public class RettOgOmsorgGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
-        return new RettOgOmsorg.Builder()
-                .aleneomsorg(ytelseFordelingAggregat.robustHarAleneomsorg(uttakInput.getBehandlingReferanse().relasjonRolle()))
-                .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
-                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
-                .samtykke(samtykke)
-                .harOmsorg(ytelseFordelingAggregat.harOmsorg())
-            ;
+        return new RettOgOmsorg.Builder().aleneomsorg(
+                ytelseFordelingAggregat.robustHarAleneomsorg(uttakInput.getBehandlingReferanse().relasjonRolle()))
+            .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+            .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+            .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
+            .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
+            .samtykke(samtykke)
+            .harOmsorg(ytelseFordelingAggregat.harOmsorg());
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {
@@ -60,7 +59,9 @@ public class RettOgOmsorgGrunnlagBygger {
         return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
     }
 
-    private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
+    private boolean farHarRett(BehandlingReferanse ref,
+                               YtelseFordelingAggregat ytelseFordelingAggregat,
+                               Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
         var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return ytelseFordelingAggregat.harAnnenForelderRett(annenpartsUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
@@ -71,7 +72,9 @@ public class RettOgOmsorgGrunnlagBygger {
         throw new IllegalStateException("Uventet foreldrerolletype " + relasjonsRolleType);
     }
 
-    private boolean morHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
+    private boolean morHarRett(BehandlingReferanse ref,
+                               YtelseFordelingAggregat ytelseFordelingAggregat,
+                               Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
         var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return harSøkerRett(ref);

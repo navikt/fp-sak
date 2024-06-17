@@ -128,14 +128,11 @@ class VedtakXmlTest {
         Mockito.when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);
 
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles,
-            repositoryProvider, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste,
-            mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
+        var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste,
+            ytelseFordelingTjeneste, mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
-                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
-                behandlingsresultatXmlTjeneste,
-                skjæringstidspunktTjeneste);
+            new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -160,12 +157,12 @@ class VedtakXmlTest {
 
         var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var vedtak = BehandlingVedtak.builder()
-                .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
-                .medIverksettingStatus(IVERKSETTING_STATUS)
-                .medVedtakstidspunkt(VEDTAK_DATO)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medBehandlingsresultat(behandlingsresultat)
-                .build();
+            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
+            .medIverksettingStatus(IVERKSETTING_STATUS)
+            .medVedtakstidspunkt(VEDTAK_DATO)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .build();
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
         var xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
@@ -174,18 +171,16 @@ class VedtakXmlTest {
 
     void lagreTilrettelegging(Behandling behandling) {
         var jordmorsDato = LocalDate.of(2019, Month.APRIL, 1);
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsDato)
-                .medIngenTilrettelegging(jordmorsDato, jordmorsDato, SvpTilretteleggingFomKilde.SØKNAD)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-                .medKopiertFraTidligereBehandling(false)
-                .medMottattTidspunkt(LocalDateTime.now())
-                .build();
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-                .medBehandlingId(behandling.getId())
-                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-                .build();
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsDato)
+            .medIngenTilrettelegging(jordmorsDato, jordmorsDato, SvpTilretteleggingFomKilde.SØKNAD)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+            .medKopiertFraTidligereBehandling(false)
+            .medMottattTidspunkt(LocalDateTime.now())
+            .build();
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
+            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+            .build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
@@ -194,57 +189,53 @@ class VedtakXmlTest {
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
 
-        var uttakPeriodeA = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(new Utbetalingsgrad(30L))
-                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-                .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-                .build();
+        var uttakPeriodeA = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medRegelInput("{}")
+            .medRegelEvaluering("{}")
+            .medUtbetalingsgrad(new Utbetalingsgrad(30L))
+            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+            .build();
 
-        var uttakPeriodeB = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(1), tom.plusDays(10))
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(new Utbetalingsgrad(50L))
-                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-                .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
-                .build();
+        var uttakPeriodeB = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(1), tom.plusDays(10)).medRegelInput("{}")
+            .medRegelEvaluering("{}")
+            .medUtbetalingsgrad(new Utbetalingsgrad(50L))
+            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+            .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
+            .build();
 
-        var uttakPeriodeC = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(11), tom.plusDays(20))
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(new Utbetalingsgrad(20L))
-                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-                .medPeriodeResultatType(PeriodeResultatType.MANUELL_BEHANDLING)
-                .build();
+        var uttakPeriodeC = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(11), tom.plusDays(20)).medRegelInput("{}")
+            .medRegelEvaluering("{}")
+            .medUtbetalingsgrad(new Utbetalingsgrad(20L))
+            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+            .medPeriodeResultatType(PeriodeResultatType.MANUELL_BEHANDLING)
+            .build();
 
-        var uttakArbeidsforholdA = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
-                .medPeriode(uttakPeriodeA)
-                .medPeriode(uttakPeriodeB)
-                .medPeriode(uttakPeriodeC)
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
+        var uttakArbeidsforholdA = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+                Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
+            .medPeriode(uttakPeriodeA)
+            .medPeriode(uttakPeriodeB)
+            .medPeriode(uttakPeriodeC)
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
 
-        var uttakArbeidsforholdB = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
-                .medPeriode(uttakPeriodeA)
-                .medPeriode(uttakPeriodeB)
-                .medPeriode(uttakPeriodeC)
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
+        var uttakArbeidsforholdB = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+                Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
+            .medPeriode(uttakPeriodeA)
+            .medPeriode(uttakPeriodeB)
+            .medPeriode(uttakPeriodeC)
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
 
-        var uttakArbeidsforholdC = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
-                .medPeriode(uttakPeriodeA)
-                .medPeriode(uttakPeriodeB)
-                .medPeriode(uttakPeriodeC)
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
+        var uttakArbeidsforholdC = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+                Arbeidsgiver.person(AktørId.dummy()), InternArbeidsforholdRef.nyRef())
+            .medPeriode(uttakPeriodeA)
+            .medPeriode(uttakPeriodeB)
+            .medPeriode(uttakPeriodeC)
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
 
-        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat())
-                .medUttakResultatArbeidsforhold(uttakArbeidsforholdA).medUttakResultatArbeidsforhold(uttakArbeidsforholdB)
-                .medUttakResultatArbeidsforhold(uttakArbeidsforholdC).build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(
+            uttakArbeidsforholdA).medUttakResultatArbeidsforhold(uttakArbeidsforholdB).medUttakResultatArbeidsforhold(uttakArbeidsforholdC).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
 
         entityManager.flush();
@@ -264,41 +255,37 @@ class VedtakXmlTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE).build();
         scenario.medRegisterOpplysninger(søker);
     }
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato, jordmorsdato,
-                    no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde.SØKNAD)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-                .medMottattTidspunkt(LocalDateTime.now())
-                .medKopiertFraTidligereBehandling(false)
-                .build();
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-                .medBehandlingId(behandling.getId())
-                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-                .build();
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medIngenTilrettelegging(jordmorsdato, jordmorsdato,
+                no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde.SØKNAD)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medKopiertFraTidligereBehandling(false)
+            .build();
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
+            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+            .build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
     private Behandlingsresultat opprettBehandlingsresultatMedVilkårResultatForBehandling(Behandling behandling) {
 
         var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(behandling);
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+            .buildFor(behandling);
 
-        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .buildFor(behandlingsresultat);
+        var vilkårResultat = VilkårResultat.builder()
+            .medVilkårResultatType(VilkårResultatType.INNVILGET)
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .buildFor(behandlingsresultat);
 
         entityManager.persist(vilkårResultat);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
@@ -307,31 +294,29 @@ class VedtakXmlTest {
         return behandlingsresultat;
     }
 
-    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, Boolean brukerErMottaker,
-            int dagsats) {
+    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
+                                                                 Boolean brukerErMottaker,
+                                                                 int dagsats) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(brukerErMottaker)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medDagsats(dagsats)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.ZERO)
-                .medDagsatsFraBg(dagsats)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .build(beregningsresultatPeriode);
+            .medBrukerErMottaker(brukerErMottaker)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medDagsats(dagsats)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.ZERO)
+            .medDagsatsFraBg(dagsats)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .build(beregningsresultatPeriode);
     }
 
     private BeregningsresultatPeriode buildBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, int fom, int tom) {
         return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().plusDays(fom), LocalDate.now().plusDays(tom))
-                .build(beregningsresultat);
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().plusDays(fom), LocalDate.now().plusDays(tom))
+            .build(beregningsresultat);
     }
 
     private BeregningsresultatEntitet buildBeregningsresultatFP(Boolean brukerErMottaker) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-                .medRegelInput("clob1")
-                .medRegelSporing("clob2")
-                .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode1, brukerErMottaker, 2160);
         if (!brukerErMottaker) {
@@ -347,24 +332,24 @@ class VedtakXmlTest {
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-                .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
-                .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
-                .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
-                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
-                .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-                .build(beregningsgrunnlag);
+            .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
+            .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
+            .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
+            .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
+            .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
+            .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
+            .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
+            .build(beregningsgrunnlag);
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medGrunnbeløp(BigDecimal.valueOf(91425))
-                .medRegelloggSkjæringstidspunkt("input1", "clob1")
-                .medRegelloggBrukersStatus("input2", "clob2")
-                .medRegelinputPeriodisering("input3")
-                .build();
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .medGrunnbeløp(BigDecimal.valueOf(91425))
+            .medRegelloggSkjæringstidspunkt("input1", "clob1")
+            .medRegelloggBrukersStatus("input2", "clob2")
+            .medRegelinputPeriodisering("input3")
+            .build();
         buildSammenligningsgrunnlag(beregningsgrunnlag);
         buildBgAktivitetStatus(beregningsgrunnlag);
         var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
@@ -374,32 +359,31 @@ class VedtakXmlTest {
 
     private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .build(beregningsgrunnlag);
+            .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .build(beregningsgrunnlag);
     }
 
     private Sammenligningsgrunnlag buildSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return Sammenligningsgrunnlag.builder()
-                .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
-                .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-                .medAvvikPromille(BigDecimal.valueOf(120L))
-                .build(beregningsgrunnlag);
+            .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
+            .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
+            .medAvvikPromille(BigDecimal.valueOf(120L))
+            .build(beregningsgrunnlag);
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        var bga = BGAndelArbeidsforhold
-                .builder()
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
+        var bga = BGAndelArbeidsforhold.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
+            .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
+            .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         return BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medBGAndelArbeidsforhold(bga)
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
-                .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
-                .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
-                .medRedusertPrÅr(BigDecimal.valueOf(52335))
-                .build(beregningsgrunnlagPeriode);
+            .medBGAndelArbeidsforhold(bga)
+            .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
+            .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
+            .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
+            .medRedusertPrÅr(BigDecimal.valueOf(52335))
+            .build(beregningsgrunnlagPeriode);
     }
 }

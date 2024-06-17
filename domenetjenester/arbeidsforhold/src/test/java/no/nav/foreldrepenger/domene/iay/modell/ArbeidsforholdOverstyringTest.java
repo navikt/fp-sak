@@ -22,8 +22,7 @@ class ArbeidsforholdOverstyringTest {
 
         // Arrange
         var gammelEntitet = new ArbeidsforholdOverstyring();
-        var bekreftetPermisjon = new BekreftetPermisjon(DAGENS_DATO.minusDays(1), DAGENS_DATO,
-                BekreftetPermisjonStatus.BRUK_PERMISJON);
+        var bekreftetPermisjon = new BekreftetPermisjon(DAGENS_DATO.minusDays(1), DAGENS_DATO, BekreftetPermisjonStatus.BRUK_PERMISJON);
 
         gammelEntitet.setArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR));
         gammelEntitet.setArbeidsforholdRef(InternArbeidsforholdRef.nyRef());

@@ -28,7 +28,7 @@ public class OppdaterAvslutningsdatoFagsakRelasjon {
         this.utledeAvslutningsdatoFagsak = utledeAvslutningsdatoFagsak;
     }
 
-    public OppdaterAvslutningsdatoFagsakRelasjon () {
+    public OppdaterAvslutningsdatoFagsakRelasjon() {
         //CDI proxy
     }
 
@@ -39,7 +39,8 @@ public class OppdaterAvslutningsdatoFagsakRelasjon {
                                                       Optional<FagsakLås> fagsak2Lås,
                                                       FagsakYtelseType ytelseType) {
         var utlederAvslutningsdato = FagsakYtelseTypeRef.Lookup.find(this.utledeAvslutningsdatoFagsak, ytelseType)
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av UtledeAvslutningsdatoFagsak funnet for ytelse: " + ytelseType.getKode()));
+            .orElseThrow(
+                () -> new IllegalStateException("Ingen implementasjoner av UtledeAvslutningsdatoFagsak funnet for ytelse: " + ytelseType.getKode()));
 
         var avslutningsdato = utlederAvslutningsdato.utledAvslutningsdato(fagsakId, relasjon);
         fagsakRelasjonTjeneste.oppdaterMedAvslutningsdato(relasjon, avslutningsdato, lås, fagsak1Lås, fagsak2Lås);

@@ -6,9 +6,10 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @SuppressWarnings("rawtypes")
 public class Oppfylt extends LeafSpecification {
 
-    public Oppfylt(){
+    public Oppfylt() {
         super("Oppfylt");
     }
+
     @Override
     public Evaluation evaluate(Object grunnlag) {
         return ja();

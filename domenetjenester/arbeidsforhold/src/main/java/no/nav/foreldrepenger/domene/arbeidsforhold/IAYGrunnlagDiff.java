@@ -20,7 +20,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class IAYGrunnlagDiff {
     private static final Set<RelatertYtelseType> EKSLUSIVE_TYPER = Set.of(RelatertYtelseType.FORELDREPENGER, RelatertYtelseType.ENGANGSTØNAD);
-    private static final Set<RelatertYtelseType> PLEIEPENGER_TYPER = Set.of(RelatertYtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE);
+    private static final Set<RelatertYtelseType> PLEIEPENGER_TYPER = Set.of(RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
+        RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE);
 
     private InntektArbeidYtelseGrunnlag grunnlag1;
     private InntektArbeidYtelseGrunnlag grunnlag2;
@@ -45,7 +46,9 @@ public class IAYGrunnlagDiff {
         if (eksisterende.isEmpty()) {
             return false;
         }
-        if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(List.of()).size()) {
+        if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(List.of())
+            .size()) {
             return true;
         }
         var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.orElse(null));
@@ -118,12 +121,12 @@ public class IAYGrunnlagDiff {
         return new AktørYtelseEndring(erEksklusiveYtlserEndret, erAndreYtelserEndret);
     }
 
-    private List<Ytelse> hentYtelserForAktør(InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt, AktørId aktørId,
-            Predicate<Ytelse> predikatYtelseskilde) {
+    private List<Ytelse> hentYtelserForAktør(InntektArbeidYtelseGrunnlag grunnlag,
+                                             LocalDate skjæringstidspunkt,
+                                             AktørId aktørId,
+                                             Predicate<Ytelse> predikatYtelseskilde) {
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
-        return filter.getFiltrertYtelser().stream()
-                .filter(predikatYtelseskilde)
-                .toList();
+        return filter.getFiltrertYtelser().stream().filter(predikatYtelseskilde).toList();
     }
 
     public boolean erEndringPleiepengerEtterStp(LocalDate skjæringstidspunkt, AktørId aktørId) {
@@ -135,12 +138,12 @@ public class IAYGrunnlagDiff {
         return !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
     }
 
-    private List<Ytelse> hentYtelserForAktørEtterStp(InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt, AktørId aktørId,
-                                             Predicate<Ytelse> predikatYtelseskilde) {
+    private List<Ytelse> hentYtelserForAktørEtterStp(InntektArbeidYtelseGrunnlag grunnlag,
+                                                     LocalDate skjæringstidspunkt,
+                                                     AktørId aktørId,
+                                                     Predicate<Ytelse> predikatYtelseskilde) {
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).etter(skjæringstidspunkt);
-        return filter.getFiltrertYtelser().stream()
-            .filter(predikatYtelseskilde)
-            .toList();
+        return filter.getFiltrertYtelser().stream().filter(predikatYtelseskilde).toList();
     }
 
     public boolean erEndringPåOppgittOpptjening() {

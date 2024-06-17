@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -35,7 +35,8 @@ import no.nav.vedtak.konfig.Tid;
 class OpptjeningMapperTilKalkulusTest {
     private static final LocalDate STP = LocalDate.now().minusDays(7);
     private static final Periode PERIODE = new Periode(LocalDate.now().minusMonths(12), LocalDate.now());
-    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked(), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STP).build());
+    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked(),
+        Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STP).build());
     private InntektArbeidYtelseAggregatBuilder data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = data.getAktørArbeidBuilder(REF.aktørId());
     private List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
@@ -64,7 +65,8 @@ class OpptjeningMapperTilKalkulusTest {
         lagIM(orgnr, ref2); // Irrelevant IM
         lagIM(orgnr, ref3); // Irrelevant IM
 
-        var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, new Periode(STP.minusMonths(12), STP.minusDays(1)), orgnr, null, ref1);
+        var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, new Periode(STP.minusMonths(12), STP.minusDays(1)), orgnr, null,
+            ref1);
         var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
@@ -180,10 +182,8 @@ class OpptjeningMapperTilKalkulusTest {
         var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aaBuilder = yaBuilder.getAktivitetsAvtaleBuilder();
         var aa = aaBuilder.medPeriode(periode);
-        yaBuilder.leggTilAktivitetsAvtale(aa)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        if(internRef!= null) {
+        yaBuilder.leggTilAktivitetsAvtale(aa).medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr)).medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        if (internRef != null) {
             yaBuilder.medArbeidsforholdId(internRef);
         }
         arbeidBuilder.leggTilYrkesaktivitet(yaBuilder);

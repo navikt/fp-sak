@@ -196,7 +196,8 @@ class MapUttakResultatFraVLTilRegelTest {
                 arbeidsgiver, arbeidsforholdRef);
         }).collect(Collectors.toSet());
 
-        return new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build()), iayGrunnlag, null).medBeregningsgrunnlagStatuser(bgStatuser);
+        return new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build()),
+            iayGrunnlag, null).medBeregningsgrunnlagStatuser(bgStatuser);
     }
 
     @Test

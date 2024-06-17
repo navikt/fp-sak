@@ -24,8 +24,7 @@ public class UttakRepositoryStubProvider extends UttakRepositoryProvider {
         this.fagsakRepository = new FagsakRepositoryStub();
         this.fagsakRelasjonRepository = new FagsakRelasjonRepositoryStub();
         this.behandlingsresultatRepository = new BehandlingsresultatRepositoryStub();
-        this.fpUttakRepository = new FpUttakRepositoryStub(
-            (BehandlingsresultatRepositoryStub) behandlingsresultatRepository);
+        this.fpUttakRepository = new FpUttakRepositoryStub((BehandlingsresultatRepositoryStub) behandlingsresultatRepository);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepositoryStub();
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepositoryStub();
     }

@@ -45,16 +45,13 @@ class YtelserGrunnlagByggerTest {
     void legger_pleiepenger_med_innleggelse() {
         var innleggelseFom = LocalDate.of(2021, 9, 9);
         var innleggelseTom = LocalDate.of(2021, 9, 9).plusWeeks(1);
-        var innleggelse = new PleiepengerInnleggelseEntitet.Builder()
-            .medPeriode(fraOgMedTilOgMed(innleggelseFom, innleggelseTom));
+        var innleggelse = new PleiepengerInnleggelseEntitet.Builder().medPeriode(fraOgMedTilOgMed(innleggelseFom, innleggelseTom));
         var pleiepengerGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medInnleggelsePerioder(new PleiepengerPerioderEntitet.Builder()
-                .leggTil(innleggelse))
+            .medInnleggelsePerioder(new PleiepengerPerioderEntitet.Builder().leggTil(innleggelse))
             .build();
         var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty());
         var aktørYtelseBuilder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
-            .leggTilYtelse(ytelseBuilder
-                .medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .leggTilYtelse(ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
                     .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(innleggelseFom, innleggelseTom))
                     .medUtbetalingsgradProsent(BigDecimal.TEN)
                     .build())
@@ -82,8 +79,7 @@ class YtelserGrunnlagByggerTest {
         var fom = LocalDate.of(2021, 9, 6);
         var tom = fom.plusWeeks(1).plusDays(4);
         var aktørYtelseBuilder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
-            .leggTilYtelse(ytelseBuilder
-                .medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .leggTilYtelse(ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
                     .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, fom.plusDays(4)))
                     .medUtbetalingsgradProsent(BigDecimal.TEN)
                     .build())
@@ -91,9 +87,7 @@ class YtelserGrunnlagByggerTest {
                 .medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
                     .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom.plusWeeks(1), tom))
                     .medUtbetalingsgradProsent(BigDecimal.TEN)
-                    .build())
-                .medKilde(Fagsystem.K9SAK)
-                .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
+                    .build()).medKilde(Fagsystem.K9SAK).medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
         var input = new UttakInput(lagBehandlingReferanse(), iay(aktørYtelseBuilder), new ForeldrepengerGrunnlag());
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
@@ -111,22 +105,11 @@ class YtelserGrunnlagByggerTest {
     private InntektArbeidYtelseGrunnlag iay(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder) {
         var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
             .leggTilAktørYtelse(aktørYtelseBuilder);
-        return InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medData(inntektArbeidYtelseAggregatBuilder)
-            .build();
+        return InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty()).medData(inntektArbeidYtelseAggregatBuilder).build();
     }
 
     private static BehandlingReferanse lagBehandlingReferanse() {
-        return new BehandlingReferanse(new Saksnummer("1234"),
-            1234L,
-            FagsakYtelseType.FORELDREPENGER,
-            4321L,
-            UUID.randomUUID(),
-            BehandlingStatus.UTREDES,
-            BehandlingType.FØRSTEGANGSSØKNAD,
-            5432L,
-            null,
-            RelasjonsRolleType.MORA,
-            null);
+        return new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, null, RelasjonsRolleType.MORA, null);
     }
 }

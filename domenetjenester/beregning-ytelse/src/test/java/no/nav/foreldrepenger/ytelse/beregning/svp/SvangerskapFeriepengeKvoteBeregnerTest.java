@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
 class SvangerskapFeriepengeKvoteBeregnerTest {
-    private static final LocalDate FØRSTE_UTTAK = LocalDate.of(2022,7,1);
+    private static final LocalDate FØRSTE_UTTAK = LocalDate.of(2022, 7, 1);
     private final SvangerskapFeriepengeKvoteBeregner beregner = new SvangerskapFeriepengeKvoteBeregner(64);
 
     @Test
@@ -160,7 +160,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
-        lagTYPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse2, true); // 7 virkedager, skal ikke trekkes fra da de kommer etter ytelse som beregnes
+        lagTYPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse2,
+            true); // 7 virkedager, skal ikke trekkes fra da de kommer etter ytelse som beregnes
         lagTYPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3, true); // 4 virkedager
         lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1);
         lagFPPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2);
@@ -230,7 +231,12 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     private void lagFPPeriode(LocalDate fom, LocalDate tom, BeregningsresultatEntitet bgr) {
-        BeregningsresultatFeriepenger.builder().medFeriepengerPeriodeFom(fom).medFeriepengerPeriodeTom(tom).medFeriepengerRegelInput("").medFeriepengerRegelSporing("").build(bgr);
+        BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(fom)
+            .medFeriepengerPeriodeTom(tom)
+            .medFeriepengerRegelInput("")
+            .medFeriepengerRegelSporing("")
+            .build(bgr);
     }
 
     private LocalDate dagerEtter(int i) {

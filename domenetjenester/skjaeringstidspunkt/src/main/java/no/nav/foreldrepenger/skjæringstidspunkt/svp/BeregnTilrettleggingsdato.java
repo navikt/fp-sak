@@ -24,27 +24,32 @@ class BeregnTilrettleggingsdato {
 
     private static LocalDate beregnFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging, boolean beregnForSTP) {
         var jordmorsdato = tilrettelegging.getBehovForTilretteleggingFom();
-        var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
             .map(TilretteleggingFOM::getFomDato)
             .min(LocalDate::compareTo);
-        var delvisTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var delvisTilrettelegging = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
             .map(TilretteleggingFOM::getFomDato)
             .min(LocalDate::compareTo);
-        var slutteArbeid = tilrettelegging.getTilretteleggingFOMListe().stream()
+        var slutteArbeid = tilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
             .map(TilretteleggingFOM::getFomDato)
             .min(LocalDate::compareTo);
-        return beregnForSTP ? beregn(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid) :
-            tidligsteSøktTilrettelegging(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid);
+        return beregnForSTP ? beregn(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid) : tidligsteSøktTilrettelegging(
+            jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid);
     }
 
-    static LocalDate beregn(LocalDate jordmorsdato, Optional<LocalDate> helTilrettelegging, Optional<LocalDate> delvisTilrettelegging, Optional<LocalDate> slutteArbeid) {
+    static LocalDate beregn(LocalDate jordmorsdato,
+                            Optional<LocalDate> helTilrettelegging,
+                            Optional<LocalDate> delvisTilrettelegging,
+                            Optional<LocalDate> slutteArbeid) {
 
         if (helTilrettelegging.isPresent() && delvisTilrettelegging.isPresent() && slutteArbeid.isPresent()) {
-            if (helTilrettelegging.get().isBefore(slutteArbeid.get())
-                && helTilrettelegging.get().isBefore(delvisTilrettelegging.get())
+            if (helTilrettelegging.get().isBefore(slutteArbeid.get()) && helTilrettelegging.get().isBefore(delvisTilrettelegging.get())
                 && !helTilrettelegging.get().isEqual(jordmorsdato)) {
                 return jordmorsdato;
             }
@@ -83,10 +88,14 @@ class BeregnTilrettleggingsdato {
         return jordmorsdato;
     }
 
-    static LocalDate tidligsteSøktTilrettelegging(LocalDate jordmorsdato, Optional<LocalDate> helTilrettelegging, Optional<LocalDate> delvisTilrettelegging, Optional<LocalDate> slutteArbeid) {
+    static LocalDate tidligsteSøktTilrettelegging(LocalDate jordmorsdato,
+                                                  Optional<LocalDate> helTilrettelegging,
+                                                  Optional<LocalDate> delvisTilrettelegging,
+                                                  Optional<LocalDate> slutteArbeid) {
         return Stream.of(helTilrettelegging, delvisTilrettelegging, slutteArbeid)
             .flatMap(Optional::stream)
-            .min(Comparator.naturalOrder()).orElse(jordmorsdato);
+            .min(Comparator.naturalOrder())
+            .orElse(jordmorsdato);
     }
 
     private static LocalDate tidligsteDato(LocalDate dato1, LocalDate dato2) {

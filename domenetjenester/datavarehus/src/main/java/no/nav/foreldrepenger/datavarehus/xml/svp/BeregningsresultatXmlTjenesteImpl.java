@@ -23,8 +23,8 @@ public class BeregningsresultatXmlTjenesteImpl extends BeregningsresultatXmlTjen
 
     @Inject
     public BeregningsresultatXmlTjenesteImpl(@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste,
-                                                           @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) YtelseXmlTjeneste ytelseXmlTjeneste,
-                                                           @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) UttakXmlTjenesteImpl uttakXmlTjeneste) {
+                                             @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) YtelseXmlTjeneste ytelseXmlTjeneste,
+                                             @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) UttakXmlTjenesteImpl uttakXmlTjeneste) {
         //TODO PFP-7642: Her må det undersøkes om det trengs en egen UttakXmlTjenesteForeldrepenger eller om samme skal gjenbrukes og annotasjon fjernes
         super(beregningsgrunnlagXmlTjeneste, ytelseXmlTjeneste);
         this.uttakXmlTjeneste = uttakXmlTjeneste;

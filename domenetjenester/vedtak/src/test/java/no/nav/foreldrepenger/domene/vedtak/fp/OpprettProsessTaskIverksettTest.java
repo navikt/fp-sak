@@ -55,7 +55,8 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class),
+            TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
     @Test
@@ -72,7 +73,8 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class),
+            TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
 }

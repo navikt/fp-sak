@@ -17,7 +17,8 @@ public final class TidsperiodeFarRundtFødsel {
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        return intervallFarRundtFødsel(fpGrunnlag.getFamilieHendelser(), uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett());
+        return intervallFarRundtFødsel(fpGrunnlag.getFamilieHendelser(),
+            uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett());
     }
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(FamilieHendelser familieHendelser, boolean utenMinsterett) {
@@ -26,8 +27,8 @@ public final class TidsperiodeFarRundtFødsel {
     }
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(FamilieHendelse familieHendelse, boolean utenMinsterett) {
-        return intervallFarRundtFødsel(utenMinsterett, familieHendelse.gjelderFødsel(),
-                familieHendelse.getFamilieHendelseDato(), familieHendelse.getTermindato().orElse(null));
+        return intervallFarRundtFødsel(utenMinsterett, familieHendelse.gjelderFødsel(), familieHendelse.getFamilieHendelseDato(),
+            familieHendelse.getTermindato().orElse(null));
     }
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(boolean utenMinsterett,

@@ -27,11 +27,14 @@ public class YtelseVerdi {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (YtelseVerdi) o;
-        return Objects.equals(sats, that.sats) &&
-            Objects.equals(utbetalingsgrad, that.utbetalingsgrad);
+        return Objects.equals(sats, that.sats) && Objects.equals(utbetalingsgrad, that.utbetalingsgrad);
     }
 
     @Override

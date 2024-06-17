@@ -29,10 +29,8 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapUendret() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.NOR));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.NOR));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.NOR));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(Landkoder.NOR));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -41,10 +39,8 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapUendret_flere_koder() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.POL, Landkoder.SWE));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.NOR, Landkoder.SWE));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.POL, Landkoder.SWE));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(Landkoder.NOR, Landkoder.SWE));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -53,10 +49,9 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapUendret_men_rekkefølge_i_liste_endret() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.NOR, Landkoder.SWE));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.NOR, Landkoder.SWE));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
-                personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()));
+            personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -65,10 +60,8 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapEndret() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.POL));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.NOR));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.POL));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(Landkoder.NOR));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -77,10 +70,8 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapEndret_endret_type() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.FRA, Landkoder.USA));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.SWE, Landkoder.USA));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.FRA, Landkoder.USA));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(Landkoder.SWE, Landkoder.USA));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -89,10 +80,8 @@ class StatsborgerskapEndringIdentifisererTest {
 
     @Test
     void testStatsborgerskapEndret_ekstra_statsborgerskap_lagt_til() {
-        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.CHE));
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(Landkoder.CHE, Landkoder.NOR));
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(Landkoder.CHE));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(Landkoder.CHE, Landkoder.NOR));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(IDAG), IDAG);
@@ -103,22 +92,18 @@ class StatsborgerskapEndringIdentifisererTest {
         var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
-        new LinkedList<>(statsborgerLand)
-                .descendingIterator()
-                .forEachRemaining(
-                        s -> builder1.leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, s.getPeriode(), s.getStatsborgerskap())
-                                .medStatsborgerskap(s.getStatsborgerskap())));
+        new LinkedList<>(statsborgerLand).descendingIterator()
+            .forEachRemaining(s -> builder1.leggTil(
+                builder1.getStatsborgerskapBuilder(AKTØRID, s.getPeriode(), s.getStatsborgerskap()).medStatsborgerskap(s.getStatsborgerskap())));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<Landkoder> statsborgerskap) {
         var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
-        builder1
-                .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
+        builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         IntStream.range(0, statsborgerskap.size())
-                .forEach(i -> builder1
-                        .leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(IDAG, IDAG),
-                                statsborgerskap.get(i))));
+            .forEach(i -> builder1.leggTil(
+                builder1.getStatsborgerskapBuilder(AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(IDAG, IDAG), statsborgerskap.get(i))));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 

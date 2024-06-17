@@ -31,8 +31,7 @@ class RegelmodellSøknaderMapperTest {
 
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
         var familieHendelse = FamilieHendelse.forFødsel(LocalDate.of(2019, Month.SEPTEMBER, 1), null, List.of(new Barn()), 1);
-        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new SvangerskapspengerGrunnlag()
-            .medFamilieHendelse(familieHendelse)
+        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new SvangerskapspengerGrunnlag().medFamilieHendelse(familieHendelse)
             .medSvpGrunnlagEntitet(svpGrunnlagEntitet);
         var input = new UttakInput(ref, null, ytelsespesifiktGrunnlag);
         var søknader = regelmodellSøknaderMapper.hentSøknader(input);

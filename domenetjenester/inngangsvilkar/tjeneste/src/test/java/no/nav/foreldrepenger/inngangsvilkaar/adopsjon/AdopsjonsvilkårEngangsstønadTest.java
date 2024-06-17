@@ -110,18 +110,20 @@ class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     private Behandling settOppAdopsjonBehandlingForMor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn, boolean adoptererAlene) {
         var omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
 
-        var scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
-            : ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = kjønn.equals(
+            NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon() : ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         leggTilSøker(scenario, kjønn);
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
                 .medErEktefellesBarn(ektefellesBarn)
                 .medAdoptererAlene(adoptererAlene))
             .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
         scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
+            .medAdopsjon(scenario.medBekreftetHendelse()
+                .getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
                 .medErEktefellesBarn(ektefellesBarn)
                 .medAdoptererAlene(adoptererAlene))
@@ -132,10 +134,7 @@ class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 

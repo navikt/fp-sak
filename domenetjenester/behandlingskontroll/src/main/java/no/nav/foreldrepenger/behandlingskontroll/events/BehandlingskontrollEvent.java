@@ -20,8 +20,10 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
     private BehandlingStegStatus stegStatus;
     private BehandlingskontrollKontekst kontekst;
 
-    public BehandlingskontrollEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-            BehandlingStegStatus stegStatus) {
+    public BehandlingskontrollEvent(BehandlingskontrollKontekst kontekst,
+                                    BehandlingModell behandlingModell,
+                                    BehandlingStegType stegType,
+                                    BehandlingStegStatus stegStatus) {
         this.kontekst = kontekst;
         this.behandlingModell = behandlingModell;
         this.stegType = stegType;
@@ -63,8 +65,10 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class StartetEvent extends BehandlingskontrollEvent {
 
-        public StartetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell,
-                BehandlingStegType stegType, BehandlingStegStatus stegStatus) {
+        public StartetEvent(BehandlingskontrollKontekst kontekst,
+                            BehandlingModell behandlingModell,
+                            BehandlingStegType stegType,
+                            BehandlingStegStatus stegStatus) {
             super(kontekst, behandlingModell, stegType, stegStatus);
         }
 
@@ -77,8 +81,10 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class StoppetEvent extends BehandlingskontrollEvent {
 
-        public StoppetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell,
-                BehandlingStegType stegType, BehandlingStegStatus stegStatus) {
+        public StoppetEvent(BehandlingskontrollKontekst kontekst,
+                            BehandlingModell behandlingModell,
+                            BehandlingStegType stegType,
+                            BehandlingStegStatus stegStatus) {
             super(kontekst, behandlingModell, stegType, stegStatus);
         }
 
@@ -93,8 +99,10 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class AvsluttetEvent extends BehandlingskontrollEvent {
 
-        public AvsluttetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-                BehandlingStegStatus stegStatus) {
+        public AvsluttetEvent(BehandlingskontrollKontekst kontekst,
+                              BehandlingModell behandlingModell,
+                              BehandlingStegType stegType,
+                              BehandlingStegStatus stegStatus) {
             super(kontekst, behandlingModell, stegType, stegStatus);
         }
 
@@ -109,8 +117,11 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
 
         private RuntimeException exception;
 
-        public ExceptionEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-                BehandlingStegStatus stegStatus, RuntimeException exception) {
+        public ExceptionEvent(BehandlingskontrollKontekst kontekst,
+                              BehandlingModell behandlingModell,
+                              BehandlingStegType stegType,
+                              BehandlingStegStatus stegStatus,
+                              RuntimeException exception) {
             super(kontekst, behandlingModell, stegType, stegStatus);
             this.exception = exception;
         }

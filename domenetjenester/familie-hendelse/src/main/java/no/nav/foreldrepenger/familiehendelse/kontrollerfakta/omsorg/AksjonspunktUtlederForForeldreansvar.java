@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 
-
 @ApplicationScoped
 public class AksjonspunktUtlederForForeldreansvar implements AksjonspunktUtleder {
 

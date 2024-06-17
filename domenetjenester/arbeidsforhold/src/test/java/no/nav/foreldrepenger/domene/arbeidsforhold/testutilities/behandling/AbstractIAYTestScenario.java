@@ -85,20 +85,12 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     private IAYRepositoryProvider repositoryProvider;
 
-    protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-            NavBrukerKjønn kjønn) {
-        this.fagsakBuilder = FagsakBuilder
-                .nyFagsak(fagsakYtelseType, brukerRolle)
-                .medSaksnummer(new Saksnummer(nyId() + ""))
-                .medBrukerKjønn(kjønn);
+    protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, NavBrukerKjønn kjønn) {
+        this.fagsakBuilder = FagsakBuilder.nyFagsak(fagsakYtelseType, brukerRolle).medSaksnummer(new Saksnummer(nyId() + "")).medBrukerKjønn(kjønn);
     }
 
-    protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-            NavBruker navBruker) {
-        this.fagsakBuilder = FagsakBuilder
-                .nyFagsak(fagsakYtelseType, brukerRolle)
-                .medSaksnummer(new Saksnummer(nyId() + ""))
-                .medBruker(navBruker);
+    protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, NavBruker navBruker) {
+        this.fagsakBuilder = FagsakBuilder.nyFagsak(fagsakYtelseType, brukerRolle).medSaksnummer(new Saksnummer(nyId() + "")).medBruker(navBruker);
     }
 
     static long nyId() {
@@ -172,8 +164,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
             @Override
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
-                return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(Map.Entry::getValue)
-                        .findFirst();
+                return familieHendelseAggregatMap.entrySet()
+                    .stream()
+                    .filter(e -> Objects.equals(behandlingId, e.getKey()))
+                    .map(Map.Entry::getValue)
+                    .findFirst();
             }
 
             @Override
@@ -261,17 +256,16 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(ArgumentMatchers.any())).thenAnswer(a -> List.copyOf(behandlingMap.values()));
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(ArgumentMatchers.any()))
-                .thenAnswer(a -> {
-                    Long id = a.getArgument(0);
-                    return behandlingMap.values()
-                        .stream()
-                        .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null && !b.getBehandlingsresultat()
-                            .isBehandlingHenlagt())
-                            .sorted()
-                            .findFirst();
-                });
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(ArgumentMatchers.any())).thenAnswer(
+            a -> List.copyOf(behandlingMap.values()));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(ArgumentMatchers.any())).thenAnswer(a -> {
+            Long id = a.getArgument(0);
+            return behandlingMap.values()
+                .stream()
+                .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt())
+                .sorted()
+                .findFirst();
+        });
 
         var behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
         when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
@@ -280,19 +274,18 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             };
         });
 
-        when(behandlingRepository.lagre(behandlingCaptor.capture(), ArgumentMatchers.any()))
-                .thenAnswer((Answer<Long>) invocation -> {
-                    Behandling beh = invocation.getArgument(0);
-                    var id = beh.getId();
-                    if (id == null) {
-                        id = nyId();
-                        beh.setId(id);
-                    }
+        when(behandlingRepository.lagre(behandlingCaptor.capture(), ArgumentMatchers.any())).thenAnswer((Answer<Long>) invocation -> {
+            Behandling beh = invocation.getArgument(0);
+            var id = beh.getId();
+            if (id == null) {
+                id = nyId();
+                beh.setId(id);
+            }
 
-                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
-                    behandlingMap.put(id, beh);
-                    return id;
-                });
+            beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
+            behandlingMap.put(id, beh);
+            return id;
+        });
 
         mockBehandlingRepository = behandlingRepository;
         return behandlingRepository;
@@ -322,8 +315,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             FagsakStatus status = invocation.getArgument(1);
             fagsak.setStatus(status);
             return null;
-        }).when(fagsakRepository)
-                .oppdaterFagsakStatus(eq(fagsakId), ArgumentMatchers.any(FagsakStatus.class));
+        }).when(fagsakRepository).oppdaterFagsakStatus(eq(fagsakId), ArgumentMatchers.any(FagsakStatus.class));
 
         return fagsakRepository;
     }
@@ -353,7 +345,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private void validerTilstandVedMocking() {
         if (startSteg != null) {
             throw new IllegalArgumentException(
-                    "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
+                "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
         }
     }
 
@@ -420,12 +412,13 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medBruker(AktørId aktørId) {
-        fagsakBuilder
-                .medBrukerAktørId(aktørId);
+        fagsakBuilder.medBrukerAktørId(aktørId);
         return (S) this;
     }
 
-    /** @deprecated Skal ikke ha kjennskap til steg tilstand i denne modulen. */
+    /**
+     * @deprecated Skal ikke ha kjennskap til steg tilstand i denne modulen.
+     */
     @Deprecated
     @SuppressWarnings("unchecked")
     public S medBehandlingStegStart(BehandlingStegType startSteg) {
@@ -479,7 +472,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
             var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
-                    PersonopplysningVersjonType.REGISTRERT);
+                PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override

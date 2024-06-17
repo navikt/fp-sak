@@ -21,7 +21,7 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 /**
  * Slår sammen alle gjenværende aktivitet tidslinjer og akseptert mellomliggende perioder til en samlet tidslinje for
  * aktivitet, samt telle totalt antall godkjente perioder
- *
+ * <p>
  * Telling av dager for å finne aktiviteter i opptjeningsperioden skal gjøres etter følgende regler:
  * <ul>
  * <li>1 hel kalendermåned = 1 måned med godkjent opptjening</li>
@@ -84,13 +84,14 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         return evaluation;
     }
 
-    private LocalDateTimeline<Boolean> slåSammenTilFellesTidslinje(OpptjeningsvilkårMellomregning data, boolean medAntattGodkjent, Collection<Aktivitet> unntak) {
+    private LocalDateTimeline<Boolean> slåSammenTilFellesTidslinje(OpptjeningsvilkårMellomregning data,
+                                                                   boolean medAntattGodkjent,
+                                                                   Collection<Aktivitet> unntak) {
         var tidslinje = new LocalDateTimeline<Boolean>(Collections.emptyList());
 
         // slå sammen alle aktivitetperioder til en tidslinje (disse er fratrukket underkjente perioder allerede)
         var aktivitetTidslinjer = data.getAktivitetTidslinjer(medAntattGodkjent, false);
-        for (var entry : aktivitetTidslinjer
-                .entrySet()) {
+        for (var entry : aktivitetTidslinjer.entrySet()) {
             if (!unntak.contains(entry.getKey())) {
                 tidslinje = tidslinje.crossJoin(entry.getValue(), StandardCombinators::alwaysTrueForMatch);
             }
@@ -108,10 +109,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         if (tidslinje.isEmpty()) {
             return Period.ofDays(0);
         }
-        var dager = tidslinje.getLocalDateIntervals().stream()
-            .map(LocalDateInterval::days)
-            .mapToInt(Long::intValue)
-            .sum();
+        var dager = tidslinje.getLocalDateIntervals().stream().map(LocalDateInterval::days).mapToInt(Long::intValue).sum();
         return Period.ofDays(dager);
     }
 
@@ -120,7 +118,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
 
         var tidslinje = slåSammenTilFellesTidslinje(data, false, List.of(utlandsFilter));
 
-        var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
+        var maxDatoIkkeUtlandsk = tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 
         // Må overskrive manuell godkjenning da annen aktivitet gjerne er vurdert i aksjonspunkt i steg 82
         return data.splitOgUnderkjennSegmenterEtterDatoForAktivitet(utlandsFilter, maxDatoIkkeUtlandsk);

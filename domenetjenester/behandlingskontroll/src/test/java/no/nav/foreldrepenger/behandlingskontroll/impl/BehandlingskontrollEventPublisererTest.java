@@ -68,8 +68,8 @@ class BehandlingskontrollEventPublisererTest {
 
         var stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
-        var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
-                AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
+        var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository()
+            .leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
         kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, stegType, List.of(aksjonspunkt));
 
         var ads = new AksjonspunktDefinisjon[]{AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
@@ -113,20 +113,13 @@ class BehandlingskontrollEventPublisererTest {
 
         // Assert
 
-        var steg1StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_1, null,
-                BehandlingStegStatus.STARTET);
-        var steg1StatusEvent1 = new BehandlingStegStatusEvent(kontekst, STEG_1, BehandlingStegStatus.STARTET,
-                BehandlingStegStatus.UTFØRT);
-        var steg2StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
-                BehandlingStegStatus.STARTET);
-        var steg2StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_2, BehandlingStegStatus.STARTET,
-                BehandlingStegStatus.UTFØRT);
-        var steg3StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
-                BehandlingStegStatus.STARTET);
-        var steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET,
-                BehandlingStegStatus.UTFØRT);
-        var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
-                BehandlingStegStatus.INNGANG);
+        var steg1StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_1, null, BehandlingStegStatus.STARTET);
+        var steg1StatusEvent1 = new BehandlingStegStatusEvent(kontekst, STEG_1, BehandlingStegStatus.STARTET, BehandlingStegStatus.UTFØRT);
+        var steg2StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null, BehandlingStegStatus.STARTET);
+        var steg2StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_2, BehandlingStegStatus.STARTET, BehandlingStegStatus.UTFØRT);
+        var steg3StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null, BehandlingStegStatus.STARTET);
+        var steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET, BehandlingStegStatus.UTFØRT);
+        var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null, BehandlingStegStatus.INNGANG);
         assertThat(steg1StatusEvent0).isNotNull();
         assertThat(steg1StatusEvent1).isNotNull();
         assertThat(steg2StatusEvent0).isNotNull();
@@ -135,9 +128,9 @@ class BehandlingskontrollEventPublisererTest {
         assertThat(steg3StatusEvent).isNotNull();
         assertThat(steg4StatusEvent).isNotNull();
         TestEventObserver.containsExactly(steg1StatusEvent0, steg1StatusEvent1 //
-                , steg2StatusEvent0, steg2StatusEvent//
-                , steg3StatusEvent0, steg3StatusEvent//
-                , steg4StatusEvent//
+            , steg2StatusEvent0, steg2StatusEvent//
+            , steg3StatusEvent0, steg3StatusEvent//
+            , steg4StatusEvent//
         );
     }
 
@@ -193,13 +186,14 @@ class BehandlingskontrollEventPublisererTest {
     }
 
     private BehandlingStegOvergangEvent nyOvergangEvent(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType steg1, BehandlingStegStatus steg1Status, BehandlingStegType steg2, BehandlingStegStatus steg2Status) {
-        return new BehandlingStegOvergangEvent(kontekst, lagTilstand(steg1, steg1Status),
-                lagTilstand(steg2, steg2Status));
+                                                        BehandlingStegType steg1,
+                                                        BehandlingStegStatus steg1Status,
+                                                        BehandlingStegType steg2,
+                                                        BehandlingStegStatus steg2Status) {
+        return new BehandlingStegOvergangEvent(kontekst, lagTilstand(steg1, steg1Status), lagTilstand(steg2, steg2Status));
     }
 
-    private BehandlingStegTilstandSnapshot lagTilstand(BehandlingStegType stegType,
-            BehandlingStegStatus stegStatus) {
+    private BehandlingStegTilstandSnapshot lagTilstand(BehandlingStegType stegType, BehandlingStegStatus stegStatus) {
         return new BehandlingStegTilstandSnapshot(1L, stegType, stegStatus);
     }
 
@@ -217,11 +211,10 @@ class BehandlingskontrollEventPublisererTest {
         var steg1 = new DummySteg();
         var steg2 = new DummySteg();
 
-        var modellData = List.of(
-                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
-                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
-                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
-                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
+        var modellData = List.of(new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
+            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
+            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
+            new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
 
         return ModifiserbarBehandlingModell.setupModell(behandlingType, fagsakYtelseType, modellData);
     }

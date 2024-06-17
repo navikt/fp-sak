@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftArbeidInntektsmeldingAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdaterer<BekreftArbeidInntektsmeldingAksjonspunktDto> {
-    private static final List<ArbeidsforholdHandlingType> HANDLINGER_SOM_LEDER_TIL_TOTRINN = Arrays.asList(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER,
-        ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING);
+    private static final List<ArbeidsforholdHandlingType> HANDLINGER_SOM_LEDER_TIL_TOTRINN = Arrays.asList(
+        ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER, ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING);
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -59,14 +59,12 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(skalOpprettesTotrinnskontroll).build();
     }
 
-    private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg, List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {
-        var eksisterendeMangler = alleMangler.stream()
-            .filter(m -> m.årsak().equals(AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD))
-            .toList();
+    private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdMangel> alleMangler,
+                                                                  List<ArbeidsforholdValg> alleSaksbehandlersValg,
+                                                                  List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {
+        var eksisterendeMangler = alleMangler.stream().filter(m -> m.årsak().equals(AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD)).toList();
 
-        var aksepterteMangler = alleSaksbehandlersValg.stream()
-            .filter(valg -> finnesIListe(eksisterendeMangler, valg))
-            .toList();
+        var aksepterteMangler = alleSaksbehandlersValg.stream().filter(valg -> finnesIListe(eksisterendeMangler, valg)).toList();
 
         var opprettedeArbeidsforholdPåMangel = alleManuelleArbeidsforhold.stream()
             .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING))
@@ -75,14 +73,15 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         // Alle inntektsmeldinger som mangler arbeidsforhold må enten ha et manuelt opprettet arbeidsforhold knyttet til seg,
         // eller så må saksbehandler ha eksplisitt avklart at det ikke skal opprettes arbeidsforhold for inntektsmeldingen.
         var uavklarteMangler = eksisterendeMangler.stream()
-            .filter(mangel -> !finnesManueltArbeidsforhold(mangel, opprettedeArbeidsforholdPåMangel)
-                && !avklartIkkeRelevant(mangel, aksepterteMangler))
+            .filter(
+                mangel -> !finnesManueltArbeidsforhold(mangel, opprettedeArbeidsforholdPåMangel) && !avklartIkkeRelevant(mangel, aksepterteMangler))
             .toList();
 
 
         if (!uavklarteMangler.isEmpty()) {
-            throw new IllegalStateException("Det finnes minst en uavklart inntektsmelding uten arbeidsforhold. " +
-                "Ugyldig tilstand. Listen over uavklarte mangler: " + uavklarteMangler);
+            throw new IllegalStateException(
+                "Det finnes minst en uavklart inntektsmelding uten arbeidsforhold. " + "Ugyldig tilstand. Listen over uavklarte mangler: "
+                    + uavklarteMangler);
         }
 
         var arbeidsforholdUlovligOpprettet = opprettedeArbeidsforholdPåMangel.stream()
@@ -91,15 +90,15 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
         if (!arbeidsforholdUlovligOpprettet.isEmpty()) {
             var msg = String.format("Det finnes arbeidsforhold basert på inntektsmelding i IAY-aggregat"
-                + " som ikke har tilsvarende mangel i aggregatet. Ugyldig tilstand. Alle mangler var %s og ulovlige arbeidsforhold var %s", eksisterendeMangler, arbeidsforholdUlovligOpprettet);
+                    + " som ikke har tilsvarende mangel i aggregatet. Ugyldig tilstand. Alle mangler var %s og ulovlige arbeidsforhold var %s",
+                eksisterendeMangler, arbeidsforholdUlovligOpprettet);
             throw new IllegalStateException(msg);
         }
     }
 
-    private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
-        var alleArbeidsforholdSomManglerIM = alleMangler.stream()
-            .filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
-            .toList();
+    private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler,
+                                                                List<ArbeidsforholdValg> alleSaksbehandlersValg) {
+        var alleArbeidsforholdSomManglerIM = alleMangler.stream().filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING)).toList();
 
         var saksbehandlersValgOmManglendeIM = alleSaksbehandlersValg.stream()
             .filter(valg -> finnesIListe(alleArbeidsforholdSomManglerIM, valg))
@@ -107,15 +106,19 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
             .toList();
 
         if (saksbehandlersValgOmManglendeIM.size() != alleArbeidsforholdSomManglerIM.size()) {
-            throw new IllegalStateException("Ikke like mange arbeidsforhold med manglende inntektsmelding som avklarte arbeidsforhold." +
-                "Arbeidsforhold uten inntektsmelding: " + alleArbeidsforholdSomManglerIM.size() + ". Valg som er bekreftet: " + alleSaksbehandlersValg.size());
+            throw new IllegalStateException(
+                "Ikke like mange arbeidsforhold med manglende inntektsmelding som avklarte arbeidsforhold." + "Arbeidsforhold uten inntektsmelding: "
+                    + alleArbeidsforholdSomManglerIM.size() + ". Valg som er bekreftet: " + alleSaksbehandlersValg.size());
         }
 
         alleArbeidsforholdSomManglerIM.forEach(mangel -> {
             var arbeidsforholdValg = finnValgSomErGjort(alleSaksbehandlersValg, mangel);
-            if (arbeidsforholdValg.isEmpty() || !arbeidsforholdValg.get().getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)) {
-                throw new IllegalStateException("Finnes arbeidsforhold som det ikke er valgt å fortsette uten inntektsmelding på." +
-                    " Gjelder arbeidsforhold hos " + mangel.arbeidsgiver() + " med internId " + mangel.ref());
+            if (arbeidsforholdValg.isEmpty() || !arbeidsforholdValg.get()
+                .getVurdering()
+                .equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)) {
+                throw new IllegalStateException(
+                    "Finnes arbeidsforhold som det ikke er valgt å fortsette uten inntektsmelding på." + " Gjelder arbeidsforhold hos "
+                        + mangel.arbeidsgiver() + " med internId " + mangel.ref());
             }
         });
     }
@@ -127,9 +130,9 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
     }
 
     private boolean finnesManueltArbeidsforhold(ArbeidsforholdMangel mangel, List<ArbeidsforholdOverstyring> overstyringer) {
-        return overstyringer.stream().anyMatch(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
-            && os.getArbeidsgiver().equals(mangel.arbeidsgiver())
-            && os.getArbeidsforholdRef().gjelderFor(mangel.ref()));
+        return overstyringer.stream()
+            .anyMatch(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING) && os.getArbeidsgiver()
+                .equals(mangel.arbeidsgiver()) && os.getArbeidsforholdRef().gjelderFor(mangel.ref()));
     }
 
     private boolean finnesIListe(List<ArbeidsforholdMangel> alleArbeidsforholdSomManglerIM, ArbeidsforholdValg valg) {
@@ -139,8 +142,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
     private boolean liggerIMangelListe(ArbeidsforholdOverstyring os, List<ArbeidsforholdMangel> inntektsmeldingerSomManglerArbeidsforhold) {
         return inntektsmeldingerSomManglerArbeidsforhold.stream()
-            .anyMatch(mangel -> Objects.equals(mangel.arbeidsgiver(), os.getArbeidsgiver())
-                && mangel.ref().gjelderFor(os.getArbeidsforholdRef()));
+            .anyMatch(mangel -> Objects.equals(mangel.arbeidsgiver(), os.getArbeidsgiver()) && mangel.ref().gjelderFor(os.getArbeidsforholdRef()));
     }
 
     private Optional<ArbeidsforholdValg> finnValgSomErGjort(List<ArbeidsforholdValg> saksbehandlersValg, ArbeidsforholdMangel mangel) {

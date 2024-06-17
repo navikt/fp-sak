@@ -45,10 +45,8 @@ class GrensesnittavstemmingBatchTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingBatchTjeneste(økonomiRepository,
-            grensesnittavstemmingJmsProducer);
-        when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(),
-            Mockito.any())).thenReturn(oppdragsliste);
+        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingBatchTjeneste(økonomiRepository, grensesnittavstemmingJmsProducer);
+        when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(oppdragsliste);
     }
 
     @Test
@@ -104,8 +102,7 @@ class GrensesnittavstemmingBatchTjenesteTest {
 
     private Oppdragskontroll opprettOppdrag() {
         var oppdrag = new Oppdragskontroll();
-        var o110 = new Oppdrag110.Builder()
-            .medAvstemming(Avstemming.ny())
+        var o110 = new Oppdrag110.Builder().medAvstemming(Avstemming.ny())
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
@@ -113,8 +110,7 @@ class GrensesnittavstemmingBatchTjenesteTest {
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragskontroll(oppdrag)
             .build();
-        new Oppdragslinje150.Builder().medVedtakId(
-            BehandleØkonomioppdragKvitteringTest.VEDTAKID)
+        new Oppdragslinje150.Builder().medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medKodeEndringLinje(KodeEndringLinje.NY)
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())

@@ -48,9 +48,7 @@ class BehandleNegativeKvitteringTjenesteTest {
 
     @Test
     void skal_kaste_IllegalStateException_hvis_task_finnes_ikke() {
-        var thrown = Assertions.assertThrows(
-            IllegalStateException.class,
-            () -> tjeneste.nullstilleØkonomioppdragTask(0L));
+        var thrown = Assertions.assertThrows(IllegalStateException.class, () -> tjeneste.nullstilleØkonomioppdragTask(0L));
 
         Assertions.assertTrue(thrown.getMessage().contains("Prosess task med prossess task id = 0 finnes ikke"));
     }

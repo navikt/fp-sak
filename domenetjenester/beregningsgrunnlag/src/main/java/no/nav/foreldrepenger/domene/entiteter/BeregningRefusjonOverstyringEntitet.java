@@ -64,7 +64,9 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
         this.erFristUtvidet = beregningRefusjonOverstyringEntitet.getErFristUtvidet();
         this.arbeidsgiver = beregningRefusjonOverstyringEntitet.getArbeidsgiver();
         this.førsteMuligeRefusjonFom = beregningRefusjonOverstyringEntitet.getFørsteMuligeRefusjonFom().orElse(null);
-        beregningRefusjonOverstyringEntitet.getRefusjonPerioder().stream().map(BeregningRefusjonPeriodeEntitet::new)
+        beregningRefusjonOverstyringEntitet.getRefusjonPerioder()
+            .stream()
+            .map(BeregningRefusjonPeriodeEntitet::new)
             .forEach(this::leggTilBeregningRefusjonPeriode);
     }
 

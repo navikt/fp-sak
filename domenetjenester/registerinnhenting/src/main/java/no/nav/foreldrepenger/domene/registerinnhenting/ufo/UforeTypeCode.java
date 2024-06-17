@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum UforeTypeCode {
-    @JsonEnumDefaultValue
-    UKJENT,
+    @JsonEnumDefaultValue UKJENT,
     /**
      * Uføre
      */

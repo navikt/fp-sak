@@ -60,8 +60,7 @@ public class RelevanteArbeidsforholdTjeneste {
         return false;
     }
 
-    private boolean finnesBgStatusLikUttakAktivitet(Collection<BeregningsgrunnlagStatus> statuser,
-                                                    UttakAktivitetEntitet uttakAktivitet) {
+    private boolean finnesBgStatusLikUttakAktivitet(Collection<BeregningsgrunnlagStatus> statuser, UttakAktivitetEntitet uttakAktivitet) {
         return statuser.stream().anyMatch(status -> aktivitetLikBgStatus(status, uttakAktivitet));
     }
 
@@ -74,8 +73,7 @@ public class RelevanteArbeidsforholdTjeneste {
             .collect(Collectors.toSet());
     }
 
-    private boolean finnesAktivitetIUttakLikBgStatus(Set<UttakAktivitetEntitet> uttakAktiviteter,
-                                                     BeregningsgrunnlagStatus bgStatus) {
+    private boolean finnesAktivitetIUttakLikBgStatus(Set<UttakAktivitetEntitet> uttakAktiviteter, BeregningsgrunnlagStatus bgStatus) {
         return uttakAktiviteter.stream().anyMatch(aktivitet -> aktivitetLikBgStatus(bgStatus, aktivitet));
     }
 
@@ -113,12 +111,10 @@ public class RelevanteArbeidsforholdTjeneste {
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {
         return behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalStateException(
-                "Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
     }
 
-    private boolean aktivitetIFørsteUttaksperiodeHarStartdatoEtterPerioden(UttakInput input,
-                                                                           UttakResultatEntitet uttakForrigeBehandling) {
+    private boolean aktivitetIFørsteUttaksperiodeHarStartdatoEtterPerioden(UttakInput input, UttakResultatEntitet uttakForrigeBehandling) {
         var gjeldendePerioder = uttakForrigeBehandling.getGjeldendePerioder().getPerioder();
         if (gjeldendePerioder.isEmpty()) {
             return false;
@@ -129,15 +125,13 @@ public class RelevanteArbeidsforholdTjeneste {
             .anyMatch(a -> startdatoEtterDato(a, førstePeriodeForrigeUttak.getFom(), new UttakYrkesaktiviteter(input)));
     }
 
-    private boolean startdatoEtterDato(UttakResultatPeriodeAktivitetEntitet aktivitet,
-                                       LocalDate dato,
-                                       UttakYrkesaktiviteter yrkesaktiviteter) {
+    private boolean startdatoEtterDato(UttakResultatPeriodeAktivitetEntitet aktivitet, LocalDate dato, UttakYrkesaktiviteter yrkesaktiviteter) {
         var arbeidsgiver = aktivitet.getUttakAktivitet().getArbeidsgiver();
         if (arbeidsgiver.isEmpty()) {
             return false;
         }
-        var startdato = yrkesaktiviteter.finnStartdato(arbeidsgiver.get(),
-            aktivitet.getUttakAktivitet().getArbeidsforholdRef()).orElse(LocalDate.MIN);
+        var startdato = yrkesaktiviteter.finnStartdato(arbeidsgiver.get(), aktivitet.getUttakAktivitet().getArbeidsforholdRef())
+            .orElse(LocalDate.MIN);
         return startdato.isAfter(dato);
     }
 }

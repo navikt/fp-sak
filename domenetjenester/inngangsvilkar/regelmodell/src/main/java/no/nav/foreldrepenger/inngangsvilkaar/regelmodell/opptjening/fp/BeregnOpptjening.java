@@ -24,7 +24,7 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 /**
  * Slår sammen alle gjenværende aktivitet tidslinjer og akseptert mellomliggende perioder til en samlet tidslinje for
  * aktivitet, samt telle totalt antall godkjente perioder
- *
+ * <p>
  * Telling av dager for å finne aktiviteter i opptjeningsperioden skal gjøres etter følgende regler:
  * <ul>
  * <li>1 hel kalendermåned = 1 måned med godkjent opptjening</li>
@@ -88,13 +88,14 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         return evaluation;
     }
 
-    private LocalDateTimeline<Boolean> slåSammenTilFellesTidslinje(OpptjeningsvilkårMellomregning data, boolean medAntattGodkjent, Collection<Aktivitet> unntak) {
+    private LocalDateTimeline<Boolean> slåSammenTilFellesTidslinje(OpptjeningsvilkårMellomregning data,
+                                                                   boolean medAntattGodkjent,
+                                                                   Collection<Aktivitet> unntak) {
         var tidslinje = new LocalDateTimeline<Boolean>(Collections.emptyList());
 
         // slå sammen alle aktivitetperioder til en tidslinje (disse er fratrukket underkjente perioder allerede)
         var aktivitetTidslinjer = data.getAktivitetTidslinjer(medAntattGodkjent, false);
-        for (var entry : aktivitetTidslinjer
-                .entrySet()) {
+        for (var entry : aktivitetTidslinjer.entrySet()) {
             if (!unntak.contains(entry.getKey())) {
                 tidslinje = tidslinje.crossJoin(entry.getValue(), StandardCombinators::alwaysTrueForMatch);
             }
@@ -143,13 +144,15 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
 
         var tidslinje = slåSammenTilFellesTidslinje(data, false, List.of(utlandsFilter));
 
-        var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
+        var maxDatoIkkeUtlandsk = tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 
         // Må overskrive manuell godkjenning da annen aktivitet gjerne er vurdert i aksjonspunkt i steg 82
         return data.splitOgUnderkjennSegmenterEtterDatoForAktivitet(utlandsFilter, maxDatoIkkeUtlandsk);
     }
 
-    /** Implementerer spesifisert kreativ telling. */
+    /**
+     * Implementerer spesifisert kreativ telling.
+     */
     private static class Tellemåte {
 
         int antallHeleMåneder;
@@ -157,7 +160,9 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         int antallEkstraMånederFraTalteDager;
         int antallEnkeltDager;
 
-        /** Totalt opptjent periode. */
+        /**
+         * Totalt opptjent periode.
+         */
         Period totaltOpptjentPeriode() {
             // overskyttende talte dager til reduseres til måneder + dager ved å dele med et magisk tall.
 
@@ -169,14 +174,15 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
             return Period.of(0, antallHeleMåneder + antallEkstraGodtatteMåneder + antallEkstraMånederFraTalteDager, antallEnkeltDager);
         }
 
-        /** Legg mengde telt fra angitt intervall. */
+        /**
+         * Legg mengde telt fra angitt intervall.
+         */
         void tellMed(LocalDateTimeline<Boolean> timelineForMåned, LocalDateInterval månedIntervall) {
             if (timelineForMåned.isContinuous(månedIntervall)) {
                 // absolutt hele kalendermåneder telles i sin helhet
                 antallHeleMåneder++;
             } else {
-                Optional<Integer> optDager = timelineForMåned.reduce((agg, seg) ->
-                    (agg == null ? 0 : agg) + (int) seg.getLocalDateInterval().days());
+                Optional<Integer> optDager = timelineForMåned.reduce((agg, seg) -> (agg == null ? 0 : agg) + (int) seg.getLocalDateInterval().days());
                 int dager = optDager.orElse(0);
                 if (dager == MAGISK_TALL_DAGER_TIL_MÅNED) {
                     // regnes om til måneder kun dersom er lik magisk tall. Hvis ikke telles de som enkeltdager

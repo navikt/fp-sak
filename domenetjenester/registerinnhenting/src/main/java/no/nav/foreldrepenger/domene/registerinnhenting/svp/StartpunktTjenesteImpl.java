@@ -38,8 +38,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     @Inject
-    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere,
-                                  EndringsresultatSjekker endringsresultatSjekker) {
+    public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere, EndringsresultatSjekker endringsresultatSjekker) {
         this.utledere = utledere;
         this.endringsresultatSjekker = endringsresultatSjekker;
     }
@@ -71,11 +70,12 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff, boolean normalDiff) {
-        if (!diff.erSporedeFeltEndret())
+        if (!diff.erSporedeFeltEndret()) {
             return StartpunktType.UDEFINERT;
+        }
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
-        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
-            utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
+        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(),
+            diff.getGrunnlagId2()) : utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
     }
 
 

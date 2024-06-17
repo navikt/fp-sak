@@ -52,6 +52,7 @@ public interface BehandlingProsesseringTjeneste {
      * BehandlingskontrollAsynkTjeneste. Blir ikke lagret her
      */
     Optional<String> finnesTasksForPolling(Behandling behandling);
+
     ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling);
 
     // Til bruk ved første prosessering av nyopprettet behandling. Lagrer tasks. Returnerer gruppe-handle
@@ -64,13 +65,15 @@ public interface BehandlingProsesseringTjeneste {
     String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autoPunktUtført);
 
     // Brukes kun der et steg har suspendet seg selv. Lagrer tasks. Returnerer gruppe-handle
-    String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+    String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling,
+                                                                   BehandlingStegType behandlingStegType,
                                                                    LocalDateTime nesteKjøringEtter);
 
     // Robust task til bruk ved gjenopptak fra vent (eller annen tilstand)
     // (Hendelse: Manuell input, Frist utløpt, mv)
     // NB oppdaterer registerdata Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, LocalDateTime nesteKjøringEtter);
+
     String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter);
 
     String opprettTasksForInitiellRegisterInnhenting(Behandling behandling);

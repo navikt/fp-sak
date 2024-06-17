@@ -159,27 +159,23 @@ class ToForeldreBarnDødTjenesteTest {
     }
 
     private List<ForeldrepengerUttakPeriode> lagPerioderDerAndrePeriodeHarUtbetalingLik0(LocalDate midtDato) {
-        return List.of(
-                lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-                lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L));
+        return List.of(lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 0L));
     }
 
     private List<ForeldrepengerUttakPeriode> lagPerioderMedFullUtbetaling(LocalDate midtDato) {
-        return List.of(
-                lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
-                lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L));
+        return List.of(lagPeriodeMedUtbetalingsgrad(midtDato.minusWeeks(3), midtDato.minusWeeks(1), 100L),
+            lagPeriodeMedUtbetalingsgrad(midtDato.plusWeeks(2), midtDato.plusWeeks(6), 100L));
     }
 
     private ForeldrepengerUttakPeriode lagPeriodeMedUtbetalingsgrad(LocalDate fom, LocalDate tom, Long utbetalingsgrad) {
-        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-                .medArbeidsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
-                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
-                .build();
-        return new ForeldrepengerUttakPeriode.Builder()
-                .medTidsperiode(fom, tom)
-                .medResultatType(PeriodeResultatType.INNVILGET)
-                .medAktiviteter(List.of(aktivitet))
-                .build();
+        var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medArbeidsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
+            .build();
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medAktiviteter(List.of(aktivitet))
+            .build();
     }
 }

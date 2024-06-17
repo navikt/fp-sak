@@ -14,10 +14,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 /**
- *   Denne klassen brukes til å finne ut hvilken forelder som skal få opprettet
- *   en revurdering først dersom barnet dør,
- *   og begge foreldre har avsluttet behandling. Dette er for å hindre feilutbetaling.
- *   Dette gjøres ved å finne ut hvem som har nærmest uttak.
+ * Denne klassen brukes til å finne ut hvilken forelder som skal få opprettet
+ * en revurdering først dersom barnet dør,
+ * og begge foreldre har avsluttet behandling. Dette er for å hindre feilutbetaling.
+ * Dette gjøres ved å finne ut hvem som har nærmest uttak.
  */
 @ApplicationScoped
 public class ToForeldreBarnDødTjeneste {
@@ -33,7 +33,7 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     @Inject
-    public ToForeldreBarnDødTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste){
+    public ToForeldreBarnDødTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.uttakTjeneste = uttakTjeneste;
     }
 
@@ -57,9 +57,7 @@ public class ToForeldreBarnDødTjeneste {
 
     private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetaling(Behandling behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
-            .map(uttakResultat -> uttakResultat
-                .getGjeldendePerioder().stream().filter(ForeldrepengerUttakPeriode::harUtbetaling)
-                .toList())
+            .map(uttakResultat -> uttakResultat.getGjeldendePerioder().stream().filter(ForeldrepengerUttakPeriode::harUtbetaling).toList())
             .orElse(Collections.emptyList());
     }
 
@@ -72,8 +70,10 @@ public class ToForeldreBarnDødTjeneste {
         return periode.getFom().isBefore(iDag) && periode.getTom().isAfter(iDag);
     }
 
-    private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1, List<ForeldrepengerUttakPeriode> uttaksPerioderF1,
-                                                      Behandling behandlingF2, List<ForeldrepengerUttakPeriode> uttaksPerioderF2) {
+    private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1,
+                                                      List<ForeldrepengerUttakPeriode> uttaksPerioderF1,
+                                                      Behandling behandlingF2,
+                                                      List<ForeldrepengerUttakPeriode> uttaksPerioderF2) {
         var uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
         var uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
         var avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).toList();
@@ -97,6 +97,6 @@ public class ToForeldreBarnDødTjeneste {
         if (date.isBefore(iDag)) {
             date = date.minusDays(BUFFER);
         }
-        return Math.abs((iDag.getYear() - date.getYear())*ANTALL_DAGER_I_ET_ÅR + iDag.getDayOfYear() - date.getDayOfYear());
+        return Math.abs((iDag.getYear() - date.getYear()) * ANTALL_DAGER_I_ET_ÅR + iDag.getDayOfYear() - date.getDayOfYear());
     }
 }

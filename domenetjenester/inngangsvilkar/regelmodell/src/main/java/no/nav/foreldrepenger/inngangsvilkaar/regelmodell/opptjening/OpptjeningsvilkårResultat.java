@@ -6,13 +6,19 @@ import java.util.Map;
 
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-/** Output container benyttet i evaluering av Opptjeningsvilkår. */
+/**
+ * Output container benyttet i evaluering av Opptjeningsvilkår.
+ */
 public class OpptjeningsvilkårResultat {
 
-    /** Resultatstruktur - Mellomliggende perioder */
+    /**
+     * Resultatstruktur - Mellomliggende perioder
+     */
     private Map<Aktivitet, LocalDateTimeline<Boolean>> akseptertMellomliggendePerioder;
 
-    /** Resultatstruktur - antatt godkjente perioder med Arbeid (der vi ikke har fått inn inntekter ennå, men arbeidsforhold løper. */
+    /**
+     * Resultatstruktur - antatt godkjente perioder med Arbeid (der vi ikke har fått inn inntekter ennå, men arbeidsforhold løper.
+     */
     private Map<Aktivitet, LocalDateTimeline<Boolean>> antattGodkjente;
 
     /**
@@ -21,10 +27,14 @@ public class OpptjeningsvilkårResultat {
      */
     private Map<Aktivitet, LocalDateTimeline<Boolean>> bekreftetGodkjentAktiviteter;
 
-    /** Resultatstruktur - periode beregnet samlet, uttrykt i ISO8601 Period format (P5M24D = 5 måneder, 24 dager). */
+    /**
+     * Resultatstruktur - periode beregnet samlet, uttrykt i ISO8601 Period format (P5M24D = 5 måneder, 24 dager).
+     */
     private OpptjentTidslinje resultat;
 
-    /** Resultatstruktur - perioder underkjent i vurderingen, gruppert etter aktivitet. */
+    /**
+     * Resultatstruktur - perioder underkjent i vurderingen, gruppert etter aktivitet.
+     */
     private Map<Aktivitet, LocalDateTimeline<Boolean>> underkjentePerioder;
 
     public OpptjeningsvilkårResultat() {
@@ -63,7 +73,9 @@ public class OpptjeningsvilkårResultat {
         this.antattGodkjente = antattGodkjentePerioder;
     }
 
-    /** Set aktivitet bekreftet godkjent (uten mellomliggende peridoer, antatt godkjent eller bekreftet avviste perioder). */
+    /**
+     * Set aktivitet bekreftet godkjent (uten mellomliggende peridoer, antatt godkjent eller bekreftet avviste perioder).
+     */
     public void setBekreftetGodkjentAktivitet(Map<Aktivitet, LocalDateTimeline<Boolean>> aktivitetPerioder) {
         this.bekreftetGodkjentAktiviteter = aktivitetPerioder;
     }

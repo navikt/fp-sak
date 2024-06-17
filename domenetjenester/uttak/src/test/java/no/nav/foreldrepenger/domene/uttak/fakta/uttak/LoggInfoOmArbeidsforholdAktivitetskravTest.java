@@ -43,32 +43,25 @@ class LoggInfoOmArbeidsforholdAktivitetskravTest {
             .build();
         var aktuellePerioder = List.of(periode);
 
-        var arbeidsforholdUtenPerminsjon = new ArbeidsforholdMedPermisjon(
-            Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
-            null,
-            List.of(arbeidsavtale(tilDato.minusMonths(1), tilDato, 100)),
-            List.of()
-        );
-        var arbeidsforholdMedPermisjon = new ArbeidsforholdMedPermisjon(
-            Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
-            null,
-            List.of(arbeidsavtale(fraDato.minusMonths(2), fraDato.plusMonths(1), 50)),
-            List.of(permisjon(tilDato.minusMonths(1), tilDato, 50))
-        );
+        var arbeidsforholdUtenPerminsjon = new ArbeidsforholdMedPermisjon(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null, List.of(arbeidsavtale(tilDato.minusMonths(1), tilDato, 100)), List.of());
+        var arbeidsforholdMedPermisjon = new ArbeidsforholdMedPermisjon(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null, List.of(arbeidsavtale(fraDato.minusMonths(2), fraDato.plusMonths(1), 50)),
+            List.of(permisjon(tilDato.minusMonths(1), tilDato, 50)));
 
         var arbeidsforholdInfo = List.of(arbeidsforholdUtenPerminsjon, arbeidsforholdMedPermisjon);
 
-        assertThatCode(() -> loggInfoOmArbeidsforhold(fraDato, tilDato, saksnummer, harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo))
-            .doesNotThrowAnyException();
+        assertThatCode(() -> loggInfoOmArbeidsforhold(fraDato, tilDato, saksnummer, harAnnenForelderRett, aktuellePerioder,
+            arbeidsforholdInfo)).doesNotThrowAnyException();
     }
 
     private static ArbeidsforholdTjeneste.AktivitetAvtale arbeidsavtale(LocalDate fraDato, LocalDate tilDato, Integer stillingsprosent) {
-        return new ArbeidsforholdTjeneste.AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), BigDecimal.valueOf(stillingsprosent));
+        return new ArbeidsforholdTjeneste.AktivitetAvtale(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato),
+            BigDecimal.valueOf(stillingsprosent));
     }
 
     private static ArbeidsforholdTjeneste.Permisjon permisjon(LocalDate fraDato, LocalDate tilDato, Integer permisjonsprosent) {
-        return new ArbeidsforholdTjeneste.Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), PermisjonsbeskrivelseType.PERMISJON, permisjonsprosent == null ? null :BigDecimal.valueOf(permisjonsprosent));
+        return new ArbeidsforholdTjeneste.Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, tilDato), PermisjonsbeskrivelseType.PERMISJON,
+            permisjonsprosent == null ? null : BigDecimal.valueOf(permisjonsprosent));
     }
 }

@@ -95,13 +95,13 @@ class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(FødselForretningshendelse.class);
-        assertThat(((FødselForretningshendelse)captor.getValue()).aktørIdListe()).containsExactly(aktørId);
-        assertThat(((FødselForretningshendelse)captor.getValue()).fødselsdato()).isEqualTo(LocalDate.now());
+        assertThat(((FødselForretningshendelse) captor.getValue()).aktørIdListe()).containsExactly(aktørId);
+        assertThat(((FødselForretningshendelse) captor.getValue()).fødselsdato()).isEqualTo(LocalDate.now());
     }
 
     private static ForretningshendelseMottak getForretningshendelseMottak(ForretningshendelseSaksvelgerProvider saksvelgerProvider) {
-        return new ForretningshendelseMottak(null, saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(BehandlingRevurderingTjeneste.class),
-            mock(FagsakEgenskapRepository.class), mock(ProsessTaskTjeneste.class), null);
+        return new ForretningshendelseMottak(null, saksvelgerProvider, mock(BehandlingRepositoryProvider.class),
+            mock(BehandlingRevurderingTjeneste.class), mock(FagsakEgenskapRepository.class), mock(ProsessTaskTjeneste.class), null);
     }
 
 
@@ -131,7 +131,7 @@ class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(DødfødselForretningshendelse.class);
-        assertThat(((DødfødselForretningshendelse)captor.getValue()).dødfødselsdato()).isEqualTo(LocalDate.now());
+        assertThat(((DødfødselForretningshendelse) captor.getValue()).dødfødselsdato()).isEqualTo(LocalDate.now());
     }
 
     @Test
@@ -160,7 +160,7 @@ class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(DødForretningshendelse.class);
-        assertThat(((DødForretningshendelse)captor.getValue()).dødsdato()).isEqualTo(LocalDate.now());
+        assertThat(((DødForretningshendelse) captor.getValue()).dødsdato()).isEqualTo(LocalDate.now());
     }
 
     @Test
@@ -189,6 +189,6 @@ class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(UtflyttingForretningshendelse.class);
-        assertThat(((UtflyttingForretningshendelse)captor.getValue()).utflyttingsdato()).isEqualTo(LocalDate.now());
+        assertThat(((UtflyttingForretningshendelse) captor.getValue()).utflyttingsdato()).isEqualTo(LocalDate.now());
     }
 }

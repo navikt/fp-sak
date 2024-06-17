@@ -33,7 +33,8 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     private KlageVurderingTjeneste klageVurderingTjeneste;
 
     @Inject
-    public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider, BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+    public DokumentmottakerKlage(BehandlingRepositoryProvider repositoryProvider,
+                                 BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                  DokumentmottakerFelles dokumentmottakerFelles,
                                  KlageVurderingTjeneste klageVurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -48,8 +49,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
     }
 
     @Override
-    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak,
-                                               BehandlingÅrsakType behandlingÅrsakType) {
+    public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         startBehandlingAvKlage(mottattDokument, fagsak);
     }
 

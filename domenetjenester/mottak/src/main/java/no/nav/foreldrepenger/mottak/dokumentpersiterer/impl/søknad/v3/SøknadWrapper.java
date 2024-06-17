@@ -22,8 +22,7 @@ public class SøknadWrapper extends MottattDokumentWrapper<Soeknad> {
 
     public static void sjekkNødvendigeFeltEksisterer(Soeknad søknad) {
         if (søknad.getMottattDato() == null || søknad.getOmYtelse() == null || søknad.getSoeker() == null) {
-            throw new TekniskException("FP-921156",
-                "Kjenner ikke igjen format på søknad XML med namespace " + søknad.getClass().getCanonicalName());
+            throw new TekniskException("FP-921156", "Kjenner ikke igjen format på søknad XML med namespace " + søknad.getClass().getCanonicalName());
         }
     }
 

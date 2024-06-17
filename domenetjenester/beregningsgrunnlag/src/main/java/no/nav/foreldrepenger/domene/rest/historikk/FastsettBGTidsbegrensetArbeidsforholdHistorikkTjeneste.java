@@ -59,8 +59,9 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                 .filter(p -> !p.getBeregningsgrunnlagPeriodeFom().isBefore(periode.getPeriodeFom()))
                 .toList();
             var fastatteAndeler = periode.getFastsatteTidsbegrensedeAndeler();
-            fastatteAndeler.forEach(andel -> lagHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, periode,
-                bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));
+            fastatteAndeler.forEach(
+                andel -> lagHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, periode, bgPerioderSomSkalFastsettesAvDennePerioden, andel,
+                    overstyringer));
         }
         var forrigeOverstyrtFrilansinntekt = gammeltGrunnlag.flatMap(bg -> finnFrilansAndel(hentFørstePeriode(bg)))
             .map(BeregningsgrunnlagPrStatusOgAndel::getOverstyrtPrÅr)
@@ -109,9 +110,8 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                             Map<String, List<Integer>> tilHistorikkInnslag,
                                             BeregningsgrunnlagPrStatusOgAndel korrektAndel,
                                             List<ArbeidsforholdOverstyring> overstyringer) {
-        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-            korrektAndel.getAktivitetStatus(), korrektAndel.getArbeidsgiver(), korrektAndel.getArbeidsforholdRef(),
-            overstyringer);
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(korrektAndel.getAktivitetStatus(),
+            korrektAndel.getArbeidsgiver(), korrektAndel.getArbeidsforholdRef(), overstyringer);
         if (tilHistorikkInnslag.containsKey(arbeidsforholdInfo)) {
             var inntekter = tilHistorikkInnslag.get(arbeidsforholdInfo);
             inntekter.add(arbeidsforhold.getBruttoFastsattInntekt());
@@ -135,13 +135,11 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
             .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                        Map<String, List<Integer>> tilHistorikkInnslag) {
+    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, Map<String, List<Integer>> tilHistorikkInnslag) {
         for (var entry : tilHistorikkInnslag.entrySet()) {
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, null, formaterInntekter(inntekter));
+            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, null, formaterInntekter(inntekter));
         }
     }
 
@@ -149,8 +147,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                                       BigDecimal forrigeFrilansInntekt,
                                                       FastsettBGTidsbegrensetArbeidsforholdDto dto) {
         if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, forrigeFrilansInntekt, dto.getFrilansInntekt());
+            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, forrigeFrilansInntekt, dto.getFrilansInntekt());
         } else if (dto.getFrilansInntekt() != null) {
             historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, dto.getFrilansInntekt());
         }

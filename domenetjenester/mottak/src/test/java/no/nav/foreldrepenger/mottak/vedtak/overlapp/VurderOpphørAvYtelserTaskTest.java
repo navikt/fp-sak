@@ -32,8 +32,7 @@ class VurderOpphørAvYtelserTaskTest {
     void vurderOpphørForFørstegangsbehandling() {
         var scenario = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,
-            identifiserOverlappendeInfotrygdYtelser, repositoryProvider);
+        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser, identifiserOverlappendeInfotrygdYtelser, repositoryProvider);
         var behandling = scenario.lagMocked();
 
         var prosessTaskData = ProsessTaskData.forProsessTask(VurderOpphørAvYtelserTask.class);
@@ -49,8 +48,7 @@ class VurderOpphørAvYtelserTaskTest {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(behandlingType);
-        scenarioFP.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
 
         return scenarioFP;

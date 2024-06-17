@@ -7,12 +7,11 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
@@ -58,7 +57,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
 
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(
+            behandlingReferanse);
         var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
         entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
@@ -83,7 +83,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
         var eksisterendeInfo = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingUuid()).getArbeidsforholdInformasjon();
-        if (eksisterendeInfo.map(info -> ArbeidsforholdInntektsmeldingRyddeTjeneste.arbeidsforholdSomMåRyddesBortVedNyttValg(dto, info)).orElse(false)) {
+        if (eksisterendeInfo.map(info -> ArbeidsforholdInntektsmeldingRyddeTjeneste.arbeidsforholdSomMåRyddesBortVedNyttValg(dto, info))
+            .orElse(false)) {
             var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
             informasjonBuilder.fjernOverstyringerSomGjelder(ArbeidsforholdInntektsmeldingMangelMapper.lagArbeidsgiver(dto.getArbeidsgiverIdent()));
             arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), informasjonBuilder);
@@ -91,7 +92,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public void lagreManuelleArbeidsforhold(BehandlingReferanse behandlingReferanse, ManueltArbeidsforholdDto dto) {
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(
+            behandlingReferanse);
         var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var valgSomMåRyddesBort = ArbeidsforholdInntektsmeldingRyddeTjeneste.valgSomMåRyddesBortVedOpprettelseAvArbeidsforhold(dto, eksisterendeValg);
 
@@ -130,6 +132,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     /**
      * Tjeneste for å rydde vekk valg som ikke er relevant i behandlingen etter kopiering fra forrige behandling.
+     *
      * @param ref
      */
     public void ryddVekkUgyldigeValg(BehandlingReferanse ref) {
@@ -144,6 +147,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     /**
      * Tjeneste for å rydde vekk alle valg som er gjort i behandlingen. Skal kun brukes av forvaltningstjenester.
+     *
      * @param ref
      */
     public void ryddVekkAlleValgPåBehandling(BehandlingReferanse ref) {
@@ -156,6 +160,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
     /**
      * Tjeneste for å rydde vekk overstyringer som ikke lenger er mulig å gjøre (overgang fra gammelt aksjonspunkt 5080)
+     *
      * @param ref
      */
     public void ryddVekkUgyldigeArbeidsforholdoverstyringer(BehandlingReferanse ref) {
@@ -175,6 +180,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      * finnManglendeInntektsmeldingerHensyntattVurdering
      * For å finne alle arbeidsforhold saksbehandler krever inntektsmelding for, og om det er mottatt inntektsmelding eller ikke.
      * Filtrerer vekk arbeidsforhold der saksbehandler har avklart at inntektsmelding ikke trengs.
+     *
      * @param referanse
      * @return
      */

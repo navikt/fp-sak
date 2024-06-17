@@ -73,12 +73,10 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
     void skalSendeFørstegangsOppdragIRevurderingNårOriginalErInnvilgetOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         var gruppertYtelse = GruppertYtelse.builder()
-            .leggTilKjede(
-                KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER),
-                Ytelse.builder()
-                    .leggTilPeriode(lagPeriode(VEDTAKSDATO, 0, 3, Satsen.dagsats(500), 100))
-                    .leggTilPeriode(lagPeriode(VEDTAKSDATO, 4, 20, Satsen.dagsats(2500), 100))
-                    .build())
+            .leggTilKjede(KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER), Ytelse.builder()
+                .leggTilPeriode(lagPeriode(VEDTAKSDATO, 0, 3, Satsen.dagsats(500), 100))
+                .leggTilPeriode(lagPeriode(VEDTAKSDATO, 4, 20, Satsen.dagsats(2500), 100))
+                .build())
             .build();
 
         var inputBuilder = getInputStandardBuilder(gruppertYtelse);
@@ -98,9 +96,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER));
 
-            var oppdragLinjer150 = mottakere110.stream()
-                .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .toList();
+            var oppdragLinjer150 = mottakere110.stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
 
             verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(oppdragLinjer150);
         } else {
@@ -116,16 +112,13 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
     void skalSendeFørstegangsOppdragIRevurderingNårOriginalErAvslagOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         var gruppertYtelse = GruppertYtelse.builder()
-            .leggTilKjede(
-                KjedeNøkkel.lag(KodeKlassifik.SVP_ARBEDISTAKER, Betalingsmottaker.BRUKER),
-                Ytelse.builder()
-                    .leggTilPeriode(lagPeriode(VEDTAKSDATO, 0, 3, Satsen.dagsats(500), 100))
-                    .leggTilPeriode(lagPeriode(VEDTAKSDATO, 4, 20, Satsen.dagsats(2500), 100))
-                    .build())
+            .leggTilKjede(KjedeNøkkel.lag(KodeKlassifik.SVP_ARBEDISTAKER, Betalingsmottaker.BRUKER), Ytelse.builder()
+                .leggTilPeriode(lagPeriode(VEDTAKSDATO, 0, 3, Satsen.dagsats(500), 100))
+                .leggTilPeriode(lagPeriode(VEDTAKSDATO, 4, 20, Satsen.dagsats(2500), 100))
+                .build())
             .build();
 
-        var inputBuilder = getInputStandardBuilder(gruppertYtelse)
-            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var inputBuilder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         // Act
         var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
@@ -142,9 +135,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.SVP_ARBEDISTAKER));
 
-            var oppdragLinjer150 = mottakere110.stream()
-                .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .toList();
+            var oppdragLinjer150 = mottakere110.stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
 
             verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(oppdragLinjer150);
         } else {
@@ -171,7 +162,9 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
-            verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FERIEPENGER_BRUKER, KodeKlassifik.FPF_FERIEPENGER_AG));
+            verifiserUtbetalingene150(mottakere110,
+                List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FERIEPENGER_BRUKER,
+                    KodeKlassifik.FPF_FERIEPENGER_AG));
 
             //Assert
             OppdragskontrollTestVerktøy.verifiserAvstemming(ok);
@@ -200,7 +193,8 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
-            verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
+            verifiserUtbetalingene150(mottakere110,
+                List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
 
             //Assert
             OppdragskontrollTestVerktøy.verifiserAvstemming(ok);
@@ -213,10 +207,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
     @Test
     void skalSendeFørstegangsoppdragHvorBrukerOgArbeidsgiverErMottakerOgBrukerHarFlereAndeler() {
         // Arrange
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
         buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet);
 
@@ -240,16 +231,19 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             var ok = oppdragskontroll.get();
 
             verifiserOppdragslinje150MedFlereKlassekode(ok);
-            var oppdragslinje150Liste = ok.getOppdrag110Liste().stream()
+            var oppdragslinje150Liste = ok.getOppdrag110Liste()
+                .stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
                 .toList();
             assertThat(oppdragslinje150Liste).hasSize(2);
             assertThat(oppdragslinje150Liste.stream()
                 .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
+                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23),
+                        NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
             assertThat(oppdragslinje150Liste.stream()
                 .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
+                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16),
+                        NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
         }
     }
 
@@ -289,7 +283,8 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
-            verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
+            verifiserUtbetalingene150(mottakere110,
+                List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
 
         } else {
             fail();
@@ -580,8 +575,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
         var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
-        var builder = getInputStandardBuilder(gruppertYtelse)
-            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
         var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(builder.build());
@@ -594,9 +588,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(2);
             //Oppdrag110 - Bruker
-            var oppdrag110_Bruker = oppdrag110List.stream()
-                .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-                .findFirst();
+            var oppdrag110_Bruker = oppdrag110List.stream().filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).findFirst();
             assertThat(oppdrag110_Bruker).isPresent();
             //Oppdrag110 - Arbeidsgiver
             var oppdrag110_Arbeidsgiver = oppdrag110List.stream()
@@ -605,18 +597,12 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             assertThat(oppdrag110_Arbeidsgiver).isPresent();
             //Oppdragslinje150 - Bruker
             var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
-            assertThat(opp150List_Bruker).anySatisfy(opp150 ->
-                assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                    KodeKlassifik.SVP_ARBEDISTAKER,
-                    KodeKlassifik.FERIEPENGER_BRUKER.getKode())
-                ));
+            assertThat(opp150List_Bruker).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isIn(
+                Arrays.asList(KodeKlassifik.SVP_ARBEDISTAKER, KodeKlassifik.FERIEPENGER_BRUKER.getKode())));
             //Oppdragslinje150 - Arbeidsgiver
             var opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
-            assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
-                assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                    KodeKlassifik.SVP_REFUSJON_AG,
-                    KodeKlassifik.SVP_FERIEPENGER_AG)
-                ));
+            assertThat(opp150List_Arbeidsgiver).anySatisfy(
+                opp150 -> assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(KodeKlassifik.SVP_REFUSJON_AG, KodeKlassifik.SVP_FERIEPENGER_AG)));
         }
     }
 
@@ -653,9 +639,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
 
 
     private void verifiserUtbetalingene150(List<Oppdrag110> mottakere110, List<KodeKlassifik> forventetKodeKlasifikk) {
-        var oppdragLinjer150 = mottakere110.stream()
-            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .toList();
+        var oppdragLinjer150 = mottakere110.stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
 
         assertThat(oppdragLinjer150.stream()).isNotEmpty().allSatisfy(periode150 -> {
             assertThat(periode150.getKodeKlassifik()).isIn(forventetKodeKlasifikk);
@@ -675,11 +659,9 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             } else {
                 assertThat(periode150.getUtbetalesTilId()).isNull();
                 var ref156 = periode150.getRefusjonsinfo156();
-                assertThat(ref156.getRefunderesId()).isIn(
-                    OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID),
+                assertThat(ref156.getRefunderesId()).isIn(OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID),
                     OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_2),
-                    OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_3)
-                );
+                    OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_3));
             }
         });
     }
@@ -691,9 +673,8 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
         assertThat(mottakere110.stream().map(Oppdrag110::getKodeFagomrade).distinct()).containsExactlyInAnyOrderElementsOf(kodeFagområder);
         assertThat(mottakere110).allMatch(oppdrag110 -> oppdrag110.getOppdragGjelderId().equals(BRUKER_FNR));
         assertThat(mottakere110).allMatch(oppdrag110 -> oppdrag110.getSaksbehId().equals(ANSVARLIG_SAKSBEHANDLER));
-        assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId)).allSatisfy(fagsystemId ->
-            assertThat(String.valueOf(fagsystemId)).contains(SAKSNUMMER.getVerdi())
-        );
+        assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId)).allSatisfy(
+            fagsystemId -> assertThat(String.valueOf(fagsystemId)).contains(SAKSNUMMER.getVerdi()));
         assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId).distinct().count()).isEqualTo(antallMottakere);
         verifiserAvstemming(mottakere110);
     }

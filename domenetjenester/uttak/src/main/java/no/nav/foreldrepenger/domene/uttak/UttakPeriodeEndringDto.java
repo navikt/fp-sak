@@ -31,7 +31,9 @@ public class UttakPeriodeEndringDto {
     }
 
     public enum TypeEndring {
-        ENDRET, SLETTET, LAGT_TIL
+        ENDRET,
+        SLETTET,
+        LAGT_TIL
     }
 
     public static class Builder {

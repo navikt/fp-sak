@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
 import java.time.LocalDate;
 
-/** Interface for å oppdatere aksjonspunkter. */
+/**
+ * Interface for å oppdatere aksjonspunkter.
+ */
 public interface AksjonspunktOppdaterer<T> {
 
     OppdateringResultat oppdater(T dto, AksjonspunktOppdaterParameter param);

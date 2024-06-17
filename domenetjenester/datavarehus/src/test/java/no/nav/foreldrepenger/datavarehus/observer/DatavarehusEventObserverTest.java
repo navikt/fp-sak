@@ -67,11 +67,11 @@ class DatavarehusEventObserverTest {
 
     private BehandlingVedtak byggVedtak() {
         return BehandlingVedtak.builder()
-                .medAnsvarligSaksbehandler("s142443")
-                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .build();
+            .medAnsvarligSaksbehandler("s142443")
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .build();
     }
 
     private BehandlingskontrollKontekst byggKontekst(Behandling behandling) {

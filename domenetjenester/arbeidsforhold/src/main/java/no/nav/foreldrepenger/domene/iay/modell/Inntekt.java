@@ -57,8 +57,7 @@ public class Inntekt implements IndexKey {
         if (!(obj instanceof Inntekt other)) {
             return false;
         }
-        return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde())
-                && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
+        return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde()) && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
     }
 
     @Override

@@ -39,11 +39,8 @@ public class ManglendeVedlegg {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "arbeidsgiver=" + arbeidsgiver +
-                ", dokumentType=" + dokumentType +
-                ", kommerIkke=" + brukerHarSagtAtIkkeKommer
-                + ">";
+        return getClass().getSimpleName() + "<" + "arbeidsgiver=" + arbeidsgiver + ", dokumentType=" + dokumentType + ", kommerIkke="
+            + brukerHarSagtAtIkkeKommer + ">";
 
     }
 
@@ -56,8 +53,7 @@ public class ManglendeVedlegg {
             return false;
         }
         var other = (ManglendeVedlegg) obj;
-        return Objects.equals(arbeidsgiver, other.arbeidsgiver)
-                && Objects.equals(dokumentType, other.dokumentType);
+        return Objects.equals(arbeidsgiver, other.arbeidsgiver) && Objects.equals(dokumentType, other.dokumentType);
 
     }
 

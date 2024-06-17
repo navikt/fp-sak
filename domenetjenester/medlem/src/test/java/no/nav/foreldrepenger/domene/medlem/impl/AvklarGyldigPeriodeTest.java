@@ -1,4 +1,3 @@
-
 package no.nav.foreldrepenger.domene.medlem.impl;
 
 import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
@@ -42,11 +41,9 @@ class AvklarGyldigPeriodeTest {
     void skal_ikke_opprette_Aksjonspunkt_ved_gyldig_periode() {
         // Arrange
         var fødselsdato = LocalDate.now();
-        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
-                .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
-                .medPeriode(fødselsdato, fødselsdato)
-                .build();
+        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
+            .medPeriode(fødselsdato, fødselsdato).build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(gyldigPeriodeUnderFødsel);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -80,11 +77,9 @@ class AvklarGyldigPeriodeTest {
     void skalIkkeOppretteAksjonspunktVedIngenUavklartPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
-        var lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_B) // ikke hjemlet i bokstav a eller c
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(fødselsdato, fødselsdato)
-                .build();
+        var lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder().medDekningType(
+                MedlemskapDekningType.FTL_2_7_B) // ikke hjemlet i bokstav a eller c
+            .medMedlemskapType(MedlemskapType.ENDELIG).medPeriode(fødselsdato, fødselsdato).build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(lukketPeriodeFørFødselsdato);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -103,11 +98,8 @@ class AvklarGyldigPeriodeTest {
     void skalOppretteAksjonspunktVedUavklartPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
-        var medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
-                .medMedlemskapType(MedlemskapType.UNDER_AVKLARING)
-                .medPeriode(fødselsdato, fødselsdato)
-                .build();
+        var medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.UNDER_AVKLARING).medPeriode(fødselsdato, fødselsdato).build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(medlemskapPeriodeUnderAvklaring);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -126,11 +118,9 @@ class AvklarGyldigPeriodeTest {
     void skalOppretteAksjonspunktVedÅpenPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
-        var åpenPeriode = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
-                .medMedlemskapType(MedlemskapType.FORELOPIG)
-                .medPeriode(fødselsdato, null) // åpen periode
-                .build();
+        var åpenPeriode = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.FORELOPIG).medPeriode(fødselsdato, null) // åpen periode
+            .build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(åpenPeriode);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

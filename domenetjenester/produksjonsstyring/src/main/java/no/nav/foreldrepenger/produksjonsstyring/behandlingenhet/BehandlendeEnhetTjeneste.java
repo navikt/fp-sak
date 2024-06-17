@@ -79,7 +79,8 @@ public class BehandlendeEnhetTjeneste {
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetFor(Long fagsakId, String enhetId) {
-        return Optional.ofNullable(enhetId).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
+        return Optional.ofNullable(enhetId)
+            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
             .orElseGet(() -> finnBehandlendeEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId)));
     }
 
@@ -89,7 +90,8 @@ public class BehandlendeEnhetTjeneste {
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, String sisteBrukt) {
-        return Optional.ofNullable(sisteBrukt).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
+        return Optional.ofNullable(sisteBrukt)
+            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
             .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
     }
 
@@ -132,15 +134,18 @@ public class BehandlendeEnhetTjeneste {
         return getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, hovedPerson, allePersoner);
     }
 
-    private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak, OrganisasjonsEnhet enhet, AktørId hovedPerson, Set<AktørId> allePersoner) {
+    private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak,
+                                                                           OrganisasjonsEnhet enhet,
+                                                                           AktørId hovedPerson,
+                                                                           Set<AktørId> allePersoner) {
         allePersoner.add(hovedPerson);
 
         var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(),
-            fagsak.getYtelseType(), hovedPerson, allePersoner, finnSaksmerking(fagsak));
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), fagsak.getYtelseType(), hovedPerson, allePersoner,
+            finnSaksmerking(fagsak));
     }
 
 
@@ -151,7 +156,9 @@ public class BehandlendeEnhetTjeneste {
     private Set<AktørId> finnAktørIdFraPersonopplysninger(Behandling behandling) {
         return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getId())
             .flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
-            .map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream()
+            .map(PersonInformasjonEntitet::getPersonopplysninger)
+            .orElse(Collections.emptyList())
+            .stream()
             .map(PersonopplysningEntitet::getAktørId)
             .collect(Collectors.toSet());
     }
@@ -186,8 +193,7 @@ public class BehandlendeEnhetTjeneste {
 
     public static Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, FagsakMarkering merking) {
         var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
-        return Optional.ofNullable(enhet)
-            .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
+        return Optional.ofNullable(enhet).filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
     }
 
     // Returnerer enhetsnummer for NAV Klageinstans
@@ -212,14 +218,14 @@ public class BehandlendeEnhetTjeneste {
         eventPubliserer.fireEvent(behandling);
     }
 
-    private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, String begrunnelse, HistorikkAktør aktør) {
+    private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling,
+                                                            OrganisasjonsEnhet nyEnhet,
+                                                            String begrunnelse,
+                                                            HistorikkAktør aktør) {
         var eksisterende = behandling.getBehandlendeOrganisasjonsEnhet();
         var fraMessage = eksisterende != null ? eksisterende.enhetId() + " " + eksisterende.enhetNavn() : "ukjent";
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BYTT_ENHET)
-            .medEndretFelt(HistorikkEndretFeltType.BEHANDLENDE_ENHET,
-                fraMessage,
-                nyEnhet.enhetId() + " " + nyEnhet.enhetNavn())
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BYTT_ENHET)
+            .medEndretFelt(HistorikkEndretFeltType.BEHANDLENDE_ENHET, fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn())
             .medBegrunnelse(begrunnelse);
 
         var innslag = new Historikkinnslag();

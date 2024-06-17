@@ -108,9 +108,8 @@ public class InntektArbeidYtelseAggregat {
         if (!(obj instanceof InntektArbeidYtelseAggregat other)) {
             return false;
         }
-        return Objects.equals(this.getAktørInntekt(), other.getAktørInntekt())
-                && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
-                && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());
+        return Objects.equals(this.getAktørInntekt(), other.getAktørInntekt()) && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
+            && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());
     }
 
     @Override
@@ -120,11 +119,8 @@ public class InntektArbeidYtelseAggregat {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "aktørInntekt=" + aktørInntekt +
-                ", aktørArbeid=" + aktørArbeid +
-                ", aktørYtelse=" + aktørYtelse +
-                '>';
+        return getClass().getSimpleName() + "<" + "aktørInntekt=" + aktørInntekt + ", aktørArbeid=" + aktørArbeid + ", aktørYtelse=" + aktørYtelse
+            + '>';
     }
 
 }

@@ -7,8 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-public record RegelResultat(VilkårResultat vilkårResultat,
-                         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner,
-                         Map<VilkårType, Object> ekstraResultater) {
+public record RegelResultat(VilkårResultat vilkårResultat, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner,
+                            Map<VilkårType, Object> ekstraResultater) {
 
 }

@@ -19,7 +19,7 @@ public class BeregningsresultatFeriepengerRegelModell {
 
 
     public BeregningsresultatFeriepengerRegelModell(BeregningsresultatFeriepengerGrunnlag grunnlag,
-                                                     List<BeregningsresultatPeriode> beregningsresultatPerioder) {
+                                                    List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         this.grunnlag = grunnlag;
         this.beregningsresultatPerioder = beregningsresultatPerioder;
     }

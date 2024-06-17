@@ -26,11 +26,13 @@ class UttaksresultatMapper {
     SvangerskapspengerUttakResultatEntitet tilEntiteter(Behandlingsresultat behandlingsresultat, Uttaksperioder uttaksperioder) {
         var resultatBuilder = new SvangerskapspengerUttakResultatEntitet.Builder(behandlingsresultat);
         uttaksperioder.alleArbeidsforhold()
-            .forEach(arbeidsforhold -> resultatBuilder.medUttakResultatArbeidsforhold(konverterArbeidsforhold(uttaksperioder, arbeidsforhold).build()));
+            .forEach(
+                arbeidsforhold -> resultatBuilder.medUttakResultatArbeidsforhold(konverterArbeidsforhold(uttaksperioder, arbeidsforhold).build()));
         return resultatBuilder.build();
     }
 
-    private SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder konverterArbeidsforhold(Uttaksperioder uttaksperioder, Arbeidsforhold arbeidsforhold) {
+    private SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder konverterArbeidsforhold(Uttaksperioder uttaksperioder,
+                                                                                                 Arbeidsforhold arbeidsforhold) {
         var arbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder();
         arbeidsforholdBuilder.medUttakArbeidType(mapTilUttakArbeidType(arbeidsforhold.getAktivitetType()));
         var arbeidsforholdRef = InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null));
@@ -45,10 +47,12 @@ class UttaksresultatMapper {
 
         var uttaksperioderPerArbeidsforhold = uttaksperioder.perioder(arbeidsforhold);
         if (uttaksperioderPerArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak() != null) {
-            var årsak = ArbeidsforholdIkkeOppfyltÅrsak.fraKode(String.valueOf(uttaksperioderPerArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak().getId()));
+            var årsak = ArbeidsforholdIkkeOppfyltÅrsak.fraKode(
+                String.valueOf(uttaksperioderPerArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak().getId()));
             arbeidsforholdBuilder.medArbeidsforholdIkkeOppfyltÅrsak(årsak);
         } else {
-            uttaksperioderPerArbeidsforhold.getUttaksperioder().forEach(periode -> arbeidsforholdBuilder.medPeriode(konverterPeriode(periode).build()));
+            uttaksperioderPerArbeidsforhold.getUttaksperioder()
+                .forEach(periode -> arbeidsforholdBuilder.medPeriode(konverterPeriode(periode).build()));
         }
         return arbeidsforholdBuilder;
     }

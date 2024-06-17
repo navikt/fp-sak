@@ -19,9 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.MapBehandlingRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {
@@ -57,33 +54,29 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
      * Returnerer input hvis data er på tilgjengelig for det, ellers
      * Optional.empty().
      */
-    private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Set<Aksjonspunkt> aksjonspunkter) {
+    private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref,
+                                                          InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                          Set<Aksjonspunkt> aksjonspunkter) {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
         var kravperioder = mapKravperioder(ref, iayGrunnlag);
-        var input = new BeregningsgrunnlagGUIInput(
-            MapBehandlingRef.mapRef(ref),
-            iayGrunnlagDto,
-            kravperioder,
-            ytelseGrunnlag);
+        var input = new BeregningsgrunnlagGUIInput(MapBehandlingRef.mapRef(ref), iayGrunnlagDto, kravperioder, ytelseGrunnlag);
         input.medAvklaringsbehov(mapAvklaringsbehov(aksjonspunkter));
         return Optional.of(input);
     }
 
     private List<AvklaringsbehovDto> mapAvklaringsbehov(Set<Aksjonspunkt> aksjonspunkter) {
-        return aksjonspunkter.stream()
-            .map(this::mapTilAvklaringsbehov)
-            .flatMap(Optional::stream)
-            .toList();
+        return aksjonspunkter.stream().map(this::mapTilAvklaringsbehov).flatMap(Optional::stream).toList();
     }
 
     private Optional<AvklaringsbehovDto> mapTilAvklaringsbehov(Aksjonspunkt ap) {
-        var definisjon =  switch (ap.getAksjonspunktDefinisjon()) {
+        var definisjon = switch (ap.getAksjonspunktDefinisjon()) {
             case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL;
             case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> AvklaringsbehovDefinisjon.FASTSETT_BG_TB_ARB;
             case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> AvklaringsbehovDefinisjon.FASTSETT_BG_SN_NY_I_ARB_LIVT;
-            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> AvklaringsbehovDefinisjon.VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN;
+            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE ->
+                AvklaringsbehovDefinisjon.VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN;
             case FORDEL_BEREGNINGSGRUNNLAG -> AvklaringsbehovDefinisjon.FORDEL_BG;
             case AVKLAR_AKTIVITETER -> AvklaringsbehovDefinisjon.AVKLAR_AKTIVITETER;
             case VURDER_FAKTA_FOR_ATFL_SN -> AvklaringsbehovDefinisjon.VURDER_FAKTA_ATFL_SN;
@@ -97,7 +90,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         if (definisjon == null) {
             return Optional.empty();
         }
-        var status = switch(ap.getStatus()) {
+        var status = switch (ap.getStatus()) {
             case OPPRETTET -> AvklaringsbehovStatus.OPPRETTET;
             case AVBRUTT -> AvklaringsbehovStatus.AVBRUTT;
             case UTFØRT -> AvklaringsbehovStatus.UTFØRT;

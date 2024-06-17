@@ -16,8 +16,7 @@ class SjekkOmBrukerHarInntektkategoriATellerSjømann extends LeafSpecification<B
     @Override
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
         var arbeidstakerVedSTP = regelModell.erArbeidstakerVedSkjæringstidspunkt();
-        var utbetalingForArbeidstakerAndel = regelModell.getInntektskategorier().stream()
-            .anyMatch(Inntektskategori::erArbeidstakerEllerSjømann);
+        var utbetalingForArbeidstakerAndel = regelModell.getInntektskategorier().stream().anyMatch(Inntektskategori::erArbeidstakerEllerSjømann);
         return arbeidstakerVedSTP && utbetalingForArbeidstakerAndel ? ja() : nei();
     }
 }

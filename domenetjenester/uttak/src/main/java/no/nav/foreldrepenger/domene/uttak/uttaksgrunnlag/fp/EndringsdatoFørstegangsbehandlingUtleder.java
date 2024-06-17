@@ -28,14 +28,12 @@ public class EndringsdatoFørstegangsbehandlingUtleder {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var optionalFørsteSøkteUttaksdato = OppgittPeriodeUtil.finnFørsteSøkteUttaksdato(oppgittePerioder);
         if (optionalFørsteSøkteUttaksdato.isEmpty()) {
-            throw new IllegalArgumentException(
-                "Utvikler-feil: Dette skal ikke skje. Ingen perioder i førstegangsøknad.");
+            throw new IllegalArgumentException("Utvikler-feil: Dette skal ikke skje. Ingen perioder i førstegangsøknad.");
         }
         var førsteSøkteUttaksdato = optionalFørsteSøkteUttaksdato.get();
         var manueltSattFørsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
             .orElse(førsteSøkteUttaksdato);
-        return manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato) ?
-            manueltSattFørsteUttaksdato : førsteSøkteUttaksdato;
+        return manueltSattFørsteUttaksdato.isBefore(førsteSøkteUttaksdato) ? manueltSattFørsteUttaksdato : førsteSøkteUttaksdato;
     }
 }

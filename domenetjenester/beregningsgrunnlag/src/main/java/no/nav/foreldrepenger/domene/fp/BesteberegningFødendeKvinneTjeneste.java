@@ -38,10 +38,10 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
-    private static final Set<FamilieHendelseType> FØDSEL_HENDELSER = Set.of(FamilieHendelseType.FØDSEL,
-        FamilieHendelseType.TERMIN);
+    private static final Set<FamilieHendelseType> FØDSEL_HENDELSER = Set.of(FamilieHendelseType.FØDSEL, FamilieHendelseType.TERMIN);
     private static final Set<OpptjeningAktivitetType> GODKJENT_FOR_AUTOMATISK_BEREGNING = Set.of(OpptjeningAktivitetType.ARBEID,
-        OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER, OpptjeningAktivitetType.FORELDREPENGER, OpptjeningAktivitetType.SVANGERSKAPSPENGER);
+        OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER, OpptjeningAktivitetType.FORELDREPENGER,
+        OpptjeningAktivitetType.SVANGERSKAPSPENGER);
     // Hvis avvik er likt eller større enn grensen skal det bli manuell kontroll av besteberegningen
     private static final BigDecimal AVVIKSGRENSE_FOR_MANUELL_KONTROLL = BigDecimal.valueOf(50_000);
 
@@ -82,19 +82,17 @@ public class BesteberegningFødendeKvinneTjeneste {
         var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse,
             inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
         return opptjeningForBeregning.map(
-            opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
-                opptjeningAktiviteter)).orElse(false);
+            opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, opptjeningAktiviteter)).orElse(false);
     }
 
     boolean erFødendeKvinneSomSøkerForeldrepenger(BehandlingReferanse behandlingReferanse) {
         if (!gjelderForeldrepenger(behandlingReferanse)) {
             return false;
         }
-        var familiehendelse = familieHendelseRepository.hentAggregatHvisEksisterer(
-            behandlingReferanse.behandlingId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+        var familiehendelse = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingReferanse.behandlingId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         var familiehendelseType = familiehendelse.map(FamilieHendelseEntitet::getType)
-            .orElseThrow(() -> new IllegalStateException(
-                "Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.behandlingId()));
+            .orElseThrow(() -> new IllegalStateException("Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.behandlingId()));
         return erFødendeKvinne(behandlingReferanse.relasjonRolle(), familiehendelseType);
     }
 
@@ -131,15 +129,15 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
-        var bg = beregningTjeneste.hent(behandlingReferanse).flatMap(
-            BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var bg = beregningTjeneste.hent(behandlingReferanse).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
 
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
-        var periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
+        var periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt()
+            .getSkjæringstidspunktHvisUtledet()
             .map(stp -> DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(12), stp));
         if (periodeYtelserKanVæreRelevantForBB.isEmpty()) {
             return Collections.emptyList();
@@ -147,7 +145,8 @@ public class BesteberegningFødendeKvinneTjeneste {
         List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
         BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter)
             .ifPresent(grunnlag::add);
-        var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
+        var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(),
+            ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
         return grunnlag;
     }
@@ -167,7 +166,9 @@ public class BesteberegningFødendeKvinneTjeneste {
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
         var beregningsgrunnlagEntitet = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return beregningsgrunnlagEntitet.map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
-            .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+            .orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(tilf -> tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
     private boolean harAktiviteterSomErGodkjentForAutomatiskBeregning(BehandlingReferanse ref) {
@@ -193,9 +194,9 @@ public class BesteberegningFødendeKvinneTjeneste {
             .getAktørYtelseFraRegister(behandlingReferanse.aktørId())
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
-        return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser,
-            skjæringstidspunkt);
+        return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser, skjæringstidspunkt);
     }
+
     public boolean trengerManuellKontrollAvAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
         var besteberegnetAvvik = beregningTjeneste.hent(behandlingReferanse)
             .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)

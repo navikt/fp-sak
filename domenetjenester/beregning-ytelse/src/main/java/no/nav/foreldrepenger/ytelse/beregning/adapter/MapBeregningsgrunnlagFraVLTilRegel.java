@@ -21,7 +21,8 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     public static Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
-        var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
+        var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser()
+            .stream()
             .map(vlBGAktivitetStatus -> AktivitetStatusMapper.fraVLTilRegel(vlBGAktivitetStatus.getAktivitetStatus()))
             .toList();
 
@@ -39,31 +40,39 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     public static boolean arbeidstakerVedSkjæringstidspunkt(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
-        return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
             .min(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
-            .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
-            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && Inntektskategori.girFeriepenger().contains(a.getGjeldendeInntektskategori()));
+            .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(
+                a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && Inntektskategori.girFeriepenger().contains(a.getGjeldendeInntektskategori()));
     }
 
     private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
-        return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
             .map(MapBeregningsgrunnlagFraVLTilRegel::mapBeregningsgrunnlagPeriode)
             .toList();
     }
 
     private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
-        return new BeregningsgrunnlagPeriode(vlBGPeriode.getBeregningsgrunnlagPeriodeFom(), vlBGPeriode.getBeregningsgrunnlagPeriodeTom(), mapVLBGPrStatus(vlBGPeriode));
+        return new BeregningsgrunnlagPeriode(vlBGPeriode.getBeregningsgrunnlagPeriodeFom(), vlBGPeriode.getBeregningsgrunnlagPeriodeTom(),
+            mapVLBGPrStatus(vlBGPeriode));
     }
 
     private static List<BeregningsgrunnlagPrStatus> mapVLBGPrStatus(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
         List<BeregningsgrunnlagPrStatus> liste = new ArrayList<>();
-        var harATFL = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var harATFL = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .anyMatch(a -> AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())));
 
         if (harATFL) {
             liste.add(mapVLBGPStatusForATFL(vlBGPeriode));
         }
-        vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .filter(a -> !AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())))
             .map(MapBeregningsgrunnlagFraVLTilRegel::mapVLBGPStatusForAlleAktivietetStatuser)
             .forEach(liste::add);
@@ -79,12 +88,13 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
 
     // Felles mapping av alle statuser som mapper til ATFL
     private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
-        var arbeidsforhold = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var arbeidsforhold = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .filter(a -> AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())))
             .map(a -> BeregningsgrunnlagPrArbeidsforhold.opprett(ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(a),
                     InntektskategoriMapper.fraVLTilRegel(a.getGjeldendeInntektskategori()))
-                    .medRedusertRefusjonPrÅr(a.getRedusertRefusjonPrÅr())
-                    .medRedusertBrukersAndelPrÅr(a.getRedusertBrukersAndelPrÅr()))
+                .medRedusertRefusjonPrÅr(a.getRedusertRefusjonPrÅr())
+                .medRedusertBrukersAndelPrÅr(a.getRedusertBrukersAndelPrÅr()))
             .toList();
 
         return new BeregningsgrunnlagPrStatus(AktivitetStatus.ATFL, arbeidsforhold);

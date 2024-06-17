@@ -22,8 +22,7 @@ public class BesteberegningGrunnlag {
 
     private void leggTilMånedsgrunnlag(BesteberegningMånedsgrunnlag månedsgrunnlagEntitet) {
         if (seksBesteMåneder.size() >= ANTALL_BESTEBEREGNING_MÅNEDER) {
-            throw new IllegalStateException("Kan ikke legge til mer en + " +
-                ANTALL_BESTEBEREGNING_MÅNEDER + " måneder for bestebergning");
+            throw new IllegalStateException("Kan ikke legge til mer en + " + ANTALL_BESTEBEREGNING_MÅNEDER + " måneder for bestebergning");
         }
         if (seksBesteMåneder.stream().anyMatch(m -> m.getPeriode().overlapper(månedsgrunnlagEntitet.getPeriode()))) {
             throw new IllegalStateException("Det finnes allerede et månedsgrunnlag for " + månedsgrunnlagEntitet.getPeriode());

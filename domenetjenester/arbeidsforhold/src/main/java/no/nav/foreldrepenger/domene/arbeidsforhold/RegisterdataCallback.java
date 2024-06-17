@@ -35,11 +35,7 @@ public class RegisterdataCallback {
 
     @Override
     public String toString() {
-        return "RegisterdataCallback{" +
-                "behandlingId=" + behandlingId +
-                ", eksisterendeGrunnlagRef=" + eksisterendeGrunnlagRef +
-                ", oppdatertGrunnlagRef=" + oppdatertGrunnlagRef +
-                ", oppdatertTidspunkt=" + oppdatertTidspunkt +
-                '}';
+        return "RegisterdataCallback{" + "behandlingId=" + behandlingId + ", eksisterendeGrunnlagRef=" + eksisterendeGrunnlagRef
+            + ", oppdatertGrunnlagRef=" + oppdatertGrunnlagRef + ", oppdatertTidspunkt=" + oppdatertTidspunkt + '}';
     }
 }

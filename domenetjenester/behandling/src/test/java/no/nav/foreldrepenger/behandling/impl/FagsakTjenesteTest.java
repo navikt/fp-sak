@@ -51,8 +51,7 @@ class FagsakTjenesteTest {
         brukerRepository = new NavBrukerRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         personopplysningRepository = new PersonopplysningRepository(entityManager);
-        tjeneste = new FagsakTjeneste(new FagsakRepository(entityManager),
-                new SøknadRepository(entityManager, behandlingRepository));
+        tjeneste = new FagsakTjeneste(new FagsakRepository(entityManager), new SøknadRepository(entityManager, behandlingRepository));
 
     }
 
@@ -77,35 +76,25 @@ class FagsakTjenesteTest {
         // på en enklere måte
         var behandlingId = behandling.getId();
         var medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        medBarnOgOppdatertKjønn
-                .leggTil(
-                        medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
-                                .medKjønn(MANN)
-                                .medNavn("Baby Nordmann")
-                                .medFødselsdato(barnsFødselsdato)
-                                .medSivilstand(SivilstandType.UGIFT))
-                .leggTil(
-                        medBarnOgOppdatertKjønn.getPersonopplysningBuilder(forelderAktørId)
-                                .medKjønn(MANN)
-                                .medSivilstand(SivilstandType.UGIFT)
-                                .medFødselsdato(forelderFødselsdato)
-                                .medNavn("Kari Nordmann"))
-                .leggTil(
-                        medBarnOgOppdatertKjønn
-                                .getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN)
-                                .harSammeBosted(true))
-                .leggTil(
-                        medBarnOgOppdatertKjønn
-                                .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
-                                .harSammeBosted(true));
+        medBarnOgOppdatertKjønn.leggTil(medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
+                .medKjønn(MANN)
+                .medNavn("Baby Nordmann")
+                .medFødselsdato(barnsFødselsdato)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(medBarnOgOppdatertKjønn.getPersonopplysningBuilder(forelderAktørId)
+                .medKjønn(MANN)
+                .medSivilstand(SivilstandType.UGIFT)
+                .medFødselsdato(forelderFødselsdato)
+                .medNavn("Kari Nordmann"))
+            .leggTil(medBarnOgOppdatertKjønn.getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN).harSammeBosted(true))
+            .leggTil(medBarnOgOppdatertKjønn.getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA).harSammeBosted(true));
 
         // dirty, men eksponerer ikke status nå
         fagsak.setStatus(FagsakStatus.LØPENDE);
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
         var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
-                forelderAktørId, LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag, forelderAktørId, LocalDate.now(), LocalDate.now());
 
         // Act
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());
@@ -127,8 +116,7 @@ class FagsakTjenesteTest {
         // ikke har sak nyere enn 10 mnd:
         var søker = brukerRepository.hent(forelderAktørId).orElseGet(() -> NavBruker.opprettNy(forelderAktørId, Språkkode.NB));
         var fagsakNy = tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
-        assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")
-                .isEqualTo(fagsakNy.getNavBruker().getId());
+        assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker").isEqualTo(fagsakNy.getNavBruker().getId());
     }
 
 }

@@ -39,27 +39,21 @@ class DagpengerGirBesteberegning {
 
     }
 
-    private static boolean harSykepengerMedOvergangFraDagpengerPåEllerOppTilSkjæringstidspunktet(Collection<Ytelse> ytelser,
-                                                                                                 LocalDate dato) {
+    private static boolean harSykepengerMedOvergangFraDagpengerPåEllerOppTilSkjæringstidspunktet(Collection<Ytelse> ytelser, LocalDate dato) {
         return ytelser.stream()
             .filter(y -> RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType()))
             .filter(y -> RelatertYtelseTilstand.AVSLUTTET.equals(y.getStatus()) || RelatertYtelseTilstand.LØPENDE.equals(y.getStatus()))
             .filter(y -> y.getYtelseGrunnlag().isPresent())
             .filter(y -> y.getPeriode() != null && y.getPeriode().inkluderer(dato))
             .map(y -> y.getYtelseGrunnlag().get())
-            .anyMatch(ytelseGrunnlag -> ytelseGrunnlag.getArbeidskategori()
-                .map(ARBEIDSKATEGORI_DAGPENGER::contains)
-                .orElse(false));
+            .anyMatch(ytelseGrunnlag -> ytelseGrunnlag.getArbeidskategori().map(ARBEIDSKATEGORI_DAGPENGER::contains).orElse(false));
     }
 
-    private static boolean harDagpengerPåEllerOppTilSkjæringstidspunktet(OpptjeningAktiviteter opptjeningAktiviteter,
-                                                                         LocalDate dato) {
+    private static boolean harDagpengerPåEllerOppTilSkjæringstidspunktet(OpptjeningAktiviteter opptjeningAktiviteter, LocalDate dato) {
         return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
-            .filter(opptjeningPeriode -> !opptjeningPeriode.periode().getFom().isAfter(dato) && (
-                opptjeningPeriode.periode().getTom() == null || !opptjeningPeriode.periode()
-                    .getTom()
-                    .isBefore(dato)))
+            .filter(opptjeningPeriode -> !opptjeningPeriode.periode().getFom().isAfter(dato) && (opptjeningPeriode.periode().getTom() == null
+                || !opptjeningPeriode.periode().getTom().isBefore(dato)))
             .anyMatch(aktivitet -> aktivitet.opptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER));
     }
 

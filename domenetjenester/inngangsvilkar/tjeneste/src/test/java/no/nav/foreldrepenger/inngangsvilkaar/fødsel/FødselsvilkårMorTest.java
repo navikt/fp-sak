@@ -44,8 +44,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        var personopplysningTjeneste = new PersonopplysningTjeneste(
-            repositoryProvider.getPersonopplysningRepository());
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P18W3D"));
     }
 
@@ -62,7 +61,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode =  StandardJsonConfig.fromJsonAsTree(data.regelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
@@ -76,9 +75,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger.medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 
@@ -229,9 +226,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
     void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse()
-            .medFødselsDato(LocalDate.now().minusDays(3))
-            .medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(3)).medAntallBarn(1);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -248,9 +243,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
     void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel_frist_passert() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse()
-            .medFødselsDato(LocalDate.now().minusDays(10))
-            .medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10)).medAntallBarn(1);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -295,10 +288,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var barnAktørId = AktørId.dummy();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var fødtBarn = builderForRegisteropplysninger.medPersonas()
-            .fødtBarn(barnAktørId, fødselsdato)
-            .relasjonTil(søkerAktørId, rolle, true)
-            .build();
+        var fødtBarn = builderForRegisteropplysninger.medPersonas().fødtBarn(barnAktørId, fødselsdato).relasjonTil(søkerAktørId, rolle, true).build();
 
         var søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.GIFT)
@@ -312,8 +302,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
 }

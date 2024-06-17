@@ -55,9 +55,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     public OppdateringResultat oppdater(AvklarVergeDto dto, AksjonspunktOppdaterParameter param) {
 
         var behandlingId = param.getBehandlingId();
-        var vergeBuilder = new VergeEntitet.Builder()
-            .gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom())
-            .medVergeType(dto.getVergeType());
+        var vergeBuilder = new VergeEntitet.Builder().gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom()).medVergeType(dto.getVergeType());
         // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
         var fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
         if (fnr != null) {
@@ -81,18 +79,14 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
-        return new VergeOrganisasjonEntitet.Builder()
-            .medOrganisasjonsnummer(adapter.getOrganisasjonsnummer())
-            .medNavn(adapter.getNavn())
-            .build();
+        return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(adapter.getOrganisasjonsnummer()).medNavn(adapter.getNavn()).build();
     }
 
     private void byggHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {
         var behandlingId = parameter.getBehandlingId();
         var vergeAggregatOpt = vergeRepository.hentAggregat(behandlingId);
         if (vergeAggregatOpt.isEmpty() || vergeAggregatOpt.get().getVerge().isEmpty()) {
-            var tekstBuilder = new HistorikkInnslagTekstBuilder()
-                .medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
+            var tekstBuilder = new HistorikkInnslagTekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
             lagHistorikkinnslag(behandlingId, tekstBuilder, HistorikkinnslagType.REGISTRER_OM_VERGE);
         } else {
             opprettHistorikkinnslagForEndring(dto, parameter, vergeAggregatOpt.get());
@@ -113,13 +107,12 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
             if (vergeEntitet.getVergeOrganisasjon().isPresent()) {
                 var vergeOrg = vergeEntitet.getVergeOrganisasjon().get();
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, vergeOrg.getNavn(), dto.getNavn());
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.ORGANISASJONSNUMMER, vergeOrg.getOrganisasjonsnummer(), dto.getOrganisasjonsnummer());
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.ORGANISASJONSNUMMER, vergeOrg.getOrganisasjonsnummer(),
+                    dto.getOrganisasjonsnummer());
             }
         });
 
-        tekstBuilder
-            .medBegrunnelse(dto.getBegrunnelse(), parameter.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
+        tekstBuilder.medBegrunnelse(dto.getBegrunnelse(), parameter.erBegrunnelseEndret()).medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
         lagHistorikkinnslag(parameter.getBehandlingId(), tekstBuilder, HistorikkinnslagType.FAKTA_ENDRET);
     }
 

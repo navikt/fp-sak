@@ -178,7 +178,8 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         }
         var behandlinger = fagsaker.stream()
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
-            .filter(b -> SjekkOverlapp.erOverlappOgMerEnn100Prosent(tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId()), List.of(ytelse)));
+            .filter(
+                b -> SjekkOverlapp.erOverlappOgMerEnn100Prosent(tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId()), List.of(ytelse)));
 
         return behandlinger.map(Behandling::getFagsak).toList();
     }

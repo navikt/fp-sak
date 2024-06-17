@@ -42,17 +42,15 @@ class RevurderingTjenesteImplTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
-        var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
-                new BehandlingModellRepository(), null);
-        var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
-                new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
+        var serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), null);
+        var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository, new LegacyESBeregningRepository(entityManager),
+            repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider,
-                new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
-                vergeRepository);
+            new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
     }
 
     @Test
@@ -62,8 +60,7 @@ class RevurderingTjenesteImplTest {
             BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
-        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
-                .isEqualTo(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
     }
 
     @Test
@@ -74,15 +71,13 @@ class RevurderingTjenesteImplTest {
             BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
-        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
-                .isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
+        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
         assertThat(revurdering.getBehandlendeOrganisasjonsEnhet().enhetId()).isEqualTo(enhet.enhetId());
     }
 
     private Behandling opprettRevurderingsKandidat() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling.getId()));

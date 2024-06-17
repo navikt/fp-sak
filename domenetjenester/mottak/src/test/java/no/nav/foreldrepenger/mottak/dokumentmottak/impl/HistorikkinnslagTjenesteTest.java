@@ -52,8 +52,8 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
-            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID))).thenReturn(
+            Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
 
         // Act
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
@@ -83,8 +83,8 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
-            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID))).thenReturn(
+            Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, false, false);
@@ -101,14 +101,14 @@ class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    void skal_lagre_historikkinnslag_for_im()  {
+    void skal_lagre_historikkinnslag_for_im() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
-            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID))).thenReturn(
+            Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
         historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.INNTEKTSMELDING, true);
@@ -131,8 +131,8 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
-            .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID))).thenReturn(
+            Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
         historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.ANNET, false);
@@ -149,7 +149,7 @@ class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes()  {
+    void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
@@ -166,7 +166,7 @@ class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste()  {
+    void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();

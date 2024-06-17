@@ -24,21 +24,19 @@ class YrkesaktivitetEntitetTest {
         var fom = LocalDate.of(2015, 8, 1);
         var tom = Tid.TIDENES_ENDE;
 
-        var aa1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        var aa2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var aa1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var aa2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         var overstyrtTom = LocalDate.of(2019, 8, 1);
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-                .leggTilOverstyrtPeriode(fom, overstyrtTom);
+            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+            .leggTilOverstyrtPeriode(fom, overstyrtTom);
 
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aa1)
-                .leggTilAktivitetsAvtale(aa2)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aa1)
+            .leggTilAktivitetsAvtale(aa2)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -59,39 +57,35 @@ class YrkesaktivitetEntitetTest {
         // Arrange
         var fom1 = LocalDate.of(2009, 1, 1);
         var tom1 = LocalDate.of(2009, 12, 31);
-        var aa1 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
+        var aa1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
 
         var fom2 = LocalDate.of(2010, 1, 1);
         var tom2 = LocalDate.of(2010, 12, 31);
-        var aa2 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
+        var aa2 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
 
         var fom3 = LocalDate.of(2011, 1, 1);
         var tom3 = LocalDate.of(2011, 12, 31);
-        var aa3 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
+        var aa3 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
 
         var fom4 = LocalDate.of(2012, 1, 1);
         var tom4 = Tid.TIDENES_ENDE;
-        var aa4 = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
+        var aa4 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
 
         var overstyrtTom = LocalDate.of(2015, 1, 1);
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-                .leggTilOverstyrtPeriode(fom1, tom1)
-                .leggTilOverstyrtPeriode(fom2, tom2)
-                .leggTilOverstyrtPeriode(fom3, tom3)
-                .leggTilOverstyrtPeriode(fom4, overstyrtTom);
+            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+            .leggTilOverstyrtPeriode(fom1, tom1)
+            .leggTilOverstyrtPeriode(fom2, tom2)
+            .leggTilOverstyrtPeriode(fom3, tom3)
+            .leggTilOverstyrtPeriode(fom4, overstyrtTom);
 
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aa1)
-                .leggTilAktivitetsAvtale(aa2)
-                .leggTilAktivitetsAvtale(aa3)
-                .leggTilAktivitetsAvtale(aa4)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aa1)
+            .leggTilAktivitetsAvtale(aa2)
+            .leggTilAktivitetsAvtale(aa3)
+            .leggTilAktivitetsAvtale(aa4)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -129,14 +123,13 @@ class YrkesaktivitetEntitetTest {
         var overstyrtTom = LocalDate.of(2019, 8, 1);
 
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-                .leggTilOverstyrtPeriode(fom, overstyrtTom);
-        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -160,14 +153,13 @@ class YrkesaktivitetEntitetTest {
         var overstyrtTom = LocalDate.of(2019, 8, 1);
 
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-                .leggTilOverstyrtPeriode(fom, overstyrtTom);
-        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -192,14 +184,13 @@ class YrkesaktivitetEntitetTest {
         var overstyrtTom = LocalDate.of(2019, 8, 1);
 
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
-                .leggTilOverstyrtPeriode(overstyrtFom, overstyrtTom);
-        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+            .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
+            .leggTilOverstyrtPeriode(overstyrtFom, overstyrtTom);
+        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 
@@ -223,14 +214,13 @@ class YrkesaktivitetEntitetTest {
         var overstyrtTom = LocalDate.of(2019, 8, 1);
 
         var entitet = ArbeidsforholdOverstyringBuilder.ny()
-                .medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)
-                .leggTilOverstyrtPeriode(fom, overstyrtTom);
-        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+            .medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)
+            .leggTilOverstyrtPeriode(fom, overstyrtTom);
+        var aktivitetsAvtale = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var ya = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .build();
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .build();
 
         var yrkesaktivitet = new Yrkesaktivitet(ya);
 

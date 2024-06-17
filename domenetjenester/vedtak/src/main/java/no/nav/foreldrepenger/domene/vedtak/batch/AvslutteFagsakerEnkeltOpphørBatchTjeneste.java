@@ -10,9 +10,9 @@ import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
  * Henter ut fagsaker som har behandling med resultat opphør, som har kobling til annen part, som ikke har en gr_neste_sak (opphør pga nytt barn) og ingen åpne behandlinger.
  * Dersom siste behandling er opphør opprettes en task som sjekker om fagsaken kan avsluttes.
- *
+ * <p>
  * Skal kjøres en gang i uken
- *
+ * <p>
  * Ingen parametere - går gjennom alle saker som oppfyller kriterier
  */
 @ApplicationScoped

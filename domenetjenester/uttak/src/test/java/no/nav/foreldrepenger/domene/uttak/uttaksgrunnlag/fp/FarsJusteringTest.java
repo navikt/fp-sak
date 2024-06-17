@@ -75,7 +75,8 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(2).minusDays(1), uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(6).minusDays(1), uttakPeriodeType);
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -126,7 +127,8 @@ class FarsJusteringTest {
         var fødselsdato = termindato.plusWeeks(5);
         var farsJustering = new FarsJustering(termindato, fødselsdato, true);
 
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -320,7 +322,8 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato, uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType);
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -340,7 +343,8 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato, uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType);
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -358,13 +362,11 @@ class FarsJusteringTest {
         var fødselsdato = termindato.plusDays(1);
         var farsJustering = new FarsJustering(termindato, fødselsdato, true);
 
-        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType)
-            .medTidligstMottattDato(termindato)
-            .build();
-        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType)
-            .medTidligstMottattDato(fødselsdato)
-            .build();
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType).medTidligstMottattDato(termindato).build();
+        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16),
+            uttakPeriodeType).medTidligstMottattDato(fødselsdato).build();
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -382,13 +384,11 @@ class FarsJusteringTest {
         var fødselsdato = termindato.minusDays(1);
         var farsJustering = new FarsJustering(termindato, fødselsdato, true);
 
-        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType)
-            .medTidligstMottattDato(termindato)
-            .build();
-        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType)
-            .medTidligstMottattDato(fødselsdato)
-            .build();
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType).medTidligstMottattDato(termindato).build();
+        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16),
+            uttakPeriodeType).medTidligstMottattDato(fødselsdato).build();
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();

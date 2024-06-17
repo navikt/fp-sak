@@ -34,39 +34,21 @@ class EndringIBeregningsresultat {
     }
 
     EndringIBeregningsresultat(BeregningsresultatAndel beregningsresultatAndel, int nydagsats) {
-        this(
-            beregningsresultatAndel.getArbeidsgiver().orElse(null),
-            beregningsresultatAndel.getArbeidsforholdRef(),
-            beregningsresultatAndel.getAktivitetStatus(),
-            nydagsats,
-            beregningsresultatAndel.getDagsatsFraBg(),
-            beregningsresultatAndel.erBrukerMottaker(),
-            null
-        );
+        this(beregningsresultatAndel.getArbeidsgiver().orElse(null), beregningsresultatAndel.getArbeidsforholdRef(),
+            beregningsresultatAndel.getAktivitetStatus(), nydagsats, beregningsresultatAndel.getDagsatsFraBg(),
+            beregningsresultatAndel.erBrukerMottaker(), null);
     }
 
     EndringIBeregningsresultat(BeregningsresultatAndel beregningsresultatAndel, BeregningsresultatAndel originalResultatAndel) {
-        this(
-            beregningsresultatAndel.getArbeidsgiver().orElse(null),
-            beregningsresultatAndel.getArbeidsforholdRef(),
-            beregningsresultatAndel.getAktivitetStatus(),
-            beregningsresultatAndel.getDagsats(),
-            beregningsresultatAndel.getDagsatsFraBg(),
-            beregningsresultatAndel.erBrukerMottaker(),
-            originalResultatAndel.getDagsats()
-        );
+        this(beregningsresultatAndel.getArbeidsgiver().orElse(null), beregningsresultatAndel.getArbeidsforholdRef(),
+            beregningsresultatAndel.getAktivitetStatus(), beregningsresultatAndel.getDagsats(), beregningsresultatAndel.getDagsatsFraBg(),
+            beregningsresultatAndel.erBrukerMottaker(), originalResultatAndel.getDagsats());
     }
 
     EndringIBeregningsresultat(BeregningsresultatAndel beregningsresultatAndel) {
-        this(
-            beregningsresultatAndel.getArbeidsgiver().orElse(null),
-            beregningsresultatAndel.getArbeidsforholdRef(),
-            beregningsresultatAndel.getAktivitetStatus(),
-            beregningsresultatAndel.getDagsats(),
-            beregningsresultatAndel.getDagsatsFraBg(),
-            beregningsresultatAndel.erBrukerMottaker(),
-            null
-        );
+        this(beregningsresultatAndel.getArbeidsgiver().orElse(null), beregningsresultatAndel.getArbeidsforholdRef(),
+            beregningsresultatAndel.getAktivitetStatus(), beregningsresultatAndel.getDagsats(), beregningsresultatAndel.getDagsatsFraBg(),
+            beregningsresultatAndel.erBrukerMottaker(), null);
     }
 
     public Arbeidsgiver getArbeidsgiver() {
@@ -102,8 +84,9 @@ class EndringIBeregningsresultat {
             return false;
         }
         var andelArbeidsgiver = resultatAndel.getArbeidsgiver();
-        if (andelArbeidsgiver.isPresent()){
-            return andelArbeidsgiver.get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
+        if (andelArbeidsgiver.isPresent()) {
+            return andelArbeidsgiver.get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(),
+                resultatAndel.getArbeidsforholdRef().getReferanse());
         }
         return true;
     }
@@ -113,12 +96,8 @@ class EndringIBeregningsresultat {
     }
 
     static EndringIBeregningsresultat forEndringMedOriginalDagsats(BeregningsresultatAndel beregningsresultatAndel, int originalDagsats) {
-        return new EndringIBeregningsresultat(beregningsresultatAndel.getArbeidsgiver().orElse(null),
-            beregningsresultatAndel.getArbeidsforholdRef(),
-            beregningsresultatAndel.getAktivitetStatus(),
-            beregningsresultatAndel.getDagsats(),
-            beregningsresultatAndel.getDagsatsFraBg(),
-            beregningsresultatAndel.erBrukerMottaker(),
-            originalDagsats);
+        return new EndringIBeregningsresultat(beregningsresultatAndel.getArbeidsgiver().orElse(null), beregningsresultatAndel.getArbeidsforholdRef(),
+            beregningsresultatAndel.getAktivitetStatus(), beregningsresultatAndel.getDagsats(), beregningsresultatAndel.getDagsatsFraBg(),
+            beregningsresultatAndel.erBrukerMottaker(), originalDagsats);
     }
 }

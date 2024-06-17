@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  * Marker type som implementerer interface {@link BehandlingSteg} for å skille
  * ulike implementasjoner av samme steg for ulike ytelser (eks. Foreldrepenger
  * vs. Engangsstønad).<br>
- *
+ * <p>
  * NB: Settes kun dersom det er flere implementasjoner med samme
  * {@link BehandlingStegRef}.
  */
@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @Stereotype
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD})
 @Documented
 public @interface FagsakYtelseTypeRef {
 
@@ -50,7 +50,9 @@ public @interface FagsakYtelseTypeRef {
      */
     FagsakYtelseType value() default FagsakYtelseType.UDEFINERT;
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class FagsakYtelseTypeRefLiteral extends AnnotationLiteral<FagsakYtelseTypeRef> implements FagsakYtelseTypeRef {
 
         private FagsakYtelseType ytelseType;
@@ -98,8 +100,7 @@ public @interface FagsakYtelseTypeRef {
                     return Optional.of(getInstance(inst));
                 }
                 if (inst.isAmbiguous()) {
-                    throw new IllegalStateException(
-                            "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
+                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
                 }
             }
 
@@ -107,16 +108,14 @@ public @interface FagsakYtelseTypeRef {
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
-            return cls != null
-                    ? instances.select(cls, anno)
-                    : instances.select(anno);
+            return cls != null ? instances.select(cls, anno) : instances.select(anno);
         }
 
         private static <I> I getInstance(Instance<I> inst) {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
                 throw new IllegalStateException(
-                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
@@ -134,7 +133,7 @@ public @interface FagsakYtelseTypeRef {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
+    @Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
     @Documented
     @interface ContainerOfFagsakYtelseTypeRef {
         FagsakYtelseTypeRef[] value();

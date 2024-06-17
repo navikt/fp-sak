@@ -87,7 +87,8 @@ public class OppdragKjede {
         public Builder medOppdragslinje(OppdragLinje linje) {
             if (oppdragslinjer.isEmpty()) {
                 if (linje.getRefDelytelseId() != null) {
-                    throw new IllegalArgumentException("Første oppdragslinje (delytelseId" + linje.getDelytelseId() + ") kan ikke referere til en annen");
+                    throw new IllegalArgumentException(
+                        "Første oppdragslinje (delytelseId" + linje.getDelytelseId() + ") kan ikke referere til en annen");
                 }
             } else {
                 var siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
@@ -104,12 +105,16 @@ public class OppdragKjede {
 
         private void validerLinjeUtenOpphør(OppdragLinje linje, OppdragLinje siste) {
             if (!ytelseBuilder.erTom() && !siste.getDelytelseId().equals(linje.getRefDelytelseId())) {
-                throw new IllegalArgumentException("Oppdragslinje med delytelseId " + linje.getDelytelseId() + " er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId " + siste.getDelytelseId() + ")");
+                throw new IllegalArgumentException("Oppdragslinje med delytelseId " + linje.getDelytelseId()
+                    + " er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId " + siste.getDelytelseId() + ")");
             }
 
             var overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
-            if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt().isBefore(linje.getPeriode().getFom())) {
-                LOG.info("Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data", linje.getDelytelseId());
+            if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt()
+                .isBefore(linje.getPeriode().getFom())) {
+                LOG.info(
+                    "Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data",
+                    linje.getDelytelseId());
             }
         }
 
@@ -124,7 +129,7 @@ public class OppdragKjede {
         }
 
         public boolean erEffektivtTom() {
-                return ytelseBuilder.erTom();
+            return ytelseBuilder.erTom();
         }
     }
 }

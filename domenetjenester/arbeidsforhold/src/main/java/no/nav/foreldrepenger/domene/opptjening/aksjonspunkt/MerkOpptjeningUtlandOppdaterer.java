@@ -23,8 +23,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
     @Inject
-    public MerkOpptjeningUtlandOppdaterer(FagsakEgenskapRepository fagsakEgenskapRepository,
-                                          HistorikkTjenesteAdapter historikkAdapter) {
+    public MerkOpptjeningUtlandOppdaterer(FagsakEgenskapRepository fagsakEgenskapRepository, HistorikkTjenesteAdapter historikkAdapter) {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.historikkTjenesteAdapter = historikkAdapter;
     }

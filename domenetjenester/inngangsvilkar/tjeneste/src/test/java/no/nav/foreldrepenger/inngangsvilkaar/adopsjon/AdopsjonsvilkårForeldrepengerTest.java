@@ -65,8 +65,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
 
-        var behandling = settOppAdopsjonBehandlingFor(
-            10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
+        var behandling = settOppAdopsjonBehandlingFor(10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
@@ -82,8 +81,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        var behandling = settOppAdopsjonBehandlingFor(
-            10, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
+        var behandling = settOppAdopsjonBehandlingFor(10, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
@@ -95,8 +93,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        var behandling = settOppAdopsjonBehandlingFor(
-            10, false, NavBrukerKjønn.MANN, true, LocalDate.of(2018, 1, 1));
+        var behandling = settOppAdopsjonBehandlingFor(10, false, NavBrukerKjønn.MANN, true, LocalDate.of(2018, 1, 1));
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
@@ -105,21 +102,26 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
         assertThat(data.vilkårUtfallMerknad()).isNull();
     }
 
-    private Behandling settOppAdopsjonBehandlingFor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn,
-                                                    boolean adoptererAlene, LocalDate omsorgsovertakelsedato) {
+    private Behandling settOppAdopsjonBehandlingFor(int alder,
+                                                    boolean ektefellesBarn,
+                                                    NavBrukerKjønn kjønn,
+                                                    boolean adoptererAlene,
+                                                    LocalDate omsorgsovertakelsedato) {
 
-        var scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
-            : ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = kjønn.equals(
+            NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon() : ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         leggTilSøker(scenario, kjønn);
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
                 .medErEktefellesBarn(ektefellesBarn)
                 .medAdoptererAlene(adoptererAlene))
             .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
         scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
+            .medAdopsjon(scenario.medBekreftetHendelse()
+                .getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
                 .medErEktefellesBarn(ektefellesBarn)
                 .medAdoptererAlene(adoptererAlene))
@@ -130,10 +132,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 }

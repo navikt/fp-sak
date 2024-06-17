@@ -13,9 +13,12 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragFactory;
 @Dependent
 public class LagOppdragTjeneste {
 
-    public LagOppdragTjeneste() { }
+    public LagOppdragTjeneste() {
+    }
 
-    public Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
+    public Optional<Oppdragskontroll> lagOppdrag(OppdragInput input,
+                                                 boolean brukFellesEndringstidspunkt,
+                                                 final Oppdragskontroll eksisterendeOppdragskontroll) {
         var målbilde = input.getTilkjentYtelse();
         var tidligereOppdrag = input.getTidligereOppdrag();
 

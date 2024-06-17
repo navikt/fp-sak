@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -24,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -90,14 +90,18 @@ public class Behandlingsoppretter {
         return behandlingOpprettingTjeneste.opprettBehandlingUtenHistorikk(fagsak, BehandlingType.FØRSTEGANGSSØKNAD, behandlingÅrsakType);
     }
 
-    public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling forrigeBehandling, boolean kopierGrunnlag) {
+    public Behandling opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Fagsak fagsak,
+                                                                             BehandlingÅrsakType behandlingÅrsakType,
+                                                                             Behandling forrigeBehandling,
+                                                                             boolean kopierGrunnlag) {
         var nyFørstegangsbehandling = opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.ofNullable(forrigeBehandling));
         if (forrigeBehandling != null && kopierGrunnlag) {
             kopierTidligereGrunnlagFraTil(fagsak, forrigeBehandling, nyFørstegangsbehandling);
         }
         opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyFørstegangsbehandling);
-        if (forrigeBehandling != null)
+        if (forrigeBehandling != null) {
             kopierVedlegg(forrigeBehandling, nyFørstegangsbehandling);
+        }
         return nyFørstegangsbehandling;
     }
 
@@ -112,19 +116,23 @@ public class Behandlingsoppretter {
     }
 
     public Behandling oppdaterBehandlingViaHenleggelse(Behandling sisteYtelseBehandling) {
-        var årsakstype = sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+        var årsakstype = sisteYtelseBehandling.getBehandlingÅrsaker()
+            .stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .findFirst().orElse(BehandlingÅrsakType.UDEFINERT);
+            .findFirst()
+            .orElse(BehandlingÅrsakType.UDEFINERT);
         return oppdaterBehandlingViaHenleggelse(sisteYtelseBehandling, årsakstype);
     }
 
     public Behandling oppdaterBehandlingViaHenleggelse(Behandling sisteYtelseBehandling, BehandlingÅrsakType revurderingsÅrsak) {
         // Ifm køhåndtering - kun relevant for Foreldrepenger. REGSØK har relevant logikk for FØRSTEGANG.
         // Må håndtere revurderinger med åpent aksjonspunkt: Kopier med siste papirsøknad hvis finnes så AP reutledes i REGSØK
-        var uregistrertPapirSøknadFP = sisteYtelseBehandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
+        var uregistrertPapirSøknadFP = sisteYtelseBehandling.harÅpentAksjonspunktMedType(
+            AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
         henleggBehandling(sisteYtelseBehandling);
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(sisteYtelseBehandling.getType())) {
-            return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak, sisteYtelseBehandling,false);
+            return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak, sisteYtelseBehandling,
+                false);
         }
         var revurdering = opprettRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
 
@@ -135,7 +143,8 @@ public class Behandlingsoppretter {
         kopierVedlegg(sisteYtelseBehandling, revurdering);
 
         // Kopier behandlingsårsaker fra forrige behandling
-        var forrigeÅrsaker = sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+        var forrigeÅrsaker = sisteYtelseBehandling.getBehandlingÅrsaker()
+            .stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .filter(bat -> !revurderingsÅrsak.equals(bat))
             .toList();
@@ -158,15 +167,16 @@ public class Behandlingsoppretter {
     }
 
     public void opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(Behandling nyBehandling) {
-            hentAlleInntektsmeldingdokumenter(nyBehandling.getFagsakId()).stream()
-                .sorted(MottattDokumentSorterer.sorterMottattDokument())
-                .forEach(mottattDokument ->
-                    mottattDokumentPersisterer.persisterDokumentinnhold(mottattDokument, nyBehandling));
+        hentAlleInntektsmeldingdokumenter(nyBehandling.getFagsakId()).stream()
+            .sorted(MottattDokumentSorterer.sorterMottattDokument())
+            .forEach(mottattDokument -> mottattDokumentPersisterer.persisterDokumentinnhold(mottattDokument, nyBehandling));
 
     }
 
     public void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) return;
+        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
+            return;
+        }
         if (!behandling.harBehandlingÅrsak(behandlingÅrsakType)) {
             var builder = BehandlingÅrsak.builder(behandlingÅrsakType);
             behandling.getOriginalBehandlingId().ifPresent(builder::medOriginalBehandlingId);
@@ -178,15 +188,14 @@ public class Behandlingsoppretter {
     }
 
     private void kopierPapirsøknadVedBehov(Behandling opprinneligBehandling, Behandling nyBehandling) {
-        var søknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(opprinneligBehandling.getFagsakId()).stream()
+        var søknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(opprinneligBehandling.getFagsakId())
+            .stream()
             .filter(MottattDokument::erSøknadsDokument)
             .max(Comparator.comparing(MottattDokument::getOpprettetTidspunkt))
             .filter(MottattDokument::erUstrukturertDokument);
 
         søknad.ifPresent(s -> {
-            var dokument = new MottattDokument.Builder(s)
-                .medBehandlingId(nyBehandling.getId())
-                .build();
+            var dokument = new MottattDokument.Builder(s).medBehandlingId(nyBehandling.getId()).build();
             mottatteDokumentRepository.lagre(dokument);
         });
     }
@@ -196,23 +205,23 @@ public class Behandlingsoppretter {
 
         if (!vedlegg.isEmpty()) {
             vedlegg.forEach(vedlegget -> {
-                var dokument = new MottattDokument.Builder(vedlegget)
-                    .medBehandlingId(nyBehandling.getId())
-                    .build();
+                var dokument = new MottattDokument.Builder(vedlegget).medBehandlingId(nyBehandling.getId()).build();
                 mottatteDokumentRepository.lagre(dokument);
             });
         }
     }
 
     private List<MottattDokument> hentAlleInntektsmeldingdokumenter(Long fagsakId) {
-        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
+        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId)
+            .stream()
             .filter(dok -> DokumentTypeId.INNTEKTSMELDING.equals(dok.getDokumentType()))
             .toList();
     }
 
 
     public void settSomKøet(Behandling nyKøetBehandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingskontrollTjeneste.settBehandlingPåVent(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
+            Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     public boolean erOpphørtBehandling(Behandling behandling) {
@@ -251,11 +260,13 @@ public class Behandlingsoppretter {
         revurderingTjeneste.kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(forrige, nyBehandling);
     }
 
-    public Behandling opprettNyFørstegangsbehandlingFraTidligereSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling behandlingMedSøknad) {
+    public Behandling opprettNyFørstegangsbehandlingFraTidligereSøknad(Fagsak fagsak,
+                                                                       BehandlingÅrsakType behandlingÅrsakType,
+                                                                       Behandling behandlingMedSøknad) {
         var sisteYtelsesbehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).orElseThrow();
         var harÅpenBehandling = !sisteYtelsesbehandling.erSaksbehandlingAvsluttet();
-        var behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling, behandlingÅrsakType)
-            : opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(behandlingMedSøknad));
+        var behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling,
+            behandlingÅrsakType) : opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(behandlingMedSøknad));
 
         kopierTidligereGrunnlagFraTil(fagsak, behandlingMedSøknad, behandling);
         return behandling;
@@ -272,8 +283,8 @@ public class Behandlingsoppretter {
     }
 
     private Optional<Behandlingsresultat> hentFørstegangsbehandlingsresultat(Fagsak fagsak) {
-        var førstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
+            BehandlingType.FØRSTEGANGSSØKNAD);
         return førstegangsbehandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
     }
 

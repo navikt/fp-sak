@@ -39,7 +39,10 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 public class Endringskontroller {
     private static final Logger LOG = LoggerFactory.getLogger(Endringskontroller.class);
-    private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt().stream().map(StartpunktType::getBehandlingSteg).collect(Collectors.toSet());
+    private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt()
+        .stream()
+        .map(StartpunktType::getBehandlingSteg)
+        .collect(Collectors.toSet());
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -68,18 +71,19 @@ public class Endringskontroller {
     }
 
     public boolean erRegisterinnhentingPassert(Behandling behandling) {
-        return behandling.getType().erYtelseBehandlingType() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
+        return behandling.getType().erYtelseBehandlingType() && behandlingskontrollTjeneste.erStegPassert(behandling,
+            BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
     // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom. For å få med endringer i andre ytelser
     public void vurderNySimulering(Behandling behandling) {
         // Engangsstønad påvirkes ikke av andre ytelser. Hvis det ikke ble feilutbetaling i forrige simulering så oppstår den ikke plutselig
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
-            !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.harAksjonspunktMedType(
+            AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
             return;
         }
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
-            !behandling.getÅpneAksjonspunkter(AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) || !behandling.getÅpneAksjonspunkter(
+            AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null);
         }
@@ -173,20 +177,26 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType fomSteg, BehandlingReferanse ref, Behandling behandling) {
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst,
+                                                          BehandlingStegType fomSteg,
+                                                          BehandlingReferanse ref,
+                                                          Behandling behandling) {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, fomSteg);
         var resultatDef = resultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
-        var avbrytes = behandling.getÅpneAksjonspunkter().stream()
+        var avbrytes = behandling.getÅpneAksjonspunkter()
+            .stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !erReturBeslutter(ref, ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !resultatDef.contains(ap.getAksjonspunktDefinisjon()))
-            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg,
+                ap.getAksjonspunktDefinisjon()))
             .toList();
         var opprettes = resultater.stream()
             .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon())
-                .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
+                .map(Aksjonspunkt::getStatus)
+                .orElse(AksjonspunktStatus.OPPRETTET)))
             .toList();
         if (!avbrytes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
@@ -197,7 +207,8 @@ public class Endringskontroller {
     }
 
     private boolean erReturBeslutter(BehandlingReferanse ref, AksjonspunktDefinisjon apDef) {
-        return totrinnRepository.hentTotrinnaksjonspunktvurderinger(ref.behandlingId()).stream()
+        return totrinnRepository.hentTotrinnaksjonspunktvurderinger(ref.behandlingId())
+            .stream()
             .anyMatch(v -> v.isAktiv() && !v.isGodkjent() && v.getAksjonspunktDefinisjon().equals(apDef));
 
     }

@@ -50,17 +50,21 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
         beregningsresultat.setTilkjentYtelse(tilkjentYtelse);
     }
 
-    private void setBeregningsresultat(YtelseSvangerskapspenger ytelseSvangerskapspenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
-        var resultat = beregningsresultatPerioder
-            .stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
+    private void setBeregningsresultat(YtelseSvangerskapspenger ytelseSvangerskapspenger,
+                                       List<BeregningsresultatPeriode> beregningsresultatPerioder) {
+        var resultat = beregningsresultatPerioder.stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList)
+            .flatMap(Collection::stream)
+            .map(this::konverterFraDomene)
+            .toList();
 
         ytelseSvangerskapspenger.getBeregningsresultat().addAll(resultat);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.ytelse.svp.v2.Beregningsresultat konverterFraDomene(BeregningsresultatAndel andelDomene) {
         var kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.svp.v2.Beregningsresultat();
-        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom(), andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom()));
+        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom(),
+            andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom()));
         kontrakt.setBrukerErMottaker(VedtakXmlUtil.lagBooleanOpplysning(andelDomene.erBrukerMottaker()));
         kontrakt.setAktivitetstatus(VedtakXmlUtil.lagKodeverksOpplysning(andelDomene.getAktivitetStatus()));
         kontrakt.setInntektskategori(VedtakXmlUtil.lagKodeverksOpplysning(andelDomene.getInntektskategori()));

@@ -77,7 +77,8 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         var kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
-        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType()
+            && kompatibleFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
@@ -86,11 +87,10 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             return standardVurdering.orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
-        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream()
-            .map(Fagsak::getSaksnummer)
-            .toList();
+        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream().map(Fagsak::getSaksnummer).toList();
         if (!sakOpprettetInnenIntervall.isEmpty()) {
-            LOG.info("VurderFagsystem ES ustrukturert {} finnes nyere sak enn 10mnd {}", vurderFagsystem.getJournalpostIdLog(), sakOpprettetInnenIntervall);
+            LOG.info("VurderFagsystem ES ustrukturert {} finnes nyere sak enn 10mnd {}", vurderFagsystem.getJournalpostIdLog(),
+                sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return new BehandlendeFagsystem(VEDTAKSLØSNING);

@@ -34,8 +34,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     }
 
     @Inject
-    StartpunktUtlederYtelseFordeling(BehandlingRepositoryProvider repositoryProvider,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    StartpunktUtlederYtelseFordeling(BehandlingRepositoryProvider repositoryProvider, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -48,33 +47,39 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
         var originalBehandling = ref.getOriginalBehandlingId().orElse(null);
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         if (originalBehandling == null || behandling.harSattStartpunkt()) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+                "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
         }
         if (erSkjæringsdatoEndret(ref, originalBehandling)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
+                StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktBeregning(ref)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING,
+                "Søkt om gradert periode", grunnlagId1, grunnlagId2);
             return StartpunktType.BEREGNING;
         }
-        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
+        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+            "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
         return StartpunktType.UTTAKSVILKÅR;
     }
 
     private boolean erSkjæringsdatoEndret(BehandlingReferanse ref, Long originalBehandlingId) {
         var nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
-        var originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
+        var originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId)
+            .getSkjæringstidspunktHvisUtledet()
+            .orElse(null);
         return !Objects.equals(originalSkjæringsdato, nySkjæringsdato);
     }
 
 
-    private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef){
+    private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef) {
         var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.behandlingId()).getOppgittFordeling().getPerioder();
         var gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
 
-        if (gradertePerioderFraSøknad.isEmpty()){
+        if (gradertePerioderFraSøknad.isEmpty()) {
             return false;
         }
 
@@ -84,17 +89,13 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
 
 
     private List<OppgittPeriodeEntitet> finnGradertePerioder(List<OppgittPeriodeEntitet> perioder) {
-        if(perioder == null) {
+        if (perioder == null) {
             throw new IllegalStateException("Utviklerfeil: forventer at behandling har oppgitte perioder");
         }
-        return perioder.stream()
-            .filter(OppgittPeriodeEntitet::isGradert)
-            .collect(toList());
+        return perioder.stream().filter(OppgittPeriodeEntitet::isGradert).collect(toList());
     }
 
     private Boolean harBehandlingEndringssøknad(BehandlingReferanse referanse) {
-        return søknadRepository.hentSøknadFraGrunnlag(referanse.behandlingId())
-            .map(SøknadEntitet::erEndringssøknad)
-            .orElse(false);
+        return søknadRepository.hentSøknadFraGrunnlag(referanse.behandlingId()).map(SøknadEntitet::erEndringssøknad).orElse(false);
     }
 }

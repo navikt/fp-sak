@@ -54,25 +54,24 @@ class AksjonspunktResultatOppretter {
         List<Aksjonspunkt> avbrutteAksjonspunkter = new ArrayList<>();
         var nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(toSet());
         // Avbryt eksisterende aksjonspunkt dersom det skal opprettes nytt som er i konflikt med eksisterende
-        eksisterende.values().stream()
-                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-                .filter(ap -> ap.getAksjonspunktDefinisjon().getUtelukkendeApdef().stream().anyMatch(nyeApDef::contains))
-                .forEach(ap -> {
-                    aksjonspunktKontrollRepository.setTilAvbrutt(ap);
-                    avbrutteAksjonspunkter.add(ap);
-                });
+        eksisterende.values()
+            .stream()
+            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+            .filter(ap -> ap.getAksjonspunktDefinisjon().getUtelukkendeApdef().stream().anyMatch(nyeApDef::contains))
+            .forEach(ap -> {
+                aksjonspunktKontrollRepository.setTilAvbrutt(ap);
+                avbrutteAksjonspunkter.add(ap);
+            });
         return avbrutteAksjonspunkter;
     }
 
     private List<Aksjonspunkt> leggTilResultatPåBehandling(BehandlingStegType behandlingStegType, List<AksjonspunktResultat> resultat) {
-        return resultat.stream()
-                .map(ar -> oppdaterAksjonspunktMedResultat(behandlingStegType, ar))
-                .toList();
+        return resultat.stream().map(ar -> oppdaterAksjonspunktMedResultat(behandlingStegType, ar)).toList();
     }
 
     private Aksjonspunkt oppdaterAksjonspunktMedResultat(BehandlingStegType behandlingStegType, AksjonspunktResultat resultat) {
-        if (AksjonspunktType.AUTOPUNKT.equals(resultat.getAksjonspunktDefinisjon().getAksjonspunktType())
-            && AksjonspunktStatus.OPPRETTET.equals(resultat.getMålStatus())) {
+        if (AksjonspunktType.AUTOPUNKT.equals(resultat.getAksjonspunktDefinisjon().getAksjonspunktType()) && AksjonspunktStatus.OPPRETTET.equals(
+            resultat.getMålStatus())) {
             aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, resultat.getAksjonspunktDefinisjon());
         }
         var oppdatert = eksisterende.get(resultat.getAksjonspunktDefinisjon());

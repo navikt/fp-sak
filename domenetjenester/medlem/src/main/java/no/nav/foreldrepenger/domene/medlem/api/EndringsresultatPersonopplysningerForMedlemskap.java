@@ -64,9 +64,7 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
         }
 
         public EndringsresultatPersonopplysningerForMedlemskap build() {
-            this.kladd.gjeldendeFra = kladd.getEndredeAttributter().stream()
-                .map(e -> e.getPeriode().getFomDato())
-                .min(LocalDate::compareTo);
+            this.kladd.gjeldendeFra = kladd.getEndredeAttributter().stream().map(e -> e.getPeriode().getFomDato()).min(LocalDate::compareTo);
             return kladd;
         }
 

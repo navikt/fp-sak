@@ -87,7 +87,8 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     }
 
     public boolean gjelderSammeArbeidsforhold(BeregningsgrunnlagPrStatusOgAndel that) {
-        if (!Objects.equals(this.getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !Objects.equals(that.getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER)) {
+        if (!Objects.equals(this.getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !Objects.equals(that.getAktivitetStatus(),
+            AktivitetStatus.ARBEIDSTAKER)) {
             return false;
         }
         return gjelderSammeArbeidsforhold(that.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
@@ -106,12 +107,11 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         if (!Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), Optional.of(arbeidsgiver))) {
             return false;
         }
-        boolean slutterFørStp = this.bgAndelArbeidsforhold.getArbeidsperiodeTom()
-                .map(d -> d.isBefore(stpBeregning)).orElse(false);
+        boolean slutterFørStp = this.bgAndelArbeidsforhold.getArbeidsperiodeTom().map(d -> d.isBefore(stpBeregning)).orElse(false);
         if (slutterFørStp) {
             return false;
         }
-        return  bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        return bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     private boolean gjelderSammeArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
@@ -120,14 +120,16 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return false;
         }
         return Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), arbeidsgiver)
-                && bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+            && bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     public boolean matchUtenInntektskategori(BeregningsgrunnlagPrStatusOgAndel other) {
-        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef))
-                && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType());
+        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus()) && Objects.equals(
+            this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
+            other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver)) && Objects.equals(
+            this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
+            other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef)) && Objects.equals(this.getArbeidsforholdType(),
+            other.getArbeidsforholdType());
     }
 
     public OpptjeningAktivitetType getArbeidsforholdType() {
@@ -237,8 +239,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     }
 
     public BigDecimal getÅrsbeløpFraTilstøtendeYtelseVerdi() {
-        return Optional.ofNullable(getÅrsbeløpFraTilstøtendeYtelse())
-                .map(Beløp::getVerdi).orElse(BigDecimal.ZERO);
+        return Optional.ofNullable(getÅrsbeløpFraTilstøtendeYtelse()).map(Beløp::getVerdi).orElse(BigDecimal.ZERO);
     }
 
     public Long getAndelsnr() {
@@ -277,52 +278,34 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         // Endring av denne har store konsekvenser for matching av andeler
         // Resultat av endringer må testes manuelt
         var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
-        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-                && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
-                && Objects.equals(this.getInntektskategoriAutomatiskFordeling(), other.getInntektskategoriAutomatiskFordeling())
-                && Objects.equals(this.getInntektskategoriManuellFordeling(), other.getInntektskategoriManuellFordeling())
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
-                    other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
-                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
-                    other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef))
-                && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType());
+        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus()) && Objects.equals(this.getInntektskategori(),
+            other.getInntektskategori()) && Objects.equals(this.getInntektskategoriAutomatiskFordeling(),
+            other.getInntektskategoriAutomatiskFordeling()) && Objects.equals(this.getInntektskategoriManuellFordeling(),
+            other.getInntektskategoriManuellFordeling()) && Objects.equals(
+            this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
+            other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver)) && Objects.equals(
+            this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
+            other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef)) && Objects.equals(this.getArbeidsforholdType(),
+            other.getArbeidsforholdType());
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktivitetStatus,
-            inntektskategori,
-            getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
-            getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
-            arbeidsforholdType);
+        return Objects.hash(aktivitetStatus, inntektskategori, getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
+            getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef), arbeidsforholdType);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "aktivitetStatus=" + aktivitetStatus + ", "
-                + "beregningsperiode=" + beregningsperiode + ", "
-                + "arbeidsforholdType=" + arbeidsforholdType + ", "
-                + "maksimalRefusjonPrÅr=" + maksimalRefusjonPrÅr + ", "
-                + "avkortetRefusjonPrÅr=" + avkortetRefusjonPrÅr + ", "
-                + "redusertRefusjonPrÅr=" + redusertRefusjonPrÅr + ", "
-                + "avkortetBrukersAndelPrÅr=" + avkortetBrukersAndelPrÅr + ", "
-                + "redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr + ", "
-                + "beregnetPrÅr=" + beregnetPrÅr + ", "
-                + "fordeltPrÅr=" + fordeltPrÅr + ", "
-                + "overstyrtPrÅr=" + overstyrtPrÅr + ", "
-                + "bruttoPrÅr=" + bruttoPrÅr + ", "
-                + "avkortetPrÅr=" + avkortetPrÅr + ", "
-                + "redusertPrÅr=" + redusertPrÅr + ", "
-                + "dagsatsBruker=" + dagsatsBruker + ", "
-                + "dagsatsArbeidsgiver=" + dagsatsArbeidsgiver + ", "
-                + "pgiSnitt=" + pgiSnitt + ", "
-                + "pgi1=" + pgi1 + ", "
-                + "pgi2=" + pgi2 + ", "
-                + "pgi3=" + pgi3 + ", "
-                + "årsbeløpFraTilstøtendeYtelse=" + årsbeløpFraTilstøtendeYtelse
-                + ">";
+        return getClass().getSimpleName() + "<" + "aktivitetStatus=" + aktivitetStatus + ", " + "beregningsperiode=" + beregningsperiode + ", "
+            + "arbeidsforholdType=" + arbeidsforholdType + ", " + "maksimalRefusjonPrÅr=" + maksimalRefusjonPrÅr + ", " + "avkortetRefusjonPrÅr="
+            + avkortetRefusjonPrÅr + ", " + "redusertRefusjonPrÅr=" + redusertRefusjonPrÅr + ", " + "avkortetBrukersAndelPrÅr="
+            + avkortetBrukersAndelPrÅr + ", " + "redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr + ", " + "beregnetPrÅr=" + beregnetPrÅr + ", "
+            + "fordeltPrÅr=" + fordeltPrÅr + ", " + "overstyrtPrÅr=" + overstyrtPrÅr + ", " + "bruttoPrÅr=" + bruttoPrÅr + ", " + "avkortetPrÅr="
+            + avkortetPrÅr + ", " + "redusertPrÅr=" + redusertPrÅr + ", " + "dagsatsBruker=" + dagsatsBruker + ", " + "dagsatsArbeidsgiver="
+            + dagsatsArbeidsgiver + ", " + "pgiSnitt=" + pgiSnitt + ", " + "pgi1=" + pgi1 + ", " + "pgi2=" + pgi2 + ", " + "pgi3=" + pgi3 + ", "
+            + "årsbeløpFraTilstøtendeYtelse=" + årsbeløpFraTilstøtendeYtelse + ">";
     }
 
     public static Builder builder() {
@@ -334,7 +317,9 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     }
 
     public static class Builder {
-        /** Når det er built kan ikke denne builderen brukes til annet enn å returnere samme objekt. */
+        /**
+         * Når det er built kan ikke denne builderen brukes til annet enn å returnere samme objekt.
+         */
         private boolean built;
 
         private BeregningsgrunnlagPrStatusOgAndel kladd;
@@ -533,7 +518,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         }
 
         public BeregningsgrunnlagPrStatusOgAndel build() {
-            if(built) {
+            if (built) {
                 return kladd;
             }
             verifyStateForBuild();
@@ -542,15 +527,15 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         }
 
         private void verifiserKanModifisere() {
-            if(built) {
+            if (built) {
                 throw new IllegalStateException("Er allerede bygd, kan ikke oppdatere videre: " + this.kladd);
             }
         }
 
         public void verifyStateForBuild() {
             Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
-            if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)
-                && kladd.getArbeidsforholdType().equals(OpptjeningAktivitetType.ARBEID)) {
+            if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && kladd.getArbeidsforholdType()
+                .equals(OpptjeningAktivitetType.ARBEID)) {
                 Objects.requireNonNull(kladd.bgAndelArbeidsforhold, "bgAndelArbeidsforhold");
             }
         }

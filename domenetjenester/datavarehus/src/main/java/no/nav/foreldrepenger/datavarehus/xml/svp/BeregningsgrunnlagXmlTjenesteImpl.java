@@ -69,7 +69,8 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
                 var dekningsgrad = dekningsgradOptional.get().getVerdi();
                 beregningsgrunnlagSvangerskapspenger.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
             }
-            VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt()).ifPresent(beregningsgrunnlagSvangerskapspenger::setSkjaeringstidspunkt);
+            VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt())
+                .ifPresent(beregningsgrunnlagSvangerskapspenger::setSkjaeringstidspunkt);
             setBeregningsgrunnlagPerioder(beregningsgrunnlagSvangerskapspenger, beregningsgrunnlagDomene.getBeregningsgrunnlagPerioder());
         }
 
@@ -83,20 +84,18 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         beregningsgrunnlag1.getAny().add(beregningsgrunnlagSvangerskapspenger);
 
 
-       beregningsresultat.setBeregningsgrunnlag(beregningsgrunnlag1);
+        beregningsresultat.setBeregningsgrunnlag(beregningsgrunnlag1);
     }
 
-    private void setBeregningsgrunnlagPerioder(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag, List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
-        var periodeListe = beregningsgrunnlagPerioder
-            .stream()
-            .map(this::konverterFraDomene).toList();
+    private void setBeregningsgrunnlagPerioder(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag,
+                                               List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
+        var periodeListe = beregningsgrunnlagPerioder.stream().map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getBeregningsgrunnlagPeriode().addAll(periodeListe);
     }
 
-    private void setBeregningsgrunnlagAktivitetStatuser(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag, List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
-        var aktivitetStatusListe = aktivitetStatuser
-            .stream()
-            .map(this::konverterFraDomene).toList();
+    private void setBeregningsgrunnlagAktivitetStatuser(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag,
+                                                        List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
+        var aktivitetStatusListe = aktivitetStatuser.stream().map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getAktivitetstatuser().addAll(aktivitetStatusListe);
     }
 
@@ -133,36 +132,44 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         return VedtakXmlUtil.lagLongOpplysning(bigDecimal.longValue());
     }
 
-    private void setBeregningsgrunnlagPrStatusOgAndel(no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPeriode kontrakt, List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
-        var beregningsgrunnlagPrStatusOgAndelKontrakt = beregningsgrunnlagPrStatusOgAndelList
-            .stream()
-            .map(this::konverterFraDomene).toList();
+    private void setBeregningsgrunnlagPrStatusOgAndel(no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPeriode kontrakt,
+                                                      List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
+        var beregningsgrunnlagPrStatusOgAndelKontrakt = beregningsgrunnlagPrStatusOgAndelList.stream().map(this::konverterFraDomene).toList();
         kontrakt.getBeregningsgrunnlagPrStatusOgAndel().addAll(beregningsgrunnlagPrStatusOgAndelKontrakt);
     }
 
-    private no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPrStatusOgAndel konverterFraDomene(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
+    private no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPrStatusOgAndel konverterFraDomene(
+        BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
         var kontrakt = new no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPrStatusOgAndel();
-        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(beregningsgrunnlagPrStatusOgAndel.getBeregningsperiodeFom(), beregningsgrunnlagPrStatusOgAndel.getBeregningsperiodeTom()));
+        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(beregningsgrunnlagPrStatusOgAndel.getBeregningsperiodeFom(),
+            beregningsgrunnlagPrStatusOgAndel.getBeregningsperiodeTom()));
         kontrakt.setAktivitetstatus(VedtakXmlUtil.lagKodeverksOpplysning(beregningsgrunnlagPrStatusOgAndel.getAktivitetStatus()));
-        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver).ifPresent(arbeidsgiver -> kontrakt.setVirksomhetsnummer(VedtakXmlUtil.lagStringOpplysning(arbeidsgiver.getIdentifikator())));
-        kontrakt.setErTidsbegrensetArbeidsforhold(VedtakXmlUtil.lagBooleanOpplysning(beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).orElse(null)));
+        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold()
+            .map(BGAndelArbeidsforhold::getArbeidsgiver)
+            .ifPresent(arbeidsgiver -> kontrakt.setVirksomhetsnummer(VedtakXmlUtil.lagStringOpplysning(arbeidsgiver.getIdentifikator())));
+        kontrakt.setErTidsbegrensetArbeidsforhold(VedtakXmlUtil.lagBooleanOpplysning(
+            beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).orElse(null)));
         kontrakt.setBrutto(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getBruttoPrÅr()));
         kontrakt.setAvkortet(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getAvkortetPrÅr()));
         kontrakt.setRedusert(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getRedusertPrÅr()));
         kontrakt.setOverstyrt(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getOverstyrtPrÅr()));
         kontrakt.setInntektskategori(VedtakXmlUtil.lagKodeverksOpplysning(beregningsgrunnlagPrStatusOgAndel.getGjeldendeInntektskategori()));
         kontrakt.setRefusjonTilArbeidsgiver(convertRefusjonTilArbeidsgiverFraDomene(beregningsgrunnlagPrStatusOgAndel));
-        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr).ifPresent(nybpå -> kontrakt.setNaturalytelseBortfall(VedtakXmlUtil.lagFloatOpplysning(nybpå.floatValue())));
+        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold()
+            .flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr)
+            .ifPresent(nybpå -> kontrakt.setNaturalytelseBortfall(VedtakXmlUtil.lagFloatOpplysning(nybpå.floatValue())));
         kontrakt.setBeregnet(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getBeregnetPrÅr()));
         kontrakt.setGjennomsnittligPensjonsgivendeInntekt(konverterGjennomsnittligPensjonsgivendeInntektFraDomene(beregningsgrunnlagPrStatusOgAndel));
         kontrakt.setTilstoetendeYtelseType(VedtakXmlUtil.lagKodeverksOpplysning(RelatertYtelseType.UDEFINERT));
         kontrakt.setTilstoetendeYtelse(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getÅrsbeløpFraTilstøtendeYtelseVerdi()));
         kontrakt.setAvkortetBrukersAndel(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getAvkortetBrukersAndelPrÅr()));
         kontrakt.setRedusertBrukersAndel(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getRedusertBrukersAndelPrÅr()));
-        if (beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker() != null)
+        if (beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker() != null) {
             kontrakt.setDagsatsBruker(VedtakXmlUtil.lagLongOpplysning(beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker()));
-        if (beregningsgrunnlagPrStatusOgAndel.getDagsatsArbeidsgiver() != null)
+        }
+        if (beregningsgrunnlagPrStatusOgAndel.getDagsatsArbeidsgiver() != null) {
             kontrakt.setDagsatsArbeidsgiver(VedtakXmlUtil.lagLongOpplysning(beregningsgrunnlagPrStatusOgAndel.getDagsatsArbeidsgiver()));
+        }
 
         return kontrakt;
 
@@ -180,7 +187,8 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
 
     private RefusjonTilArbeidsgiver convertRefusjonTilArbeidsgiverFraDomene(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
         var refusjonTilArbeidsgiver = new RefusjonTilArbeidsgiver();
-        refusjonTilArbeidsgiver.setRefusjonskrav(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getGjeldendeRefusjon).orElse(null)));
+        refusjonTilArbeidsgiver.setRefusjonskrav(lagFloatOpplysning(
+            beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getGjeldendeRefusjon).orElse(null)));
         refusjonTilArbeidsgiver.setMaksimal(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getMaksimalRefusjonPrÅr()));
         refusjonTilArbeidsgiver.setAvkortet(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getAvkortetRefusjonPrÅr()));
         refusjonTilArbeidsgiver.setRedusert(lagFloatOpplysning(beregningsgrunnlagPrStatusOgAndel.getRedusertRefusjonPrÅr()));

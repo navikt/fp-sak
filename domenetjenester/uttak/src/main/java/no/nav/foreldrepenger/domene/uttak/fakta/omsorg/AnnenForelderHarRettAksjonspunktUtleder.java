@@ -59,21 +59,20 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
 
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
 
-        if (!oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
-            !oppgittAleneomsorg(ytelseFordelingAggregat) &&
-            !harUtbetaling(annenpartsGjeldendeUttaksplan)) {
+        if (!oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) && !oppgittAleneomsorg(ytelseFordelingAggregat) && !harUtbetaling(
+            annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             var harAnnenForelderInnvilgetES = fpGrunnlag.isOppgittAnnenForelderHarEngangsstønadForSammeBarn();
             var måAvklareMorUfør = ytelseFordelingAggregat.getMorUføretrygdAvklaring() == null && fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null && ytelseFordelingAggregat.oppgittAnnenForelderTilknytningEØS();
+            var måAvklareAnnenForelderRettEØS =
+                ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null && ytelseFordelingAggregat.oppgittAnnenForelderTilknytningEØS();
             return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareAnnenForelderRettEØS ? aksjonspunkt() : List.of();
         }
 
-        if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
-            erFarMedmor(ref.relasjonRolle()) &&
-            !harUtbetaling(annenpartsGjeldendeUttaksplan)) {
+        if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) && erFarMedmor(ref.relasjonRolle()) && !harUtbetaling(
+            annenpartsGjeldendeUttaksplan)) {
             return aksjonspunkt();
         }
 

@@ -96,9 +96,9 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
-        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null,
-            beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
-            abakusMock, spøkelseMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
+        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null, beregningsresultatRepository, personinfoAdapter,
+            infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock, abakusMock, spøkelseMock, overlappRepository, behandlingRepository,
+            overlappOppgaveTjeneste);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
@@ -109,12 +109,9 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     private ScenarioMorSøkerForeldrepenger avsluttetBehandlingMor() {
         var scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(førsteUttaksdatoFp);
-        scenarioAvsluttetBehMor.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioAvsluttetBehMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioAvsluttetBehMor.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioAvsluttetBehMor.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
         return scenarioAvsluttetBehMor;
     }
 
@@ -151,8 +148,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
         vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 50));
-        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4),
-            vedtakPeriode);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(Collections.emptyList());
@@ -169,10 +165,8 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
         // Arrange2
         List<Vedtak> vedtakPeriode2 = new ArrayList<>();
-        vedtakPeriode2.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 100));
-        var infotrygPSGrunnlag2 = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4),
-            vedtakPeriode2);
+        vedtakPeriode2.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 100));
+        var infotrygPSGrunnlag2 = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode2);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygPSGrunnlag2));
 
@@ -193,12 +187,9 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPerioder = new ArrayList<>();
-        vedtakPerioder.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
-        vedtakPerioder.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
-        vedtakPerioder.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp, 100));
 
         var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioder);
@@ -206,8 +197,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         List<Vedtak> vedtakPerioderPS = new ArrayList<>();
         vedtakPerioderPS.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp, 100));
 
-        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp.plusWeeks(4),
-            vedtakPerioderPS);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp.plusWeeks(4), vedtakPerioderPS);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygSPGrunnlag));
@@ -232,21 +222,20 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPerioderIT = new ArrayList<>();
-        vedtakPerioderIT.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
-        vedtakPerioderIT.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
-        vedtakPerioderIT.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioderIT.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
+        vedtakPerioderIT.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioderIT.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
         vedtakPerioderIT.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp, 100));
 
         var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioderIT);
 
         List<SykepengeVedtak.SykepengeUtbetaling> utbetalingsperioderSyk = new ArrayList<>();
 
-        utbetalingsperioderSyk.add(new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp, BigDecimal.valueOf(100)));
-        utbetalingsperioderSyk.add(new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.plusWeeks(1), førsteUttaksdatoFp.plusWeeks(2), BigDecimal.valueOf(100)));
-        var sykepengerVedtak  = lagSykVedtak(utbetalingsperioderSyk, LocalDateTime.now());
+        utbetalingsperioderSyk.add(
+            new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp, BigDecimal.valueOf(100)));
+        utbetalingsperioderSyk.add(
+            new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.plusWeeks(1), førsteUttaksdatoFp.plusWeeks(2), BigDecimal.valueOf(100)));
+        var sykepengerVedtak = lagSykVedtak(utbetalingsperioderSyk, LocalDateTime.now());
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(Collections.emptyList());
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygSPGrunnlag));
@@ -266,7 +255,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     }
 
     private SykepengeVedtak lagSykVedtak(List<SykepengeVedtak.SykepengeUtbetaling> sykUtbetalinger, LocalDateTime vedtattTid) {
-        return new SykepengeVedtak( "ref", sykUtbetalinger, vedtattTid);
+        return new SykepengeVedtak("ref", sykUtbetalinger, vedtattTid);
     }
 
     @Test
@@ -275,8 +264,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPerioder = new ArrayList<>();
-        vedtakPerioder.add(
-            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100));
+        vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100));
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusWeeks(3), 100));
 
         var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
@@ -285,8 +273,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp.minusDays(1), 100);
         vedtakPerioderSP.add(vedtakSP1);
 
-        var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp,
-            vedtakPerioderSP);
+        var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp, vedtakPerioderSP);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygSPGrunnlag));
@@ -312,8 +299,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
         vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), 100));
-        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1),
-            vedtakPeriode);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), vedtakPeriode);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(Collections.emptyList());
@@ -355,8 +341,10 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
 
-        var psb = lagAbakusLagretVedtak(Ytelser.PLEIEPENGER_SYKT_BARN, "P1CDE", førsteUttaksdatoFp.plusWeeks(1), førsteUttaksdatoFp.plusWeeks(2).minusDays(1));
-        var omp = lagAbakusLagretVedtak(Ytelser.OMSORGSPENGER, "O2CDE", førsteUttaksdatoFp.plusMonths(3), førsteUttaksdatoFp.plusMonths(3).plusDays(1));
+        var psb = lagAbakusLagretVedtak(Ytelser.PLEIEPENGER_SYKT_BARN, "P1CDE", førsteUttaksdatoFp.plusWeeks(1),
+            førsteUttaksdatoFp.plusWeeks(2).minusDays(1));
+        var omp = lagAbakusLagretVedtak(Ytelser.OMSORGSPENGER, "O2CDE", førsteUttaksdatoFp.plusMonths(3),
+            førsteUttaksdatoFp.plusMonths(3).plusDays(1));
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of());
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any())).thenReturn(List.of());
@@ -399,28 +387,25 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var periode = new Periode(fom, tom);
         var tema = new Tema(TemaKode.BS, "Pleiepenger");
 
-        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0,
-            LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
+        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1),
+            LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     private Vedtak lagVedtakForGrunnlag(LocalDate fom, LocalDate tom, int utbetGrad) {
         var periode = new Periode(fom, tom);
-        return new Vedtak(periode, utbetGrad,"arbOrgnr", false, 100);
+        return new Vedtak(periode, utbetGrad, "arbOrgnr", false, 100);
     }
 
     private Grunnlag lagGrunnlagSPIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
         var periode = new Periode(fom, tom);
         var tema = new Tema(TemaKode.SP, "Sykepenger");
 
-        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0,
-            LocalDate.now().minusMonths(1), LocalDate.now().minusMonths(1), "", vedtakPerioder);
+        return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1),
+            LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
             .build(beregningsresultat);
@@ -437,10 +422,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     }
 
     private BeregningsresultatEntitet lagGradertBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
             .build(beregningsresultat);

@@ -90,11 +90,18 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         this.dagsats = beregningsgrunnlagPeriode.getDagsats();
         this.periode = beregningsgrunnlagPeriode.getPeriode();
         this.redusertPrÅr = beregningsgrunnlagPeriode.getRedusertPrÅr();
-        beregningsgrunnlagPeriode.getRegelSporinger().values().stream().map(BeregningsgrunnlagPeriodeRegelSporing::new)
+        beregningsgrunnlagPeriode.getRegelSporinger()
+            .values()
+            .stream()
+            .map(BeregningsgrunnlagPeriodeRegelSporing::new)
             .forEach(this::leggTilBeregningsgrunnlagPeriodeRegel);
-        beregningsgrunnlagPeriode.getBeregningsgrunnlagPeriodeÅrsaker().stream().map(BeregningsgrunnlagPeriodeÅrsak::new)
+        beregningsgrunnlagPeriode.getBeregningsgrunnlagPeriodeÅrsaker()
+            .stream()
+            .map(BeregningsgrunnlagPeriodeÅrsak::new)
             .forEach(this::addBeregningsgrunnlagPeriodeÅrsak);
-        beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(BeregningsgrunnlagPrStatusOgAndel::new)
+        beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
+            .map(BeregningsgrunnlagPrStatusOgAndel::new)
             .forEach(this::addBeregningsgrunnlagPrStatusOgAndel);
     }
 
@@ -131,18 +138,18 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     public BigDecimal getBeregnetPrÅr() {
         return beregningsgrunnlagPrStatusOgAndelList.stream()
-                .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
     }
 
     void updateBruttoPrÅr() {
         bruttoPrÅr = beregningsgrunnlagPrStatusOgAndelList.stream()
-                .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
     }
 
     public BigDecimal getBruttoPrÅr() {
@@ -166,14 +173,13 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     }
 
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
-        return beregningsgrunnlagPeriodeÅrsaker.stream()
-            .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
-            .toList();
+        return beregningsgrunnlagPeriodeÅrsaker.stream().map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak).toList();
     }
 
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {
         Objects.requireNonNull(bgPrStatusOgAndel, "beregningsgrunnlagPrStatusOgAndel");
-        if (!beregningsgrunnlagPrStatusOgAndelList.contains(bgPrStatusOgAndel)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsgrunnlagPrStatusOgAndelList.contains(
+            bgPrStatusOgAndel)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             bgPrStatusOgAndel.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPrStatusOgAndelList.add(bgPrStatusOgAndel);
         }
@@ -181,7 +187,8 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
         Objects.requireNonNull(bgPeriodeÅrsak, "beregningsgrunnlagPeriodeÅrsak");
-        if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsgrunnlagPeriodeÅrsaker.contains(
+            bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             bgPeriodeÅrsak.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPeriodeÅrsaker.add(bgPeriodeÅrsak);
         }
@@ -205,12 +212,10 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         if (!(obj instanceof BeregningsgrunnlagPeriode other)) {
             return false;
         }
-        return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato())
-                && Objects.equals(this.periode.getTomDato(), other.periode.getTomDato())
-                && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr())
-                && Objects.equals(this.getAvkortetPrÅr(), other.getAvkortetPrÅr())
-                && Objects.equals(this.getRedusertPrÅr(), other.getRedusertPrÅr())
-                && Objects.equals(this.getDagsats(), other.getDagsats());
+        return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato()) && Objects.equals(this.periode.getTomDato(),
+            other.periode.getTomDato()) && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr()) && Objects.equals(this.getAvkortetPrÅr(),
+            other.getAvkortetPrÅr()) && Objects.equals(this.getRedusertPrÅr(), other.getRedusertPrÅr()) && Objects.equals(this.getDagsats(),
+            other.getDagsats());
     }
 
     @Override
@@ -220,14 +225,8 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "periode=" + periode + ", "
-                + "bruttoPrÅr=" + bruttoPrÅr + ", "
-                + "avkortetPrÅr=" + avkortetPrÅr + ", "
-                + "redusertPrÅr=" + redusertPrÅr + ", "
-                + "dagsats=" + dagsats + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "periode=" + periode + ", " + "bruttoPrÅr=" + bruttoPrÅr + ", "
+            + "avkortetPrÅr=" + avkortetPrÅr + ", " + "redusertPrÅr=" + redusertPrÅr + ", " + "dagsats=" + dagsats + ", " + ">";
     }
 
     public static Builder ny() {
@@ -239,23 +238,23 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     }
 
     public String getRegelEvalueringForeslå() {
-        return regelSporingMap.containsKey(FORESLÅ) ?  regelSporingMap.get(FORESLÅ).getRegelEvaluering() : null;
+        return regelSporingMap.containsKey(FORESLÅ) ? regelSporingMap.get(FORESLÅ).getRegelEvaluering() : null;
     }
 
     public String getRegelEvalueringFastsett() {
-        return regelSporingMap.containsKey(FASTSETT) ?  regelSporingMap.get(FASTSETT).getRegelEvaluering() : null;
+        return regelSporingMap.containsKey(FASTSETT) ? regelSporingMap.get(FASTSETT).getRegelEvaluering() : null;
     }
 
     public String getRegelEvalueringFordel() {
-        return regelSporingMap.containsKey(FORDEL) ?  regelSporingMap.get(FORDEL).getRegelEvaluering() : null;
+        return regelSporingMap.containsKey(FORDEL) ? regelSporingMap.get(FORDEL).getRegelEvaluering() : null;
     }
 
     public String getRegelInputForeslå() {
-        return regelSporingMap.containsKey(FORESLÅ)  ? regelSporingMap.get(FORESLÅ).getRegelInput() : null;
+        return regelSporingMap.containsKey(FORESLÅ) ? regelSporingMap.get(FORESLÅ).getRegelInput() : null;
     }
 
     public String getRegelInputFordel() {
-        return regelSporingMap.containsKey(FORDEL)  ? regelSporingMap.get(FORDEL).getRegelInput() : null;
+        return regelSporingMap.containsKey(FORDEL) ? regelSporingMap.get(FORDEL).getRegelInput() : null;
     }
 
     public String getRegelInputFastsett() {
@@ -267,15 +266,15 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     }
 
     public String getRegelInputVilkårvurdering() {
-        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelInput() : null;
+        return regelSporingMap.containsKey(VILKÅR_VURDERING) ? regelSporingMap.get(VILKÅR_VURDERING).getRegelInput() : null;
     }
 
     public String getRegelEvalueringVilkårvurdering() {
-        return regelSporingMap.containsKey(VILKÅR_VURDERING) ?  regelSporingMap.get(VILKÅR_VURDERING).getRegelEvaluering() : null;
+        return regelSporingMap.containsKey(VILKÅR_VURDERING) ? regelSporingMap.get(VILKÅR_VURDERING).getRegelEvaluering() : null;
     }
 
     public String getRegelInputOppdatereGrunnlagSVP() {
-        return regelSporingMap.containsKey(OPPDATER_GRUNNLAG_SVP) ?  regelSporingMap.get(OPPDATER_GRUNNLAG_SVP).getRegelInput() : null;
+        return regelSporingMap.containsKey(OPPDATER_GRUNNLAG_SVP) ? regelSporingMap.get(OPPDATER_GRUNNLAG_SVP).getRegelInput() : null;
     }
 
     public String getRegelEvalueringFinnGrenseverdi() {
@@ -369,7 +368,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         }
 
         private void verifiserKanModifisere() {
-            if(built) {
+            if (built) {
                 throw new IllegalStateException("Er allerede bygd, kan ikke oppdatere videre: " + this.kladd);
             }
         }

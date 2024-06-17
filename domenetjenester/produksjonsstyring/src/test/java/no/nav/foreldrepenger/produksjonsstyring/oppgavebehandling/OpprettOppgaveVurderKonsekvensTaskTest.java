@@ -58,8 +58,8 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
         opprettOppgaveVurderKonsekvensTask.doTask(prosessTaskData);
 
         // Assert
-        verify(oppgaveTjeneste).opprettVurderKonsekvensBasertPåFagsakId(fagsakIdCaptor.capture(), any(),
-                beskrivelseCaptor.capture(), Mockito.eq(false));
+        verify(oppgaveTjeneste).opprettVurderKonsekvensBasertPåFagsakId(fagsakIdCaptor.capture(), any(), beskrivelseCaptor.capture(),
+            Mockito.eq(false));
         assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
         assertThat(beskrivelseCaptor.getValue()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
     }

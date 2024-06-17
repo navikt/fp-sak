@@ -46,7 +46,8 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
             .map(DokumentTypeId::getNavn)
             .orElse("dokument");
 
-        var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, journalpostId, behandlendeEnhet, "VL: " + beskrivelse);
+        var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, journalpostId, behandlendeEnhet,
+            "VL: " + beskrivelse);
         LOG.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);
     }
 }

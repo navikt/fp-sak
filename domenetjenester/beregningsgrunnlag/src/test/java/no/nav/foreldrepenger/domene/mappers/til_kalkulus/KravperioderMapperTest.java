@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
 import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
@@ -33,15 +32,17 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
 
 class KravperioderMapperTest {
-    private static final LocalDate STP = LocalDate.of(2021,12,1);
+    private static final LocalDate STP = LocalDate.of(2021, 12, 1);
     private static final Behandling BEHANDLING = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-    private static final BehandlingReferanse BEHANDLING_REF = BehandlingReferanse.fra(BEHANDLING, Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(STP).build());
+    private static final BehandlingReferanse BEHANDLING_REF = BehandlingReferanse.fra(BEHANDLING,
+        Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(STP).build());
     private InntektArbeidYtelseAggregatBuilder data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = data.getAktørArbeidBuilder(BEHANDLING_REF.aktørId());
     private ArbeidsforholdInformasjonBuilder arbeidsforholdOverstyringer = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
@@ -157,9 +158,7 @@ class KravperioderMapperTest {
         assertThat(krav.getArbeidsgiver().getIdentifikator()).isEqualTo(ag1.getIdentifikator());
         assertThat(krav.getArbeidsforholdRef().getReferanse()).isEqualTo(ref1.getReferanse());
         assertThat(krav.getPerioder()).hasSize(2);
-        var kravperioder = krav.getPerioder().stream()
-            .sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato))
-            .toList();
+        var kravperioder = krav.getPerioder().stream().sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato)).toList();
         assertThat(kravperioder.get(0).getPerioder()).hasSize(1);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
@@ -196,9 +195,7 @@ class KravperioderMapperTest {
         assertThat(krav.getArbeidsgiver().getIdentifikator()).isEqualTo(ag1.getIdentifikator());
         assertThat(krav.getArbeidsforholdRef().getReferanse()).isEqualTo(ref1.getReferanse());
         assertThat(krav.getPerioder()).hasSize(2);
-        var kravperioder = krav.getPerioder().stream()
-            .sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato))
-            .toList();
+        var kravperioder = krav.getPerioder().stream().sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato)).toList();
         assertThat(kravperioder.get(0).getPerioder()).hasSize(1);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
@@ -235,11 +232,11 @@ class KravperioderMapperTest {
     }
 
     private KravperioderPrArbeidsforholdDto finnrettKrav(List<KravperioderPrArbeidsforholdDto> resultat,
-                                                                               Arbeidsgiver ag,
-                                                                               InternArbeidsforholdRef ref) {
+                                                         Arbeidsgiver ag,
+                                                         InternArbeidsforholdRef ref) {
         return resultat.stream()
-            .filter(krav -> krav.getArbeidsgiver().getIdentifikator().equals(ag.getIdentifikator())
-                && Objects.equals(krav.getArbeidsforholdRef().getReferanse(), ref.getReferanse()))
+            .filter(krav -> krav.getArbeidsgiver().getIdentifikator().equals(ag.getIdentifikator()) && Objects.equals(
+                krav.getArbeidsforholdRef().getReferanse(), ref.getReferanse()))
             .findFirst()
             .orElseThrow();
     }
@@ -252,11 +249,20 @@ class KravperioderMapperTest {
         return STP.plusDays(dagerEtter);
     }
 
-    private Inntektsmelding lagIM(Arbeidsgiver ag, InternArbeidsforholdRef internRef, Integer inntekt, Integer refusjon, LocalDate startdatoPermisjon) {
+    private Inntektsmelding lagIM(Arbeidsgiver ag,
+                                  InternArbeidsforholdRef internRef,
+                                  Integer inntekt,
+                                  Integer refusjon,
+                                  LocalDate startdatoPermisjon) {
         return lagIM(ag, internRef, inntekt, refusjon, startdatoPermisjon, startdatoPermisjon);
     }
 
-    private Inntektsmelding lagIM(Arbeidsgiver ag, InternArbeidsforholdRef internRef, Integer inntekt, Integer refusjon, LocalDate startdatoPermisjon, LocalDate innsendingstidspunkt) {
+    private Inntektsmelding lagIM(Arbeidsgiver ag,
+                                  InternArbeidsforholdRef internRef,
+                                  Integer inntekt,
+                                  Integer refusjon,
+                                  LocalDate startdatoPermisjon,
+                                  LocalDate innsendingstidspunkt) {
         return InntektsmeldingBuilder.builder()
             .medBeløp(BigDecimal.valueOf(inntekt))
             .medRefusjon(refusjon != null ? BigDecimal.valueOf(refusjon) : null)
@@ -272,7 +278,7 @@ class KravperioderMapperTest {
             .medArbeidsgiver(ag)
             .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100)))
             .leggTilOverstyrtPeriode(fom, tom);
-        if(internRef!= null) {
+        if (internRef != null) {
             builder.medArbeidsforholdRef(internRef);
         }
         arbeidsforholdOverstyringer.leggTil(builder);
@@ -282,10 +288,8 @@ class KravperioderMapperTest {
         var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aaBuilder = yaBuilder.getAktivitetsAvtaleBuilder();
         var aa = aaBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        yaBuilder.leggTilAktivitetsAvtale(aa)
-            .medArbeidsgiver(ag)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        if(internRef!= null) {
+        yaBuilder.leggTilAktivitetsAvtale(aa).medArbeidsgiver(ag).medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        if (internRef != null) {
             yaBuilder.medArbeidsforholdId(internRef);
         }
         arbeidBuilder.leggTilYrkesaktivitet(yaBuilder);
@@ -293,7 +297,8 @@ class KravperioderMapperTest {
 
     private InntektArbeidYtelseGrunnlag byggIAY() {
         data.leggTilAktørArbeid(arbeidBuilder);
-        return InntektArbeidYtelseGrunnlagBuilder.nytt().medData(data)
+        return InntektArbeidYtelseGrunnlagBuilder.nytt()
+            .medData(data)
             .medInntektsmeldinger(aktiveInntektsmeldinger)
             .medInformasjon(arbeidsforholdOverstyringer.build())
             .build();

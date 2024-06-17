@@ -55,15 +55,15 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     private List<BeregningsresultatPeriode> mapPerioder(Beregningsgrunnlag grunnlag, UttakResultat uttakResultat, Map<String, Object> resultater) {
         var grunnlagTimeline = mapGrunnlagTimeline(grunnlag);
         var uttakTimeline = uttakResultat.getUttakPeriodeTimeline();
-        var resultatTimeline = intersectTimelines(grunnlagTimeline, uttakTimeline, resultater)
-            .compress();
+        var resultatTimeline = intersectTimelines(grunnlagTimeline, uttakTimeline, resultater).compress();
         return resultatTimeline.toSegments().stream().map(LocalDateSegment::getValue).toList();
     }
 
-    private LocalDateTimeline<BeregningsresultatPeriode> intersectTimelines(LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline, LocalDateTimeline<UttakResultatPeriode> uttakTimeline, Map<String, Object> resultater) {
+    private LocalDateTimeline<BeregningsresultatPeriode> intersectTimelines(LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline,
+                                                                            LocalDateTimeline<UttakResultatPeriode> uttakTimeline,
+                                                                            Map<String, Object> resultater) {
         var i = new int[]{0}; //Periode-teller til regelsporing
-        return grunnlagTimeline.intersection(uttakTimeline, (dateInterval, grunnlagSegment, uttakSegment) ->
-        {
+        return grunnlagTimeline.intersection(uttakTimeline, (dateInterval, grunnlagSegment, uttakSegment) -> {
             var resultatPeriode = new BeregningsresultatPeriode(dateInterval);
 
             //Regelsporing
@@ -77,9 +77,11 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
             grunnlag.getBeregningsgrunnlagPrStatus(AktivitetStatus.ATFL).forEach(gbps -> {
                 // for hver arbeidstaker andel: map fra grunnlag til 1-2 resultatAndel
                 var arbeidsforholdList = gbps.arbeidsforhold();
-                arbeidsforholdList.forEach(a -> opprettBeregningsresultatAndelerATFL(a, resultatPeriode, resultater, periodeNavn, uttakResultatPeriode));
+                arbeidsforholdList.forEach(
+                    a -> opprettBeregningsresultatAndelerATFL(a, resultatPeriode, resultater, periodeNavn, uttakResultatPeriode));
             });
-            grunnlag.beregningsgrunnlagPrStatus().stream()
+            grunnlag.beregningsgrunnlagPrStatus()
+                .stream()
                 .filter(bgps -> !AktivitetStatus.ATFL.equals(bgps.aktivitetStatus()))
                 .forEach(bgps -> opprettBeregningsresultatAndelerGenerell(bgps, resultatPeriode, resultater, periodeNavn, uttakResultatPeriode));
 
@@ -88,8 +90,11 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         });
     }
 
-    private void opprettBeregningsresultatAndelerGenerell(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, BeregningsresultatPeriode resultatPeriode,
-                                                          Map<String, Object> resultater, String periodeNavn, UttakResultatPeriode uttakResultatPeriode) {
+    private void opprettBeregningsresultatAndelerGenerell(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus,
+                                                          BeregningsresultatPeriode resultatPeriode,
+                                                          Map<String, Object> resultater,
+                                                          String periodeNavn,
+                                                          UttakResultatPeriode uttakResultatPeriode) {
         if (uttakResultatPeriode.erOppholdsPeriode()) {
             return;
         }
@@ -100,20 +105,19 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         var uttakAktivitet = uttakAktivitetOpt.get();
 
         //Gradering
-        var dagsatser = kalkulerDagsatserForGradering(beregningsgrunnlagPrStatus.redusertBrukersAndelPrÅr(), BigDecimal.ZERO,
-            uttakAktivitet, resultater, periodeNavn);
+        var dagsatser = kalkulerDagsatserForGradering(beregningsgrunnlagPrStatus.redusertBrukersAndelPrÅr(), BigDecimal.ZERO, uttakAktivitet,
+            resultater, periodeNavn);
         var dagsatsBruker = dagsatser.bruker();
 
-        resultatPeriode.addBeregningsresultatAndel(
-            BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(dagsatsBruker)
-                .medDagsatsFraBg(årsbeløpTilDagsats(beregningsgrunnlagPrStatus.redusertBrukersAndelPrÅr()))
-                .medAktivitetStatus(beregningsgrunnlagPrStatus.aktivitetStatus())
-                .medInntektskategori(beregningsgrunnlagPrStatus.inntektskategori())
-                .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
-                .medStillingsprosent(uttakAktivitet.stillingsgrad())
-                .build());
+        resultatPeriode.addBeregningsresultatAndel(BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(dagsatsBruker)
+            .medDagsatsFraBg(årsbeløpTilDagsats(beregningsgrunnlagPrStatus.redusertBrukersAndelPrÅr()))
+            .medAktivitetStatus(beregningsgrunnlagPrStatus.aktivitetStatus())
+            .medInntektskategori(beregningsgrunnlagPrStatus.inntektskategori())
+            .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
+            .medStillingsprosent(uttakAktivitet.stillingsgrad())
+            .build());
 
         // Regelsporing
         var beskrivelse = periodeNavn + BRUKER_ANDEL + "['" + beregningsgrunnlagPrStatus.aktivitetStatus().name() + "']" + DAGSATS_BRUKER;
@@ -121,14 +125,18 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
 
     }
 
-    private Optional<UttakAktivitet> matchUttakAktivitetMedBeregningsgrunnlagPrStatus(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, List<UttakAktivitet> uttakAktiviteter) {
+    private Optional<UttakAktivitet> matchUttakAktivitetMedBeregningsgrunnlagPrStatus(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus,
+                                                                                      List<UttakAktivitet> uttakAktiviteter) {
         return uttakAktiviteter.stream()
             .filter(uttakAndel -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherGenerellAndel(beregningsgrunnlagPrStatus, uttakAndel))
             .findFirst();
     }
 
-    private void opprettBeregningsresultatAndelerATFL(BeregningsgrunnlagPrArbeidsforhold arbeidsforhold, BeregningsresultatPeriode resultatPeriode,
-                                                      Map<String, Object> resultater, String periodeNavn, UttakResultatPeriode uttakResultatPeriode) {
+    private void opprettBeregningsresultatAndelerATFL(BeregningsgrunnlagPrArbeidsforhold arbeidsforhold,
+                                                      BeregningsresultatPeriode resultatPeriode,
+                                                      Map<String, Object> resultater,
+                                                      String periodeNavn,
+                                                      UttakResultatPeriode uttakResultatPeriode) {
         if (uttakResultatPeriode.erOppholdsPeriode()) {
             return;
         }
@@ -146,57 +154,62 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         var dagsatsBruker = dagsatser.bruker();
         var dagsatsArbeidsgiver = dagsatser.arbeidsgiver();
 
-        resultatPeriode.addBeregningsresultatAndel(
-            BeregningsresultatAndel.builder()
-                .medArbeidsforhold(arbeidsforhold.arbeidsforhold())
-                .medBrukerErMottaker(true)
-                .medStillingsprosent(uttakAktivitet.stillingsgrad())
-                .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
-                .medDagsats(dagsatsBruker)
-                .medDagsatsFraBg(arbeidsforhold.getDagsatsBruker())
-                .medAktivitetStatus(AktivitetStatus.ATFL)
-                .medInntektskategori(arbeidsforhold.inntektskategori())
-                .build());
+        resultatPeriode.addBeregningsresultatAndel(BeregningsresultatAndel.builder()
+            .medArbeidsforhold(arbeidsforhold.arbeidsforhold())
+            .medBrukerErMottaker(true)
+            .medStillingsprosent(uttakAktivitet.stillingsgrad())
+            .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
+            .medDagsats(dagsatsBruker)
+            .medDagsatsFraBg(arbeidsforhold.getDagsatsBruker())
+            .medAktivitetStatus(AktivitetStatus.ATFL)
+            .medInntektskategori(arbeidsforhold.inntektskategori())
+            .build());
 
         // Regelsporing
         resultater.put(periodeNavn + BRUKER_ANDEL + "['" + arbeidsgiverId + "']" + ARBEIDSGIVER_ID, arbeidsgiverId);
         resultater.put(periodeNavn + BRUKER_ANDEL + "['" + arbeidsgiverId + "']" + DAGSATS_BRUKER, dagsatsBruker);
-        resultater.put(periodeNavn + BRUKER_ANDEL + "['" + arbeidsgiverId + "']" + ".dagsatsFraBeregningsgrunnlagBruker", arbeidsforhold.getDagsatsBruker());
+        resultater.put(periodeNavn + BRUKER_ANDEL + "['" + arbeidsgiverId + "']" + ".dagsatsFraBeregningsgrunnlagBruker",
+            arbeidsforhold.getDagsatsBruker());
 
         if (arbeidsforhold.getDagsatsArbeidsgiver() != null && arbeidsforhold.getDagsatsArbeidsgiver() > 0) {
-            resultatPeriode.addBeregningsresultatAndel(
-                BeregningsresultatAndel.builder()
-                    .medArbeidsforhold(arbeidsforhold.arbeidsforhold())
-                    .medBrukerErMottaker(false)
-                    .medStillingsprosent(uttakAktivitet.stillingsgrad())
-                    .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
-                    .medDagsats(dagsatsArbeidsgiver)
-                    .medDagsatsFraBg(arbeidsforhold.getDagsatsArbeidsgiver())
-                    .medInntektskategori(arbeidsforhold.inntektskategori())
-                    .medAktivitetStatus(AktivitetStatus.ATFL)
-                    .build());
+            resultatPeriode.addBeregningsresultatAndel(BeregningsresultatAndel.builder()
+                .medArbeidsforhold(arbeidsforhold.arbeidsforhold())
+                .medBrukerErMottaker(false)
+                .medStillingsprosent(uttakAktivitet.stillingsgrad())
+                .medUtbetalingssgrad(uttakAktivitet.utbetalingsgrad())
+                .medDagsats(dagsatsArbeidsgiver)
+                .medDagsatsFraBg(arbeidsforhold.getDagsatsArbeidsgiver())
+                .medInntektskategori(arbeidsforhold.inntektskategori())
+                .medAktivitetStatus(AktivitetStatus.ATFL)
+                .build());
 
             //Regelsporing
             resultater.put(periodeNavn + ARBEIDSGIVERS_ANDEL + "['" + arbeidsgiverId + "']" + ARBEIDSGIVER_ID, arbeidsgiverId);
             resultater.put(periodeNavn + ARBEIDSGIVERS_ANDEL + "['" + arbeidsgiverId + "']" + DAGSATS_ARBEIDSGIVER, dagsatsArbeidsgiver);
-            resultater.put(periodeNavn + ARBEIDSGIVERS_ANDEL + "['" + arbeidsgiverId + "']" + ".dagsatsFraBeregningsgrunnlagArbeidsgiver", arbeidsforhold.getDagsatsArbeidsgiver());
+            resultater.put(periodeNavn + ARBEIDSGIVERS_ANDEL + "['" + arbeidsgiverId + "']" + ".dagsatsFraBeregningsgrunnlagArbeidsgiver",
+                arbeidsforhold.getDagsatsArbeidsgiver());
         }
     }
 
-    private Optional<UttakAktivitet> matchUttakAktivitetMedArbeidsforhold(List<UttakAktivitet> uttakAktiviteter, BeregningsgrunnlagPrArbeidsforhold bgAndel) {
-        return uttakAktiviteter
-            .stream()
-            .filter(uttakAktivitet -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAktivitet.arbeidsforhold(), bgAndel.arbeidsforhold()))
+    private Optional<UttakAktivitet> matchUttakAktivitetMedArbeidsforhold(List<UttakAktivitet> uttakAktiviteter,
+                                                                          BeregningsgrunnlagPrArbeidsforhold bgAndel) {
+        return uttakAktiviteter.stream()
+            .filter(uttakAktivitet -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAktivitet.arbeidsforhold(),
+                bgAndel.arbeidsforhold()))
             .findFirst();
     }
 
     /*
      * dagsatser gradert for bruker og arbeidsgiver
      */
-    private record DagsatsBrukerAG(Long bruker, Long arbeidsgiver) {}
+    private record DagsatsBrukerAG(Long bruker, Long arbeidsgiver) {
+    }
 
-    private static DagsatsBrukerAG kalkulerDagsatserForGradering(BigDecimal redusertBrukersAndelPrÅr, BigDecimal redusertRefusjonPrÅr,
-                                                                   UttakAktivitet uttakAktivitet, Map<String, Object> resultater, String periodenavn) {
+    private static DagsatsBrukerAG kalkulerDagsatserForGradering(BigDecimal redusertBrukersAndelPrÅr,
+                                                                 BigDecimal redusertRefusjonPrÅr,
+                                                                 UttakAktivitet uttakAktivitet,
+                                                                 Map<String, Object> resultater,
+                                                                 String periodenavn) {
         if (uttakAktivitet.utbetalingsgrad().compareTo(BigDecimal.ZERO) == 0) {
             resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.utbetalingsgrad());
             return new DagsatsBrukerAG(0L, 0L);
@@ -252,13 +265,11 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         if (stillingsandel.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
-        return  BigDecimal.ONE.subtract(arbeidstidsAndel.divide(stillingsandel, 10, RoundingMode.HALF_UP));
+        return BigDecimal.ONE.subtract(arbeidstidsAndel.divide(stillingsandel, 10, RoundingMode.HALF_UP));
     }
 
     private LocalDateTimeline<BeregningsgrunnlagPeriode> mapGrunnlagTimeline(Beregningsgrunnlag grunnlag) {
-        var grunnlagPerioder = grunnlag.beregningsgrunnlagPerioder().stream()
-            .map(p -> new LocalDateSegment<>(p.periode(), p))
-            .toList();
+        var grunnlagPerioder = grunnlag.beregningsgrunnlagPerioder().stream().map(p -> new LocalDateSegment<>(p.periode(), p)).toList();
         return new LocalDateTimeline<>(grunnlagPerioder);
     }
 

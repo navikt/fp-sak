@@ -21,9 +21,8 @@ public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
         }
         var bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.arbeidsforholdId());
         var uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.arbeidsforholdId());
-        return Objects.equals(arbeidsforholdBeregning.frilanser(), arbeidsforholdUttak.frilanser())
-            && Objects.equals(arbeidsforholdBeregning.identifikator(), arbeidsforholdUttak.identifikator())
-            && bgRef.gjelderFor(uttakRef);
+        return Objects.equals(arbeidsforholdBeregning.frilanser(), arbeidsforholdUttak.frilanser()) && Objects.equals(
+            arbeidsforholdBeregning.identifikator(), arbeidsforholdUttak.identifikator()) && bgRef.gjelderFor(uttakRef);
     }
 
     public static boolean matcherGenerellAndel(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, UttakAktivitet aktivitet) {

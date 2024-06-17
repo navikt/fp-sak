@@ -16,8 +16,7 @@ public class BekreftBosattVurderingAksjonspunkt {
     public void oppdater(Long behandlingId, BekreftBosattVurderingAksjonspunktDto adapter) {
         var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
 
-        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap)
-            .medBosattVurdering(adapter.getBosattVurdering())
+        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap).medBosattVurdering(adapter.getBosattVurdering())
             .medBegrunnelse(adapter.getBegrunnelse())
             .build();
 

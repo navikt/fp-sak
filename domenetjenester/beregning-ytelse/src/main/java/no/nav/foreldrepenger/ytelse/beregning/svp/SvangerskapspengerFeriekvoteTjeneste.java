@@ -69,8 +69,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
         return svangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);
     }
 
-    private List<Behandling> finnBehandlingerSomGjelderSammeSvangerskap(List<Behandling> gjeldendeVedtakForSVP,
-                                                                        LocalDate termindato) {
+    private List<Behandling> finnBehandlingerSomGjelderSammeSvangerskap(List<Behandling> gjeldendeVedtakForSVP, LocalDate termindato) {
         List<Behandling> behandlingerSomGjelderSammeSvangerskap = new ArrayList<>();
         gjeldendeVedtakForSVP.forEach(behandling -> {
             var termindatoOpt = finnTermindato(behandling.getId());
@@ -83,7 +82,8 @@ public class SvangerskapspengerFeriekvoteTjeneste {
     }
 
     private boolean erInnenForTerskel(LocalDate termindatoSomSjekkes, LocalDate termindatoSomBehandles) {
-        var periodeViSerEtterMatchendeTermindato = DatoIntervallEntitet.fraOgMedTilOgMed(termindatoSomBehandles.minusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER),
+        var periodeViSerEtterMatchendeTermindato = DatoIntervallEntitet.fraOgMedTilOgMed(
+            termindatoSomBehandles.minusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER),
             termindatoSomBehandles.plusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER));
         return periodeViSerEtterMatchendeTermindato.inkluderer(termindatoSomSjekkes);
 

@@ -19,7 +19,7 @@ public class DatavarehusRepository {
     }
 
     @Inject
-    public DatavarehusRepository( EntityManager entityManager) {
+    public DatavarehusRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -41,15 +41,16 @@ public class DatavarehusRepository {
     public long oppdater(Long eksisterendeBehandlingId, Long eksisterendeVedtakId, String nyVedtakXml) {
         var eksisterende = finn(eksisterendeBehandlingId, eksisterendeVedtakId);
         if (eksisterende.isPresent()) {
-            return
-                oppdater(eksisterende.get(), nyVedtakXml);
+            return oppdater(eksisterende.get(), nyVedtakXml);
         }
-        throw new IllegalStateException(String.format("Finner ikke eksiterende dvh vedtak utbetaling for behandling %s og vedtak %s", eksisterendeBehandlingId, eksisterendeVedtakId));
+        throw new IllegalStateException(
+            String.format("Finner ikke eksiterende dvh vedtak utbetaling for behandling %s og vedtak %s", eksisterendeBehandlingId,
+                eksisterendeVedtakId));
     }
 
     public List<Long> hentVedtakBehandlinger(LocalDateTime fom, LocalDateTime tom) {
-        var query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " +
-            "AND funksjonellTid <= :tom", VedtakUtbetalingDvh.class);
+        var query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " + "AND funksjonellTid <= :tom",
+            VedtakUtbetalingDvh.class);
         query.setParameter("fom", fom);
         query.setParameter("tom", tom);
 
@@ -70,8 +71,8 @@ public class DatavarehusRepository {
     }
 
     public Optional<VedtakUtbetalingDvh> finn(Long behandlingId, Long vedtakId) {
-        var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :behandlingId " +
-            "AND vedtakId = :vedtakId order by id", VedtakUtbetalingDvh.class);
+        var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :behandlingId " + "AND vedtakId = :vedtakId order by id",
+            VedtakUtbetalingDvh.class);
         query.setParameter("behandlingId", behandlingId);
         query.setParameter("vedtakId", vedtakId);
         return optionalFirst(query.getResultList());

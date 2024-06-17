@@ -70,7 +70,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     @Override
-    public Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat, Long behandlingId, AktørId aktørId,
+    public Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat,
+                                      Long behandlingId,
+                                      AktørId aktørId,
                                       Skjæringstidspunkt skjæringstidspunkter) {
         var personopplysninger = personopplysningObjectFactory.createPersonopplysningerEngangsstoenad();
         var familieHendelseAggregatOptional = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
@@ -93,25 +95,26 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return personopplysningObjectFactory.createPersonopplysningerEngangsstoenad(personopplysninger);
     }
 
-    private void setRelaterteYtelser(Long behandlingId, AktørId aktørId, PersonopplysningerEngangsstoenad personopplysninger, LocalDate skjæringstidspunkt) {
+    private void setRelaterteYtelser(Long behandlingId,
+                                     AktørId aktørId,
+                                     PersonopplysningerEngangsstoenad personopplysninger,
+                                     LocalDate skjæringstidspunkt) {
         var ytelseFilter = iayTjeneste.finnGrunnlag(behandlingId)
-            .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
+            .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt))
+            .orElse(YtelseFilter.EMPTY);
         var ytelser = ytelseFilter.getFiltrertYtelser();
 
         if (!ytelser.isEmpty()) {
-            var relatertYtelse = personopplysningObjectFactory
-                .createPersonopplysningerEngangsstoenadRelaterteYtelser();
+            var relatertYtelse = personopplysningObjectFactory.createPersonopplysningerEngangsstoenadRelaterteYtelser();
             personopplysninger.setRelaterteYtelser(relatertYtelse);
         }
     }
 
     private void setTerminbekreftelse(PersonopplysningerEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag.getGjeldendeVersjon().getType().equals(FamilieHendelseType.TERMIN)) {
-            var terminbekreftelseOptional = familieHendelseGrunnlag
-                .getGjeldendeVersjon().getTerminbekreftelse();
+            var terminbekreftelseOptional = familieHendelseGrunnlag.getGjeldendeVersjon().getTerminbekreftelse();
             if (terminbekreftelseOptional.isPresent()) {
-                var terminbekreftelseFraBehandling = terminbekreftelseOptional
-                    .get();
+                var terminbekreftelseFraBehandling = terminbekreftelseOptional.get();
                 var terminbekreftelse = personopplysningObjectFactory.createTerminbekreftelse();
                 terminbekreftelse.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(familieHendelseGrunnlag.getGjeldendeAntallBarn()));
 
@@ -128,8 +131,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setOmsorgsovertakelse(PersonopplysningerEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag.getGjeldendeVersjon().getType().equals(FamilieHendelseType.OMSORG)) {
-            var adopsjonOptional = familieHendelseGrunnlag
-                .getGjeldendeVersjon().getAdopsjon();
+            var adopsjonOptional = familieHendelseGrunnlag.getGjeldendeVersjon().getAdopsjon();
             if (adopsjonOptional.isPresent()) {
                 var adopsjonFraBehandling = adopsjonOptional.get();
                 var omsorgsovertakelse = personopplysningObjectFactory.createOmsorgsovertakelse();
@@ -147,11 +149,11 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         if (medlemskap.isPresent()) {
             var medlemskapPerioderFraBehandling = medlemskap.get();
 
-            var medlemskapsperioder = personopplysningObjectFactory
-                .createPersonopplysningerEngangsstoenadMedlemskapsperioder();
+            var medlemskapsperioder = personopplysningObjectFactory.createPersonopplysningerEngangsstoenadMedlemskapsperioder();
             personopplysninger.setMedlemskapsperioder(medlemskapsperioder);
             medlemskapPerioderFraBehandling.getRegistrertMedlemskapPerioder()
-                .forEach(medlemskapPeriode -> personopplysninger.getMedlemskapsperioder().getMedlemskapsperiode()
+                .forEach(medlemskapPeriode -> personopplysninger.getMedlemskapsperioder()
+                    .getMedlemskapsperiode()
                     .add(personopplysningFellesTjeneste.lagMedlemskapPeriode(medlemskapPeriode)));
         }
     }
@@ -159,11 +161,11 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private void setVerge(Long behandlingId, PersonopplysningerEngangsstoenad personopplysninger) {
         vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
             var verge = personopplysningObjectFactory.createVerge();
-            if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
-                verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
-                verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
-            }
-            else {
+            if (vergeFraBehandling.getVergeOrganisasjon().isPresent()) {
+                verge.setNavn(VedtakXmlUtil.lagStringOpplysning(vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
+                verge.setOrganisasjonsnummer(
+                    VedtakXmlUtil.lagStringOpplysning(vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
+            } else {
                 var aktørId = vergeAggregat.getAktørId();
                 if (aktørId.isPresent()) {
                     verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(aktørId.get())));
@@ -265,11 +267,11 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return adresse;
     }
 
-    private void setAdopsjon(PersonopplysningerEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
+    private void setAdopsjon(PersonopplysningerEngangsstoenad personopplysninger,
+                             FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
                              PersonopplysningerAggregat personopplysningerAggregat) {
 
-        var adopsjonhendelseOptional = familieHendelseGrunnlag
-            .getGjeldendeAdopsjon();
+        var adopsjonhendelseOptional = familieHendelseGrunnlag.getGjeldendeAdopsjon();
         if (adopsjonhendelseOptional.isPresent()) {
 
             var adopsjon = personopplysningObjectFactory.createAdopsjon();
@@ -279,8 +281,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
                 adopsjon.setErEktefellesBarn(erEktefellesBarn);
             }
 
-            familieHendelseGrunnlag.getGjeldendeBarna()
-                .forEach(aBarn -> adopsjon.getAdopsjonsbarn().add(leggTilAdopsjonsbarn(aBarn)));
+            familieHendelseGrunnlag.getGjeldendeBarna().forEach(aBarn -> adopsjon.getAdopsjonsbarn().add(leggTilAdopsjonsbarn(aBarn)));
 
             var erMann = NavBrukerKjønn.MANN.equals(personopplysningerAggregat.getSøker().getKjønn());
             if (erMann && adopsjonhendelse.getAdoptererAlene() != null) {

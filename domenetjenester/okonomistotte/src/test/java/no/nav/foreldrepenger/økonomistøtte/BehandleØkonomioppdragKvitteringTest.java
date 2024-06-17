@@ -81,9 +81,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         taskTjeneste = mock(ProsessTaskTjeneste.class);
         økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
         behandleHendelseØkonomioppdrag = mock(BehandleNegativeKvitteringTjeneste.class);
-        behandleØkonomioppdragKvittering = new BehandleØkonomioppdragKvittering(
-            taskTjeneste,
-            økonomioppdragRepository,
+        behandleØkonomioppdragKvittering = new BehandleØkonomioppdragKvittering(taskTjeneste, økonomioppdragRepository,
             behandleHendelseØkonomioppdrag);
 
         var testTask = ProsessTaskData.forTaskType(new TaskType("testTask"));
@@ -173,8 +171,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
-        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1))
-            .isInstanceOf(IllegalStateException.class)
+        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1)).isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
     }
 
@@ -218,10 +215,9 @@ public class BehandleØkonomioppdragKvitteringTest {
         var kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
-       behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
-       assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2))
-           .isInstanceOf(IllegalStateException.class)
-           .hasMessageContaining("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
+        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
+        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2)).isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
     }
 
     @Test
@@ -254,7 +250,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragNegativ = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
-        OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
+        OppdragKvittering.builder()
+            .medOppdrag110(oppdragNegativ)
+            .medBeskrMelding(KVITTERING_MELDING_FEIL)
+            .medAlvorlighetsgrad(KVITTERING_FEIL)
+            .build();
         var oppdragPositiv = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragPositiv.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragPositiv);
@@ -276,7 +276,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragNegativ = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
-        OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
+        OppdragKvittering.builder()
+            .medOppdrag110(oppdragNegativ)
+            .medBeskrMelding(KVITTERING_MELDING_FEIL)
+            .medAlvorlighetsgrad(KVITTERING_FEIL)
+            .build();
         var oppdragNegativ2 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ2.setOpprettetTidspunkt(LocalDateTime.now());
 
@@ -318,7 +322,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         verify(taskTjeneste, never()).mottaHendelse(any(), any(), any());
     }
 
-    private ØkonomiKvittering opprettKvittering(Alvorlighetsgrad alvorlighetsgrad, String meldingKode, String beskrMelding, Long fagsystemId, Boolean gjelderFP) {
+    private ØkonomiKvittering opprettKvittering(Alvorlighetsgrad alvorlighetsgrad,
+                                                String meldingKode,
+                                                String beskrMelding,
+                                                Long fagsystemId,
+                                                Boolean gjelderFP) {
         var kvittering = new ØkonomiKvittering();
         kvittering.setAlvorlighetsgrad(alvorlighetsgrad);
         kvittering.setMeldingKode(meldingKode);

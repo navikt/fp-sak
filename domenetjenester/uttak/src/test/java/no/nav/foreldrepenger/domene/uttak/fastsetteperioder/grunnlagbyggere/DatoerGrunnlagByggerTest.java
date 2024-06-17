@@ -79,8 +79,7 @@ class DatoerGrunnlagByggerTest {
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);
         var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
 
-        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
-            List.of(new Barn(barnsDødsdato)), 1);
+        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato, List.of(new Barn(barnsDødsdato)), 1);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
         assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isTrue();
@@ -92,8 +91,7 @@ class DatoerGrunnlagByggerTest {
         LocalDate søkersDødsdato = null;
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);
         var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
-        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
-            List.of(new Barn(barnsDødsdato), new Barn()), 1);
+        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato, List.of(new Barn(barnsDødsdato), new Barn()), 1);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
         assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isFalse();
@@ -102,13 +100,11 @@ class DatoerGrunnlagByggerTest {
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetFamilieHendelse) {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteUttaksdato).build());
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
-        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
-            familieHendelser);
+        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
         return new UttakInput(ref, null, ytelsespesifiktGrunnlag);
     }
 
-    private Behandling scenarioMedDatoer(AbstractTestScenario<?> scenario,
-                                         LocalDate søkersDødsdato) {
+    private Behandling scenarioMedDatoer(AbstractTestScenario<?> scenario, LocalDate søkersDødsdato) {
         var behandling = scenario.lagre(repositoryProvider);
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
@@ -118,12 +114,10 @@ class DatoerGrunnlagByggerTest {
     }
 
     private void leggTilSøkersDødsdato(Behandling behandling, LocalDate søkersDødsdato) {
-        when(personopplysninger.søkersDødsdato(BehandlingReferanse.fra(behandling))).thenReturn(
-            Optional.ofNullable(søkersDødsdato));
+        when(personopplysninger.søkersDødsdato(BehandlingReferanse.fra(behandling))).thenReturn(Optional.ofNullable(søkersDødsdato));
     }
 
-    private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository,
-                                          Long behandlingId) {
+    private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository, Long behandlingId) {
         var grense = new Uttaksperiodegrense(LocalDate.now().minusWeeks(2));
         repository.lagre(behandlingId, grense);
     }

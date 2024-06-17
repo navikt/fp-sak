@@ -29,46 +29,58 @@ public class OppholdTjeneste {
     public OppholdTjeneste(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
+
     OppholdTjeneste() {
         //CDI
     }
-    public Map<Arbeidsforhold, List<Opphold>> finnOppholdFraTilretteleggingOgInntektsmelding(BehandlingReferanse behandlingRef, SvangerskapspengerGrunnlag svpGrunnlag) {
+
+    public Map<Arbeidsforhold, List<Opphold>> finnOppholdFraTilretteleggingOgInntektsmelding(BehandlingReferanse behandlingRef,
+                                                                                             SvangerskapspengerGrunnlag svpGrunnlag) {
         Map<Arbeidsforhold, List<Opphold>> oppholdForAlleArbeidsforholdMap = new HashMap<>();
         svpGrunnlag.getGrunnlagEntitet()
             .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes)
-            .orElse(Collections.emptyList()).forEach(tilrettelegging -> {
-            var aktivitetType = RegelmodellSøknaderMapper.mapTilAktivitetType(tilrettelegging.getArbeidType());
-            var arbeidsforhold =  RegelmodellSøknaderMapper.lagArbeidsforhold(tilrettelegging.getArbeidsgiver(), tilrettelegging.getInternArbeidsforholdRef(), aktivitetType);
+            .orElse(Collections.emptyList())
+            .forEach(tilrettelegging -> {
+                var aktivitetType = RegelmodellSøknaderMapper.mapTilAktivitetType(tilrettelegging.getArbeidType());
+                var arbeidsforhold = RegelmodellSøknaderMapper.lagArbeidsforhold(tilrettelegging.getArbeidsgiver(),
+                    tilrettelegging.getInternArbeidsforholdRef(), aktivitetType);
 
-            //henter ferie- eller sykepenger-opphold registrert av saksbehandler
-            var oppholdListeFraTIlr = hentOppholdListeFraTilrettelegging(tilrettelegging);
-            List<Opphold> alleOppholdForArbeidsforhold = new ArrayList<>(oppholdListeFraTIlr);
+                //henter ferie- eller sykepenger-opphold registrert av saksbehandler
+                var oppholdListeFraTIlr = hentOppholdListeFraTilrettelegging(tilrettelegging);
+                List<Opphold> alleOppholdForArbeidsforhold = new ArrayList<>(oppholdListeFraTIlr);
 
-            //henter ferier fra inntektsmelding meldt av arbeidsgiver
-            tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
-                var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));
-                alleOppholdForArbeidsforhold.addAll(oppholdListeArbeidsforholdFraInntektsmelding);
+                //henter ferier fra inntektsmelding meldt av arbeidsgiver
+                tilrettelegging.getArbeidsgiver().ifPresent(arbeidsgiver -> {
+                    var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, arbeidsgiver,
+                        tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));
+                    alleOppholdForArbeidsforhold.addAll(oppholdListeArbeidsforholdFraInntektsmelding);
+                });
+                oppholdForAlleArbeidsforholdMap.put(arbeidsforhold, alleOppholdForArbeidsforhold);
             });
-            oppholdForAlleArbeidsforholdMap.put(arbeidsforhold, alleOppholdForArbeidsforhold);
-        });
         return oppholdForAlleArbeidsforholdMap;
     }
 
     private List<Opphold> hentOppholdListeFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging) {
         List<Opphold> oppholdListeFraSaksbehandler = new ArrayList<>();
-        tilrettelegging.getAvklarteOpphold().forEach( avklartOpphold -> oppholdListeFraSaksbehandler.addAll(Opphold.opprett(avklartOpphold.getFom(), avklartOpphold.getTom(), mapOppholdÅrsak(avklartOpphold.getOppholdÅrsak()))));
+        tilrettelegging.getAvklarteOpphold()
+            .forEach(avklartOpphold -> oppholdListeFraSaksbehandler.addAll(
+                Opphold.opprett(avklartOpphold.getFom(), avklartOpphold.getTom(), mapOppholdÅrsak(avklartOpphold.getOppholdÅrsak()))));
         return oppholdListeFraSaksbehandler;
     }
 
-    private List<Opphold> finnOppholdFraIMForArbeidsgiver(BehandlingReferanse behandlingRef, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, behandlingRef.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
+    private List<Opphold> finnOppholdFraIMForArbeidsgiver(BehandlingReferanse behandlingRef,
+                                                          Arbeidsgiver arbeidsgiver,
+                                                          InternArbeidsforholdRef internRef) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef,
+            behandlingRef.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
         List<Opphold> oppholdListe = new ArrayList<>();
         inntektsmeldinger.stream()
             .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && inntektsmelding.getArbeidsforholdRef()
                 .gjelderFor(internRef))
             .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
-            .forEach(utsettelse -> oppholdListe.addAll(Opphold.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE)));
+            .forEach(utsettelse -> oppholdListe.addAll(
+                Opphold.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE)));
         return oppholdListe;
     }
 

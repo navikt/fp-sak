@@ -33,10 +33,10 @@ public class DokumentRegistrererTjeneste {
         // CDI
     }
 
-    public Optional<AksjonspunktDefinisjon> aksjonspunktManuellRegistrering(BehandlingReferanse behandlingReferanse, ManuellRegistreringAksjonspunktDto adapter) {
+    public Optional<AksjonspunktDefinisjon> aksjonspunktManuellRegistrering(BehandlingReferanse behandlingReferanse,
+                                                                            ManuellRegistreringAksjonspunktDto adapter) {
         if (adapter.getErFullstendigSøknad()) {
-            var dokument = new MottattDokument.Builder()
-                .medDokumentType(adapter.getDokumentTypeId())
+            var dokument = new MottattDokument.Builder().medDokumentType(adapter.getDokumentTypeId())
                 .medDokumentKategori(DokumentKategori.SØKNAD)
                 .medElektroniskRegistrert(false)
                 .medMottattDato(adapter.getMottattDato())

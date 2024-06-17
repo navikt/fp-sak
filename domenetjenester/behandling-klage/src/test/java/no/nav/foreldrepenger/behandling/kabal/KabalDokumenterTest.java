@@ -45,8 +45,7 @@ class KabalDokumenterTest {
 
     @BeforeEach
     void setUp() {
-        kabalTjeneste = new KabalDokumenter(dokumentArkivTjeneste, mottatteDokumentRepository,
-            behandlingDokumentRepository, historikkRepository);
+        kabalTjeneste = new KabalDokumenter(dokumentArkivTjeneste, mottatteDokumentRepository, behandlingDokumentRepository, historikkRepository);
     }
 
     @Test
@@ -70,14 +69,14 @@ class KabalDokumenterTest {
         var påKlagdBehandlingId = 4321L;
         var journalpost = new JournalpostId("23456");
 
-        var behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost,
-            DokumentMalType.FORELDREPENGER_INNVILGELSE);
+        var behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost, DokumentMalType.FORELDREPENGER_INNVILGELSE);
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
 
         var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(), KlageHjemmel.ENGANGS);
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(),
+            KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
     }
@@ -109,7 +108,8 @@ class KabalDokumenterTest {
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());
 
         var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build(), KlageHjemmel.ENGANGS);
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build(),
+            KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD);
     }

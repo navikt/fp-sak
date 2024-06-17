@@ -32,8 +32,12 @@ public class FaktaVurdering implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (FaktaVurdering) o;
         return vurdering.equals(that.vurdering) && kilde == that.kilde;
     }
@@ -45,9 +49,6 @@ public class FaktaVurdering implements Serializable {
 
     @Override
     public String toString() {
-        return "FaktaVurdering{" +
-            "vurdering=" + vurdering +
-            ", kilde=" + kilde +
-            '}';
+        return "FaktaVurdering{" + "vurdering=" + vurdering + ", kilde=" + kilde + '}';
     }
 }

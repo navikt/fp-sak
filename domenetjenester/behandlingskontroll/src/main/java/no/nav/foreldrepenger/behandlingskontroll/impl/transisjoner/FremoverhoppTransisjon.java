@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
 /**
  * Hopper fremover fra steg A til steg B slik at stegene besøkes.
- *
+ * <p>
  * NB! Merk at denne transisjonstypen besøker stegene slik at
  * {@see BehandlingSteg#vedHoppOverFramover} kalles på.
  */
@@ -25,9 +25,10 @@ class FremoverhoppTransisjon implements StegTransisjon {
 
     @Override
     public BehandlingStegModell nesteSteg(BehandlingStegModell nåværendeSteg) {
-        var funnetMålsteg = nåværendeSteg.getBehandlingModell().hvertStegEtter(nåværendeSteg.getBehandlingStegType())
-                .filter(s -> s.getBehandlingStegType().equals(målsteg))
-                .findFirst();
+        var funnetMålsteg = nåværendeSteg.getBehandlingModell()
+            .hvertStegEtter(nåværendeSteg.getBehandlingStegType())
+            .filter(s -> s.getBehandlingStegType().equals(målsteg))
+            .findFirst();
         if (funnetMålsteg.isPresent()) {
             return funnetMålsteg.get();
         }
@@ -51,8 +52,6 @@ class FremoverhoppTransisjon implements StegTransisjon {
 
     @Override
     public String toString() {
-        return "FremoverhoppTransisjon{" +
-                "id='" + id + '\'' +
-                '}';
+        return "FremoverhoppTransisjon{" + "id='" + id + '\'' + '}';
     }
 }

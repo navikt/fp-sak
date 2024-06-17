@@ -58,8 +58,8 @@ public class OppgittEgenNæring implements IndexKey {
         this.varigEndring = oppgittEgenNæring.varigEndring;
         this.nærRelasjon = oppgittEgenNæring.nærRelasjon;
         this.nyIArbeidslivet = oppgittEgenNæring.nyIArbeidslivet;
-        this.utenlandskVirksomhet = oppgittEgenNæring.utenlandskVirksomhet != null ?
-            new OppgittUtenlandskVirksomhet(oppgittEgenNæring.utenlandskVirksomhet) : null;
+        this.utenlandskVirksomhet =
+            oppgittEgenNæring.utenlandskVirksomhet != null ? new OppgittUtenlandskVirksomhet(oppgittEgenNæring.utenlandskVirksomhet) : null;
     }
 
     @Override
@@ -87,7 +87,9 @@ public class OppgittEgenNæring implements IndexKey {
         this.virksomhetType = virksomhetType;
     }
 
-    /** Samme som {@link #getVirksomhetOrgnr()} men returnerer string. */
+    /**
+     * Samme som {@link #getVirksomhetOrgnr()} men returnerer string.
+     */
     public String getOrgnr() {
         return virksomhetOrgnr == null ? null : virksomhetOrgnr.getId();
     }
@@ -192,40 +194,25 @@ public class OppgittEgenNæring implements IndexKey {
         if (!(o instanceof OppgittEgenNæring that)) {
             return false;
         }
-        return Objects.equals(periode, that.periode) &&
-            Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-            Objects.equals(nyoppstartet, that.nyoppstartet) &&
-            Objects.equals(varigEndring, that.varigEndring) &&
-            Objects.equals(nyIArbeidslivet, that.nyIArbeidslivet) &&
-            Objects.equals(virksomhetType, that.virksomhetType) &&
-            Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
-            Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
-            Objects.equals(endringDato, that.endringDato) &&
-            Objects.equals(begrunnelse, that.begrunnelse) &&
-            Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
-            Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+        return Objects.equals(periode, that.periode) && Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) && Objects.equals(nyoppstartet,
+            that.nyoppstartet) && Objects.equals(varigEndring, that.varigEndring) && Objects.equals(nyIArbeidslivet, that.nyIArbeidslivet)
+            && Objects.equals(virksomhetType, that.virksomhetType) && Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) && Objects.equals(
+            regnskapsførerTlf, that.regnskapsførerTlf) && Objects.equals(endringDato, that.endringDato) && Objects.equals(begrunnelse,
+            that.begrunnelse) && Objects.equals(bruttoInntekt, that.bruttoInntekt) && Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, varigEndring, nyIArbeidslivet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
-            bruttoInntekt, utenlandskVirksomhet);
+        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, varigEndring, nyIArbeidslivet, regnskapsførerNavn,
+            regnskapsførerTlf, endringDato, begrunnelse, bruttoInntekt, utenlandskVirksomhet);
     }
 
     @Override
     public String toString() {
-        return "EgenNæringEntitet{" +
-            "periode=" + periode +
-            ", virksomhet=" + masker(virksomhetOrgnr) +
-            ", nyoppstartet=" + nyoppstartet +
-            ", virksomhetType=" + virksomhetType +
-            ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
-            ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
-            ", endringDato=" + endringDato +
-            ", begrunnelse='" + begrunnelse + '\'' +
-            ", bruttoInntekt=" + bruttoInntekt +
-            ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-            '}';
+        return "EgenNæringEntitet{" + "periode=" + periode + ", virksomhet=" + masker(virksomhetOrgnr) + ", nyoppstartet=" + nyoppstartet
+            + ", virksomhetType=" + virksomhetType + ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' + ", regnskapsførerTlf='"
+            + regnskapsførerTlf + '\'' + ", endringDato=" + endringDato + ", begrunnelse='" + begrunnelse + '\'' + ", bruttoInntekt=" + bruttoInntekt
+            + ", utenlandskVirksomhet=" + utenlandskVirksomhet + '}';
     }
 
     private String masker(OrgNummer virksomhetOrgnr) {

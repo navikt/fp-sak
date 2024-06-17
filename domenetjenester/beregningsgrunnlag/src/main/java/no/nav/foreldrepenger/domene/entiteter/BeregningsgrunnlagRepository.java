@@ -39,12 +39,13 @@ public class BeregningsgrunnlagRepository {
     }
 
     @Inject
-    public BeregningsgrunnlagRepository( EntityManager entityManager) {
+    public BeregningsgrunnlagRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId,
+                                                                                                                 Optional<Long> originalBehandlingId,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
         if (sisteBg.isEmpty() && originalBehandlingId.isPresent()) {
@@ -53,9 +54,10 @@ public class BeregningsgrunnlagRepository {
         return sisteBg;
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(Long behandlingId, Optional<Long> originalBehandlingId,
-                                                                                                                 LocalDateTime opprettetEtter,
-                                                                                                                 BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(Long behandlingId,
+                                                                                                                               Optional<Long> originalBehandlingId,
+                                                                                                                               LocalDateTime opprettetEtter,
+                                                                                                                               BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId, opprettetEtter, beregningsgrunnlagTilstand);
         if (sisteBg.isEmpty() && originalBehandlingId.isPresent()) {
             return hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(originalBehandlingId.get(), opprettetEtter, beregningsgrunnlagTilstand);
@@ -64,11 +66,9 @@ public class BeregningsgrunnlagRepository {
     }
 
 
-
-
     public BeregningsgrunnlagEntitet hentBeregningsgrunnlagAggregatForBehandling(Long behandlingId) {
-        return hentBeregningsgrunnlagForBehandling(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Mangler Beregningsgrunnlag for behandling " + behandlingId));
+        return hentBeregningsgrunnlagForBehandling(behandlingId).orElseThrow(
+            () -> new IllegalStateException("Mangler Beregningsgrunnlag for behandling " + behandlingId));
     }
 
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagForBehandling(Long behandlingId) {
@@ -79,23 +79,22 @@ public class BeregningsgrunnlagRepository {
      * Hent angitt beregningsgrunnlag basert på beregningsgrunnlag id (ikke behandling Id som ellers i interfacet her).
      */
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagForId(Long beregningsgrunnlagId) {
-        var query = entityManager.createQuery(
-            "from Beregningsgrunnlag grunnlag " +
-                "where grunnlag.id = :beregningsgrunnlagId", BeregningsgrunnlagEntitet.class);
+        var query = entityManager.createQuery("from Beregningsgrunnlag grunnlag " + "where grunnlag.id = :beregningsgrunnlagId",
+            BeregningsgrunnlagEntitet.class);
         query.setParameter("beregningsgrunnlagId", beregningsgrunnlagId);
         return hentUniktResultat(query);
     }
 
     /**
      * Henter aktivt BeregningsgrunnlagGrunnlagEntitet
+     *
      * @param behandlingId en behandlingId
      * @return Hvis det finnes en aktiv {@link BeregningsgrunnlagGrunnlagEntitet} returneres denne
      */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
         var query = entityManager.createQuery(
-            "from BeregningsgrunnlagGrunnlagEntitet grunnlag " +
-                "where grunnlag.behandlingId=:behandlingId " +
-                "and grunnlag.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class);
+            "from BeregningsgrunnlagGrunnlagEntitet grunnlag " + "where grunnlag.behandlingId=:behandlingId " + "and grunnlag.aktiv = :aktivt",
+            BeregningsgrunnlagGrunnlagEntitet.class);
         query.setParameter(BEHANDLING_ID, behandlingId);
         query.setParameter("aktivt", true);
         return hentUniktResultat(query);
@@ -103,16 +102,16 @@ public class BeregningsgrunnlagRepository {
 
     /**
      * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg. Ignorerer om grunnlaget er aktivt eller ikke.
-     * @param behandlingId en behandlingId
+     *
+     * @param behandlingId               en behandlingId
      * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
      * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
      */
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        var query = entityManager.createQuery(
-            "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where behandlingId=:behandlingId " +
-                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class);
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingId,
+                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        var query = entityManager.createQuery("from BeregningsgrunnlagGrunnlagEntitet " + "where behandlingId=:behandlingId "
+                + "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " + "order by opprettetTidspunkt desc, id desc",
+            BeregningsgrunnlagGrunnlagEntitet.class);
         query.setParameter(BEHANDLING_ID, behandlingId);
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
         query.setMaxResults(1);
@@ -121,19 +120,18 @@ public class BeregningsgrunnlagRepository {
 
     /**
      * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg etter et gitt tidspunkt. Ignorerer om grunnlaget er aktivt eller ikke.
-     * @param behandlingId en behandlingId
-     * @param opprettetEtter tidligeste tidspunkt for oppprettelse
+     *
+     * @param behandlingId               en behandlingId
+     * @param opprettetEtter             tidligeste tidspunkt for oppprettelse
      * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
      * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
      */
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(Long behandlingId, LocalDateTime opprettetEtter,
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(Long behandlingId,
+                                                                                                                LocalDateTime opprettetEtter,
                                                                                                                 BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        var query = entityManager.createQuery(
-            "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where behandlingId=:behandlingId " +
-                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "and opprettetTidspunkt > :opprettetTidspunktMin " +
-                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class);
+        var query = entityManager.createQuery("from BeregningsgrunnlagGrunnlagEntitet " + "where behandlingId=:behandlingId "
+            + "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " + "and opprettetTidspunkt > :opprettetTidspunktMin "
+            + "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class);
         query.setParameter(BEHANDLING_ID, behandlingId);
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
         query.setParameter("opprettetTidspunktMin", opprettetEtter);
@@ -142,19 +140,15 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
-     *
      * For analysering av meldekortfeil og opprydning av disse
      */
     public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilMeldekort() {
         var query = entityManager.createQuery(
-            "select gr from BeregningsgrunnlagGrunnlagEntitet gr " +
-                "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg " +
-                "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " +
-                "where gr.opprettetTidspunkt > :opprettetFom " +
-                "and gr.opprettetTidspunkt < :opprettetTom " +
-                "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
-                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class);
+            "select gr from BeregningsgrunnlagGrunnlagEntitet gr " + "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg "
+                + "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " + "where gr.opprettetTidspunkt > :opprettetFom "
+                + "and gr.opprettetTidspunkt < :opprettetTom " + "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand "
+                + "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " + "and gr.aktiv = :aktivt",
+            BeregningsgrunnlagGrunnlagEntitet.class);
 
         var beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         var opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
@@ -169,9 +163,8 @@ public class BeregningsgrunnlagRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
-                " and periode.fomDato<=:dato" +
-                " and periode.tomDato>=:dato", BeregningSats.class);
+        var query = entityManager.createQuery(
+            "from BeregningSats where satsType=:satsType" + " and periode.fomDato<=:dato" + " and periode.tomDato>=:dato", BeregningSats.class);
 
         query.setParameter("satsType", satsType);
         query.setParameter("dato", dato);
@@ -180,7 +173,9 @@ public class BeregningsgrunnlagRepository {
         return hentEksaktResultat(query);
     }
 
-    public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId, BeregningsgrunnlagEntitet beregningsgrunnlag, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId,
+                                                   BeregningsgrunnlagEntitet beregningsgrunnlag,
+                                                   BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(beregningsgrunnlag, BEREGNING_AKTIVITET_AGGREGAT);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
@@ -192,7 +187,9 @@ public class BeregningsgrunnlagRepository {
         return grunnlagEntitet;
     }
 
-    public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId,
+                                                   BeregningsgrunnlagGrunnlagBuilder builder,
+                                                   BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(builder, BUILDER);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
@@ -242,7 +239,8 @@ public class BeregningsgrunnlagRepository {
             if (tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
                 KopierRegelsporing.kopierRegelsporingerTilGrunnlag(nyttGrunnlag, tidligereAggregat);
                 // Kopierer besteberegning
-                tidligereAggregat.get().getBeregningsgrunnlag()
+                tidligereAggregat.get()
+                    .getBeregningsgrunnlag()
                     .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
                     .map(BesteberegninggrunnlagEntitet::new)
                     .ifPresent(bbGrunnlag -> nyttGrunnlag.getBeregningsgrunnlag().ifPresent(bg -> bg.setBesteberegninggrunnlag(bbGrunnlag)));
@@ -264,15 +262,14 @@ public class BeregningsgrunnlagRepository {
             lagreBeregningAktivitetAggregat(registerAktiviteter);
         }
         nyttGrunnlag.getSaksbehandletAktiviteter().ifPresent(this::lagreBeregningAktivitetAggregat);
-        nyttGrunnlag.getOverstyring()
-            .ifPresent(this::lagreOverstyring);
+        nyttGrunnlag.getOverstyring().ifPresent(this::lagreOverstyring);
         nyttGrunnlag.getBeregningsgrunnlag().ifPresent(entityManager::persist);
-        nyttGrunnlag.getRefusjonOverstyringer()
-            .ifPresent(this::lagreRefusjonOverstyringer);
+        nyttGrunnlag.getRefusjonOverstyringer().ifPresent(this::lagreRefusjonOverstyringer);
 
         entityManager.persist(nyttGrunnlag);
 
-        nyttGrunnlag.getBeregningsgrunnlag().stream()
+        nyttGrunnlag.getBeregningsgrunnlag()
+            .stream()
             .flatMap(beregningsgrunnlagEntitet -> beregningsgrunnlagEntitet.getSammenligningsgrunnlagPrStatusListe().stream())
             .forEach(this::lagreSammenligningsgrunnlagPrStatus);
     }
@@ -338,19 +335,25 @@ public class BeregningsgrunnlagRepository {
         return reaktiverer;
     }
 
-    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId,
+                                                        Long nyBehandlingId,
+                                                        BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         var beregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId);
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(orig), beregningsgrunnlagTilstand));
     }
 
-    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand, LocalDate førsteUttaksdato) {
+    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId,
+                                                 Long nyBehandlingId,
+                                                 BeregningsgrunnlagTilstand tilstand,
+                                                 LocalDate førsteUttaksdato) {
         var beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
             if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
                 var bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
                 var beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdato);
                 lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag.get())
-                    .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
+                        .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()),
+                    tilstand);
             } else {
                 lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag), tilstand);
             }

@@ -49,21 +49,21 @@ public class FagsakTjeneste {
      * FIXME Marius ønsker endre interface på denne, men løser slikt inntil videre
      *
      * @deprecated Skal ikke lenger oppdatere fagsaks relasjonsrolle basert på
-     *             registerdata, men sette det ut fra oppgitte data i søknad (steg {
-     *             {@link BehandlingStegType#REGISTRER_SØKNAD}} ) Likevel finnes et
-     *             unntak som gjør at metoden ikke kan fjernes: gammelt søknadformat
-     *             angir ikke relasjonsrolle. Teknisk gjeld: se PFP-6758
+     * registerdata, men sette det ut fra oppgitte data i søknad (steg {
+     * {@link BehandlingStegType#REGISTRER_SØKNAD}} ) Likevel finnes et
+     * unntak som gjør at metoden ikke kan fjernes: gammelt søknadformat
+     * angir ikke relasjonsrolle. Teknisk gjeld: se PFP-6758
      */
     @Deprecated
-    public void oppdaterFagsak(Behandling behandling, PersonopplysningerAggregat personopplysninger,
-            List<PersonopplysningEntitet> barnSøktStønadFor) {
+    public void oppdaterFagsak(Behandling behandling,
+                               PersonopplysningerAggregat personopplysninger,
+                               List<PersonopplysningEntitet> barnSøktStønadFor) {
 
         var fagsak = behandling.getFagsak();
         validerEksisterendeFagsak(fagsak);
 
         // Oppdatering basert på søkers oppgitte relasjon til barn
-        var oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-                .map(SøknadEntitet::getRelasjonsRolleType);
+        var oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getRelasjonsRolleType);
         if (oppgittRelasjonsRolle.isPresent()) {
             if (!Objects.equals(behandling.getRelasjonsRolleType(), oppgittRelasjonsRolle.get())) {
                 LOG.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
@@ -140,12 +140,12 @@ public class FagsakTjeneste {
     }
 
     private Optional<PersonRelasjonEntitet> finnBarnetsRelasjonTilSøker(List<PersonopplysningEntitet> barnaSøktStøtteFor,
-            PersonopplysningerAggregat personopplysningerAggregat) {
+                                                                        PersonopplysningerAggregat personopplysningerAggregat) {
 
-        var barn = personopplysningerAggregat.getBarna().stream()
-                .filter(e -> barnaSøktStøtteFor.stream()
-                        .anyMatch(kandidat -> kandidat.getAktørId().equals(e.getAktørId())))
-                .findFirst();
+        var barn = personopplysningerAggregat.getBarna()
+            .stream()
+            .filter(e -> barnaSøktStøtteFor.stream().anyMatch(kandidat -> kandidat.getAktørId().equals(e.getAktørId())))
+            .findFirst();
 
         if (barn.isPresent()) {
             return personopplysningerAggregat.finnRelasjon(barn.get().getAktørId(), personopplysningerAggregat.getSøker().getAktørId());

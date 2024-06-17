@@ -24,7 +24,7 @@ class VedtakUtbetalingDvhMapperTest {
 
 
     @Test
-    void skal_mappe_til_VedtakUtbetalingDvh(){
+    void skal_mappe_til_VedtakUtbetalingDvh() {
         var behandling = byggBehandling();
         var vedtak = BehandlingVedtak.builder()
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)

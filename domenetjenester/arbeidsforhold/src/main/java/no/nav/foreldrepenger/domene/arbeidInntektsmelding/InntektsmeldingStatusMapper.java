@@ -25,11 +25,16 @@ public class InntektsmeldingStatusMapper {
             var inntektsmeldingerMedStatusForArbeidsgiver = arbeidsforholdIdListe.stream().map(id -> {
                 var inntektsmeldingMangler = manglerInntektsmelding(arbeidsgiver, id, alleManglende);
                 var vurdering = finnSaksbehandlervalg(arbeidsgiver, id, avklartearbeidsforholdvalg);
-                var avklartFortsettUtenIM = inntektsmeldingMangler && vurdering.map(v -> v.equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)).orElse(false);
+                var avklartFortsettUtenIM =
+                    inntektsmeldingMangler && vurdering.map(v -> v.equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING))
+                        .orElse(false);
                 if (inntektsmeldingMangler) {
                     var status = avklartFortsettUtenIM ? ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD : ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT;
                     return new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, id, status);
-                } else return new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, id, ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+                } else {
+                    return new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, id,
+                        ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+                }
             }).toList();
             inntektsmeldingerMedStatus.addAll(inntektsmeldingerMedStatusForArbeidsgiver);
         });

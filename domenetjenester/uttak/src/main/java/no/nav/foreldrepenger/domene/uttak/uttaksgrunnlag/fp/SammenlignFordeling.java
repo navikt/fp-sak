@@ -23,21 +23,21 @@ public final class SammenlignFordeling {
         if (fordelingEntitet1 == null && fordelingEntitet2 == null) {
             return true;
         }
-        if (fordelingEntitet1 == null || fordelingEntitet2 == null ||
-            !Objects.equals(fordelingEntitet1.ønskerJustertVedFødsel(), fordelingEntitet2.ønskerJustertVedFødsel()) ||
-            !Objects.equals(fordelingEntitet1.getErAnnenForelderInformert(), fordelingEntitet2.getErAnnenForelderInformert())) {
+        if (fordelingEntitet1 == null || fordelingEntitet2 == null || !Objects.equals(fordelingEntitet1.ønskerJustertVedFødsel(),
+            fordelingEntitet2.ønskerJustertVedFødsel()) || !Objects.equals(fordelingEntitet1.getErAnnenForelderInformert(),
+            fordelingEntitet2.getErAnnenForelderInformert())) {
             return false;
         }
 
         // Tidslinje og tidligste/seneste dato fra ny søknad
         var segmenter1 = fordelingEntitet1.getPerioder().stream().map(SammenlignFordeling::segmentForOppgittPeriode).toList();
-        var tidslinjeSammenlign1 =  new LocalDateTimeline<>(segmenter1);
+        var tidslinjeSammenlign1 = new LocalDateTimeline<>(segmenter1);
         var segmenter2 = fordelingEntitet2.getPerioder().stream().map(SammenlignFordeling::segmentForOppgittPeriode).toList();
-        var tidslinjeSammenlign2 =  new LocalDateTimeline<>(segmenter2);
+        var tidslinjeSammenlign2 = new LocalDateTimeline<>(segmenter2);
 
         // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
-        var ulike = tidslinjeSammenlign1.combine(tidslinjeSammenlign2, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l ,r)), LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .filterValue(v -> v);
+        var ulike = tidslinjeSammenlign1.combine(tidslinjeSammenlign2, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l, r)),
+            LocalDateTimeline.JoinStyle.CROSS_JOIN).filterValue(v -> v);
 
         // Sjekk om finnes segment som er ulike
         return ulike.isEmpty();
@@ -47,13 +47,16 @@ public final class SammenlignFordeling {
         return new LocalDateSegment<>(periode.getFom(), periode.getTom(), new SammenligningPeriodeForOppgitt(periode));
     }
 
-    private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
+    private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent,
+                                                  SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
         SammenligningPeriodeForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
+            this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(),
+                periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
         }
     }
 
-    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent,
+                                                    Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }

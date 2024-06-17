@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 
 class BeregnStønadskontoerTjenesteTest {
 
-    private static final LocalDate IVERKSATT = LocalDate.of(2024, Month.JANUARY,1);
+    private static final LocalDate IVERKSATT = LocalDate.of(2024, Month.JANUARY, 1);
     private static final UttakCore2024 UTTAK_CORE_2024 = new UttakCore2024(IVERKSATT, IVERKSATT);
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
@@ -74,7 +74,7 @@ class BeregnStønadskontoerTjenesteTest {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
-        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.of(2024, Month.AUGUST,2);
+        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.of(2024, Month.AUGUST, 2);
         //assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null"); // TODO: Må endres i overgangsfase
         assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Fjernes 2/8-2024 - enable den over
 

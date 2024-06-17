@@ -38,8 +38,7 @@ class RevurderingEndringTest {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
             .medBehandlingsresultat(behandlingsresultat)
@@ -53,11 +52,10 @@ class RevurderingEndringTest {
     @Test
     void erRevurderingMedUendretUtfallEksplittBehandlingstype() {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
-        var revurderingEndring = new RevurderingEndringImpl(repositoryProvider.getBehandlingRepository(),
-            beregningRepository, repositoryProvider.getBehandlingsresultatRepository());
+        var revurderingEndring = new RevurderingEndringImpl(repositoryProvider.getBehandlingRepository(), beregningRepository,
+            repositoryProvider.getBehandlingsresultatRepository());
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
             .medBehandlingsresultat(behandlingsresultat)
@@ -65,8 +63,7 @@ class RevurderingEndringTest {
 
         opprettBeregning(revurdering);
 
-        assertThat(
-            revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
+        assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
     }
 
     @Test
@@ -74,8 +71,7 @@ class RevurderingEndringTest {
         var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
             .medBehandlingsresultat(behandlingsresultat)
@@ -91,8 +87,7 @@ class RevurderingEndringTest {
         var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.AVSLÅTT);
         var revurderingTjeneste = tjeneste();
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
             .medBehandlingsresultat(behandlingsresultat)
@@ -113,8 +108,7 @@ class RevurderingEndringTest {
 
     @Test
     void skal_gi_feil_dersom_revurdering_ikke_har_original_behandling() {
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingsresultat(behandlingsresultat)
             .medOriginalBehandling(null, BehandlingÅrsakType.RE_ANNET)
@@ -141,8 +135,7 @@ class RevurderingEndringTest {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
             .medBehandlingsresultat(behandlingsresultat)
@@ -156,8 +149,7 @@ class RevurderingEndringTest {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.AVSLÅTT);
         var revurderingTjeneste = tjeneste();
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
             .medBehandlingsresultat(behandlingsresultat)
@@ -184,8 +176,8 @@ class RevurderingEndringTest {
         var originalVedtak = BehandlingVedtak.builder()
             .medVedtakstidspunkt(LocalDateTime.now())
             .medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(behandlingResultatType.equals(
-                BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
+            .medVedtakResultatType(
+                behandlingResultatType.equals(BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
             .medAnsvarligSaksbehandler("asdf")
             .build();
 

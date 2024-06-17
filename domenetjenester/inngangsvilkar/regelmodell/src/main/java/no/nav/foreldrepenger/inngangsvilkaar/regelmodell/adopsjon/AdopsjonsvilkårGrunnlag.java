@@ -11,12 +11,9 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public record AdopsjonsvilkårGrunnlag (List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn,
-                                       boolean ektefellesBarn,
-                                       @JsonProperty("soekersKjonn") RegelKjønn søkersKjønn,
-                                       boolean mannAdoptererAlene,
-                                       LocalDate omsorgsovertakelsesdato,
-                                       boolean erStønadsperiodeBruktOpp) implements VilkårGrunnlag {
+public record AdopsjonsvilkårGrunnlag(List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn, boolean ektefellesBarn,
+                                      @JsonProperty("soekersKjonn") RegelKjønn søkersKjønn, boolean mannAdoptererAlene,
+                                      LocalDate omsorgsovertakelsesdato, boolean erStønadsperiodeBruktOpp) implements VilkårGrunnlag {
     public AdopsjonsvilkårGrunnlag {
         Objects.requireNonNull(bekreftetAdopsjonBarn);
     }

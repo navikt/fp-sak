@@ -31,20 +31,22 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class BesteberegningYtelsegrunnlagMapperTest {
-    private static final LocalDate STP = LocalDate.of(2021,1,1);
+    private static final LocalDate STP = LocalDate.of(2021, 1, 1);
 
     @Test
     void skal_mappe_sykepenger() {
         var sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)));
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.DAGPENGER);
         var filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
-        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
+        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(
+            DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
         assertThat(mappetGrunnlag).isPresent();
         assertThat(mappetGrunnlag.get().perioder()).hasSize(1);
         assertThat(mappetGrunnlag.get().perioder().getFirst().getPeriode().getFomDato()).isEqualTo(månederFørStp(15));
         assertThat(mappetGrunnlag.get().perioder().getFirst().getPeriode().getTomDato()).isEqualTo(månederFørStp(6));
         assertThat(mappetGrunnlag.get().perioder().getFirst().getAndeler()).hasSize(1);
-        assertThat(mappetGrunnlag.get().perioder().getFirst().getAndeler().getFirst().getArbeidskategori().getKode()).isEqualTo(Arbeidskategori.DAGPENGER.getKode());
+        assertThat(mappetGrunnlag.get().perioder().getFirst().getAndeler().getFirst().getArbeidskategori().getKode()).isEqualTo(
+            Arbeidskategori.DAGPENGER.getKode());
     }
 
     @Test
@@ -52,16 +54,14 @@ class BesteberegningYtelsegrunnlagMapperTest {
         var sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)), RelatertYtelseTilstand.ÅPEN);
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.UGYLDIG);
         var filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
-        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
+        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(
+            DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
         assertThat(mappetGrunnlag).isEmpty();
     }
 
     @Test
     void skal_mappe_foreldrepenger() {
-        var brres = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+        var brres = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         lagFpsakResultatAndel(lagFpsakResultatPeriode(brres, månederFørStp(12), månederFørStp(7)), AktivitetStatus.ARBEIDSTAKER, 350);
         lagFpsakResultatAndel(lagFpsakResultatPeriode(brres, månederFørStp(5), månederFørStp(2)), AktivitetStatus.ARBEIDSTAKER, 700);
         var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(brres, FagsakYtelseType.FORELDREPENGER);
@@ -110,13 +110,12 @@ class BesteberegningYtelsegrunnlagMapperTest {
     }
 
     private BeregningsresultatPeriode lagFpsakResultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
-        return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(beregningsresultat);
     }
 
     private BeregningsresultatAndel lagFpsakResultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
-                                                                   AktivitetStatus aktivitetStatus, int dagsats) {
+                                                          AktivitetStatus aktivitetStatus,
+                                                          int dagsats) {
         var arbeidsgiver = Arbeidsgiver.virksomhet("999999999");
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)

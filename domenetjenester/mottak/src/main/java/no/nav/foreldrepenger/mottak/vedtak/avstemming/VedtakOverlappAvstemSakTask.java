@@ -70,7 +70,9 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
 
     private boolean harUtbetaling(Behandling behandling) {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .anyMatch(p -> p.getDagsats() > 0);
     }
 

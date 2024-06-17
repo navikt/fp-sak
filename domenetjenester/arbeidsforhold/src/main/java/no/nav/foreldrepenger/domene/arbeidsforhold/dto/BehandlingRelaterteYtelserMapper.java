@@ -14,35 +14,23 @@ import no.nav.vedtak.konfig.Tid;
 
 public class BehandlingRelaterteYtelserMapper {
 
-    private static final Map<FagsakYtelseType, RelatertYtelseType> YTELSE_TYPE_MAP = Map.of(
-            FagsakYtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD,
-            FagsakYtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER,
-            FagsakYtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER);
+    private static final Map<FagsakYtelseType, RelatertYtelseType> YTELSE_TYPE_MAP = Map.of(FagsakYtelseType.ENGANGSTØNAD,
+        RelatertYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER,
+        RelatertYtelseType.SVANGERSKAPSPENGER);
 
-    public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_SØKER = List.of(
-            RelatertYtelseType.FORELDREPENGER,
-            RelatertYtelseType.ENGANGSTØNAD,
-            RelatertYtelseType.SYKEPENGER,
-            RelatertYtelseType.DAGPENGER,
-            RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
-            RelatertYtelseType.SVANGERSKAPSPENGER,
-            RelatertYtelseType.OMSORGSPENGER,
-            RelatertYtelseType.OPPLÆRINGSPENGER,
-            RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
-            RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE,
-            RelatertYtelseType.FRISINN);
+    public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_SØKER = List.of(RelatertYtelseType.FORELDREPENGER,
+        RelatertYtelseType.ENGANGSTØNAD, RelatertYtelseType.SYKEPENGER, RelatertYtelseType.DAGPENGER, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
+        RelatertYtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.OMSORGSPENGER, RelatertYtelseType.OPPLÆRINGSPENGER,
+        RelatertYtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.FRISINN);
 
-    public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER = List.of(
-            RelatertYtelseType.FORELDREPENGER,
-            RelatertYtelseType.ENGANGSTØNAD);
+    public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER = List.of(RelatertYtelseType.FORELDREPENGER,
+        RelatertYtelseType.ENGANGSTØNAD);
 
     private BehandlingRelaterteYtelserMapper() {
     }
 
     public static List<TilgrensendeYtelser> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
-        return ytelser.stream()
-                .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
-                .toList();
+        return ytelser.stream().map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse).toList();
     }
 
     public static RelatertYtelseType mapFraFagsakYtelseTypeTilRelatertYtelseType(FagsakYtelseType type) {
@@ -55,7 +43,8 @@ public class BehandlingRelaterteYtelserMapper {
 
     public static TilgrensendeYtelser mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
         var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
-        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getNavn(), fagsak.getSaksnummer());
+        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getNavn(),
+            fagsak.getSaksnummer());
     }
 
     private static LocalDate endreTomDatoHvisLøpende(LocalDate tomDato) {
@@ -66,20 +55,22 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelser> tilgrensendeYtelser,
-            List<RelatertYtelseType> ytelsesTyper) {
+                                                                           List<RelatertYtelseType> ytelsesTyper) {
         List<RelaterteYtelserDto> relaterteYtelserDtos = new LinkedList<>();
         for (var relatertYtelseType : ytelsesTyper) {
-            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getNavn(),
-                    sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType)));
+            relaterteYtelserDtos.add(
+                new RelaterteYtelserDto(relatertYtelseType.getNavn(), sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType)));
         }
         return relaterteYtelserDtos;
     }
 
-    private static List<RelaterteYtelserDto.TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelser> relatertYtelser, RelatertYtelseType relatertYtelseType) {
+    private static List<RelaterteYtelserDto.TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelser> relatertYtelser,
+                                                                                            RelatertYtelseType relatertYtelseType) {
         return relatertYtelser.stream()
             .filter(tilgrensendeYtelser -> relatertYtelseType.equals(tilgrensendeYtelser.relatertYtelseType()))
             .sorted()
-            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.statusNavn(), t.saksNummer() != null ? t.saksNummer().getVerdi() : null))
+            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.statusNavn(),
+                t.saksNummer() != null ? t.saksNummer().getVerdi() : null))
             .toList();
     }
 }

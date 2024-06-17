@@ -125,10 +125,8 @@ public class InntektArbeidYtelseGrunnlag {
      * (dvs.normalt søker).
      */
     public Optional<AktørArbeid> getBekreftetAnnenOpptjening(AktørId aktørId) {
-        return getSaksbehandletVersjon()
-                .map(InntektArbeidYtelseAggregat::getAktørArbeid)
-                .flatMap(it -> it.stream().filter(aa -> aa.getAktørId().equals(aktørId))
-                        .findFirst());
+        return getSaksbehandletVersjon().map(InntektArbeidYtelseAggregat::getAktørArbeid)
+            .flatMap(it -> it.stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
     }
 
     public Optional<AktørArbeid> getAktørArbeidFraRegister(AktørId aktørId) {
@@ -136,7 +134,7 @@ public class InntektArbeidYtelseGrunnlag {
             var aktørArbeid = register.getAktørArbeid().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).toList();
             if (aktørArbeid.size() > 1) {
                 throw new IllegalStateException(
-                        "Kan kun ha ett innslag av AktørArbeid for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                    "Kan kun ha ett innslag av AktørArbeid for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørArbeid.stream().findFirst();
         }
@@ -148,7 +146,7 @@ public class InntektArbeidYtelseGrunnlag {
             var aktørYtelse = register.getAktørYtelse().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).toList();
             if (aktørYtelse.size() > 1) {
                 throw new IllegalStateException(
-                        "Kan kun ha ett innslag av AktørYtelse for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                    "Kan kun ha ett innslag av AktørYtelse for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørYtelse.stream().findFirst();
         }
@@ -157,11 +155,10 @@ public class InntektArbeidYtelseGrunnlag {
 
     public Optional<AktørInntekt> getAktørInntektFraRegister(AktørId aktørId) {
         if (register != null) {
-            var aktørInntekt = register.getAktørInntekt().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId))
-                    .toList();
+            var aktørInntekt = register.getAktørInntekt().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).toList();
             if (aktørInntekt.size() > 1) {
                 throw new IllegalStateException(
-                        "Kan kun ha ett innslag av AktørInntekt for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                    "Kan kun ha ett innslag av AktørInntekt for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørInntekt.stream().findFirst();
         }
@@ -207,16 +204,13 @@ public class InntektArbeidYtelseGrunnlag {
             return Collections.emptyList();
         }
         var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
-        return overstyringer.stream()
-                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
-                .map(ov -> {
-                    // TODO (FC): fiks/fjern eksternRef herfra
-                    EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
-                                                                // ov.getArbeidsforholdRef()); //
+        return overstyringer.stream().filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding).map(ov -> {
+            // TODO (FC): fiks/fjern eksternRef herfra
+            EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
+            // ov.getArbeidsforholdRef()); //
 
-                    return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
-                })
-                .toList();
+            return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
+        }).toList();
     }
 
     public List<ArbeidsforholdOverstyring> getArbeidsforholdOverstyringer() {
@@ -238,7 +232,9 @@ public class InntektArbeidYtelseGrunnlag {
         this.aktiv = aktiv;
     }
 
-    /** Hvorvidt dette er det siste (aktive grunnlaget) for en behandling. */
+    /**
+     * Hvorvidt dette er det siste (aktive grunnlaget) for en behandling.
+     */
     public boolean isAktiv() {
         return aktiv;
     }
@@ -279,9 +275,7 @@ public class InntektArbeidYtelseGrunnlag {
         if (!(o instanceof InntektArbeidYtelseGrunnlag that)) {
             return false;
         }
-        return (aktiv == that.aktiv) &&
-                Objects.equals(register, that.register) &&
-                Objects.equals(saksbehandlet, that.saksbehandlet);
+        return (aktiv == that.aktiv) && Objects.equals(register, that.register) && Objects.equals(saksbehandlet, that.saksbehandlet);
     }
 
     @Override

@@ -14,11 +14,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.request.Dataset;
@@ -30,6 +25,7 @@ import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -74,9 +70,9 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
      */
     @Inject
     public AbakusInntektArbeidYtelseTjeneste(AbakusTjeneste abakusTjeneste,
-            BehandlingRepository behandlingRepository,
-            FagsakRepository fagsakRepository,
-            IAYRequestCache requestCache) {
+                                             BehandlingRepository behandlingRepository,
+                                             FagsakRepository fagsakRepository,
+                                             IAYRequestCache requestCache) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.abakusTjeneste = Objects.requireNonNull(abakusTjeneste, "abakusTjeneste");
         this.requestCache = Objects.requireNonNull(requestCache, "requestCache");
@@ -236,21 +232,20 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
-    public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
-            Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
+    public void lagreInntektsmeldinger(Saksnummer saksnummer,
+                                       Long behandlingId,
+                                       Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
         Objects.requireNonNull(inntektsmeldingBuilderCollection, "inntektsmeldingBuilderCollection");
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var inntektsmeldingerDto = new IAYTilDtoMapper(behandling.getAktørId(),
-                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-                null, behandling.getUuid()).mapTilDto(inntektsmeldingBuilderCollection);
+        var inntektsmeldingerDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+            null, behandling.getUuid()).mapTilDto(inntektsmeldingBuilderCollection);
 
         if (inntektsmeldingerDto == null) {
             return;
         }
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        var inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(),
-                behandling.getUuid(), aktør,
-                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), inntektsmeldingerDto);
+        var inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(), behandling.getUuid(), aktør,
+            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), inntektsmeldingerDto);
         try {
             abakusTjeneste.lagreInntektsmeldinger(inntektsmeldingerMottattRequest);
         } catch (IOException e) {
@@ -275,12 +270,9 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void kopierGrunnlagFraEksisterendeBehandling(Long fraBehandlingId, Long tilBehandlingId) {
         var fraBehandling = behandlingRepository.hentBehandling(fraBehandlingId);
         var tilBehandling = behandlingRepository.hentBehandling(tilBehandlingId);
-        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(),
-                tilBehandling.getUuid(),
-                fraBehandling.getUuid(),
-                KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
-                new AktørIdPersonident(tilBehandling.getAktørId().getId()),
-                Set.of(Dataset.values()));
+        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(), tilBehandling.getUuid(),
+            fraBehandling.getUuid(), KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
+            new AktørIdPersonident(tilBehandling.getAktørId().getId()), Set.of(Dataset.values()));
         try {
             // Kopier grunnlag tar med nye inntektsmeldinger som kan ha kommet etter forrige grunnlag.
             // Berørte, feriepenger og utsatt start behandlinger skal kopiere nyeste inntektsmeldigner
@@ -298,10 +290,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId) {
         var fraBehandling = behandlingRepository.hentBehandling(fraBehandlingId);
         var tilBehandling = behandlingRepository.hentBehandling(tilBehandlingId);
-        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(),
-            tilBehandling.getUuid(),
-            fraBehandling.getUuid(),
-            KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
+        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(), tilBehandling.getUuid(),
+            fraBehandling.getUuid(), KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
             new AktørIdPersonident(tilBehandling.getAktørId().getId()),
             Set.of(Dataset.INNTEKTSMELDING, Dataset.OPPGITT_OPPTJENING, Dataset.OVERSTYRT_OPPGITT_OPPTJENING));
         try {
@@ -311,12 +301,10 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
     }
 
-    private OppgittOpptjeningMottattRequest lagOppgittOpptjeningRequest(OppgittOpptjeningBuilder oppgittOpptjeningBuilder,
-                                                                        Long behandlingId) {
+    private OppgittOpptjeningMottattRequest lagOppgittOpptjeningRequest(OppgittOpptjeningBuilder oppgittOpptjeningBuilder, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(),
-            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+        var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
             null, behandling.getUuid()).mapTilDto(oppgittOpptjeningBuilder);
         return new OppgittOpptjeningMottattRequest(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
             KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
@@ -324,8 +312,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request, AktørId aktørId) {
         var dto = hentGrunnlag(request);
-        var forespurtGrunnlagsRef = request.getGrunnlagReferanse() != null ? request.getGrunnlagReferanse()
-                : request.getSisteKjenteGrunnlagReferanse();
+        var forespurtGrunnlagsRef =
+            request.getGrunnlagReferanse() != null ? request.getGrunnlagReferanse() : request.getSisteKjenteGrunnlagReferanse();
         var sisteGrunnlag = requestCache.getGrunnlag(forespurtGrunnlagsRef);
         if (dto == null && sisteGrunnlag == null) {
             return null;
@@ -392,8 +380,10 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         return mapResult(dto).getAlleInntektsmeldinger();
     }
 
-    private InntektArbeidYtelseAggregatBuilder opprettBuilderFor(VersjonType versjonType, UUID angittReferanse, LocalDateTime opprettetTidspunkt,
-            Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
+    private InntektArbeidYtelseAggregatBuilder opprettBuilderFor(VersjonType versjonType,
+                                                                 UUID angittReferanse,
+                                                                 LocalDateTime opprettetTidspunkt,
+                                                                 Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
         var grunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
         var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd());
@@ -401,7 +391,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         if (aggregat.isPresent()) {
             var aggregat1 = aggregat.get();
             return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
-                    versjonType);
+                versjonType);
         }
         throw new IllegalArgumentException("aggregat kan ikke være null: " + angittReferanse);
     }

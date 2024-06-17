@@ -39,7 +39,8 @@ class InngangsvilkårOpptjeningTest {
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -59,7 +60,8 @@ class InngangsvilkårOpptjeningTest {
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -79,7 +81,8 @@ class InngangsvilkårOpptjeningTest {
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -99,9 +102,10 @@ class InngangsvilkårOpptjeningTest {
         // får antatt 2 dager med opptjening i SVP
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P2D"));
 
-        var første = LocalDate.of(2020, 1,9);
-        var siste = LocalDate.of(2020, 2,5);
-        var expectedTimeline = new LocalDateTimeline<Boolean>(Set.of(new LocalDateSegment<>(new LocalDateInterval(første, første), Boolean.TRUE), new LocalDateSegment<>(new LocalDateInterval(siste, siste), Boolean.TRUE)));
+        var første = LocalDate.of(2020, 1, 9);
+        var siste = LocalDate.of(2020, 2, 5);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(Set.of(new LocalDateSegment<>(new LocalDateInterval(første, første), Boolean.TRUE),
+            new LocalDateSegment<>(new LocalDateInterval(siste, siste), Boolean.TRUE)));
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -121,7 +125,8 @@ class InngangsvilkårOpptjeningTest {
         // får antatt 12 dager med opptjening i SVP
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 }

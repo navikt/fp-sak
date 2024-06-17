@@ -79,10 +79,9 @@ class EndringsdatoBerørtUtlederTest {
         var utløsendeUttak = new ForeldrepengerUttak(List.of(fedrekvote));
         var repositoryProvider = new UttakRepositoryStubProvider();
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        var behandling = scenario
-            .lagre(repositoryProvider);
-        var resultat = EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak, utløsendeYfa,
-            false, Optional.of(berørtUttak), getUttakInput(behandling, fødselsdato), "");
+        var behandling = scenario.lagre(repositoryProvider);
+        var resultat = EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak, utløsendeYfa, false, Optional.of(berørtUttak),
+            getUttakInput(behandling, fødselsdato), "");
 
         assertThat(resultat).isEmpty();
     }

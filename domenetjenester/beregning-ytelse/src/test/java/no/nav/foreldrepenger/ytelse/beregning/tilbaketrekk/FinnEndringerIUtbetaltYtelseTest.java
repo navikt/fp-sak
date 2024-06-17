@@ -42,12 +42,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     void ingen_endring_bruker_arbeidsgiver() {
         // Arrange
 
-        var forrigeAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
+        var forrigeAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -78,12 +74,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void ingen_endring_arbeidsgiver() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -98,12 +90,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void utbetaling_tidligere_til_bruker_skulle_vært_til_ag() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1800),
-                lagAndel(false, 300));
-        var bgAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 1100));
+        var forrigeAndeler = List.of(lagAndel(true, 1800), lagAndel(false, 300));
+        var bgAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 1100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -126,12 +114,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void utbetaling_var_tidligere_til_ag_skulle_vært_til_bruker() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
-        var bgAndeler = List.of(
-                lagAndel(true, 1200),
-                lagAndel(false, 900));
+        var forrigeAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
+        var bgAndeler = List.of(lagAndel(true, 1200), lagAndel(false, 900));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -146,12 +130,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void økt_inntekt_økning_utbetales_arbeidsgiver() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 800));
-        var bgAndeler = List.of(
-                lagAndel(true, 1300),
-                lagAndel(false, 800));
+        var forrigeAndeler = List.of(lagAndel(true, 100), lagAndel(false, 800));
+        var bgAndeler = List.of(lagAndel(true, 1300), lagAndel(false, 800));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -166,10 +146,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void økt_inntekt_økning_utbetales_bruker() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 900));
-        var bgAndeler = List.of(
-                lagAndel(true, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 900));
+        var bgAndeler = List.of(lagAndel(true, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -184,12 +162,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void økt_inntekt_utbetales_arbeidsgiver() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 800));
-        var bgAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 2000));
+        var forrigeAndeler = List.of(lagAndel(true, 100), lagAndel(false, 800));
+        var bgAndeler = List.of(lagAndel(true, 100), lagAndel(false, 2000));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -204,12 +178,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void økt_inntekt_utbetales_arbeidsgiver_0_til_bruker() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 900));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 0), lagAndel(false, 900));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -224,12 +194,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case6a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 800));
-        var bgAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 1200));
+        var forrigeAndeler = List.of(lagAndel(true, 100), lagAndel(false, 800));
+        var bgAndeler = List.of(lagAndel(true, 900), lagAndel(false, 1200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -244,12 +210,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case6b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 1100));
+        var forrigeAndeler = List.of(lagAndel(true, 900), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 1100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -264,12 +226,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case6c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 900));
-        var bgAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 1100));
+        var forrigeAndeler = List.of(lagAndel(true, 0), lagAndel(false, 900));
+        var bgAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 1100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -284,12 +242,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case7a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 100));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
+        var forrigeAndeler = List.of(lagAndel(true, 800), lagAndel(false, 100));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -312,12 +266,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case7b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
+        var forrigeAndeler = List.of(lagAndel(true, 900), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -340,12 +290,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case7c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 100));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 800), lagAndel(false, 100));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -368,12 +314,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case8a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 800));
-        var bgAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 700));
+        var forrigeAndeler = List.of(lagAndel(true, 100), lagAndel(false, 800));
+        var bgAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 700));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -388,12 +330,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case8b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 100));
-        var bgAndeler = List.of(
-                lagAndel(true, 2100),
-                lagAndel(false, 0));
+        var forrigeAndeler = List.of(lagAndel(true, 800), lagAndel(false, 100));
+        var bgAndeler = List.of(lagAndel(true, 2100), lagAndel(false, 0));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -408,12 +346,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case8c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 900));
-        var bgAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 700));
+        var forrigeAndeler = List.of(lagAndel(true, 0), lagAndel(false, 900));
+        var bgAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 700));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -428,12 +362,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case9a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2100),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 0));
+        var forrigeAndeler = List.of(lagAndel(true, 2100), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 900), lagAndel(false, 0));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -448,10 +378,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case9b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2100));
-        var bgAndeler = List.of(
-                lagAndel(true, 0));
+        var forrigeAndeler = List.of(lagAndel(true, 2100));
+        var bgAndeler = List.of(lagAndel(true, 0));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -467,12 +395,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case10a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 1200));
-        var bgAndeler = List.of(
-                lagAndel(true, 200),
-                lagAndel(false, 1200));
+        var forrigeAndeler = List.of(lagAndel(true, 900), lagAndel(false, 1200));
+        var bgAndeler = List.of(lagAndel(true, 200), lagAndel(false, 1200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -496,12 +420,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case10b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1200),
-                lagAndel(false, 900));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 900));
+        var forrigeAndeler = List.of(lagAndel(true, 1200), lagAndel(false, 900));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 900));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -517,12 +437,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case10c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1500),
-                lagAndel(false, 600));
-        var bgAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 600));
+        var forrigeAndeler = List.of(lagAndel(true, 1500), lagAndel(false, 600));
+        var bgAndeler = List.of(lagAndel(true, 800), lagAndel(false, 600));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -537,12 +453,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case11a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 1100));
-        var bgAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 400));
+        var forrigeAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 1100));
+        var bgAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 400));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -557,12 +469,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case11b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 700));
-        var bgAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 0));
+        var forrigeAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 700));
+        var bgAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 0));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -577,12 +485,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case12a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1000),
-                lagAndel(false, 1100));
-        var bgAndeler = List.of(
-                lagAndel(true, 900),
-                lagAndel(false, 300));
+        var forrigeAndeler = List.of(lagAndel(true, 1000), lagAndel(false, 1100));
+        var bgAndeler = List.of(lagAndel(true, 900), lagAndel(false, 300));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -605,12 +509,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case12b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 1500));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 1400));
+        var forrigeAndeler = List.of(lagAndel(true, 600), lagAndel(false, 1500));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 1400));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -633,12 +533,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case12c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 700));
-        var bgAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 600));
+        var forrigeAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 700));
+        var bgAndeler = List.of(lagAndel(true, 800), lagAndel(false, 600));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -661,12 +557,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case12d() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1900),
-                lagAndel(false, 200));
-        var bgAndeler = List.of(
-                lagAndel(true, 1300),
-                lagAndel(false, 100));
+        var forrigeAndeler = List.of(lagAndel(true, 1900), lagAndel(false, 200));
+        var bgAndeler = List.of(lagAndel(true, 1300), lagAndel(false, 100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -681,12 +573,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case13a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 500),
-                lagAndel(false, 1600));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 800));
+        var forrigeAndeler = List.of(lagAndel(true, 500), lagAndel(false, 1600));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 800));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -701,12 +589,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case13b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 500),
-                lagAndel(false, 1600));
-        var bgAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 0));
+        var forrigeAndeler = List.of(lagAndel(true, 500), lagAndel(false, 1600));
+        var bgAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 0));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -721,12 +605,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case13c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
-        var bgAndeler = List.of(
-                lagAndel(true, 200),
-                lagAndel(false, 1200));
+        var forrigeAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
+        var bgAndeler = List.of(lagAndel(true, 200), lagAndel(false, 1200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -741,12 +621,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case14a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1400),
-                lagAndel(false, 700));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 800));
+        var forrigeAndeler = List.of(lagAndel(true, 1400), lagAndel(false, 700));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 800));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -769,12 +645,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case14b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 800),
-                lagAndel(false, 1300));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 1400));
+        var forrigeAndeler = List.of(lagAndel(true, 800), lagAndel(false, 1300));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 1400));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -797,12 +669,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case14c() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2000),
-                lagAndel(false, 100));
-        var bgAndeler = List.of(
-                lagAndel(true, 1200),
-                lagAndel(false, 200));
+        var forrigeAndeler = List.of(lagAndel(true, 2000), lagAndel(false, 100));
+        var bgAndeler = List.of(lagAndel(true, 1200), lagAndel(false, 200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -817,12 +685,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case14d() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2000),
-                lagAndel(false, 100));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 200));
+        var forrigeAndeler = List.of(lagAndel(true, 2000), lagAndel(false, 100));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -839,12 +703,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case15a() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2100),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 600),
-                lagAndel(false, 800));
+        var forrigeAndeler = List.of(lagAndel(true, 2100), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 600), lagAndel(false, 800));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -861,12 +721,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void case15b() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2100),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 1800),
-                lagAndel(false, 200));
+        var forrigeAndeler = List.of(lagAndel(true, 2100), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 1800), lagAndel(false, 200));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -881,14 +737,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void slåttSammenAndelerMistetReferanse() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 1100, REF1),
-                lagAndel(true, 1000, REF2),
-                lagAndel(false, 0, REF1),
-                lagAndel(false, 0, REF2));
-        var bgAndeler = List.of(
-                lagAndel(true, 0),
-                lagAndel(false, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 1100, REF1), lagAndel(true, 1000, REF2), lagAndel(false, 0, REF1), lagAndel(false, 0, REF2));
+        var bgAndeler = List.of(lagAndel(true, 0), lagAndel(false, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -912,16 +762,9 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void slåSammenAndelerMedOgUtenRefTilEnSomManglerRef() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 500, REF1),
-                lagAndel(true, 1000, REF2),
-                lagAndel(true, 500),
-                lagAndel(false, 0, REF1),
-                lagAndel(false, 0, REF2),
-                lagAndel(false, 0));
-        var bgAndeler = List.of(
-                lagAndel(true, 100),
-                lagAndel(false, 2000));
+        var forrigeAndeler = List.of(lagAndel(true, 500, REF1), lagAndel(true, 1000, REF2), lagAndel(true, 500), lagAndel(false, 0, REF1),
+            lagAndel(false, 0, REF2), lagAndel(false, 0));
+        var bgAndeler = List.of(lagAndel(true, 100), lagAndel(false, 2000));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -949,11 +792,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void skalKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårKunEnAndelFinnes() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()));
-        var bgAndeler = List.of(
-                lagAndel(true, 100, REF1),
-                lagAndel(false, 2000, REF1));
+        var forrigeAndeler = List.of(lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()));
+        var bgAndeler = List.of(lagAndel(true, 100, REF1), lagAndel(false, 2000, REF1));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -978,13 +818,9 @@ class FinnEndringerIUtbetaltYtelseTest {
     @Test
     void skalIkkeKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårFlereAndelerFinnes() {
         // Arrange
-        var forrigeAndeler = List.of(
-                lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()),
-                lagAndel(false, 100, InternArbeidsforholdRef.nullRef()),
-                lagAndel(false, 300, InternArbeidsforholdRef.nullRef()));
-        var bgAndeler = List.of(
-                lagAndel(true, 400, REF1),
-                lagAndel(false, 2000, REF1));
+        var forrigeAndeler = List.of(lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()), lagAndel(false, 100, InternArbeidsforholdRef.nullRef()),
+            lagAndel(false, 300, InternArbeidsforholdRef.nullRef()));
+        var bgAndeler = List.of(lagAndel(true, 400, REF1), lagAndel(false, 2000, REF1));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -994,13 +830,8 @@ class FinnEndringerIUtbetaltYtelseTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {
-        var br = BeregningsresultatEntitet.builder()
-                .medRegelInput("input")
-                .medRegelSporing("sporing")
-                .build();
-        return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, BEREGNINGSRESULTAT_PERIODE_TOM)
-                .build(br);
+        var br = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, BEREGNINGSRESULTAT_PERIODE_TOM).build(br);
     }
 
     private BeregningsresultatAndel lagAndel(boolean erBrukerMottaker, int dagsats) {
@@ -1009,16 +840,16 @@ class FinnEndringerIUtbetaltYtelseTest {
 
     private BeregningsresultatAndel lagAndel(boolean erBrukerMottaker, int dagsats, InternArbeidsforholdRef ref) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(erBrukerMottaker)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medDagsatsFraBg(dagsats)
-                .medDagsats(dagsats)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdRef(ref)
-                .build(bgBrPeriode);
+            .medBrukerErMottaker(erBrukerMottaker)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsatsFraBg(dagsats)
+            .medDagsats(dagsats)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdRef(ref)
+            .build(bgBrPeriode);
     }
 
 }

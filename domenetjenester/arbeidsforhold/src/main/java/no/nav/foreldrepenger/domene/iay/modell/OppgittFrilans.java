@@ -56,12 +56,8 @@ public class OppgittFrilans {
 
     @Override
     public String toString() {
-        return "FrilansEntitet{" +
-                ", harInntektFraFosterhjem=" + harInntektFraFosterhjem +
-                ", erNyoppstartet=" + erNyoppstartet +
-                ", harNærRelasjon=" + harNærRelasjon +
-                ", frilansoppdrag=" + frilansoppdrag +
-                '}';
+        return "FrilansEntitet{" + ", harInntektFraFosterhjem=" + harInntektFraFosterhjem + ", erNyoppstartet=" + erNyoppstartet + ", harNærRelasjon="
+            + harNærRelasjon + ", frilansoppdrag=" + frilansoppdrag + '}';
     }
 
     void leggTilFrilansoppdrag(OppgittFrilansoppdrag oppgittFrilansoppdrag) {

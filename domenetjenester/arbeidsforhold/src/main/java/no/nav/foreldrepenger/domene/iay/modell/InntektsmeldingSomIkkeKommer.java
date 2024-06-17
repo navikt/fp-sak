@@ -12,9 +12,8 @@ public class InntektsmeldingSomIkkeKommer {
     private InternArbeidsforholdRef internRef;
 
     public InntektsmeldingSomIkkeKommer(Arbeidsgiver arbeidsgiver,
-            InternArbeidsforholdRef internRef,
-            @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef
-    ) {
+                                        InternArbeidsforholdRef internRef,
+                                        @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef) {
         this.arbeidsgiver = arbeidsgiver;
         this.internRef = internRef;
     }
@@ -36,8 +35,7 @@ public class InntektsmeldingSomIkkeKommer {
             return false;
         }
         var that = (InntektsmeldingSomIkkeKommer) o;
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver)
-                && Objects.equals(internRef, that.internRef);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(internRef, that.internRef);
     }
 
     @Override
@@ -47,9 +45,6 @@ public class InntektsmeldingSomIkkeKommer {
 
     @Override
     public String toString() {
-        return "InntektsmeldingSomIkkeKommer{" +
-                "arbeidsgiver=" + arbeidsgiver +
-                ", internRef=" + internRef +
-                '}';
+        return "InntektsmeldingSomIkkeKommer{" + "arbeidsgiver=" + arbeidsgiver + ", internRef=" + internRef + '}';
     }
 }

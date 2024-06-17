@@ -32,12 +32,9 @@ class OmfordelRevurderingsandelerSomHarFåttRefTest {
     @Test
     void skal_teste_at_ingenting_fordeles_ved_ingen_endring() {
         // Arrange
-        var originaleAndeler = List.of(
-                lagAndel(true, 1500, InternArbeidsforholdRef.nullRef()),
-                lagAndel(false, 200, InternArbeidsforholdRef.nullRef()));
-        var revurderingAndeler = List.of(
-                lagAndel(true, 1500, REF1),
-                lagAndel(false, 200, REF1));
+        var originaleAndeler = List.of(lagAndel(true, 1500, InternArbeidsforholdRef.nullRef()),
+            lagAndel(false, 200, InternArbeidsforholdRef.nullRef()));
+        var revurderingAndeler = List.of(lagAndel(true, 1500, REF1), lagAndel(false, 200, REF1));
 
         // Act
         var originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
@@ -53,12 +50,9 @@ class OmfordelRevurderingsandelerSomHarFåttRefTest {
     @Test
     void skal_teste_at_ingenting_fordeles_når_brukers_andel_øker() {
         // Arrange
-        var originaleAndeler = List.of(
-                lagAndel(true, 1500, InternArbeidsforholdRef.nullRef()),
-                lagAndel(false, 200, InternArbeidsforholdRef.nullRef()));
-        var revurderingAndeler = List.of(
-                lagAndel(true, 1700, REF1),
-                lagAndel(false, 500, REF1));
+        var originaleAndeler = List.of(lagAndel(true, 1500, InternArbeidsforholdRef.nullRef()),
+            lagAndel(false, 200, InternArbeidsforholdRef.nullRef()));
+        var revurderingAndeler = List.of(lagAndel(true, 1700, REF1), lagAndel(false, 500, REF1));
 
         var originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
         var revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
@@ -71,27 +65,22 @@ class OmfordelRevurderingsandelerSomHarFåttRefTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {
-        var br = BeregningsresultatEntitet.builder()
-                .medRegelInput("input")
-                .medRegelSporing("sporing")
-                .build();
-        return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, BEREGNINGSRESULTAT_PERIODE_TOM)
-                .build(br);
+        var br = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, BEREGNINGSRESULTAT_PERIODE_TOM).build(br);
     }
 
     private BeregningsresultatAndel lagAndel(boolean erBrukerMottaker, int dagsats, InternArbeidsforholdRef ref) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(erBrukerMottaker)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medDagsatsFraBg(dagsats)
-                .medDagsats(dagsats)
-                .medArbeidsgiver(ARBEIDSGIVER)
-                .medArbeidsforholdRef(ref)
-                .build(bgBrPeriode);
+            .medBrukerErMottaker(erBrukerMottaker)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsatsFraBg(dagsats)
+            .medDagsats(dagsats)
+            .medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdRef(ref)
+            .build(bgBrPeriode);
     }
 
 }

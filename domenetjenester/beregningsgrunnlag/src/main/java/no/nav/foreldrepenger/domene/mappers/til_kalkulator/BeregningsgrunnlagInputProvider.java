@@ -20,7 +20,7 @@ public class BeregningsgrunnlagInputProvider {
 
     @Inject
     public BeregningsgrunnlagInputProvider(@Any Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste,
-            @Any Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste) {
+                                           @Any Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste) {
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningsgrunnlagRestInputTjeneste = beregningsgrunnlagRestInputTjeneste;
     }

@@ -24,10 +24,7 @@ public class Personas {
         } else {
             throw new IllegalArgumentException("En Personas har kun en aktørId, allerede satt til " + this.aktørId + ", angitt=" + aktørId);
         }
-        builder.leggTilPersonopplysninger(persInfoBuilder
-                .aktørId(aktørId)
-                .fødselsdato(fødselsdato)
-                .sivilstand(st));
+        builder.leggTilPersonopplysninger(persInfoBuilder.aktørId(aktørId).fødselsdato(fødselsdato).sivilstand(st));
         return this;
     }
 

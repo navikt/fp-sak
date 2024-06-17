@@ -28,7 +28,8 @@ class KrrSpråkKlientTest {
 
 
     @BeforeEach
-    public void setup() { krrSpråkKlient = new KrrSpråkKlient(restClient);
+    public void setup() {
+        krrSpråkKlient = new KrrSpråkKlient(restClient);
     }
 
     @Test
@@ -51,7 +52,7 @@ class KrrSpråkKlientTest {
     @Test
     void propagerExceptionVedIntegrasjonExceptionUlik404() {
         when(restClient.sendReturnOptional(any(), any())).thenThrow(new IntegrasjonException("B", "Noe annet feil."));
-        assertThatThrownBy(()-> krrSpråkKlient.finnSpråkkodeForBruker("123")).isInstanceOf(IntegrasjonException.class);
+        assertThatThrownBy(() -> krrSpråkKlient.finnSpråkkodeForBruker("123")).isInstanceOf(IntegrasjonException.class);
     }
 
     private void forventMappingFraKrrResponsTilSpråkkode(KrrRespons responsFraKrr, Språkkode språkkode) {

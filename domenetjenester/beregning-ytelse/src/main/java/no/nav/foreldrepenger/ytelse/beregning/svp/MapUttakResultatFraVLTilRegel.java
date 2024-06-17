@@ -46,10 +46,12 @@ public class MapUttakResultatFraVLTilRegel {
         return new UttakResultat(perioder);
     }
 
-    private List<LocalDateTimeline<List<UttakAktivitet>>> mapUttakResultatTilTimeline(SvangerskapspengerUttakResultatEntitet uttakResultat, UttakInput input) {
+    private List<LocalDateTimeline<List<UttakAktivitet>>> mapUttakResultatTilTimeline(SvangerskapspengerUttakResultatEntitet uttakResultat,
+                                                                                      UttakInput input) {
         List<LocalDateTimeline<List<UttakAktivitet>>> timelines = new ArrayList<>();
         for (var arbeidsforhold : uttakResultat.getUttaksResultatArbeidsforhold()) {
-            if (ArbeidsforholdIkkeOppfyltÅrsak.INGEN.equals(arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak())) { //Fortsetter bare om arbeidsforhold er godkjent
+            if (ArbeidsforholdIkkeOppfyltÅrsak.INGEN.equals(
+                arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak())) { //Fortsetter bare om arbeidsforhold er godkjent
                 List<LocalDateSegment<List<UttakAktivitet>>> segments = new ArrayList<>();
                 for (var periode : arbeidsforhold.getPerioder()) {
                     var segment = mapUttakResultatTilSegment(input, arbeidsforhold, periode);
@@ -61,7 +63,9 @@ public class MapUttakResultatFraVLTilRegel {
         return timelines;
     }
 
-    private LocalDateSegment<List<UttakAktivitet>> mapUttakResultatTilSegment(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {
+    private LocalDateSegment<List<UttakAktivitet>> mapUttakResultatTilSegment(UttakInput input,
+                                                                              SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold,
+                                                                              SvangerskapspengerUttakResultatPeriodeEntitet periode) {
         var interval = new LocalDateInterval(periode.getFom(), periode.getTom());
         var uttakAktivitet = mapAktivitet(input, arbeidsforhold, periode);
         var uttakAktivitetListe = List.of(uttakAktivitet);
@@ -90,11 +94,14 @@ public class MapUttakResultatFraVLTilRegel {
         return uttakTimeline.getLocalDateIntervals()
             .stream()
             .map(uttakTimeline::getSegment)
-            .map(segment -> new UttakResultatPeriode(segment.getFom(), segment.getTom(), Optional.ofNullable(segment.getValue()).orElse(List.of()), false))
+            .map(segment -> new UttakResultatPeriode(segment.getFom(), segment.getTom(), Optional.ofNullable(segment.getValue()).orElse(List.of()),
+                false))
             .toList();
     }
 
-    private UttakAktivitet mapAktivitet(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {
+    private UttakAktivitet mapAktivitet(UttakInput input,
+                                        SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold,
+                                        SvangerskapspengerUttakResultatPeriodeEntitet periode) {
         var stillingsprosent = mapStillingsprosent(input, uttakArbeidsforhold);
         var totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakArbeidsforhold);
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);

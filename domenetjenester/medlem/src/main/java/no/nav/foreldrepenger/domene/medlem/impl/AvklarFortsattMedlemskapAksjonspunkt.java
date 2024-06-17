@@ -20,7 +20,8 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
-    public AvklarFortsattMedlemskapAksjonspunkt(BehandlingRepositoryProvider repositoryProvider, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+    public AvklarFortsattMedlemskapAksjonspunkt(BehandlingRepositoryProvider repositoryProvider,
+                                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                 HistorikkTjenesteAdapter historikkTjenesteAdapter) {
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -61,14 +62,10 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
         var nyVerdi = data.getLovligOppholdVurdering();
         var tidligereVerdi = builder.build().getLovligOppholdVurdering();
 
-        builder.medOppholdsrettVurdering(data.getOppholdsrettVurdering())
-            .medLovligOppholdVurdering(nyVerdi)
-            .medErEosBorger(data.getErEosBorger());
+        builder.medOppholdsrettVurdering(data.getOppholdsrettVurdering()).medLovligOppholdVurdering(nyVerdi).medErEosBorger(data.getErEosBorger());
 
-        lagHistorikkFor(data.getBegrunnelse())
-            .medEndretFelt(HistorikkEndretFeltType.OPPHOLDSRETT_IKKE_EOS,
-                mapTilLovligOppholdVerdiKode(tidligereVerdi),
-                mapTilLovligOppholdVerdiKode(nyVerdi));
+        lagHistorikkFor(data.getBegrunnelse()).medEndretFelt(HistorikkEndretFeltType.OPPHOLDSRETT_IKKE_EOS,
+            mapTilLovligOppholdVerdiKode(tidligereVerdi), mapTilLovligOppholdVerdiKode(nyVerdi));
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
     }
 
@@ -77,12 +74,10 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
         var nyVerdi = data.getOppholdsrettVurdering();
         var tidligereVerdi = builder.build().getOppholdsrettVurdering();
 
-        builder.medOppholdsrettVurdering(nyVerdi)
-            .medLovligOppholdVurdering(data.getLovligOppholdVurdering())
-            .medErEosBorger(data.getErEosBorger());
+        builder.medOppholdsrettVurdering(nyVerdi).medLovligOppholdVurdering(data.getLovligOppholdVurdering()).medErEosBorger(data.getErEosBorger());
 
-        lagHistorikkFor(data.getBegrunnelse())
-            .medEndretFelt(HistorikkEndretFeltType.OPPHOLDSRETT_EOS, mapTilOppholdsrettVerdiKode(tidligereVerdi), mapTilOppholdsrettVerdiKode(nyVerdi));
+        lagHistorikkFor(data.getBegrunnelse()).medEndretFelt(HistorikkEndretFeltType.OPPHOLDSRETT_EOS, mapTilOppholdsrettVerdiKode(tidligereVerdi),
+            mapTilOppholdsrettVerdiKode(nyVerdi));
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
     }
 
@@ -108,9 +103,7 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
     }
 
     private HistorikkInnslagTekstBuilder lagHistorikkFor(String begrunnelse) {
-        return historikkTjenesteAdapter.tekstBuilder()
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
-            .medBegrunnelse(begrunnelse);
+        return historikkTjenesteAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP).medBegrunnelse(begrunnelse);
     }
 
     private HistorikkEndretFeltVerdiType mapTilOppholdsrettVerdiKode(Boolean harOppholdsrett) {

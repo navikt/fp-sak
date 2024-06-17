@@ -113,8 +113,8 @@ class VurderBehandlingerUnderIverksettelseTest {
         var førstegangScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);
         var innsyn = scenarioInnsyn.lagre(repositoryProvider);
-        var originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-                innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
+        var originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(innsyn.getFagsakId(),
+            BehandlingType.FØRSTEGANGSSØKNAD).get();
         lagreBehandlingVedtak(originalBehandling, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -125,8 +125,7 @@ class VurderBehandlingerUnderIverksettelseTest {
     }
 
     private Behandling lagreRevurdering(Behandling førstegangBehandling) {
-        var revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING)
-                .build();
+        var revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING).build();
         var lås = new BehandlingLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
         var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
@@ -139,14 +138,13 @@ class VurderBehandlingerUnderIverksettelseTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         var behandlingsresultat = getBehandlingsresultat(behandling);
         var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-                .medAnsvarligSaksbehandler("E2354345")
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medIverksettingStatus(iverksettingStatus)
-                .medBehandlingsresultat(behandlingsresultat)
-                .build();
-        var opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now()
-                .plusSeconds(1) : LocalDateTime.now();
+            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
+            .medAnsvarligSaksbehandler("E2354345")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medIverksettingStatus(iverksettingStatus)
+            .medBehandlingsresultat(behandlingsresultat)
+            .build();
+        var opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now().plusSeconds(1) : LocalDateTime.now();
         behandling.setOpprettetTidspunkt(opprettetTidspunkt);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         if (IverksettingStatus.IKKE_IVERKSATT.equals(iverksettingStatus)) {

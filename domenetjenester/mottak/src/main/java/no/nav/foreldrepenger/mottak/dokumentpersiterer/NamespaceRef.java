@@ -24,10 +24,12 @@ public @interface NamespaceRef {
 
     /**
      * namespace av dokumentet
-     * */
+     */
     String value();
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class NamespaceRefLiteral extends AnnotationLiteral<NamespaceRef> implements NamespaceRef {
 
         private String value;

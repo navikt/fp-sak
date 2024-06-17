@@ -67,8 +67,7 @@ public class BGAndelArbeidsforhold {
             return false;
         }
         var other = (BGAndelArbeidsforhold) obj;
-        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
-                && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
+        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver()) && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
     }
 
     @Override
@@ -78,16 +77,10 @@ public class BGAndelArbeidsforhold {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "orgnr=" + getArbeidsforholdOrgnr() + ", "
-                + "arbeidsgiver=" + arbeidsgiver + ", "
-                + "arbeidsforholdRef=" + arbeidsforholdRef + ", "
-                + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", "
-                + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", "
-                + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", "
-                + "arbeidsperiodeFom=" + arbeidsperiodeFom
-                + "arbeidsperiodeTom=" + arbeidsperiodeTom
-                + ">";
+        return getClass().getSimpleName() + "<" + "orgnr=" + getArbeidsforholdOrgnr() + ", " + "arbeidsgiver=" + arbeidsgiver + ", "
+            + "arbeidsforholdRef=" + arbeidsforholdRef + ", " + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", "
+            + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", " + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", "
+            + "arbeidsperiodeFom=" + arbeidsperiodeFom + "arbeidsperiodeTom=" + arbeidsperiodeTom + ">";
     }
 
     public static Builder builder() {
@@ -115,7 +108,7 @@ public class BGAndelArbeidsforhold {
         }
 
         public Builder medArbeidsforholdRef(String arbeidsforholdRef) {
-            return medArbeidsforholdRef(arbeidsforholdRef==null?null:InternArbeidsforholdRef.ref(arbeidsforholdRef));
+            return medArbeidsforholdRef(arbeidsforholdRef == null ? null : InternArbeidsforholdRef.ref(arbeidsforholdRef));
         }
 
         public Builder medArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {

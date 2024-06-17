@@ -61,14 +61,9 @@ public class ForeldrepengerUttakPeriodeAktivitet {
 
     @Override
     public String toString() {
-        return "ForeldrepengerUttakPeriodeAktivitet{" +
-            "aktivitet=" + aktivitet +
-            ", trekkonto=" + trekkonto +
-            ", trekkdager=" + trekkdager +
-            ", arbeidsprosent=" + arbeidsprosent +
-            ", utbetalingsgrad=" + utbetalingsgrad +
-            ", søktGraderingForAktivitetIPeriode=" + søktGraderingForAktivitetIPeriode +
-            '}';
+        return "ForeldrepengerUttakPeriodeAktivitet{" + "aktivitet=" + aktivitet + ", trekkonto=" + trekkonto + ", trekkdager=" + trekkdager
+            + ", arbeidsprosent=" + arbeidsprosent + ", utbetalingsgrad=" + utbetalingsgrad + ", søktGraderingForAktivitetIPeriode="
+            + søktGraderingForAktivitetIPeriode + '}';
     }
 
     public static class Builder {
@@ -124,17 +119,18 @@ public class ForeldrepengerUttakPeriodeAktivitet {
     }
 
     public boolean likBortsettFraTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
-        return Objects.equals(trekkonto, that.trekkonto) &&
-            (Objects.equals(arbeidsprosent, that.arbeidsprosent) || arbeidsprosent.compareTo(that.arbeidsprosent) == 0) &&
-            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
-            Objects.equals(aktivitet, that.aktivitet);
+        return Objects.equals(trekkonto, that.trekkonto) && (Objects.equals(arbeidsprosent, that.arbeidsprosent)
+            || arbeidsprosent.compareTo(that.arbeidsprosent) == 0) && Objects.equals(utbetalingsgrad, that.utbetalingsgrad) && Objects.equals(
+            aktivitet, that.aktivitet);
     }
 
     public boolean likEllerSammeAktivitetZeroTrekkdager(ForeldrepengerUttakPeriodeAktivitet that) {
-        if (Objects.equals(trekkdager, Trekkdager.ZERO) && Objects.equals(that.getTrekkdager(), Trekkdager.ZERO))
+        if (Objects.equals(trekkdager, Trekkdager.ZERO) && Objects.equals(that.getTrekkdager(), Trekkdager.ZERO)) {
             return Objects.equals(aktivitet, that.getUttakAktivitet());
-        if (Objects.equals(trekkdager, Trekkdager.ZERO) || Objects.equals(that.getTrekkdager(), Trekkdager.ZERO))
+        }
+        if (Objects.equals(trekkdager, Trekkdager.ZERO) || Objects.equals(that.getTrekkdager(), Trekkdager.ZERO)) {
             return false;
+        }
         return likBortsettFraTrekkdager(that);
     }
 

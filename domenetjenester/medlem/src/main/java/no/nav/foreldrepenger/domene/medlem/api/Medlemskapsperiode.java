@@ -108,16 +108,10 @@ public class Medlemskapsperiode {
         if (!(obj instanceof Medlemskapsperiode other)) {
             return false;
         }
-        return Objects.equals(this.fom, other.fom)
-            && Objects.equals(this.tom, other.tom)
-            && Objects.equals(this.datoBesluttet, other.datoBesluttet)
-            && Objects.equals(this.erMedlem, other.erMedlem)
-            && Objects.equals(this.trygdedekning, other.trygdedekning)
-            && Objects.equals(this.kilde, other.kilde)
-            && Objects.equals(this.lovvalg, other.lovvalg)
-            && Objects.equals(this.lovvalgsland, other.lovvalgsland)
-            && Objects.equals(this.studieland, other.studieland)
-            && Objects.equals(this.medlId, other.medlId);
+        return Objects.equals(this.fom, other.fom) && Objects.equals(this.tom, other.tom) && Objects.equals(this.datoBesluttet, other.datoBesluttet)
+            && Objects.equals(this.erMedlem, other.erMedlem) && Objects.equals(this.trygdedekning, other.trygdedekning) && Objects.equals(this.kilde,
+            other.kilde) && Objects.equals(this.lovvalg, other.lovvalg) && Objects.equals(this.lovvalgsland, other.lovvalgsland) && Objects.equals(
+            this.studieland, other.studieland) && Objects.equals(this.medlId, other.medlId);
     }
 
     @Override
@@ -127,64 +121,65 @@ public class Medlemskapsperiode {
 
     @Override
     public String toString() {
-        return "Medlemskapsperiode{" +
-            "fom=" + fom +
-            ", tom=" + tom +
-            ", datoBesluttet=" + datoBesluttet +
-            ", erMedlem=" + erMedlem +
-            ", trygdedekning=" + trygdedekning +
-            ", kilde=" + kilde +
-            ", lovvalg=" + lovvalg +
-            ", lovvalgsland=" + lovvalgsland +
-            ", studieland=" + studieland +
-            ", medlId=" + medlId +
-            '}';
+        return "Medlemskapsperiode{" + "fom=" + fom + ", tom=" + tom + ", datoBesluttet=" + datoBesluttet + ", erMedlem=" + erMedlem
+            + ", trygdedekning=" + trygdedekning + ", kilde=" + kilde + ", lovvalg=" + lovvalg + ", lovvalgsland=" + lovvalgsland + ", studieland="
+            + studieland + ", medlId=" + medlId + '}';
     }
 
     public static class Builder {
         private Medlemskapsperiode periodeMal = new Medlemskapsperiode();
 
-        public Builder medFom(LocalDate fom){
+        public Builder medFom(LocalDate fom) {
             periodeMal.setFom(fom);
             return this;
         }
-        public Builder medTom(LocalDate tom){
+
+        public Builder medTom(LocalDate tom) {
             periodeMal.setTom(tom);
             return this;
         }
-        public Builder medDatoBesluttet(LocalDate datoBesluttet){
+
+        public Builder medDatoBesluttet(LocalDate datoBesluttet) {
             periodeMal.setDatoBesluttet(datoBesluttet);
             return this;
         }
-        public Builder medDekning(MedlemskapDekningType dekning){
+
+        public Builder medDekning(MedlemskapDekningType dekning) {
             periodeMal.setTrygdedekning(dekning);
             return this;
         }
-        public Builder medErMedlem(boolean erMedlem){
+
+        public Builder medErMedlem(boolean erMedlem) {
             periodeMal.setErMedlem(erMedlem);
             return this;
         }
-        public Builder medKilde(MedlemskapKildeType kilde){
+
+        public Builder medKilde(MedlemskapKildeType kilde) {
             periodeMal.setKilde(kilde);
             return this;
         }
-        public Builder medLovvalg(MedlemskapType lovvalg){
+
+        public Builder medLovvalg(MedlemskapType lovvalg) {
             periodeMal.setLovvalg(lovvalg);
             return this;
         }
-        public Builder medLovvalgsland(Landkoder lovvalgsland){
+
+        public Builder medLovvalgsland(Landkoder lovvalgsland) {
             periodeMal.setLovvalgsland(lovvalgsland);
             return this;
         }
-        public Builder medStudieland(Landkoder studieland){
+
+        public Builder medStudieland(Landkoder studieland) {
             periodeMal.setStudieland(studieland);
             return this;
         }
-        public Builder medMedlId(Long medlId){
+
+        public Builder medMedlId(Long medlId) {
             periodeMal.setMedlId(medlId);
             return this;
         }
-        public Medlemskapsperiode build(){
+
+        public Medlemskapsperiode build() {
             return periodeMal;
         }
     }

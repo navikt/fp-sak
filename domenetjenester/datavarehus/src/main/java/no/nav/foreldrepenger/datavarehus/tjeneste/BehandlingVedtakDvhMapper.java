@@ -14,7 +14,9 @@ public class BehandlingVedtakDvhMapper {
     private BehandlingVedtakDvhMapper() {
     }
 
-    public static VilkårIkkeOppfylt mapVilkårIkkeOppfylt(VedtakResultatType vedtakResultatType, FagsakYtelseType ytelseType, Set<VilkårType> vilkårIkkeOppfylt) {
+    public static VilkårIkkeOppfylt mapVilkårIkkeOppfylt(VedtakResultatType vedtakResultatType,
+                                                         FagsakYtelseType ytelseType,
+                                                         Set<VilkårType> vilkårIkkeOppfylt) {
         if (vedtakResultatType == null || !VEDTAK_IKKE_OPPFYLT.contains(vedtakResultatType)) {
             return null;
         }

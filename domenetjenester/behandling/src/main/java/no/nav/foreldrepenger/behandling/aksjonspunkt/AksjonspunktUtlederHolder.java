@@ -26,8 +26,8 @@ public class AksjonspunktUtlederHolder {
         var instance = CDI.current().select(aksjonspunktUtlederClass);
 
         if (instance.isAmbiguous()) {
-            throw new TekniskException("FP-191205", "Mer enn en implementasjon funnet for aksjonspunktutleder "
-                + aksjonspunktUtlederClass.getSimpleName());
+            throw new TekniskException("FP-191205",
+                "Mer enn en implementasjon funnet for aksjonspunktutleder " + aksjonspunktUtlederClass.getSimpleName());
         }
         if (instance.isUnsatisfied()) {
             throw new TekniskException("FP-985832", "Ukjent aksjonspunktutleder " + aksjonspunktUtlederClass.getSimpleName());
@@ -36,7 +36,7 @@ public class AksjonspunktUtlederHolder {
 
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+                "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }
         return minInstans;
     }

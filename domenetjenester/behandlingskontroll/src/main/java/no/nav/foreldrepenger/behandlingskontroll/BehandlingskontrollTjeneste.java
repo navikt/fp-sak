@@ -72,10 +72,10 @@ public interface BehandlingskontrollTjeneste {
      *
      * @see #prosesserBehandling(BehandlingskontrollKontekst)
      */
-    void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst, Collection<AksjonspunktDefinisjon> endredeAksjonspunkt);
+    void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst,
+                                                         Collection<AksjonspunktDefinisjon> endredeAksjonspunkt);
 
-    boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType tidligereStegType);
+    boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst, BehandlingStegType tidligereStegType);
 
     /**
      * FLytt prosesen til et tidlligere steg.
@@ -88,7 +88,7 @@ public interface BehandlingskontrollTjeneste {
 
     /**
      * Flytt prosessen til senere steg. Hopper over eventuelt mellomliggende steg.
-     *
+     * <p>
      * Alle mellomliggende steg og aksjonspunkt vil bli satt til AVBRUTT når dette
      * skjer. Prosessen vil ikke kjøres. Det gjelder også dersom neste steg er det
      * definerte neste steget i prosessen (som normalt skulle blitt kalt gjennom
@@ -103,8 +103,9 @@ public interface BehandlingskontrollTjeneste {
     /**
      * Oppretter og håndterer nye aksjonspunkt
      */
-    List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktDefinisjon> aksjonspunkter);
+    List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst,
+                                                 BehandlingStegType behandlingStegType,
+                                                 List<AksjonspunktDefinisjon> aksjonspunkter);
 
     /**
      * Oppretter og håndterer nye overstyringsaksjonspunkt
@@ -115,33 +116,36 @@ public interface BehandlingskontrollTjeneste {
      * Lagrer og håndterer utførte aksjonspunkt uten begrunnelse. Dersom man skal
      * lagre begrunnelse - bruk apRepository + aksjonspunkterUtført
      */
-    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter);
+    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType, List<Aksjonspunkt> aksjonspunkter);
 
     /**
      * Lagrer og håndterer utførte aksjonspunkt uten begrunnelse. Dersom man skal
      * lagre begrunnelse - bruk apRepository + aksjonspunkterUtført
      */
-    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            Aksjonspunkt aksjonspunkt, String begrunnelse);
+    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegType behandlingStegType,
+                                   Aksjonspunkt aksjonspunkt,
+                                   String begrunnelse);
 
     /**
      * Lagrer og håndterer avbrutte aksjonspunkt
      */
-    void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter);
+    void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType, List<Aksjonspunkt> aksjonspunkter);
 
     /**
      * Lagrer og håndterer reåpning av aksjonspunkt
      */
-    void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering,
-            boolean setTotrinn);
+    void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst,
+                                    List<Aksjonspunkt> aksjonspunkter,
+                                    boolean beholdToTrinnVurdering,
+                                    boolean setTotrinn);
 
     /**
      * Lagrer og håndterer aksjonspunktresultater fra utledning utenom steg
      */
-    void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktResultat> aksjonspunktResultater);
+    void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegType behandlingStegType,
+                                   List<AksjonspunktResultat> aksjonspunktResultater);
 
     /**
      * Lagrer og publiserer totrinns-setting for aksjonspunkt
@@ -175,10 +179,11 @@ public interface BehandlingskontrollTjeneste {
      * @param aksjonspunktDefinisjon hvilket Aksjonspunkt skal holde i 'ventingen'
      * @param fristTid               Frist før Behandlingen å adresseres
      * @param venteårsak             Årsak til ventingen.
-     *
      */
-    Aksjonspunkt settBehandlingPåVentUtenSteg(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, LocalDateTime fristTid,
-            Venteårsak venteårsak);
+    Aksjonspunkt settBehandlingPåVentUtenSteg(Behandling behandling,
+                                              AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                              LocalDateTime fristTid,
+                                              Venteårsak venteårsak);
 
     /**
      * Setter behandlingen på vent med angitt hvilket steg det står i. NB IKKE BRUK
@@ -189,11 +194,12 @@ public interface BehandlingskontrollTjeneste {
      * @param BehandlingStegType     stegType aksjonspunktet står i.
      * @param fristTid               Frist før Behandlingen å adresseres
      * @param venteårsak             Årsak til ventingen.
-     *
      */
-    Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingStegType stegType,
-            LocalDateTime fristTid,
-            Venteårsak venteårsak);
+    Aksjonspunkt settBehandlingPåVent(Behandling behandling,
+                                      AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                      BehandlingStegType stegType,
+                                      LocalDateTime fristTid,
+                                      Venteårsak venteårsak);
 
     /**
      * Setter autopunkter av en spesifikk aksjonspunktdefinisjon til utført. Dette
@@ -216,7 +222,9 @@ public interface BehandlingskontrollTjeneste {
 
     void taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst);
 
-    /** Henlegg en behandling. */
+    /**
+     * Henlegg en behandling.
+     */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
 
     BehandlingStegKonfigurasjon getBehandlingStegKonfigurasjon();
@@ -233,10 +241,12 @@ public interface BehandlingskontrollTjeneste {
      * @param behandlingSteg         steget som aksjonspunktet skal sjekkes mot
      * @param aksjonspunktDefinisjon aksjonspunktet som skal sjekkes
      * @return true dersom aksjonspunktet skal løses i eller etter det angitte
-     *         steget.
+     * steget.
      */
-    boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType behandlingSteg,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon);
+    boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType,
+                                                 BehandlingType behandlingType,
+                                                 BehandlingStegType behandlingSteg,
+                                                 AksjonspunktDefinisjon aksjonspunktDefinisjon);
 
     void fremoverTransisjon(TransisjonIdentifikator transisjonId, BehandlingskontrollKontekst kontekst);
 

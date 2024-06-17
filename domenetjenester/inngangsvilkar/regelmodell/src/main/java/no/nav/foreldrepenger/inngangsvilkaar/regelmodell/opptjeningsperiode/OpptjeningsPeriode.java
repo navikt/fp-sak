@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode;
 
 import java.time.LocalDate;
 
-/** Resultat av vurdering av Opptjeningsvilkår */
+/**
+ * Resultat av vurdering av Opptjeningsvilkår
+ */
 public class OpptjeningsPeriode {
 
     private LocalDate opptjeningsperiodeFom;

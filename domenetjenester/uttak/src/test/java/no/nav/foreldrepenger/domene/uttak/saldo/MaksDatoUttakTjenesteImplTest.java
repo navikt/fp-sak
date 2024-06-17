@@ -44,13 +44,13 @@ class MaksDatoUttakTjenesteImplTest {
     private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste;
 
     {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
+            repositoryProvider.getFagsakRelasjonRepository());
         var kontoerGrunnlagBygger = new KontoerGrunnlagBygger();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var utregnetTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
         var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, kontoerGrunnlagBygger, utregnetTjeneste);
-        maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
-            repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste);
+        maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste);
     }
 
     @Test
@@ -59,18 +59,20 @@ class MaksDatoUttakTjenesteImplTest {
         var uttak = new UttakResultatPerioderEntitet();
         //mandag
         var fødselsdato = LocalDate.of(2019, 2, 4);
-        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
-            fødselsdato.plusDays(4)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusDays(4)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
-        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
+        scenario.medStønadskontoberegning(
+            lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Assert
@@ -82,18 +84,20 @@ class MaksDatoUttakTjenesteImplTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         //søndag
-        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
-            LocalDate.of(2019, 10, 20)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10), LocalDate.of(2019, 10, 20)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
-        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
+        scenario.medStønadskontoberegning(
+            lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Assert
@@ -101,9 +105,8 @@ class MaksDatoUttakTjenesteImplTest {
     }
 
     private UttakInput input(Behandling behandling) {
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(),
-                List.of(), 1)));
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1)));
         return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
     }
 
@@ -112,18 +115,20 @@ class MaksDatoUttakTjenesteImplTest {
 
         var uttak = new UttakResultatPerioderEntitet();
         //søndag
-        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
-            LocalDate.of(2019, 10, 19)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10), LocalDate.of(2019, 10, 19)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medUttak(uttak);
-        scenario.medStønadskontoberegning(lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
+        scenario.medStønadskontoberegning(
+            lagStønadskonto(new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build()));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Assert
@@ -131,10 +136,7 @@ class MaksDatoUttakTjenesteImplTest {
     }
 
     private Stønadskontoberegning lagStønadskonto(Stønadskonto stønadskonto) {
-        return new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
-            .medRegelInput(" ")
-            .medStønadskonto(stønadskonto)
-            .build();
+        return new Stønadskontoberegning.Builder().medRegelEvaluering(" ").medRegelInput(" ").medStønadskonto(stønadskonto).build();
     }
 
     @Test
@@ -143,12 +145,13 @@ class MaksDatoUttakTjenesteImplTest {
         var uttak = new UttakResultatPerioderEntitet();
         //mandag
         var fødselsdato = LocalDate.of(2019, 2, 4);
-        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
-            fødselsdato.plusDays(4)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusDays(4)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
-            UttakPeriodeType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
@@ -156,10 +159,8 @@ class MaksDatoUttakTjenesteImplTest {
         scenario.medUttak(uttak);
         var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
             .medRegelInput(" ")
-            .medStønadskonto(
-                new Stønadskonto.Builder().medMaxDager(7).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
-            .medStønadskonto(
-                new Stønadskonto.Builder().medMaxDager(1).medStønadskontoType(StønadskontoType.MØDREKVOTE).build())
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(7).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
+            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(1).medStønadskontoType(StønadskontoType.MØDREKVOTE).build())
             .build();
         scenario.medStønadskontoberegning(stønadskontoberegning);
         var behandling = scenario.lagre(repositoryProvider);

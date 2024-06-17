@@ -59,8 +59,7 @@ public class EndringsresultatSjekker {
         snapshot.leggTil(medlemTjeneste.finnAktivGrunnlagId(behandlingId));
 
         var iaySnapshot = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-            .map(iayg -> EndringsresultatSnapshot.medSnapshot(InntektArbeidYtelseGrunnlag.class,
-                iayg.getEksternReferanse()))
+            .map(iayg -> EndringsresultatSnapshot.medSnapshot(InntektArbeidYtelseGrunnlag.class, iayg.getEksternReferanse()))
             .orElse(EndringsresultatSnapshot.utenSnapshot(InntektArbeidYtelseGrunnlag.class));
 
         snapshot.leggTil(iaySnapshot);
@@ -70,8 +69,7 @@ public class EndringsresultatSjekker {
         return snapshot;
     }
 
-    public EndringsresultatDiff finnSporedeEndringerPåBehandlingsgrunnlag(Long behandlingId,
-                                                                          EndringsresultatSnapshot idSnapshotFør) {
+    public EndringsresultatDiff finnSporedeEndringerPåBehandlingsgrunnlag(Long behandlingId, EndringsresultatSnapshot idSnapshotFør) {
         // Del 1: Finn diff mellom grunnlagets id før og etter oppdatering
         var idSnapshotNå = opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandlingId);
         var idDiff = idSnapshotNå.minus(idSnapshotFør);
@@ -117,10 +115,8 @@ public class EndringsresultatSjekker {
     }
 
     private DiffResult diffResultatIay(Long behandlingId, EndringsresultatDiff idEndring) {
-        var grunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId,
-            (UUID) idEndring.getGrunnlagId1());
-        var grunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId,
-            (UUID) idEndring.getGrunnlagId2());
+        var grunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId, (UUID) idEndring.getGrunnlagId1());
+        var grunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId, (UUID) idEndring.getGrunnlagId2());
         return new IAYGrunnlagDiff(grunnlag1, grunnlag2).diffResultat(true);
     }
 

@@ -24,13 +24,13 @@ class UttakInputTjenesteTest {
 
     @Test
     void skal_hente_behandlingsårsaker_fra_behandling() {
-        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
-                .lagre(repositoryProvider);
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse().lagre(repositoryProvider);
         var årsak = BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(originalBehandling, List.of(årsak), false)
-                .medDefaultFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
-                .lagre(repositoryProvider);
+            .medOriginalBehandling(originalBehandling, List.of(årsak), false)
+            .medDefaultFordeling(LocalDate.of(2019, 11, 6))
+            .medDefaultSøknadTerminbekreftelse()
+            .lagre(repositoryProvider);
 
         var resultat = tjeneste.lagInput(revurdering);
 
@@ -40,12 +40,12 @@ class UttakInputTjenesteTest {
 
     @Test
     void skal_sette_om_behandling_er_manuelt_behandlet() {
-        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
-                .lagre(repositoryProvider);
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse().lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(originalBehandling, List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT), true)
-                .medDefaultFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
-                .lagre(repositoryProvider);
+            .medOriginalBehandling(originalBehandling, List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT), true)
+            .medDefaultFordeling(LocalDate.of(2019, 11, 6))
+            .medDefaultSøknadTerminbekreftelse()
+            .lagre(repositoryProvider);
 
         var resultat = tjeneste.lagInput(revurdering);
 

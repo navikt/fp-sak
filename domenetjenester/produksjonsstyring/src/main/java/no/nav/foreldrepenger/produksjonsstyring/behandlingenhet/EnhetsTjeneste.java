@@ -45,38 +45,30 @@ public class EnhetsTjeneste {
     private static final String NY_ENHET_ID = "4867"; // Nasjonal enhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
 
-    private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
-    private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
-    private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
-    private static final OrganisasjonsEnhet KONTROLL_ENHET =  new OrganisasjonsEnhet(SK_ENHET_ID, "NAV Familie- og pensjonsytelser Steinkjer");
+    private static final OrganisasjonsEnhet KLAGE_ENHET = new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
+    private static final OrganisasjonsEnhet SKJERMET_ENHET = new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
+    private static final OrganisasjonsEnhet UTLAND_ENHET = new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
+    private static final OrganisasjonsEnhet KONTROLL_ENHET = new OrganisasjonsEnhet(SK_ENHET_ID, "NAV Familie- og pensjonsytelser Steinkjer");
     private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
     private static final OrganisasjonsEnhet NASJONAL_ENHET = new OrganisasjonsEnhet(NY_ENHET_ID, "NAV Familie- og pensjonsytelser Foreldrepenger");
 
-    private static final OrganisasjonsEnhet DRAMMEN =  new OrganisasjonsEnhet("4806", "NAV Familie- og pensjonsytelser Drammen");
-    private static final OrganisasjonsEnhet BERGEN =  new OrganisasjonsEnhet("4812", "NAV Familie- og pensjonsytelser Bergen");
-    private static final OrganisasjonsEnhet STEINKJER =  new OrganisasjonsEnhet("4817", "NAV Familie- og pensjonsytelser Steinkjer");
-    private static final OrganisasjonsEnhet OSLO =  new OrganisasjonsEnhet("4833", "NAV Familie- og pensjonsytelser Oslo 1");
-    private static final OrganisasjonsEnhet STORD =  new OrganisasjonsEnhet("4842", "NAV Familie- og pensjonsytelser Stord");
-    private static final OrganisasjonsEnhet TROMSØ =  new OrganisasjonsEnhet("4849", "NAV Familie- og pensjonsytelser Tromsø");
+    private static final OrganisasjonsEnhet DRAMMEN = new OrganisasjonsEnhet("4806", "NAV Familie- og pensjonsytelser Drammen");
+    private static final OrganisasjonsEnhet BERGEN = new OrganisasjonsEnhet("4812", "NAV Familie- og pensjonsytelser Bergen");
+    private static final OrganisasjonsEnhet STEINKJER = new OrganisasjonsEnhet("4817", "NAV Familie- og pensjonsytelser Steinkjer");
+    private static final OrganisasjonsEnhet OSLO = new OrganisasjonsEnhet("4833", "NAV Familie- og pensjonsytelser Oslo 1");
+    private static final OrganisasjonsEnhet STORD = new OrganisasjonsEnhet("4842", "NAV Familie- og pensjonsytelser Stord");
+    private static final OrganisasjonsEnhet TROMSØ = new OrganisasjonsEnhet("4849", "NAV Familie- og pensjonsytelser Tromsø");
 
     // Oppdateres etterhvert som flytteprosessen foregår. Behold så lenge evaluering av nasjonal enhet foregår
-    private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(
-        Map.entry(NASJONAL_ENHET.enhetId(), NASJONAL_ENHET),
-        Map.entry(KLAGE_ENHET.enhetId(), KLAGE_ENHET),
-        Map.entry(SKJERMET_ENHET.enhetId(), SKJERMET_ENHET),
-        Map.entry(KODE6_ENHET.enhetId(), KODE6_ENHET),
-        Map.entry(DRAMMEN.enhetId(), NASJONAL_ENHET),
-        Map.entry(BERGEN.enhetId(), NASJONAL_ENHET),
-        Map.entry(STEINKJER.enhetId(), NASJONAL_ENHET),
-        Map.entry(OSLO.enhetId(), NASJONAL_ENHET),
-        Map.entry(STORD.enhetId(), NASJONAL_ENHET),
-        Map.entry(TROMSØ.enhetId(), NASJONAL_ENHET),
-        Map.entry("4802", NASJONAL_ENHET),
-        Map.entry("4847", NASJONAL_ENHET),
-        Map.entry("4205", KLAGE_ENHET)
-    );
+    private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(Map.entry(NASJONAL_ENHET.enhetId(), NASJONAL_ENHET),
+        Map.entry(KLAGE_ENHET.enhetId(), KLAGE_ENHET), Map.entry(SKJERMET_ENHET.enhetId(), SKJERMET_ENHET),
+        Map.entry(KODE6_ENHET.enhetId(), KODE6_ENHET), Map.entry(DRAMMEN.enhetId(), NASJONAL_ENHET), Map.entry(BERGEN.enhetId(), NASJONAL_ENHET),
+        Map.entry(STEINKJER.enhetId(), NASJONAL_ENHET), Map.entry(OSLO.enhetId(), NASJONAL_ENHET), Map.entry(STORD.enhetId(), NASJONAL_ENHET),
+        Map.entry(TROMSØ.enhetId(), NASJONAL_ENHET), Map.entry("4802", NASJONAL_ENHET), Map.entry("4847", NASJONAL_ENHET),
+        Map.entry("4205", KLAGE_ENHET));
 
-    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
+    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ,
+        KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
 
     private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ);
 
@@ -134,8 +126,11 @@ public class EnhetsTjeneste {
         }
     }
 
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, FagsakYtelseType ytelseType, AktørId hovedAktør,
-                                                                    Set<AktørId> alleAktører, FagsakMarkering saksmarkering) {
+    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId,
+                                                                    FagsakYtelseType ytelseType,
+                                                                    AktørId hovedAktør,
+                                                                    Set<AktørId> alleAktører,
+                                                                    FagsakMarkering saksmarkering) {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
@@ -159,17 +154,11 @@ public class EnhetsTjeneste {
     }
 
     private boolean harNoenDiskresjonskode6(FagsakYtelseType ytelseType, Set<AktørId> aktører) {
-        return aktører.stream()
-            .map(a -> personinfoAdapter.hentDiskresjonskode(ytelseType, a))
-            .anyMatch(Diskresjonskode.KODE6::equals);
+        return aktører.stream().map(a -> personinfoAdapter.hentDiskresjonskode(ytelseType, a)).anyMatch(Diskresjonskode.KODE6::equals);
     }
 
     private boolean erNoenSkjermetPerson(Set<AktørId> aktører) {
-        var identer = aktører.stream()
-            .map(a -> personinfoAdapter.hentFnr(a))
-            .flatMap(Optional::stream)
-            .map(PersonIdent::getIdent)
-            .toList();
+        var identer = aktører.stream().map(a -> personinfoAdapter.hentFnr(a)).flatMap(Optional::stream).map(PersonIdent::getIdent).toList();
         return skjermetPersonKlient.erNoenSkjermet(identer);
     }
 
@@ -193,8 +182,9 @@ public class EnhetsTjeneste {
 
     // Behold ut 2023
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, FagsakYtelseType ytelseType) {
-        var brukBTema = ytelseType == null || FagsakYtelseType.UDEFINERT.equals(ytelseType) ?
-            BehandlingTema.FORELDREPENGER : BehandlingTema.fraFagsak(ytelseType, null);
+        var brukBTema =
+            ytelseType == null || FagsakYtelseType.UDEFINERT.equals(ytelseType) ? BehandlingTema.FORELDREPENGER : BehandlingTema.fraFagsak(ytelseType,
+                null);
         List<ArbeidsfordelingResponse> restenhet;
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)

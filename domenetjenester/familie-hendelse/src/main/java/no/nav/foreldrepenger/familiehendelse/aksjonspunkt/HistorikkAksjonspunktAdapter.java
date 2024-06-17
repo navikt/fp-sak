@@ -34,20 +34,24 @@ class HistorikkAksjonspunktAdapter {
         this.param = param;
     }
 
-    public boolean håndterAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, Vilkår vilkår, Boolean erVilkarOk, String begrunnelse,
-                                    HistorikkEndretFeltType historikkEndretFeltType) {
-        var erEndret = oppdaterVedEndretVerdi(historikkEndretFeltType, vilkår.getGjeldendeVilkårUtfall(), erVilkarOk
-            ? VilkårUtfallType.OPPFYLT
-            : VilkårUtfallType.IKKE_OPPFYLT);
+    public boolean håndterAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                       Vilkår vilkår,
+                                       Boolean erVilkarOk,
+                                       String begrunnelse,
+                                       HistorikkEndretFeltType historikkEndretFeltType) {
+        var erEndret = oppdaterVedEndretVerdi(historikkEndretFeltType, vilkår.getGjeldendeVilkårUtfall(),
+            erVilkarOk ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT);
 
         if (!erEndret) {
-            historikkTjenesteAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null,
-                erVilkarOk ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT);
+            historikkTjenesteAdapter.tekstBuilder()
+                .medEndretFelt(historikkEndretFeltType, null,
+                    erVilkarOk ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT);
         }
 
         var vilkårType = Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
-            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
+            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn)
+            .orElse(null);
         historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
             .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon));
@@ -62,8 +66,10 @@ class HistorikkAksjonspunktAdapter {
             case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
             case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
             case SØKERS_OPPLYSNINGSPLIKT_MANU -> SkjermlenkeType.OPPLYSNINGSPLIKT;
-            case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
-            case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om annen forelder har mottatt støtte
+            case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE ->
+                SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
+            case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE ->
+                SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om annen forelder har mottatt støtte
             default -> throw new UnsupportedOperationException("Støtter ikke aksjonspunktKode=" + aksjonspunktKode);
         };
     }

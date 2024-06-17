@@ -62,15 +62,13 @@ class EndringerHarBegrunnelseValideringTest {
     }
 
     private ForeldrepengerUttakPeriode periode(Trekkdager trekkdager) {
-        var periode = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medTrekkdager(trekkdager)
+        var periode = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkdager(trekkdager)
             .medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
             .build();
         var aktiviteter = List.of(periode);
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medBegrunnelse(null)
+        return new ForeldrepengerUttakPeriode.Builder().medBegrunnelse(null)
             .medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
             .medResultatType(PeriodeResultatType.INNVILGET)
             .medAktiviteter(aktiviteter)
@@ -78,8 +76,7 @@ class EndringerHarBegrunnelseValideringTest {
     }
 
     private ForeldrepengerUttakPeriode periode(String begrunnelse, PeriodeResultatType resultatType) {
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medBegrunnelse(begrunnelse)
+        return new ForeldrepengerUttakPeriode.Builder().medBegrunnelse(begrunnelse)
             .medResultatType(resultatType)
             .medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
             .build();

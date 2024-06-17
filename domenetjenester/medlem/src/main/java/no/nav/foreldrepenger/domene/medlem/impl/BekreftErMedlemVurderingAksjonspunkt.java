@@ -20,8 +20,7 @@ public class BekreftErMedlemVurderingAksjonspunkt {
 
         var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
 
-        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap)
-            .medMedlemsperiodeManuellVurdering(medlemskapManuellVurderingType)
+        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap).medMedlemsperiodeManuellVurdering(medlemskapManuellVurderingType)
             .medBegrunnelse(adapter.getBegrunnelse())
             .build();
 

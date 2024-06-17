@@ -26,9 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
@@ -130,8 +130,10 @@ public class KlageVurderingTjeneste {
         lagreKlageVurderingResultat(behandling, builder, vurdertAv, false);
     }
 
-    private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv,
-            boolean erVurderingOppdaterer) {
+    private void lagreKlageVurderingResultat(Behandling behandling,
+                                             KlageVurderingResultat.Builder builder,
+                                             KlageVurdertAv vurdertAv,
+                                             boolean erVurderingOppdaterer) {
         var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? null : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
         var vurderingsteg = KlageVurdertAv.NK.equals(vurdertAv) ? BehandlingStegType.KLAGE_NK : BehandlingStegType.KLAGE_NFP;
 
@@ -163,8 +165,12 @@ public class KlageVurderingTjeneste {
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
 
-    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør omgjør, KlageVurdertAv vurdertAv) {
-        if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
+    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling,
+                                                           KlageVurdering klageVurdering,
+                                                           KlageVurderingOmgjør omgjør,
+                                                           KlageVurdertAv vurdertAv) {
+        if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(),
+            DokumentMalType.KLAGE_OVERSENDT)) {
             var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(behandling.getUuid())
                 .medDokumentMal(DokumentMalType.KLAGE_OVERSENDT)
@@ -173,18 +179,15 @@ public class KlageVurderingTjeneste {
             oppdaterBehandlingMedNyFrist(behandling);
         }
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        var erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty()
-                && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
+        var erPåklagdEksternBehandling =
+            klageResultatEntitet.getPåKlagdBehandlingId().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
         var behandlingResultatType = KlageVurderingBehandlingResultat.tolkBehandlingResultatType(klageVurdering, omgjør, erPåklagdEksternBehandling);
 
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingsresultat.isPresent()) {
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get())
-                    .medBehandlingResultatType(behandlingResultatType);
+            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get()).medBehandlingResultatType(behandlingResultatType);
         } else {
-            Behandlingsresultat.builder()
-                    .medBehandlingResultatType(behandlingResultatType)
-                    .buildFor(behandling);
+            Behandlingsresultat.builder().medBehandlingResultatType(behandlingResultatType).buildFor(behandling);
         }
     }
 
@@ -194,7 +197,9 @@ public class KlageVurderingTjeneste {
         behandlingRepository.lagre(behandling, lås);
     }
 
-    public static HistorikkResultatType historikkResultatForKlageVurdering(KlageVurdering vurdering, KlageVurdertAv vurdertAv, KlageVurderingOmgjør klageVurderingOmgjør) {
+    public static HistorikkResultatType historikkResultatForKlageVurdering(KlageVurdering vurdering,
+                                                                           KlageVurdertAv vurdertAv,
+                                                                           KlageVurderingOmgjør klageVurderingOmgjør) {
         if (KlageVurdering.AVVIS_KLAGE.equals(vurdering)) {
             return HistorikkResultatType.AVVIS_KLAGE;
         }

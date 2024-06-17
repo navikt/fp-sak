@@ -70,9 +70,7 @@ public class SatsReguleringUtil {
     }
 
     static Optional<ProsessTaskData> finnTaskFor(ArgumentCaptor<ProsessTaskData> captor, Behandling behandling) {
-        return captor.getAllValues().stream()
-            .filter(t -> t.getFagsakId().equals(behandling.getFagsakId()))
-            .findFirst();
+        return captor.getAllValues().stream().filter(t -> t.getFagsakId().equals(behandling.getFagsakId())).findFirst();
     }
 
     static Behandling opprettFPAT(EntityManager em, BehandlingStatus status, LocalDate uttakFom, long sats, long brutto) {
@@ -99,17 +97,19 @@ public class SatsReguleringUtil {
         return opprettSVP(em, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, status, uttakFom, sats, brutto);
     }
 
-    private static Behandling opprettFP(EntityManager em, AktivitetStatus aStatus, BehandlingStatus status, LocalDate uttakFom, long sats, long brutto) {
+    private static Behandling opprettFP(EntityManager em,
+                                        AktivitetStatus aStatus,
+                                        BehandlingStatus status,
+                                        LocalDate uttakFom,
+                                        long sats,
+                                        long brutto) {
         var repositoryProvider = new BehandlingRepositoryProvider(em);
         var beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(em);
         var terminDato = uttakFom.plusWeeks(3);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(40));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(terminDato.minusDays(40));
 
-        scenario.medBekreftetHendelse()
-            .medFødselsDato(terminDato)
-            .medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(terminDato).medAntallBarn(1);
 
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -124,31 +124,23 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(BigDecimal.valueOf(sats))
-            .medSkjæringstidspunkt(uttakFom)
-            .build();
-        BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(aStatus)
-            .build(beregningsgrunnlag);
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(BigDecimal.valueOf(sats)).medSkjæringstidspunkt(uttakFom).build();
+        BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(aStatus).build(beregningsgrunnlag);
         var periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
             .medBruttoPrÅr(BigDecimal.valueOf(brutto))
             .medAvkortetPrÅr(BigDecimal.valueOf(brutto))
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.oppdater(periode)
-            .build(beregningsgrunnlag);
+        BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         var virksomhetForUttak = arbeidsgiver("456");
         var uttakAktivitet = lagUttakAktivitet(virksomhetForUttak);
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom,
-            uttakFom.plusWeeks(15).minusDays(1), UttakPeriodeType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom, uttakFom.plusWeeks(15).minusDays(1), UttakPeriodeType.MØDREKVOTE);
 
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
 
         em.flush();
         em.clear();
@@ -160,15 +152,15 @@ public class SatsReguleringUtil {
     }
 
     static UttakAktivitetEntitet lagUttakAktivitet(Arbeidsgiver arbeidsgiver) {
-        return new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
+        return new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
     }
 
     static void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
                            UttakAktivitetEntitet uttakAktivitet,
-                           LocalDate fom, LocalDate tom,
+                           LocalDate fom,
+                           LocalDate tom,
                            UttakPeriodeType stønadskontoType) {
         lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, uttakAktivitet);
     }
@@ -179,39 +171,45 @@ public class SatsReguleringUtil {
                            UttakPeriodeType stønadskontoType,
                            UttakAktivitetEntitet uttakAktivitetEntitet) {
 
-        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medSamtidigUttak(false)
             .medFlerbarnsdager(false)
             .build();
         uttakResultatPerioder.leggTilPeriode(periode);
 
-        var trekkdager = new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()),
-            false, BigDecimal.ZERO, null).decimalValue());
+        var trekkdager = new Trekkdager(
+            TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()), false, BigDecimal.ZERO, null).decimalValue());
 
-        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet)
-            .medTrekkdager(trekkdager)
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet).medTrekkdager(trekkdager)
             .medTrekkonto(stønadskontoType)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         periode.leggTilAktivitet(aktivitet);
     }
 
-    private static Behandling opprettSVP(EntityManager em, AktivitetStatus aStatus, BehandlingStatus status, LocalDate uttakFom, long sats, long brutto) {
+    private static Behandling opprettSVP(EntityManager em,
+                                         AktivitetStatus aStatus,
+                                         BehandlingStatus status,
+                                         LocalDate uttakFom,
+                                         long sats,
+                                         long brutto) {
         return opprettSVP(em, aStatus, status, uttakFom, sats, brutto, 2300);
     }
 
-    static Behandling opprettSVP(EntityManager em, AktivitetStatus aStatus, BehandlingStatus status, LocalDate uttakFom, long sats, long brutto, int dagsats) {
+    static Behandling opprettSVP(EntityManager em,
+                                 AktivitetStatus aStatus,
+                                 BehandlingStatus status,
+                                 LocalDate uttakFom,
+                                 long sats,
+                                 long brutto,
+                                 int dagsats) {
         var repositoryProvider = new BehandlingRepositoryProvider(em);
         var beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(em);
         var terminDato = uttakFom.plusWeeks(3);
 
-        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
-            .medSøknadDato(terminDato.minusDays(40));
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().medSøknadDato(terminDato.minusDays(40));
 
-        scenario.medBekreftetHendelse()
-            .medFødselsDato(terminDato)
-            .medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(terminDato).medAntallBarn(1);
 
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -226,29 +224,18 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(BigDecimal.valueOf(sats))
-            .medSkjæringstidspunkt(uttakFom)
-            .build();
-        BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(aStatus)
-            .build(beregningsgrunnlag);
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(BigDecimal.valueOf(sats)).medSkjæringstidspunkt(uttakFom).build();
+        BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(aStatus).build(beregningsgrunnlag);
         var periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
             .medBruttoPrÅr(BigDecimal.valueOf(brutto))
             .medAvkortetPrÅr(BigDecimal.valueOf(brutto))
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.oppdater(periode)
-            .build(beregningsgrunnlag);
+        BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var brFP = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        var brFPper = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-            .build(brFP);
+        var brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
+        var brFPper = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3)).build(brFP);
         BeregningsresultatAndel.builder()
             .medDagsats(dagsats)
             .medDagsatsFraBg(1000)
@@ -269,15 +256,10 @@ public class SatsReguleringUtil {
         var repositoryProvider = new BehandlingRepositoryProvider(em);
         var beregningRepository = new LegacyESBeregningRepository(em);
 
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medSøknadDato(fødselsdato.minusDays(40));
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medSøknadDato(fødselsdato.minusDays(40));
 
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(1);
-        scenario.medBekreftetHendelse()
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
 
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -293,7 +275,8 @@ public class SatsReguleringUtil {
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
         var beregning = new LegacyESBeregning(sats, 1, sats, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning)
+        var beregningResultat = LegacyESBeregningsresultat.builder()
+            .medBeregning(beregning)
             .buildFor(behandling, repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()));
         beregningRepository.lagre(beregningResultat, lås);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);

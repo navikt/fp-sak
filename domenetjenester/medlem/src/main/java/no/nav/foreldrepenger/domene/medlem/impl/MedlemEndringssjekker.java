@@ -29,7 +29,8 @@ public abstract class MedlemEndringssjekker {
         }
 
         var differ = opprettNyDiffer();
-        return !differ.erForskjellPå(nyttMedlemskap.get().getRegistrertMedlemskapPerioder(), eksisterendeMedlemskap.get().getRegistrertMedlemskapPerioder());
+        return !differ.erForskjellPå(nyttMedlemskap.get().getRegistrertMedlemskapPerioder(),
+            eksisterendeMedlemskap.get().getRegistrertMedlemskapPerioder());
     }
 
     public boolean erEndring(MedlemskapPerioderEntitet perioder1, MedlemskapPerioderEntitet perioder2) {

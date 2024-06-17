@@ -43,26 +43,28 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
     }
 
     @Inject
-    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste,
-                                              BehandlendeEnhetTjeneste enhetTjeneste) {
+    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste, BehandlendeEnhetTjeneste enhetTjeneste) {
         super();
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.enhetTjeneste = enhetTjeneste;
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId){
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         var beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
         var prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
 
-        var enhet = Optional.ofNullable(enhetTjeneste.finnBehandlendeEnhetFor(fagsakId, behandlendeEnhet)).map(OrganisasjonsEnhet::enhetId).orElse(null);
+        var enhet = Optional.ofNullable(enhetTjeneste.finnBehandlendeEnhetFor(fagsakId, behandlendeEnhet))
+            .map(OrganisasjonsEnhet::enhetId)
+            .orElse(null);
 
         var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 
         //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
         var oppgaveId = oppgaveTjeneste.opprettVurderKonsekvensBasertPåFagsakId(fagsakId, enhet, beskrivelse, høyPrioritet);
 
-        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId, prioritet);
+        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId,
+            prioritet);
     }
 }

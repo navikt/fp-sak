@@ -75,13 +75,13 @@ public class BehandleStegResultat {
     }
 
     public static BehandleStegResultat fremoverførtMedAksjonspunkter(TransisjonIdentifikator transisjon,
-            List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+                                                                     List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         var aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktDefinisjoner);
         return new BehandleStegResultat(transisjon, aksjonspunktResultater);
     }
 
     public static BehandleStegResultat fremoverførtMedAksjonspunktResultater(TransisjonIdentifikator transisjon,
-            List<AksjonspunktResultat> aksjonspunktResultater) {
+                                                                             List<AksjonspunktResultat> aksjonspunktResultater) {
         return new BehandleStegResultat(transisjon, aksjonspunktResultater);
     }
 
@@ -90,16 +90,16 @@ public class BehandleStegResultat {
     }
 
     private static List<AksjonspunktResultat> konverterTilAksjonspunktResultat(List<AksjonspunktDefinisjon> aksjonspunktListe) {
-        return aksjonspunktListe.stream()
-                .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .collect(toList());
+        return aksjonspunktListe.stream().map(AksjonspunktResultat::opprettForAksjonspunkt).collect(toList());
     }
 
     public static BehandleStegResultat startet() {
         return new BehandleStegResultat(FellesTransisjoner.STARTET, Collections.emptyList());
     }
 
-    /** sett nytt aksjonspunkt spesifikt. returner kopi av denne instansen. */
+    /**
+     * sett nytt aksjonspunkt spesifikt. returner kopi av denne instansen.
+     */
     public BehandleStegResultat medAksjonspunktResultat(AksjonspunktResultat aksResultat) {
         List<AksjonspunktResultat> liste = new ArrayList<>(this.aksjonspunktListe);
         liste.remove(aksResultat);

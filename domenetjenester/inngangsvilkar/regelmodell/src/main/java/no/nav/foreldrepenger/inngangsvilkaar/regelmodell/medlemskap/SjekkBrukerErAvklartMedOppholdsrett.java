@@ -11,8 +11,8 @@ public class SjekkBrukerErAvklartMedOppholdsrett extends LeafSpecification<Medle
 
     static final String ID = "FP_VK_2.12.2"; //TODO: skal det være samme ID som lovlig opphold???
 
-    static final MerknadRuleReasonRef IKKE_OPPFYLT_BRUKER_HAR_IKKE_OPPHOLDSRETT =
-        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1024, "Bruker har ikke oppholdsrett.");
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_BRUKER_HAR_IKKE_OPPHOLDSRETT = new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1024,
+        "Bruker har ikke oppholdsrett.");
 
     SjekkBrukerErAvklartMedOppholdsrett() {
         super(ID);

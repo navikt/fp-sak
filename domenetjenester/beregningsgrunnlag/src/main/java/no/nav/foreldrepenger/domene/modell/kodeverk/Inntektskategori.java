@@ -59,6 +59,7 @@ public enum Inntektskategori implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, Inntektskategori> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

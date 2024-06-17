@@ -29,8 +29,7 @@ public class BeregningTilInputTjeneste {
     }
 
     @Inject
-    public BeregningTilInputTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                     KalkulusKonfigInjecter kalkulusKonfigInjecter) {
+    public BeregningTilInputTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository, KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.kalkulusKonfigInjecter = kalkulusKonfigInjecter;
     }
@@ -47,8 +46,7 @@ public class BeregningTilInputTjeneste {
             var beregningsgrunnlag = grunnlagEntitet.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
             var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getKoblingReferanse(),
                 grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
-            input = input.medBehandlingReferanse(ref)
-                .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet));
+            input = input.medBehandlingReferanse(ref).medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet));
         }
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);

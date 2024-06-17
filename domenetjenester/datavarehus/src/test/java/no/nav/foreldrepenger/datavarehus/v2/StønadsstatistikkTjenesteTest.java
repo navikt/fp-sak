@@ -82,7 +82,10 @@ class StønadsstatistikkTjenesteTest {
     @Test
     void mor_foreldrepenger() {
         var fødselsdato = LocalDate.of(2023, 12, 5);
-        var søktPeriode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.MØDREKVOTE).medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
+        var søktPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(13))
+            .build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var periodeVirkedager = 65;
         var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
@@ -110,7 +113,8 @@ class StønadsstatistikkTjenesteTest {
             .medSkjæringstidspunkt(fødselsdato)
             .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .leggTilAktivitetStatus(
+                new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
             .build();
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
         var uttaksperiode = uttak.getPerioder().getFirst();
@@ -121,7 +125,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(fødselsdato);
@@ -186,7 +190,8 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getUtbetalingssperioder().getFirst().arbeidsgiver()).isEqualTo(
             andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseThrow());
         assertThat(vedtak.getUtbetalingssperioder().getFirst().dagsats()).isEqualTo(beregningsresultatPeriode.getDagsats());
-        assertThat(vedtak.getUtbetalingssperioder().getFirst().inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
+        assertThat(vedtak.getUtbetalingssperioder().getFirst().inntektskategori()).isEqualTo(
+            StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
         assertThat(vedtak.getUtbetalingssperioder().getFirst().mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.BRUKER);
 
         try (var factory = Validation.buildDefaultValidatorFactory()) {
@@ -199,7 +204,9 @@ class StønadsstatistikkTjenesteTest {
     void mor_foreldrepenger_prematur_flerbarn() {
         var fødselsdato = LocalDate.of(2023, 12, 5);
         var søktPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE).medPeriode(fødselsdato, fødselsdato.plusWeeks(13)).build();
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(13))
+            .build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var periodeVirkedager = 65;
         var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
@@ -213,8 +220,8 @@ class StønadsstatistikkTjenesteTest {
             .medStønadskontoberegning(stønadskontoberegningUtvidet());
         scenario.medBekreftetHendelse()
             .medFødselsDato(fødselsdato, 2)
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(fødselsdato.plusWeeks(8)).medUtstedtDato(fødselsdato));
+            .medTerminbekreftelse(
+                scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(fødselsdato.plusWeeks(8)).medUtstedtDato(fødselsdato));
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegningUtvidet());
@@ -230,7 +237,8 @@ class StønadsstatistikkTjenesteTest {
             .medSkjæringstidspunkt(fødselsdato)
             .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .leggTilAktivitetStatus(
+                new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
             .build();
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
         var uttaksperiode = uttak.getPerioder().getFirst();
@@ -241,7 +249,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getFamilieHendelse().hendelseType()).isEqualTo(HendelseType.FØDSEL);
         assertThat(vedtak.getFamilieHendelse().adopsjonsdato()).isNull();
@@ -255,7 +263,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(100);
         assertThat(vedtak.getForeldrepengerRettigheter().stønadsutvidelser()).contains(
             new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER,
-                    new ForeldrepengerRettigheter.Trekkdager(85)));
+                new ForeldrepengerRettigheter.Trekkdager(85)));
         assertThat(vedtak.getForeldrepengerRettigheter().stønadsutvidelser()).contains(
             new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER,
                 new ForeldrepengerRettigheter.Trekkdager(40)));
@@ -300,10 +308,15 @@ class StønadsstatistikkTjenesteTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(baselineDato)
             .medGrunnbeløp(grunnbeløp)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30))
+            .leggTilAktivitetStatus(
+                new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30))
             .build();
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
-            baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build(beregningsgrunnlag);
+                baselineDato.plusYears(1))
+            .medBruttoPrÅr(bruttoPrÅr)
+            .medAvkortetPrÅr(avkortetPrÅr)
+            .medRedusertPrÅr(redusertPrÅr)
+            .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(arbeidsgiver).medRefusjonskravPrÅr(bruttoPrÅr))
@@ -320,7 +333,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(baselineDato);
@@ -368,7 +381,8 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getUtbetalingssperioder().getFirst().arbeidsgiver()).isEqualTo(
             andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseThrow());
         assertThat(vedtak.getUtbetalingssperioder().getFirst().dagsats()).isEqualTo(beregningsresultatPeriode.getDagsats());
-        assertThat(vedtak.getUtbetalingssperioder().getFirst().inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
+        assertThat(vedtak.getUtbetalingssperioder().getFirst().inntektskategori()).isEqualTo(
+            StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
         assertThat(vedtak.getUtbetalingssperioder().getFirst().mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.ARBEIDSGIVER);
 
         try (var factory = Validation.buildDefaultValidatorFactory()) {
@@ -378,15 +392,16 @@ class StønadsstatistikkTjenesteTest {
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatMedAndel(UttakResultatPeriodeEntitet uttaksperiode) {
-        return lagBeregningsresultatMedAndel(uttaksperiode.getFom(), uttaksperiode.getTom(), uttaksperiode.getAktiviteter().getFirst()
-            .getArbeidsgiver(), true);
+        return lagBeregningsresultatMedAndel(uttaksperiode.getFom(), uttaksperiode.getTom(),
+            uttaksperiode.getAktiviteter().getFirst().getArbeidsgiver(), true);
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultatMedAndel(LocalDate fom, LocalDate tom, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker) {
+    private BeregningsresultatEntitet lagBeregningsresultatMedAndel(LocalDate fom,
+                                                                    LocalDate tom,
+                                                                    Arbeidsgiver arbeidsgiver,
+                                                                    boolean brukerErMottaker) {
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelSporing(" ").medRegelInput(" ").build();
-        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(beregningsresultat);
         new BeregningsresultatAndel.Builder().medDagsats(1000)
             .medDagsatsFraBg(1000)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -433,7 +448,9 @@ class StønadsstatistikkTjenesteTest {
     private static Stønadskontoberegning stønadskontoberegningUtvidet() {
         var fpff = new Stønadskonto.Builder().medMaxDager(5 * 3).medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL).build();
         var mødrekvote = new Stønadskonto.Builder().medMaxDager(5 * 15).medStønadskontoType(StønadskontoType.MØDREKVOTE).build();
-        var fellesperiode = new Stønadskonto.Builder().medMaxDager(5 * 16 + 5 * 17 + 5 * 8).medStønadskontoType(StønadskontoType.FELLESPERIODE).build();
+        var fellesperiode = new Stønadskonto.Builder().medMaxDager(5 * 16 + 5 * 17 + 5 * 8)
+            .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+            .build();
         var fedrekvote = new Stønadskonto.Builder().medMaxDager(5 * 15).medStønadskontoType(StønadskontoType.FEDREKVOTE).build();
         var flerbarn = new Stønadskonto.Builder().medMaxDager(5 * 17).medStønadskontoType(StønadskontoType.FLERBARNSDAGER).build();
         var tilleggFlerbarn = new Stønadskonto.Builder().medMaxDager(5 * 17).medStønadskontoType(StønadskontoType.TILLEGG_FLERBARN).build();

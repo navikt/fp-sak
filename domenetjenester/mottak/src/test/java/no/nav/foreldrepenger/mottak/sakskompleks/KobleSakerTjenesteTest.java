@@ -300,10 +300,12 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandlingMorSøkerFødselTermin(LocalDate termindato, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"))
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"))
             .medAntallBarn(1);
 
         leggTilMorSøker(scenario);
@@ -313,15 +315,18 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate termindato, LocalDate fødselsdato, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"))
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"))
             .medAntallBarn(1);
         scenario.medOverstyrtHendelse()
             .medFødselsDato(fødselsdato)
             .medAntallBarn(1)
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medUtstedtDato(LocalDate.now())
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN MIN"));
@@ -333,10 +338,12 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate termindato, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"))
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"))
             .medAntallBarn(1);
         scenario.medBekreftetHendelse().medFødselsDato(termindato).medAntallBarn(1);
 
@@ -365,13 +372,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(antallBarn);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(antallBarn);
         leggTilMorSøker(scenario);
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(fødselsdato.minusWeeks(3))
-            .build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato.minusWeeks(3)).build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medOppgittDekningsgrad(Dekningsgrad._100);
         return scenario.lagre(repositoryProvider);
@@ -380,9 +383,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, AktørId annenPart) {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
-            .medAntallBarn(antallBarnSøknad);
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnSøknad);
         leggTilFarSøker(scenario);
         return scenario.lagre(repositoryProvider);
     }
@@ -392,10 +393,13 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }
-        scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        scenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
         leggTilFarSøker(scenario);
         return scenario.lagre(repositoryProvider);
     }
@@ -415,10 +419,12 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now())
-            .medAdoptererAlene(false)
-            .medErEktefellesBarn(true))
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
+                .medOmsorgsovertakelseDato(LocalDate.now())
+                .medAdoptererAlene(false)
+                .medErEktefellesBarn(true))
             .medFødselsDato(fødseldato);
         leggTilFarSøker(scenario);
         return scenario.lagre(repositoryProvider);
@@ -439,11 +445,13 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
-        if(nyfødtbarnEriTPS) {
+        if (nyfødtbarnEriTPS) {
             if (medKunMor) {
-                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
+                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT))
+                    .thenReturn(List.of(MOR_AKTØR_ID));
             } else {
-                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
+                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT))
+                    .thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
             }
             lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         }

@@ -32,9 +32,7 @@ class ArbeidsforholdInformasjonEntitetTest {
         entitet.erstattArbeidsforhold(arbeidsgiver1, ref_1_1, ref_1_2);
 
         var overstyringBuilderFor = entitet.getOverstyringBuilderFor(arbeidsgiver1, ref_1_1);
-        overstyringBuilderFor.medNyArbeidsforholdRef(ref_1_2)
-                .medHandling(ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET)
-                .medBeskrivelse("asdf");
+        overstyringBuilderFor.medNyArbeidsforholdRef(ref_1_2).medHandling(ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET).medBeskrivelse("asdf");
         entitet.leggTilOverstyring(overstyringBuilderFor.build());
 
         assertThat(entitet.finnForEkstern(arbeidsgiver1, ref1)).isNotEqualTo(Optional.of(ref_1_1));

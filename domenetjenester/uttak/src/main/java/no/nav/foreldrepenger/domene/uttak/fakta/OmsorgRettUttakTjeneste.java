@@ -49,12 +49,8 @@ public class OmsorgRettUttakTjeneste {
         return utledAksjonspunkter(input, aksjonspunktUtledere);
     }
 
-    private List<AksjonspunktDefinisjon> utledAksjonspunkter(UttakInput input,
-                                                             List<OmsorgRettAksjonspunktUtleder> utledere) {
-        return utledere.stream()
-            .flatMap(utleder -> utleder.utledAksjonspunkterFor(input).stream())
-            .distinct()
-            .collect(toList());
+    private List<AksjonspunktDefinisjon> utledAksjonspunkter(UttakInput input, List<OmsorgRettAksjonspunktUtleder> utledere) {
+        return utledere.stream().flatMap(utleder -> utleder.utledAksjonspunkterFor(input).stream()).distinct().collect(toList());
     }
 
     public void avklarOmAnnenForelderHarRett(BehandlingReferanse ref) {

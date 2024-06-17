@@ -21,7 +21,8 @@ public class OverordnetOppdragKjedeOversikt {
 
     public OverordnetOppdragKjedeOversikt(Map<KjedeNøkkel, OppdragKjede> oppdragskjeder) {
         this.oppdragskjeder = oppdragskjeder;
-        this.fagsystemIdPrMottaker = oppdragskjeder.entrySet().stream()
+        this.fagsystemIdPrMottaker = oppdragskjeder.entrySet()
+            .stream()
             .collect(Collectors.toMap(entry -> entry.getKey().getBetalingsmottaker(), entry -> entry.getValue().getFagsystemId(), (a, b) -> a));
     }
 
@@ -34,13 +35,12 @@ public class OverordnetOppdragKjedeOversikt {
     }
 
     public FagsystemId høyesteFagsystemId() {
-        return getFagsystemIdPrMottaker().values().stream()
-            .max(Comparator.naturalOrder())
-            .orElse(null);
+        return getFagsystemIdPrMottaker().values().stream().max(Comparator.naturalOrder()).orElse(null);
     }
 
     public MottakerOppdragKjedeOversikt filter(Betalingsmottaker betalingsmottaker) {
-        return new MottakerOppdragKjedeOversikt(betalingsmottaker, oppdragskjeder.entrySet().stream()
+        return new MottakerOppdragKjedeOversikt(betalingsmottaker, oppdragskjeder.entrySet()
+            .stream()
             .filter(e -> e.getKey().getBetalingsmottaker().equals(betalingsmottaker))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }

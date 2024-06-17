@@ -27,8 +27,7 @@ class Utsettelse2021BehandlingTest {
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse().medFødselsDato(bekreftetfødselsdato);
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
@@ -44,8 +43,7 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse()
             .medAdopsjon(førstegangScenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
@@ -62,11 +60,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse()
-            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(bekreftetfødselsdato));
+            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -81,11 +77,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse()
-            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(bekreftetfødselsdato));
+            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -100,11 +94,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.minusDays(2);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse()
-            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(bekreftetfødselsdato));
+            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -119,11 +111,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
-            .medAdopsjon(førstegangScenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(bekreftetfødselsdato));
+            .medAdopsjon(førstegangScenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -138,10 +128,8 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        førstegangScenario.medSøknadHendelse()
-            .medFødselsDato(bekreftetfødselsdato);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        førstegangScenario.medSøknadHendelse().medFødselsDato(bekreftetfødselsdato);
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -156,11 +144,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(bekreftetfødselsdato));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
@@ -175,11 +161,9 @@ class Utsettelse2021BehandlingTest {
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
-        var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandlingFar = førstegangScenarioFar.lagMocked();
-        var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenarioMor.medBekreftetHendelse().medFødselsDato(bekreftetfødselsdato);
         var mockprovider = førstegangScenarioMor.mockBehandlingRepositoryProvider();
         var behandlingRepository = førstegangScenarioMor.mockBehandlingRepository();
@@ -206,14 +190,11 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
-        var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandlingFar = førstegangScenarioFar.lagMocked();
-        var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenarioMor.medSøknadHendelse()
-                .medTerminbekreftelse(førstegangScenarioMor.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(bekreftetfødselsdato));
+            .medTerminbekreftelse(førstegangScenarioMor.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenarioMor.mockBehandlingRepositoryProvider();
         var behandlingRepository = førstegangScenarioMor.mockBehandlingRepository();
         var behandling = førstegangScenarioMor.lagMocked();
@@ -239,11 +220,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.minusWeeks(1);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(ikraftredelse.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(ikraftredelse.plusWeeks(3)));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -252,12 +231,10 @@ class Utsettelse2021BehandlingTest {
         var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING);
         revurderingScenario.medOriginalBehandling(behandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(ikraftredelse.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(ikraftredelse.plusWeeks(3)));
         revurderingScenario.medBekreftetHendelse().leggTilBarn(bekreftetfødselsdato);
         var revurdering = revurderingScenario.lagre(mockprovider);
 
@@ -274,11 +251,9 @@ class Utsettelse2021BehandlingTest {
         var ikraftredelse = UtsettelseCore2021.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(2);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(ikraftredelse.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(ikraftredelse.plusWeeks(3)));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -287,12 +262,10 @@ class Utsettelse2021BehandlingTest {
         var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING);
         revurderingScenario.medOriginalBehandling(behandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(ikraftredelse.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(ikraftredelse.plusWeeks(3)));
         revurderingScenario.medBekreftetHendelse().leggTilBarn(bekreftetfødselsdato);
         var revurdering = revurderingScenario.lagre(mockprovider);
 
@@ -310,11 +283,9 @@ class Utsettelse2021BehandlingTest {
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);
 
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(skjæringsdato.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringsdato.plusWeeks(3)));
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
 
@@ -323,12 +294,10 @@ class Utsettelse2021BehandlingTest {
         var tjeneste = new UtsettelseBehandling2021(mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isTrue();
 
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING);
         revurderingScenario.medOriginalBehandling(behandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         førstegangScenario.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(skjæringsdato.plusWeeks(3)));
+            .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringsdato.plusWeeks(3)));
         revurderingScenario.medBekreftetHendelse().leggTilBarn(bekreftetfødselsdato);
         var revurdering = revurderingScenario.lagre(mockprovider);
 

@@ -115,9 +115,7 @@ class EndringsdatoTjenesteTest {
             .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, fredag), Satsen.dagsats(100)))
             .leggTilPeriode(new YtelsePeriode(Periode.of(nesteMandag, nesteMandag), Satsen.dagsats(100)))
             .build();
-        var ytelseSplittet = Ytelse.builder().leggTilPeriode(
-            new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100)))
-            .build();
+        var ytelseSplittet = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100))).build();
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseKontinuerlig, ytelseSplittet)).isNull();
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseSplittet, ytelseKontinuerlig)).isNull();
     }
@@ -141,7 +139,9 @@ class EndringsdatoTjenesteTest {
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse2SøndagSøndag, ytelse1SøndagSøndag)).isEqualTo(mandag);
 
         var ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Satsen.dagsats(100))).build();
-        var ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100))).build();
+        var ytelseUke1OgNesteMandag = Ytelse.builder()
+            .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100)))
+            .build();
 
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1, ytelseUke1OgNesteMandag)).isEqualTo(nesteMandag);
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1OgNesteMandag, ytelseUke1)).isEqualTo(nesteMandag);
@@ -163,9 +163,7 @@ class EndringsdatoTjenesteTest {
         var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
 
         var målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelBruker, Ytelse.builder()
-                .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100)))
-                .build())
+            .leggTilKjede(nøkkelBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100))).build())
             .leggTilKjede(nøkkelArbeidsgiver, Ytelse.builder()
                 .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(100)))
                 .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(100)))
@@ -182,15 +180,13 @@ class EndringsdatoTjenesteTest {
         var nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         var nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
-            nøkkelBruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
-                .build()));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelBruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+            .build()));
 
         var målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelBruker, Ytelse.builder()
-                .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100)))
-                .build())
+            .leggTilKjede(nøkkelBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100))).build())
             .leggTilKjede(nøkkelArbeidsgiver, Ytelse.builder()
                 .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(100)))
                 .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(100)))

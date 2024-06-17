@@ -16,8 +16,7 @@ public class TekniskBehandlingStegVenterVisitor extends TekniskBehandlingStegVis
 
     private boolean gjenoppta = true;
 
-    public TekniskBehandlingStegVenterVisitor(BehandlingskontrollServiceProvider repositoryProvider,
-            BehandlingskontrollKontekst kontekst) {
+    public TekniskBehandlingStegVenterVisitor(BehandlingskontrollServiceProvider repositoryProvider, BehandlingskontrollKontekst kontekst) {
         super(repositoryProvider, kontekst);
     }
 

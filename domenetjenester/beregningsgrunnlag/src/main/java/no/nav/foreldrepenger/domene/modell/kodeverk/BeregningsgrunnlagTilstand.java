@@ -37,22 +37,8 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     private static final Map<String, BeregningsgrunnlagTilstand> KODER = new LinkedHashMap<>();
 
     private static final List<BeregningsgrunnlagTilstand> tilstandRekkefølge = Collections.unmodifiableList(
-        List.of(
-        OPPRETTET,
-        FASTSATT_BEREGNINGSAKTIVITETER,
-        OPPDATERT_MED_ANDELER,
-        KOFAKBER_UT,
-        FORESLÅTT,
-        FORESLÅTT_UT,
-        FORESLÅTT_2,
-        FORESLÅTT_2_UT,
-        VURDERT_VILKÅR,
-        VURDERT_REFUSJON,
-        VURDERT_REFUSJON_UT,
-        OPPDATERT_MED_REFUSJON_OG_GRADERING,
-        FASTSATT_INN,
-        FASTSATT
-    ));
+        List.of(OPPRETTET, FASTSATT_BEREGNINGSAKTIVITETER, OPPDATERT_MED_ANDELER, KOFAKBER_UT, FORESLÅTT, FORESLÅTT_UT, FORESLÅTT_2, FORESLÅTT_2_UT,
+            VURDERT_VILKÅR, VURDERT_REFUSJON, VURDERT_REFUSJON_UT, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN, FASTSATT));
 
     static {
         for (var v : values()) {

@@ -64,18 +64,20 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         var aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
 
         var endredeAksjonspunkter = håndterAksjonspunkter(behandling, aksjonspunktDefinisjonerEtterFra, event, førsteSteg, modell,
-                medInngangFørsteSteg);
+            medInngangFørsteSteg);
 
         modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, true)
-                .collect(Collectors.toCollection(ArrayDeque::new))
-                .descendingIterator() // stepper bakover
-                .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
+            .collect(Collectors.toCollection(ArrayDeque::new))
+            .descendingIterator() // stepper bakover
+            .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
 
         aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter, event.getFraStegType());
     }
 
-    protected void hoppBakover(BehandlingStegModell s, BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
+    protected void hoppBakover(BehandlingStegModell s,
+                               BehandlingStegTilbakeføringEvent event,
+                               BehandlingStegType førsteSteg,
+                               BehandlingStegType sisteSteg) {
         s.getSteg().vedTransisjon(event.getKontekst(), s, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, førsteSteg, sisteSteg);
     }
 
@@ -83,13 +85,17 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         return serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
     }
 
-    private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<AksjonspunktDefinisjon> mellomliggendeAksjonspunkt,
-            BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg, BehandlingModell modell,
-            boolean tilInngangFørsteSteg) {
-        var endredeAksjonspunkter = behandling.getAksjonspunkter().stream()
-                .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
-                .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon()))
-                .toList();
+    private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling,
+                                                     Set<AksjonspunktDefinisjon> mellomliggendeAksjonspunkt,
+                                                     BehandlingStegTilbakeføringEvent event,
+                                                     BehandlingStegType førsteSteg,
+                                                     BehandlingModell modell,
+                                                     boolean tilInngangFørsteSteg) {
+        var endredeAksjonspunkter = behandling.getAksjonspunkter()
+            .stream()
+            .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
+            .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon()))
+            .toList();
 
         List<Aksjonspunkt> oppdaterteAksjonspunkt = new ArrayList<>();
         endredeAksjonspunkter.forEach(a -> håndterEndretAksjonspunkt(a, førsteSteg, modell, oppdaterteAksjonspunkt, tilInngangFørsteSteg));
@@ -99,27 +105,31 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     private void guardIngenÅpneAutopunkter(Behandling behandling) {
-        var autopunkt = behandling.getAksjonspunkter().stream()
-                .filter(Aksjonspunkt::erAutopunkt)
-                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-                .findFirst();
+        var autopunkt = behandling.getAksjonspunkter()
+            .stream()
+            .filter(Aksjonspunkt::erAutopunkt)
+            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+            .findFirst();
 
         if (autopunkt.isPresent()) {
             throw new IllegalStateException(
-                    "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" +
-                            autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'");
+                "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" + autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'");
         }
     }
 
-    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
-            BehandlingStegType behandlingStegType) {
+    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst,
+                                           List<Aksjonspunkt> aksjonspunkter,
+                                           BehandlingStegType behandlingStegType) {
         if (!aksjonspunkter.isEmpty()) {
             eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter, behandlingStegType));
         }
     }
 
-    private void håndterEndretAksjonspunkt(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell,
-            List<Aksjonspunkt> oppdaterteAksjonspunkt, boolean tilInngangFørsteSteg) {
+    private void håndterEndretAksjonspunkt(Aksjonspunkt a,
+                                           BehandlingStegType førsteSteg,
+                                           BehandlingModell modell,
+                                           List<Aksjonspunkt> oppdaterteAksjonspunkt,
+                                           boolean tilInngangFørsteSteg) {
         if (!a.erAvbrutt() && skalAvbryte(a, førsteSteg, modell, tilInngangFørsteSteg)) {
             aksjonspunktKontrollRepository.setTilAvbrutt(a);
             oppdaterteAksjonspunkt.add(a);
@@ -134,8 +144,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
      * OVERSTYRING
      */
     private boolean skalReåpne(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell) {
-        var måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon())
-                .getBehandlingStegType();
+        var måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon()).getBehandlingStegType();
         var måLøsesIEllerEtterFørsteSteg = !modell.erStegAFørStegB(måTidligstLøsesISteg, førsteSteg);
         return a.erManueltOpprettet() && måLøsesIEllerEtterFørsteSteg;
     }

@@ -27,7 +27,8 @@ public class FastsettSkjæringsdatoAnnenFødsel extends LeafSpecification<Opptje
         var tidligsteUttakFørTermin = terminDato.map(t -> t.minus(regelmodell.getRegelParametre().annenTidligsteUttakFørTerminPeriode()));
         var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
 
-        var tidligsteUttakDato = tidligsteUttakFørTermin.isPresent() && tidligsteUttakFørTermin.get().isBefore(hendelsesDato) ? tidligsteUttakFørTermin.get() : hendelsesDato;
+        var tidligsteUttakDato = tidligsteUttakFørTermin.isPresent() && tidligsteUttakFørTermin.get()
+            .isBefore(hendelsesDato) ? tidligsteUttakFørTermin.get() : hendelsesDato;
 
         if (skjæringsDatoOpptjening.isBefore(tidligsteUttakDato)) {
             skjæringsDatoOpptjening = tidligsteUttakDato;

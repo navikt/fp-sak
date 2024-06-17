@@ -22,8 +22,9 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     private BehandlingStegTilstandSnapshot fraTilstand;
     private BehandlingStegTilstandSnapshot tilTilstand;
 
-    public BehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-            BehandlingStegTilstandSnapshot nyTilstand) {
+    public BehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst,
+                                       BehandlingStegTilstandSnapshot forrigeTilstand,
+                                       BehandlingStegTilstandSnapshot nyTilstand) {
         super();
         this.kontekst = kontekst;
         this.fraTilstand = forrigeTilstand;
@@ -31,7 +32,9 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     }
 
     public static BehandlingStegOvergangEvent nyEvent(BehandlingskontrollKontekst kontekst,
-            BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand, int relativForflytning) {
+                                                      BehandlingStegTilstandSnapshot forrigeTilstand,
+                                                      BehandlingStegTilstandSnapshot nyTilstand,
+                                                      int relativForflytning) {
         if (relativForflytning == 1) {
             // normal forover
             return new BehandlingStegOvergangEvent(kontekst, forrigeTilstand, nyTilstand);
@@ -74,10 +77,7 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst +
-                ", fraTilstand=" + fraTilstand +
-                ", tilTilstand=" + tilTilstand +
-                ">";
+        return getClass().getSimpleName() + "<" + kontekst + ", fraTilstand=" + fraTilstand + ", tilTilstand=" + tilTilstand + ">";
     }
 
     public BehandlingStegType getTilStegType() {
@@ -111,8 +111,9 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
      */
     public static class BehandlingStegTilbakeføringEvent extends BehandlingStegOvergangEvent {
 
-        public BehandlingStegTilbakeføringEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-                BehandlingStegTilstandSnapshot nyTilstand) {
+        public BehandlingStegTilbakeføringEvent(BehandlingskontrollKontekst kontekst,
+                                                BehandlingStegTilstandSnapshot forrigeTilstand,
+                                                BehandlingStegTilstandSnapshot nyTilstand) {
             super(kontekst, forrigeTilstand, nyTilstand);
 
         }
@@ -147,8 +148,9 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
      */
     public static class BehandlingStegOverhoppEvent extends BehandlingStegOvergangEvent {
 
-        public BehandlingStegOverhoppEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-                BehandlingStegTilstandSnapshot nyTilstand) {
+        public BehandlingStegOverhoppEvent(BehandlingskontrollKontekst kontekst,
+                                           BehandlingStegTilstandSnapshot forrigeTilstand,
+                                           BehandlingStegTilstandSnapshot nyTilstand) {
             super(kontekst, forrigeTilstand, nyTilstand);
         }
     }

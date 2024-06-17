@@ -35,12 +35,10 @@ public class KalkulatorHåndteringInputTjeneste {
         this.beregningTilInputTjeneste = beregningTilInputTjeneste;
     }
 
-    public HåndterBeregningsgrunnlagInput lagInput(Long behandlingId,
-                                                   BeregningsgrunnlagInput input,
-                                                   AksjonspunktDefinisjon aksjonspunkt) {
+    public HåndterBeregningsgrunnlagInput lagInput(Long behandlingId, BeregningsgrunnlagInput input, AksjonspunktDefinisjon aksjonspunkt) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        var grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandlingId, behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(), MapHåndteringskodeTilTilstand.map(aksjonspunkt));
+        var grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId,
+            behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(), MapHåndteringskodeTilTilstand.map(aksjonspunkt));
         return lagHåndteringBeregningsgrunnlagInput(input, aksjonspunkt, grunnlagFraForrigeOppdatering);
 
     }
@@ -50,8 +48,7 @@ public class KalkulatorHåndteringInputTjeneste {
                                                                                 Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
         var inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
         return new HåndterBeregningsgrunnlagInput(inputMedBG,
-            BeregningsgrunnlagTilstand.fraKode(
-                MapHåndteringskodeTilTilstand.map(aksjonspunkt).getKode())).medForrigeGrunnlagFraHåndtering(
+            BeregningsgrunnlagTilstand.fraKode(MapHåndteringskodeTilTilstand.map(aksjonspunkt).getKode())).medForrigeGrunnlagFraHåndtering(
             grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
     }
 

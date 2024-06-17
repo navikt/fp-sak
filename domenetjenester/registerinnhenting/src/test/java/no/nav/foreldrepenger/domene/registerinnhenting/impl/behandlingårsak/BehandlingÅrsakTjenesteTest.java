@@ -43,9 +43,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 class BehandlingÅrsakTjenesteTest {
 
     private final AktørId AKTØRID = AktørId.dummy();
-    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
-        .medUtledetSkjæringstidspunkt(LocalDate.now())
-        .build();
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -67,8 +65,7 @@ class BehandlingÅrsakTjenesteTest {
     @BeforeEach
     public void setup() {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
-        tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker, historikkinnslagTjeneste,
-            skjæringstidspunktTjeneste);
+        tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker, historikkinnslagTjeneste, skjæringstidspunktTjeneste);
     }
 
     private Behandling opprettBehandling() {
@@ -76,8 +73,7 @@ class BehandlingÅrsakTjenesteTest {
             .medBruker(AKTØRID, NavBrukerKjønn.KVINNE)
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now().minusMonths(1));
-        scenario.medAvklarteUttakDatoer(
-            new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusMonths(1)).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusMonths(1)).build());
         return scenario.lagre(repositoryProvider);
     }
 
@@ -86,16 +82,11 @@ class BehandlingÅrsakTjenesteTest {
         var behandling = opprettBehandling();
 
         var endringsresultat = EndringsresultatDiff.opprett();
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 1L),
-            () -> diffResult);
-        endringsresultat.leggTilSporetEndring(
-            EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 1L), () -> diffResult);
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(MedlemskapAggregat.class, 1L, 1L),
-            () -> diffResult);
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, 1L, 1L),
-            () -> diffResult);
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(YtelseFordelingAggregat.class, 1L, 1L),
-            () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 1L), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 1L), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(MedlemskapAggregat.class, 1L, 1L), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, 1L, 1L), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(YtelseFordelingAggregat.class, 1L, 1L), () -> diffResult);
 
         // Assert
         tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
@@ -109,8 +100,7 @@ class BehandlingÅrsakTjenesteTest {
         var behandling = opprettBehandling();
         var endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
-        endringsresultat.leggTilSporetEndring(
-            EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 2L), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 2L), () -> diffResult);
 
         // Assert
         tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
@@ -124,14 +114,13 @@ class BehandlingÅrsakTjenesteTest {
         var behandling = opprettBehandling();
         var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);
-        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling,
-            dødsdato);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling, dødsdato);
 
         var endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(
-            EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, personopplysningGrunnlag1.getId(),
-                personopplysningGrunnlag2.getId()), () -> diffResult);
+            EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, personopplysningGrunnlag1.getId(), personopplysningGrunnlag2.getId()),
+            () -> diffResult);
 
         // Assert
         tjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);

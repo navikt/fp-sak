@@ -20,8 +20,7 @@ public class KopierForeldrepengerUttaktjeneste {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
-    public KopierForeldrepengerUttaktjeneste(FpUttakRepository fpUttakRepository,
-                                             YtelsesFordelingRepository ytelsesFordelingRepository) {
+    public KopierForeldrepengerUttaktjeneste(FpUttakRepository fpUttakRepository, YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.fpUttakRepository = fpUttakRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
@@ -49,8 +48,7 @@ public class KopierForeldrepengerUttaktjeneste {
     }
 
     public void kopierUttaksresultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
-        fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandlingId)
-            .ifPresent(uttak -> kopierUttaksresultat(behandlingId, uttak));
+        fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandlingId).ifPresent(uttak -> kopierUttaksresultat(behandlingId, uttak));
     }
 
     private void kopierUttaksresultat(Long behandlingId, UttakResultatEntitet uttak) {

@@ -68,8 +68,8 @@ public class FaktaBeregningHistorikkHåndterer {
                              Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                              InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         var tekstBuilder = historikkAdapter.tekstBuilder();
-        håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
-            tekstBuilder, inntektArbeidYtelseGrunnlag);
+        håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag, tekstBuilder,
+            inntektArbeidYtelseGrunnlag);
         lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, param.erBegrunnelseEndret());
     }
 
@@ -89,10 +89,9 @@ public class FaktaBeregningHistorikkHåndterer {
         var tekstBuilder = historikkAdapter.tekstBuilder();
         var endretBegrunnelse = true;
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        håndterTilfelleHistorikk(behandling.getId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder,
+        håndterTilfelleHistorikk(behandling.getId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder, iayGrunnlag);
+        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag, forrigeGrunnlag,
             iayGrunnlag);
-        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag,
-            forrigeGrunnlag, iayGrunnlag);
         lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, endretBegrunnelse);
     }
 
@@ -108,8 +107,8 @@ public class FaktaBeregningHistorikkHåndterer {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList()
-            .forEach(historikkTjeneste -> historikkTjeneste.lagHistorikk(behandlingId, dto, tekstBuilder,
-                nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag));
+            .forEach(historikkTjeneste -> historikkTjeneste.lagHistorikk(behandlingId, dto, tekstBuilder, nyttBeregningsgrunnlag, forrigeGrunnlag,
+                iayGrunnlag));
     }
 
     private void lagHistorikkInnslag(AksjonspunktDefinisjon apDef,
@@ -129,8 +128,7 @@ public class FaktaBeregningHistorikkHåndterer {
     private void settBegrunnelseUtenDiffsjekk(List<HistorikkinnslagDel> historikkDeler,
                                               HistorikkInnslagTekstBuilder tekstBuilder,
                                               String begrunnelse) {
-        var erBegrunnelseSatt = historikkDeler.stream()
-            .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
+        var erBegrunnelseSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt) {
             tekstBuilder.medBegrunnelse(begrunnelse);
             settSkjermlenkeOmIkkjeSatt(historikkDeler, tekstBuilder);
@@ -142,20 +140,17 @@ public class FaktaBeregningHistorikkHåndterer {
                                  HistorikkInnslagTekstBuilder tekstBuilder,
                                  String begrunnelse,
                                  boolean endretBegrunnelse) {
-        var erBegrunnelseSatt = historikkDeler.stream()
-            .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
+        var erBegrunnelseSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt && endretBegrunnelse) {
-                tekstBuilder.medBegrunnelse(begrunnelse, true);
-                settSkjermlenkeOmIkkjeSatt(historikkDeler, tekstBuilder);
-                tekstBuilder.ferdigstillHistorikkinnslagDel();
+            tekstBuilder.medBegrunnelse(begrunnelse, true);
+            settSkjermlenkeOmIkkjeSatt(historikkDeler, tekstBuilder);
+            tekstBuilder.ferdigstillHistorikkinnslagDel();
 
         }
     }
 
-    private void settSkjermlenkeOmIkkjeSatt(List<HistorikkinnslagDel> historikkDeler,
-                                            HistorikkInnslagTekstBuilder tekstBuilder) {
-        var erSkjermlenkeSatt = historikkDeler.stream()
-            .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+    private void settSkjermlenkeOmIkkjeSatt(List<HistorikkinnslagDel> historikkDeler, HistorikkInnslagTekstBuilder tekstBuilder) {
+        var erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt && !historikkDeler.isEmpty()) {
             var builder = HistorikkinnslagDel.builder(tekstBuilder.getHistorikkinnslagDeler().get(0));
             HistorikkinnslagFelt.builder()

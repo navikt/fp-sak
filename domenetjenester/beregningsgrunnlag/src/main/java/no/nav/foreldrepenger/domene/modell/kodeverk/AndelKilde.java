@@ -53,6 +53,7 @@ public enum AndelKilde implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, AndelKilde> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

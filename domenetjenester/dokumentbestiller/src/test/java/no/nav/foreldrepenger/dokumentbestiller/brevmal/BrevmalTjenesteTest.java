@@ -7,29 +7,26 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
-
-import java.util.Collections;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class BrevmalTjenesteTest {
@@ -65,8 +62,7 @@ class BrevmalTjenesteTest {
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos).hasSize(1);
-        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(
-            DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
     }
 
     @Test
@@ -78,8 +74,8 @@ class BrevmalTjenesteTest {
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos).hasSize(2);
-        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(
-            DokumentMalType.VARSEL_OM_REVURDERING.getKode(), DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
+            DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
     }
 
     @Test
@@ -101,8 +97,8 @@ class BrevmalTjenesteTest {
     @Test
     void skal_ikke_kunne_bestille_elysim_hvis_ingen_inntektsmelding_mangler() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
-        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"),
-            InternArbeidsforholdRef.nyRef(), ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD);
+        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"), InternArbeidsforholdRef.nyRef(),
+            ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
@@ -116,15 +112,18 @@ class BrevmalTjenesteTest {
         assertThat(brevmalDtos).hasSize(3);
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
             DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(), DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode());
-        var elysim = brevmalDtos.stream().filter(mal -> mal.kode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode())).findFirst().orElseThrow();
+        var elysim = brevmalDtos.stream()
+            .filter(mal -> mal.kode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode()))
+            .findFirst()
+            .orElseThrow();
         assertThat(elysim.tilgjengelig()).isFalse();
     }
 
     @Test
     void skal_kunne_bestille_elysim_hvis_inntektsmelding_mangler() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
-        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"),
-            InternArbeidsforholdRef.nyRef(), ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"), InternArbeidsforholdRef.nyRef(),
+            ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
@@ -138,7 +137,10 @@ class BrevmalTjenesteTest {
         assertThat(brevmalDtos).hasSize(3);
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
             DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(), DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode());
-        var elysim = brevmalDtos.stream().filter(mal -> mal.kode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode())).findFirst().orElseThrow();
+        var elysim = brevmalDtos.stream()
+            .filter(mal -> mal.kode().equals(DokumentMalType.ETTERLYS_INNTEKTSMELDING.getKode()))
+            .findFirst()
+            .orElseThrow();
         assertThat(elysim.tilgjengelig()).isTrue();
     }
 
@@ -171,10 +173,8 @@ class BrevmalTjenesteTest {
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos).hasSize(2);
-        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList())
-            .containsExactlyInAnyOrder(
-            DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(),
-                DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.getKode());
+        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(),
+            DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.getKode());
 
     }
 
@@ -187,10 +187,8 @@ class BrevmalTjenesteTest {
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos).hasSize(2);
-        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList())
-            .containsExactlyInAnyOrder(
-                DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(),
-                DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.getKode());
+        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(),
+            DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.getKode());
 
     }
 }

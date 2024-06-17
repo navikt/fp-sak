@@ -52,7 +52,8 @@ public class KalkulusKlient {
 
     public KalkulusRespons beregn(BeregnRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, beregn, restConfig);
-        var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
+        var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class)
+            .orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
         var aksjonspunkter = respons.getAvklaringsbehovMedTilstandDto().stream().map(BeregningAksjonspunktResultatMapper::mapKontrakt).toList();
         return new KalkulusRespons(aksjonspunkter, respons.getVilkarOppfylt());
     }
@@ -77,7 +78,8 @@ public class KalkulusKlient {
 
     public OppdateringRespons løsAvklaringsbehov(HåndterBeregningRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, avklaringsbehov, restConfig);
-        return restClient.sendReturnOptional(restRequest, OppdateringRespons.class).orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
+        return restClient.sendReturnOptional(restRequest, OppdateringRespons.class)
+            .orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
     }
 
     public void deaktiverGrunnlag(EnkelFpkalkulusRequestDto request) {

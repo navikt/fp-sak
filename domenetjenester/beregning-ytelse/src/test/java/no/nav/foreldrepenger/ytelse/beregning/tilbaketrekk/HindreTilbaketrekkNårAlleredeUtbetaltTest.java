@@ -49,8 +49,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(LocalDate.of(2020, 3, 24),
-                LocalDate.of(2020, 3, 31));
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(LocalDate.of(2020, 3, 24), LocalDate.of(2020, 3, 31));
         lagSNAndel(beregningsgrunnlagBrp, 152);
         lagAndel(beregningsgrunnlagBrp, GAMMELT_ARBEID, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, TILKOMMET1, true, 0, UTEN_INTERNREFERANSE);
@@ -59,29 +58,31 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         var gammelt_arbeid = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), LocalDate.of(2020, 2, 1))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-                .medArbeidsgiver(GAMMELT_ARBEID).build();
+            .leggTilAktivitetsAvtale(
+                AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), LocalDate.of(2020, 2, 1))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
+            .medArbeidsgiver(GAMMELT_ARBEID)
+            .build();
 
         var tilkommet_arbeid1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 3, 23))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(TILKOMMET1).build();
+            .leggTilAktivitetsAvtale(
+                AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 3, 23))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(TILKOMMET1)
+            .build();
 
         var tilkommet_arbeid2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2020, 3, 24))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(TILKOMMET2).build();
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2020, 3, 24))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(TILKOMMET2)
+            .build();
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()),
-                List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()), List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2),
+            SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -135,23 +136,22 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(20), SKJÆRINGSTIDSPUNKT.plusDays(14))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(ARBEIDSGIVER1).build();
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(20), SKJÆRINGSTIDSPUNKT.plusDays(14))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(ARBEIDSGIVER1)
+            .build();
 
         var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(15))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(ARBEIDSGIVER2).build();
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(15))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(ARBEIDSGIVER2)
+            .build();
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                        forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
-                List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -205,9 +205,8 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
-                List.of(), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -279,10 +278,8 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                        forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
-                List.of(), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -379,10 +376,8 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                        forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
-                List.of(), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -478,24 +473,23 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         var eksisterendeAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsforholdId(MED_INTERNREFERANSE)
-                .medArbeidsgiver(ARBEIDSGIVER1).build();
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(MED_INTERNREFERANSE)
+            .medArbeidsgiver(ARBEIDSGIVER1)
+            .build();
         var tilkommetAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsforholdId(UTEN_INTERNREFERANSE)
-                .medArbeidsgiver(ARBEIDSGIVER1).build();
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(UTEN_INTERNREFERANSE)
+            .medArbeidsgiver(ARBEIDSGIVER1)
+            .build();
 
         // Act
         var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                        forrigeTY.getBeregningsresultatPerioder(),
-                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
-                List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(eksisterendeAktivitet, tilkommetAktivitet),
+            SKJÆRINGSTIDSPUNKT);
 
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -531,40 +525,38 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode(LocalDate fom, LocalDate tom) {
-        var br = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
-        return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-                .build(br);
+        var br = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(br);
     }
 
-    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats,
-            InternArbeidsforholdRef internArbeidsforholdRef) {
+    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp,
+                                             Arbeidsgiver arbeidsgiver,
+                                             boolean brukerErMottaker,
+                                             int dagsats,
+                                             InternArbeidsforholdRef internArbeidsforholdRef) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(brukerErMottaker)
-                .medArbeidsgiver(arbeidsgiver)
-                .medStillingsprosent(new BigDecimal(100))
-                .medUtbetalingsgrad(new BigDecimal(100))
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsforholdRef(internArbeidsforholdRef)
-                .medDagsats(dagsats)
-                .medDagsatsFraBg(dagsats)
-                .build(brp);
+            .medBrukerErMottaker(brukerErMottaker)
+            .medArbeidsgiver(arbeidsgiver)
+            .medStillingsprosent(new BigDecimal(100))
+            .medUtbetalingsgrad(new BigDecimal(100))
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsforholdRef(internArbeidsforholdRef)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .build(brp);
     }
 
     private BeregningsresultatAndel lagSNAndel(BeregningsresultatPeriode brp, int dagsats) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medStillingsprosent(new BigDecimal(100))
-                .medUtbetalingsgrad(new BigDecimal(100))
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medDagsats(dagsats)
-                .medDagsatsFraBg(dagsats)
-                .build(brp);
+            .medBrukerErMottaker(true)
+            .medStillingsprosent(new BigDecimal(100))
+            .medUtbetalingsgrad(new BigDecimal(100))
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .build(brp);
     }
 
 }

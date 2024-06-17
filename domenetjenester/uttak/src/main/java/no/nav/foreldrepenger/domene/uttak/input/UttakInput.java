@@ -11,7 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
-/** Inputstruktur for uttak tjenester. */
+/**
+ * Inputstruktur for uttak tjenester.
+ */
 public class UttakInput {
 
     private final BehandlingReferanse behandlingReferanse;
@@ -58,7 +60,9 @@ public class UttakInput {
         return iayGrunnlag;
     }
 
-    /** Sjekk fagsakytelsetype før denne kalles. */
+    /**
+     * Sjekk fagsakytelsetype før denne kalles.
+     */
     @SuppressWarnings("unchecked")
     public <V extends YtelsespesifiktGrunnlag> V getYtelsespesifiktGrunnlag() {
         return (V) ytelsespesifiktGrunnlag;

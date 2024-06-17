@@ -13,6 +13,7 @@ public class BekreftBosattVurderingAksjonspunktDto {
     public String getBegrunnelse() {
         return begrunnelse;
     }
+
     public Boolean getBosattVurdering() {
         return bosattVurdering;
     }

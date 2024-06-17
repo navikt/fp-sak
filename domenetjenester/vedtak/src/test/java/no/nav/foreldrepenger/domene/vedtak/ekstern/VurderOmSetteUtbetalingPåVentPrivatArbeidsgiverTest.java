@@ -86,8 +86,8 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
         var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
-        testKlass = new VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver(beregningsresultatRepository, økonomioppdragRepository,
-            oppgaveTjenesteMock, behandlingVedtakRepository);
+        testKlass = new VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver(beregningsresultatRepository, økonomioppdragRepository, oppgaveTjenesteMock,
+            behandlingVedtakRepository);
         behandling = opprettOgLagreBehandling();
         oppdragskontroll = byggOppdagskontroll();
         beregningsresultat = byggBeregningsresultatFP();
@@ -95,10 +95,8 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
         førsteUttaksdatoCaptor = ArgumentCaptor.forClass(LocalDate.class);
         vedtaksdatoCaptor = ArgumentCaptor.forClass(LocalDate.class);
         aktørIdCaptor = ArgumentCaptor.forClass(AktørId.class);
-        when(oppgaveTjenesteMock.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(eq(behandling.getId()),
-            førsteUttaksdatoCaptor.capture(),
-            vedtaksdatoCaptor.capture(),
-            aktørIdCaptor.capture())).thenReturn("OppgaveId");
+        when(oppgaveTjenesteMock.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(eq(behandling.getId()), førsteUttaksdatoCaptor.capture(),
+            vedtaksdatoCaptor.capture(), aktørIdCaptor.capture())).thenReturn("OppgaveId");
     }
 
     @Test
@@ -275,9 +273,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medRefDelytelseId(789L)
             .medOppdrag110(byggOppdrag110());
         if (gjelderOpphør) {
-            builder
-                .medKodeEndringLinje(KodeEndringLinje.ENDR)
-                .medKodeStatusLinje(KodeStatusLinje.OPPH);
+            builder.medKodeEndringLinje(KodeEndringLinje.ENDR).medKodeStatusLinje(KodeStatusLinje.OPPH);
         }
         return builder.build();
     }
@@ -308,32 +304,27 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     private BeregningsresultatEntitet byggBeregningsresultatFP() {
-        return BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
+        return BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
     }
 
     private BeregningsresultatPeriode byggBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
 
-        return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(beregningsresultat);
     }
 
     private BeregningsresultatAndel byggBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
-                                                                Boolean brukerErMottaker, int dagsats,
-                                                                String virksomhetOrgnr, AktørId aktørId) {
-        var andelBuilder = BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(brukerErMottaker);
+                                                                Boolean brukerErMottaker,
+                                                                int dagsats,
+                                                                String virksomhetOrgnr,
+                                                                AktørId aktørId) {
+        var andelBuilder = BeregningsresultatAndel.builder().medBrukerErMottaker(brukerErMottaker);
 
         if (virksomhetOrgnr != null) {
             andelBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
         } else {
             andelBuilder.medArbeidsgiver(Arbeidsgiver.person(aktørId));
         }
-        return andelBuilder
-            .medDagsats(dagsats)
+        return andelBuilder.medDagsats(dagsats)
             .medDagsatsFraBg(dagsats)
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medUtbetalingsgrad(BigDecimal.valueOf(100))

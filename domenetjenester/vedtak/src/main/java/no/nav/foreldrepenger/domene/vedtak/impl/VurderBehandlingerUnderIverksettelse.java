@@ -47,9 +47,7 @@ public class VurderBehandlingerUnderIverksettelse {
         }
         var vedtaksTidspunkt = utledVedtakstidspunkt(behandling);
         // Kan ikke se på behandlingId pga kø-sniking rundt berørt behandling
-        return finnBehandlingerUnderIverksetting(behandling).stream()
-            .map(this::utledVedtakstidspunkt)
-            .anyMatch(vedtaksTidspunkt::isAfter);
+        return finnBehandlingerUnderIverksetting(behandling).stream().map(this::utledVedtakstidspunkt).anyMatch(vedtaksTidspunkt::isAfter);
     }
 
     /**
@@ -68,12 +66,15 @@ public class VurderBehandlingerUnderIverksettelse {
             .map(beh -> behandlingVedtakRepository.hentForBehandlingHvisEksisterer(beh.getId()).orElse(null))
             .filter(Objects::nonNull)
             .min(Comparator.comparing(BehandlingVedtak::getOpprettetTidspunkt));
-        return venter.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
+        return venter.map(BehandlingVedtak::getBehandlingsresultat)
+            .map(Behandlingsresultat::getBehandlingId)
+            .map(behandlingRepository::hentBehandling);
     }
 
     private List<Behandling> finnBehandlingerUnderIverksetting(Behandling behandling) {
         // Finn behandlinger i samme sak. OBS på at berørt sniker i køen så man bør se på vedtakstidspunkt
-        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId())
+            .stream()
             .filter(beh -> BehandlingStatus.IVERKSETTER_VEDTAK.equals(beh.getStatus()))
             .filter(Behandling::erYtelseBehandling)
             .filter(beh -> !behandling.getId().equals(beh.getId()))
@@ -82,6 +83,7 @@ public class VurderBehandlingerUnderIverksettelse {
 
     private LocalDateTime utledVedtakstidspunkt(Behandling behandling) {
         return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-            .map(BehandlingVedtak::getOpprettetTidspunkt).orElse(Tid.TIDENES_ENDE.atStartOfDay());
+            .map(BehandlingVedtak::getOpprettetTidspunkt)
+            .orElse(Tid.TIDENES_ENDE.atStartOfDay());
     }
 }

@@ -59,8 +59,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -77,8 +76,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -95,8 +93,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -113,8 +110,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -131,8 +127,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -149,8 +144,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -167,8 +161,7 @@ class RegelOrkestrererTest {
 
         // Assert
         assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
+        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(vilkårType);
     }
 
     @Test
@@ -177,9 +170,7 @@ class RegelOrkestrererTest {
         var behandling = lagBehandling();
 
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
-        VilkårResultat.builder()
-                .overstyrVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT)
-                .buildFor(behandling);
+        VilkårResultat.builder().overstyrVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT).buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
@@ -198,9 +189,7 @@ class RegelOrkestrererTest {
         var behandling = lagBehandling();
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
 
-        VilkårResultat.builder()
-            .manueltVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT)
-            .buildFor(behandling);
+        VilkårResultat.builder().manueltVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT).buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
@@ -224,10 +213,7 @@ class RegelOrkestrererTest {
         var vilkårStøttetAvSteg = Set.of(adopsjonsvilkårType, fødselsvilkårType);
 
         // Legg til vilkårne som automatiske, dvs hverken manuelt vurdert eller overstyrt
-        VilkårResultat.builder()
-                .leggTilVilkårIkkeVurdert(søknadsfristvilkårType)
-                .leggTilVilkårIkkeVurdert(adopsjonsvilkårType)
-                .buildFor(behandling);
+        VilkårResultat.builder().leggTilVilkårIkkeVurdert(søknadsfristvilkårType).leggTilVilkårIkkeVurdert(adopsjonsvilkårType).buildFor(behandling);
 
         var vilkårData = new VilkårData(adopsjonsvilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(adopsjonsvilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
@@ -241,14 +227,18 @@ class RegelOrkestrererTest {
         verify(inngangsvilkårTjeneste, never()).finnVilkår(fødselsvilkårType, FagsakYtelseType.FORELDREPENGER);
         verify(inngangsvilkårTjeneste, never()).finnVilkår(søknadsfristvilkårType, FagsakYtelseType.FORELDREPENGER);
 
-        var søknadsfristvilkår = regelResultat.vilkårResultat().getVilkårene().stream()
-                .filter(vilkår -> vilkår.getVilkårType().equals(søknadsfristvilkårType))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Skal ikke kunne komme her"));
-        var adopsjonsvilkår = regelResultat.vilkårResultat().getVilkårene().stream()
-                .filter(vilkår -> vilkår.getVilkårType().equals(adopsjonsvilkårType))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Skal ikke kunne komme her"));
+        var søknadsfristvilkår = regelResultat.vilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkår -> vilkår.getVilkårType().equals(søknadsfristvilkårType))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne komme her"));
+        var adopsjonsvilkår = regelResultat.vilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkår -> vilkår.getVilkårType().equals(adopsjonsvilkårType))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne komme her"));
         assertThat(søknadsfristvilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
         assertThat(adopsjonsvilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
         assertThat(regelResultat.vilkårResultat().getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
@@ -276,8 +266,7 @@ class RegelOrkestrererTest {
 
     private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {
         var behandling = lagBehandling();
-        VilkårResultat.builder().medVilkårResultatType(vilkårResultatType)
-            .leggTilVilkårIkkeVurdert(vilkårType).buildFor(behandling);
+        VilkårResultat.builder().medVilkårResultatType(vilkårResultatType).leggTilVilkårIkkeVurdert(vilkårType).buildFor(behandling);
         return behandling;
     }
 

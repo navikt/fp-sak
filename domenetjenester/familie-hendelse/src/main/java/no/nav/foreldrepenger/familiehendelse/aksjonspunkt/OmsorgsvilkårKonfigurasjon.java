@@ -10,12 +10,10 @@ final class OmsorgsvilkårKonfigurasjon {
     private OmsorgsvilkårKonfigurasjon() {
     }
 
-    static final Set<VilkårType> OMSORGS_VILKÅR = Set.of(VilkårType.OMSORGSVILKÅRET,
-        VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
+    static final Set<VilkårType> OMSORGS_VILKÅR = Set.of(VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
         VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
-    static final Set<AksjonspunktDefinisjon> OMSORGS_AKSJONSPUNKT = Set.of(
-        AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
+    static final Set<AksjonspunktDefinisjon> OMSORGS_AKSJONSPUNKT = Set.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
         AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD,
         AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD);
 }

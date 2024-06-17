@@ -53,13 +53,12 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         var fpInntektsmeldingTjeneste = mock(FpInntektsmeldingTjeneste.class);
 
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste,
-            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()), fpInntektsmeldingTjeneste);
-        kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(
-            kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
-            new SøknadRepository(entityManager, new BehandlingRepository(entityManager)),
-            new BehandlingVedtakRepository(entityManager));
+            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()),
+            fpInntektsmeldingTjeneste);
+        kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
+            new SøknadRepository(entityManager, new BehandlingRepository(entityManager)), new BehandlingVedtakRepository(entityManager));
 
-        var skjæringstidspunkt = Skjæringstidspunkt .builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         when(mock(SkjæringstidspunktTjeneste.class).getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
     }
 
@@ -69,8 +68,8 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = lagre(scenario);
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, true);
-        when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any()))
-            .thenReturn(singletonList(new ManglendeVedlegg(DokumentTypeId.LEGEERKLÆRING)));
+        when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any())).thenReturn(
+            singletonList(new ManglendeVedlegg(DokumentTypeId.LEGEERKLÆRING)));
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();
@@ -88,8 +87,7 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = lagre(scenario);
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, true);
-        when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any()))
-            .thenReturn(emptyList());
+        when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any())).thenReturn(emptyList());
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();

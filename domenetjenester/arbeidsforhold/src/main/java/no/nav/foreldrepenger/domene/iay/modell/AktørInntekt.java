@@ -54,7 +54,9 @@ public class AktørInntekt implements IndexKey {
         this.aktørId = aktørId;
     }
 
-    /** Get alle inntekter samlet (ufiltrert). */
+    /**
+     * Get alle inntekter samlet (ufiltrert).
+     */
     public Collection<Inntekt> getInntekt() {
         return List.copyOf(inntekt);
     }
@@ -68,7 +70,7 @@ public class AktørInntekt implements IndexKey {
             .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
             .filter(i -> i.getArbeidsgiver() != null && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel) || inntektsKilde.equals(
                 InntektsKilde.SIGRUN))
-                .findFirst();
+            .findFirst();
         var oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {
             oppdatere.medInntektsKilde(inntektsKilde);
@@ -99,10 +101,7 @@ public class AktørInntekt implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "aktørId=" + aktørId +
-                ", inntekt=" + inntekt +
-                '>';
+        return getClass().getSimpleName() + "<" + "aktørId=" + aktørId + ", inntekt=" + inntekt + '>';
     }
 
 }

@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
  * <p>
  * Mer avansert bruk er ikke gitt at kan bruke denne
  * klassen.
- *
  */
 public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<ScenarioFarSøkerForeldrepenger> {
 
@@ -32,6 +31,6 @@ public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     public static ScenarioFarSøkerForeldrepenger forFødselMedGittAktørId(AktørId aktørId) {
-        return new ScenarioFarSøkerForeldrepenger( aktørId);
+        return new ScenarioFarSøkerForeldrepenger(aktørId);
     }
 }

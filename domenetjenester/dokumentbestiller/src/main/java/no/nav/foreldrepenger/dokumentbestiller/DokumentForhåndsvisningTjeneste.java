@@ -79,8 +79,8 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
 
                 var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
 
-                LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
-                    erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
+                LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}",
+                    revurderingMedUendretUtfall, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
 
                 var klageVurdering = finnKlageVurdering(behandling);
 
@@ -95,15 +95,9 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     }
 
     private DokumentForhåndsvisDto lagForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
-        return new DokumentForhåndsvisDto(
-            bestilling.behandlingUuid(),
-            mapDokumentMal(bestillingDokumentMal),
-            mapRevurderignÅrsak(bestilling.revurderingÅrsak()),
-            bestilling.tittel(),
-            bestilling.fritekst()
-        );
+        return new DokumentForhåndsvisDto(bestilling.behandlingUuid(), mapDokumentMal(bestillingDokumentMal),
+            mapRevurderignÅrsak(bestilling.revurderingÅrsak()), bestilling.tittel(), bestilling.fritekst());
     }
-
 
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {

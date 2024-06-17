@@ -45,9 +45,7 @@ public class HistorikkinnslagTotrinnsVurderingDto {
     }
 
     static List<HistorikkinnslagTotrinnsVurderingDto> mapFra(List<HistorikkinnslagTotrinnsvurdering> aksjonspunkter) {
-        return aksjonspunkter.stream()
-                .map(HistorikkinnslagTotrinnsVurderingDto::mapFra)
-                .toList();
+        return aksjonspunkter.stream().map(HistorikkinnslagTotrinnsVurderingDto::mapFra).toList();
     }
 
     private static HistorikkinnslagTotrinnsVurderingDto mapFra(HistorikkinnslagTotrinnsvurdering totrinnsvurdering) {

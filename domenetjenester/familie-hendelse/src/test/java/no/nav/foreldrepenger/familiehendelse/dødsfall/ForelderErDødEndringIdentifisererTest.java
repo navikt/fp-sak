@@ -81,7 +81,8 @@ class ForelderErDødEndringIdentifisererTest {
         var erEndret = differ.erForeldreDødsdatoEndret();
 
         // Assert
-        assertThat(erEndret).as("Forventer at endring om brukers død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
+        assertThat(erEndret).as(
+            "Forventer at endring om brukers død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
     }
 
     @Test
@@ -97,7 +98,8 @@ class ForelderErDødEndringIdentifisererTest {
         var erEndret = differ.erForeldreDødsdatoEndret();
 
         // Assert
-        assertThat(erEndret).as("Forventer at endring om annen parts død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
+        assertThat(erEndret).as(
+            "Forventer at endring om annen parts død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdato) {
@@ -110,9 +112,7 @@ class ForelderErDødEndringIdentifisererTest {
         var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID).medDødsdato(dødsdatoSøker));
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID_ANNEN_PART).medDødsdato(dødsdatoAnnenPart));
-        var annenPartBuilder = new OppgittAnnenPartBuilder()
-            .medAktørId(AKTØRID_ANNEN_PART)
-            .medType(SøknadAnnenPartType.FAR);
+        var annenPartBuilder = new OppgittAnnenPartBuilder().medAktørId(AKTØRID_ANNEN_PART).medType(SøknadAnnenPartType.FAR);
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medRegistrertVersjon(builder1)
             .medOppgittAnnenPart(annenPartBuilder.build())

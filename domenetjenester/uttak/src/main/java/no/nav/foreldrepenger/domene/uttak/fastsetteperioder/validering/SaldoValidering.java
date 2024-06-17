@@ -20,9 +20,7 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
     private final boolean berørtBehandling;
 
 
-    public SaldoValidering(SaldoUtregning saldoUtregning,
-                           boolean harAnnenpart,
-                           boolean berørtBehandling) {
+    public SaldoValidering(SaldoUtregning saldoUtregning, boolean harAnnenpart, boolean berørtBehandling) {
         this.saldoUtregning = saldoUtregning;
         this.harAnnenpart = harAnnenpart;
         this.berørtBehandling = berørtBehandling;
@@ -78,9 +76,7 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
 
     public static int round(Trekkdager trekkdager) {
         //Ved gradering kan saldo med desimal være feks -0.2. Dette skal tolkes som 0. Man skal ikke bikke over til -1 så lenge trekkdager er mellom -1 og 0
-        return trekkdager.mindreEnn0() ? trekkdager.decimalValue()
-            .setScale(0, RoundingMode.DOWN)
-            .intValue() : trekkdager.rundOpp();
+        return trekkdager.mindreEnn0() ? trekkdager.decimalValue().setScale(0, RoundingMode.DOWN).intValue() : trekkdager.rundOpp();
     }
 
     public record SaldoValideringResultat(boolean isGyldig, boolean isNegativPgaSamtidigUttak) {

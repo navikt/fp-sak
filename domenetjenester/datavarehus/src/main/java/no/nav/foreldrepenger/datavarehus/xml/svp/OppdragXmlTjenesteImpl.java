@@ -49,7 +49,7 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
 
     private Oppdragslinje konverterOppdragslinje(Oppdragslinje150 oppdragsLinje150) {
         var oppdragslinje = new Oppdragslinje();
-        oppdragslinje.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(oppdragsLinje150.getDatoVedtakFom(),oppdragsLinje150.getDatoVedtakTom()));
+        oppdragslinje.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(oppdragsLinje150.getDatoVedtakFom(), oppdragsLinje150.getDatoVedtakTom()));
         oppdragslinje.setLinjeId(VedtakXmlUtil.lagLongOpplysning(oppdragsLinje150.getId()));
         oppdragslinje.setDelytelseId(VedtakXmlUtil.lagLongOpplysning(oppdragsLinje150.getDelytelseId()));
         var refDelytelseId = oppdragsLinje150.getRefDelytelseId();
@@ -57,11 +57,12 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
         if (!Objects.isNull(oppdragsLinje150.getKodeStatusLinje())) {
             oppdragslinje.setKodeStatusLinje(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getKodeStatusLinje().name()));
         }
-        if(refDelytelseId !=null) {
+        if (refDelytelseId != null) {
             oppdragslinje.setRefDelytelseId(VedtakXmlUtil.lagLongOpplysning(refDelytelseId));
         }
         oppdragslinje.setUtbetalesTilId(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getUtbetalesTilId()));
-        oppdragslinje.setRefunderesId(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getRefusjonsinfo156() == null ? null : oppdragsLinje150.getRefusjonsinfo156().getRefunderesId()));
+        oppdragslinje.setRefunderesId(VedtakXmlUtil.lagStringOpplysning(
+            oppdragsLinje150.getRefusjonsinfo156() == null ? null : oppdragsLinje150.getRefusjonsinfo156().getRefunderesId()));
         return oppdragslinje;
     }
 }

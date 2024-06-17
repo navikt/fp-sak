@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 
 public enum Dekningsgrad {
-    DEKNINGSGRAD_80(0.8), DEKNINGSGRAD_100(1.0);
+    DEKNINGSGRAD_80(0.8),
+    DEKNINGSGRAD_100(1.0);
 
     private double verdi;
 
@@ -9,5 +10,7 @@ public enum Dekningsgrad {
         this.verdi = verdi;
     }
 
-    public double getVerdi() { return verdi; }
+    public double getVerdi() {
+        return verdi;
+    }
 }

@@ -16,40 +16,41 @@ class BeregnFeriepengerForPeriode {
     private BeregnFeriepengerForPeriode() {
     }
 
-    static void beregn(Map<String, Object> resultater, List<BeregningsresultatPeriode> beregningsresultatPerioder, LocalDateInterval feriepengerPeriode) {
-        beregningsresultatPerioder.stream()
-            .filter(periode -> periode.getPeriode().overlaps(feriepengerPeriode))
-            .forEach(periode -> {
-                var overlapp = periode.getPeriode().overlap(feriepengerPeriode).get();
-                var antallFeriepengerDager = beregnAntallUkedagerMellom(overlapp.getFomDato(), overlapp.getTomDato());
-                var opptjeningÅr = overlapp.getFomDato().withMonth(12).withDayOfMonth(31);
+    static void beregn(Map<String, Object> resultater,
+                       List<BeregningsresultatPeriode> beregningsresultatPerioder,
+                       LocalDateInterval feriepengerPeriode) {
+        beregningsresultatPerioder.stream().filter(periode -> periode.getPeriode().overlaps(feriepengerPeriode)).forEach(periode -> {
+            var overlapp = periode.getPeriode().overlap(feriepengerPeriode).get();
+            var antallFeriepengerDager = beregnAntallUkedagerMellom(overlapp.getFomDato(), overlapp.getTomDato());
+            var opptjeningÅr = overlapp.getFomDato().withMonth(12).withDayOfMonth(31);
 
-                //Regelsporing
-                var periodeNavn = "perioden " + overlapp;
-                resultater.put("Antall feriepengedager i " + periodeNavn, antallFeriepengerDager);
-                resultater.put("Opptjeningsår i " + periodeNavn, opptjeningÅr);
+            //Regelsporing
+            var periodeNavn = "perioden " + overlapp;
+            resultater.put("Antall feriepengedager i " + periodeNavn, antallFeriepengerDager);
+            resultater.put("Opptjeningsår i " + periodeNavn, opptjeningÅr);
 
-                periode.getBeregningsresultatAndelList().stream()
-                    .filter(andel -> andel.getInntektskategori().erArbeidstakerEllerSjømann())
-                    .forEach(andel -> {
-                        var feriepengerGrunnlag = andel.getDagsats() * antallFeriepengerDager;
-                        var feriepengerAndelPrÅr = BigDecimal.valueOf(feriepengerGrunnlag).multiply(FERIEPENGER_SATS_PROSENT);
-                        if (feriepengerAndelPrÅr.compareTo(BigDecimal.ZERO) == 0) {
-                            return;
-                        }
-                        andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder()
-                            .medOpptjeningÅr(opptjeningÅr)
-                            .medÅrsbeløp(feriepengerAndelPrÅr)
-                            .medBrukerErMottaker(andel.erBrukerMottaker())
-                            .medArbeidsforhold(andel.getArbeidsforhold())
-                            .build());
+            periode.getBeregningsresultatAndelList()
+                .stream()
+                .filter(andel -> andel.getInntektskategori().erArbeidstakerEllerSjømann())
+                .forEach(andel -> {
+                    var feriepengerGrunnlag = andel.getDagsats() * antallFeriepengerDager;
+                    var feriepengerAndelPrÅr = BigDecimal.valueOf(feriepengerGrunnlag).multiply(FERIEPENGER_SATS_PROSENT);
+                    if (feriepengerAndelPrÅr.compareTo(BigDecimal.ZERO) == 0) {
+                        return;
+                    }
+                    andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder()
+                        .medOpptjeningÅr(opptjeningÅr)
+                        .medÅrsbeløp(feriepengerAndelPrÅr)
+                        .medBrukerErMottaker(andel.erBrukerMottaker())
+                        .medArbeidsforhold(andel.getArbeidsforhold())
+                        .build());
 
-                        //Regelsporing
-                        var mottaker = andel.erBrukerMottaker() ? "Bruker." : "Arbeidsgiver.";
-                        var andelId = andel.getArbeidsforhold() != null ? andel.getArbeidsgiverId() : andel.getAktivitetStatus().name();
-                        resultater.put("Feriepenger." + mottaker + andelId + " i " + periodeNavn, feriepengerAndelPrÅr);
-                    });
-            });
+                    //Regelsporing
+                    var mottaker = andel.erBrukerMottaker() ? "Bruker." : "Arbeidsgiver.";
+                    var andelId = andel.getArbeidsforhold() != null ? andel.getArbeidsgiverId() : andel.getAktivitetStatus().name();
+                    resultater.put("Feriepenger." + mottaker + andelId + " i " + periodeNavn, feriepengerAndelPrÅr);
+                });
+        });
     }
 
     private static int beregnAntallUkedagerMellom(LocalDate fom, LocalDate tom) {

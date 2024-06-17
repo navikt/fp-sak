@@ -45,59 +45,48 @@ class DokumentBehandlingTjenesteTest {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
         dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingskontrollTjeneste, behandlingDokumentRepository);
-        this.scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
+        this.scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
     }
 
     @Test
     void skal_finne_behandlingsfrist_fra_manuel() {
         lagBehandling();
-        assertThat(dokumentBehandlingTjeneste.finnNyFristManuelt(behandling.getType()))
-                .isEqualTo(LocalDate.now().plusWeeks(fristUker));
+        assertThat(dokumentBehandlingTjeneste.finnNyFristManuelt(behandling.getType())).isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
     void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_ingen_terminbekreftelse() {
         lagBehandling();
-        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
-                .isEqualTo(LocalDate.now().plusWeeks(fristUker));
+        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling)).isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
     void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse() {
         var fødselsdato = LocalDate.now().minusDays(3);
-        this.scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medFødselAdopsjonsdato(Collections.singletonList(fødselsdato))
-                .medDefaultSøknadTerminbekreftelse();
+        this.scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medFødselAdopsjonsdato(Collections.singletonList(fødselsdato))
+            .medDefaultSøknadTerminbekreftelse();
         lagBehandling();
-        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
-                .isEqualTo(LocalDate.now().plusWeeks(fristUker));
+        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling)).isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
     void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_etter_ap() {
         var fødselsdato = LocalDate.now().plusDays(3);
-        this.scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medFødselAdopsjonsdato(Collections.singletonList(fødselsdato))
-                .medDefaultSøknadTerminbekreftelse();
+        this.scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medFødselAdopsjonsdato(Collections.singletonList(fødselsdato))
+            .medDefaultSøknadTerminbekreftelse();
         lagBehandling();
-        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
-                .isEqualTo(fødselsdato.plusWeeks(fristUker));
+        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling)).isEqualTo(fødselsdato.plusWeeks(fristUker));
     }
 
     @Test
     void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_i_fortiden() {
-        this.scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().minusWeeks(6)));
+        this.scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(LocalDate.now().minusWeeks(6)));
         lagBehandling();
-        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
-                .isEqualTo(LocalDate.now().plusWeeks(fristUker));
+        assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling)).isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     private void lagBehandling() {
@@ -125,7 +114,8 @@ class DokumentBehandlingTjenesteTest {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter()).hasSize(1);
-        assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+        assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getDokumentMalType()).isEqualTo(
+            DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
         assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getBestillingUuid()).isNotNull();
     }
 
@@ -158,9 +148,7 @@ class DokumentBehandlingTjenesteTest {
     void skal_nullstille_vedtak_fritekst() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
-            .medBehandling(behandling.getId())
-            .medVedtakFritekst(VEDTAK_FRITEKST);
+        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).medVedtakFritekst(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
 
         var behandlingDokumentFør = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());

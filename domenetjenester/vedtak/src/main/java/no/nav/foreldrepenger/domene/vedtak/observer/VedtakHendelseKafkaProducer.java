@@ -28,7 +28,8 @@ public class VedtakHendelseKafkaProducer {
     void sendJson(String nøkkel, String json) {
         LOG.info("Sender melding om vedtak med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
-        LOG.info("Sendte melding om vedtak til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
+        LOG.info("Sendte melding om vedtak til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(),
+            recordMetadata.offset());
     }
 
 }

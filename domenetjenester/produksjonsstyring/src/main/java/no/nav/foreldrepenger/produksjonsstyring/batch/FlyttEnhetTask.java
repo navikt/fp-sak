@@ -25,7 +25,7 @@ class FlyttEnhetTask implements ProsessTaskHandler {
 
     @Inject
     public FlyttEnhetTask(BehandlingKandidaterRepository behandlingKandidaterRepository, ProsessTaskTjeneste taskTjeneste) {
-        this.taskTjeneste =taskTjeneste;
+        this.taskTjeneste = taskTjeneste;
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
 
     }

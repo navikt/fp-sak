@@ -12,7 +12,8 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
         // SKjuler default
     }
 
-    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
+    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler,
+                                                            BRNøkkelMedAndeler originalNøkkelMedAndeler) {
         var revurderingReferanser = revurderingNøkkelMedAndeler.getAlleReferanserForDenneNøkkelen();
         List<EndringIBeregningsresultat> list = new ArrayList<>();
         var andelerMedRefSomIkkeFinnesIRevurdering = originalNøkkelMedAndeler.getAlleAndelerMedRefSomIkkeFinnesIListe(revurderingReferanser);
@@ -21,7 +22,7 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
         var arbeidsgiversAndelUtenReferanse = revurderingNøkkelMedAndeler.getArbeidsgiversAndelUtenReferanse();
 
         if (brukersAndelUtenreferanse.isPresent()) {
-            var omberegnetDagsats = beregnDagsatsBrukerAndelUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
+            var omberegnetDagsats = beregnDagsatsBrukerAndelUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering,
                 brukersAndelUtenreferanse.get(), arbeidsgiversAndelUtenReferanse);
             if (erDagsatsEndret(brukersAndelUtenreferanse.get(), omberegnetDagsats)) {
                 var endring = new EndringIBeregningsresultat(brukersAndelUtenreferanse.get(), omberegnetDagsats);
@@ -29,7 +30,7 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
             }
         }
         if (arbeidsgiversAndelUtenReferanse.isPresent()) {
-            var omberegnetDagsats = beregnDagsatsAGUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
+            var omberegnetDagsats = beregnDagsatsAGUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering,
                 arbeidsgiversAndelUtenReferanse.get(), brukersAndelUtenreferanse);
             if (erDagsatsEndret(arbeidsgiversAndelUtenReferanse.get(), omberegnetDagsats)) {
                 var endring = new EndringIBeregningsresultat(arbeidsgiversAndelUtenReferanse.get(), omberegnetDagsats);
@@ -51,33 +52,35 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
         var originalDagsatsBrukerTotal = originalDagsatsBrukersAndelUtenRef + originalDagsatsBrukersAndelUtenMatchendeRef;
-        int revurderingBrukersDagsats = brukersAndelUtenreferanse
-            .map(BeregningsresultatAndel::getDagsats)
-            .orElse(0);
-        return OmfordelDagsats.beregnDagsatsArbeidsgiver(arbeidsgiversAndelUtenReferanse.getDagsats(), revurderingBrukersDagsats, originalDagsatsBrukerTotal);
+        int revurderingBrukersDagsats = brukersAndelUtenreferanse.map(BeregningsresultatAndel::getDagsats).orElse(0);
+        return OmfordelDagsats.beregnDagsatsArbeidsgiver(arbeidsgiversAndelUtenReferanse.getDagsats(), revurderingBrukersDagsats,
+            originalDagsatsBrukerTotal);
 
 
     }
+
     private static int beregnDagsatsBrukerAndelUtenReferanse(BRNøkkelMedAndeler originalNøkkelMedAndeler,
                                                              List<BeregningsresultatAndel> alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering,
                                                              BeregningsresultatAndel brukersAndelUtenreferanse,
                                                              Optional<BeregningsresultatAndel> arbeidsgiversAndelUtenReferanse) {
-        var totalOriginalBrukersDagsats = finnOriginalBrukerDagsats(originalNøkkelMedAndeler, alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering);
+        var totalOriginalBrukersDagsats = finnOriginalBrukerDagsats(originalNøkkelMedAndeler,
+            alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering);
         var revurderingBrukerDagsats = brukersAndelUtenreferanse.getDagsats();
-        int revurderingDagsatsArbeidsgiver = arbeidsgiversAndelUtenReferanse
-            .map(BeregningsresultatAndel::getDagsats)
-            .orElse(0);
+        int revurderingDagsatsArbeidsgiver = arbeidsgiversAndelUtenReferanse.map(BeregningsresultatAndel::getDagsats).orElse(0);
         return OmfordelDagsats.beregnDagsatsBruker(revurderingBrukerDagsats, revurderingDagsatsArbeidsgiver, totalOriginalBrukersDagsats);
     }
 
-    private static int finnOriginalBrukerDagsats(BRNøkkelMedAndeler originalNøkkelMedAndeler, List<BeregningsresultatAndel> alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering) {
+    private static int finnOriginalBrukerDagsats(BRNøkkelMedAndeler originalNøkkelMedAndeler,
+                                                 List<BeregningsresultatAndel> alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering) {
         int originalDagsatsAndelUtenReferanse = originalNøkkelMedAndeler.getBrukersAndelUtenreferanse()
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
         var originaleBrukersAndelSomIkkeMatcherRevurderingAndeler = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
             .filter(BeregningsresultatAndel::erBrukerMottaker)
             .toList();
-        var originalDagsatsAndelerUtenMatchendeRef = originaleBrukersAndelSomIkkeMatcherRevurderingAndeler.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
+        var originalDagsatsAndelerUtenMatchendeRef = originaleBrukersAndelSomIkkeMatcherRevurderingAndeler.stream()
+            .mapToInt(BeregningsresultatAndel::getDagsats)
+            .sum();
         return originalDagsatsAndelUtenReferanse + originalDagsatsAndelerUtenMatchendeRef;
     }
 

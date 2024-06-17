@@ -22,7 +22,10 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
      * @param skjæringstidspunkt
      * @return {@link Beregningsresultat}et vi ønsker å utbetale
      */
-    public static BeregningsresultatEntitet reberegn(BeregningsresultatEntitet beregningsgrunnlagTY, LocalDateTimeline<BRAndelSammenligning> tidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
+    public static BeregningsresultatEntitet reberegn(BeregningsresultatEntitet beregningsgrunnlagTY,
+                                                     LocalDateTimeline<BRAndelSammenligning> tidslinje,
+                                                     Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                     LocalDate skjæringstidspunkt) {
         // Map til regelmodell
 
         var utbetaltTY = BeregningsresultatEntitet.builder()

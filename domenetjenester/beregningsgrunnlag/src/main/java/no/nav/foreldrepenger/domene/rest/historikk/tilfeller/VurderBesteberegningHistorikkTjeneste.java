@@ -19,23 +19,25 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderBesteberegningHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        lagBesteberegningHistorikk(
-            dto,
-            tekstBuilder,
-            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        lagBesteberegningHistorikk(dto, tekstBuilder, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
     }
 
-    private void lagBesteberegningHistorikk(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        var forrigeVerdi = forrigeBg
-            .map(beregningsgrunnlag -> beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-                .flatMap(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(andel -> andel.getBesteberegningPrÅr() != null));
+    private void lagBesteberegningHistorikk(FaktaBeregningLagreDto dto,
+                                            HistorikkInnslagTekstBuilder tekstBuilder,
+                                            Optional<BeregningsgrunnlagEntitet> forrigeBg) {
+        var forrigeVerdi = forrigeBg.map(beregningsgrunnlag -> beregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
+            .flatMap(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+            .anyMatch(andel -> andel.getBesteberegningPrÅr() != null));
         var tilVerdi = finnTilVerdi(dto);
         if (forrigeVerdi.isEmpty() || !forrigeVerdi.get().equals(tilVerdi)) {
-            tekstBuilder
-                .medEndretFelt(HistorikkEndretFeltType.FORDELING_ETTER_BESTEBEREGNING, forrigeVerdi.orElse(null), tilVerdi);
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FORDELING_ETTER_BESTEBEREGNING, forrigeVerdi.orElse(null), tilVerdi);
         }
     }
 
