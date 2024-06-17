@@ -46,8 +46,8 @@ import no.nav.pdl.Bostedsadresse;
 import no.nav.pdl.BostedsadresseResponseProjection;
 import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedsel;
-import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.Foedselsdato;
+import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.FolkeregistermetadataResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
@@ -189,7 +189,7 @@ public class PersoninfoTjeneste {
 
         var projection = new PersonResponseProjection()
                 .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-                .foedsel(new FoedselResponseProjection().foedselsdato())
+                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
                 .kjoenn(new KjoennResponseProjection().kjoenn())
@@ -219,8 +219,8 @@ public class PersoninfoTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
+        var fødselsdato = person.getFoedselsdato().stream()
+                .map(Foedselsdato::getFoedselsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         var dødssdato = person.getDoedsfall().stream()

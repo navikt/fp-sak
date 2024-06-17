@@ -22,8 +22,8 @@ import no.nav.pdl.DoedfoedtBarn;
 import no.nav.pdl.DoedfoedtBarnResponseProjection;
 import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedsel;
-import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.Foedselsdato;
+import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjon;
@@ -105,13 +105,13 @@ public class FødselTjeneste {
         var request = new HentPersonQueryRequest();
         request.setIdent(barnIdent);
         var projection = new PersonResponseProjection()
-                .foedsel(new FoedselResponseProjection().foedselsdato())
+                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
         var barn = pdlKlient.hentPerson(ytelseType, request, projection);
 
-        var fødselsdato = barn.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
+        var fødselsdato = barn.getFoedselsdato().stream()
+                .map(Foedselsdato::getFoedselsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         var dødssdato = barn.getDoedsfall().stream()
