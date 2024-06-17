@@ -59,7 +59,8 @@ public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             var ref = uttakInput.getBehandlingReferanse();
-            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagFraOriginalBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.behandlingId());
+            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagFraOriginalBehandling(ref.getOriginalBehandlingId().orElseThrow(),
+                ref.behandlingId());
         }
     }
 }

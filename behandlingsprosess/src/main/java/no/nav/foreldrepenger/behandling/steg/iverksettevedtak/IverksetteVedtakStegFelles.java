@@ -50,8 +50,8 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
 
     @Inject
     public IverksetteVedtakStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            OpprettProsessTaskIverksett opprettProsessTaskIverksett,
-            VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
+                                      OpprettProsessTaskIverksett opprettProsessTaskIverksett,
+                                      VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();

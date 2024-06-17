@@ -67,7 +67,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var aggregatTY = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId)
-                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
 
         if (aggregatTY.getUtbetBeregningsresultatFP() != null) {
             // I enkelte tilfeller kopieres utbet resultat i vurder tilbaketrekk steget,
@@ -79,15 +79,15 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         if (aggregatTY.skalHindreTilbaketrekk().orElse(false)) {
             var revurderingTY = aggregatTY.getBgBeregningsresultatFP();
             var behandlingReferanse = BehandlingReferanse.fra(behandling);
-            var brAndelTidslinje = beregningsresultatTidslinjetjeneste
-                    .lagTidslinjeForRevurdering(behandlingReferanse);
+            var brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(behandlingReferanse);
             var utledetSkjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-            var utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje,
-                    finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
+            var utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje, finnYrkesaktiviteter(behandlingReferanse),
+                utledetSkjæringstidspunkt);
 
             // Reberegn feriepenger
             var ref = BehandlingReferanse.fra(behandling);
-            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.fagsakYtelseType()).orElseThrow();
+            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.fagsakYtelseType())
+                .orElseThrow();
             feriepengerTjeneste.beregnFeriepenger(ref, utbetBR);
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR);
         }
@@ -96,10 +96,8 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
 
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(BehandlingReferanse behandlingReferanse) {
         var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId())
-                .getAktørArbeidFraRegister(behandlingReferanse.aktørId());
-        return aktørArbeidFraRegister
-                .map(AktørArbeid::hentAlleYrkesaktiviteter)
-                .orElse(Collections.emptyList());
+            .getAktørArbeidFraRegister(behandlingReferanse.aktørId());
+        return aktørArbeidFraRegister.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList());
     }
 
 }

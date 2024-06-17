@@ -37,21 +37,17 @@ class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
 
-        var gammeltGrunnlag = new SvpGrunnlagEntitet.Builder()
-                .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder()
-                        .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
-                        .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
-                        .medKopiertFraTidligereBehandling(false)
-                        .build()))
-                .medOverstyrteTilrettelegginger(List.of())
-                .medBehandlingId(behandling.getId()).build();
-        svangerskapspengerRepository.lagreOgFlush(gammeltGrunnlag);
-
-        var overstyrtTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+        var gammeltGrunnlag = new SvpGrunnlagEntitet.Builder().medOpprinneligeTilrettelegginger(List.of(
+            new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
                 .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
                 .medKopiertFraTidligereBehandling(false)
-                .build();
+                .build())).medOverstyrteTilrettelegginger(List.of()).medBehandlingId(behandling.getId()).build();
+        svangerskapspengerRepository.lagreOgFlush(gammeltGrunnlag);
+
+        var overstyrtTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+            .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
+            .medKopiertFraTidligereBehandling(false)
+            .build();
 
         // Act
         utledNyeTilretteleggingerTjeneste.lagre(behandling, List.of(overstyrtTilrettelegging));

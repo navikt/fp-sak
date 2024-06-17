@@ -101,8 +101,8 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
 
     @BeforeEach
     public void setUp() {
-        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste,
-                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste);
+        steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste, skjæringstidspunktTjeneste,
+            flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste);
     }
 
     @Test
@@ -112,9 +112,7 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         var ettÅrSiden = termin.minusYears(1);
         var start = termin.minusWeeks(3);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(start)
-                .build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(start).build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultFordeling(start);
         scenario.medDefaultSøknadTerminbekreftelse();
@@ -153,9 +151,7 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         var ettÅrSiden = LocalDate.now().minusYears(1);
         var iDag = LocalDate.now();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(LocalDate.now())
-                .build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medDefaultOppgittTilknytning();
@@ -195,20 +191,17 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
-        return new MedlemskapPerioderBuilder()
-                .medDekningType(dekningType)
-                .medMedlemskapType(MedlemskapType.FORELOPIG)
-                .medPeriode(fom, tom)
-                .medMedlId(1L)
-                .build();
+        return new MedlemskapPerioderBuilder().medDekningType(dekningType)
+            .medMedlemskapType(MedlemskapType.FORELOPIG)
+            .medPeriode(fom, tom)
+            .medMedlId(1L)
+            .build();
     }
 
     private Behandling opprettRevurdering(Behandling behandling) {
-        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
-                .medOriginalBehandlingId(behandling.getId());
+        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA).medOriginalBehandlingId(behandling.getId());
 
-        var revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(revurderingÅrsak).build();
+        var revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).medBehandlingÅrsak(revurderingÅrsak).build();
 
         var behandlingId = behandling.getId();
         var revurderingId = behandlingRepository.lagre(revudering, behandlingRepository.taSkriveLås((Long) null));
@@ -221,12 +214,11 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {
-        var nyPeriode = new MedlemskapPerioderBuilder()
-                .medPeriode(datoMedEndring, null)
-                .medDekningType(MedlemskapDekningType.FULL)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medMedlId(2L)
-                .build();
+        var nyPeriode = new MedlemskapPerioderBuilder().medPeriode(datoMedEndring, null)
+            .medDekningType(MedlemskapDekningType.FULL)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .medMedlId(2L)
+            .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, asList(periode, nyPeriode));
     }
 
@@ -240,19 +232,16 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private UttakResultatPerioderEntitet lagUttaksPeriode(LocalDate start) {
-        var periode = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(53))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
-        var uttakAktivtet = new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
-                .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-                .medUtbetalingsgrad(new Utbetalingsgrad(100))
-                .medArbeidsprosent(BigDecimal.valueOf(100L))
-                .medErSøktGradering(true)
-                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
-                .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(53)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
+        var uttakAktivtet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
+            .build();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet).medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .medArbeidsprosent(BigDecimal.valueOf(100L))
+            .medErSøktGradering(true)
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .build();
         periode.leggTilAktivitet(periodeAktivitet);
         var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);

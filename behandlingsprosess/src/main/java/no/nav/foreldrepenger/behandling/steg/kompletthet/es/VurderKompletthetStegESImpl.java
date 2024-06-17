@@ -35,8 +35,8 @@ public class VurderKompletthetStegESImpl implements VurderKompletthetSteg {
 
     @Inject
     public VurderKompletthetStegESImpl(@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) Kompletthetsjekker vurderKompletthetTjeneste,
-            BehandlingRepositoryProvider provider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                       BehandlingRepositoryProvider provider,
+                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.vurderKompletthetTjeneste = vurderKompletthetTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();

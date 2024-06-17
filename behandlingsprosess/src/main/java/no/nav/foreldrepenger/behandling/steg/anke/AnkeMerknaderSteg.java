@@ -30,8 +30,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     }
 
     @Inject
-    public AnkeMerknaderSteg(BehandlingRepository behandlingRepository,
-            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
+    public AnkeMerknaderSteg(BehandlingRepository behandlingRepository, KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -54,17 +53,18 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         } else {
-            if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
-                !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) && !klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
+            if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)
+                && !klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
                 throw new IllegalStateException("AnkeMerknaderSteg: FpsakAnke skal til TR men mangler oversendelsesdato");
             }
-            if (!klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
-                (klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) || klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling))) {
+            if (!klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && (klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)
+                || klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling))) {
                 throw new IllegalStateException("AnkeMerknaderSteg: FpsakAnke skal ikke til TR men har oversendelsesdato eller kjennelse");
             }
             if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)) {
-                return klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling) ? BehandleStegResultat.utførtUtenAksjonspunkter() :
-                    BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåTrygderetten());
+                return klageAnkeVedtakTjeneste.harKjennelseTrygdretten(
+                    behandling) ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultat(
+                    ventPåTrygderetten());
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
 
@@ -72,9 +72,9 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     }
 
     private AksjonspunktResultat ventPåTrygderetten() {
-        return AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, Venteårsak.VENT_KABAL, null);
+        return AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN,
+            Venteårsak.VENT_KABAL, null);
     }
-
 
 
 }

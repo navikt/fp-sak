@@ -42,8 +42,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwareTest {
 
-    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
     private OpptjeningRepository opptjeningRepository;
 
@@ -190,18 +189,16 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
 
         var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
         var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
-        egenNæringBuilder
-                .medPeriode(periode)
-                .medUtenlandskVirksomhet(svenska_stat)
-                .medBegrunnelse("Vet ikke")
-                .medBruttoInntekt(BigDecimal.valueOf(100000))
-                .medRegnskapsførerNavn("Jacob")
-                .medRegnskapsførerTlf("TELEFON")
-                .medVirksomhetType(VirksomhetType.FISKE)
-                .medVirksomhet(KUNSTIG_ORG);
+        egenNæringBuilder.medPeriode(periode)
+            .medUtenlandskVirksomhet(svenska_stat)
+            .medBegrunnelse("Vet ikke")
+            .medBruttoInntekt(BigDecimal.valueOf(100000))
+            .medRegnskapsførerNavn("Jacob")
+            .medRegnskapsførerTlf("TELEFON")
+            .medVirksomhetType(VirksomhetType.FISKE)
+            .medVirksomhet(KUNSTIG_ORG);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
-        oppgittOpptjeningBuilder
-                .leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
+        oppgittOpptjeningBuilder.leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
@@ -234,10 +231,12 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
         var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
-        oppgittOpptjeningBuilder
-                .leggTilOppgittArbeidsforhold(
-                        OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny().medUtenlandskVirksomhet(svenska_stat).medPeriode(periode)
-                                .medErUtenlandskInntekt(true).medArbeidType(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD).build());
+        oppgittOpptjeningBuilder.leggTilOppgittArbeidsforhold(OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny()
+            .medUtenlandskVirksomhet(svenska_stat)
+            .medPeriode(periode)
+            .medErUtenlandskInntekt(true)
+            .medArbeidType(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD)
+            .build());
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
@@ -254,17 +253,15 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
 
         var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
         var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
-        egenNæringBuilder
-                .medPeriode(periode)
-                .medUtenlandskVirksomhet(svenska_stat)
-                .medBegrunnelse("Vet ikke")
-                .medBruttoInntekt(BigDecimal.valueOf(100000))
-                .medRegnskapsførerNavn("Jacob")
-                .medRegnskapsførerTlf("TELEFON")
-                .medVirksomhetType(VirksomhetType.FISKE);
+        egenNæringBuilder.medPeriode(periode)
+            .medUtenlandskVirksomhet(svenska_stat)
+            .medBegrunnelse("Vet ikke")
+            .medBruttoInntekt(BigDecimal.valueOf(100000))
+            .medRegnskapsførerNavn("Jacob")
+            .medRegnskapsførerTlf("TELEFON")
+            .medVirksomhetType(VirksomhetType.FISKE);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
-        oppgittOpptjeningBuilder
-                .leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
+        oppgittOpptjeningBuilder.leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
 
         var behandling = lagre(scenario);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
@@ -272,12 +269,11 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
         if (medNæring) {
             var iayAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
             var aktørInntektBuilder = iayAggregatBuilder.getAktørInntektBuilder(aktørId);
-            var inntektBuilder = aktørInntektBuilder
-                    .getInntektBuilder(InntektsKilde.SIGRUN, new Opptjeningsnøkkel(null, null, aktørId.getId()));
+            var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.SIGRUN, new Opptjeningsnøkkel(null, null, aktørId.getId()));
             var inntektspost = inntektBuilder.getInntektspostBuilder()
-                    .medBeløp(BigDecimal.TEN)
-                    .medPeriode(LocalDate.now().minusYears(2L), LocalDate.now().minusYears(1L))
-                    .medInntektspostType(InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(LocalDate.now().minusYears(2L), LocalDate.now().minusYears(1L))
+                .medInntektspostType(InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE);
 
             inntektBuilder.leggTilInntektspost(inntektspost);
             aktørInntektBuilder.leggTilInntekt(inntektBuilder);
@@ -298,8 +294,7 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
-        oppgittOpptjeningBuilder
-                .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, annenOpptjeningType));
+        oppgittOpptjeningBuilder.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, annenOpptjeningType));
 
         var behandling = lagre(scenario);
 

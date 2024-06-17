@@ -33,7 +33,8 @@ class NyeTilretteleggingerTjeneste {
     public void utledNyeTilretteleggingerLagreJustert(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         var gjeldendeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .orElseThrow(() -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()))
-            .getGjeldendeVersjon().getTilretteleggingListe();
+            .getGjeldendeVersjon()
+            .getTilretteleggingListe();
         var justerteTilrettelegginger = utledJusterte(behandling, skjæringstidspunkt, gjeldendeTilrettelegginger);
         if (!likeTilrettelegginger(justerteTilrettelegginger, gjeldendeTilrettelegginger)) {
             lagre(behandling, justerteTilrettelegginger);
@@ -45,28 +46,24 @@ class NyeTilretteleggingerTjeneste {
     }
 
 
-    List<SvpTilretteleggingEntitet> utledJusterte(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt, List<SvpTilretteleggingEntitet> gjeldendeTilrettelegginger) {
+    List<SvpTilretteleggingEntitet> utledJusterte(Behandling behandling,
+                                                  Skjæringstidspunkt skjæringstidspunkt,
+                                                  List<SvpTilretteleggingEntitet> gjeldendeTilrettelegginger) {
         var tilretteleggingerUtenArbeidsgiver = utledUtenArbeidsgiver(gjeldendeTilrettelegginger);
         var tilretteleggingerMedArbeidsgiver = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt,
-                gjeldendeTilrettelegginger);
-        return Stream.of(tilretteleggingerUtenArbeidsgiver, tilretteleggingerMedArbeidsgiver)
-                .flatMap(Collection::stream)
-                .toList();
+            gjeldendeTilrettelegginger);
+        return Stream.of(tilretteleggingerUtenArbeidsgiver, tilretteleggingerMedArbeidsgiver).flatMap(Collection::stream).toList();
     }
 
     void lagre(Behandling behandling, List<SvpTilretteleggingEntitet> nyeTilrettelegginger) {
-        var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow(
-            () -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
-        var nyttSvpGrunnlag = new SvpGrunnlagEntitet.Builder(svpGrunnlag)
-            .medOverstyrteTilrettelegginger(nyeTilrettelegginger)
-            .build();
+        var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .orElseThrow(() -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
+        var nyttSvpGrunnlag = new SvpGrunnlagEntitet.Builder(svpGrunnlag).medOverstyrteTilrettelegginger(nyeTilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(nyttSvpGrunnlag);
     }
 
     static List<SvpTilretteleggingEntitet> utledUtenArbeidsgiver(List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
-        return opprinneligeTilrettelegginger.stream()
-                .filter(tlr -> tlr.getArbeidsgiver().isEmpty())
-                .toList();
+        return opprinneligeTilrettelegginger.stream().filter(tlr -> tlr.getArbeidsgiver().isEmpty()).toList();
     }
 
 }

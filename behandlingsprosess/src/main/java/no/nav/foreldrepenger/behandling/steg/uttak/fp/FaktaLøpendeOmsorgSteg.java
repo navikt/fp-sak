@@ -24,8 +24,7 @@ public class FaktaLøpendeOmsorgSteg implements UttakSteg {
     private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
-    public FaktaLøpendeOmsorgSteg(AvklarLøpendeOmsorgAksjonspunktUtleder utleder,
-                                  UttakInputTjeneste uttakInputTjeneste) {
+    public FaktaLøpendeOmsorgSteg(AvklarLøpendeOmsorgAksjonspunktUtleder utleder, UttakInputTjeneste uttakInputTjeneste) {
         this.utleder = utleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
     }

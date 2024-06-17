@@ -46,8 +46,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
     @Inject
     ForeslåVedtakRevurderingStegImpl(ForeslåVedtakTjeneste foreslåVedtakTjeneste,
-            BeregningTjeneste beregningTjeneste,
-            BehandlingRepositoryProvider repositoryProvider) {
+                                     BeregningTjeneste beregningTjeneste,
+                                     BehandlingRepositoryProvider repositoryProvider) {
         this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåVedtakTjeneste = foreslåVedtakTjeneste;
@@ -73,7 +73,7 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     private boolean isBehandlingsresultatAvslåttEllerOpphørt(Behandling orginalBehandling) {
         var sistBehandlingsresultatUtenIngenEndring = getSistBehandlingsresultatUtenIngenEndring(orginalBehandling);
         return sistBehandlingsresultatUtenIngenEndring.isBehandlingsresultatAvslått()
-                || sistBehandlingsresultatUtenIngenEndring.isBehandlingsresultatOpphørt();
+            || sistBehandlingsresultatUtenIngenEndring.isBehandlingsresultatOpphørt();
     }
 
     private Behandlingsresultat getSistBehandlingsresultatUtenIngenEndring(Behandling orginalBehandling) {
@@ -89,8 +89,9 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     private Behandling getOriginalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
-                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Revurdering skal alltid ha orginal behandling"));
+        return behandling.getOriginalBehandlingId()
+            .map(behandlingRepository::hentBehandling)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Revurdering skal alltid ha orginal behandling"));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling orginalBehandling) {

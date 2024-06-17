@@ -24,8 +24,7 @@ public class VurderFaresignalerStegImpl extends VurderFaresignalerStegFelles {
     }
 
     @Inject
-    public VurderFaresignalerStegImpl(RisikovurderingTjeneste risikovurderingTjeneste,
-                                      BehandlingRepository behandlingRepository) {
+    public VurderFaresignalerStegImpl(RisikovurderingTjeneste risikovurderingTjeneste, BehandlingRepository behandlingRepository) {
         super(risikovurderingTjeneste, behandlingRepository);
     }
 }

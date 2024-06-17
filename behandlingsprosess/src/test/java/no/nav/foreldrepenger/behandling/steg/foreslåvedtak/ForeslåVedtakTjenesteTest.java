@@ -84,8 +84,8 @@ class ForeslåVedtakTjenesteTest {
 
         var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingsresultatRepository,
-            klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste, mock(FagsakEgenskapRepository.class));
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingsresultatRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste,
+            dokumentBehandlingTjeneste, mock(FagsakEgenskapRepository.class));
     }
 
     @Test
@@ -244,12 +244,10 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
-        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+            .build();
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
@@ -279,12 +277,10 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
-        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+            .build();
         revurdering.setToTrinnsBehandling();
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);

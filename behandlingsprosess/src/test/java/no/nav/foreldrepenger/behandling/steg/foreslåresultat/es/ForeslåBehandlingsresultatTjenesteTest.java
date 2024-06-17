@@ -44,10 +44,8 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         doReturn(false).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
-                repositoryProvider.getBehandlingsresultatRepository(),
-                repositoryProvider.getBehandlingRepository(),
-                revurderingEndring);
+        foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getBehandlingRepository(), revurderingEndring);
     }
 
     @Test
@@ -65,10 +63,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void foreslåBehandlingsresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder()
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .build());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
         foreslåVedtaTjenesteES.foreslåBehandlingsresultat(ref);
     }
 
@@ -118,10 +113,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         } else {
             builder.leggTilVilkårOppfylt(VilkårType.SØKNADSFRISTVILKÅRET);
         }
-        var vilkårResultat = builder
-                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .medVilkårResultatType(resultatType)
-                .buildFor(behandling);
+        var vilkårResultat = builder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET).medVilkårResultatType(resultatType).buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }

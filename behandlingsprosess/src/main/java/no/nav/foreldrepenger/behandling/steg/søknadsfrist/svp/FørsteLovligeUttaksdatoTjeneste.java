@@ -40,11 +40,11 @@ public class FørsteLovligeUttaksdatoTjeneste {
     }
 
     public Optional<AksjonspunktDefinisjon> vurder(Long behandlingId) {
-        var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(SøknadEntitet::getMottattDato).orElseGet(LocalDate::now);
+        var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId).map(SøknadEntitet::getMottattDato).orElseGet(LocalDate::now);
 
         // Revurderinger vil hente perioderense fra forrige behandling (dersom før denne søknaden) pga uheldig søknadsdynamikk ift endringer.
-        var brukperiodegrense = behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId()
+        var brukperiodegrense = behandlingRepository.hentBehandling(behandlingId)
+            .getOriginalBehandlingId()
             .flatMap(original -> uttaksperiodegrenseRepository.hentHvisEksisterer(original))
             .map(Uttaksperiodegrense::getMottattDato)
             .filter(grenseMottattDato -> grenseMottattDato.isBefore(søknadMottattDato))
@@ -56,7 +56,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
 
         var førsteUttaksDato = datoerSøknadsfrist.map(SøknadsperiodeFristTjenesteImpl.DatoerSøknadsfrist::førsteUttakDato);
         var tidligstMottattDato = datoerSøknadsfrist.map(SøknadsperiodeFristTjenesteImpl.DatoerSøknadsfrist::tidligstMottatt)
-            .filter(d-> d.isBefore(brukperiodegrense))
+            .filter(d -> d.isBefore(brukperiodegrense))
             .orElse(brukperiodegrense);
 
         //Lagre søknadsfristresultat - obs brukes i svp-uttak-regler og må ta hensyn til revurdering med eldre tilretteleggingFom

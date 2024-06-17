@@ -30,8 +30,7 @@ class BeregningsgrunnlagVilkårTjeneste {
     }
 
     @Inject
-    public BeregningsgrunnlagVilkårTjeneste(BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository) {
+    public BeregningsgrunnlagVilkårTjeneste(BehandlingRepository behandlingRepository, BehandlingsresultatRepository behandlingsresultatRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
@@ -68,9 +67,7 @@ class BeregningsgrunnlagVilkårTjeneste {
         } else {
             vilkårBuilder.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1041);
         }
-        return builder
-            .medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .leggTilVilkår(vilkårBuilder);
+        return builder.medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT).leggTilVilkår(vilkårBuilder);
     }
 
     void ryddVedtaksresultatOgVilkår(BehandlingskontrollKontekst kontekst) {
@@ -80,29 +77,29 @@ class BeregningsgrunnlagVilkårTjeneste {
     }
 
     private void ryddOppVilkårsvurdering(BehandlingskontrollKontekst kontekst, Optional<Behandlingsresultat> behandlingresultatOpt) {
-        var vilkårResultatOpt = behandlingresultatOpt
-                .map(Behandlingsresultat::getVilkårResultat);
+        var vilkårResultatOpt = behandlingresultatOpt.map(Behandlingsresultat::getVilkårResultat);
         if (vilkårResultatOpt.isEmpty()) {
             return;
         }
         var vilkårResultat = vilkårResultatOpt.get();
-        vilkårResultat.getVilkårene().stream()
+        vilkårResultat.getVilkårene()
+            .stream()
             .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.BEREGNINGSGRUNNLAGVILKÅR))
             .findFirst()
             .ifPresent(bv -> {
-                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                    .leggTilVilkårIkkeVurdert(bv.getVilkårType());
-                behandlingRepository.lagre(builder.buildFor(behandlingRepository.hentBehandling(kontekst.getBehandlingId())), kontekst.getSkriveLås());
-        });
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat).leggTilVilkårIkkeVurdert(bv.getVilkårType());
+                behandlingRepository.lagre(builder.buildFor(behandlingRepository.hentBehandling(kontekst.getBehandlingId())),
+                    kontekst.getSkriveLås());
+            });
     }
 
     private void nullstillVedtaksresultat(BehandlingskontrollKontekst kontekst, Optional<Behandlingsresultat> behandlingresultatOpt) {
-        if (behandlingresultatOpt.isEmpty()
-                || Objects.equals(behandlingresultatOpt.get().getBehandlingResultatType(), BehandlingResultatType.IKKE_FASTSATT)) {
+        if (behandlingresultatOpt.isEmpty() || Objects.equals(behandlingresultatOpt.get().getBehandlingResultatType(),
+            BehandlingResultatType.IKKE_FASTSATT)) {
             return;
         }
         var builder = Behandlingsresultat.builderEndreEksisterende(behandlingresultatOpt.get())
-                .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
+            .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
         behandlingsresultatRepository.lagre(kontekst.getBehandlingId(), builder.build());
     }
 

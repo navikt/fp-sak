@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +73,8 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var ugyldigAndel = UgyldigGraderingUtleder.finnFørsteUgyldigeAndel(input);
         if (ugyldigAndel.isPresent()) {
             var saksnummer = BehandlingReferanse.fra(behandling).saksnummer();
-            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s", saksnummer.getVerdi(),
-                OrgNummer.tilMaskertNummer(ugyldigAndel.get().arbeidsgiverIdent()), ugyldigAndel.get().internRef());
+            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s",
+                saksnummer.getVerdi(), OrgNummer.tilMaskertNummer(ugyldigAndel.get().arbeidsgiverIdent()), ugyldigAndel.get().internRef());
             LOG.warn(feilmelding);
         }
 
@@ -87,8 +88,8 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
             return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåSykemeldingAksjonspunkt.get());
         }
         // hent på nytt i tilfelle lagret og flushet
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(
+            aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {
@@ -98,15 +99,15 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         if (ventefrist.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(AksjonspunktResultat.opprettForAksjonspunktMedFrist(
-            AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
-            Venteårsak.VENT_MANGLENDE_SYKEMELDING,
-            LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
+        return Optional.of(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
+            Venteårsak.VENT_MANGLENDE_SYKEMELDING, LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettFastsattBeregningAktivitetBeregningsgrunnlag();
         } else {

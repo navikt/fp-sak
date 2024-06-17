@@ -82,8 +82,8 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 
-        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
-                : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultater(
+            aksjonspunkter);
     }
 
     private boolean harOppgittUtland(BehandlingskontrollKontekst kontekst) {
@@ -91,10 +91,10 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     }
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
-        var oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
-                .flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening);
-        return oppgittOpptening.map(oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream()
-                .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
+        var oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening);
+        return oppgittOpptening.map(
+                oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream().anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt))
+            .orElse(false);
     }
 
     private boolean harOppgittAnnenForelderTilknytningEØS(Long behandlingId) {
@@ -126,7 +126,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             return;
         }
         behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling)
-                .ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
-                        .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
+            .ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet,
+                HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
     }
 }

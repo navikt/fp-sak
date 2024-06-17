@@ -1,7 +1,15 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.es;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -14,20 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
-
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR)
 @BehandlingTypeRef

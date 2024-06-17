@@ -66,8 +66,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_beregne_hvis_vedtak_uten_uttak() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultFordeling(LocalDate.now());
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
@@ -75,7 +74,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medOppgittDekningsgrad(Dekningsgrad._100);;
+            .medOppgittDekningsgrad(Dekningsgrad._100);
+        ;
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -88,8 +88,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultFordeling(LocalDate.now());
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultFordeling(LocalDate.now());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         lagreUttak(førsteBehandling, avslåttUttak());
@@ -112,21 +111,18 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     @Test
     void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
         var uttak = avslåttUttak();
-        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultFordeling(uttak.getPerioder().getFirst().getFom());
+        var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultFordeling(uttak.getPerioder().getFirst().getFom());
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         var periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
-                uttak.getPerioder().get(0).getFom().minusDays(1))
-                        .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-                        .build();
+            uttak.getPerioder().get(0).getFom().minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
-                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-                        .medTrekkdager(new Trekkdager(5))
-                        .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-                        .medArbeidsprosent(BigDecimal.ZERO)
-                        .build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(periode);
         lagreUttak(førsteBehandling, uttak);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
@@ -138,8 +134,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
-        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-                .medAnnenpart(new Annenpart(førsteBehandling.getId(), LocalDateTime.now()));
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1)).medAnnenpart(
+            new Annenpart(førsteBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
@@ -162,8 +158,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var farBehandling = farScenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
-        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-                .medAnnenpart(new Annenpart(morBehandling.getId(), LocalDateTime.now()));
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1)).medAnnenpart(
+            new Annenpart(morBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
@@ -224,33 +220,28 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     private UttakResultatPerioderEntitet innvilgetUttak() {
         var uttak = new UttakResultatPerioderEntitet();
-        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
-                LocalDate.now().plusWeeks(1))
-                        .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-                        .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
-                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-                        .medTrekkdager(new Trekkdager(5))
-                        .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-                        .medArbeidsprosent(BigDecimal.ZERO)
-                        .build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(new Trekkdager(5))
+            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(periode);
         return uttak;
     }
 
     private UttakResultatPerioderEntitet avslåttUttak() {
         var uttak = new UttakResultatPerioderEntitet();
-        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
-                .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.BARNET_ER_DØD)
-                .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1)).medResultatType(
+            PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.BARNET_ER_DØD).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
-                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-                        .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-                        .medTrekkdager(Trekkdager.ZERO)
-                        .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-                        .medArbeidsprosent(BigDecimal.ZERO)
-                        .build();
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medTrekkdager(Trekkdager.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         uttak.leggTilPeriode(periode);
         return uttak;
     }

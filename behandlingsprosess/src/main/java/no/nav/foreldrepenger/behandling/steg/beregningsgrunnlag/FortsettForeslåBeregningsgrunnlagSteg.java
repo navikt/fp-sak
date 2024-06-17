@@ -53,19 +53,20 @@ public class FortsettForeslåBeregningsgrunnlagSteg implements Beregningsgrunnla
         var ref = BehandlingReferanse.fra(behandling);
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
         var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fortsettForeslåBeregningsgrunnlag(input);
-        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
-            .toList();
+        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
 
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)) {
             // Midlertidig fiks til alle saker med aksjonspunkt som starter i foreslå 2 faktisk har et foreslå 2 grunnlag
-            var finnesGrunnlagFraFortsettForeslå = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
-                BeregningsgrunnlagTilstand.FORESLÅTT_2).isPresent();
+            var finnesGrunnlagFraFortsettForeslå = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(
+                kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_2).isPresent();
             if (finnesGrunnlagFraFortsettForeslå) {
                 beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlag2VedTilbakeføring();
             } else {

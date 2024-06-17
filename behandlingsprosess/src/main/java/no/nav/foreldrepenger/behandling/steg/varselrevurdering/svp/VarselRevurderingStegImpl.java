@@ -37,8 +37,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
-            var transisjon = TransisjonIdentifikator
-                    .forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
+            var transisjon = TransisjonIdentifikator.forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, Collections.emptyList());
         }
         // DO nothing. Steget finnes for å kunne hoppe fram til Kontroller Fakta

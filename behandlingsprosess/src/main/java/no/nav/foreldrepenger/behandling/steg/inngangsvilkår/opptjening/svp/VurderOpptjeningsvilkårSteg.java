@@ -30,16 +30,17 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFelles {
 
     @Inject
-    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider,
-                                       InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
     }
 
     @Override
     protected List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(OpptjeningsvilkårResultat oppResultat) {
         List<OpptjeningAktivitet> aktiviteter = new ArrayList<>();
-        aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getBekreftetGodkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT));
-        aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getAntattGodkjentePerioder(), OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT));
+        aktiviteter.addAll(
+            MapTilOpptjeningAktiviteter.map(oppResultat.getBekreftetGodkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT));
+        aktiviteter.addAll(
+            MapTilOpptjeningAktiviteter.map(oppResultat.getAntattGodkjentePerioder(), OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT));
         aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getUnderkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST));
         return aktiviteter;
     }

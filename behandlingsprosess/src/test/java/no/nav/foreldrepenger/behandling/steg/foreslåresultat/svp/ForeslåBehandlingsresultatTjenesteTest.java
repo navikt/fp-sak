@@ -76,25 +76,20 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
+        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(
+            new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
-                grunnlagRepositoryProvider,
-                svpUttakRepository,
-            beregningTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste,
-                medlemTjeneste));
+        revurderingBehandlingsresultatutleder = spy(
+            new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider, svpUttakRepository, beregningTjeneste,
+                opphørUttakTjeneste, skjæringstidspunktTjeneste, medlemTjeneste));
 
-        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-                svpUttakRepository,
-                dokumentBehandlingTjeneste,
-                revurderingBehandlingsresultatutleder);
+        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider, svpUttakRepository, dokumentBehandlingTjeneste,
+            revurderingBehandlingsresultatutleder);
     }
 
     @Test
@@ -224,24 +219,22 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandlingsresultat foreslåBehandlingresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder()
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                        .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
-                        .build());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+            .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
+            .build());
         return tjeneste.foreslåBehandlingsresultat(ref);
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medKopiAvForrigeBehandlingsresultat()
-                .medBehandlingÅrsak(
-                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                                .medManueltOpprettet(true)
-                                .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+            .medKopiAvForrigeBehandlingsresultat()
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medManueltOpprettet(true)
+                .medOriginalBehandlingId(originalBehandling.getId()))
+            .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
         return revurdering;
     }
@@ -256,7 +249,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
             vilkårsresultatBuilder.manueltVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT,
-                    Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
+                Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         behandlingRepository.lagre(vilkårsresultatBuilder.buildFor(behandling), lås);
@@ -268,11 +261,15 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private void lagBehandlingsresultat(Behandling behandling) {
         var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
-                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-                .buildFor(behandling);
-        var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
-                .medBehandlingsresultat(behandlingsresultat)
-                .medVedtakResultatType(VedtakResultatType.AVSLAG).medAnsvarligSaksbehandler("asdf").build();
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+            .buildFor(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.AVSLAG)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));
 
@@ -289,21 +286,17 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
 
-        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
-                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-                .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-                .build();
+        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medRegelInput("{}")
+            .medRegelEvaluering("{}")
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+            .build();
 
-        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .medPeriode(uttakPeriode)
-                .build();
-        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat())
-                .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+            Arbeidsgiver.person(AktørId.dummy()), null).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).medPeriode(uttakPeriode).build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(
+            uttakArbeidsforhold).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
     }
 

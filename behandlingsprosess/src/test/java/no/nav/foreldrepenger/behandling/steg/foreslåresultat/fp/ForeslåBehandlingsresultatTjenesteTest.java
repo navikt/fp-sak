@@ -72,24 +72,20 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
+        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(
+            new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.empty());
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
-                grunnlagRepositoryProvider,
-                beregningTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste,
-                medlemTjeneste,
-                uttakTjeneste));
+        revurderingBehandlingsresultatutleder = spy(
+            new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider, beregningTjeneste, opphørUttakTjeneste,
+                skjæringstidspunktTjeneste, medlemTjeneste, uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(this.repositoryProvider,
-                new ForeldrepengerUttakTjeneste(this.repositoryProvider.getFpUttakRepository()),
-                dokumentBehandlingTjeneste,
-                revurderingBehandlingsresultatutleder);
+            new ForeldrepengerUttakTjeneste(this.repositoryProvider.getFpUttakRepository()), dokumentBehandlingTjeneste,
+            revurderingBehandlingsresultatutleder);
         behandlingRepository = this.repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = this.repositoryProvider.getBehandlingVedtakRepository();
     }
@@ -109,13 +105,12 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandlingsresultat foreslåBehandlingsresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder()
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                        .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
-                        .build());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+            .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
+            .build());
         return tjeneste.foreslåBehandlingsresultat(ref);
     }
 
@@ -233,20 +228,15 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medKopiAvForrigeBehandlingsresultat()
-                .medBehandlingÅrsak(
-                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                                .medManueltOpprettet(true)
-                                .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+            .medKopiAvForrigeBehandlingsresultat()
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medManueltOpprettet(true)
+                .medOriginalBehandlingId(originalBehandling.getId()))
+            .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medOpprinneligEndringsdato(LocalDate.now())
-            .build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(LocalDate.now()).build();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
-            .medAvklarteDatoer(avklarteUttakDatoer)
-            .build();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medAvklarteDatoer(avklarteUttakDatoer).build();
         ytelsesFordelingRepository.lagre(revurdering.getId(), ytelseFordelingAggregat);
         return revurdering;
     }
@@ -261,7 +251,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
             vilkårsresultatBuilder.manueltVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT,
-                    Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT);
+                Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT);
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         behandlingRepository.lagre(vilkårsresultatBuilder.buildFor(behandling), lås);
@@ -273,20 +263,23 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private void lagreUttak(Behandling behandling) {
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
-        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
     }
 
     private void lagBehandlingsresultat(Behandling behandling) {
         var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
-                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-                .buildFor(behandling);
-        var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
-                .medBehandlingsresultat(behandlingsresultat)
-                .medVedtakResultatType(VedtakResultatType.AVSLAG).medAnsvarligSaksbehandler("asdf").build();
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+            .buildFor(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.AVSLAG)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));
 

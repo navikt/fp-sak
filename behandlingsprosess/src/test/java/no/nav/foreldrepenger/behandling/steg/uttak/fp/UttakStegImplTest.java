@@ -127,10 +127,7 @@ class UttakStegImplTest {
     }
 
     private Fagsak opprettFagsak() {
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
-                .medSaksnummer(new Saksnummer("1234"))
-                .medBrukerAktørId(AKTØRID)
-                .build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medSaksnummer(new Saksnummer("1234")).medBrukerAktørId(AKTØRID).build();
         fagsakRepository.opprettNy(fagsak);
         fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         return fagsak;
@@ -184,9 +181,7 @@ class UttakStegImplTest {
 
     @Test
     void skalBeregneStønadskontoVedFørsteBehandlingForFørsteForelder() {
-        var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA)
-                .medSaksnummer(new Saksnummer("12345"))
-                .build();
+        var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA).medSaksnummer(new Saksnummer("12345")).build();
         fagsakRepository.opprettNy(fagsakForFar);
 
         var farsBehandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsakForFar, LocalDate.now(), LocalDate.now());
@@ -224,8 +219,7 @@ class UttakStegImplTest {
         assertThat(andreStønadskontoberegning.getStønadskontoutregning()).containsKey(StønadskontoType.FORELDREPENGER);
 
         // Act -- kjører steget på nytt for mor
-        yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
+        yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
         steg.utførSteg(kontekst(behandling));
 
@@ -241,7 +235,7 @@ class UttakStegImplTest {
 
         // Act -- behandler fars behandling, skal ikke opprette stønadskontoer på nytt
         var kontekstForFarsBehandling = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(farsBehandling));
+            behandlingRepository.taSkriveLås(farsBehandling));
         steg.utførSteg(kontekstForFarsBehandling);
 
 
@@ -257,16 +251,14 @@ class UttakStegImplTest {
 
         var fødselsdato = LocalDate.of(2019, 2, 25);
         var fagsak = opprettFagsak();
-        var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato,
-                fødselsdato, Dekningsgrad._80);
+        var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato, fødselsdato, Dekningsgrad._80);
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
-                Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
-                Dekningsgrad._80);
+            Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())), Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(morsFørstegang));
+            behandlingRepository.taSkriveLås(morsFørstegang));
 
         // Første versjon av kontoer opprettes
         steg.utførSteg(førstegangsKontekst);
@@ -283,7 +275,7 @@ class UttakStegImplTest {
         oppdaterDekningsgrad(morsRevurdering.getId(), Dekningsgrad._100);
 
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(morsRevurdering));
+            behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
 
 
@@ -303,14 +295,12 @@ class UttakStegImplTest {
 
         var fødselsdato = LocalDate.of(2023, 2, 25);
         var fagsak = opprettFagsak();
-        var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato,
-            fødselsdato, Dekningsgrad._80);
+        var morsFørstegang = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato, fødselsdato, Dekningsgrad._80);
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørstegang.getFagsak(),
-            Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
-            Dekningsgrad._80);
+            Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())), Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
             behandlingRepository.taSkriveLås(morsFørstegang));
 
@@ -335,7 +325,8 @@ class UttakStegImplTest {
         var resultat2 = fpUttakRepository.hentUttakResultatHvisEksisterer(morsRevurdering.getId());
         assertThat(resultat2).isPresent();
         assertThat(resultat2.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
-        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).containsEntry(StønadskontoType.TETTE_SAKER_MOR, 110);
+        assertThat(resultat2.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).containsEntry(StønadskontoType.TETTE_SAKER_MOR,
+            110);
         // 4 stønadskontoer, 2 stk tettsak, far rundt fødsel
         assertThat(resultat2.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().keySet()).hasSize(7);
     }
@@ -347,11 +338,11 @@ class UttakStegImplTest {
         var lås = repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
         behandlingRepository.lagre(lagretBehandling, lås);
         var vedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medAnsvarligSaksbehandler("abc")
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medBehandlingsresultat(behandlingsresultat)
-                .build();
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("abc")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .build();
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
         lagretBehandling.avsluttBehandling();
         behandlingRepository.lagre(lagretBehandling, lås);
@@ -360,10 +351,9 @@ class UttakStegImplTest {
     @Test
     void skalBeregneStønadskontoPåNyttNårFødselErFørUke33() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var terminbekreftelse = FamilieHendelseBuilder
-                .oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD)
-                .getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.of(2019, 9, 1));
+        var terminbekreftelse = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD)
+            .getTerminbekreftelseBuilder()
+            .medTermindato(LocalDate.of(2019, 9, 1));
         scenario.medSøknadHendelse().medTerminbekreftelse(terminbekreftelse);
         var fødselsdato = LocalDate.of(2019, 7, 1);
         var periodeBuilder = OppgittPeriodeBuilder.ny()
@@ -384,7 +374,7 @@ class UttakStegImplTest {
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(førstegangsBehandling);
 
         var førstegangBeregning = fpUttakRepository.hentUttakResultat(førstegangsBehandling.getId()).getStønadskontoberegning();
-        var fellesperiode = førstegangBeregning.getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 );
+        var fellesperiode = førstegangBeregning.getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE, 0);
         assertThat(fellesperiode).isGreaterThan(0);
 
         var revurdering = opprettRevurdering(førstegangsBehandling, fødselsdato);
@@ -398,21 +388,26 @@ class UttakStegImplTest {
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurdering.getId());
         assertThat(resultat).isPresent();
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(førstegangBeregning.getId());
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR,0 )).isGreaterThan(0);
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 )).isGreaterThan(fellesperiode);
+        assertThat(resultat.orElseThrow()
+            .getStønadskontoberegning()
+            .getStønadskontoutregning()
+            .getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0)).isGreaterThan(0);
+        assertThat(resultat.orElseThrow()
+            .getStønadskontoberegning()
+            .getStønadskontoutregning()
+            .getOrDefault(StønadskontoType.FELLESPERIODE, 0)).isGreaterThan(fellesperiode);
     }
 
     private void kjørSteg(Behandling førstegangsBehandling) {
-        var kontekst = new BehandlingskontrollKontekst(førstegangsBehandling.getFagsakId(),
-                førstegangsBehandling.getAktørId(), behandlingLåsRepository.taLås(førstegangsBehandling.getId()));
+        var kontekst = new BehandlingskontrollKontekst(førstegangsBehandling.getFagsakId(), førstegangsBehandling.getAktørId(),
+            behandlingLåsRepository.taLås(førstegangsBehandling.getId()));
         steg.utførSteg(kontekst);
     }
 
     private Behandling opprettRevurdering(Behandling tidligereBehandling, LocalDate endringsdato) {
         var revurdering = Behandling.fraTidligereBehandling(tidligereBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(
-                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(tidligereBehandling.getId()))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(tidligereBehandling.getId()))
+            .build();
         lagre(revurdering);
         var behandlingId = tidligereBehandling.getId();
         var revurderingId = revurdering.getId();
@@ -425,9 +420,7 @@ class UttakStegImplTest {
         yfBuilder.medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build());
         ytelsesFordelingRepository.lagre(revurderingId, yfBuilder.build());
 
-        var behandlingsresultat = Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                .buildFor(revurdering);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(revurdering);
         revurdering.setBehandlingresultat(behandlingsresultat);
         lagre(revurdering);
 
@@ -466,7 +459,7 @@ class UttakStegImplTest {
 
         // Act
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, BehandlingStegType.VURDER_UTTAK,
-                BehandlingStegType.FATTE_VEDTAK);
+            BehandlingStegType.FATTE_VEDTAK);
 
         // assert
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -484,7 +477,7 @@ class UttakStegImplTest {
 
         // Act
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, BehandlingStegType.SØKERS_RELASJON_TIL_BARN,
-                BehandlingStegType.FATTE_VEDTAK);
+            BehandlingStegType.FATTE_VEDTAK);
 
         // assert
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -501,7 +494,7 @@ class UttakStegImplTest {
 
         // Act
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, BehandlingStegType.FATTE_VEDTAK,
-                BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
+            BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
         // assert
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -525,7 +518,7 @@ class UttakStegImplTest {
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactlyInAnyOrder(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
-                AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+            AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(resultat).isPresent();
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().keySet()).hasSize(5);
@@ -550,7 +543,7 @@ class UttakStegImplTest {
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactlyInAnyOrder(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
-                AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+            AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
 
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(resultat).isPresent();
@@ -560,10 +553,10 @@ class UttakStegImplTest {
     private OppgittFordelingEntitet søknad4ukerFPFF() {
         var fødselsdato = LocalDate.now();
         var periode1 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-                .medPeriode(fødselsdato.minusWeeks(10), fødselsdato.minusDays(1))
-                .medArbeidsgiver(virksomhet())
-                .build();
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            .medPeriode(fødselsdato.minusWeeks(10), fødselsdato.minusDays(1))
+            .medArbeidsgiver(virksomhet())
+            .build();
         return new OppgittFordelingEntitet(List.of(periode1), true);
     }
 
@@ -571,15 +564,16 @@ class UttakStegImplTest {
         return byggBehandlingForElektroniskSøknadOmFødsel(fagsak, fødselsdato, mottattDato, Dekningsgrad._100);
     }
 
-    private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak, LocalDate fødselsdato, LocalDate mottattDato,
-            Dekningsgrad oppgittDekningsgrad) {
+    private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak,
+                                                                  LocalDate fødselsdato,
+                                                                  LocalDate mottattDato,
+                                                                  Dekningsgrad oppgittDekningsgrad) {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         behandling.setAnsvarligSaksbehandler("VL");
         var lås = behandlingLåsRepository.taLås(behandling.getId());
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(behandling);
+        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(behandling);
@@ -594,30 +588,30 @@ class UttakStegImplTest {
         OppgittFordelingEntitet fordeling;
         if (fagsak.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
             var periode0 = OppgittPeriodeBuilder.ny()
-                    .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-                    .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
-                    .medArbeidsgiver(virksomhet())
-                    .build();
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+                .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
+                .medArbeidsgiver(virksomhet())
+                .build();
 
             var periode1 = OppgittPeriodeBuilder.ny()
-                    .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                    .medPeriode(fødselsdato, fødselsdato.plusWeeks(6))
-                    .medArbeidsgiver(virksomhet())
-                    .build();
+                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriode(fødselsdato, fødselsdato.plusWeeks(6))
+                .medArbeidsgiver(virksomhet())
+                .build();
 
             var periode2 = OppgittPeriodeBuilder.ny()
-                    .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                    .medPeriode(fødselsdato.plusWeeks(6).plusDays(1), fødselsdato.plusWeeks(10))
-                    .medArbeidsgiver(virksomhet())
-                    .build();
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriode(fødselsdato.plusWeeks(6).plusDays(1), fødselsdato.plusWeeks(10))
+                .medArbeidsgiver(virksomhet())
+                .build();
 
             fordeling = new OppgittFordelingEntitet(List.of(periode0, periode1, periode2), true);
         } else {
             var periodeFK = OppgittPeriodeBuilder.ny()
-                    .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                    .medPeriode(fødselsdato.plusWeeks(10).plusDays(1), fødselsdato.plusWeeks(20))
-                    .medArbeidsgiver(virksomhet())
-                    .build();
+                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                .medPeriode(fødselsdato.plusWeeks(10).plusDays(1), fødselsdato.plusWeeks(20))
+                .medArbeidsgiver(virksomhet())
+                .build();
 
             fordeling = new OppgittFordelingEntitet(List.of(periodeFK), true);
         }
@@ -637,44 +631,39 @@ class UttakStegImplTest {
     private void byggArbeidForBehandling(Behandling behandling) {
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(AKTØRID);
-        var yrkesaktivitetBuilder = aktørArbeidBuilder
-                .getYrkesaktivitetBuilderForNøkkelAvType(new Opptjeningsnøkkel(ARBEIDSFORHOLD_ID, ORGNR, null),
-                        ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(new Opptjeningsnøkkel(ARBEIDSFORHOLD_ID, ORGNR, null),
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
         var fraOgMed = LocalDate.now().minusYears(1);
         var tilOgMed = LocalDate.now().plusYears(10);
 
-        var aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
-                .medProsentsats(BigDecimal.TEN)
-                .medSisteLønnsendringsdato(fraOgMed);
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
+            .medProsentsats(BigDecimal.TEN)
+            .medSisteLønnsendringsdato(fraOgMed);
 
-        yrkesaktivitetBuilder
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .build();
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .build();
 
-        var aktørArbeid = aktørArbeidBuilder
-                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        var aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
         inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeid);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
         var arbId = InternArbeidsforholdRef.nyRef();
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(LocalDate.now())
-                .medGrunnbeløp(BigDecimal.TEN)
-                .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
-                        .medBeregningsgrunnlagPeriode(LocalDate.now(), LocalDate.now())
-                        .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                                .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
-                                        .medArbeidsforholdRef(arbId)
-                                        .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)))
-                                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
-                .build();
+            .medSkjæringstidspunkt(LocalDate.now())
+            .medGrunnbeløp(BigDecimal.TEN)
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+                .medBeregningsgrunnlagPeriode(LocalDate.now(), LocalDate.now())
+                .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
+                    .medBGAndelArbeidsforhold(
+                        BGAndelArbeidsforhold.builder().medArbeidsforholdRef(arbId).medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)))
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+            .build();
 
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, FORESLÅTT);
     }

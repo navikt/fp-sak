@@ -73,19 +73,16 @@ class SimulerOppdragStegTest {
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.entityManager = entityManager;
         behandling = scenario.lagre(repositoryProvider);
-        kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), behandlingRepository.taSkriveLås(behandling));
     }
 
     @Test
     void skal_ha_aksjonspunkter_fra_aksjonspunktutleder_når_feature_er_enabled_men_skal_kalle_på_tjeneste_og_klient() {
         // Arrange
         var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
-        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
-            Optional.of(oppdragskontroll));
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
         steg = opprettSteg();
 
         // Act
@@ -97,8 +94,7 @@ class SimulerOppdragStegTest {
         verify(simulerOppdragTjenesteMock).hentOppdragskontrollForBehandling(anyLong());
         verify(fpOppdragRestKlientMock).startSimulering(any(OppdragskontrollDto.class));
 
-        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
-                behandling.getId());
+        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(behandling.getId());
         assertThat(tilbakekrevingInntrekk).isPresent();
         assertThat(tilbakekrevingInntrekk.get().isAvslåttInntrekk()).isTrue();
     }
@@ -109,21 +105,17 @@ class SimulerOppdragStegTest {
     void stor_etterbetaling_til_søker_og_feilutbetaling_skal_føre_til_to_aksjonspunkter() {
         // Arrange
         var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
-        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
-            Optional.of(oppdragskontroll));
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-            Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
         steg = opprettSteg();
 
         // Act
         var resultat = steg.utførSteg(kontekst);
 
         // Assert
-        assertThat(resultat.getAksjonspunktListe()).containsExactlyInAnyOrder(
-            AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER,
-            AksjonspunktDefinisjon.VURDER_FEILUTBETALING
-        );
+        assertThat(resultat.getAksjonspunktListe()).containsExactlyInAnyOrder(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER,
+            AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
     }
 
@@ -133,11 +125,9 @@ class SimulerOppdragStegTest {
     void skal_ikke_opprette_stor_etterbetaling_aksjonspunkt_hvor_etterbetaling_til_søker_er_under_grenseverdi() {
         // Arrange
         var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
-        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
-            Optional.of(oppdragskontroll));
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-            Optional.of(new SimuleringResultatDto(0L, -2354L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2354L, true)));
         steg = opprettSteg();
 
         // Act
@@ -153,16 +143,14 @@ class SimulerOppdragStegTest {
     void deaktiverer_eksisterende_tilbakekrevingValg_ved_hopp_over_bakover() {
         // Arrange
         tilbakekrevingRepository.lagre(behandling,
-                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING,
-                        "varsel"));
+            TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
         entityManager.flush();
         entityManager.clear();
 
         steg = opprettSteg();
 
         // Act
-        steg.vedHoppOverBakover(kontekst, mock(BehandlingStegModell.class), BehandlingStegType.VURDER_UTTAK,
-                BehandlingStegType.FATTE_VEDTAK);
+        steg.vedHoppOverBakover(kontekst, mock(BehandlingStegModell.class), BehandlingStegType.VURDER_UTTAK, BehandlingStegType.FATTE_VEDTAK);
         entityManager.flush();
         entityManager.clear();
 
@@ -174,8 +162,7 @@ class SimulerOppdragStegTest {
     @Test
     void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
         // Arrange
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(0L, -2354L,false)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2354L, false)));
 
         steg = opprettSteg();
 
@@ -192,8 +179,7 @@ class SimulerOppdragStegTest {
         assertThat(tilbakekrevingValg).isPresent();
         assertThat(tilbakekrevingValg.get().getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.INNTREKK);
 
-        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
-                behandling.getId());
+        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(behandling.getId());
         assertThat(tilbakekrevingInntrekk).isPresent();
         assertThat(tilbakekrevingInntrekk.get().isAvslåttInntrekk()).isFalse();
     }
@@ -201,9 +187,8 @@ class SimulerOppdragStegTest {
     @Test
     void skal_kalle_kanseller_oppdrag_ved_tilbakehopp() {
         // Arrange
-        steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
-                fptilbakeRestKlientMock, beregningsresultatRepository);
+        steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock, simuleringIntegrasjonTjeneste,
+            tilbakekrevingRepository, fpOppdragRestKlientMock, fptilbakeRestKlientMock, beregningsresultatRepository);
 
         mock(Behandling.class);
 
@@ -217,9 +202,8 @@ class SimulerOppdragStegTest {
     @Test
     void skal__ikke_kalle_kanseller_oppdrag_ved_tilbakehopp_tilSimulerOppdragSteget() {
         // Arrange
-        steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
-                fptilbakeRestKlientMock, beregningsresultatRepository);
+        steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock, simuleringIntegrasjonTjeneste,
+            tilbakekrevingRepository, fpOppdragRestKlientMock, fptilbakeRestKlientMock, beregningsresultatRepository);
 
         mock(Behandling.class);
 
@@ -233,8 +217,7 @@ class SimulerOppdragStegTest {
     @Test
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
 
         steg = opprettSteg();
 
@@ -248,16 +231,14 @@ class SimulerOppdragStegTest {
 
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isPresent();
-        assertThat(tilbakekrevingValg.get().getVidereBehandling()).isEqualTo(
-                TilbakekrevingVidereBehandling.TILBAKEKR_OPPDATER);
+        assertThat(tilbakekrevingValg.get().getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.TILBAKEKR_OPPDATER);
 
     }
 
     @Test
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(0L, 0L,true)));
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, 0L, true)));
 
         steg = opprettSteg();
 
@@ -290,9 +271,8 @@ class SimulerOppdragStegTest {
     }
 
     private SimulerOppdragSteg opprettSteg() {
-        return new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
-                fptilbakeRestKlientMock, beregningsresultatRepository);
+        return new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock, simuleringIntegrasjonTjeneste,
+            tilbakekrevingRepository, fpOppdragRestKlientMock, fptilbakeRestKlientMock, beregningsresultatRepository);
     }
 
     private static Oppdragskontroll lagOppdragKontrollMedPåkrevdeFelter(Long behandlingsId) {
@@ -300,6 +280,7 @@ class SimulerOppdragStegTest {
         oppdragskontroll.getOppdrag110Liste().add(lagOppdrag110Påkrevd(behandlingsId));
         return oppdragskontroll;
     }
+
     public static Oppdrag110 lagOppdrag110Påkrevd(Long behandlingsId) {
         return Oppdrag110.builder()
             .medKodeEndring(KodeEndring.ENDR)

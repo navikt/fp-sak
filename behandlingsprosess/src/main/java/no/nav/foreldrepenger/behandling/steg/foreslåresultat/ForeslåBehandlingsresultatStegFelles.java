@@ -28,8 +28,8 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
     }
 
     public ForeslåBehandlingsresultatStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
+                                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåBehandlingsresultatTjeneste = foreslåBehandlingsresultatTjeneste;

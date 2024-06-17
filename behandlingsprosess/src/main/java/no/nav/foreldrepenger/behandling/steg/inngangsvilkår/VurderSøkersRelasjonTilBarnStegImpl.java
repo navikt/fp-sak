@@ -18,14 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @ApplicationScoped
 public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImpl {
 
-    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-            VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.OMSORGSVILKÅRET,
-            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+        VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+        VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
     VurderSøkersRelasjonTilBarnStegImpl() {
         // for CDI proxy
@@ -33,7 +28,7 @@ public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImp
 
     @Inject
     public VurderSøkersRelasjonTilBarnStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+                                               InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
     }
 

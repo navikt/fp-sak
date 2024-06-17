@@ -25,22 +25,20 @@ class BarnFinner {
         return finnAntallBarn(maksStønadsalderAdopsjon, grunnlag, barnSøktFor);
     }
 
-    private int finnAntallBarn(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
-            List<BarnInfo> barnSøktFor) {
-        var barnKvalifisertForYtelse = Objects.equals(FamilieHendelseType.ADOPSJON, grunnlag.getGjeldendeVersjon().getType())
-                ? barnKvalifisertForAdopsjon(maksStønadsalderAdopsjon, grunnlag, barnSøktFor)
-                : barnSøktFor;
+    private int finnAntallBarn(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag, List<BarnInfo> barnSøktFor) {
+        var barnKvalifisertForYtelse = Objects.equals(FamilieHendelseType.ADOPSJON,
+            grunnlag.getGjeldendeVersjon().getType()) ? barnKvalifisertForAdopsjon(maksStønadsalderAdopsjon, grunnlag, barnSøktFor) : barnSøktFor;
 
         if (barnKvalifisertForYtelse.isEmpty()) {
-            throw new FunksjonellException("FP-110705",
-                "Kan ikke beregne ytelse. Finner ikke barn som har rett til ytelse i behandlingsgrunnlaget.",
+            throw new FunksjonellException("FP-110705", "Kan ikke beregne ytelse. Finner ikke barn som har rett til ytelse i behandlingsgrunnlaget.",
                 "Sjekk avklarte fakta i behandlingen. Oppdater fakta slik at det finnes barn ");
         }
         return barnKvalifisertForYtelse.size();
     }
 
-    private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
-            List<BarnInfo> barnSøktFor) {
+    private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon,
+                                                      final FamilieHendelseGrunnlagEntitet grunnlag,
+                                                      List<BarnInfo> barnSøktFor) {
         var gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon();
         if (gjeldendeAdopsjon.isEmpty()) {
             // skal aldri kunne skje, men logikken for å sjekke ifPresent er basert på
@@ -52,12 +50,10 @@ class BarnFinner {
         var adopsjon = gjeldendeAdopsjon.get();
         var eldsteFristForOmsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato().minusYears(maksStønadsalderAdopsjon);
 
-        return barnSøktFor.stream()
-                .filter(barn -> {
-                    var fødselsdato = barn.getFødselsdato();
-                    return fødselsdato.isAfter(eldsteFristForOmsorgsovertakelse);
-                })
-                .toList();
+        return barnSøktFor.stream().filter(barn -> {
+            var fødselsdato = barn.getFødselsdato();
+            return fødselsdato.isAfter(eldsteFristForOmsorgsovertakelse);
+        }).toList();
     }
 
     private List<BarnInfo> getBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -95,8 +91,9 @@ class BarnFinner {
     }
 
     private List<BarnInfo> adopsjonsvilkårTilBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return familieHendelseGrunnlag.getGjeldendeBarna().stream()
-                .map(adopsjonBarn -> new BarnInfo(adopsjonBarn.getBarnNummer(), adopsjonBarn.getFødselsdato(), null))
-                .toList();
+        return familieHendelseGrunnlag.getGjeldendeBarna()
+            .stream()
+            .map(adopsjonBarn -> new BarnInfo(adopsjonBarn.getBarnNummer(), adopsjonBarn.getFødselsdato(), null))
+            .toList();
     }
 }

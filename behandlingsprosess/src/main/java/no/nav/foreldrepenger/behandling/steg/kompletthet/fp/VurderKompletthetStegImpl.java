@@ -49,8 +49,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
 
     @Inject
     public VurderKompletthetStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) Kompletthetsjekker kompletthetsjekker,
-            BehandlingRepositoryProvider provider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     BehandlingRepositoryProvider provider,
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -76,9 +76,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(ref);
         if (!forsendelseMottatt.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             // kompletthetsresultat kan være langt fram i tid dersom tidlig fødsel
-            var brukfrist = kanPassereKompletthet(behandling) && !forsendelseMottatt.erFristUtløpt()
-                && forsendelseMottatt.ventefrist().isAfter(LocalDateTime.now().plusWeeks(1)) ?
-                LocalDate.now().plusWeeks(1).atStartOfDay() : forsendelseMottatt.ventefrist();
+            var brukfrist = kanPassereKompletthet(behandling) && !forsendelseMottatt.erFristUtløpt() && forsendelseMottatt.ventefrist()
+                .isAfter(LocalDateTime.now().plusWeeks(1)) ? LocalDate.now().plusWeeks(1).atStartOfDay() : forsendelseMottatt.ventefrist();
             return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, brukfrist, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -93,7 +92,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         }
         var søknadFHDato = stp.getFamiliehendelsedato();
         var farRundtFødselTom = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(false, true, søknadFHDato, søknadFHDato)
-            .map(LocalDateInterval::getTomDato).orElse(søknadFHDato);
+            .map(LocalDateInterval::getTomDato)
+            .orElse(søknadFHDato);
         var farØnskerJustert = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .filter(OppgittFordelingEntitet::ønskerJustertVedFødsel)
@@ -103,7 +103,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
     }
 
     private boolean erFørsteUttaksdatoRundtFødsel(OppgittFordelingEntitet oppgittFordeling, LocalDate fødselsperiodeTom) {
-        return fødselsperiodeTom != null && oppgittFordeling.getPerioder().stream()
+        return fødselsperiodeTom != null && oppgittFordeling.getPerioder()
+            .stream()
             .filter(periode -> !(periode.isUtsettelse() || periode.isOpphold()))
             .anyMatch(p -> p.getFom().isBefore(fødselsperiodeTom));
     }

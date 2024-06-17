@@ -58,21 +58,13 @@ class KontrollerFaktaBeregningStegTest {
         // Act
         steg.vedHoppOverBakover(kontekst, null, tilSteg, fraSteg);
         // Assert
-        var aktivtGrunnlag = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandling.getId());
-        assertThat(aktivtGrunnlag.get().getBeregningsgrunnlagTilstand()).isEqualTo(
-                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
+        var aktivtGrunnlag = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        assertThat(aktivtGrunnlag.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
     }
 
-    private void lagreBeregningsgrunnlag(boolean overstyrt,
-            BeregningsgrunnlagTilstand tilstand,
-            Behandling behandling) {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medOverstyring(overstyrt)
-                .build();
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag,
-                tilstand);
+    private void lagreBeregningsgrunnlag(boolean overstyrt, BeregningsgrunnlagTilstand tilstand, Behandling behandling) {
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).medOverstyring(overstyrt).build();
+        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, tilstand);
     }
 
     private BehandlingskontrollKontekst lagBehandlingskontrollkontekst(Behandling behandling) {

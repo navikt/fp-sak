@@ -61,8 +61,9 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
                 || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført());
     }
 
-    private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling, OppgaveÅrsak begrunnelse,
-            List<Historikkinnslag> historikkInnslagFraRepo) {
+    private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling,
+                                                             OppgaveÅrsak begrunnelse,
+                                                             List<Historikkinnslag> historikkInnslagFraRepo) {
         // finne historikkinnslag hvor vi har en begrunnelse?
         var eksisterendeVurderHistInnslag = historikkInnslagFraRepo.stream()
             .filter(historikkinnslag -> historikkinnslag.getHistorikkinnslagDeler().stream().anyMatch(del -> del.getBegrunnelse().isPresent()))
@@ -72,9 +73,8 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
             var vurderFørVedtakInnslag = new Historikkinnslag();
             vurderFørVedtakInnslag.setType(HistorikkinnslagType.BEH_AVBRUTT_VUR);
             vurderFørVedtakInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-            var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
-                    .medHendelse(HistorikkinnslagType.BEH_AVBRUTT_VUR)
-                    .medBegrunnelse(begrunnelse);
+            var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BEH_AVBRUTT_VUR)
+                .medBegrunnelse(begrunnelse);
             historikkInnslagTekstBuilder.build(vurderFørVedtakInnslag);
             vurderFørVedtakInnslag.setBehandling(behandling);
             historikkRepository.lagre(vurderFørVedtakInnslag);

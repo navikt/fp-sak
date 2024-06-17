@@ -67,8 +67,7 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerA
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         return new AksjonspunktUtlederInput(ref);
     }
 
@@ -111,15 +110,13 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerA
     private YrkesaktivitetBuilder byggYrkesaktivitet(LocalDate tilOgMed, ArbeidType arbeidType, BigDecimal stillingsprosent) {
         var periode = DatoIntervallEntitet.fraOgMed(tilOgMed.minusMonths(10));
         return YrkesaktivitetBuilder.oppdatere(empty())
-                .medArbeidType(arbeidType)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medProsentsats(BigDecimal.ZERO)
-                        .medPeriode(periode)
-                        .medSisteLønnsendringsdato(periode.getFomDato()))
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medProsentsats(stillingsprosent)
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(tilOgMed.minusMonths(10), tilOgMed)));
+            .medArbeidType(arbeidType)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+            .leggTilAktivitetsAvtale(
+                AktivitetsAvtaleBuilder.ny().medProsentsats(BigDecimal.ZERO).medPeriode(periode).medSisteLønnsendringsdato(periode.getFomDato()))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medProsentsats(stillingsprosent)
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(tilOgMed.minusMonths(10), tilOgMed)));
     }
 
     @Test

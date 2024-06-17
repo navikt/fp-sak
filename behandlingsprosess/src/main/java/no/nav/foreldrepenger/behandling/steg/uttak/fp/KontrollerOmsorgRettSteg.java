@@ -45,14 +45,15 @@ public class KontrollerOmsorgRettSteg implements BehandlingSteg {
         var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         omsorgRettUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
         var aksjonspunktDefinisjonList = omsorgRettUttakTjeneste.utledAksjonspunkter(input);
-        var resultater = aksjonspunktDefinisjonList.stream()
-                .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .toList();
+        var resultater = aksjonspunktDefinisjonList.stream().map(AksjonspunktResultat::opprettForAksjonspunkt).toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType førsteSteg,
+                                   BehandlingStegType sisteSteg) {
         ryddOmsorgRettTjeneste.ryddVedHoppOverBakover(kontekst);
     }
 }

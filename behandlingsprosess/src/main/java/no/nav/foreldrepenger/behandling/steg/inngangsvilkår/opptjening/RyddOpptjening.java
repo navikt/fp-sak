@@ -20,8 +20,7 @@ public class RyddOpptjening {
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final BehandlingskontrollKontekst kontekst;
 
-    public RyddOpptjening(BehandlingRepositoryProvider repositoryProvider,
-                          BehandlingskontrollKontekst kontekst) {
+    public RyddOpptjening(BehandlingRepositoryProvider repositoryProvider, BehandlingskontrollKontekst kontekst) {
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -53,8 +52,7 @@ public class RyddOpptjening {
             .findFirst();
 
         if (opptjeningVilkår.isPresent()) {
-            var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                .leggTilVilkårIkkeVurdert(opptjeningVilkår.get().getVilkårType());
+            var builder = VilkårResultat.builderFraEksisterende(vilkårResultat).leggTilVilkårIkkeVurdert(opptjeningVilkår.get().getVilkårType());
             builder.buildFor(behandling);
             behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         }
@@ -72,12 +70,13 @@ public class RyddOpptjening {
         if (vilkårResultat == null) {
             return;
         }
-        vilkårResultat.getVilkårene().stream()
+        vilkårResultat.getVilkårene()
+            .stream()
             .map(Vilkår::getVilkårType)
             .filter(VilkårType.OPPTJENINGSPERIODEVILKÅR::equals)
-            .findFirst().ifPresent(vilkårType -> {
-                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                    .leggTilVilkårIkkeVurdert(vilkårType);
+            .findFirst()
+            .ifPresent(vilkårType -> {
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat).leggTilVilkårIkkeVurdert(vilkårType);
                 builder.buildFor(behandling);
                 behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
             });

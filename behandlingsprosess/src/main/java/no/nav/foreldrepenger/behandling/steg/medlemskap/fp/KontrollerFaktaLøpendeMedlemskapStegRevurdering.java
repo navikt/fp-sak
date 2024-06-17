@@ -112,9 +112,9 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
-                .stream()
-                .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)
-                        && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
+        return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene())
+            .orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
     }
 }

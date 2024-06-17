@@ -57,8 +57,10 @@ public class AnkeSteg implements BehandlingSteg {
     }
 
     @Inject
-    public AnkeSteg(AnkeVurderingTjeneste ankeVurderingTjeneste, KlageRepository klageRepository, ProsessTaskTjeneste prosessTaskTjeneste,
-                    BehandlingRepositoryProvider behandlingRepositoryProvider ) {
+    public AnkeSteg(AnkeVurderingTjeneste ankeVurderingTjeneste,
+                    KlageRepository klageRepository,
+                    ProsessTaskTjeneste prosessTaskTjeneste,
+                    BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.klageRepository = klageRepository;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
@@ -76,13 +78,14 @@ public class AnkeSteg implements BehandlingSteg {
          * - Anke avsluttet / trukket -> henlegges utenfor steg
          * - Anke avsluttet / retur -> ukjent betydning, exception utenfor steg
          * - Anke avsluttet / andre utfall -> fortsett/avslutt uten flere AP.
-        */
+         */
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var klageId = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(behandling)
             .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId)
             .or(() -> utledLagrePåanketKlageBehandling(behandling));
         var kabalReferanse = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(behandling)
-            .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
+            .map(AnkeResultatEntitet::erBehandletAvKabal)
+            .orElse(false);
         var harVentKabal = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
 
         if (kabalReferanse) { // Skal ikke oversendes
@@ -121,7 +124,8 @@ public class AnkeSteg implements BehandlingSteg {
     }
 
     private Optional<Long> utledLagrePåanketKlageBehandling(Behandling anke) {
-        var aktuelleKlager = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(anke.getFagsakId()).stream()
+        var aktuelleKlager = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(anke.getFagsakId())
+            .stream()
             .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
             .filter(Behandling::erSaksbehandlingAvsluttet)
             .filter(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()).filter(br -> !br.isBehandlingHenlagt()).isPresent())
@@ -133,7 +137,9 @@ public class AnkeSteg implements BehandlingSteg {
                 .filter(k -> klageRepository.hentKlageResultatHvisEksisterer(k.getId()).filter(KlageResultatEntitet::erBehandletAvKabal).isPresent())
                 .max(Comparator.comparing(Behandling::getAvsluttetDato))
                 .or(() -> aktuelleKlager.stream()
-                    .filter(k -> klageRepository.hentGjeldendeKlageVurderingResultat(k).filter(kvr -> KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(kvr.getKlageVurdering())).isPresent())
+                    .filter(k -> klageRepository.hentGjeldendeKlageVurderingResultat(k)
+                        .filter(kvr -> KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(kvr.getKlageVurdering()))
+                        .isPresent())
                     .max(Comparator.comparing(Behandling::getAvsluttetDato)))
                 .orElseGet(() -> aktuelleKlager.stream().max(Comparator.comparing(Behandling::getAvsluttetDato)).orElseThrow());
             return Optional.of(lagrePåanketBehandling(anke, utvalgtKlage));

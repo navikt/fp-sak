@@ -26,8 +26,7 @@ public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public HenleggFlyttFagsakTask(BehandlingRepositoryProvider repositoryProvider,
-            HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+    public HenleggFlyttFagsakTask(BehandlingRepositoryProvider repositoryProvider, HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
 

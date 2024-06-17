@@ -25,10 +25,10 @@ public abstract class OpptjeningFaktaStegFelles implements BehandlingSteg {
     }
 
     protected OpptjeningFaktaStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            AksjonspunktutlederForVurderBekreftetOpptjening aksjonspunktutlederBekreftet,
-            AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederOppgitt,
-            OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                        AksjonspunktutlederForVurderBekreftetOpptjening aksjonspunktutlederBekreftet,
+                                        AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederOppgitt,
+                                        OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
+                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.aksjonspunktutlederBekreftet = aksjonspunktutlederBekreftet;
         this.aksjonspunktutlederOppgitt = aksjonspunktutlederOppgitt;

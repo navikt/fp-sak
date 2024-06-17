@@ -32,8 +32,8 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
 
     @Inject
     public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
-            BehandlingRepository behandlingRepository,
-            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring) {
+                                                  BehandlingRepository behandlingRepository,
+                                                  @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.revurderingEndring = revurderingEndring;
@@ -49,7 +49,8 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING);
         }
         if (BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType)) {
-            behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår()
+            behandlingsresultat.getVilkårResultat()
+                .hentIkkeOppfyltVilkår()
                 .map(AvslagsårsakMapper::finnAvslagsårsak)
                 .ifPresent(behandlingsresultat::setAvslagsårsak);
         } else {

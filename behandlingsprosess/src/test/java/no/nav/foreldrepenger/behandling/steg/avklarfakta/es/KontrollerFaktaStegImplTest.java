@@ -52,13 +52,10 @@ class KontrollerFaktaStegImplTest {
 
     private ScenarioFarSøkerEngangsstønad byggBehandlingMedFarSøkerType(FarSøkerType farSøkerType) {
         var aktørId = AktørId.dummy();
-        var scenario = ScenarioFarSøkerEngangsstønad
-                .forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medBruker(aktørId, NavBrukerKjønn.MANN);
-        scenario.medSøknad()
-                .medFarSøkerType(farSøkerType);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(FØDSELSDATO_BARN);
+        scenario.medSøknad().medFarSøkerType(farSøkerType);
+        scenario.medSøknadHendelse().medFødselsDato(FØDSELSDATO_BARN);
 
         // Søker må være lagret i BekreftetForeldre
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
@@ -69,7 +66,7 @@ class KontrollerFaktaStegImplTest {
     @BeforeEach
     public void oppsett() {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medBruker(AktørId.dummy(), NavBrukerKjønn.MANN);
         behandling = scenario.lagre(repositoryProvider);
@@ -102,10 +99,7 @@ class KontrollerFaktaStegImplTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 }

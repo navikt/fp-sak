@@ -31,12 +31,10 @@ public class SamletInngangsvilkårStegImpl extends InngangsvilkårStegImpl {
 
     @Inject
     public SamletInngangsvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+                                        InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                        InngangsvilkårTjeneste inngangsvilkårTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_SAMLET);
-        alleInngangsVilkår = VilkårType.kodeMap().values().stream()
-                .filter(inngangsvilkårTjeneste::erInngangsvilkår)
-                .collect(Collectors.toSet());
+        alleInngangsVilkår = VilkårType.kodeMap().values().stream().filter(inngangsvilkårTjeneste::erInngangsvilkår).collect(Collectors.toSet());
     }
 
     @Override
@@ -46,9 +44,11 @@ public class SamletInngangsvilkårStegImpl extends InngangsvilkårStegImpl {
 
     @Override
     protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
-        return regelResultat.vilkårResultat().getVilkårene().stream()
-                .filter(v -> alleInngangsVilkår.contains(v.getVilkårType()))
-                .map(Vilkår::getGjeldendeVilkårUtfall)
-                .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
+        return regelResultat.vilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(v -> alleInngangsVilkår.contains(v.getVilkårType()))
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 }

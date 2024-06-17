@@ -67,7 +67,7 @@ class BeregneYtelseStegImplTest {
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
         entityManager.flush();
@@ -77,7 +77,7 @@ class BeregneYtelseStegImplTest {
         sats2017 = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
         beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder,
-                skjæringstidspunktTjeneste);
+            skjæringstidspunktTjeneste);
     }
 
     @Test
@@ -92,9 +92,7 @@ class BeregneYtelseStegImplTest {
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        var beregningResultat = getBehandlingsresultat(
-            entityManager.find(Behandling.class, kontekst.getBehandlingId()))
-                .getBeregningResultat();
+        var beregningResultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId())).getBeregningResultat();
         assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
 
         var beregning = beregningResultat.getSisteBeregning().get();
@@ -134,8 +132,8 @@ class BeregneYtelseStegImplTest {
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
+            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
@@ -154,9 +152,9 @@ class BeregneYtelseStegImplTest {
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
+            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+            .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
@@ -167,8 +165,8 @@ class BeregneYtelseStegImplTest {
         var behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).hasSize(2);
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).extracting(LegacyESBeregning::isOverstyrt)
-                .contains(true)
-                .contains(false); // en av hver
+            .contains(true)
+            .contains(false); // en av hver
     }
 
     @Test
@@ -178,9 +176,9 @@ class BeregneYtelseStegImplTest {
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
+            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+            .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+            .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
@@ -208,9 +206,7 @@ class BeregneYtelseStegImplTest {
             .tilbakestillBarn();
         IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.leggTilBarn(fødselsdato));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling.getId(), bekreftetVersjon);
-        var søknad = new SøknadEntitet.Builder()
-                .medSøknadsdato(LocalDate.now())
-                .build();
+        var søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
         return behandling;

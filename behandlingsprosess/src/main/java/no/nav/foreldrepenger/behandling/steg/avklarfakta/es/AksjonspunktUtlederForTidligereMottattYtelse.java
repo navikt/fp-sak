@@ -35,8 +35,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
     }
 
     @Inject
-    AksjonspunktUtlederForTidligereMottattYtelse(YtelserSammeBarnTjeneste ytelseTjeneste,
-            PersonopplysningRepository personopplysningRepository) {
+    AksjonspunktUtlederForTidligereMottattYtelse(YtelserSammeBarnTjeneste ytelseTjeneste, PersonopplysningRepository personopplysningRepository) {
         this.personopplysningRepository = personopplysningRepository;
         this.ytelseTjeneste = ytelseTjeneste;
     }
@@ -57,14 +56,14 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
     }
 
     private Utfall harBrukerAnnenSakForSammeBarn(AksjonspunktUtlederInput param) {
-        var annenSakSammeBarn = ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(), param.getAktørId());
+        var annenSakSammeBarn = ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(),
+            param.getAktørId());
         return annenSakSammeBarn ? JA : NEI;
     }
 
     private Utfall harAnnenpartSakForSammeBarn(AksjonspunktUtlederInput param) {
-        var annenSakSammeBarn = finnOppgittAnnenPart(param.getBehandlingId())
-            .filter(aktørId -> ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(), aktørId))
-            .isPresent();
+        var annenSakSammeBarn = finnOppgittAnnenPart(param.getBehandlingId()).filter(
+            aktørId -> ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(), aktørId)).isPresent();
         return annenSakSammeBarn ? JA : NEI;
     }
 

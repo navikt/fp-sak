@@ -55,8 +55,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
 
         opprettProsessTaskIverksett = mock(OpprettProsessTaskIverksett.class);
         vurderBehandlingerUnderIverksettelse = mock(VurderBehandlingerUnderIverksettelse.class);
-        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
-                vurderBehandlingerUnderIverksettelse);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
     }
 
     @Test
@@ -114,7 +113,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         assertThat(behandlingVedtakOpt).hasValueSatisfying(
-                behandlingVedtak -> assertThat(behandlingVedtak.getIverksettingStatus()).isEqualTo(IverksettingStatus.IKKE_IVERKSATT));
+            behandlingVedtak -> assertThat(behandlingVedtak.getIverksettingStatus()).isEqualTo(IverksettingStatus.IKKE_IVERKSATT));
     }
 
     @Test
@@ -167,18 +166,16 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType,
-            IverksettingStatus iverksettingStatus,
-            Long behandlingId) {
+    private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType, IverksettingStatus iverksettingStatus, Long behandlingId) {
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandlingsresultat = getBehandlingsresultat(behandlingId);
         var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-                .medAnsvarligSaksbehandler("E123")
-                .medVedtakResultatType(resultatType)
-                .medIverksettingStatus(iverksettingStatus)
-                .medBehandlingsresultat(behandlingsresultat)
-                .build();
+            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
+            .medAnsvarligSaksbehandler("E123")
+            .medVedtakResultatType(resultatType)
+            .medIverksettingStatus(iverksettingStatus)
+            .medBehandlingsresultat(behandlingsresultat)
+            .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         return behandlingVedtak;
     }

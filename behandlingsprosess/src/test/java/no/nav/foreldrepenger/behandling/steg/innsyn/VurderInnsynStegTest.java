@@ -32,8 +32,7 @@ class VurderInnsynStegTest extends EntityManagerAwareTest {
 
     @Test
     void skal_liste_ut_aksjonspunktet_for_vurder_innsyn() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBruker(AKTØR_ID_MOR, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(AKTØR_ID_MOR, NavBrukerKjønn.KVINNE);
 
         scenario.medSøknad();
         var behandling = scenario.lagre(repositoryProvider);

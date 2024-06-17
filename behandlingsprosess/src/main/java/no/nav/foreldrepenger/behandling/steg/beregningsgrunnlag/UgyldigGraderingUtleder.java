@@ -34,7 +34,8 @@ public class UgyldigGraderingUtleder {
             return Optional.empty();
         }
         if (ytelsespesifiktGrunnlag instanceof ForeldrepengerGrunnlag fpg) {
-            Set<AndelGradering> graderinger = fpg.getAktivitetGradering() == null ? Collections.emptySet() : fpg.getAktivitetGradering().getAndelGradering();
+            Set<AndelGradering> graderinger =
+                fpg.getAktivitetGradering() == null ? Collections.emptySet() : fpg.getAktivitetGradering().getAndelGradering();
             var andelGraderingDatoMap = graderinger.stream()
                 .filter(grad -> grad.getArbeidsgiver() != null)
                 .map(UgyldigGraderingUtleder::mapTilStartGraderingArbeidsforholdRef)
@@ -46,7 +47,8 @@ public class UgyldigGraderingUtleder {
                 .orElse(Collections.emptySet());
             List<OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningsperioder =
                 input.getOpptjeningAktiviteter() == null ? Collections.emptyList() : input.getOpptjeningAktiviteter().getOpptjeningPerioder();
-            return finnUgyldigAndel(andelGraderingDatoMap, yrkesaktiviteter, opptjeningsperioder, input.getKoblingReferanse().getSkjæringstidspunkt());
+            return finnUgyldigAndel(andelGraderingDatoMap, yrkesaktiviteter, opptjeningsperioder,
+                input.getKoblingReferanse().getSkjæringstidspunkt());
         }
         return Optional.empty();
 
@@ -106,6 +108,7 @@ public class UgyldigGraderingUtleder {
             .toList();
     }
 
-    protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering){}
+    protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering) {
+    }
 
 }

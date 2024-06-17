@@ -25,8 +25,8 @@ class ForeslåBehandlingsresultatStegFørstegang extends ForeslåBehandlingsresu
 
     @Inject
     ForeslåBehandlingsresultatStegFørstegang(BehandlingRepositoryProvider repositoryProvider,
-            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                             @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
+                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, foreslåBehandlingsresultatTjeneste, skjæringstidspunktTjeneste);
     }
 }

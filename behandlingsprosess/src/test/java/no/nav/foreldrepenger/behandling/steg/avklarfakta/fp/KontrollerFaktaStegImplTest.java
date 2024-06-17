@@ -48,13 +48,10 @@ class KontrollerFaktaStegImplTest {
 
     private ScenarioFarSøkerEngangsstønad byggBehandlingMedFarSøkerType(FarSøkerType farSøkerType) {
         var aktørId = AktørId.dummy();
-        var scenario = ScenarioFarSøkerEngangsstønad
-                .forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medBruker(aktørId, NavBrukerKjønn.MANN);
-        scenario.medSøknad()
-                .medFarSøkerType(farSøkerType);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(FØDSELSDATO_BARN);
+        scenario.medSøknad().medFarSøkerType(farSøkerType);
+        scenario.medSøknadHendelse().medFødselsDato(FØDSELSDATO_BARN);
 
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
 
@@ -92,10 +89,7 @@ class KontrollerFaktaStegImplTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 }

@@ -38,8 +38,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public VurderLøpendeMedlemskapSteg(VurderLøpendeMedlemskap vurderLøpendeMedlemskap,
-            BehandlingRepositoryProvider provider) {
+    public VurderLøpendeMedlemskapSteg(VurderLøpendeMedlemskap vurderLøpendeMedlemskap, BehandlingRepositoryProvider provider) {
         this.vurderLøpendeMedlemskap = vurderLøpendeMedlemskap;
         this.medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -72,8 +71,8 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builder);
 
                 var resultat = medlemskapVilkårPeriodeRepository.utledeVilkårStatus(behandling);
-                var vilkårResultatBuilder = VilkårResultat
-                        .builderFraEksisterende(getBehandlingsresultat(behandlingId).map(Behandlingsresultat::getVilkårResultat).orElse(null));
+                var vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(
+                    getBehandlingsresultat(behandlingId).map(Behandlingsresultat::getVilkårResultat).orElse(null));
                 var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.vilkårUtfallType())) {
                     vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), resultat.vilkårUtfallMerknad());
@@ -89,8 +88,8 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
-        return getBehandlingsresultat(behandlingId)
-            .map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
+        return getBehandlingsresultat(behandlingId).map(b -> b.getVilkårResultat().getVilkårene())
+            .orElse(Collections.emptyList())
             .stream()
             .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
     }

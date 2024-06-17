@@ -45,8 +45,10 @@ public class KlageNfpSteg implements BehandlingSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType førsteSteg,
+                                   BehandlingStegType sisteSteg) {
         endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(kontekst);
     }
 

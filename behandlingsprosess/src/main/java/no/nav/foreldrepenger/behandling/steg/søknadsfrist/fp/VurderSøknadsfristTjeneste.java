@@ -47,7 +47,8 @@ public class VurderSøknadsfristTjeneste {
     public Optional<AksjonspunktDefinisjon> vurder(Long behandlingId) {
         var oppgittePerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittFordeling)
-            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
+            .map(OppgittFordelingEntitet::getPerioder)
+            .orElse(List.of());
         // Ingen perioder betyr behandling uten ny søknad, ergo ingen søknadsfrist å sjekke.
         if (oppgittePerioder.isEmpty()) {
             return Optional.empty();
@@ -58,8 +59,8 @@ public class VurderSøknadsfristTjeneste {
         var eksisterendePeriodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).map(Uttaksperiodegrense::getMottattDato);
 
         // Midlertidig: se bort fra tilfelle som har kopiert forrige i KOFAK/revurdering
-        var harKopiertPeriodegrenseFraOriginal = finnPeriodegrenseOriginalbehandling(behandlingId)
-            .filter(d -> eksisterendePeriodegrense.filter(d::equals).isPresent()).isPresent();
+        var harKopiertPeriodegrenseFraOriginal = finnPeriodegrenseOriginalbehandling(behandlingId).filter(
+            d -> eksisterendePeriodegrense.filter(d::equals).isPresent()).isPresent();
 
         // Behold periodegrense som allerede er satt dersom tilbakehopp
         var brukperiodegrense = harKopiertPeriodegrenseFraOriginal ? søknadMottattDato : eksisterendePeriodegrense.orElse(søknadMottattDato);
@@ -75,13 +76,15 @@ public class VurderSøknadsfristTjeneste {
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate søknadMottattDato) {
-        return SøknadsperiodeFristTjenesteImpl.perioderSkalVurderes(oppgittePerioder, søknadMottattDato).stream()
+        return SøknadsperiodeFristTjenesteImpl.perioderSkalVurderes(oppgittePerioder, søknadMottattDato)
+            .stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnPeriodegrenseOriginalbehandling(Long behandlingId) {
-        return behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId()
+        return behandlingRepository.hentBehandling(behandlingId)
+            .getOriginalBehandlingId()
             .flatMap(uttaksperiodegrenseRepository::hentHvisEksisterer)
             .map(Uttaksperiodegrense::getMottattDato);
     }

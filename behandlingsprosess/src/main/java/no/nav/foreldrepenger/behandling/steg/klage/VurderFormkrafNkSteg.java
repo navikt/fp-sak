@@ -43,9 +43,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
     }
 
     @Inject
-    public VurderFormkrafNkSteg(BehandlingRepository behandlingRepository,
-                                KlageRepository klageRepository,
-                                ProsessTaskTjeneste taskTjeneste) {
+    public VurderFormkrafNkSteg(BehandlingRepository behandlingRepository, KlageRepository klageRepository, ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.taskTjeneste = taskTjeneste;
@@ -72,8 +70,9 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                 var apResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, null);
                 return BehandleStegResultat.utførtMedAksjonspunktResultat(apResultat);
             } else {
-                var klageHjemmel = klageVurderingResultat.getKlageHjemmel() == null || KlageHjemmel.UDEFINERT.equals(klageVurderingResultat.getKlageHjemmel()) ?
-                    KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()) : klageVurderingResultat.getKlageHjemmel();
+                var klageHjemmel = klageVurderingResultat.getKlageHjemmel() == null || KlageHjemmel.UDEFINERT.equals(
+                    klageVurderingResultat.getKlageHjemmel()) ? KlageHjemmel.standardHjemmelForYtelse(
+                    behandling.getFagsakYtelseType()) : klageVurderingResultat.getKlageHjemmel();
 
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
                 tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -81,7 +80,8 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
                 taskTjeneste.lagre(tilKabalTask);
                 var frist = LocalDateTime.now().plusYears(3);
-                var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, frist);
+                var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE,
+                    Venteårsak.VENT_KABAL, frist);
                 return BehandleStegResultat.utførtMedAksjonspunktResultat(apVent);
             }
         }

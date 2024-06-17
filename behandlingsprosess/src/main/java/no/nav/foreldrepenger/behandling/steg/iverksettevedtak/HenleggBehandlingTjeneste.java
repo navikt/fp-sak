@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
@@ -42,9 +42,9 @@ public class HenleggBehandlingTjeneste {
 
     @Inject
     public HenleggBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            DokumentBestillerTjeneste dokumentBestillerTjeneste,
-            ProsessTaskTjeneste taskTjeneste) {
+                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                     DokumentBestillerTjeneste dokumentBestillerTjeneste,
+                                     ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
@@ -67,9 +67,8 @@ public class HenleggBehandlingTjeneste {
         }
         behandlingskontrollTjeneste.henleggBehandling(kontekst, årsakKode);
 
-        if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
-                || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
-                || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
+        if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode) || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
+            || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
             sendHenleggelsesbrev(behandling.getUuid());
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
@@ -112,10 +111,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {
-        var builder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
-                .medÅrsak(aarsak)
-                .medBegrunnelse(begrunnelse);
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.AVBRUTT_BEH).medÅrsak(aarsak).medBegrunnelse(begrunnelse);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
         historikkinnslag.setBehandlingId(behandlingsId);

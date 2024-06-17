@@ -25,8 +25,8 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     private BehandlingRepositoryProvider repositoryProvider;
 
     protected VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
-                                             InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
-                                             BehandlingStegType behandlingStegType) {
+                                                InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                                BehandlingStegType behandlingStegType) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
         this.repositoryProvider = repositoryProvider;
     }
@@ -51,25 +51,28 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     protected abstract List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(OpptjeningsvilkårResultat oppResultat);
 
     private OpptjeningsvilkårResultat getVilkårresultat(Behandling behandling, RegelResultat regelResultat) {
-        var op = (OpptjeningsvilkårResultat) regelResultat.ekstraResultater()
-                .get(OPPTJENINGSVILKÅRET);
+        var op = (OpptjeningsvilkårResultat) regelResultat.ekstraResultater().get(OPPTJENINGSVILKÅRET);
         if (op == null) {
             throw new IllegalArgumentException(
-                    "Utvikler-feil: finner ikke resultat fra evaluering av Inngangsvilkår/Opptjeningsvilkåret:" + behandling.getId());
+                "Utvikler-feil: finner ikke resultat fra evaluering av Inngangsvilkår/Opptjeningsvilkåret:" + behandling.getId());
         }
         return op;
     }
 
     private boolean vilkårErVurdert(RegelResultat regelResultat) {
-        var opptjeningsvilkår = regelResultat.vilkårResultat().getVilkårene().stream()
-                .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
-                .findFirst();
+        var opptjeningsvilkår = regelResultat.vilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
+            .findFirst();
         return opptjeningsvilkår.filter(v -> !VilkårUtfallType.IKKE_VURDERT.equals(v.getGjeldendeVilkårUtfall())).isPresent();
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
-            BehandlingStegType hoppesFraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType hoppesTilSteg,
+                                   BehandlingStegType hoppesFraSteg) {
         super.vedHoppOverBakover(kontekst, modell, hoppesTilSteg, hoppesFraSteg);
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
             new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
@@ -77,11 +80,13 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     }
 
     @Override
-    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesFraSteg,
-            BehandlingStegType hoppesTilSteg) {
+    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType hoppesFraSteg,
+                                    BehandlingStegType hoppesTilSteg) {
         super.vedHoppOverFramover(kontekst, modell, hoppesFraSteg, hoppesTilSteg);
         if (!erRevurdering(kontekst.getBehandlingId()) && !erVilkårOverstyrt(kontekst.getBehandlingId())) {
-                new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
+            new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
 
         }
     }

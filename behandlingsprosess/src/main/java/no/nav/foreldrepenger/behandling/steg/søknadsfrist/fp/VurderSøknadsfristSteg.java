@@ -35,8 +35,7 @@ public class VurderSøknadsfristSteg implements BehandlingSteg {
         var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(behandlingId);
 
         // Returner eventuelt aksjonspunkt ifm søknadsfrist
-        return søknadfristAksjonspunktDefinisjon
-            .map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
+        return søknadfristAksjonspunktDefinisjon.map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
             .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
     }
 

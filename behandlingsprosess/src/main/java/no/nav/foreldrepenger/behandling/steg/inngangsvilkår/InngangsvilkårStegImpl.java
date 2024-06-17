@@ -36,8 +36,9 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     private BehandlingStegType behandlingStegType;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    public InngangsvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
-            BehandlingStegType behandlingStegType) {
+    public InngangsvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
+                                  InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                  BehandlingStegType behandlingStegType) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -53,14 +54,16 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         // Hent behandlingsgrunnlag og vilkårtyper
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var vilkårHåndtertAvSteg = vilkårHåndtertAvSteg();
-        var vilkårTyper = getBehandlingsresultat(behandling).getVilkårResultat().getVilkårene().stream()
-                .map(Vilkår::getVilkårType)
-                .filter(vilkårHåndtertAvSteg::contains)
-                .collect(Collectors.toSet());
+        var vilkårTyper = getBehandlingsresultat(behandling).getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .map(Vilkår::getVilkårType)
+            .filter(vilkårHåndtertAvSteg::contains)
+            .collect(Collectors.toSet());
 
         if (!(vilkårHåndtertAvSteg.isEmpty() || !vilkårTyper.isEmpty())) {
             throw new IllegalArgumentException(
-                    String.format("Utviklerfeil: Steg[%s] håndterer ikke angitte vilkår %s", this.getClass(), vilkårTyper));
+                String.format("Utviklerfeil: Steg[%s] håndterer ikke angitte vilkår %s", this.getClass(), vilkårTyper));
         }
 
         if (skipSteget(kontekst)) {
@@ -116,9 +119,10 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private boolean harÅpentOverstyringspunktForInneværendeSteg(Behandling behandling) {
-        return behandling.getÅpneAksjonspunkter().stream()
-                .filter(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getAksjonspunktType().equals(AksjonspunktType.OVERSTYRING))
-                .anyMatch(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getBehandlingSteg().equals(behandlingStegType));
+        return behandling.getÅpneAksjonspunkter()
+            .stream()
+            .filter(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getAksjonspunktType().equals(AksjonspunktType.OVERSTYRING))
+            .anyMatch(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getBehandlingSteg().equals(behandlingStegType));
     }
 
     protected BehandleStegResultat stegResultat(RegelResultat regelResultat) {
@@ -147,20 +151,26 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     // Vennligst ikke override - det er forbeholdt vurdersamlet ....
     protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
-        return regelResultat.vilkårResultat().getVilkårene().stream()
-                .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
-                .anyMatch(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT));
+        return regelResultat.vilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
+            .anyMatch(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT));
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
-            BehandlingStegType hoppesFraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType hoppesTilSteg,
+                                   BehandlingStegType hoppesFraSteg) {
         ryddVilkårTilbakeHopp(kontekst, b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
     }
 
     @Override
-    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesFraSteg,
-            BehandlingStegType hoppesTilSteg) {
+    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType hoppesFraSteg,
+                                    BehandlingStegType hoppesTilSteg) {
         // TODO skal man rydde opp ved framoverhopp?
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
@@ -181,19 +191,23 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     protected boolean erVilkårOverstyrt(Long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList())
-                .stream()
-                .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
-                .anyMatch(Vilkår::erOverstyrt);
+        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
+            .anyMatch(Vilkår::erOverstyrt);
     }
 
     private Optional<VilkårUtfallType> overstyrtVilkårUtfall(Long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList())
-                .stream()
-                .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
-                .filter(Vilkår::erOverstyrt)
-                .map(Vilkår::getGjeldendeVilkårUtfall)
-                .findFirst();
+        return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
+            .filter(Vilkår::erOverstyrt)
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .findFirst();
     }
 }

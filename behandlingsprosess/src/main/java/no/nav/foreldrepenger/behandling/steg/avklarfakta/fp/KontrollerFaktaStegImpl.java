@@ -50,8 +50,8 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste) {
+                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -82,8 +82,10 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)) {
             var rydder = new RyddRegisterData(repositoryProvider, kontekst);
             rydder.ryddRegisterdata();
@@ -94,9 +96,8 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         // Opprett Vilkårsresultat med vilkårne som som skal vurderes, og sett dem som
         // ikke vurdert
         var behandlingsresultat = getBehandlingsresultat(behandling);
-        var vilkårBuilder = behandlingsresultat != null
-                ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-                : VilkårResultat.builder();
+        var vilkårBuilder =
+            behandlingsresultat != null ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat()) : VilkårResultat.builder();
         utledeteVilkår.forEach(vilkårBuilder::leggTilVilkårIkkeVurdert);
         var vilkårsResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårsResultat, skriveLås);
