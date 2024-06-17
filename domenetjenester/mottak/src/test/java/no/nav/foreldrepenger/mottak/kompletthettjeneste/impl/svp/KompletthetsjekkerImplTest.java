@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,8 +32,10 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
@@ -64,6 +64,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -85,7 +87,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
             inntektsmeldingArkivTjeneste);
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
+            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste,
+            fpInntektsmeldingTjeneste);
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
