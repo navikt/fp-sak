@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
-                                        @NotNull YtelseType ytelseType,
+                                        @NotNull YtelseType ytelsetype,
                                         @NotNull @Valid SaksnummerDto saksnummer) {
     protected record AktørIdDto(@NotNull String id){}
     protected record SaksnummerDto(@NotNull String saksnr){}

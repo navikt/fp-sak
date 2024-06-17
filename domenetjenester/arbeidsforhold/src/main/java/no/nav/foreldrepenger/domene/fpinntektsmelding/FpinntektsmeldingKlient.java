@@ -23,18 +23,14 @@ public class FpinntektsmeldingKlient {
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
-        this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
+        this.restConfig = RestConfig.forClient(this.getClass());
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
     }
 
     public void opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
-        try {
-            var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
-            restClient.send(rrequest, String.class);
-        } catch (Exception e) {
-            throw new IllegalStateException("Klarte ikke opprette forespørsel om inntektsmelding", e);
-        }
+            var restRequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
+            restClient.sendReturnOptional(restRequest, String.class).orElseThrow(() -> new IllegalStateException("Klarte ikke å opprette forespørsel om inntektsmelding"));
     }
 
     private URI toUri(URI endpointURI, String path) {
