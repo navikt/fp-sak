@@ -53,9 +53,7 @@ class FaktaUttakPeriodeDtoTjenesteTest {
     void skal_returnere_tom_liste_hvis_ingen_perioder() {
         var dtoTjeneste = dtoTjeneste();
 
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(LocalDate.now())
-            .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(LocalDate.now()).lagre(repositoryProvider);
         var resultat = dtoTjeneste.lagDtos(new UuidDto(behandling.getUuid()));
 
         assertThat(resultat).isEmpty();
@@ -67,30 +65,25 @@ class FaktaUttakPeriodeDtoTjenesteTest {
         var dtoTjeneste = dtoTjeneste();
 
         var fødselsdato = LocalDate.now();
-        var førstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(fødselsdato)
-            .lagre(repositoryProvider);
+        var førstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(fødselsdato).lagre(repositoryProvider);
 
-        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(10))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(10)).medResultatType(
+                PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medGraderingInnvilget(true)
             .medFlerbarnsdager(true)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medMorsAktivitet(MorsAktivitet.ARBEID)
                 .medGraderingArbeidsprosent(BigDecimal.TEN)
                 .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .build())
             .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.FRILANS)
-            .build())
-                .medArbeidsprosent(BigDecimal.ZERO)
-                .medUtbetalingsgrad(Utbetalingsgrad.FULL)
-                .medTrekkdager(new Trekkdager(10))
-                .medErSøktGradering(true)
-                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+        new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
+            .medTrekkdager(new Trekkdager(10))
+            .medErSøktGradering(true)
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .build();
         var uttakperioder = new UttakResultatPerioderEntitet();
         uttakperioder.leggTilPeriode(uttaksperiode);

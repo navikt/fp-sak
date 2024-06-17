@@ -64,17 +64,13 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         scanClasses.add(AvklarVergeDto.class);
 
         // avled code location fra klassene
-        scanClasses
-                .stream()
-                .map(c -> {
-                    try {
-                        return c.getProtectionDomain().getCodeSource().getLocation().toURI();
-                    } catch (URISyntaxException e) {
-                        throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
-                    }
-                })
-                .distinct()
-                .forEach(uri -> om.registerSubtypes(getJsonTypeNameClasses(uri)));
+        scanClasses.stream().map(c -> {
+            try {
+                return c.getProtectionDomain().getCodeSource().getLocation().toURI();
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
+            }
+        }).distinct().forEach(uri -> om.registerSubtypes(getJsonTypeNameClasses(uri)));
         return om;
     }
 

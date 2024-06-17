@@ -76,10 +76,10 @@ public class FaktaUttakPeriodeDtoTjeneste {
             if (uttakOriginalBehandling.isPresent()) {
                 var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
                 var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-                var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
-                    behandlingReferanse.getUtledetSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
-                perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
-                    fraDato, behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak()));
+                var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ? behandlingReferanse.getUtledetSkjæringstidspunktHvisUtledet()
+                    .orElse(LocalDate.MIN) : LocalDate.MIN;
+                perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder, fraDato,
+                    behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak()));
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
@@ -96,11 +96,12 @@ public class FaktaUttakPeriodeDtoTjeneste {
         var overføringÅrsak = periode.isOverføring() ? (OverføringÅrsak) periode.getÅrsak() : null;
         var arbeidsprosent = periode.getArbeidsprosent();
         var arbeidsforhold = arbeidsprosent != null ? mapArbeidsforhold(periode) : null;
-        var periodeType = periode.getPeriodeType() == null || UttakPeriodeType.UDEFINERT.equals(periode.getPeriodeType()) ? null : periode.getPeriodeType();
-        var morsAktivitet = periode.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(periode.getMorsAktivitet()) ? null : periode.getMorsAktivitet();
-        return new FaktaUttakPeriodeDto(periode.getFom(), periode.getTom(),
-            periodeType, utsettelseÅrsak, overføringÅrsak, oppholdÅrsak, arbeidsprosent, arbeidsforhold,
-            periode.getSamtidigUttaksprosent(), periode.isFlerbarnsdager(), morsAktivitet, periode.getPeriodeKilde(),
+        var periodeType =
+            periode.getPeriodeType() == null || UttakPeriodeType.UDEFINERT.equals(periode.getPeriodeType()) ? null : periode.getPeriodeType();
+        var morsAktivitet =
+            periode.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(periode.getMorsAktivitet()) ? null : periode.getMorsAktivitet();
+        return new FaktaUttakPeriodeDto(periode.getFom(), periode.getTom(), periodeType, utsettelseÅrsak, overføringÅrsak, oppholdÅrsak,
+            arbeidsprosent, arbeidsforhold, periode.getSamtidigUttaksprosent(), periode.isFlerbarnsdager(), morsAktivitet, periode.getPeriodeKilde(),
             periode.getBegrunnelse().orElse(null));
     }
 
@@ -122,7 +123,7 @@ public class FaktaUttakPeriodeDtoTjeneste {
 
     private String arbeidsgiverReferanse(OppgittPeriodeEntitet oppgittPeriode) {
         var arbeidsgiver = oppgittPeriode.getArbeidsgiver();
-        return arbeidsgiver == null ?  null : arbeidsgiver.getIdentifikator();
+        return arbeidsgiver == null ? null : arbeidsgiver.getIdentifikator();
     }
 
 }

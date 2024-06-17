@@ -58,7 +58,10 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
         return OppdateringResultat.utenOverhopp();
     }
 
-    private void lagHistorikkInnslag(VurderFaresignalerDto dto, FaresignalVurdering vurdering, FaresignalVurdering orginalVurdering, AksjonspunktOppdaterParameter param) {
+    private void lagHistorikkInnslag(VurderFaresignalerDto dto,
+                                     FaresignalVurdering vurdering,
+                                     FaresignalVurdering orginalVurdering,
+                                     AksjonspunktOppdaterParameter param) {
 
         oppdaterVedEndretVerdi(finnEndretVerdiType(vurdering), finnEndretVerdiType(orginalVurdering));
 
@@ -71,13 +74,12 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
         if (faresignalVurdering == null || FaresignalVurdering.UDEFINERT.equals(faresignalVurdering)) {
             return null;
         }
-        return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING)
-            ? HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING : HistorikkEndretFeltVerdiType.INNVIRKNING;
+        return Objects.equals(faresignalVurdering,
+            FaresignalVurdering.INGEN_INNVIRKNING) ? HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING : HistorikkEndretFeltVerdiType.INNVIRKNING;
     }
 
     private void oppdaterVedEndretVerdi(HistorikkEndretFeltVerdiType nyVerdi, HistorikkEndretFeltVerdiType gammelVerdi) {
-        historikkAdapter.tekstBuilder()
-            .medEndretFelt(HistorikkEndretFeltType.FARESIGNALER, gammelVerdi, nyVerdi);
+        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.FARESIGNALER, gammelVerdi, nyVerdi);
     }
 
 }

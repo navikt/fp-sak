@@ -115,9 +115,12 @@ public class UttakResultatPeriodeAktivitetLagreDto {
             kladd.arbeidsforholdId = internReferanse.getReferanse();
             return this;
         }
-        /** skal kun ta intern arbeidsforhold refearnse. */
+
+        /**
+         * skal kun ta intern arbeidsforhold refearnse.
+         */
         public Builder medArbeidsforholdId(String arbeidsforholdId) {
-            if(arbeidsforholdId!=null) {
+            if (arbeidsforholdId != null) {
                 // kjapp validering - sjekk at ingen blander inn ekstern arbeidsforholdId her (fra LPS system, AAregister, Inntektsmelding)
                 UUID.fromString(arbeidsforholdId);
             }

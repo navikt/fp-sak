@@ -64,8 +64,7 @@ public class BehandlingsutredningTjeneste {
         doSetBehandlingPåVent(behandlingsId, aksjonspunktDefinisjon, frist, venteårsak);
     }
 
-    private void doSetBehandlingPåVent(Long behandlingsId, AksjonspunktDefinisjon apDef, LocalDate frist,
-                                       Venteårsak venteårsak) {
+    private void doSetBehandlingPåVent(Long behandlingsId, AksjonspunktDefinisjon apDef, LocalDate frist, Venteårsak venteårsak) {
 
         var fristTid = bestemFristForBehandlingVent(frist);
 
@@ -79,8 +78,7 @@ public class BehandlingsutredningTjeneste {
     public void endreBehandlingPaVent(Long behandlingsId, LocalDate frist, Venteårsak venteårsak) {
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
         if (!behandling.isBehandlingPåVent()) {
-            var msg = String.format("BehandlingId %s er ikke satt på vent, og ventefrist kan derfor ikke oppdateres",
-                behandlingsId);
+            var msg = String.format("BehandlingId %s er ikke satt på vent, og ventefrist kan derfor ikke oppdateres", behandlingsId);
             throw new FunksjonellException("FP-992332", msg, "Forsett saksbehandlingen");
         }
         if (venteårsak == null) {
@@ -91,9 +89,7 @@ public class BehandlingsutredningTjeneste {
     }
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
-        return frist != null
-            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
-            : LocalDateTime.now().plus(defaultVenteFrist);
+        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     public void byttBehandlendeEnhet(Long behandlingId, OrganisasjonsEnhet enhet, String begrunnelse, HistorikkAktør aktør) {

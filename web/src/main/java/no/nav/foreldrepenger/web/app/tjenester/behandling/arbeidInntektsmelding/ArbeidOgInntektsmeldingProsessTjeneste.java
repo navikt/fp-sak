@@ -47,19 +47,19 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
+            BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void validerAtOperasjonErLovlig(Behandling behandling, boolean aksjonspunktSkalOpprettes) {
         if (!aksjonspunktSkalOpprettes && !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som aldri har hatt aksjonspunkt" +
-                    " for arbeidsforhold / inntektsmelding. Ugyldig aksjon.");
+            throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som aldri har hatt aksjonspunkt"
+                + " for arbeidsforhold / inntektsmelding. Ugyldig aksjon.");
         }
         if (aksjonspunktSkalOpprettes && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            var msg = String.format("Behandling %s har allerede aksjonspunkt 5085 for arbeid og inntektsmelding",
-                    behandling.getId());
+            var msg = String.format("Behandling %s har allerede aksjonspunkt 5085 for arbeid og inntektsmelding", behandling.getId());
             throw new TekniskException("FP-658124", msg);
         }
         if (behandling.erAvsluttet()) {
@@ -68,10 +68,12 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
             throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som er på vent. Ugyldig aksjon.");
         }
         if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
+            throw new IllegalStateException(
+                "FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
         }
         if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
+            throw new IllegalStateException(
+                "FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
         }
         if (behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_VEDTAK)) {
             throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som har passert steg for å foreslå vedtak. Ugyldig aksjon.");

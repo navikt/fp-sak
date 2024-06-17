@@ -33,12 +33,10 @@ class SjekkDtoStrukturTest {
 
         IndexClasses indexClasses;
         indexClasses = IndexClasses.getIndexFor(IndexClasses.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        var classes = indexClasses.getClasses(
-                ci -> ci.name().toString().endsWith("Dto"),
-                c -> !c.isInterface());
+        var classes = indexClasses.getClasses(ci -> ci.name().toString().endsWith("Dto"), c -> !c.isInterface());
 
         for (var i = 0; i < classes.size(); i++) {
-            params.add(new Object[] { classes.get(i) });
+            params.add(new Object[]{classes.get(i)});
         }
         return params;
     }
@@ -46,11 +44,12 @@ class SjekkDtoStrukturTest {
     private void sjekkJsonProperties(Class<?> c) throws IntrospectionException {
         var fields = List.of(c.getDeclaredFields());
         var fieldNames = fields.stream()
-                .filter(f -> !f.isSynthetic() && !Modifier.isStatic(f.getModifiers()))
-                .filter(f -> f.getAnnotation(JsonProperty.class) == null)
-                .filter(f -> f.getAnnotation(JsonValue.class) == null)
-                .filter(f -> f.getAnnotation(JsonIgnore.class) == null)
-                .map(Field::getName).collect(Collectors.toSet());
+            .filter(f -> !f.isSynthetic() && !Modifier.isStatic(f.getModifiers()))
+            .filter(f -> f.getAnnotation(JsonProperty.class) == null)
+            .filter(f -> f.getAnnotation(JsonValue.class) == null)
+            .filter(f -> f.getAnnotation(JsonIgnore.class) == null)
+            .map(Field::getName)
+            .collect(Collectors.toSet());
 
         if (!fieldNames.isEmpty()) {
             for (var prop : Introspector.getBeanInfo(c, c.getSuperclass()).getPropertyDescriptors()) {
@@ -58,12 +57,11 @@ class SjekkDtoStrukturTest {
                     var readName = prop.getReadMethod();
                     var propName = prop.getName();
                     if (!SKIPPED.contains(propName)) {
-                        if (readName.getAnnotation(JsonIgnore.class) == null
-                                && readName.getAnnotation(JsonProperty.class) == null) {
+                        if (readName.getAnnotation(JsonIgnore.class) == null && readName.getAnnotation(JsonProperty.class) == null) {
                             Assertions.assertThat(propName)
-                                    .as("Gettere er ikke samstemt med felt i klasse, sørg for matchende bean navn og return type eller bruk @JsonProperty/@JsonIgnore/@JsonValue til å sette navn for json struktur: "
-                                            + c.getName())
-                                    .isIn(fieldNames);
+                                .as("Gettere er ikke samstemt med felt i klasse, sørg for matchende bean navn og return type eller bruk @JsonProperty/@JsonIgnore/@JsonValue til å sette navn for json struktur: "
+                                    + c.getName())
+                                .isIn(fieldNames);
                         }
                     }
                 }
@@ -72,12 +70,11 @@ class SjekkDtoStrukturTest {
                     var readName = prop.getWriteMethod();
                     var propName = prop.getName();
                     if (!SKIPPED.contains(propName)) {
-                        if (readName.getAnnotation(JsonIgnore.class) == null
-                                && readName.getAnnotation(JsonProperty.class) == null) {
+                        if (readName.getAnnotation(JsonIgnore.class) == null && readName.getAnnotation(JsonProperty.class) == null) {
                             Assertions.assertThat(propName)
-                                    .as("Settere er ikke samstemt med felt i klasse, sørg for matchende bean navn og return type eller bruk @JsonProperty/@JsonIgnore/@JsonValue til å sette navn for json struktur: "
-                                            + c.getName())
-                                    .isIn(fieldNames);
+                                .as("Settere er ikke samstemt med felt i klasse, sørg for matchende bean navn og return type eller bruk @JsonProperty/@JsonIgnore/@JsonValue til å sette navn for json struktur: "
+                                    + c.getName())
+                                .isIn(fieldNames);
                         }
                     }
                 }

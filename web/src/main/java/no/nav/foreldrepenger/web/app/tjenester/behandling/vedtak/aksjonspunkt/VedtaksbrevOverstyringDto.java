@@ -22,8 +22,7 @@ public abstract class VedtaksbrevOverstyringDto extends BekreftetAksjonspunktDto
         // For Jackson
     }
 
-    protected VedtaksbrevOverstyringDto(String begrunnelse, String overskrift, String fritekstBrev,
-                              boolean skalBrukeOverstyrendeFritekstBrev) {
+    protected VedtaksbrevOverstyringDto(String begrunnelse, String overskrift, String fritekstBrev, boolean skalBrukeOverstyrendeFritekstBrev) {
         super(begrunnelse);
         this.overskrift = overskrift;
         this.fritekstBrev = fritekstBrev;

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 
-@JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public class BehandlingÅrsakDto {
 
     @JsonProperty("behandlingArsakType")
@@ -29,8 +29,8 @@ public class BehandlingÅrsakDto {
     }
 
     @JsonGetter
-    public Boolean getErAutomatiskRevurdering(){
-        if(behandlingÅrsakType == null){
+    public Boolean getErAutomatiskRevurdering() {
+        if (behandlingÅrsakType == null) {
             return false;
         }
         return BehandlingÅrsakType.årsakerForAutomatiskRevurdering().stream().anyMatch(årsak -> årsak.equals(this.behandlingÅrsakType));

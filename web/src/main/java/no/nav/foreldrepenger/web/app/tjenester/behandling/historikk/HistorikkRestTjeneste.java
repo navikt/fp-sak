@@ -51,9 +51,7 @@ public class HistorikkRestTjeneste {
     @Operation(description = "Henter alle historikkinnslag for en gitt sak.", tags = "historikk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentAlleInnslag(@Context HttpServletRequest request,
-                                    @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
-                                    @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                    @Valid SaksnummerDto saksnummerDto) {
+                                    @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @Valid SaksnummerDto saksnummerDto) {
         var url = HistorikkRequestPath.getRequestPath(request);
 
         var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);

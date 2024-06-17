@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class SaksnummerDtoTest {
 
     @Test
-    void skal_ha_med_saksnummer_til_abac()  {
+    void skal_ha_med_saksnummer_til_abac() {
         assertThat(new SaksnummerDto("1234").getVerdi()).isEqualTo("1234");
     }
 }

@@ -52,7 +52,8 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
             var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
             if (iayGrunnlagUuid.isPresent()) {
-                aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse, iayGrunnlagUuid.get());
+                aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse,
+                    iayGrunnlagUuid.get());
             } else {
                 aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse);
             }
@@ -90,14 +91,16 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
     }
 
     private boolean erPeriodeGodkjent(OpptjeningsperiodeForSaksbehandling periode) {
-        return VurderingsStatus.GODKJENT.equals(periode.getVurderingsStatus()) || VurderingsStatus.FERDIG_VURDERT_GODKJENT.equals(periode.getVurderingsStatus());
+        return VurderingsStatus.GODKJENT.equals(periode.getVurderingsStatus()) || VurderingsStatus.FERDIG_VURDERT_GODKJENT.equals(
+            periode.getVurderingsStatus());
     }
 
     private String hentVirksomhetNavnPåOrgnr(String orgnr) {
         if (orgnr == null) {
             return null;
         }
-        return virksomhetTjeneste.finnOrganisasjon(orgnr).map(Virksomhet::getNavn)
+        return virksomhetTjeneste.finnOrganisasjon(orgnr)
+            .map(Virksomhet::getNavn)
             .orElseThrow(() -> new IllegalStateException("Finner ikke virksomhet med orgnr " + orgnr));
     }
 

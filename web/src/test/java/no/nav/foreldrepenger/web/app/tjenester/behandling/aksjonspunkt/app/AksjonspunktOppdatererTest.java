@@ -75,8 +75,8 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var em = getEntityManager();
 
         repositoryProvider = new BehandlingRepositoryProvider(em);
-        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(new BehandlingskontrollServiceProvider(em, new BehandlingModellRepository(),
-                mock(BehandlingskontrollEventPubliserer.class)));
+        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
+            new BehandlingskontrollServiceProvider(em, new BehandlingModellRepository(), mock(BehandlingskontrollEventPubliserer.class)));
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
         lagretVedtakRepository = new LagretVedtakRepository(em);
         behandlingRepository = new BehandlingRepository(em);
@@ -84,17 +84,13 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         totrinnRepository = new TotrinnRepository(em);
         var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
-                totrinnTjeneste);
+            totrinnTjeneste);
         historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), mock(DokumentArkivTjeneste.class), behandlingRepository);
 
-        opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
-                new HentOgLagreBeregningsgrunnlagTjeneste(em),
-                new YtelsesFordelingRepository(em),
-                new FpUttakRepository(em),
-                totrinnTjeneste,
-                new AbakusInMemoryInntektArbeidYtelseTjeneste());
-        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
-                totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
+        opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(new HentOgLagreBeregningsgrunnlagTjeneste(em), new YtelsesFordelingRepository(em),
+            new FpUttakRepository(em), totrinnTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste());
+        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste, totrinnTjeneste,
+            mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
     }
 
     @Test
@@ -104,11 +100,8 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(now);
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
-        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
-                vedtakTjeneste,
-                behandlingDokumentRepository) {
+        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
+            historikkAdapter, opprettTotrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository) {
             @Override
             protected String getCurrentUserId() {
                 // return test verdi
@@ -132,11 +125,8 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
-        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
-                vedtakTjeneste,
-                behandlingDokumentRepository);
+        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
+            historikkAdapter, opprettTotrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
@@ -157,18 +147,15 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var eksisterendeDok = BehandlingDokumentEntitet.Builder.ny()
-                .medOverstyrtBrevFritekst("123")
-                .medOverstyrtBrevOverskrift("345")
-                .medBehandling(behandling.getId())
-                .build();
+            .medOverstyrtBrevFritekst("123")
+            .medOverstyrtBrevOverskrift("345")
+            .medBehandling(behandling.getId())
+            .build();
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
 
         var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, false);
-        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
-                vedtakTjeneste,
-                behandlingDokumentRepository);
+        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
+            historikkAdapter, opprettTotrinnsgrunnlag, vedtakTjeneste, behandlingDokumentRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
@@ -183,8 +170,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     @Test
     void oppdaterer_aksjonspunkt_med_beslutters_vurdering_ved_totrinnskontroll() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
 
         scenario.medSøknadHendelse().medFødselsDato(now);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.KONTROLLER_FAKTA);
@@ -199,7 +185,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
@@ -215,8 +201,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     @Test
     void oppdaterer_aksjonspunkt_med_godkjent_totrinnskontroll() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse().medFødselsDato(now);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.KONTROLLER_FAKTA);
 
@@ -228,7 +213,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);

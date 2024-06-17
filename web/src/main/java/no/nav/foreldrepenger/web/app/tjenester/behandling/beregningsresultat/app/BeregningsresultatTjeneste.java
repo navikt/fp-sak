@@ -37,10 +37,10 @@ public class BeregningsresultatTjeneste {
 
     public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(BehandlingReferanse behandlingReferanse) {
         var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingReferanse.behandlingId());
-        var beregningsresultatFPAggregatEntitet = beregningsresultatRepository
-            .hentBeregningsresultatAggregat(behandlingReferanse.behandlingId());
-        return beregningsresultatFPAggregatEntitet
-            .map(bresAggregat -> beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandlingReferanse, bresAggregat, uttakResultat));
+        var beregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingReferanse.behandlingId());
+        return beregningsresultatFPAggregatEntitet.map(
+            bresAggregat -> beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandlingReferanse, bresAggregat,
+                uttakResultat));
     }
 
     public Optional<BeregningsresultatEngangsstønadDto> lagBeregningsresultatEnkel(Long behandlingId) {

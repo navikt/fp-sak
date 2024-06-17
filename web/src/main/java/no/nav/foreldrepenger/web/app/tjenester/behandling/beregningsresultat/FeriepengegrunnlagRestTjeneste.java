@@ -42,8 +42,7 @@ public class FeriepengegrunnlagRestTjeneste {
     }
 
     @Inject
-    public FeriepengegrunnlagRestTjeneste(BehandlingRepository behandlingRepository,
-                                          BeregningsresultatRepository beregningsresultatRepository) {
+    public FeriepengegrunnlagRestTjeneste(BehandlingRepository behandlingRepository, BeregningsresultatRepository beregningsresultatRepository) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
     }
@@ -53,11 +52,9 @@ public class FeriepengegrunnlagRestTjeneste {
     @Path(FERIEPENGER_PART_PATH)
     @Operation(description = "Hent feriepengegrunnlaget for en gitt behandling om det finnes", summary = "Returnerer feriepengegrunnlaget for behandling.", tags = "feriepengegrunnlag")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FeriepengegrunnlagDto hentFeriepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public FeriepengegrunnlagDto hentFeriepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .flatMap(FeriepengegrunnlagMapper::map);
+        var dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).flatMap(FeriepengegrunnlagMapper::map);
         return dto.orElse(null);
     }
 }

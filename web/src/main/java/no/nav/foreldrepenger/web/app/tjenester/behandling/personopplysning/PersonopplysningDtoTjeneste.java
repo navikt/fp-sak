@@ -41,17 +41,14 @@ public class PersonopplysningDtoTjeneste {
     }
 
     @Inject
-    public PersonopplysningDtoTjeneste(PersonopplysningTjeneste personopplysningTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider) {
+    public PersonopplysningDtoTjeneste(PersonopplysningTjeneste personopplysningTjeneste, BehandlingRepositoryProvider repositoryProvider) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        return aggregat.getAdresserFor(personopplysning.getAktørId()).stream()
-            .map(PersonopplysningDtoTjeneste::lagDto)
-            .toList();
+        return aggregat.getAdresserFor(personopplysning.getAktørId()).stream().map(PersonopplysningDtoTjeneste::lagDto).toList();
     }
 
     private static PersonadresseDto lagDto(PersonAdresseEntitet adresse) {
@@ -72,7 +69,8 @@ public class PersonopplysningDtoTjeneste {
 
         var antallBarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+            .map(FamilieHendelseEntitet::getAntallBarn)
+            .orElse(0);
 
         return new PersonopplysningTilbakeDto(behandling.getFagsak().getAktørId().getId(), antallBarn);
     }
@@ -83,7 +81,8 @@ public class PersonopplysningDtoTjeneste {
 
     private PersonstatusType hentPersonstatus(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
         return Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId()))
-            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
+            .map(PersonstatusEntitet::getPersonstatus)
+            .orElse(PersonstatusType.UDEFINERT);
     }
 
     private Region hentRegion(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
@@ -101,8 +100,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
-        var oppgittAnnenPart = aggregat.getOppgittAnnenPart()
-            .filter(oap -> oap.getAktørId() == null && harOppgittLand(oap));
+        var oppgittAnnenPart = aggregat.getOppgittAnnenPart().filter(oap -> oap.getAktørId() == null && harOppgittLand(oap));
         return oppgittAnnenPart.map(this::enkelUtenlandskAnnenPartMappingMedlemskap)
             .or(() -> aggregat.getAnnenPartEllerEktefelle().map(ap -> enkelMappingMedlemskap(ap, aggregat, tidspunkt)));
 
@@ -117,7 +115,9 @@ public class PersonopplysningDtoTjeneste {
         return dto;
     }
 
-    private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
+    private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning,
+                                                             PersonopplysningerAggregat aggregat,
+                                                             LocalDate tidspunkt) {
         var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
         dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt));
@@ -141,8 +141,7 @@ public class PersonopplysningDtoTjeneste {
         aggregat.getBarna().stream().map(p -> enkelPersonMapping(p, aggregat)).forEach(dto::leggTilBarn);
 
         if (dto.getAnnenPart() == null) {
-            aggregat.getOppgittAnnenPart().filter(this::harOppgittLand)
-                .ifPresent(annenpart -> dto.setAnnenPart(enkelUtenlandskAnnenPartMapping()));
+            aggregat.getOppgittAnnenPart().filter(this::harOppgittLand).ifPresent(annenpart -> dto.setAnnenPart(enkelUtenlandskAnnenPartMapping()));
         }
         return dto;
     }

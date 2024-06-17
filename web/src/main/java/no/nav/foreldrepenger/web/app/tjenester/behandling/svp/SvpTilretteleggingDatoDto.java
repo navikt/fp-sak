@@ -25,7 +25,11 @@ public class SvpTilretteleggingDatoDto {
         this(fom, type, stillingsprosent, null, null, null);
     }
 
-    SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad, SvpTilretteleggingFomKilde kilde,
+    SvpTilretteleggingDatoDto(LocalDate fom,
+                              TilretteleggingType type,
+                              BigDecimal stillingsprosent,
+                              BigDecimal overstyrtUtbetalingsgrad,
+                              SvpTilretteleggingFomKilde kilde,
                               LocalDate mottattDato) {
         this.fom = fom;
         this.type = type;

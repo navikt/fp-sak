@@ -37,10 +37,7 @@ public class SøknadMapperUtil {
         return egenVirksomhetDto;
     }
 
-    public static void oppdaterDtoForFødsel(ManuellRegistreringDto dto,
-                                            boolean erBarnetFødt,
-                                            LocalDate fødselssdato,
-                                            int antallBarn) {
+    public static void oppdaterDtoForFødsel(ManuellRegistreringDto dto, boolean erBarnetFødt, LocalDate fødselssdato, int antallBarn) {
         dto.setTema(FamilieHendelseType.FØDSEL);
         dto.setSoker(ForeldreType.MOR);
         dto.setMottattDato(LocalDate.now());
@@ -148,10 +145,7 @@ public class SøknadMapperUtil {
         return dto;
     }
 
-    static ArbeidsforholdDto opprettUtenlandskArbeidsforholdDto(String navn,
-                                                                String landKode,
-                                                                LocalDate periodeFom,
-                                                                LocalDate periodeTom) {
+    static ArbeidsforholdDto opprettUtenlandskArbeidsforholdDto(String navn, String landKode, LocalDate periodeFom, LocalDate periodeTom) {
         var dto = new ArbeidsforholdDto();
         dto.setArbeidsgiver(navn);
         dto.setLand(landKode);
@@ -168,8 +162,8 @@ public class SøknadMapperUtil {
 
     static VirksomhetDto opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører() {
         var naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
-        return opprettVirksomhetDto("utenlandsk org as", false, KUNSTIG_ORG + "123", "ENG", naringsvirksomhetTypeDto,
-            true, true, LocalDate.now().minusMonths(3), "Ny Lavvo", false, null, null, false, LocalDate.now());
+        return opprettVirksomhetDto("utenlandsk org as", false, KUNSTIG_ORG + "123", "ENG", naringsvirksomhetTypeDto, true, true,
+            LocalDate.now().minusMonths(3), "Ny Lavvo", false, null, null, false, LocalDate.now());
     }
 
     static VirksomhetDto opprettVirksomhetDto(String virksomhetsNavn,
@@ -214,12 +208,9 @@ public class SøknadMapperUtil {
 
     static List<AndreYtelserDto> opprettTestdataForAndreYtelser() {
         List<AndreYtelserDto> result = new ArrayList<>();
-        result.add(
-            opprettAndreYtelserDto(ArbeidType.ETTERLØNN_SLUTTPAKKE, LocalDate.now().minusWeeks(2), LocalDate.now()));
-        result.add(opprettAndreYtelserDto(ArbeidType.LØNN_UNDER_UTDANNING, LocalDate.now().minusWeeks(4),
-            LocalDate.now().minusWeeks(2)));
-        result.add(opprettAndreYtelserDto(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, LocalDate.now().minusWeeks(6),
-            LocalDate.now().minusWeeks(4)));
+        result.add(opprettAndreYtelserDto(ArbeidType.ETTERLØNN_SLUTTPAKKE, LocalDate.now().minusWeeks(2), LocalDate.now()));
+        result.add(opprettAndreYtelserDto(ArbeidType.LØNN_UNDER_UTDANNING, LocalDate.now().minusWeeks(4), LocalDate.now().minusWeeks(2)));
+        result.add(opprettAndreYtelserDto(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, LocalDate.now().minusWeeks(6), LocalDate.now().minusWeeks(4)));
         return result;
 
     }

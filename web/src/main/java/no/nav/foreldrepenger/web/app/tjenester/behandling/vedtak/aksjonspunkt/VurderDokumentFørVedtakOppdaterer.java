@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = VurdereDokumentFørVedtakDto.class, adapter=AksjonspunktOppdaterer.class)
+@DtoTilServiceAdapter(dto = VurdereDokumentFørVedtakDto.class, adapter = AksjonspunktOppdaterer.class)
 class VurderDokumentFørVedtakOppdaterer implements AksjonspunktOppdaterer<VurdereDokumentFørVedtakDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -30,8 +30,7 @@ class VurderDokumentFørVedtakOppdaterer implements AksjonspunktOppdaterer<Vurde
 
     @Override
     public OppdateringResultat oppdater(VurdereDokumentFørVedtakDto dto, AksjonspunktOppdaterParameter param) {
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
+        var tekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
             .medBegrunnelse("Vurder dokument", true);
 
         var innslag = new Historikkinnslag();

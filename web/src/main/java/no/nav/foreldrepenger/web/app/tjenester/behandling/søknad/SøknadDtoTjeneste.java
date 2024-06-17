@@ -79,8 +79,7 @@ public class SøknadDtoTjeneste {
     }
 
     public Optional<SoknadDto> mapFra(Behandling behandling) {
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-            .map(s -> getSøknadDto(behandling, s));
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(s -> getSøknadDto(behandling, s));
     }
 
     private SoknadDto getSøknadDto(Behandling behandling, SøknadEntitet søknad) {
@@ -94,8 +93,7 @@ public class SøknadDtoTjeneste {
     }
 
     public Optional<SoknadBackendDto> mapForBackend(Behandling behandling) {
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-            .map(søknad -> getBackendDto(behandling, søknad));
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(søknad -> getBackendDto(behandling, søknad));
     }
 
     private SoknadBackendDto getBackendDto(Behandling behandling, SøknadEntitet søknad) {
@@ -117,7 +115,8 @@ public class SøknadDtoTjeneste {
         var behandlingId = ref.behandlingId();
 
         var soknadFodselDto = new SoknadFodselDto();
-        var fødselsdatoer = familieHendelse.getBarna().stream()
+        var fødselsdatoer = familieHendelse.getBarna()
+            .stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
         mapFellesSoknadDtoFelter(ref, søknad, soknadFodselDto);
         soknadFodselDto.setSoknadType(SøknadType.FØDSEL);
@@ -194,7 +193,8 @@ public class SøknadDtoTjeneste {
 
     private SoknadDto lagSoknadAdopsjonDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
-        var fødselsdatoer = familieHendelse.getBarna().stream()
+        var fødselsdatoer = familieHendelse.getBarna()
+            .stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
         var soknadAdopsjonDto = new SoknadAdopsjonDto();
         mapFellesSoknadDtoFelter(ref, søknad, soknadAdopsjonDto);
@@ -206,7 +206,8 @@ public class SøknadDtoTjeneste {
         soknadAdopsjonDto.setAntallBarn(familieHendelse.getAntallBarn());
         soknadAdopsjonDto.setBegrunnelseForSenInnsending(søknad.getBegrunnelseForSenInnsending());
 
-        medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> soknadAdopsjonDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null))));
+        medlemTjeneste.hentMedlemskap(behandlingId)
+            .ifPresent(ma -> soknadAdopsjonDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null))));
 
         soknadAdopsjonDto.setManglendeVedlegg(genererManglendeVedlegg(ref));
         return soknadAdopsjonDto;
@@ -215,11 +216,12 @@ public class SøknadDtoTjeneste {
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
-        var oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
-            .or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
+        var oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter).or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
         if (RelasjonsRolleType.MORA.equals(rolleType) && skjæringstidspunkter.gjelderFødsel()) {
             var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
-                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)
+                .getGjeldendeBekreftetVersjon()
+                .flatMap(FamilieHendelseEntitet::getFødselsdato)
+                .map(VirkedagUtil::fomVirkedag)
                 .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
             return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
         }

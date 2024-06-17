@@ -74,8 +74,8 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapRelasjonTilBarnet_adopsjon() {
-        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, LocalDate.now(),
-                LocalDate.now().minusMonths(3), 1, LocalDate.now());
+        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, LocalDate.now(), LocalDate.now().minusMonths(3), 1,
+            LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.ADOPSJON);
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Adopsjon.class);
@@ -83,8 +83,8 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapRelasjonTilBarnet_fødsel_med_rettighet_knyttet_til_omsorgsovertakelse_satt() {
-        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(),
-                LocalDate.now().minusMonths(3), 1, LocalDate.now());
+        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(), LocalDate.now().minusMonths(3), 1,
+            LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.FØDSEL);
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.FAR);
         manuellRegistreringEngangsstonadDto.setRettigheter(RettigheterDto.OVERTA_FORELDREANSVARET_ALENE);
@@ -113,7 +113,7 @@ class SøknadMapperFellesTest {
     @Test
     void test_mapRelasjonTilBarnet_omsorg() {
         var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, LocalDate.now(),
-                RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, 1, LocalDate.now());
+            RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, 1, LocalDate.now());
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Omsorgsovertakelse.class);
     }
@@ -265,7 +265,7 @@ class SøknadMapperFellesTest {
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
         registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i
-                                                                              // norge
+        // norge
         registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(true);
         registreringEngangsstonadDto.setOppholdINorge(true);
         var utenlandsoppholdDto = new UtenlandsoppholdDto();
@@ -333,8 +333,7 @@ class SøknadMapperFellesTest {
         var periodeFom = LocalDate.now();
         var periodeTom = periodeFom.plusWeeks(10);
         var arbeidsforholdDto = opprettUtenlandskArbeidsforholdDto("arbg. navn", "FIN", periodeFom, periodeTom);
-        var arbeidsforhold = SøknadMapperFelles
-                .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
+        var arbeidsforhold = SøknadMapperFelles.mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
         assertThat(arbeidsforhold).isNotNull();
         assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold).isInstanceOf(UtenlandskArbeidsforhold.class));
         assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsgiversnavn()).isEqualTo("arbg. navn"));
@@ -350,8 +349,7 @@ class SøknadMapperFellesTest {
     @Test
     void test_mapUtenlandskArbeidsforhold_null_element_i_liste() {
         var arbeidsforholdDto = new ArbeidsforholdDto();
-        var arbeidsforhold = SøknadMapperFelles
-                .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
+        var arbeidsforhold = SøknadMapperFelles.mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
         assertThat(arbeidsforhold).isEmpty();
     }
 }

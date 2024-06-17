@@ -22,17 +22,12 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public record FaktaUttakPeriodeDto(@NotNull LocalDate fom,
-                                   @NotNull LocalDate tom,
-                                   @ValidKodeverk UttakPeriodeType uttakPeriodeType,
-                                   @ValidKodeverk UtsettelseÅrsak utsettelseÅrsak,
-                                   @ValidKodeverk OverføringÅrsak overføringÅrsak,
+public record FaktaUttakPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @ValidKodeverk UttakPeriodeType uttakPeriodeType,
+                                   @ValidKodeverk UtsettelseÅrsak utsettelseÅrsak, @ValidKodeverk OverføringÅrsak overføringÅrsak,
                                    @ValidKodeverk OppholdÅrsak oppholdÅrsak,
                                    @Min(0) @Max(100) @Digits(integer = 3, fraction = 2) BigDecimal arbeidstidsprosent,
-                                   @Valid ArbeidsforholdDto arbeidsforhold,
-                                   @Valid SamtidigUttaksprosent samtidigUttaksprosent,
-                                   boolean flerbarnsdager,
-                                   @ValidKodeverk MorsAktivitet morsAktivitet,
+                                   @Valid ArbeidsforholdDto arbeidsforhold, @Valid SamtidigUttaksprosent samtidigUttaksprosent,
+                                   boolean flerbarnsdager, @ValidKodeverk MorsAktivitet morsAktivitet,
                                    @ValidKodeverk FordelingPeriodeKilde periodeKilde,
                                    @Size(max = 4000) @Pattern(regexp = InputValideringRegex.FRITEKST) String begrunnelse) {
 

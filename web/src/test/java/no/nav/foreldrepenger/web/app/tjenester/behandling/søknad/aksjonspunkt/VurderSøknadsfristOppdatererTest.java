@@ -97,10 +97,7 @@ class VurderSøknadsfristOppdatererTest {
     void lagrerMottattDatoFraSøknadVedEndringFraGyldigGrunnTilIkkeGyldigGrunn(EntityManager em) {
         var behandling = byggBehandlingMedYf(em);
         var mottattDatoSøknad = LocalDate.of(2019, 1, 1);
-        var søknad = new SøknadEntitet.Builder()
-                .medMottattDato(mottattDatoSøknad)
-                .medSøknadsdato(mottattDatoSøknad)
-                .build();
+        var søknad = new SøknadEntitet.Builder().medMottattDato(mottattDatoSøknad).medSøknadsdato(mottattDatoSøknad).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         var dto = new VurderSøknadsfristDto("bg", false);
@@ -115,27 +112,24 @@ class VurderSøknadsfristOppdatererTest {
 
     private Behandling byggBehandlingMedYf(EntityManager em) {
         var mødrekvote = OppgittPeriodeBuilder.ny()
-                .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK)
-                .medMottattDato(LocalDate.of(2020, 1, 1))
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 2))
-                .build();
+            .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK)
+            .medMottattDato(LocalDate.of(2020, 1, 1))
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 2))
+            .build();
         var fellesperiode = OppgittPeriodeBuilder.ny()
-                .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-                .medMottattDato(LocalDate.of(2020, 1, 1))
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(LocalDate.of(2020, 2, 3), LocalDate.of(2020, 3, 3))
-                .build();
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMottattDato(LocalDate.of(2020, 1, 1))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(LocalDate.of(2020, 2, 3), LocalDate.of(2020, 3, 3))
+            .build();
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(mødrekvote.getFom()).build())
-                .medJustertFordeling(new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true))
-                .leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST, BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
-                .medBehandlingsresultat(new Behandlingsresultat.Builder())
-                .lagre(new BehandlingRepositoryProvider(em));
-        var søknad = new SøknadEntitet.Builder()
-                .medSøknadsdato(mødrekvote.getFom())
-                .medMottattDato(mødrekvote.getFom())
-                .build();
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(mødrekvote.getFom()).build())
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true))
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST, BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
+            .medBehandlingsresultat(new Behandlingsresultat.Builder())
+            .lagre(new BehandlingRepositoryProvider(em));
+        var søknad = new SøknadEntitet.Builder().medSøknadsdato(mødrekvote.getFom()).medMottattDato(mødrekvote.getFom()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         var uttaksperiodegrense = new Uttaksperiodegrense(mødrekvote.getFom());
         uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);

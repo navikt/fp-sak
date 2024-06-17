@@ -53,7 +53,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter() {
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
@@ -66,7 +66,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter() {
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
@@ -79,7 +79,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -101,7 +101,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter() {
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
         var ttvGodkjent = false;
@@ -121,7 +121,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -155,7 +155,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottat_stotte(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottat_stotte() {
 
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
@@ -164,14 +164,11 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        var vilkårTypeSkjermlenkeTypeMap = Map.of(
-            VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
-            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
-            VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG,
-            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR,
-            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
+        var vilkårTypeSkjermlenkeTypeMap = Map.of(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
+            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+            SkjermlenkeType.PUNKT_FOR_ADOPSJON, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
+            VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
+            SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
 
         for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
@@ -179,7 +176,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
                 opprettBehandlingForFP(Optional.of(vilkårType));
 
                 var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon),
+                    Optional.of(ttv));
                 opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
@@ -191,7 +189,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
                 assertThat(context).hasSize(1);
 
                 var totrinnskontrollSkjermlenkeContextDto = context.get(0);
-                assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
+                assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(
+                    vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
 
                 var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
                 assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -206,7 +205,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
@@ -238,7 +237,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             assertThat(context).hasSize(1);
 
             var totrinnskontrollSkjermlenkeContextDto = context.get(0);
-            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(fagsakYtelseTypeSkjermlenkeTypeMap.get(fagsakYtelseType).getKode());
+            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(
+                fagsakYtelseTypeSkjermlenkeTypeMap.get(fagsakYtelseType).getKode());
 
             var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
             assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -252,7 +252,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottate_stotte_men_hvor_skjermlenketypen_blir_underfinert(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottate_stotte_men_hvor_skjermlenketypen_blir_underfinert() {
 
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
@@ -261,13 +261,10 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        var vilkårTypeSkjermlenkeTypeMap = Map.of(
-            VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT,
-            VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.UDEFINERT,
-            VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.UDEFINERT,
-            VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.UDEFINERT,
-            VilkårType.OPPTJENINGSPERIODEVILKÅR, SkjermlenkeType.UDEFINERT,
-            VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.UDEFINERT);
+        var vilkårTypeSkjermlenkeTypeMap = Map.of(VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT, VilkårType.MEDLEMSKAPSVILKÅRET,
+            SkjermlenkeType.UDEFINERT, VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.UDEFINERT, VilkårType.OPPTJENINGSVILKÅRET,
+            SkjermlenkeType.UDEFINERT, VilkårType.OPPTJENINGSPERIODEVILKÅR, SkjermlenkeType.UDEFINERT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR,
+            SkjermlenkeType.UDEFINERT);
 
         for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
@@ -275,7 +272,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
                 opprettBehandlingForFP(Optional.of(vilkårType));
 
                 var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon),
+                    Optional.of(ttv));
                 opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
@@ -291,7 +289,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -318,7 +316,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
+    void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon() {
 
         var adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
         var adFraTotrinnvurdering = AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
@@ -329,7 +327,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
         var ttvFraBehandling = opprettTotrinnsvurdering(behandling, adFraTotrinnvurdering, ttvGodkjent);
         var ttvOpprettetAvMetode = opprettTotrinnsvurdering(behandling, adFraAksjonspunkt, !ttvGodkjent);
-        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(adFraAksjonspunkt), Optional.of(ttvOpprettetAvMetode));
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(adFraAksjonspunkt),
+            Optional.of(ttvOpprettetAvMetode));
         opprettAksjonspunkt(behandling, adFraAksjonspunkt, apAvbrutt);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttvFraBehandling));
@@ -351,7 +350,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt(){
+    void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -375,7 +374,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_en_totrinnsvurdering_med_et_aksjonspunktdefinisjon_som_gir_en_undefinert_skjermlenketype(){
+    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_en_totrinnsvurdering_med_et_aksjonspunktdefinisjon_som_gir_en_undefinert_skjermlenketype() {
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
@@ -397,7 +396,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_ingen_totrinnaksjonspunktvurdering(){
+    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_ingen_totrinnaksjonspunktvurdering() {
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(Collections.emptyList());
@@ -408,7 +407,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    void skal_hente_en_skjermlenketype_og_to_totrinnskontrollaksjonspunkt_for_behandling_med_to_totrinnsvurdering_med_aksjonspunktdefinisjoner_som_omhandler_mottat_stotte(){
+    void skal_hente_en_skjermlenketype_og_to_totrinnskontrollaksjonspunkt_for_behandling_med_to_totrinnsvurdering_med_aksjonspunktdefinisjoner_som_omhandler_mottat_stotte() {
 
         // Arrange
         var aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
@@ -430,18 +429,20 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             opprettBehandlingForFP(Optional.of(vilkårType));
 
             var ttv1 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon1, ttv1Godkjent);
-            var totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1), Optional.of(ttv1));
+            var totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1),
+                Optional.of(ttv1));
 
             var ttv2 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon2, ttv2Godkjent);
-            var totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2), Optional.of(ttv2));
+            var totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2),
+                Optional.of(ttv2));
 
             var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
             when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
             when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1, ttv2));
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
-                .thenReturn(totrinnskontrollAksjonspunkterDto1);
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
-                .thenReturn(totrinnskontrollAksjonspunkterDto2);
+            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling),
+                eq(Optional.of(totrinnresultatgrunnlag)))).thenReturn(totrinnskontrollAksjonspunkterDto1);
+            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling),
+                eq(Optional.of(totrinnresultatgrunnlag)))).thenReturn(totrinnskontrollAksjonspunkterDto2);
 
             // Act
             var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
@@ -471,7 +472,10 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.IKKE_VURDERT));
         behandling = scenario.lagMocked();
-        behandlingsresultat = scenario.mockBehandlingRepositoryProvider().getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
+        behandlingsresultat = scenario.mockBehandlingRepositoryProvider()
+            .getBehandlingsresultatRepository()
+            .hentHvisEksisterer(behandling.getId())
+            .orElse(null);
     }
 
     private void opprettBehandlingForEngangsstønad() {
@@ -483,21 +487,20 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(ttv);
         var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
         when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
-        when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(any(), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
-            .thenReturn(totrinnskontrollAksjonspunkterDto);
+        when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(any(), eq(behandling),
+            eq(Optional.of(totrinnresultatgrunnlag)))).thenReturn(totrinnskontrollAksjonspunkterDto);
     }
 
-    private TotrinnskontrollAksjonspunkterDto opprettTotrinnskontrollAksjonspunkterDto(Optional<AksjonspunktDefinisjon> aksjonspunktDefinisjonOpt, Optional<Totrinnsvurdering> ttvOpt) {
+    private TotrinnskontrollAksjonspunkterDto opprettTotrinnskontrollAksjonspunkterDto(Optional<AksjonspunktDefinisjon> aksjonspunktDefinisjonOpt,
+                                                                                       Optional<Totrinnsvurdering> ttvOpt) {
         var builder = new TotrinnskontrollAksjonspunkterDto.Builder();
         aksjonspunktDefinisjonOpt.ifPresent(ad -> builder.medAksjonspunktKode(ad.getKode()));
         ttvOpt.ifPresent(ttv -> builder.medTotrinnskontrollGodkjent(ttv.isGodkjent()));
-        return  builder.build();
+        return builder.build();
     }
 
     private Totrinnsvurdering opprettTotrinnsvurdering(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean godkjent) {
-        return new Totrinnsvurdering.Builder(behandling, aksjonspunktDefinisjon)
-            .medGodkjent(godkjent)
-            .build();
+        return new Totrinnsvurdering.Builder(behandling, aksjonspunktDefinisjon).medGodkjent(godkjent).build();
     }
 
     private void opprettAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean erAvbrutt) {

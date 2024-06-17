@@ -92,7 +92,8 @@ public class OverstyrDekningsgradTjeneste {
         }
         //TODO 5702 vurdere om vi trenger overstyring swagger
         var fraVerdi = fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(fagsak.getSaksnummer())
-            .map(FagsakRelasjon::getGjeldendeDekningsgrad).orElseThrow();
+            .map(FagsakRelasjon::getGjeldendeDekningsgrad)
+            .orElseThrow();
         var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();
@@ -114,11 +115,9 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private Behandling hentÅpenBehandlingEllerOpprettRevurdering(Fagsak fagsak) {
-        var ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
-            .stream().findFirst();
-        return ytelseBehandlingOpt
-            .orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
-        ));
+        var ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream().findFirst();
+        return ytelseBehandlingOpt.orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
+            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)));
     }
 
     private void lagHistorikkinnslagOverstyrtDekningsgrad(Long fagsakId, Dekningsgrad fraVerdi, Dekningsgrad tilVerdi) {
@@ -127,8 +126,7 @@ public class OverstyrDekningsgradTjeneste {
         endretDekningsgrad.setType(HistorikkinnslagType.FAKTA_ENDRET);
         endretDekningsgrad.setFagsakId(fagsakId);
 
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD, fraVerdi.getVerdi() + "%", tilVerdi.getVerdi() + "%");
         historieBuilder.build(endretDekningsgrad);
         historikkRepository.lagre(endretDekningsgrad);

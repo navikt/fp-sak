@@ -40,7 +40,7 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
                                             BeregningHåndterer beregningHåndterer,
-                                            BehandlingRepository behandlingRepository)  {
+                                            BehandlingRepository behandlingRepository) {
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -52,11 +52,8 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
     @Override
     public OppdateringResultat oppdater(VurderFaktaOmBeregningDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                behandling.getId(),
-                behandling.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(),
+            behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
 
@@ -64,8 +61,8 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
 
         beregningHåndterer.håndterVurderFaktaOmBeregning(input, OppdatererDtoMapper.mapTilFaktaOmBeregningLagreDto(dto.getFakta()));
 
-        var nyttBeregningsgrunnlag = beregningsgrunnlagTjeneste
-            .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), BeregningsgrunnlagTilstand.KOFAKBER_UT)
+        var nyttBeregningsgrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(),
+                BeregningsgrunnlagTilstand.KOFAKBER_UT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .orElseThrow(() -> new IllegalStateException("Skal ha lagret beregningsgrunnlag fra KOFAKBER_UT."));
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());

@@ -23,42 +23,43 @@ public final class Redirect {
         // no ctor
     }
 
-    public static Response tilBehandlingPollStatus(HttpServletRequest request, UUID behandlingUuid, Optional<String> gruppeOpt) throws URISyntaxException {
-        var uriBuilder = getUriBuilder(request)
-            .path(BehandlingRestTjenestePathHack1.STATUS_PATH)
-            .queryParam(UuidDto.NAME, behandlingUuid);
+    public static Response tilBehandlingPollStatus(HttpServletRequest request,
+                                                   UUID behandlingUuid,
+                                                   Optional<String> gruppeOpt) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request).path(BehandlingRestTjenestePathHack1.STATUS_PATH).queryParam(UuidDto.NAME, behandlingUuid);
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
         return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
-    public static Response tilBehandlingPollStatus(HttpServletRequest request,UUID behandlingUuid) throws URISyntaxException {
+    public static Response tilBehandlingPollStatus(HttpServletRequest request, UUID behandlingUuid) throws URISyntaxException {
         return tilBehandlingPollStatus(request, behandlingUuid, Optional.empty());
     }
 
-    public static Response tilBehandlingEllerPollStatus(HttpServletRequest request, UUID behandlingUuid, AsyncPollingStatus status) throws URISyntaxException {
-        var uriBuilder = getUriBuilder(request)
-            .path(BehandlingRestTjenestePathHack1.BEHANDLING_PATH)
-            .queryParam(UuidDto.NAME, behandlingUuid);
+    public static Response tilBehandlingEllerPollStatus(HttpServletRequest request,
+                                                        UUID behandlingUuid,
+                                                        AsyncPollingStatus status) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request).path(BehandlingRestTjenestePathHack1.BEHANDLING_PATH).queryParam(UuidDto.NAME, behandlingUuid);
         return buildResponse(request, status, uriBuilder.build());
     }
 
-    public static Response tilFagsakPollStatus(HttpServletRequest request, Saksnummer saksnummer, Optional<String> gruppeOpt) throws URISyntaxException {
-        var uriBuilder = getUriBuilder(request)
-            .path(FagsakRestTjeneste.FAGSAK_PATH)
-            .queryParam("saksnummer", saksnummer.getVerdi());
+    public static Response tilFagsakPollStatus(HttpServletRequest request,
+                                               Saksnummer saksnummer,
+                                               Optional<String> gruppeOpt) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request).path(FagsakRestTjeneste.FAGSAK_PATH).queryParam("saksnummer", saksnummer.getVerdi());
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
         return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
-    public static Response tilFagsakEllerPollStatus(HttpServletRequest request, Saksnummer saksnummer, AsyncPollingStatus status) throws URISyntaxException {
-        var uriBuilder = getUriBuilder(request)
-            .path(FagsakRestTjeneste.FAGSAK_PATH)
-            .queryParam("saksnummer", saksnummer.getVerdi());
+    public static Response tilFagsakEllerPollStatus(HttpServletRequest request,
+                                                    Saksnummer saksnummer,
+                                                    AsyncPollingStatus status) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request).path(FagsakRestTjeneste.FAGSAK_PATH).queryParam("saksnummer", saksnummer.getVerdi());
         return buildResponse(request, status, uriBuilder.build());
     }
 
     private static UriBuilder getUriBuilder(HttpServletRequest request) {
-        var uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
+        var uriBuilder =
+            request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
         Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(uriBuilder::path);
         return uriBuilder;
     }
@@ -86,8 +87,7 @@ public final class Redirect {
                 }
                 var baseUri = new URI(request.getRequestURI());
                 try {
-                    var rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
-                        .resolve(path);
+                    var rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment()).resolve(path);
                     LOG.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
                     newLocation = rewritten;
                 } catch (URISyntaxException e) {
@@ -112,16 +112,14 @@ public final class Redirect {
      */
     private static String getXForwardedProtoHeader(HttpServletRequest httpRequest) {
         var xForwardedProto = httpRequest.getHeader("X-Forwarded-Proto");
-        if ("https".equalsIgnoreCase(xForwardedProto) ||
-            "http".equalsIgnoreCase(xForwardedProto)) {
+        if ("https".equalsIgnoreCase(xForwardedProto) || "http".equalsIgnoreCase(xForwardedProto)) {
             return xForwardedProto;
         }
         return null;
     }
 
     private static boolean mismatchedScheme(String xForwardedProto, HttpServletRequest httpRequest) {
-        return xForwardedProto != null &&
-            !xForwardedProto.equalsIgnoreCase(httpRequest.getScheme());
+        return xForwardedProto != null && !xForwardedProto.equalsIgnoreCase(httpRequest.getScheme());
     }
 
     @SuppressWarnings("resource")

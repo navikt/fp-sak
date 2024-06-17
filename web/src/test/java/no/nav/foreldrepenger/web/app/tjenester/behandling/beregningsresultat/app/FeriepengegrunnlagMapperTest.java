@@ -28,15 +28,16 @@ class FeriepengegrunnlagMapperTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private BeregningsresultatPeriode nyPeriode;
     private BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
-    private BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("")
-        .medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(FERIE_PERIODE_FOM).medFeriepengerPeriodeTom(FERIE_PERIODE_TOM).build(bgres);
+    private BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
+        .medFeriepengerRegelInput("")
+        .medFeriepengerRegelSporing("")
+        .medFeriepengerPeriodeFom(FERIE_PERIODE_FOM)
+        .medFeriepengerPeriodeTom(FERIE_PERIODE_TOM)
+        .build(bgres);
 
     @BeforeEach
     void setUp() {
-        var beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+        var beregningsresultatRevurdering = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(1);
         nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
@@ -45,9 +46,8 @@ class FeriepengegrunnlagMapperTest {
     @Test
     void tester_at_feriepenger_mappes() {
         // Arrange : nyPeriode
-        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
-            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
-            OpptjeningAktivitetType.FORELDREPENGER);
+        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
+            ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 40000, nyAndel);
         // Act
         var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
@@ -63,9 +63,8 @@ class FeriepengegrunnlagMapperTest {
     @Test
     void skal_ikke_mappe_når_ingen_feriepengeandeler() {
         // Arrange : nyPeriode
-        opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
-            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
-            OpptjeningAktivitetType.FORELDREPENGER);
+        opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000,
+            BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
         var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
 
@@ -74,15 +73,19 @@ class FeriepengegrunnlagMapperTest {
     }
 
     private BeregningsresultatPeriode opprettBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
-        return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+        return BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(beregningsresultat);
     }
 
-    private BeregningsresultatAndel opprettBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, boolean erBrukerMottaker,
-                                                                   InternArbeidsforholdRef arbeidsforholdId, AktivitetStatus aktivitetStatus,
-                                                                   Inntektskategori inntektskategori, String orgNr, int dagsats,
-                                                                   BigDecimal stillingsprosent, BigDecimal utbetalingsgrad, int dagsatsFraBg,
+    private BeregningsresultatAndel opprettBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
+                                                                   boolean erBrukerMottaker,
+                                                                   InternArbeidsforholdRef arbeidsforholdId,
+                                                                   AktivitetStatus aktivitetStatus,
+                                                                   Inntektskategori inntektskategori,
+                                                                   String orgNr,
+                                                                   int dagsats,
+                                                                   BigDecimal stillingsprosent,
+                                                                   BigDecimal utbetalingsgrad,
+                                                                   int dagsatsFraBg,
                                                                    OpptjeningAktivitetType opptjeningAktivitetType) {
         var arbeidsgiver = Arbeidsgiver.virksomhet(orgNr);
         return BeregningsresultatAndel.builder()

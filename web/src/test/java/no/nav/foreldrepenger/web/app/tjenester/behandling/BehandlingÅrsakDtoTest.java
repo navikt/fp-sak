@@ -26,19 +26,16 @@ class BehandlingÅrsakDtoTest {
 
     @Test
     void skal_teste_at_behandlingÅrsakDto_får_korrekte_verdier() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultFordeling(LocalDate.now());
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultFordeling(LocalDate.now());
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now())
             .medOpprinneligEndringsdato(LocalDate.now())
             .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         var behandling = scenario.lagre(repositoryProvider);
-        var behandlingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)
-            .medManueltOpprettet(true);
+        var behandlingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING).medManueltOpprettet(true);
         behandlingÅrsak.buildFor(behandling);
-        repositoryProvider.getBehandlingRepository()
-            .lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, null);
 

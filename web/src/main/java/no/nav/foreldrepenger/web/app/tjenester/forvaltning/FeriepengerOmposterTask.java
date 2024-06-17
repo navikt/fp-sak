@@ -69,8 +69,11 @@ public class FeriepengerOmposterTask extends FagsakProsessTask {
         var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
         var utbetalesFom2024 = beregningsresultatRepository.hentUtbetBeregningsresultat(sisteVedtatte.getId())
             .flatMap(BeregningsresultatEntitet::getBeregningsresultatFeriepenger)
-            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()).stream()
-            .anyMatch(f -> f.getOpptjeningsåret() > 2022 && f.getBeregningsresultatAndel().erBrukerMottaker() && !f.getÅrsbeløp().erNullEllerNulltall());
+            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(
+                f -> f.getOpptjeningsåret() > 2022 && f.getBeregningsresultatAndel().erBrukerMottaker() && !f.getÅrsbeløp().erNullEllerNulltall());
         if (!utbetalesFom2024) {
             LOG.info("FeriepengeOmpostering ferdig utbetalt før 2024 på saksnummer = {}", fagsak.getSaksnummer().getVerdi());
             return;

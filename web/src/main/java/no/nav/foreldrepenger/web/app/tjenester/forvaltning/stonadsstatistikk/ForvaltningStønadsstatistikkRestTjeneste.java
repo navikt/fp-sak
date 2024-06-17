@@ -134,8 +134,6 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
              join BEHANDLING_VEDTAK bv on bv.BEHANDLING_RESULTAT_ID = br.ID
              where b.BEHANDLING_TYPE in ('BT-002','BT-004')
              and adop.EKTEFELLES_BARN = 'J'
-            """, Behandling.class)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true")
-            .getResultList();
+            """, Behandling.class).setHint(HibernateHints.HINT_READ_ONLY, "true").getResultList();
     }
 }

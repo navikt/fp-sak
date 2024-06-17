@@ -93,8 +93,8 @@ class BehandlingDtoTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class),
-            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
+            behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste,
+            faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste));
     }
 
@@ -103,7 +103,7 @@ class BehandlingDtoTjenesteTest {
         var behandling = lagBehandling();
 
         tilbakekrevingRepository.lagre(behandling,
-                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
+            TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
         var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
@@ -156,25 +156,23 @@ class BehandlingDtoTjenesteTest {
 
     private Behandling lagBehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medDefaultSøknadTerminbekreftelse()
-                .medDefaultBekreftetTerminbekreftelse()
-                .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                        .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                        .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                        .build()), true))
-                .lagre(repositoryProvider);
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultBekreftetTerminbekreftelse()
+            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
+                OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FEDREKVOTE).medPeriode(now.plusWeeks(8), now.plusWeeks(12)).build()),
+                true))
+            .lagre(repositoryProvider);
     }
 
     private Behandling lagBehandling(BehandlingType behandlingType) {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medDefaultSøknadTerminbekreftelse()
-                .medDefaultBekreftetTerminbekreftelse()
-                .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                        .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                        .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                        .build()), true))
-                .medBehandlingType(behandlingType)
-                .lagre(repositoryProvider);
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultBekreftetTerminbekreftelse()
+            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
+                OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FEDREKVOTE).medPeriode(now.plusWeeks(8), now.plusWeeks(12)).build()),
+                true))
+            .medBehandlingType(behandlingType)
+            .lagre(repositoryProvider);
     }
 
     private Behandling lagBehandling(FagsakYtelseType fagsakYtelseType) {

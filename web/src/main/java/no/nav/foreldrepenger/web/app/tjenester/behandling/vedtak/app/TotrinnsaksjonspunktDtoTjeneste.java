@@ -28,17 +28,17 @@ public class TotrinnsaksjonspunktDtoTjeneste {
 
     @Inject
     public TotrinnsaksjonspunktDtoTjeneste(TotrinnsBeregningDtoTjeneste totrinnsBeregningDtoTjeneste,
-                                           UttakPeriodeEndringDtoTjeneste uttakPeriodeEndringDtoTjeneste, TotrinnskontrollAktivitetDtoTjeneste totrinnskontrollAktivitetDtoTjeneste) {
+                                           UttakPeriodeEndringDtoTjeneste uttakPeriodeEndringDtoTjeneste,
+                                           TotrinnskontrollAktivitetDtoTjeneste totrinnskontrollAktivitetDtoTjeneste) {
         this.totrinnskontrollAktivitetDtoTjeneste = totrinnskontrollAktivitetDtoTjeneste;
         this.totrinnsBeregningDtoTjeneste = totrinnsBeregningDtoTjeneste;
         this.uttakPeriodeEndringDtoTjeneste = uttakPeriodeEndringDtoTjeneste;
     }
 
     public TotrinnskontrollAksjonspunkterDto lagTotrinnskontrollAksjonspunktDto(Totrinnsvurdering aksjonspunkt,
-                                                                                 Behandling behandling,
-                                                                                 Optional<Totrinnresultatgrunnlag> totrinnresultatgrunnlag) {
-        return new TotrinnskontrollAksjonspunkterDto.Builder()
-            .medAksjonspunktKode(aksjonspunkt.getAksjonspunktDefinisjon().getKode())
+                                                                                Behandling behandling,
+                                                                                Optional<Totrinnresultatgrunnlag> totrinnresultatgrunnlag) {
+        return new TotrinnskontrollAksjonspunkterDto.Builder().medAksjonspunktKode(aksjonspunkt.getAksjonspunktDefinisjon().getKode())
             .medOpptjeningAktiviteter(totrinnskontrollAktivitetDtoTjeneste.hentAktiviterEndretForOpptjening(aksjonspunkt, behandling,
                 totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getGrunnlagUuid)))
             .medBeregningDto(totrinnsBeregningDtoTjeneste.hentBeregningDto(aksjonspunkt, behandling,
@@ -51,8 +51,6 @@ public class TotrinnsaksjonspunktDtoTjeneste {
     }
 
     private Set<VurderÅrsak> hentVurderPåNyttÅrsaker(Totrinnsvurdering aksjonspunkt) {
-        return aksjonspunkt.getVurderPåNyttÅrsaker().stream()
-            .map(VurderÅrsakTotrinnsvurdering::getÅrsaksType)
-            .collect(Collectors.toSet());
+        return aksjonspunkt.getVurderPåNyttÅrsaker().stream().map(VurderÅrsakTotrinnsvurdering::getÅrsaksType).collect(Collectors.toSet());
     }
 }

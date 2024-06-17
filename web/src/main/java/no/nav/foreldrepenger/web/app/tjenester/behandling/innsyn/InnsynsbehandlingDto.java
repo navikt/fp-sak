@@ -9,37 +9,37 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynV
 
 public class InnsynsbehandlingDto {
 
-	private LocalDate innsynMottattDato;
-	private InnsynResultatType innsynResultatType;
-	private List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon  = new ArrayList<>();
-	private List<InnsynDokumentDto> dokumenter = new ArrayList<>();
+    private LocalDate innsynMottattDato;
+    private InnsynResultatType innsynResultatType;
+    private List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon = new ArrayList<>();
+    private List<InnsynDokumentDto> dokumenter = new ArrayList<>();
 
-	public LocalDate getInnsynMottattDato() {
-		return innsynMottattDato;
-	}
+    public LocalDate getInnsynMottattDato() {
+        return innsynMottattDato;
+    }
 
-	public InnsynResultatType getInnsynResultatType() {
-		return innsynResultatType;
-	}
+    public InnsynResultatType getInnsynResultatType() {
+        return innsynResultatType;
+    }
 
-	public void setInnsynMottattDato(LocalDate innsynMottattDato) {
-		this.innsynMottattDato = innsynMottattDato;
-	}
+    public void setInnsynMottattDato(LocalDate innsynMottattDato) {
+        this.innsynMottattDato = innsynMottattDato;
+    }
 
-	public void setInnsynResultatType(InnsynResultatType innsynResultatType) {
-		this.innsynResultatType = innsynResultatType;
-	}
+    public void setInnsynResultatType(InnsynResultatType innsynResultatType) {
+        this.innsynResultatType = innsynResultatType;
+    }
 
-	public void setVedtaksdokumentasjon(List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon) {
-		this.vedtaksdokumentasjon = vedtaksdokumentasjon;
-	}
+    public void setVedtaksdokumentasjon(List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon) {
+        this.vedtaksdokumentasjon = vedtaksdokumentasjon;
+    }
 
-	public List<InnsynVedtaksdokumentasjonDto> getVedtaksdokumentasjon() {
-		return vedtaksdokumentasjon;
-	}
+    public List<InnsynVedtaksdokumentasjonDto> getVedtaksdokumentasjon() {
+        return vedtaksdokumentasjon;
+    }
 
-	public void setDokumenter(List<InnsynDokumentDto> dokumenter) {
-	    this.dokumenter = dokumenter;
+    public void setDokumenter(List<InnsynDokumentDto> dokumenter) {
+        this.dokumenter = dokumenter;
     }
 
     public List<InnsynDokumentDto> getDokumenter() {

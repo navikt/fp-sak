@@ -51,7 +51,8 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
         }
         var bekreftet = bekreftedeDto.get();
         var totrinn = håndterEndringHistorikk(bekreftet, behandlingId);
-        medlemTjeneste.aksjonspunktBekreftBosattVurdering(behandlingId, new BekreftBosattVurderingAksjonspunktDto(bekreftet.getBosattVurdering(), bekreftet.getBegrunnelse()));
+        medlemTjeneste.aksjonspunktBekreftBosattVurdering(behandlingId,
+            new BekreftBosattVurderingAksjonspunktDto(bekreftet.getBosattVurdering(), bekreftet.getBegrunnelse()));
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
@@ -60,10 +61,8 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
         var bosattVurdering = bekreftet.getBosattVurdering();
         var begrunnelse = bekreftet.getBegrunnelse();
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
-        var originalBosattBool = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap)
-            .map(VurdertMedlemskap::getBosattVurdering).orElse(null);
-        var begrunnelseOrg = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap)
-            .map(VurdertMedlemskap::getBegrunnelse).orElse(null);
+        var originalBosattBool = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap).map(VurdertMedlemskap::getBosattVurdering).orElse(null);
+        var begrunnelseOrg = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap).map(VurdertMedlemskap::getBegrunnelse).orElse(null);
 
         var originalBosatt = mapTilBosattVerdiKode(originalBosattBool);
         var bekreftetBosatt = mapTilBosattVerdiKode(bosattVurdering);
@@ -84,7 +83,9 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
         return bosattBool ? HistorikkEndretFeltVerdiType.BOSATT_I_NORGE : HistorikkEndretFeltVerdiType.IKKE_BOSATT_I_NORGE;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, HistorikkEndretFeltVerdiType original, HistorikkEndretFeltVerdiType bekreftet) {
+    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                           HistorikkEndretFeltVerdiType original,
+                                           HistorikkEndretFeltVerdiType bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
             historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
             return true;

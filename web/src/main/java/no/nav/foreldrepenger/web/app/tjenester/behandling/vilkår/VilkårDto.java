@@ -23,10 +23,7 @@ public class VilkårDto {
     @JsonInclude(Include.NON_NULL)
     private String input;
 
-    public VilkårDto(VilkårType vilkårType,
-                     VilkårUtfallType vilkårUtfallType,
-                     String avslagKode,
-                     String lovReferanse) {
+    public VilkårDto(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType, String avslagKode, String lovReferanse) {
         this.vilkarType = vilkårType;
         this.vilkarStatus = vilkårUtfallType;
         this.avslagKode = avslagKode;

@@ -23,22 +23,31 @@ public class AksjonspunktDtoMapper {
     private AksjonspunktDtoMapper() {
     }
 
-    public static Optional<AksjonspunktDto> lagAksjonspunktDtoFor(Behandling behandling, Behandlingsresultat behandlingsresultat, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return behandling.getAksjonspunkter().stream()
+    public static Optional<AksjonspunktDto> lagAksjonspunktDtoFor(Behandling behandling,
+                                                                  Behandlingsresultat behandlingsresultat,
+                                                                  AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return behandling.getAksjonspunkter()
+            .stream()
             .filter(a -> aksjonspunktDefinisjon.equals(a.getAksjonspunktDefinisjon()))
             .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
             .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, behandlingsresultat, List.of()))
             .findFirst();
     }
 
-    public static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling, Behandlingsresultat behandlingsresultat, Collection<Totrinnsvurdering> ttVurderinger) {
-        return behandling.getAksjonspunkter().stream()
-                .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
-                .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, behandlingsresultat, ttVurderinger))
-                .collect(Collectors.toSet());
+    public static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling,
+                                                          Behandlingsresultat behandlingsresultat,
+                                                          Collection<Totrinnsvurdering> ttVurderinger) {
+        return behandling.getAksjonspunkter()
+            .stream()
+            .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
+            .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, behandlingsresultat, ttVurderinger))
+            .collect(Collectors.toSet());
     }
 
-    private static AksjonspunktDto mapFra(Aksjonspunkt aksjonspunkt, Behandling behandling, Behandlingsresultat behandlingsresultat, Collection<Totrinnsvurdering> ttVurderinger) {
+    private static AksjonspunktDto mapFra(Aksjonspunkt aksjonspunkt,
+                                          Behandling behandling,
+                                          Behandlingsresultat behandlingsresultat,
+                                          Collection<Totrinnsvurdering> ttVurderinger) {
         var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
 
         var dto = new AksjonspunktDto();
@@ -55,10 +64,9 @@ public class AksjonspunktDtoMapper {
         vurdering.ifPresent(ttVurdering -> {
             dto.setBesluttersBegrunnelse(ttVurdering.getBegrunnelse());
             dto.setToTrinnsBehandlingGodkjent(ttVurdering.isGodkjent());
-            dto.setVurderPaNyttArsaker(ttVurdering.getVurderPåNyttÅrsaker().stream()
-                .map(VurderÅrsakTotrinnsvurdering::getÅrsaksType).collect(Collectors.toSet()));
-            }
-        );
+            dto.setVurderPaNyttArsaker(
+                ttVurdering.getVurderPåNyttÅrsaker().stream().map(VurderÅrsakTotrinnsvurdering::getÅrsaksType).collect(Collectors.toSet()));
+        });
 
         dto.setAksjonspunktType(aksjonspunktDefinisjon.getAksjonspunktType());
         dto.setKanLoses(kanLøses(aksjonspunktDefinisjon, behandling, aksjonspunkt.getStatus()));
@@ -70,11 +78,12 @@ public class AksjonspunktDtoMapper {
     //TODO(OJR) modellen burde utvides til å støtte dette...
     private static VilkårType finnVilkårType(Aksjonspunkt aksjonspunkt, Behandlingsresultat behandlingsresultat) {
         var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
-        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
-                AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
+        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)
+            || AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return Optional.ofNullable(behandlingsresultat)
                 .map(Behandlingsresultat::getVilkårResultat)
-                .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
+                .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn)
+                .orElse(null);
         }
         return aksjonspunktDefinisjon.getVilkårType();
     }
@@ -94,15 +103,12 @@ public class AksjonspunktDtoMapper {
         var aktivtBehandlingSteg = Optional.ofNullable(behandling.getAktivtBehandlingSteg());
 
         // Midlertidig fiks til alle som har fått aksjonspunkt er over i nytt steg
-        if (def.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)
-            || def.equals(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET)) {
-            return aktivtBehandlingSteg
-                .map(steg -> steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG) || steg.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG))
-                .orElse(false);
+        if (def.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE) || def.equals(
+            AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET)) {
+            return aktivtBehandlingSteg.map(steg -> steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG) || steg.equals(
+                BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)).orElse(false);
         }
-        return aktivtBehandlingSteg.map(steg ->
-                skalLøsesIStegKode(def, behandling.getBehandlingStegStatus().getKode(), steg))
-                .orElse(false);
+        return aktivtBehandlingSteg.map(steg -> skalLøsesIStegKode(def, behandling.getBehandlingStegStatus().getKode(), steg)).orElse(false);
     }
 
     private static Boolean skalLøsesIStegKode(AksjonspunktDefinisjon def, String stegKode, BehandlingStegType steg) {

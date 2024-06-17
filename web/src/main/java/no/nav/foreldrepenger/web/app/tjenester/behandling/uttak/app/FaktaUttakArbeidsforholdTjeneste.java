@@ -14,7 +14,8 @@ public class FaktaUttakArbeidsforholdTjeneste {
     }
 
     public static List<ArbeidsforholdDto> hentArbeidsforhold(UttakInput input) {
-        return input.getBeregningsgrunnlagStatuser().stream()
+        return input.getBeregningsgrunnlagStatuser()
+            .stream()
             .map(FaktaUttakArbeidsforholdTjeneste::map)
             .filter(Optional::isPresent)
             .map(Optional::get)

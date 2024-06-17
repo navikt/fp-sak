@@ -29,8 +29,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
     }
 
     @Inject
-    public VurderSøknadsfristOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                        BehandlingRepositoryProvider repositoryProvider) {
+    public VurderSøknadsfristOppdaterer(HistorikkTjenesteAdapter historikkAdapter, BehandlingRepositoryProvider repositoryProvider) {
         this.historikkAdapter = historikkAdapter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();

@@ -31,8 +31,7 @@ class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdater
 
     @Override
     public OppdateringResultat oppdater(KontrollerRevurderingsBehandlingDto dto, AksjonspunktOppdaterParameter param) {
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
+        var tekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
             .medBegrunnelse("Vurder varsel om ugunst", true);
 
         var innslag = new Historikkinnslag();

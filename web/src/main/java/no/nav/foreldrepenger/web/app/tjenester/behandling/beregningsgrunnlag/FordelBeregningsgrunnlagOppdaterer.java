@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHisto
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FordelBeregningsgrunnlagDto.class, adapter = AksjonspunktOppdaterer.class)
-public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<FordelBeregningsgrunnlagDto>  {
+public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<FordelBeregningsgrunnlagDto> {
 
     private FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;

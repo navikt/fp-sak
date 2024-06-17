@@ -11,7 +11,10 @@ public class TilbakekrevingValgDto {
 
     private String varseltekst;
 
-    public TilbakekrevingValgDto(Boolean erTilbakekrevingVilkårOppfylt, Boolean grunnerTilReduksjon, TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {
+    public TilbakekrevingValgDto(Boolean erTilbakekrevingVilkårOppfylt,
+                                 Boolean grunnerTilReduksjon,
+                                 TilbakekrevingVidereBehandling videreBehandling,
+                                 String varseltekst) {
         this.erTilbakekrevingVilkårOppfylt = erTilbakekrevingVilkårOppfylt;
         this.grunnerTilReduksjon = grunnerTilReduksjon;
         this.videreBehandling = videreBehandling;
@@ -34,4 +37,4 @@ public class TilbakekrevingValgDto {
         return videreBehandling;
     }
 }
-    
+

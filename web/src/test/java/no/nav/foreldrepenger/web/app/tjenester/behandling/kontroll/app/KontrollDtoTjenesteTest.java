@@ -54,8 +54,8 @@ class KontrollDtoTjenesteTest {
     @Test
     void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_ikke_høy() {
         // Arrange
-        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))
-                .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.IKKE_HØY, Collections.emptyList())));
+        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse)).thenReturn(
+            Optional.of(lagFaresignalWrapper(Kontrollresultat.IKKE_HØY, Collections.emptyList())));
 
         // Act
         var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse);
@@ -72,8 +72,8 @@ class KontrollDtoTjenesteTest {
     void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_høy() {
         // Arrange
         var faresignaler = Arrays.asList("Grunn en", "Grunn to", "Grunn tre", "Grunn 4", "Grunn 5");
-        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))
-                .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.HØY, faresignaler)));
+        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse)).thenReturn(
+            Optional.of(lagFaresignalWrapper(Kontrollresultat.HØY, faresignaler)));
 
         // Act
         var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse);

@@ -94,7 +94,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     }
 
     private Stream<BehandlingVedtak> finnVedtakOpprettetFomDato(LocalDate fomDato, Long fraId) {
-        var sql ="""
+        var sql = """
             select * from (
             select bv.* from BEHANDLING_VEDTAK bv
             join BEHANDLING_RESULTAT br on br.id = bv.BEHANDLING_RESULTAT_ID
@@ -121,8 +121,8 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     }
 
     private StønadsstatistikkVedtak lagDto(Behandling behandling, BehandlingVedtak vedtak) {
-        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {} fattet {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getId(),
-            vedtak.getId(), vedtak.getOpprettetTidspunkt());
+        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {} fattet {}", behandling.getFagsak().getSaksnummer().getVerdi(),
+            behandling.getId(), vedtak.getId(), vedtak.getOpprettetTidspunkt());
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
         var violations = validator.validate(generertVedtak);

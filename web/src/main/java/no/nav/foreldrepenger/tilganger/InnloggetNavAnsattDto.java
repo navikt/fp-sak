@@ -3,28 +3,18 @@ package no.nav.foreldrepenger.tilganger;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public record InnloggetNavAnsattDto(String brukernavn,
-                                    String navn,
-                                    boolean kanSaksbehandle,
-                                    boolean kanVeilede,
-                                    boolean kanOverstyre,
-                                    boolean kanOppgavestyre,
-                                    boolean kanBehandleKode6,
-                                    LocalDateTime funksjonellTid) {
+public record InnloggetNavAnsattDto(String brukernavn, String navn, boolean kanSaksbehandle, boolean kanVeilede, boolean kanOverstyre,
+                                    boolean kanOppgavestyre, boolean kanBehandleKode6, LocalDateTime funksjonellTid) {
 
     private InnloggetNavAnsattDto(Builder builder) {
-        this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanOverstyre,
-            builder.kanOppgavestyre, builder.kanBehandleKode6, LocalDateTime.now());
+        this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanOverstyre, builder.kanOppgavestyre,
+            builder.kanBehandleKode6, LocalDateTime.now());
     }
 
     @Override
     public String toString() {
-        return "InnloggetNavAnsattDto{" +
-            "kanSaksbehandle=" + kanSaksbehandle +
-            ", kanVeilede=" + kanVeilede +
-            ", kanOverstyre=" + kanOverstyre +
-            ", kanOppgavestyre=" + kanOppgavestyre +
-            ", funksjonellTid=" + funksjonellTid + '}';
+        return "InnloggetNavAnsattDto{" + "kanSaksbehandle=" + kanSaksbehandle + ", kanVeilede=" + kanVeilede + ", kanOverstyre=" + kanOverstyre
+            + ", kanOppgavestyre=" + kanOppgavestyre + ", funksjonellTid=" + funksjonellTid + '}';
     }
 
     public static class Builder {
@@ -73,14 +63,16 @@ public record InnloggetNavAnsattDto(String brukernavn,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         InnloggetNavAnsattDto that = (InnloggetNavAnsattDto) o;
-        return kanVeilede == that.kanVeilede && kanOverstyre == that.kanOverstyre
-            && kanSaksbehandle == that.kanSaksbehandle && kanOppgavestyre == that.kanOppgavestyre && kanBehandleKode6 == that.kanBehandleKode6
-            && Objects.equals(navn, that.navn) && Objects.equals(brukernavn, that.brukernavn);
+        return kanVeilede == that.kanVeilede && kanOverstyre == that.kanOverstyre && kanSaksbehandle == that.kanSaksbehandle
+            && kanOppgavestyre == that.kanOppgavestyre && kanBehandleKode6 == that.kanBehandleKode6 && Objects.equals(navn, that.navn)
+            && Objects.equals(brukernavn, that.brukernavn);
     }
 
     @Override

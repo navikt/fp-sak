@@ -50,19 +50,19 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
         resultatBuilder.medVilkårResultatType(VilkårResultatType.UDEFINERT); // Kvifor settes denne her?
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var builder = InnsynEntitet.InnsynBuilder.builder();
-        builder
-            .medBehandlingId(param.getBehandlingId())
+        builder.medBehandlingId(param.getBehandlingId())
             .medInnsynResultatType(dto.getInnsynResultatType())
             .medMottattDato(dto.getMottattDato())
             .medBegrunnelse(dto.getBegrunnelse());
 
-        dto.getInnsynDokumenter().forEach(d -> builder.medInnsynDokument(new InnsynDokumentEntitet(d.isFikkInnsyn(), d.getJournalpostId(), d.getDokumentId())));
+        dto.getInnsynDokumenter()
+            .forEach(d -> builder.medInnsynDokument(new InnsynDokumentEntitet(d.isFikkInnsyn(), d.getJournalpostId(), d.getDokumentId())));
 
         innsynTjeneste.lagreVurderInnsynResultat(behandling, builder.build());
 
         if (dto.isSattPaVent()) {
-            behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.VENT_PÅ_SCANNING,
-                BehandlingStegType.VURDER_INNSYN, frist(dto.getFristDato()), Venteårsak.SCANN);
+            behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.VENT_PÅ_SCANNING, BehandlingStegType.VURDER_INNSYN,
+                frist(dto.getFristDato()), Venteårsak.SCANN);
         }
 
         return OppdateringResultat.utenOverhopp();

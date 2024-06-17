@@ -4,11 +4,7 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 
-public record KlagebehandlingDto(KlageFormkravResultatDto klageFormkravResultatNFP,
-                                 KlageVurderingResultatDto klageVurderingResultatNFP,
-                                 KlageFormkravResultatDto klageFormkravResultatKA,
-                                 KlageVurderingResultatDto klageVurderingResultatNK,
-                                 List<KlageHjemmel> aktuelleHjemler,
-                                 boolean underBehandlingKabal,
-                                 boolean behandletAvKabal) {
+public record KlagebehandlingDto(KlageFormkravResultatDto klageFormkravResultatNFP, KlageVurderingResultatDto klageVurderingResultatNFP,
+                                 KlageFormkravResultatDto klageFormkravResultatKA, KlageVurderingResultatDto klageVurderingResultatNK,
+                                 List<KlageHjemmel> aktuelleHjemler, boolean underBehandlingKabal, boolean behandletAvKabal) {
 }

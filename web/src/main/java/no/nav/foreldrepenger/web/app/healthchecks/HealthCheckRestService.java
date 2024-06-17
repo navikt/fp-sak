@@ -98,10 +98,13 @@ public class HealthCheckRestService {
         return Response.ok(new StatusDto(Plattformstatus.OK, "Alt er bra", null)).build();
     }
 
-    record StatusDto(Plattformstatus status, String description, String logLink) {}
+    record StatusDto(Plattformstatus status, String description, String logLink) {
+    }
 
     enum Plattformstatus {
-        OK, ISSUE, DOWN
+        OK,
+        ISSUE,
+        DOWN
     }
 
 }

@@ -64,42 +64,38 @@ class OpprettNyFørstegangsbehandlingTest {
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    MottattDokument.Builder md1 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("123"))
-            .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON)
-            .medMottattDato(LocalDate.now())
-            .medElektroniskRegistrert(true)
-            .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
-                                                                                            // null
-            .medId(MOTTATT_DOKUMENT_EL_SØKNAD_ID);
+    MottattDokument.Builder md1 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("123"))
+        .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON)
+        .medMottattDato(LocalDate.now())
+        .medElektroniskRegistrert(true)
+        .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
+        // null
+        .medId(MOTTATT_DOKUMENT_EL_SØKNAD_ID);
     MottattDokument.Builder md2 = new MottattDokument.Builder() // Annet dokument som ikke er søknad
-            .medJournalPostId(new JournalpostId("456"))
-            .medDokumentType(DokumentTypeId.UDEFINERT)
-            .medMottattDato(LocalDate.now())
-            .medElektroniskRegistrert(false)
-            .medId(2L);
-    MottattDokument.Builder md3 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("789"))
-            .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
-            .medMottattDato(LocalDate.now())
-            .medElektroniskRegistrert(false)
-            .medId(MOTTATT_DOKUMENT_PAPIR_SØKNAD_ID);
-    MottattDokument.Builder md4 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("789"))
-            .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
-            .medMottattDato(LocalDate.now())
-            .medElektroniskRegistrert(false)
-            .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
-                                                                                            // null
-            .medId(4L);
-    MottattDokument.Builder md5 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("357"))
-            .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
-            .medMottattDato(LocalDate.now())
-            .medElektroniskRegistrert(false)
-            .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
-                                                                                            // null
-            .medId(MOTTATT_DOKUMENT_IM_ID);
+        .medJournalPostId(new JournalpostId("456"))
+        .medDokumentType(DokumentTypeId.UDEFINERT)
+        .medMottattDato(LocalDate.now())
+        .medElektroniskRegistrert(false)
+        .medId(2L);
+    MottattDokument.Builder md3 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("789"))
+        .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
+        .medMottattDato(LocalDate.now())
+        .medElektroniskRegistrert(false)
+        .medId(MOTTATT_DOKUMENT_PAPIR_SØKNAD_ID);
+    MottattDokument.Builder md4 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("789"))
+        .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
+        .medMottattDato(LocalDate.now())
+        .medElektroniskRegistrert(false)
+        .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
+        // null
+        .medId(4L);
+    MottattDokument.Builder md5 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("357"))
+        .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
+        .medMottattDato(LocalDate.now())
+        .medElektroniskRegistrert(false)
+        .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er
+        // null
+        .medId(MOTTATT_DOKUMENT_IM_ID);
 
     private Behandling opprettOgLagreBehandling() {
         return ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
@@ -117,10 +113,7 @@ class OpprettNyFørstegangsbehandlingTest {
     private void mockResterende() {
         saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(taskTjeneste, mottatteDokumentTjeneste);
 
-        behandlingsoppretterTjeneste = new BehandlingsoppretterTjeneste(
-                repositoryProvider,
-                saksbehandlingDokumentmottakTjeneste,
-                null);
+        behandlingsoppretterTjeneste = new BehandlingsoppretterTjeneste(repositoryProvider, saksbehandlingDokumentmottakTjeneste, null);
     }
 
     private void mockMottatteDokumentRepository(BehandlingRepositoryProvider repositoryProvider) {
@@ -230,9 +223,10 @@ class OpprettNyFørstegangsbehandlingTest {
         klageRepository.hentEvtOpprettKlageResultat(klage.getId());
 
         klageRepository.lagreVurderingsResultat(klage, KlageVurderingResultat.builder()
-                .medKlageVurdertAv(KlageVurdertAv.NFP).medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
-                .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
-                .medBegrunnelse("bla bla"));
+            .medKlageVurdertAv(KlageVurdertAv.NFP)
+            .medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
+            .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
+            .medBegrunnelse("bla bla"));
         klage.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(klage, repositoryProvider.getBehandlingRepository().taSkriveLås(klage));
 
@@ -353,8 +347,8 @@ class OpprettNyFørstegangsbehandlingTest {
         // Act
         var fagsakId = behandling.getFagsakId();
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste
-                .henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsakId, saksnummer));
+        assertThrows(FunksjonellException.class,
+            () -> behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsakId, saksnummer));
 
         // Assert
         verify(taskTjeneste, times(0)).lagre(any(ProsessTaskData.class));
@@ -371,7 +365,6 @@ class OpprettNyFørstegangsbehandlingTest {
         } else {
             assertThat(prosessTaskData.getBehandlingId()).isNull();
         }
-        assertThat(prosessTaskData.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY))
-                .isEqualTo(ventetDokument.toString());
+        assertThat(prosessTaskData.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo(ventetDokument.toString());
     }
 }

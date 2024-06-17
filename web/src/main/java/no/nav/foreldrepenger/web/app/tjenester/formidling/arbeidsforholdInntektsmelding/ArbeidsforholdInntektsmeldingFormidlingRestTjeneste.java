@@ -67,8 +67,7 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     @Operation(description = "Hent status for inntektsmeldinger for angitt behandling for formidlingsbruk", summary = "Returnerer status for inntektsmeldinger for behandling for formidlingsbruk.", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(INNTEKTSMELDING_STATUS_PART_PATH)
-    public Response hentStatusInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                     @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentStatusInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var behandling = uid.flatMap(u -> behandlingRepository.hentBehandlingHvisFinnes(u));
         if (behandling.isEmpty()) {
@@ -76,7 +75,8 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
             return responseBuilder.build();
         }
         var ref = BehandlingReferanse.fra(behandling.get());
-        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId())
+        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId())
+            .getAktørArbeidFraRegister(ref.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList());
         var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref);

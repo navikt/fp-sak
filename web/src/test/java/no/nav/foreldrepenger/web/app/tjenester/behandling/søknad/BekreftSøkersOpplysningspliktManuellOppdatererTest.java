@@ -34,8 +34,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU,
-                BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         scenario.lagMocked();
 
         var behandling = scenario.getBehandling();
@@ -43,14 +42,13 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(lagMockHistory(), scenario.mockBehandlingRepository());
 
         // Dto
-        var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto(
-                "test av manu", true, Collections.emptyList());
+        var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto("test av manu", true, Collections.emptyList());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -65,8 +63,10 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
 
-        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream()
-                .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
+        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat()
+            .stream()
+            .map(AksjonspunktResultat::getAksjonspunktDefinisjon)
+            .collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
     }

@@ -59,8 +59,7 @@ public class PipRestTjeneste {
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL)
-    public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         return pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
     }
 
@@ -71,11 +70,9 @@ public class PipRestTjeneste {
     @Path(PIPDATA_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
-    public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
+    public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(pip -> new PipDto(hentAktørIder(pip),
-                AbacUtil.oversettFagstatus(pip.getFagsakStatus()).map(PipFagsakStatus::getVerdi).orElse(null),
+            .map(pip -> new PipDto(hentAktørIder(pip), AbacUtil.oversettFagstatus(pip.getFagsakStatus()).map(PipFagsakStatus::getVerdi).orElse(null),
                 AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).map(PipBehandlingStatus::getVerdi).orElse(null)))
             .orElseGet(() -> new PipDto(Set.of(), null, null));
     }
@@ -87,8 +84,7 @@ public class PipRestTjeneste {
     @Path(PIPDATA_FOR_BEHANDLING_APPINTERN)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling - kun mellom fp-apps", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
-    public AbacPipDto hentAktørIdListeTilknyttetBehandlingAppIntern(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                       @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
+    public AbacPipDto hentAktørIdListeTilknyttetBehandlingAppIntern(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid())
             .map(pip -> new AbacPipDto(hentPipAktørIder(pip), AbacUtil.oversettFagstatus(pip.getFagsakStatus()).orElse(null),
                 AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).orElse(null)))
@@ -100,7 +96,8 @@ public class PipRestTjeneste {
     }
 
     private Set<PipAktørId> hentPipAktørIder(PipBehandlingsData pipBehandlingsData) {
-        return pipRepository.hentAktørIdKnyttetTilFagsaker(List.of(pipBehandlingsData.getFagsakId())).stream()
+        return pipRepository.hentAktørIdKnyttetTilFagsaker(List.of(pipBehandlingsData.getFagsakId()))
+            .stream()
             .map(a -> new PipAktørId(a.getId()))
             .collect(Collectors.toSet());
     }

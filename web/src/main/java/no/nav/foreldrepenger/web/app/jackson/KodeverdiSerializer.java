@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 /**
  * Enkel serialisering av KodeverkTabell klasser, uten at disse trenger @JsonIgnore eller lignende.
  * Deserialisering går av seg selv normalt (får null for andre felter).
- *
+ * <p>
  * TODO: Flytt til web kodeverk KodeverRestTjeneste når all normal (De)Ser av Kodeverdi skjer med JsonValue
  */
 public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {

@@ -31,10 +31,7 @@ class InntektsmeldingDtoTjeneste {
 
 
     public Set<InntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
-        return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(saksnummer)
-            .stream()
-            .map(this::map)
-            .collect(Collectors.toSet());
+        return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(saksnummer).stream().map(this::map).collect(Collectors.toSet());
     }
 
     private InntektsmeldingDto map(Inntektsmelding inntektsmelding) {
@@ -44,7 +41,7 @@ class InntektsmeldingDtoTjeneste {
             .map(MottattDokument::getMottattTidspunkt)
             .min(LocalDateTime::compareTo)
             .orElseThrow();
-        return new InntektsmeldingDto(inntektsmelding.getJournalpostId(),
-            arbeidsgiver, inntektsmelding.getInnsendingstidspunkt(), inntektsmelding.getInntektBeløp().getVerdi(), mottattTidspunkt);
+        return new InntektsmeldingDto(inntektsmelding.getJournalpostId(), arbeidsgiver, inntektsmelding.getInnsendingstidspunkt(),
+            inntektsmelding.getInntektBeløp().getVerdi(), mottattTidspunkt);
     }
 }

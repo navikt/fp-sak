@@ -95,7 +95,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
         klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, klageVurdertAv).ifPresent(klageVurderingResultat -> {
             if (klageVurderingResultat.getFritekstTilBrev() != null) {
-                var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, klageVurdertAv).medFritekstTilBrev(null);
+                var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, klageVurdertAv)
+                    .medFritekstTilBrev(null);
                 klageVurderingTjeneste.lagreKlageVurderingResultat(klageBehandling, vurderingResultatBuilder, klageVurdertAv);
             }
         });
@@ -121,8 +122,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
         } else {
             var påKlagdBehandlingUuid = dto.hentPåKlagdBehandlingUuid();
-            if (påKlagdBehandlingUuid != null || dto.hentpåKlagdEksternBehandlingUuId() == null
-                && klageResultat.getPåKlagdBehandlingId().isPresent()) {
+            if (påKlagdBehandlingUuid != null || dto.hentpåKlagdEksternBehandlingUuId() == null && klageResultat.getPåKlagdBehandlingId()
+                .isPresent()) {
                 klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling, påKlagdBehandlingUuid);
             }
         }
@@ -173,8 +174,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                                          KlageFormkravAksjonspunktDto formkravDto,
                                          Optional<KlageFormkravEntitet> klageFormkrav,
                                          KlageResultatEntitet klageResultat) {
-        var historikkinnslagType = erNfpAksjonspunt(
-            aksjonspunktDefinisjon) ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
+        var historikkinnslagType = erNfpAksjonspunt(aksjonspunktDefinisjon) ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
         var skjermlenkeType = getSkjermlenkeType(aksjonspunktDefinisjon);
         var historiebygger = historikkApplikasjonTjeneste.tekstBuilder();
         historiebygger.medSkjermlenke(skjermlenkeType).medBegrunnelse(formkravDto.getBegrunnelse());
@@ -193,29 +193,24 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         var påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(påKlagdBehandling.getId())
             .map(BehandlingVedtak::getVedtaksdato);
-        return påKlagdBehandling.getType().getNavn() + " " + vedtaksDatoPåklagdBehandling.map(this::formatDato)
-            .orElse("");
+        return påKlagdBehandling.getType().getNavn() + " " + vedtaksDatoPåklagdBehandling.map(this::formatDato).orElse("");
     }
 
     private String hentPåklagdBehandlingTekst(UUID behandlingUuid) {
         return hentPåklagdBehandlingTekst(behandlingUuid == null ? null : behandlingRepository.hentBehandling(behandlingUuid).getId());
     }
 
-    private String hentPåKlagdEksternBehandlingTekst(UUID påKlagdEksternBehandlingUuid,
-                                                     String behandlingType,
-                                                     LocalDate vedtakDato) {
+    private String hentPåKlagdEksternBehandlingTekst(UUID påKlagdEksternBehandlingUuid, String behandlingType, LocalDate vedtakDato) {
         if (påKlagdEksternBehandlingUuid == null) {
             return IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST;
         }
         return BehandlingType.fraKode(behandlingType).getNavn() + " " + formatDato(vedtakDato);
     }
 
-    private void settOppHistorikkFelter(HistorikkInnslagTekstBuilder historiebygger,
-                                        KlageFormkravAksjonspunktDto formkravDto) {
+    private void settOppHistorikkFelter(HistorikkInnslagTekstBuilder historiebygger, KlageFormkravAksjonspunktDto formkravDto) {
         var behandlingId = formkravDto.hentPåKlagdBehandlingUuid();
-        var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId)
-            : hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
-            formkravDto.getKlageTilbakekreving().tilbakekrevingBehandlingType(),
+        var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId) : hentPåKlagdEksternBehandlingTekst(
+            formkravDto.hentpåKlagdEksternBehandlingUuId(), formkravDto.getKlageTilbakekreving().tilbakekrevingBehandlingType(),
             formkravDto.getKlageTilbakekreving().tilbakekrevingVedtakDato());
         historiebygger.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID, null, påKlagdBehandling)
             .medEndretFelt(HistorikkEndretFeltType.ER_KLAGER_PART, null, formkravDto.erKlagerPart())
@@ -234,37 +229,33 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             var lagretPåklagdBehandlingId = klageResultat.getPåKlagdBehandlingId().orElse(null);
             var klageTilbakekrevingDto = formkravDto.getKlageTilbakekreving();
             if (lagretPåklagdEksternBehandlingUuid != null) {
-                lagHistorikkinnslagHvisForrigePåklagdEksternBehandlingUuidFinnes(historikkInnslagTekstBuilder,
-                    formkravDto, lagretPåklagdEksternBehandlingUuid, klageTilbakekrevingDto);
+                lagHistorikkinnslagHvisForrigePåklagdEksternBehandlingUuidFinnes(historikkInnslagTekstBuilder, formkravDto,
+                    lagretPåklagdEksternBehandlingUuid, klageTilbakekrevingDto);
 
             } else if (lagretPåklagdBehandlingId != null) {
-                lagHistorikkinnslagHvisForrigePåklagdBehandlingFinnes(historikkInnslagTekstBuilder, formkravDto,
-                    klageResultat, lagretPåklagdBehandlingId, klageTilbakekrevingDto);
+                lagHistorikkinnslagHvisForrigePåklagdBehandlingFinnes(historikkInnslagTekstBuilder, formkravDto, klageResultat,
+                    lagretPåklagdBehandlingId, klageTilbakekrevingDto);
 
             } else {
                 historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID, null,
-                    formkravDto.erTilbakekreving() ? hentPåKlagdEksternBehandlingTekst(
-                        formkravDto.hentpåKlagdEksternBehandlingUuId(),
+                    formkravDto.erTilbakekreving() ? hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
                         klageTilbakekrevingDto.tilbakekrevingBehandlingType(),
-                        klageTilbakekrevingDto.tilbakekrevingVedtakDato()) : hentPåklagdBehandlingTekst(
-                        formkravDto.hentPåKlagdBehandlingUuid()));
+                        klageTilbakekrevingDto.tilbakekrevingVedtakDato()) : hentPåklagdBehandlingTekst(formkravDto.hentPåKlagdBehandlingUuid()));
             }
         }
         if (klageFormkrav.erKlagerPart() != formkravDto.erKlagerPart()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGER_PART,
-                klageFormkrav.erKlagerPart(), formkravDto.erKlagerPart());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGER_PART, klageFormkrav.erKlagerPart(),
+                formkravDto.erKlagerPart());
         }
         if (klageFormkrav.erFristOverholdt() != formkravDto.erFristOverholdt()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGEFRIST_OVERHOLDT,
-                klageFormkrav.erFristOverholdt(), formkravDto.erFristOverholdt());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGEFRIST_OVERHOLDT, klageFormkrav.erFristOverholdt(),
+                formkravDto.erFristOverholdt());
         }
         if (klageFormkrav.erSignert() != formkravDto.erSignert()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGEN_SIGNERT,
-                klageFormkrav.erSignert(), formkravDto.erSignert());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGEN_SIGNERT, klageFormkrav.erSignert(), formkravDto.erSignert());
         }
         if (klageFormkrav.erKonkret() != formkravDto.erKonkret()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGE_KONKRET,
-                klageFormkrav.erKonkret(), formkravDto.erKonkret());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_KLAGE_KONKRET, klageFormkrav.erKonkret(), formkravDto.erKonkret());
         }
     }
 
@@ -277,8 +268,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
                 hentPåklagdBehandlingTekst(lagretPåklagdBehandlingId),
                 hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
-                    klageTilbakekrevingDto.tilbakekrevingBehandlingType(),
-                    klageTilbakekrevingDto.tilbakekrevingVedtakDato()));
+                    klageTilbakekrevingDto.tilbakekrevingBehandlingType(), klageTilbakekrevingDto.tilbakekrevingVedtakDato()));
         } else {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
                 hentPåklagdBehandlingTekst(klageResultat.getPåKlagdBehandlingId().orElse(null)),
@@ -290,22 +280,17 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                                                                                   KlageFormkravAksjonspunktDto formkravDto,
                                                                                   UUID lagretPåklagdEksternBehandlingUuid,
                                                                                   KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        var tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(
-            lagretPåklagdEksternBehandlingUuid);
+        var tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(lagretPåklagdEksternBehandlingUuid);
         if (formkravDto.hentpåKlagdEksternBehandlingUuId() != null) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
-                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid,
-                    tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(),
+                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(),
                     tilbakekrevingVedtakDto.tilbakekrevingVedtakDato()),
                 hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
-                    klageTilbakekrevingDto.tilbakekrevingBehandlingType(),
-                    klageTilbakekrevingDto.tilbakekrevingVedtakDato()));
+                    klageTilbakekrevingDto.tilbakekrevingBehandlingType(), klageTilbakekrevingDto.tilbakekrevingVedtakDato()));
         } else {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
-                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid,
-                    tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(),
-                    tilbakekrevingVedtakDto.tilbakekrevingVedtakDato()),
-                hentPåklagdBehandlingTekst(formkravDto.hentPåKlagdBehandlingUuid()));
+                hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(),
+                    tilbakekrevingVedtakDto.tilbakekrevingVedtakDato()), hentPåklagdBehandlingTekst(formkravDto.hentPåKlagdBehandlingUuid()));
         }
     }
 
@@ -314,8 +299,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     }
 
     private SkjermlenkeType getSkjermlenkeType(AksjonspunktDefinisjon apDef) {
-        return VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(
-            apDef) ? SkjermlenkeType.FORMKRAV_KLAGE_NFP : SkjermlenkeType.FORMKRAV_KLAGE_KA;
+        return VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(apDef) ? SkjermlenkeType.FORMKRAV_KLAGE_NFP : SkjermlenkeType.FORMKRAV_KLAGE_KA;
     }
 
     private boolean erVedtakOppdatert(KlageResultatEntitet klageResultat, KlageFormkravAksjonspunktDto formkravDto) {
@@ -327,8 +311,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             formkravDto.erTilbakekreving() || påKlagdBehandlingUuid == null ? null : behandlingRepository.hentBehandling(påKlagdBehandlingUuid)
                 .getId();
 
-        return !Objects.equals(lagretBehandlingId, påKlagdBehandlingId) ||
-            !Objects.equals(lagretEkternBehandlingUuid, formkravDto.hentpåKlagdEksternBehandlingUuId());
+        return !Objects.equals(lagretBehandlingId, påKlagdBehandlingId) || !Objects.equals(lagretEkternBehandlingUuid,
+            formkravDto.hentpåKlagdEksternBehandlingUuId());
     }
 
     private boolean erNfpAksjonspunt(AksjonspunktDefinisjon apDef) {

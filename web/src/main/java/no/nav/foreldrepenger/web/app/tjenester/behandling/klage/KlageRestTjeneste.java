@@ -94,12 +94,9 @@ public class KlageRestTjeneste {
 
     @GET
     @Path(KLAGE_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om klagevurdering for en klagebehandling", tags = "klage", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en klage fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
-    })
+    @Operation(description = "Hent informasjon om klagevurdering for en klagebehandling", tags = "klage", responses = {@ApiResponse(responseCode = "200", description = "Returnerer vurdering av en klage fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response getKlageVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getKlageVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
         var dto = mapFra(behandling);
@@ -115,11 +112,10 @@ public class KlageRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av vurderingstekst for klagebehandling", tags = "klage")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response mellomlagreKlage(@TilpassetAbacAttributt(supplierClass = MellomlagreKlageAbacSupplier.class)
-            @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageVurderingResultatAksjonspunktMellomlagringDto apDto) {
+    public Response mellomlagreKlage(@TilpassetAbacAttributt(supplierClass = MellomlagreKlageAbacSupplier.class) @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
-        var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
-                : KlageVurdertAv.NK;
+        var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode()
+            .equals(apDto.getKode()) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
@@ -138,10 +134,10 @@ public class KlageRestTjeneste {
 
     private static void mapMellomlagreKlage(KlageVurderingResultatAksjonspunktMellomlagringDto dto, KlageVurderingResultat.Builder builder) {
         builder.medKlageVurdering(dto.getKlageVurdering())
-                .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
-                .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
-                .medKlageHjemmel(dto.getKlageHjemmel())
-                .medBegrunnelse(dto.getBegrunnelse());
+            .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
+            .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+            .medKlageHjemmel(dto.getKlageHjemmel())
+            .medBegrunnelse(dto.getBegrunnelse());
     }
 
     @POST
@@ -149,11 +145,10 @@ public class KlageRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av fritekst til brev for avvist formkrav", tags = "klage")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response mellomlagreAvvistFormKrav(@TilpassetAbacAttributt(supplierClass = MellomlagreFormKravAbacSupplier.class)
-                                     @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageFormKravAksjonspunktMellomlagringDto apDto) {
+    public Response mellomlagreAvvistFormKrav(@TilpassetAbacAttributt(supplierClass = MellomlagreFormKravAbacSupplier.class) @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageFormKravAksjonspunktMellomlagringDto apDto) {
 
-        var vurdertAv = AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
-            : KlageVurdertAv.NK;
+        var vurdertAv = AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.getKode()
+            .equals(apDto.getKode()) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         var behandling = behandlingRepository.hentBehandling(apDto.behandlingUuid());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var builderFormKrav = klageVurderingTjeneste.hentKlageFormkravBuilder(behandling, vurdertAv);
@@ -165,7 +160,7 @@ public class KlageRestTjeneste {
 
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP)) {
             oppdaterKlageresultat(apDto, klageResultat, behandling);
-            mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat );
+            mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat);
             klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
         }
         vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
@@ -181,32 +176,31 @@ public class KlageRestTjeneste {
             BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
         } else {
             var påKlagdBehandlingUuid = apDto.paKlagdBehandlingUuid();
-            if (påKlagdBehandlingUuid != null || apDto.hentpåKlagdEksternBehandlingUuId() == null
-                && klageResultat.getPåKlagdBehandlingId().isPresent()) {
+            if (påKlagdBehandlingUuid != null || apDto.hentpåKlagdEksternBehandlingUuId() == null && klageResultat.getPåKlagdBehandlingId()
+                .isPresent()) {
                 klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling, påKlagdBehandlingUuid);
             }
         }
     }
 
-    private static void mapMellomlagreFormKrav(KlageFormKravAksjonspunktMellomlagringDto apDto, KlageFormkravEntitet.Builder builder, KlageResultatEntitet klageResultat) {
-            builder.medErKlagerPart(apDto.erKlagerPart())
-                .medErFristOverholdt(apDto.erFristOverholdt())
-                .medErKonkret(apDto.erKonkret())
-                .medErSignert(apDto.erSignert())
-                .medErFristOverholdt(apDto.erFristOverholdt())
-                .medBegrunnelse(apDto.begrunnelse())
-                .medKlageResultat(klageResultat)
-                .medGjelderVedtak(apDto.paKlagdBehandlingUuid() != null);
+    private static void mapMellomlagreFormKrav(KlageFormKravAksjonspunktMellomlagringDto apDto,
+                                               KlageFormkravEntitet.Builder builder,
+                                               KlageResultatEntitet klageResultat) {
+        builder.medErKlagerPart(apDto.erKlagerPart())
+            .medErFristOverholdt(apDto.erFristOverholdt())
+            .medErKonkret(apDto.erKonkret())
+            .medErSignert(apDto.erSignert())
+            .medErFristOverholdt(apDto.erFristOverholdt())
+            .medBegrunnelse(apDto.begrunnelse())
+            .medKlageResultat(klageResultat)
+            .medGjelderVedtak(apDto.paKlagdBehandlingUuid() != null);
     }
 
     @GET
     @Path(MOTTATT_KLAGEDOKUMENT_V2_PART_PATH)
-    @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MottattKlagedokumentDto.class)))
-    })
+    @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {@ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MottattKlagedokumentDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
         var mottattDokument = mottatteDokumenter.stream()
@@ -226,63 +220,51 @@ public class KlageRestTjeneste {
         var påklagdBehandling = klageResultat.getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
         var ytelseType = påklagdBehandling.map(Behandling::getFagsakYtelseType).orElse(FagsakYtelseType.UDEFINERT);
         var nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
-                .map(KlageRestTjeneste::mapKlageVurderingResultatDto)
-                .orElseGet(KlageRestTjeneste::dummyKlageVurderingResultatDtoForNFP);
+            .map(KlageRestTjeneste::mapKlageVurderingResultatDto)
+            .orElseGet(KlageRestTjeneste::dummyKlageVurderingResultatDtoForNFP);
         var nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
-                .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
+            .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
         var nfpFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
-                .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+            .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
         var kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
-                .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+            .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
-        return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering,
-            kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
-            behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
+        return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering, kaFormkrav.orElse(null), nkVurdering.orElse(null),
+            KlageHjemmel.getHjemlerForYtelse(ytelseType), behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
             klageResultat.erBehandletAvKabal());
     }
 
     private static KlageVurderingResultatDto mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
-        return new KlageVurderingResultatDto(klageVurderingResultat.getKlageVurdertAv().getKode(),
-            klageVurderingResultat.getKlageVurdering(),
-            klageVurderingResultat.getBegrunnelse(),
-            klageVurderingResultat.getKlageMedholdÅrsak(),
-            klageVurderingResultat.getKlageVurderingOmgjør(),
-            klageVurderingResultat.getKlageHjemmel(),
-            klageVurderingResultat.isGodkjentAvMedunderskriver(),
+        return new KlageVurderingResultatDto(klageVurderingResultat.getKlageVurdertAv().getKode(), klageVurderingResultat.getKlageVurdering(),
+            klageVurderingResultat.getBegrunnelse(), klageVurderingResultat.getKlageMedholdÅrsak(), klageVurderingResultat.getKlageVurderingOmgjør(),
+            klageVurderingResultat.getKlageHjemmel(), klageVurderingResultat.isGodkjentAvMedunderskriver(),
             klageVurderingResultat.getFritekstTilBrev());
     }
 
     private static KlageVurderingResultatDto dummyKlageVurderingResultatDtoForNFP() {
-        return new KlageVurderingResultatDto(KlageVurdertAv.NFP.getKode(),
-            KlageVurdering.UDEFINERT,
-            null,
-            KlageMedholdÅrsak.UDEFINERT,
-            KlageVurderingOmgjør.UDEFINERT,
-            KlageHjemmel.UDEFINERT,
-            false,
-            null);
+        return new KlageVurderingResultatDto(KlageVurdertAv.NFP.getKode(), KlageVurdering.UDEFINERT, null, KlageMedholdÅrsak.UDEFINERT,
+            KlageVurderingOmgjør.UDEFINERT, KlageHjemmel.UDEFINERT, false, null);
     }
 
-    private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav, Optional<Behandling> påklagdBehandling, FptilbakeRestKlient fptilbakeRestKlient) {
+    private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav,
+                                                                        Optional<Behandling> påklagdBehandling,
+                                                                        FptilbakeRestKlient fptilbakeRestKlient) {
         var paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
-        Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = påklagdBehandling.isPresent() ? Optional.empty() :
-            paKlagdEksternBehandlingUuid.flatMap(b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
-        var behandlingId = påklagdBehandling.map(Behandling::getId).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::id).orElse(null));
-        var behandlingUuid = påklagdBehandling.map(Behandling::getUuid).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
-        var behandlingType = påklagdBehandling.map(Behandling::getType).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::type).orElse(null));
-        return new KlageFormkravResultatDto(behandlingId,
-            behandlingUuid,
-            behandlingType,
-            klageFormkrav.hentBegrunnelse(),
-            klageFormkrav.erKlagerPart(),
-            klageFormkrav.erKonkret(),
-            klageFormkrav.erFristOverholdt(),
-            klageFormkrav.erSignert(),
+        Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = påklagdBehandling.isPresent() ? Optional.empty() : paKlagdEksternBehandlingUuid.flatMap(
+            b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
+        var behandlingId = påklagdBehandling.map(Behandling::getId)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::id).orElse(null));
+        var behandlingUuid = påklagdBehandling.map(Behandling::getUuid)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
+        var behandlingType = påklagdBehandling.map(Behandling::getType)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::type).orElse(null));
+        return new KlageFormkravResultatDto(behandlingId, behandlingUuid, behandlingType, klageFormkrav.hentBegrunnelse(),
+            klageFormkrav.erKlagerPart(), klageFormkrav.erKonkret(), klageFormkrav.erFristOverholdt(), klageFormkrav.erSignert(),
             klageFormkrav.hentAvvistÅrsaker());
     }
 
     private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid,
-                                                                                               FptilbakeRestKlient fptilbakeRestKlient){
+                                                                                               FptilbakeRestKlient fptilbakeRestKlient) {
         return Optional.ofNullable(fptilbakeRestKlient.hentBehandlingInfo(paKlagdEksternBehandlingUuid));
     }
 
@@ -291,8 +273,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
@@ -300,8 +281,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageFormKravAksjonspunktMellomlagringDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 

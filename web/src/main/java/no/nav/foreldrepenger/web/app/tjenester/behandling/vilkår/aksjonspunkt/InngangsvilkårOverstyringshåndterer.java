@@ -24,9 +24,9 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
     }
 
     public InngangsvilkårOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon,
-            VilkårType vilkårType,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+                                               AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                               VilkårType vilkårType,
+                                               InngangsvilkårTjeneste inngangsvilkårTjeneste) {
         super(historikkAdapter, aksjonspunktDefinisjon);
         this.vilkårType = vilkårType;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
@@ -35,9 +35,8 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
     @Override
     public OppdateringResultat håndterOverstyring(T dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT :
-            Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
-                .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
+        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT : Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+            .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
         inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), vilkårType, utfall, avslagsårsak, kontekst);
 

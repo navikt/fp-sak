@@ -90,15 +90,13 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response openIkkeLopendeSaker() {
         var query = entityManager.createNativeQuery("""
-                select saksnummer, id from fagsak where fagsak_status in (:fstatus)
-                and id in (select fagsak_id from behandling where behandling_status not in (:bstatus))
-                """);
+            select saksnummer, id from fagsak where fagsak_status in (:fstatus)
+            and id in (select fagsak_id from behandling where behandling_status not in (:bstatus))
+            """);
         query.setParameter("fstatus", List.of(FagsakStatus.AVSLUTTET.getKode(), FagsakStatus.LØPENDE.getKode()));
         query.setParameter("bstatus", List.of(BehandlingStatus.IVERKSETTER_VEDTAK.getKode(), BehandlingStatus.AVSLUTTET.getKode()));
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        var saker = resultatList.stream()
-            .map(row -> new FagsakTreff((String) row[0], Long.parseLong(row[1].toString()))).toList();
+        @SuppressWarnings("unchecked") List<Object[]> resultatList = query.getResultList();
+        var saker = resultatList.stream().map(row -> new FagsakTreff((String) row[0], Long.parseLong(row[1].toString()))).toList();
         saker.forEach(f -> fagsakRepository.oppdaterFagsakStatus(f.fagsakId(), FagsakStatus.UNDER_BEHANDLING));
         return Response.ok().build();
     }
@@ -118,18 +116,15 @@ public class ForvaltningUttrekkRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var query = entityManager.createNativeQuery("""
-                select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid
-                from fagsak fs
-                join behandling bh on bh.fagsak_id = fs.id
-                join aksjonspunkt ap on ap.behandling_id = bh.id
-                where ap.aksjonspunkt_def = :apdef and ap.aksjonspunkt_status = :status""");
+            select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid
+            from fagsak fs
+            join behandling bh on bh.fagsak_id = fs.id
+            join aksjonspunkt ap on ap.behandling_id = bh.id
+            where ap.aksjonspunkt_def = :apdef and ap.aksjonspunkt_status = :status""");
         query.setParameter("apdef", apDef.getKode());
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        var åpneAksjonspunkt = resultatList.stream()
-                .map(this::mapFraAksjonspunktTilDto)
-                .toList();
+        @SuppressWarnings("unchecked") List<Object[]> resultatList = query.getResultList();
+        var åpneAksjonspunkt = resultatList.stream().map(this::mapFraAksjonspunktTilDto).toList();
         return Response.ok(åpneAksjonspunkt).build();
     }
 
@@ -155,9 +150,8 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select * from behandling where opprettet_tid < '01.01.2000'
              """);
-        @SuppressWarnings("unchecked")
-        List<Number> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        @SuppressWarnings("unchecked") List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt = resultatList.stream().map(Number::longValue).toList();
         åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
@@ -177,9 +171,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @GET
     @Path("/listFagsakUtenBehandling")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger", tags = "FORVALTNING-uttrekk", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsaker uten behandling", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SaksnummerDto.class)), mediaType = MediaType.APPLICATION_JSON))
-    })
+    @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger", tags = "FORVALTNING-uttrekk", responses = {@ApiResponse(responseCode = "200", description = "Fagsaker uten behandling", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SaksnummerDto.class)), mediaType = MediaType.APPLICATION_JSON))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SaksnummerDto> listFagsakUtenBehandling() {
         return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).toList();
@@ -192,12 +184,18 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i overlapp_vedtak", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response avstemOverlappForPeriode(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        var fom = LocalDate.of(2018,10,20);
+        var fom = LocalDate.of(2018, 10, 20);
         var tom = LocalDate.now();
-        if (dto.getFom().isAfter(fom)) fom = dto.getFom();
-        if (dto.getTom().isBefore(tom)) tom = dto.getTom();
+        if (dto.getFom().isAfter(fom)) {
+            fom = dto.getFom();
+        }
+        if (dto.getTom().isBefore(tom)) {
+            tom = dto.getTom();
+        }
         var baseline = LocalDateTime.now();
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        if (MDCOperations.getCallId() == null) {
+            MDCOperations.putCallId();
+        }
         var callId = MDCOperations.getCallId();
         long suffix = 0;
         var gruppe = new ProsessTaskGruppe();
@@ -242,8 +240,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response avstemSakForOverlapp(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                             @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response avstemSakForOverlapp(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemSakTask.class);
         prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, s.getVerdi());
         prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_SAK);
@@ -259,11 +256,11 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentAvstemtSakOverlappTrex(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                                   @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getVerdi())).stream()
-                .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
-                .toList();
+    public Response hentAvstemtSakOverlappTrex(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+        var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getVerdi()))
+            .stream()
+            .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
+            .toList();
         return Response.ok(resultat).build();
     }
 

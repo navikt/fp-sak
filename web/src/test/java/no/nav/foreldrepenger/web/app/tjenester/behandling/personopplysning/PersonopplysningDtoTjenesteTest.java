@@ -45,8 +45,7 @@ class PersonopplysningDtoTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        var scenario = ScenarioMorSøkerForeldrepenger
-                .forFødselMedGittAktørId(AktørId.dummy());
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AktørId.dummy());
 
         scenario.medDefaultFordeling(LocalDate.now());
         return scenario.lagre(repositoryProvider);

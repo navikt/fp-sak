@@ -8,5 +8,6 @@ import jakarta.validation.constraints.Pattern;
 
 import no.nav.vedtak.util.InputValideringRegex;
 
-public record KlageTilbakekrevingDto(@NotNull UUID tilbakekrevingUuid, LocalDate tilbakekrevingVedtakDato, @Pattern(regexp = InputValideringRegex.KODEVERK) String tilbakekrevingBehandlingType) {
+public record KlageTilbakekrevingDto(@NotNull UUID tilbakekrevingUuid, LocalDate tilbakekrevingVedtakDato,
+                                     @Pattern(regexp = InputValideringRegex.KODEVERK) String tilbakekrevingBehandlingType) {
 }

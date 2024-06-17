@@ -46,8 +46,6 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.QueryParam;
 
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -58,6 +56,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 
@@ -75,8 +74,8 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         validerRekursivt(validerteKlasser, dto, null);
     }
 
-    private static final Set<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Set.of(JsonProperty.class,
-        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, DefaultValue.class, FormParam.class, QueryParam.class);
+    private static final Set<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Set.of(JsonProperty.class, JsonValue.class, JsonIgnore.class,
+        Valid.class, Null.class, NotNull.class, ValidKodeverk.class, DefaultValue.class, FormParam.class, QueryParam.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {
@@ -104,8 +103,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             put(long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
             put(Integer.class, singletonList(asList(Min.class, Max.class)));
             put(int.class, singletonList(asList(Min.class, Max.class)));
-            put(BigDecimal.class, asList(asList(Min.class, Max.class, Digits.class),
-                asList(DecimalMin.class, DecimalMax.class, Digits.class)));
+            put(BigDecimal.class, asList(asList(Min.class, Max.class, Digits.class), asList(DecimalMin.class, DecimalMax.class, Digits.class)));
 
             putAll(UNNTATT_FRA_VALIDERING);
         }
@@ -160,9 +158,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         return filtreteParametre;
     }
 
-    private static void validerRekursivt(Set<Class<?>> besøkteKlasser,
-                                         Class<?> klasse,
-                                         Class<?> forrigeKlasse) throws URISyntaxException {
+    private static void validerRekursivt(Set<Class<?>> besøkteKlasser, Class<?> klasse, Class<?> forrigeKlasse) throws URISyntaxException {
         if (erKodeverk(klasse)) {
             return;
         }
@@ -178,16 +174,13 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         }
 
         besøkteKlasser.add(klasse);
-        assertThat(klasse.getAnnotation(Entity.class))
-            .withFailMessage("Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse)
-            .isNull();
-        assertThat(klasse.getAnnotation(MappedSuperclass.class))
-            .withFailMessage("Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse)
-            .isNull();
+        assertThat(klasse.getAnnotation(Entity.class)).withFailMessage(
+            "Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse).isNull();
+        assertThat(klasse.getAnnotation(MappedSuperclass.class)).withFailMessage(
+            "Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse).isNull();
 
         var klasseLocation = codeSource.getLocation();
-        for (var subklasse : IndexClasses.getIndexFor(klasseLocation.toURI())
-            .getSubClassesWithAnnotation(klasse, JsonTypeName.class)) {
+        for (var subklasse : IndexClasses.getIndexFor(klasseLocation.toURI()).getSubClassesWithAnnotation(klasse, JsonTypeName.class)) {
             validerRekursivt(besøkteKlasser, subklasse, forrigeKlasse);
         }
         for (var field : getRelevantFields(klasse)) {
@@ -289,8 +282,8 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static void validerRiktigAnnotertForCollectionsAndMaps(Field field) {
-        if (!Properties.class.isAssignableFrom(field.getType()) && (Collection.class.isAssignableFrom(
-            field.getType()) || Map.class.isAssignableFrom(field.getType()))) {
+        if (!Properties.class.isAssignableFrom(field.getType()) && (Collection.class.isAssignableFrom(field.getType()) || Map.class.isAssignableFrom(
+            field.getType()))) {
             var annType = (AnnotatedParameterizedType) field.getAnnotatedType();
             var annotatedTypes = annType.getAnnotatedActualTypeArguments();
             for (var at : List.of(annotatedTypes)) {

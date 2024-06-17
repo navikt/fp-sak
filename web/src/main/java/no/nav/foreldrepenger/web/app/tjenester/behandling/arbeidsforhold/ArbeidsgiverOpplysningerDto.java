@@ -48,8 +48,12 @@ public class ArbeidsgiverOpplysningerDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ArbeidsgiverOpplysningerDto) o;
         return Objects.equals(referanse, that.referanse);
     }

@@ -32,7 +32,6 @@ public class RegisterPathTjeneste {
     private final RestConfig restConfig;
 
 
-
     public RegisterPathTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(RegisterPathTjeneste.class);
@@ -40,8 +39,7 @@ public class RegisterPathTjeneste {
 
     public String hentAaregPath(PersonIdent ident) {
         var uri = UriBuilder.fromUri(restConfig.endpoint()).path(AAREG_PATH).build();
-        var request = RestRequest.newGET(uri, restConfig)
-            .header(NavHeaders.HEADER_NAV_PERSONIDENT, ident.getIdent());
+        var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, ident.getIdent());
         return restClient.send(request, String.class);
     }
 

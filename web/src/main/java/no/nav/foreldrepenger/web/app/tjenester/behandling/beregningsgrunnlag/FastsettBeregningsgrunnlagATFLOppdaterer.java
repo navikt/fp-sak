@@ -45,7 +45,8 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
                                                     FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste,
                                                     FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
                                                     BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                    BeregningHåndterer beregningHåndterer, BehandlingRepository behandlingRepository) {
+                                                    BeregningHåndterer beregningHåndterer,
+                                                    BehandlingRepository behandlingRepository) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.fastsettBeregningsgrunnlagATFLHistorikkTjeneste = fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
         this.fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
@@ -61,11 +62,12 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.fagsakYtelseType());
         var input = tjeneste.lagInput(ref);
         var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
-            BeregningsgrunnlagTilstand.FORESLÅTT_UT)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+            BeregningsgrunnlagTilstand.FORESLÅTT_UT).flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         if (dto.tidsbegrensetInntektErFastsatt()) {
-            var tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(), dto.getInntektFrilanser());
-            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input, OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(tidsbegrensetDto));
+            var tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(),
+                dto.getInntektFrilanser());
+            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input,
+                OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(tidsbegrensetDto));
             fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtGrunnlag, forrigeGrunnlag, tidsbegrensetDto);
             var builder = OppdateringResultat.utenTransisjon();
             return builder.build();
@@ -74,8 +76,8 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag);
         var builder = OppdateringResultat.utenTransisjon();
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        håndterEventueltOverflødigAksjonspunkt(behandling)
-            .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        håndterEventueltOverflødigAksjonspunkt(behandling).ifPresent(
+            ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }
 

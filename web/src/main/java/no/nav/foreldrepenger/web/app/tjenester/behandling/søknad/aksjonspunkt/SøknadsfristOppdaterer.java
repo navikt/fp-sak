@@ -32,15 +32,15 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
     }
 
     @Override
-    public OppdateringResultat oppdater(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter  param) {
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SOKNADSFRISTVILKARET, null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
-                .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-                .medSkjermlenke(SkjermlenkeType.SOEKNADSFRIST);
+    public OppdateringResultat oppdater(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+        historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.SOKNADSFRISTVILKARET, null,
+                dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
+            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
+            .medSkjermlenke(SkjermlenkeType.SOEKNADSFRIST);
 
         if (dto.getErVilkarOk()) {
-            return new OppdateringResultat.Builder()
-                .leggTilManueltOppfyltVilkår(SØKNADSFRISTVILKÅRET)
-                .build();
+            return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(SØKNADSFRISTVILKÅRET).build();
         } else {
             return OppdateringResultat.utenTransisjon()
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)

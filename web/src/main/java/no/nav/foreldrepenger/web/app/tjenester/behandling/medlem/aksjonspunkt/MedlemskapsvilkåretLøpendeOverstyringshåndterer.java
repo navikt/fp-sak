@@ -40,8 +40,7 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
     @Inject
     public MedlemskapsvilkåretLøpendeOverstyringshåndterer(BehandlingRepositoryProvider repositoryProvider,
                                                            HistorikkTjenesteAdapter historikkAdapter) {
-        super(historikkAdapter,
-            AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE);
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE);
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -60,7 +59,9 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringMedlemskapsvilkåretLøpendeDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringMedlemskapsvilkåretLøpendeDto dto,
+                                                  Behandling behandling,
+                                                  BehandlingskontrollKontekst kontekst) {
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilder = grBuilder.getPeriodeBuilder();
 

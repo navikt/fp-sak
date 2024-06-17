@@ -86,9 +86,9 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
             lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MANGELFULL_SØKNAD, null);
-            return resultatBuilder
-                .leggTilIkkeVurdertVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();
+            return resultatBuilder.leggTilIkkeVurdertVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT)
+                .build();
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
@@ -101,8 +101,8 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var søknadXml = opprettSøknadsskjema(dto, behandlingReferanse, navBruker);
         var dokumentTypeId = finnDokumentType(dto, behandlingReferanse.behandlingType());
 
-        var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
-            dokumentTypeId, dto.getMottattDato(), dto.isRegistrerVerge());
+        var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml, dokumentTypeId, dto.getMottattDato(),
+            dto.isRegistrerVerge());
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
 
@@ -164,11 +164,8 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var søknad = mapper.mapSøknad(dto, navBruker);
 
         try {
-            return JaxbHelper.marshalAndValidateJaxb(SøknadConstants.JAXB_CLASS,
-                new ObjectFactory().createSoeknad(søknad),
-                SøknadConstants.XSD_LOCATION,
-                SøknadConstants.ADDITIONAL_XSD_LOCATION,
-                SøknadConstants.ADDITIONAL_CLASSES);
+            return JaxbHelper.marshalAndValidateJaxb(SøknadConstants.JAXB_CLASS, new ObjectFactory().createSoeknad(søknad),
+                SøknadConstants.XSD_LOCATION, SøknadConstants.ADDITIONAL_XSD_LOCATION, SøknadConstants.ADDITIONAL_CLASSES);
         } catch (JAXBException | SAXException e) {
             throw new TekniskException("FP-453254", "Feil ved marshalling av søknadsskjema", e);
         }

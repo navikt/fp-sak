@@ -54,8 +54,8 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     public OppdateringResultat oppdater(FastsetteUttakDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getRef();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
-        avbrytOverflødigOverstyrAksjonpunkt(behandling)
-            .ifPresent(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        avbrytOverflødigOverstyrAksjonpunkt(behandling).ifPresent(
+            ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
         var input = uttakInputTjeneste.lagInput(behandling.behandlingId());
         var forrigeResultat = håndterOverstyring(dto, input);
@@ -73,8 +73,8 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     }
 
     private void lagHistorikkInnslag(BehandlingReferanse behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
-        var historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
-            behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
+        var historikkinnslag = UttakHistorikkUtil.forFastsetting()
+            .lagHistorikkinnslag(behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> historikkAdapter.lagInnslag(innslag));
     }
 

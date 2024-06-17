@@ -34,7 +34,9 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto,
+                                                  Behandling behandling,
+                                                  BehandlingskontrollKontekst kontekst) {
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), dto.getStartdatoFraSoknad());
         return OppdateringResultat.utenTransisjon().build();
     }

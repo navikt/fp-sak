@@ -37,7 +37,6 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
     }
 
 
-
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);

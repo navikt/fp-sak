@@ -68,7 +68,7 @@ class LdapBrukeroppslagTest {
 
         var heleResultatet = new SearchMock(Collections.emptyList());
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
-                .thenReturn(heleResultatet);
+            .thenReturn(heleResultatet);
 
         var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
         assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
@@ -77,7 +77,7 @@ class LdapBrukeroppslagTest {
     @Test
     void skal_gi_exception_når_søket_gir_to_treff() throws Exception {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
-                .thenThrow(new LimitExceededException("This is a test"));
+            .thenThrow(new LimitExceededException("This is a test"));
 
         var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
         var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
@@ -93,7 +93,7 @@ class LdapBrukeroppslagTest {
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
         var heleResultatet = new SearchMock(List.of(resultat));
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
-                .thenReturn(heleResultatet);
+            .thenReturn(heleResultatet);
 
         var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
         var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));

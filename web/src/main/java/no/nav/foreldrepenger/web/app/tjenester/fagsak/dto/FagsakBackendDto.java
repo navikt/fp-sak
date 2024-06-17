@@ -19,12 +19,7 @@ public record FagsakBackendDto(String saksnummer, FagsakYtelseType fagsakYtelseT
 
     @Override
     public String toString() {
-        return "FagsakDto{" +
-            "saksnummer=" + saksnummer +
-            ", fagsakYtelseType=" + fagsakYtelseType +
-            ", relasjonsRolleType=" + relasjonsRolleType +
-            ", status=" + status +
-            ", dekningsgrad=" + dekningsgrad +
-            '}';
+        return "FagsakDto{" + "saksnummer=" + saksnummer + ", fagsakYtelseType=" + fagsakYtelseType + ", relasjonsRolleType=" + relasjonsRolleType
+            + ", status=" + status + ", dekningsgrad=" + dekningsgrad + '}';
     }
 }

@@ -16,16 +16,14 @@ public class EndreUttakUtil {
     private EndreUttakUtil() {
     }
 
-    public static ForeldrepengerUttakPeriode finnGjeldendePeriodeFor(List<ForeldrepengerUttakPeriode> gjeldende,
-                                                                     LocalDateInterval nyPeriode) {
+    public static ForeldrepengerUttakPeriode finnGjeldendePeriodeFor(List<ForeldrepengerUttakPeriode> gjeldende, LocalDateInterval nyPeriode) {
         for (var gjeldendePeriode : gjeldende) {
             if (new LocalDateInterval(gjeldendePeriode.getFom(), gjeldendePeriode.getTom()).contains(nyPeriode)) {
                 return gjeldendePeriode;
             }
         }
-        var msg = String.format("Fant ikke gjeldende periode for ny periode fom %s tom %s i %s",
-            nyPeriode.getFomDato(), nyPeriode.getTomDato(), gjeldende.stream().map(ForeldrepengerUttakPeriode::getTidsperiode)
-                .toList());
+        var msg = String.format("Fant ikke gjeldende periode for ny periode fom %s tom %s i %s", nyPeriode.getFomDato(), nyPeriode.getTomDato(),
+            gjeldende.stream().map(ForeldrepengerUttakPeriode::getTidsperiode).toList());
         throw new TekniskException("FP-817091", msg);
     }
 
@@ -35,9 +33,8 @@ public class EndreUttakUtil {
                                                                                 UttakArbeidType uttakArbeidType) {
 
         for (var aktivitet : gjeldendePeriode.getAktiviteter()) {
-            if (Objects.equals(aktivitet.getArbeidsforholdRef(), arbeidsforholdRef) &&
-                Objects.equals(arbeidsgiver, aktivitet.getArbeidsgiver().orElse(null)) &&
-                Objects.equals(aktivitet.getUttakArbeidType(), uttakArbeidType)) {
+            if (Objects.equals(aktivitet.getArbeidsforholdRef(), arbeidsforholdRef) && Objects.equals(arbeidsgiver,
+                aktivitet.getArbeidsgiver().orElse(null)) && Objects.equals(aktivitet.getUttakArbeidType(), uttakArbeidType)) {
                 return aktivitet;
             }
         }

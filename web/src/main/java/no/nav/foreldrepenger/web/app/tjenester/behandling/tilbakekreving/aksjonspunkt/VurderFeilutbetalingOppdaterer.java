@@ -18,7 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 @DtoTilServiceAdapter(dto = VurderFeilutbetalingDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderFeilutbetalingOppdaterer implements AksjonspunktOppdaterer<VurderFeilutbetalingDto> {
 
-    static final Set<TilbakekrevingVidereBehandling> LOVLIGE_VALG = Set.of(TilbakekrevingVidereBehandling.IGNORER_TILBAKEKREVING, TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
+    static final Set<TilbakekrevingVidereBehandling> LOVLIGE_VALG = Set.of(TilbakekrevingVidereBehandling.IGNORER_TILBAKEKREVING,
+        TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
     private TilbakekrevingRepository repository;
     private TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger;
     private BehandlingRepository behandlingRepository;
@@ -28,7 +29,8 @@ public class VurderFeilutbetalingOppdaterer implements AksjonspunktOppdaterer<Vu
     }
 
     @Inject
-    public VurderFeilutbetalingOppdaterer(TilbakekrevingRepository repository, TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger,
+    public VurderFeilutbetalingOppdaterer(TilbakekrevingRepository repository,
+                                          TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger,
                                           BehandlingRepository behandlingRepository) {
         this.repository = repository;
         this.historikkInnslagBygger = historikkInnslagBygger;

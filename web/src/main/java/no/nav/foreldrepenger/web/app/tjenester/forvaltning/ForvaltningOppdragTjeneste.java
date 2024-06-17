@@ -69,8 +69,7 @@ class ForvaltningOppdragTjeneste {
         kvittering.setFagsystemId(fagsystemId);
         kvittering.setAlvorlighetsgrad(Alvorlighetsgrad.OK);
 
-        LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", behandlingId,
-            fagsystemId, oppdaterProsesstask);
+        LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", behandlingId, fagsystemId, oppdaterProsesstask);
         økonomioppdragKvitteringTjeneste.behandleKvittering(kvittering, oppdaterProsesstask);
     }
 
@@ -113,7 +112,8 @@ class ForvaltningOppdragTjeneste {
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
 
         // Finn oppdrag som skal patches
-        var oppdrag110TilPatching = oppdragskontroll.getOppdrag110Liste().stream()
+        var oppdrag110TilPatching = oppdragskontroll.getOppdrag110Liste()
+            .stream()
             .filter(oppdrag110 -> oppdrag110.getFagsystemId() == fagsystemId)
             .toList();
 
@@ -128,7 +128,8 @@ class ForvaltningOppdragTjeneste {
         var sisteOppdrag = alleOppdragForSak.stream().max(Comparator.comparing(Oppdragskontroll::getOpprettetTidspunkt)).orElseThrow();
 
         if (sisteOppdrag != oppdragskontroll) {
-            LOG.info("Oppdaterer oppdraget siden ikke det siste. Oppdrag med feil: {}, oppdrag som patches: {}", oppdragskontroll.getId(), sisteOppdrag.getId());
+            LOG.info("Oppdaterer oppdraget siden ikke det siste. Oppdrag med feil: {}, oppdrag som patches: {}", oppdragskontroll.getId(),
+                sisteOppdrag.getId());
             oppdragSomPatches = sisteOppdrag;
 
             // Må lagre den som ble patched til å kunne fjerne den fra oversikten.
@@ -176,8 +177,7 @@ class ForvaltningOppdragTjeneste {
         // begrenser derfor hvor ofte den kan brukes for å hindre feil bruk
         var antallPatchedeINærFortid = finnAntallPatchedeSistePeriode(entityManager, Period.ofWeeks(4));
         if (antallPatchedeINærFortid > 10) {
-            throw new ForvaltningException(
-                "Ikke klar for patching enda. Vurder å øke tillatt hyppighet i ForvaltningOppdragRestTjeneste ved behov");
+            throw new ForvaltningException("Ikke klar for patching enda. Vurder å øke tillatt hyppighet i ForvaltningOppdragRestTjeneste ved behov");
         }
     }
 
@@ -206,8 +206,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            Long.valueOf(hovedProsessTask.getBehandlingId()),
+        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(), Long.valueOf(hovedProsessTask.getBehandlingId()),
             hovedProsessTask.getAktørId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
@@ -216,15 +215,13 @@ class ForvaltningOppdragTjeneste {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
-        sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
-            behandling.getId(),
-            behandling.getAktørId().getId());
+        sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {
         var query = entityManager.createNativeQuery(
-            "select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
+                "select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
             .setParameter("task_type", TaskType.forProsessTask(SendØkonomiOppdragTask.class).value())
             .setParameter("opprettet_fom", ZonedDateTime.now().minus(periode));
 
@@ -238,8 +235,7 @@ class ForvaltningOppdragTjeneste {
             throw new ForvaltningException("Kan ikke patche oppdrag som er ferdig. Kan kun brukes når prosesstask er FEILET eller VENTER_SVAR");
         }
         if (status == ProsessTaskStatus.VENTER_SVAR && ChronoUnit.MINUTES.between(task.getSistKjørt(), LocalDateTime.now()) > 120) {
-            throw new ForvaltningException(
-                "Skal ikke patche oppdrag uten at OS har fått rimelig tid til å svare (sanity check). Prøv igjen senere.");
+            throw new ForvaltningException("Skal ikke patche oppdrag uten at OS har fått rimelig tid til å svare (sanity check). Prøv igjen senere.");
         }
     }
 

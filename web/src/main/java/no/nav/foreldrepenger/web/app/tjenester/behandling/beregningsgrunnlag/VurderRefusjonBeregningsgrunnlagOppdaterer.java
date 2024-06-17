@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.VurderRefusjonBeregningsgrunn
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderRefusjonBeregningsgrunnlagDto.class, adapter = AksjonspunktOppdaterer.class)
-public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<VurderRefusjonBeregningsgrunnlagDto>  {
+public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<VurderRefusjonBeregningsgrunnlagDto> {
 
     private VurderRefusjonBeregningsgrunnlagHistorikkTjeneste vurderRefusjonBeregningsgrunnlagHistorikkTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
@@ -44,11 +44,8 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
         var behandlingRef = param.getRef();
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.fagsakYtelseType());
         var input = tjeneste.lagInput(behandlingRef.behandlingId());
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                behandlingRef.behandlingId(),
-                behandlingRef.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingRef.behandlingId(),
+            behandlingRef.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
         beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
         vurderRefusjonBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param, forrigeGrunnlag);
         return OppdateringResultat.utenOverhopp();

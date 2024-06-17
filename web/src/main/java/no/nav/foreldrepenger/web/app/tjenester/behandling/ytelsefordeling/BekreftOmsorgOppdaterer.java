@@ -62,9 +62,8 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
     }
 
     private boolean opprettHistorikkInnslagForOmsorg(BekreftFaktaForOmsorgVurderingDto dto, Boolean harOmsorgForBarnetBekreftetVersjon) {
-        return oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORG,
-                konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
-                konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg()));
+        return oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORG, konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
+            konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg()));
     }
 
     private boolean setToTrinns(boolean erEndret, boolean ikkeOmsorg) {

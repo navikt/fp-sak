@@ -53,9 +53,7 @@ public class InnsynRestTjeneste {
     }
 
     @Inject
-    public InnsynRestTjeneste(BehandlingRepository behandlingRepository,
-            InnsynRepository innsynRepository,
-            VedtakTjeneste vedtakTjeneste) {
+    public InnsynRestTjeneste(BehandlingRepository behandlingRepository, InnsynRepository innsynRepository, VedtakTjeneste vedtakTjeneste) {
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.innsynRepository = innsynRepository;
@@ -66,8 +64,7 @@ public class InnsynRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent diverse informasjon om innsynsbehandlingen", summary = "Returnerer info om innsynsbehandling", tags = "innsyn", responses = {@ApiResponse(responseCode = "200", description = "Returnerer innsynsbehandling eller ingenting hvis uuid ikke peker på en innsynsbehandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InnsynsbehandlingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response getInnsynsbehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getInnsynsbehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
         var dto = mapFra(behandling);

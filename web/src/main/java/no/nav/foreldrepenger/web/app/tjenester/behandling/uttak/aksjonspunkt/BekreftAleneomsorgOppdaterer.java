@@ -2,17 +2,16 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.simulering.SimulerOppdragSteg;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -49,19 +48,18 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
             // Inntil videre ...
             totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
                 dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS());
-            faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS());
-            faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS());
+            faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(),
+                dto.getAnnenForelderHarRettEØS());
+            faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(),
+                dto.getAnnenForelderHarRettEØS());
         }
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
     private static boolean måVelgeUføre(AvklarAleneomsorgVurderingDto dto) {
-        return !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE)
-            || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE)
-            || Objects.equals(dto.getAnnenForelderHarRettEØS(), Boolean.TRUE));
+        return !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE) || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE) || Objects.equals(
+            dto.getAnnenForelderHarRettEØS(), Boolean.TRUE));
     }
 
 }

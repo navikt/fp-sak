@@ -31,6 +31,7 @@ class UttakOverstyringsPeriodeSplitt {
             kladd.opprinnelig = opprinnelig;
             return this;
         }
+
         public UttakOverstyringsPeriodeSplitt build() {
             Objects.requireNonNull(kladd.opprinnelig);
             Objects.requireNonNull(kladd.splittet);

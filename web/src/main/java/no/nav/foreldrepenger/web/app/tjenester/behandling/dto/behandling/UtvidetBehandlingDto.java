@@ -34,7 +34,9 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("sjekkSimuleringResultat")
     private boolean sjekkSimuleringResultat;
 
-    /** Eventuelt async status på tasks. */
+    /**
+     * Eventuelt async status på tasks.
+     */
     @JsonProperty("taskStatus")
     private AsyncPollingStatus taskStatus;
 

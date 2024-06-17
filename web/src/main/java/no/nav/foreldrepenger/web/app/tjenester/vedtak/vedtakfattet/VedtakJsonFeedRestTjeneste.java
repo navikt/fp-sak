@@ -56,15 +56,12 @@ public class VedtakJsonFeedRestTjeneste {
     @GET
     @Path(FORELDREPENGER_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter ut hendelser om foreldrepenger-vedtak", tags = "feed", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer hendelser om foreldrepenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
-    })
+    @Operation(description = "Henter ut hendelser om foreldrepenger-vedtak", tags = "feed", responses = {@ApiResponse(responseCode = "200", description = "Returnerer hendelser om foreldrepenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FeedDto fpVedtakHendelser(
-            @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
-            @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
-            @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
-            @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
+    public FeedDto fpVedtakHendelser(@QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
+                                     @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
+                                     @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
+                                     @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
 
         var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
 
@@ -72,42 +69,37 @@ public class VedtakJsonFeedRestTjeneste {
 
         if (LOG.isInfoEnabled()) {
             LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}",
-                LoggerUtils.toStringWithoutLineBreaks(sistLesteSekvensIdParam.get()),
-                LoggerUtils.toStringWithoutLineBreaks(maxAntallParam.get()),
-                hendelseType == null ? "notype" : hendelseType,
-                aktørParam.get().isPresent() ? "angitt" : "tom",
-                dto.getElementer().size());
+                LoggerUtils.toStringWithoutLineBreaks(sistLesteSekvensIdParam.get()), LoggerUtils.toStringWithoutLineBreaks(maxAntallParam.get()),
+                hendelseType == null ? "notype" : hendelseType, aktørParam.get().isPresent() ? "angitt" : "tom", dto.getElementer().size());
         }
-        return new FeedDto.Builder().medTittel("ForeldrepengerVedtak_v1").medElementer(dto.getElementer())
-                .medInneholderFlereElementer(dto.isHarFlereElementer()).build();
+        return new FeedDto.Builder().medTittel("ForeldrepengerVedtak_v1")
+            .medElementer(dto.getElementer())
+            .medInneholderFlereElementer(dto.isHarFlereElementer())
+            .build();
     }
 
     @GET
     @Path(SVANGERSKAPSPENGER_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter ut hendelser om svangerskapspenger-vedtak", tags = "feed", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer hendelser om svangerskapspenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
-    })
+    @Operation(description = "Henter ut hendelser om svangerskapspenger-vedtak", tags = "feed", responses = {@ApiResponse(responseCode = "200", description = "Returnerer hendelser om svangerskapspenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FeedDto svpVedtakHendelser(
-            @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
-            @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
-            @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
-            @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
+    public FeedDto svpVedtakHendelser(@QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
+                                      @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
+                                      @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
+                                      @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
 
         var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
 
         var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
 
         if (LOG.isInfoEnabled()) {
-            LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}",
-                sistLesteSekvensIdParam.get(), maxAntallParam.get(),
-                hendelseType == null ? "notype" : hendelseType,
-                aktørParam.get().isPresent() ? "angitt" : "tom",
-                dto.getElementer().size());
+            LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
+                hendelseType == null ? "notype" : hendelseType, aktørParam.get().isPresent() ? "angitt" : "tom", dto.getElementer().size());
         }
 
-        return new FeedDto.Builder().medTittel("SVPVedtak_v1").medElementer(dto.getElementer()).medInneholderFlereElementer(dto.isHarFlereElementer())
-                .build();
+        return new FeedDto.Builder().medTittel("SVPVedtak_v1")
+            .medElementer(dto.getElementer())
+            .medInneholderFlereElementer(dto.isHarFlereElementer())
+            .build();
     }
 }

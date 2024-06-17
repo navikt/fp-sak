@@ -34,16 +34,14 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN,
-                BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
 
         // Dto
-        var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false,
-                "test av overstyring", "1005");
+        var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false, "test av overstyring", "1005");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -52,11 +50,10 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
-        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
-                .contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
+        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
     }
 
 }

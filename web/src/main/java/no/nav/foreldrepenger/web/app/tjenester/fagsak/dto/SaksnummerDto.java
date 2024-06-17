@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-@JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public class SaksnummerDto {
 
     @JsonProperty("saksnummer")
@@ -47,9 +47,7 @@ public class SaksnummerDto {
 
     @Override
     public String toString() {
-        return "SaksnummerDto{" +
-            "saksnummer='" + saksnummer + '\'' +
-            '}';
+        return "SaksnummerDto{" + "saksnummer='" + saksnummer + '\'' + '}';
     }
 
 }

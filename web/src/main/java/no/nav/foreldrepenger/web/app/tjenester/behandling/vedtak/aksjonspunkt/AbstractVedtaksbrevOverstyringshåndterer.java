@@ -55,8 +55,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var behandling = getBehandling(param.getBehandlingId());
 
         oppdaterBegrunnelse(behandling, begrunnelse);
-        var builder = OppdateringResultat.utenTransisjon()
-            .medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev());
+        var builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev());
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);
         } else {
@@ -85,30 +84,22 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private void settFritekstBrev(Behandling behandling, String overskrift, String fritekst) {
         var behandlingId = behandling.getId();
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingId);
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-                .medBehandling(behandlingId)
-                .medOverstyrtBrevOverskrift(overskrift)
-                .medOverstyrtBrevFritekst(fritekst)
-                .build());
-        var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
-                .medVedtaksbrev(Vedtaksbrev.FRITEKST)
-                .buildFor(behandling);
+        behandlingDokumentRepository.lagreOgFlush(
+            behandlingDokumentBuilder.medBehandling(behandlingId).medOverstyrtBrevOverskrift(overskrift).medOverstyrtBrevFritekst(fritekst).build());
+        var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId).medVedtaksbrev(Vedtaksbrev.FRITEKST).buildFor(behandling);
         behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
     }
 
     private void fjernFritekstBrevHvisEksisterer(long behandlingId) {
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
-            var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument)
-                    .medBehandling(behandlingId)
-                    .medOverstyrtBrevOverskrift(null)
-                    .medOverstyrtBrevFritekst(null)
-                    .build();
+            var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument).medBehandling(behandlingId)
+                .medOverstyrtBrevOverskrift(null)
+                .medOverstyrtBrevFritekst(null)
+                .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
             var behandling = getBehandling(behandlingId);
-            var behandlingResultat = getBehandlingsresultatBuilder(behandlingId)
-                    .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
-                    .buildFor(behandling);
+            var behandlingResultat = getBehandlingsresultatBuilder(behandlingId).medVedtaksbrev(Vedtaksbrev.AUTOMATISK).buildFor(behandling);
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
     }
@@ -146,7 +137,8 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         behandling.setAnsvarligSaksbehandler(getCurrentUserId());
     }
 
-    private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat,
+    private boolean skalNullstilleFritekstfelt(Behandling behandling,
+                                               Behandlingsresultat behandlingsresultat,
                                                Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return !BehandlingType.KLAGE.equals(behandling.getType()) && !behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
             && behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null;
@@ -160,8 +152,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
         var historikkInnslagType = utledHistorikkInnslag(behandling, toTrinn);
 
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medResultat(vedtakResultatType)
+        var tekstBuilder = new HistorikkInnslagTekstBuilder().medResultat(vedtakResultatType)
             .medSkjermlenke(SkjermlenkeType.VEDTAK)
             .medHendelse(historikkInnslagType);
 

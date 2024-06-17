@@ -33,14 +33,12 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
-                BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         // Dto
-        var overstyringspunktDto = new OverstyringSokersOpplysingspliktDto(false,
-                "test av overstyring");
+        var overstyringspunktDto = new OverstyringSokersOpplysingspliktDto(false, "test av overstyring");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -61,12 +59,12 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST);
 
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
 
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET));
 
         assertThat(aksjonspunktSet).hasSize(3);
     }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public class GjenopptaBehandlingDto extends DtoMedBehandlingId  {
+public class GjenopptaBehandlingDto extends DtoMedBehandlingId {
 
     @NotNull
     @Min(0)
@@ -22,8 +22,6 @@ public class GjenopptaBehandlingDto extends DtoMedBehandlingId  {
 
     @Override
     public String toString() {
-        return "BehandlingIdDto{" +
-            "behandlingId=" + getBehandlingUuid() +
-            '}';
+        return "BehandlingIdDto{" + "behandlingId=" + getBehandlingUuid() + '}';
     }
 }

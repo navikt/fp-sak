@@ -53,8 +53,7 @@ public class ForvaltningUttakRestTjeneste {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-            @QueryParam(value = "harRett") @Valid Boolean harRett) {
+    public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto, @QueryParam(value = "harRett") @Valid Boolean harRett) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreAnnenForelderHarRett(dto.getBehandlingUuid(), harRett);
@@ -67,7 +66,8 @@ public class ForvaltningUttakRestTjeneste {
     @Operation(description = "Endrer om annen forelder har rett i eøs i oppgitte rettighet", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response endreAnnenForelderRettEØS(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @QueryParam(value = "harRettEØS") @Valid Boolean harRettEØS, @QueryParam(value = "harOppholdEØS") @Valid Boolean annenForelderHarOppholdEØS) {
+                                              @QueryParam(value = "harRettEØS") @Valid Boolean harRettEØS,
+                                              @QueryParam(value = "harOppholdEØS") @Valid Boolean annenForelderHarOppholdEØS) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreAnnenForelderHarRettEØS(dto.getBehandlingUuid(), harRettEØS, annenForelderHarOppholdEØS);
@@ -80,7 +80,7 @@ public class ForvaltningUttakRestTjeneste {
     @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
+                                     @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);

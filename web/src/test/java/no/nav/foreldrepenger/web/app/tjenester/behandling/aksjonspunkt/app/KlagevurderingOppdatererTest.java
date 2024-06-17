@@ -36,9 +36,9 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -74,13 +74,13 @@ class KlagevurderingOppdatererTest {
         var behandling = klageScenario.lagre(repositoryProvider, klageRepository);
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null, false);
+        var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.", klageVurdering, null, null, LocalDate.now(), "Fritekst til brev",
+            null, null, false);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
 
@@ -105,18 +105,16 @@ class KlagevurderingOppdatererTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
-                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
+            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
 
         // Verifiserer at behandlende enhet er byttet til NAV Klageinstans
         var enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
-        verify(behandlingsutredningTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""),
-                eq(HistorikkAktør.VEDTAKSLØSNINGEN));
+        verify(behandlingsutredningTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
         var enhet = enhetCapture.getValue();
         assertThat(enhet.enhetId()).isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
         assertThat(enhet.enhetNavn()).isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetNavn());
-        assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
-                .isEqualTo(BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET);
+        assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType()).isEqualTo(BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET);
     }
 
 
@@ -125,8 +123,8 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
-        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
-            behandlingRepository);
+        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class),
+            klageVurderingTjeneste, behandlingRepository);
     }
 
 

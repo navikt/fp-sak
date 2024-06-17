@@ -77,8 +77,7 @@ public class VedtakRestTjeneste {
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)
     @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = "Returnerer vedtaksdokument som er tilknyttet behandlingId.", tags = "vedtak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
+    public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
         var resultat = vedtakInnsynTjeneste.hentVedtaksdokument(behandling.getId());
         return Response.ok(resultat, "text/html").build();
@@ -89,18 +88,18 @@ public class VedtakRestTjeneste {
     @Path(REGENERER_PART_PATH)
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @Transactional
-    public Response regenererIkkeGyldigeVedtaksXml(
-            @Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
+    public Response regenererIkkeGyldigeVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
 
         LOG.info("Skal sjekke maks {} vedtaksXMLer og regenerere ikke gyldige vedtaksXMLer for perioden [{}] - [{}]",
-                genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
+            genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
         var behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
-        if (genererVedtaksXmlDto.getMaksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.getMaksAntall().intValue())
+        if (genererVedtaksXmlDto.getMaksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.getMaksAntall().intValue()) {
             behandlinger = behandlinger.subList(0, genererVedtaksXmlDto.getMaksAntall().intValue());
+        }
 
         LOG.info("Skal sjekke vedtakXMLen for {} behandlinger og regenerere de som ikke er gyldige ", behandlinger.size());
 
@@ -121,18 +120,18 @@ public class VedtakRestTjeneste {
     @Path(VALIDATE_PART_PATH)
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @Transactional
-    public Response validerVedtaksXml(
-            @Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
+    public Response validerVedtaksXml(@Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
 
         LOG.info("Skal validere maks {} vedtaksXMLer for perioden [{}] - [{}]", genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(),
-                genererVedtaksXmlDto.getTom());
+            genererVedtaksXmlDto.getTom());
 
         var behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
-        if (genererVedtaksXmlDto.getMaksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.getMaksAntall().intValue())
+        if (genererVedtaksXmlDto.getMaksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.getMaksAntall().intValue()) {
             behandlinger = behandlinger.subList(0, genererVedtaksXmlDto.getMaksAntall().intValue());
+        }
 
         LOG.info("Skal validere vedtakXMLen for {} behandlinger  ", behandlinger.size());
 

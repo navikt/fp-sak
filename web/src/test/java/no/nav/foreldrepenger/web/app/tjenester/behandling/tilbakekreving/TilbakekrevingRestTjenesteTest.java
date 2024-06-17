@@ -49,10 +49,9 @@ class TilbakekrevingRestTjenesteTest {
 
     @Test
     void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
-        when(tilbakekrevingRepository.hent(Mockito.any()))
-                .thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
-        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
-                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(
+            Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNotNull();
         assertThat(tilbakekrevingValgDto.erTilbakekrevingVilkårOppfylt()).isTrue();
     }
@@ -60,18 +59,16 @@ class TilbakekrevingRestTjenesteTest {
     @Test
     void skal_feil_hentTilbakekrevingValg_når_tilbakekrevingsvalg_ikke_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.empty());
-        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
-                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNull();
     }
 
     @Test
     void skal_hente_varseltekst_ved_henting_av_tilbakekrevingsvalg() {
         var forventetVarselTekst = "varseltekst her";
-        when(tilbakekrevingRepository.hent(Mockito.any()))
-                .thenReturn(Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));
-        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
-                .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
+        when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(
+            Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste.hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto.getVarseltekst()).isEqualTo(forventetVarselTekst);
 
     }

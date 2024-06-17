@@ -49,18 +49,15 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
     public void beforeEach() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
 
     @Test
     void bekreft_oppholdsrett_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medSøknadsdato(now);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(now.minusDays(3))
-                .medAntallBarn(1);
+        scenario.medSøknad().medSøknadsdato(now);
+        scenario.medSøknadHendelse().medFødselsDato(now.minusDays(3)).medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
         var bekreftetPeriode = new BekreftedePerioderDto();
@@ -78,7 +75,8 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
             skjæringstidspunktTjeneste);
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftOppholdsrettVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
+        var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftOppholdsrettVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste,
+            medlemskapAksjonspunktTjeneste);
         bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -96,11 +94,8 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
     void bekreft_lovlig_opphold_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medSøknadsdato(now);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(now.minusDays(3))
-                .medAntallBarn(1);
+        scenario.medSøknad().medSøknadsdato(now);
+        scenario.medSøknadHendelse().medFødselsDato(now.minusDays(3)).medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -120,7 +115,8 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
             skjæringstidspunktTjeneste);
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftLovligOppholdVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
+        var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftLovligOppholdVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste,
+            medlemskapAksjonspunktTjeneste);
         bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert

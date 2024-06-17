@@ -96,19 +96,23 @@ public class FagsakBehandlingDtoTjeneste {
             return Collections.emptyList();
         }
         var gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
-        var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
+        var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat)
+            .map(Behandlingsresultat::getBehandlingId)
+            .map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultat = getBehandlingsresultat(behandling.getId());
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .map(BehandlingVedtak::getVedtaksdato).orElse(null);
+                .map(BehandlingVedtak::getVedtaksdato)
+                .orElse(null);
             return lagBehandlingDto(behandling, behandlingsresultat, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         }).toList();
     }
 
     private FagsakBehandlingDto lagBehandlingDto(Behandling behandling,
-                                           Behandlingsresultat behandlingsresultat,
-                                           boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
+                                                 Behandlingsresultat behandlingsresultat,
+                                                 boolean erBehandlingMedGjeldendeVedtak,
+                                                 LocalDate vedtaksdato) {
         var dto = new FagsakBehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
 
@@ -126,11 +130,13 @@ public class FagsakBehandlingDtoTjeneste {
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
-            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
+            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER)
+                .ifPresent(dto::setRisikoAksjonspunkt);
         }
 
         if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.setUgunstAksjonspunkt(behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST));
+            dto.setUgunstAksjonspunkt(
+                behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST));
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
@@ -162,9 +168,11 @@ public class FagsakBehandlingDtoTjeneste {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
                 .map(SøknadEntitet::getSpråkkode)
-                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
+                .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(SøknadEntitet::getSpråkkode)
+            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
     private boolean erBehandlingMedGjeldendeVedtak(Behandling behandling, Optional<Behandling> behandlingMedGjeldendeVedtak) {
@@ -196,7 +204,9 @@ public class FagsakBehandlingDtoTjeneste {
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())
+            .orElseThrow()
+            .erRevurderingMedUendretUtfall(behandling);
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
@@ -215,17 +225,14 @@ public class FagsakBehandlingDtoTjeneste {
             return new BehandlingOperasjonerDto(b.getUuid()); // Skal ikke foreta menyvalg lenger
         }
         if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
-            var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(
-                KontekstHolder.getKontekst().getUid());
+            var tilgokjenning =
+                b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(KontekstHolder.getKontekst().getUid());
             return new BehandlingOperasjonerDto(b.getUuid(), tilgokjenning);
         }
-        var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
-            SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
-            !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
-            .anyMatch(tt -> !tt.isGodkjent());
-        return new BehandlingOperasjonerDto(b.getUuid(),
-            !b.erKøet(), // Bytte enhet
+        var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() && SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet()
+            && !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
+        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream().anyMatch(tt -> !tt.isGodkjent());
+        return new BehandlingOperasjonerDto(b.getUuid(), !b.erKøet(), // Bytte enhet
             SpesialBehandling.kanHenlegges(b), // Henlegges
             b.isBehandlingPåVent() && !b.erKøet(), // Gjenopptas
             kanÅpnesForEndring, // Åpnes for endring

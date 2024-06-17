@@ -54,7 +54,7 @@ public class HendelserRestTjeneste {
 
     @Inject
     public HendelserRestTjeneste(HendelseSorteringRepository sorteringRepository,
-            HendelsemottakRepository hendelsemottakRepository,
+                                 HendelsemottakRepository hendelsemottakRepository,
                                  ProsessTaskTjeneste taskTjeneste) {
         this.sorteringRepository = sorteringRepository;
         this.hendelsemottakRepository = hendelsemottakRepository;
@@ -75,8 +75,8 @@ public class HendelserRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
         var hendelseDto = wrapperDto.getHendelse();
-        var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
-                hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
+        var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.", hendelseDto.getAvsenderSystem(),
+            hendelseDto.getHendelsetype(), hendelseDto.getId());
         LOG.info(beskrivelse);
         if (!hendelsemottakRepository.hendelseErNy(hendelseDto.getId())) {
             return new EnkelRespons("Hendelse ble ignorert. Hendelse med samme ID er allerede registrert.");

@@ -55,7 +55,6 @@ import no.nav.vedtak.hendelser.behandling.los.LosFagsakEgenskaperDto;
 
 /**
  * Returnerer behandlingsinformasjon tilpasset behov i FP-LOS
- *
  */
 
 @ApplicationScoped
@@ -94,30 +93,18 @@ public class LosBehandlingDtoTjeneste {
         var refusjonskrav = harRefusjonskravAlleIM(behandling);
         var refusjonegenskap = refusjonskrav ? BehandlingEgenskap.REFUSJONSKRAV : BehandlingEgenskap.DIREKTE_UTBETALING;
         List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
-        if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
+        if (faresignaler) {
+            behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
+        }
         var fpUttak = mapForeldrepengerUttak(behandling, behandlingsegenskaper);
 
 
-        return new LosBehandlingDto(behandling.getUuid(),
-            Kildesystem.FPSAK,
-            behandling.getFagsak().getSaksnummer().getVerdi(),
-            mapYtelse(behandling),
-            new AktørId(behandling.getAktørId().getId()),
-            mapBehandlingstype(behandling),
-            mapBehandlingsstatus(behandling),
-            behandling.getOpprettetTidspunkt(),
-            behandling.getBehandlendeEnhet(),
-            behandling.getBehandlingstidFrist(),
-            behandling.getAnsvarligSaksbehandler(),
-            mapAksjonspunkter(behandling),
-            mapBehandlingsårsaker(behandling).stream().toList(),
-            faresignaler,
-            refusjonskrav,
-            lagFagsakEgenskaperString(behandling.getFagsak()),
-            lagFagsakEgenskaper(behandling.getFagsak()),
-            fpUttak,
-            behandlingsegenskaper,
-            null);
+        return new LosBehandlingDto(behandling.getUuid(), Kildesystem.FPSAK, behandling.getFagsak().getSaksnummer().getVerdi(), mapYtelse(behandling),
+            new AktørId(behandling.getAktørId().getId()), mapBehandlingstype(behandling), mapBehandlingsstatus(behandling),
+            behandling.getOpprettetTidspunkt(), behandling.getBehandlendeEnhet(), behandling.getBehandlingstidFrist(),
+            behandling.getAnsvarligSaksbehandler(), mapAksjonspunkter(behandling), mapBehandlingsårsaker(behandling).stream().toList(), faresignaler,
+            refusjonskrav, lagFagsakEgenskaperString(behandling.getFagsak()), lagFagsakEgenskaper(behandling.getFagsak()), fpUttak,
+            behandlingsegenskaper, null);
     }
 
     private static Ytelse mapYtelse(Behandling behandling) {
@@ -136,7 +123,7 @@ public class LosBehandlingDtoTjeneste {
             case ANKE -> Behandlingstype.ANKE;
             case KLAGE -> Behandlingstype.KLAGE;
             case INNSYN -> Behandlingstype.INNSYN;
-            default-> throw new IllegalStateException("Behandling uten kjent type");
+            default -> throw new IllegalStateException("Behandling uten kjent type");
         };
     }
 
@@ -152,9 +139,7 @@ public class LosBehandlingDtoTjeneste {
 
     private static Set<Behandlingsårsak> mapBehandlingsårsaker(Behandling behandling) {
         Set<Behandlingsårsak> årsaker = new HashSet<>();
-        var opprinneligeÅrsaker = behandling.getBehandlingÅrsaker().stream()
-            .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .collect(Collectors.toSet());
+        var opprinneligeÅrsaker = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).collect(Collectors.toSet());
         opprinneligeÅrsaker.stream()
             .map(LosBehandlingDtoTjeneste::mapBehandlingsårsak)
             .filter(behandlingsårsak -> !Behandlingsårsak.ANNET.equals(behandlingsårsak))
@@ -188,14 +173,12 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private static List<LosBehandlingDto.LosAksjonspunktDto> mapAksjonspunkter(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream()
-            .map(LosBehandlingDtoTjeneste::mapTilLosAksjonspunkt)
-            .toList();
+        return behandling.getAksjonspunkter().stream().map(LosBehandlingDtoTjeneste::mapTilLosAksjonspunkt).toList();
     }
 
     private static LosBehandlingDto.LosAksjonspunktDto mapTilLosAksjonspunkt(Aksjonspunkt aksjonspunkt) {
-        return new LosBehandlingDto.LosAksjonspunktDto(aksjonspunkt.getAksjonspunktDefinisjon().getKode(),
-            mapAksjonspunktstatus(aksjonspunkt), aksjonspunkt.getFristTid());
+        return new LosBehandlingDto.LosAksjonspunktDto(aksjonspunkt.getAksjonspunktDefinisjon().getKode(), mapAksjonspunktstatus(aksjonspunkt),
+            aksjonspunkt.getFristTid());
     }
 
     private static Aksjonspunktstatus mapAksjonspunktstatus(Aksjonspunkt aksjonspunkt) {
@@ -207,25 +190,30 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private boolean mapFaresignaler(Behandling behandling) {
-        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) &&
-            (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FARESIGNALER) ||
-                risikovurderingTjeneste.skalVurdereFaresignaler(BehandlingReferanse.fra(behandling)));
+        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && (
+            behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FARESIGNALER) || risikovurderingTjeneste.skalVurdereFaresignaler(
+                BehandlingReferanse.fra(behandling)));
     }
 
     private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling, List<String> behandlingsegenskaper) {
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
-        if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() &&
-            aggregat.filter(a -> a.harAleneomsorg()).isEmpty() &&
-            aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
+        if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() && aggregat.filter(a -> a.harAleneomsorg())
+            .isEmpty() && aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
             behandlingsegenskaper.add(BehandlingEgenskap.BARE_FAR_RETT.name());
         }
-        var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
-            .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
+        var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         if (vurderSykdom) {
             behandlingsegenskaper.add(BehandlingEgenskap.SYKDOMSVURDERING.name());
         }
-        var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
-            .stream().anyMatch(OppgittPeriodeEntitet::isGradert);
+        var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(OppgittPeriodeEntitet::isGradert);
         if (FagsakYtelseType.UDEFINERT.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling()) {
             return null;
         }
@@ -233,8 +221,8 @@ public class LosBehandlingDtoTjeneste {
             var uttakEllerSkjæringstidspunkt = finnUttakEllerUtledetSkjæringstidspunkt(behandling);
             return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt);
         }
-        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
-            finnEndringsdatoForeldrepenger(behandling, aggregat) : finnEndringsdatoSvangerskapspenger(behandling);
+        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? finnEndringsdatoForeldrepenger(behandling,
+            aggregat) : finnEndringsdatoSvangerskapspenger(behandling);
         var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
         return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak);
     }
@@ -242,7 +230,8 @@ public class LosBehandlingDtoTjeneste {
     private LocalDate finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling) {
         try {
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
+            return Optional.ofNullable(skjæringstidspunkt)
+                .flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
                 .or(() -> Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet))
                 .orElse(null);
         } catch (Exception e) {
@@ -253,9 +242,11 @@ public class LosBehandlingDtoTjeneste {
     private Optional<LocalDate> finnEndringsdatoForeldrepenger(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
         var endringsdato = aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
         // Andre revurderinger enn endringssøknad har kopiert fordeling fra forrige behandling - kan ikke se på dem.
-        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)? endringsdato : endringsdato
-            .or(() -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
-                .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
+        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) ? endringsdato : endringsdato.or(
+            () -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+                .map(OppgittFordelingEntitet::getPerioder)
+                .orElse(List.of())
+                .stream()
                 .map(OppgittPeriodeEntitet::getFom)
                 .min(Comparator.naturalOrder()));
     }
@@ -264,8 +255,11 @@ public class LosBehandlingDtoTjeneste {
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             return Optional.empty();
         }
-        return svangerskapspengerRepository.hentGrunnlag(behandling.getId()).map(SvpGrunnlagEntitet::getGjeldendeVersjon)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+        return svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .filter(te -> !te.getKopiertFraTidligereBehandling() && te.getSkalBrukes())
             .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
             .flatMap(Collection::stream)
@@ -275,15 +269,16 @@ public class LosBehandlingDtoTjeneste {
 
     private static boolean periodeGjelderSykdom(OppgittPeriodeEntitet periode) {
         var årsak = periode.getÅrsak();
-        var utsettelseSykdom = periode.isUtsettelse() && (UtsettelseÅrsak.SYKDOM.equals(årsak) ||
-            UtsettelseÅrsak.INSTITUSJON_BARN.equals(årsak) || UtsettelseÅrsak.INSTITUSJON_SØKER.equals(årsak));
-        var overføringSykdom = periode.isOverføring() && (OverføringÅrsak.SYKDOM_ANNEN_FORELDER.equals(årsak) ||
-            OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(årsak));
+        var utsettelseSykdom = periode.isUtsettelse() && (UtsettelseÅrsak.SYKDOM.equals(årsak) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(årsak)
+            || UtsettelseÅrsak.INSTITUSJON_SØKER.equals(årsak));
+        var overføringSykdom = periode.isOverføring() && (OverføringÅrsak.SYKDOM_ANNEN_FORELDER.equals(årsak)
+            || OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(årsak));
         return utsettelseSykdom || overføringSykdom;
     }
 
     private boolean harRefusjonskravAlleIM(Behandling behandling) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling()
+            || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             return false;
         }
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()));
@@ -301,11 +296,12 @@ public class LosBehandlingDtoTjeneste {
         return fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId())
             .map(this::mapLokalMarkering)
             .map(FagsakEgenskap::name)
-            .map(List::of).orElse(List.of());
+            .map(List::of)
+            .orElse(List.of());
     }
 
     private LosFagsakEgenskaperDto.FagsakMarkering mapMarkering(FagsakMarkering markering) {
-        return  switch (markering) {
+        return switch (markering) {
             case NASJONAL -> LosFagsakEgenskaperDto.FagsakMarkering.NASJONAL;
             case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.FagsakMarkering.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> LosFagsakEgenskaperDto.FagsakMarkering.BOSATT_UTLAND;
@@ -317,7 +313,7 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private FagsakEgenskap mapLokalMarkering(FagsakMarkering markering) {
-        return  switch (markering) {
+        return switch (markering) {
             case NASJONAL -> FagsakEgenskap.NASJONAL;
             case EØS_BOSATT_NORGE -> FagsakEgenskap.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> FagsakEgenskap.BOSATT_UTLAND;
@@ -329,12 +325,22 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public enum FagsakEgenskap {
-        NASJONAL, EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
+        NASJONAL,
+        EØS_BOSATT_NORGE,
+        BOSATT_UTLAND,
+        SAMMENSATT_KONTROLL,
+        DØD,
+        NÆRING,
+        PRAKSIS_UTSETTELSE;
 
     }
 
     public enum BehandlingEgenskap {
-        SYKDOMSVURDERING, BARE_FAR_RETT, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+        SYKDOMSVURDERING,
+        BARE_FAR_RETT,
+        FARESIGNALER,
+        DIREKTE_UTBETALING,
+        REFUSJONSKRAV
     }
 
 }

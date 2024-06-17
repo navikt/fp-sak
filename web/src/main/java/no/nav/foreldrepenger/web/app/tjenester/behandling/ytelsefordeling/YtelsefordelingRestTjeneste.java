@@ -50,12 +50,9 @@ public class YtelsefordelingRestTjeneste {
 
     @GET
     @Path(YTELSESFORDELING_PART_PATH)
-    @Operation(description = "Hent informasjon om ytelsefordeling", tags = "ytelsefordeling", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Ytelsefordeling mellom parter, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = YtelseFordelingDto.class)))
-    })
+    @Operation(description = "Hent informasjon om ytelsefordeling", tags = "ytelsefordeling", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Ytelsefordeling mellom parter, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = YtelseFordelingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public YtelseFordelingDto getYtelsefordeling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public YtelseFordelingDto getYtelsefordeling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dtoMapper.mapFra(behandling).orElse(null);
     }

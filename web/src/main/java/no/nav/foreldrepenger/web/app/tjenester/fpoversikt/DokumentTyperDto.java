@@ -38,7 +38,6 @@ enum DokumentTyperDto {
     I000132,
     I000133,
     I000140,
-    I000141
-    ;
+    I000141;
 
 }

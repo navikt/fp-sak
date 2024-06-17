@@ -5,27 +5,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-record SvpSak(String saksnummer,
-              String aktørId,
-              FamilieHendelse familieHendelse,
-              boolean avsluttet,
-              Set<Aksjonspunkt> aksjonspunkt,
-              Set<Søknad> søknader,
-              Set<Vedtak> vedtak) implements Sak {
+record SvpSak(String saksnummer, String aktørId, FamilieHendelse familieHendelse, boolean avsluttet, Set<Aksjonspunkt> aksjonspunkt,
+              Set<Søknad> søknader, Set<Vedtak> vedtak) implements Sak {
 
     record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Tilrettelegging> tilrettelegginger) {
 
-        public record Tilrettelegging(Aktivitet aktivitet,
-                                      LocalDate behovFom,
-                                      String risikoFaktorer,
-                                      String tiltak,
-                                      Set<Periode> perioder,
-                                      Set<OppholdPeriode> oppholdsperioder
-        ) {
+        public record Tilrettelegging(Aktivitet aktivitet, LocalDate behovFom, String risikoFaktorer, String tiltak, Set<Periode> perioder,
+                                      Set<OppholdPeriode> oppholdsperioder) {
             public record Periode(LocalDate fom, TilretteleggingType type, BigDecimal arbeidstidprosent) {
             }
         }
     }
+
     public record OppholdPeriode(LocalDate fom, LocalDate tom, Årsak årsak, OppholdKilde kilde) {
 
         public enum Årsak {
@@ -38,24 +29,14 @@ record SvpSak(String saksnummer,
             INNTEKTSMELDING
         }
     }
+
     public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak) {
 
 
-
-        public record ArbeidsforholdUttak(Aktivitet aktivitet,
-                                          LocalDate behovFom,
-                                          String risikoFaktorer,
-                                          String tiltak,
-                                          Set<SvpPeriode> svpPerioder,
-                                          Set<OppholdPeriode> oppholdsperioder,
-                                          ArbeidsforholdIkkeOppfyltÅrsak ikkeOppfyltÅrsak
-        ) {
-            public record SvpPeriode(LocalDate fom,
-                                     LocalDate tom,
-                                     TilretteleggingType tilretteleggingType,
-                                     BigDecimal arbeidstidprosent,
-                                     BigDecimal utbetalingsgrad,
-                                     ResultatÅrsak resultatÅrsak) {
+        public record ArbeidsforholdUttak(Aktivitet aktivitet, LocalDate behovFom, String risikoFaktorer, String tiltak, Set<SvpPeriode> svpPerioder,
+                                          Set<OppholdPeriode> oppholdsperioder, ArbeidsforholdIkkeOppfyltÅrsak ikkeOppfyltÅrsak) {
+            public record SvpPeriode(LocalDate fom, LocalDate tom, TilretteleggingType tilretteleggingType, BigDecimal arbeidstidprosent,
+                                     BigDecimal utbetalingsgrad, ResultatÅrsak resultatÅrsak) {
 
                 public enum ResultatÅrsak {
                     INNVILGET,

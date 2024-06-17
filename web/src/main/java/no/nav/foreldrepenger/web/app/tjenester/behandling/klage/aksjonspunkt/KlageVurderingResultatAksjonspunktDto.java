@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE)
 public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
@@ -63,14 +63,15 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
         // For Jackson
     }
 
-    public KlageVurderingResultatAksjonspunktDto(
-            String begrunnelse,
-            KlageVurdering klageVurdering,
-            KlageMedholdÅrsak klageMedholdArsak,
-            KlageAvvistÅrsak klageAvvistArsak,
-            LocalDate vedtaksdatoPaklagdBehandling,
-            String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer,
-            KlageHjemmel klageHjemmel, boolean erGodkjentAvMedunderskriver) {
+    public KlageVurderingResultatAksjonspunktDto(String begrunnelse,
+                                                 KlageVurdering klageVurdering,
+                                                 KlageMedholdÅrsak klageMedholdArsak,
+                                                 KlageAvvistÅrsak klageAvvistArsak,
+                                                 LocalDate vedtaksdatoPaklagdBehandling,
+                                                 String fritekstTilBrev,
+                                                 KlageVurderingOmgjør klageVurderingOmgjoer,
+                                                 KlageHjemmel klageHjemmel,
+                                                 boolean erGodkjentAvMedunderskriver) {
         super(begrunnelse);
         this.klageVurdering = klageVurdering;
         this.fritekstTilBrev = fritekstTilBrev;

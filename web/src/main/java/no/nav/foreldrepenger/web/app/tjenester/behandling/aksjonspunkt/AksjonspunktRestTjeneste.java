@@ -78,11 +78,11 @@ public class AksjonspunktRestTjeneste {
     }
 
     @Inject
-    public AksjonspunktRestTjeneste(
-        AksjonspunktTjeneste aksjonpunktApplikasjonTjeneste,
-        BehandlingRepository behandlingRepository,
-        BehandlingsresultatRepository behandlingsresultatRepository,
-        BehandlingsutredningTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
+    public AksjonspunktRestTjeneste(AksjonspunktTjeneste aksjonpunktApplikasjonTjeneste,
+                                    BehandlingRepository behandlingRepository,
+                                    BehandlingsresultatRepository behandlingsresultatRepository,
+                                    BehandlingsutredningTjeneste behandlingutredningTjeneste,
+                                    TotrinnTjeneste totrinnTjeneste) {
 
         this.applikasjonstjeneste = aksjonpunktApplikasjonTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -94,12 +94,9 @@ public class AksjonspunktRestTjeneste {
     @GET
     @Path(AKSJONSPUNKT_V2_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
-    })
+    @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {@ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
@@ -117,7 +114,6 @@ public class AksjonspunktRestTjeneste {
      * MERK: Det skal ikke ligge spesifikke sjekker som avhenger av status på
      * behanlding, steg eller knytning til spesifikke aksjonspunkter idenne
      * tjenesten.
-     *
      */
     @POST
     @Path(AKSJONSPUNKT_PART_PATH)
@@ -125,9 +121,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response bekreft(@Context HttpServletRequest request,
-                            @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
-            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
-        throws URISyntaxException {
+                            @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class) @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto) throws URISyntaxException {
 
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
@@ -155,8 +149,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response overstyr(@Context HttpServletRequest request,
-                             @TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
-        @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException {
+                             @TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class) @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException {
 
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
 
@@ -172,15 +165,17 @@ public class AksjonspunktRestTjeneste {
     private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
         // TODO (FC): skal ikke ha spesfikke pre-conditions inne i denne tjenesten (sjekk på status FATTER_VEDTAK). Se om kan håndteres annerledes.
         if (behandling.getStatus().equals(BehandlingStatus.FATTER_VEDTAK) && !erFatteVedtakAkpt(aksjonspunktDtoer)) {
-            throw new FunksjonellException("FP-760743",
-                String.format("Det kan ikke akseptere endringer siden totrinnsbehandling er startet og behandlingen med behandlingId: %s er hos beslutter", behandling.getId()),
-                "Avklare med beslutter");
+            throw new FunksjonellException("FP-760743", String.format(
+                "Det kan ikke akseptere endringer siden totrinnsbehandling er startet og behandlingen med behandlingId: %s er hos beslutter",
+                behandling.getId()), "Avklare med beslutter");
         }
     }
 
     private static boolean erFatteVedtakAkpt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
-        return aksjonspunktDtoer.size() == 1 &&
-                aksjonspunktDtoer.iterator().next().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.FATTER_VEDTAK);
+        return aksjonspunktDtoer.size() == 1 && aksjonspunktDtoer.iterator()
+            .next()
+            .getAksjonspunktDefinisjon()
+            .equals(AksjonspunktDefinisjon.FATTER_VEDTAK);
     }
 
     public static class BekreftetAbacDataSupplier implements Function<Object, AbacDataAttributter> {
@@ -188,15 +183,15 @@ public class AksjonspunktRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BekreftedeAksjonspunkterDto) obj;
-            var abac = AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            var abac = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
             req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> {
                 abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon());
                 if (apDto instanceof AvklarVergeDto avklarVergeDto && avklarVergeDto.getFnr() != null) {
                     abac.leggTil(AppAbacAttributtType.FNR, avklarVergeDto.getFnr());
                 }
-                if (apDto instanceof ManuellRegistreringDto manuellRegistreringDto && manuellRegistreringDto.getAnnenForelder() != null && manuellRegistreringDto.getAnnenForelder().getFoedselsnummer() != null) {
+                if (apDto instanceof ManuellRegistreringDto manuellRegistreringDto && manuellRegistreringDto.getAnnenForelder() != null
+                    && manuellRegistreringDto.getAnnenForelder().getFoedselsnummer() != null) {
                     abac.leggTil(AppAbacAttributtType.FNR, manuellRegistreringDto.getAnnenForelder().getFoedselsnummer());
                 }
             });
@@ -209,10 +204,10 @@ public class AksjonspunktRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OverstyrteAksjonspunkterDto) obj;
-            var abac = AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            var abac = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
-            req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon()));
+            req.getOverstyrteAksjonspunktDtoer()
+                .forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon()));
             return abac;
         }
     }

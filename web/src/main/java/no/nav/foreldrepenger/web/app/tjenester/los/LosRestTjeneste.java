@@ -76,8 +76,7 @@ public class LosRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentBehandlingResultatForBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentBehandlingResultatForBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var dto = losBehandlingDtoTjeneste.lagLosBehandlingDto(behandling,
             behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent());
@@ -95,7 +94,8 @@ public class LosRestTjeneste {
         return fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi()))
             .map(f -> losBehandlingDtoTjeneste.lagFagsakEgenskaper(f))
             .map(Response::ok)
-            .orElseGet(() -> Response.status(Response.Status.FORBIDDEN)).build(); // Etablert praksis
+            .orElseGet(() -> Response.status(Response.Status.FORBIDDEN))
+            .build(); // Etablert praksis
     }
 
     @Path(LOS_NØKKELTALL_PATH)

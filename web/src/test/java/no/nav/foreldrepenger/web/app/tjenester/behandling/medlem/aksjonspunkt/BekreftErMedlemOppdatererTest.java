@@ -38,18 +38,15 @@ class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
     public void beforeEach() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
 
     @Test
     void bekreft_er_medlem_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medSøknadsdato(now);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(now.minusDays(3))
-                .medAntallBarn(1);
+        scenario.medSøknad().medSøknadsdato(now);
+        scenario.medSøknadHendelse().medFødselsDato(now.minusDays(3)).medAntallBarn(1);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
@@ -63,13 +60,12 @@ class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
         // Act
         var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             skjæringstidspunktTjeneste);
-        new BekreftErMedlemVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new BekreftErMedlemVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
-        assertThat(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())
-                .isEqualTo(MedlemskapManuellVurderingType.MEDLEM);
+        assertThat(vurdertMedlemskap.getMedlemsperiodeManuellVurdering()).isEqualTo(MedlemskapManuellVurderingType.MEDLEM);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

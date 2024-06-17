@@ -16,18 +16,10 @@ class HistorikkinnslagDtoTest {
 
     @Test
     void skal_sortere_basert_på_tidligste_opprettetDato_first() {
-        var historikkInnslagDtos = Stream.of(
-                lagHistorikkInnslagDtos(NOW.plusMonths(2)),
-                lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
-                lagHistorikkInnslagDtos(NOW.plusDays(3)),
-                lagHistorikkInnslagDtos(NOW),
-                lagHistorikkInnslagDtos(NOW.plusSeconds(4)),
-                lagHistorikkInnslagDtos(NOW.plusYears(1)),
-                lagHistorikkInnslagDtos(NOW.minusMinutes(6)),
-                lagHistorikkInnslagDtos(NOW.minusHours(7)),
-                lagHistorikkInnslagDtos(NOW.minusYears(9)))
-            .sorted(Comparator.naturalOrder())
-            .toList();
+        var historikkInnslagDtos = Stream.of(lagHistorikkInnslagDtos(NOW.plusMonths(2)), lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
+            lagHistorikkInnslagDtos(NOW.plusDays(3)), lagHistorikkInnslagDtos(NOW), lagHistorikkInnslagDtos(NOW.plusSeconds(4)),
+            lagHistorikkInnslagDtos(NOW.plusYears(1)), lagHistorikkInnslagDtos(NOW.minusMinutes(6)), lagHistorikkInnslagDtos(NOW.minusHours(7)),
+            lagHistorikkInnslagDtos(NOW.minusYears(9))).sorted(Comparator.naturalOrder()).toList();
 
         assertThat(historikkInnslagDtos.get(0).getOpprettetTidspunkt()).isEqualTo(NOW.plusYears(1));
         assertThat(historikkInnslagDtos.get(1).getOpprettetTidspunkt()).isEqualTo(NOW.plusMonths(2));
@@ -42,13 +34,9 @@ class HistorikkinnslagDtoTest {
 
     @Test
     void skal_revurdOpprettet_kommer_før_brev_sent_og_brev_vent_hvis_samme_tids_punkt() {
-        var historikkInnslagDtos = Stream.of(
-                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
-                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT),
-                lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BREV_SENT),
-                lagHistorikkInnslagDtos(NOW.minusWeeks(1), HistorikkinnslagType.BEH_STARTET))
-            .sorted(Comparator.naturalOrder())
-            .toList();
+        var historikkInnslagDtos = Stream.of(lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
+            lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT), lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BREV_SENT),
+            lagHistorikkInnslagDtos(NOW.minusWeeks(1), HistorikkinnslagType.BEH_STARTET)).sorted(Comparator.naturalOrder()).toList();
 
         assertThat(historikkInnslagDtos.get(2).getType()).isEqualTo(HistorikkinnslagType.REVURD_OPPR);
     }

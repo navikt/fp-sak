@@ -141,7 +141,7 @@ public class SøknadMapperFelles {
     }
 
     private static Spraakkode mapSpråk(Språkkode språkkode) {
-        if (null == språkkode){
+        if (null == språkkode) {
             return null;
         }
         var spraakkode = new Spraakkode();
@@ -152,8 +152,8 @@ public class SøknadMapperFelles {
 
     public static SoekersRelasjonTilBarnet mapRelasjonTilBarnet(ManuellRegistreringDto registreringDto) {
         // Hvis det er gjort et valg av rettigheter knyttet til omsorgovertakelse for far skal saken opprettes som en omsorgsovertakelse.
-        var rettigheterRelatertTilOmsorgErSatt = registreringDto.getRettigheter() != null
-            && !RettigheterDto.MANN_ADOPTERER_ALENE.equals(registreringDto.getRettigheter());
+        var rettigheterRelatertTilOmsorgErSatt =
+            registreringDto.getRettigheter() != null && !RettigheterDto.MANN_ADOPTERER_ALENE.equals(registreringDto.getRettigheter());
         if (rettigheterRelatertTilOmsorgErSatt) {
             return mapOmsorgsovertakelse(registreringDto);
         }
@@ -288,7 +288,8 @@ public class SøknadMapperFelles {
         var harFremtidigOppholdUtenlands = registreringDto.getHarFremtidigeOppholdUtenlands();
         var harTidligereOppholdUtenlands = registreringDto.getHarTidligereOppholdUtenlands();
 
-        var oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands, !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
+        var oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands,
+            !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
         medlemskap.getOppholdNorge().addAll(oppholdNorge);
         medlemskap.setINorgeVedFoedselstidspunkt(registreringDto.getOppholdINorge());
         if (harFremtidigOppholdUtenlands && !erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
@@ -351,7 +352,8 @@ public class SøknadMapperFelles {
             return new ArrayList<>();
         }
         //Arbeidsforhold kan komme inn som liste med ett ArbeidsforholdDto objekt som bare inneholder null verdier. Denne må filtreres bort, siden frontend ikke gjør dette for oss i tilfellene hvor det ikke registreres utenlands arbeidsforhold.
-        Predicate<ArbeidsforholdDto> predicateArbeidsforholdFelterUlikNull = arbeidsforholdDto -> arbeidsforholdDto.getPeriodeFom() != null && arbeidsforholdDto.getPeriodeTom() != null && arbeidsforholdDto.getLand() != null;
+        Predicate<ArbeidsforholdDto> predicateArbeidsforholdFelterUlikNull = arbeidsforholdDto -> arbeidsforholdDto.getPeriodeFom() != null
+            && arbeidsforholdDto.getPeriodeTom() != null && arbeidsforholdDto.getLand() != null;
         return arbeidsforhold.stream().filter(predicateArbeidsforholdFelterUlikNull).map(SøknadMapperFelles::mapUtenlandskArbeidsforhold).toList();
     }
 

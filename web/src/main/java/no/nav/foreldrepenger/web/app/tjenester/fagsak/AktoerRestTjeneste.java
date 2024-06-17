@@ -53,16 +53,17 @@ public class AktoerRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
-    })
+    @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {@ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     // re-enable hvis endres til ikke-tom @Path(AKTOER_INFO_PART_PATH)
     public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
         var aktoerId = aktoerIdDto.get();
         if (aktoerId.isPresent()) {
-            return fagsakTjeneste.lagAktoerInfoDto(aktoerId.get()).map(a -> Response.ok(a).build())
-                .orElseGet(() -> Response.ok(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, "Finner ingen aktør med denne ideen.")).status(Response.Status.NOT_FOUND).build());
+            return fagsakTjeneste.lagAktoerInfoDto(aktoerId.get())
+                .map(a -> Response.ok(a).build())
+                .orElseGet(() -> Response.ok(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, "Finner ingen aktør med denne ideen."))
+                    .status(Response.Status.NOT_FOUND)
+                    .build());
         }
         var feilDto = new FeilDto(FeilType.GENERELL_FEIL, "Query parameteret 'aktoerId' mangler i forespørselen.");
         return Response.ok(feilDto).status(Response.Status.BAD_REQUEST).build();

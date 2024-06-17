@@ -51,12 +51,9 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .map(this::mapPeriode)
             .toList();
         var erBesteberegnet = utledBesteberegning();
-        return grunnlag.getBeregningsgrunnlag().map(bg -> new BeregningsgrunnlagDto(mapAktivitetstatuser(bg.getAktivitetStatuser()),
-            mapHjemmelTilDto(bg.getHjemmel()),
-            bg.getGrunnbeløp().getVerdi(),
-            bgPerioder,
-            erBesteberegnet,
-            erBesteberegnet && erSeksAvDeTiBeste()));
+        return grunnlag.getBeregningsgrunnlag()
+            .map(bg -> new BeregningsgrunnlagDto(mapAktivitetstatuser(bg.getAktivitetStatuser()), mapHjemmelTilDto(bg.getHjemmel()),
+                bg.getGrunnbeløp().getVerdi(), bgPerioder, erBesteberegnet, erBesteberegnet && erSeksAvDeTiBeste()));
     }
 
     private HjemmelDto mapHjemmelTilDto(Hjemmel hjemmel) {
@@ -91,7 +88,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
 
     private boolean erSeksAvDeTiBeste() {
         var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag);
-        if (besteBeregningGrunnlag.isEmpty()){
+        if (besteBeregningGrunnlag.isEmpty()) {
             //manuelt besteberegnet er alltid seks av de ti beste månedene
             return true;
         }
@@ -110,20 +107,21 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList());
 
-        var ordinærtBeregnetBeløp = beregningsGrunnlagPerioder.get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var ordinærtBeregnetBeløp = beregningsGrunnlagPerioder.get(0)
+            .getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .map(this::hentOverstyrtEllerBeregnetHvisFinnes)
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO);
 
-        LOG.info("BesteBeregnetBeløp fra getBesteberegnetPrÅr: {}  Ordinært eller overstyrt beregnet beløp: {}",  besteBeregnetBeløp, ordinærtBeregnetBeløp );
+        LOG.info("BesteBeregnetBeløp fra getBesteberegnetPrÅr: {}  Ordinært eller overstyrt beregnet beløp: {}", besteBeregnetBeløp,
+            ordinærtBeregnetBeløp);
 
         return besteBeregnetBeløp.compareTo(ordinærtBeregnetBeløp) > 0;
     }
 
     private BigDecimal hentOverstyrtEllerBeregnetHvisFinnes(BeregningsgrunnlagPrStatusOgAndel andel) {
-        return Optional.ofNullable(andel.getOverstyrtPrÅr())
-            .or(() -> Optional.ofNullable(andel.getBeregnetPrÅr()))
-            .orElse(BigDecimal.ZERO);
+        return Optional.ofNullable(andel.getOverstyrtPrÅr()).or(() -> Optional.ofNullable(andel.getBeregnetPrÅr())).orElse(BigDecimal.ZERO);
     }
 
     private boolean finnesBesteberegnetAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
@@ -131,14 +129,11 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private List<AktivitetStatusDto> mapAktivitetstatuser(List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
-        return aktivitetStatuser.stream()
-            .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
-            .map(this::mapAktivitetStatusTilDto)
-            .toList();
+        return aktivitetStatuser.stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).map(this::mapAktivitetStatusTilDto).toList();
     }
 
     private AktivitetStatusDto mapAktivitetStatusTilDto(AktivitetStatus aktivitetStatus) {
-        return switch(aktivitetStatus) {
+        return switch (aktivitetStatus) {
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatusDto.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER -> AktivitetStatusDto.ARBEIDSTAKER;
             case DAGPENGER -> AktivitetStatusDto.DAGPENGER;
@@ -158,24 +153,17 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private BeregningsgrunnlagPeriodeDto mapPeriode(BeregningsgrunnlagPeriode bgPeriode) {
-        var andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-            .map(this::mapAndel)
-            .toList();
-        var bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(this::mapAndel).toList();
+        var bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
             .filter(Objects::nonNull)
             .reduce(BigDecimal::add)
             .orElse(null);
-        return new BeregningsgrunnlagPeriodeDto(bgPeriode.getDagsats(),
-            bgPeriode.getBruttoPrÅr(),
-            bgPeriode.getAvkortetPrÅr() == null
-                ? null
-                : finnAvkortetUtenGraderingPrÅr(bruttoInkludertBortfaltNaturalytelsePrAar,
-                grunnlag.getBeregningsgrunnlag().orElseThrow().getGrunnbeløp()),
-            mapPeriodeÅrsakerTilDto(bgPeriode.getPeriodeÅrsaker()),
-            bgPeriode.getBeregningsgrunnlagPeriodeFom(),
-            bgPeriode.getBeregningsgrunnlagPeriodeTom(),
-            andeler);
+        return new BeregningsgrunnlagPeriodeDto(bgPeriode.getDagsats(), bgPeriode.getBruttoPrÅr(),
+            bgPeriode.getAvkortetPrÅr() == null ? null : finnAvkortetUtenGraderingPrÅr(bruttoInkludertBortfaltNaturalytelsePrAar,
+                grunnlag.getBeregningsgrunnlag().orElseThrow().getGrunnbeløp()), mapPeriodeÅrsakerTilDto(bgPeriode.getPeriodeÅrsaker()),
+            bgPeriode.getBeregningsgrunnlagPeriodeFom(), bgPeriode.getBeregningsgrunnlagPeriodeTom(), andeler);
     }
 
     private List<PeriodeÅrsakDto> mapPeriodeÅrsakerTilDto(List<PeriodeÅrsak> periodeÅrsaker) {
@@ -209,14 +197,9 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
         var faktaVurdering = finnFaktaavklaringForGrunnlag().map(FaktaAktør::getErNyIArbeidslivetSN);
         var arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
         var aktivitetStatus = mapAktivitetStatusTilDto(andel.getAktivitetStatus());
-        return new BeregningsgrunnlagAndelDto(andel.getDagsats(), aktivitetStatus,
-            andel.getBruttoPrÅr(), andel.getAvkortetPrÅr(),
-            faktaVurdering.map(FaktaVurdering::getVurdering).orElse(null),
-            mapOpptjeningAktivitetsTypeTilDto(andel.getArbeidsforholdType()),
-            andel.getBeregningsperiodeFom(),
-            andel.getBeregningsperiodeTom(),
-            arbeidsforholdDto.orElse(null),
-            erTilkommetAndel(andel.getKilde()));
+        return new BeregningsgrunnlagAndelDto(andel.getDagsats(), aktivitetStatus, andel.getBruttoPrÅr(), andel.getAvkortetPrÅr(),
+            faktaVurdering.map(FaktaVurdering::getVurdering).orElse(null), mapOpptjeningAktivitetsTypeTilDto(andel.getArbeidsforholdType()),
+            andel.getBeregningsperiodeFom(), andel.getBeregningsperiodeTom(), arbeidsforholdDto.orElse(null), erTilkommetAndel(andel.getKilde()));
     }
 
     private Optional<FaktaAktør> finnFaktaavklaringForGrunnlag() {
@@ -250,10 +233,8 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
 
     private BgAndelArbeidsforholdDto mapArbeidsforhold(BGAndelArbeidsforhold bga) {
         // BGAndelArbeidsforhold skal alltid ha en arbeidsgiver satt
-        return new BgAndelArbeidsforholdDto(bga.getArbeidsgiver().getIdentifikator(),
-            bga.getArbeidsforholdRef().getReferanse(),
-            bga.getNaturalytelseBortfaltPrÅr().orElse(null),
-            bga.getNaturalytelseTilkommetPrÅr().orElse(null));
+        return new BgAndelArbeidsforholdDto(bga.getArbeidsgiver().getIdentifikator(), bga.getArbeidsforholdRef().getReferanse(),
+            bga.getNaturalytelseBortfaltPrÅr().orElse(null), bga.getNaturalytelseTilkommetPrÅr().orElse(null));
     }
 
     private boolean erTilkommetAndel(AndelKilde kilde) {

@@ -45,7 +45,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
  * felles-versjoner innføres dette som et midlertidig hack. Hensikten er å få
  * splittet opp BehandlingRestTjeneste i unike rot-nivåer igjen, slik at det er
  * mulig å angi ikke-tom @Path-annotasjon på klassen.
- *
+ * <p>
  * Langsiktig løsning som fjerner hacket er skissert i TFP-2237
  */
 @ApplicationScoped
@@ -70,8 +70,7 @@ public class BehandlingRestTjenestePathHack1 {
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     @Inject
-    public BehandlingRestTjenestePathHack1(BehandlingRestTjeneste behandlingRestTjeneste,
-                                           BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
+    public BehandlingRestTjenestePathHack1(BehandlingRestTjeneste behandlingRestTjeneste, BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
         this.behandlingRestTjeneste = behandlingRestTjeneste;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
     }
@@ -82,14 +81,13 @@ public class BehandlingRestTjenestePathHack1 {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingMidlertidigStatus(@Context HttpServletRequest request,
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
-                                                    @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
-        throws URISyntaxException {
+                                                    @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
         return getMidlertidigStatusResponse(request, new BehandlingIdDto(uuidDto), gruppeDto);
     }
 
     private Response getMidlertidigStatusResponse(HttpServletRequest request,
-                                          BehandlingIdDto behandlingIdDto,
-                                          ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
+                                                  BehandlingIdDto behandlingIdDto,
+                                                  ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
@@ -101,8 +99,7 @@ public class BehandlingRestTjenestePathHack1 {
     // re-enable hvis endres til ikke-tom @Path(BEHANDLING_PART_PATH)
     @Operation(description = "Hent behandling gitt id", summary = "Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført.", tags = "behandlinger", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return behandlingRestTjeneste.getAsynkResultatResponse(new BehandlingIdDto(uuidDto));
     }
 }

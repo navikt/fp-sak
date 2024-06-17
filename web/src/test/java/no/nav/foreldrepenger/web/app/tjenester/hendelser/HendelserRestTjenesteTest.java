@@ -53,8 +53,7 @@ class HendelserRestTjenesteTest {
     @BeforeEach
     public void before(EntityManager entityManager) {
         hendelsemottakRepository = new HendelsemottakRepository(entityManager);
-        hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository,
-            taskTjeneste);
+        hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository, taskTjeneste);
     }
 
     @Test
@@ -117,11 +116,7 @@ class HendelserRestTjenesteTest {
 
     @Test
     void skal_returnere_liste_med_4_aktørIder_som_har_sak() {
-        List<AktørId> harSak = new ArrayList<>(List.of(
-                AktørId.dummy(),
-                AktørId.dummy(),
-                AktørId.dummy(),
-                AktørId.dummy()));
+        List<AktørId> harSak = new ArrayList<>(List.of(AktørId.dummy(), AktørId.dummy(), AktørId.dummy(), AktørId.dummy()));
 
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(harSak);
 

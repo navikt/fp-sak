@@ -94,8 +94,7 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     }
 
     public UUID hentpåKlagdEksternBehandlingUuId() {
-        return erTilbakekreving
-            && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
+        return erTilbakekreving && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
     }
 
     public boolean erTilbakekreving() {

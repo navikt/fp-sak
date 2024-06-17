@@ -87,8 +87,7 @@ public class ForvaltningUttakTjeneste {
         } else {
             ytelseFordelingTjeneste.endreOverstyrtRettighet(behandlingId, nyRettighet);
         }
-        var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
-            "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
+        var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" : "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
         lagHistorikkinnslagRett(behandlingId, begrunnelse);
     }
 
@@ -102,8 +101,7 @@ public class ForvaltningUttakTjeneste {
         historikkinnslag.setBehandlingId(behandlingId);
 
         var begrunnelse = aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg";
-        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medBegrunnelse(begrunnelse);
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET).medBegrunnelse(begrunnelse);
         historieBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
     }
@@ -114,8 +112,7 @@ public class ForvaltningUttakTjeneste {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         historikkinnslag.setBehandlingId(behandlingId);
 
-        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medBegrunnelse(begrunnelse);
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET).medBegrunnelse(begrunnelse);
         historieBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
     }

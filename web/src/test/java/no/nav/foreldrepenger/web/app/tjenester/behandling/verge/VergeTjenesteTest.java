@@ -77,8 +77,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(entityManager);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         historikkRepository = new HistorikkRepository(entityManager);
-        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository,
-            historikkRepository, behandlingRepository, skjæringstidspunktTjeneste, personopplysningTjeneste);
+        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository, historikkRepository,
+            behandlingRepository, skjæringstidspunktTjeneste, personopplysningTjeneste);
     }
 
     @Test
@@ -92,11 +92,12 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
-        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
-            LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(), LocalDate.now().minusYears(15));
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(),
+            LocalDate.now());
         when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
         // Act
@@ -114,11 +115,12 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
-            LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(), LocalDate.now().minusYears(15));
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(),
+            LocalDate.now());
         lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
-        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+            .thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
 
         // Act
         var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
@@ -188,10 +190,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
 
         // Assert
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(),
-            eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
-        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling,
-            BehandlingStegType.FORESLÅ_VEDTAK);
+        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(), eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
+        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
     }
 
@@ -215,16 +215,16 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
         var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).toList()).contains(
-            HistorikkinnslagType.FJERNET_VERGE);
+        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).toList()).contains(HistorikkinnslagType.FJERNET_VERGE);
     }
 
     private Fagsak opprettFagsak() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
-            RelasjonsRolleType.MORA, new Saksnummer("0123"));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA,
+            new Saksnummer("0123"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
+
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(AktørId aktørId, LocalDate fødselsdato) {
         var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(aktørId).medFødselsdato(fødselsdato));

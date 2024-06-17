@@ -154,9 +154,8 @@ public class ForvaltningStegRestTjeneste {
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
         var fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
-                .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
+            .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
     }

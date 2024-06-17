@@ -15,7 +15,9 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexReader;
 import org.jboss.jandex.IndexView;
 
-/** Henter persistert index (hvis generert) eller genererer index for angitt location (typisk matcher en jar/war fil). */
+/**
+ * Henter persistert index (hvis generert) eller genererer index for angitt location (typisk matcher en jar/war fil).
+ */
 class IndexFeil {
     private String jandexIndexFileName;
 
@@ -40,23 +42,20 @@ class IndexFeil {
         var classLoaders = Arrays.asList(getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
 
         List<IndexView> ivs = new ArrayList<>();
-        classLoaders
-            .stream()
-            .flatMap(cl -> {
-                try {
-                    return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
-                } catch (IOException e2) {
-                    throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
-                }
-            })
-            .forEach(url -> {
-                try (var is = url.openStream()) {
-                    var ir = new IndexReader(is);
-                    ivs.add(ir.read());
-                } catch (IOException e) {
-                    throw new IllegalStateException("Kunne ikke lese:" + url.toExternalForm(), e);
-                }
-            });
+        classLoaders.stream().flatMap(cl -> {
+            try {
+                return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
+            } catch (IOException e2) {
+                throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
+            }
+        }).forEach(url -> {
+            try (var is = url.openStream()) {
+                var ir = new IndexReader(is);
+                ivs.add(ir.read());
+            } catch (IOException e) {
+                throw new IllegalStateException("Kunne ikke lese:" + url.toExternalForm(), e);
+            }
+        });
 
         return CompositeIndex.create(ivs);
     }

@@ -47,8 +47,7 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
         var originalBehandlingId = param.getRef().getOriginalBehandlingId();
         var behandlingId = param.getBehandlingId();
         var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
-            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER).flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
 
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
         var inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
@@ -60,7 +59,8 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
         var registerAktiviteter = lagretGrunnlag.getRegisterAktiviteter();
         var saksbehandledeAktiviteter = lagretGrunnlag.getSaksbehandletAktiviteter()
             .orElseThrow(() -> new IllegalStateException("Forventer å ha lagret ned saksbehandlet grunnlag"));
-        beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingId, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(), forrige);
+        beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingId, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(),
+            forrige);
 
         return OppdateringResultat.utenOverhopp();
     }

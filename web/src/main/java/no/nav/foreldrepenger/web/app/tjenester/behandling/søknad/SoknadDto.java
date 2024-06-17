@@ -9,10 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = SoknadAdopsjonDto.class),
-    @JsonSubTypes.Type(value = SoknadFodselDto.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = SoknadAdopsjonDto.class), @JsonSubTypes.Type(value = SoknadFodselDto.class)})
 public abstract class SoknadDto {
 
     private SøknadType soknadType;

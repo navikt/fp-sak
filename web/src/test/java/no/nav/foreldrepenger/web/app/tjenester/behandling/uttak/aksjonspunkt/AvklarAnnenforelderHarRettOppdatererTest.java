@@ -57,8 +57,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         tekstBuilder = new HistorikkInnslagTekstBuilder();
         var inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
         this.ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
     }
 
     @Test
@@ -72,8 +71,10 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-                .medRegisterUføretrygd(false, null, null).build()));
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(false, null, null)
+            .build()));
         dto.setAnnenforelderMottarUføretrygd(Boolean.TRUE);
 
         oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
@@ -93,8 +94,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD)).isNotEmpty();
         assertThat(del.getSkjermlenke()).hasValueSatisfying(
             skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OMSORG_OG_RETT.getKode()));
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
     }
 
     @Test
@@ -108,8 +108,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
-        var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat = oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(behandling.harAksjonspunktMedType(AKSONSPUNKT_DEF)).isTrue();
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -131,17 +130,17 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(false);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
-        var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat = oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
 
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-            .medRegisterUføretrygd(false, null, null).build()));
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(false, null, null)
+            .build()));
         dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
-        var resultat1 = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat1 = oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(resultat1.kreverTotrinnsKontroll()).isTrue();
     }

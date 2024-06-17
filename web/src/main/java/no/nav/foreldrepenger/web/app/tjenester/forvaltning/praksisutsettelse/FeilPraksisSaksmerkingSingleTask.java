@@ -70,14 +70,12 @@ class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
         var fraVerdi = HistorikkEndretFeltVerdiType.valueOf(eksisterende.name());
         var tilVerdi = HistorikkEndretFeltVerdiType.valueOf(ny.name());
 
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medFagsakId(fagsak.getId())
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(fagsak.getId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medType(HistorikkinnslagType.FAKTA_ENDRET)
             .build();
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medEndretFelt(HistorikkEndretFeltType.SAKSMARKERING, fraVerdi, tilVerdi);
 
         builder.build(historikkinnslag);

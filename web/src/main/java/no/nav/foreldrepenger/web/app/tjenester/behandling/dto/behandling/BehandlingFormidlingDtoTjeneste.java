@@ -112,9 +112,11 @@ public class BehandlingFormidlingDtoTjeneste {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
                 .map(SøknadEntitet::getSpråkkode)
-                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
+                .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(SøknadEntitet::getSpråkkode)
+            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
     private void settStandardfelterForBrev(Behandling behandling, BehandlingFormidlingDto dto) {
@@ -182,26 +184,31 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ALLE_INNTEKTSMELDINGER_PATH, "inntektsmeldinger", uuidDto));
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
+            dto.leggTilFormidlingRessurs(
+                get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
         } else {
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
-                    .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+                .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
-                dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
+                dto.leggTilFormidlingRessurs(
+                    get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
             }
-            dto.leggTilFormidlingRessurs(get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
+            dto.leggTilFormidlingRessurs(
+                get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 var svangerskapspengerUttakResultatEntitet = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
                 if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
                     dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
-                    dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
+                    dto.leggTilFormidlingRessurs(
+                        get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     dto.leggTil(get(FormidlingRestTjeneste.MOTTATT_DATO_SØKNADSFRIST_PATH, "motattdato-søknad", uuidDto));
                 }
             } else {
-                var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
+                var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(
+                        AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
                     .filter(ap -> AksjonspunktStatus.UTFØRT.equals(ap.getStatus()))
                     .isPresent();
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
@@ -221,7 +228,8 @@ public class BehandlingFormidlingDtoTjeneste {
                 }
                 if (uttakResultat.isPresent()) {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
-                    dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
+                    dto.leggTilFormidlingRessurs(
+                        get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                 }
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
@@ -229,7 +237,9 @@ public class BehandlingFormidlingDtoTjeneste {
             }
         }
 
-        behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getUuid)
+        behandling.getOriginalBehandlingId()
+            .map(behandlingRepository::hentBehandling)
+            .map(Behandling::getUuid)
             .ifPresent(dto::setOriginalBehandlingUuid);
 
         return dto;
@@ -268,7 +278,9 @@ public class BehandlingFormidlingDtoTjeneste {
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())
+            .orElseThrow()
+            .erRevurderingMedUendretUtfall(behandling);
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
@@ -279,7 +291,8 @@ public class BehandlingFormidlingDtoTjeneste {
     }
 
     private boolean behandlingHarVergeAksjonspunkt(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream()
+        return behandling.getAksjonspunkter()
+            .stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .anyMatch(AksjonspunktDefinisjon.AVKLAR_VERGE::equals);
     }

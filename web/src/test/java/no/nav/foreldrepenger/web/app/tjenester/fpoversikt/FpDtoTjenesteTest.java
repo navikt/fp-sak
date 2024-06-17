@@ -73,10 +73,9 @@ class FpDtoTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
         var behandling = opprettAvsluttetFpBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato, fordeling, oppgittRettighet);
         var annenPartAktørId = AktørId.dummy();
-        repositoryProvider.getPersonopplysningRepository().lagre(behandling.getId(),
-            new OppgittAnnenPartBuilder().medAktørId(annenPartAktørId).build());
-        var mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(behandling.getFagsakId())
+        repositoryProvider.getPersonopplysningRepository()
+            .lagre(behandling.getId(), new OppgittAnnenPartBuilder().medAktørId(annenPartAktørId).build());
+        var mottattDokument = new MottattDokument.Builder().medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
             .medMottattTidspunkt(LocalDateTime.now().minusDays(5))
@@ -87,8 +86,8 @@ class FpDtoTjenesteTest {
         var uttak = new UttakResultatPerioderEntitet();
         var fom = LocalDate.of(2023, 3, 5);
         var tom = LocalDate.of(2023, 10, 5);
-        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medFlerbarnsdager(true)
             .medGraderingInnvilget(true)
             .medOppholdÅrsak(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
@@ -129,9 +128,11 @@ class FpDtoTjenesteTest {
         assertThat(vedtaksAktivitet.aktivitet().arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(vedtaksperiode.resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET_GRADERING);
         assertThat(vedtaksperiode.flerbarnsdager()).isTrue();
-        assertThat(vedtaksperiode.oppholdÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER);
+        assertThat(vedtaksperiode.oppholdÅrsak()).isEqualTo(
+            no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER);
         assertThat(vedtaksperiode.utsettelseÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.ARBEID);
-        assertThat(vedtaksperiode.overføringÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
+        assertThat(vedtaksperiode.overføringÅrsak()).isEqualTo(
+            no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
 
         assertThat(dto.oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
         assertThat(dto.brukerRolle()).isEqualTo(FpSak.BrukerRolle.MOR);
@@ -159,7 +160,8 @@ class FpDtoTjenesteTest {
         assertThat(søknadsperiode.gradering().prosent()).isEqualTo(oppgittPeriode.getArbeidsprosent());
         assertThat(søknadsperiode.gradering().uttakAktivitet().type()).isEqualTo(UttakAktivitet.Type.ORDINÆRT_ARBEID);
         assertThat(søknadsperiode.gradering().uttakAktivitet().arbeidsforholdId()).isNull();
-        assertThat(søknadsperiode.gradering().uttakAktivitet().arbeidsgiver().identifikator()).isEqualTo(oppgittPeriode.getArbeidsgiver().getIdentifikator());
+        assertThat(søknadsperiode.gradering().uttakAktivitet().arbeidsgiver().identifikator()).isEqualTo(
+            oppgittPeriode.getArbeidsgiver().getIdentifikator());
         assertThat(søknadsperiode.morsAktivitet()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.MorsAktivitet.INNLAGT);
         assertThat(søknadsperiode.oppholdÅrsak()).isNull();
         assertThat(søknadsperiode.utsettelseÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.FRI);
@@ -186,8 +188,7 @@ class FpDtoTjenesteTest {
             .medOppgittDekningsgrad(dekningsgrad);
 
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(vedtakstidspunkt);
-        var behandling = scenario.medBehandlingsresultat(Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+        var behandling = scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
             .lagre(repositoryProvider);
 
         avsluttBehandling(behandling);

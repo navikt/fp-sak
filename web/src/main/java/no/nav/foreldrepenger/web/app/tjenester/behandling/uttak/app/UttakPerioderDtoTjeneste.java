@@ -83,13 +83,13 @@ public class UttakPerioderDtoTjeneste {
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
         var filter = new UttakResultatPerioderDto.FilterDto(kreverSammenhengendeUttak, utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
-        var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
+        var annenForelderHarRett = ytelseFordeling.filter(
+            yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
         var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);
         var annenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS).orElse(false);
         var oppgittAnnenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::oppgittAnnenForelderRettEØS).orElse(false);
-        return new UttakResultatPerioderDto(perioderSøker,
-            annenpartUttaksperioder, annenForelderHarRett, aleneomsorg,
-            annenForelderRettEØS, oppgittAnnenForelderRettEØS, filter);
+        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, annenForelderHarRett, aleneomsorg, annenForelderRettEØS,
+            oppgittAnnenForelderRettEØS, filter);
     }
 
     private Optional<Behandling> annenpartBehandling(Behandling søkersBehandling) {
@@ -121,10 +121,8 @@ public class UttakPerioderDtoTjeneste {
         return sortedByFom(list);
     }
 
-    private UttakResultatPeriodeDto map(ForeldrepengerUttakPeriode periode,
-                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
-        var dto = new UttakResultatPeriodeDto.Builder()
-            .medTidsperiode(periode.getFom(), periode.getTom())
+    private UttakResultatPeriodeDto map(ForeldrepengerUttakPeriode periode, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+        var dto = new UttakResultatPeriodeDto.Builder().medTidsperiode(periode.getFom(), periode.getTom())
             .medManuellBehandlingÅrsak(periode.getManuellBehandlingÅrsak())
             .medUtsettelseType(periode.getUtsettelseType())
             .medPeriodeResultatType(periode.getResultatType())
@@ -148,17 +146,13 @@ public class UttakPerioderDtoTjeneste {
     }
 
     private List<UttakResultatPeriodeDto> sortedByFom(List<UttakResultatPeriodeDto> list) {
-        return list
-            .stream()
-            .sorted(Comparator.comparing(UttakResultatPeriodeDto::getFom))
-            .toList();
+        return list.stream().sorted(Comparator.comparing(UttakResultatPeriodeDto::getFom)).toList();
     }
 
     private UttakResultatPeriodeAktivitetDto map(ForeldrepengerUttakPeriodeAktivitet aktivitet,
                                                  Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                  boolean opprinneligSendtTilManuellBehandling) {
-        var builder = new UttakResultatPeriodeAktivitetDto.Builder()
-            .medProsentArbeid(aktivitet.getArbeidsprosent())
+        var builder = new UttakResultatPeriodeAktivitetDto.Builder().medProsentArbeid(aktivitet.getArbeidsprosent())
             .medGradering(aktivitet.isSøktGraderingForAktivitetIPeriode())
             .medTrekkdager(aktivitet.getTrekkdager())
             .medStønadskontoType(aktivitet.getTrekkonto())

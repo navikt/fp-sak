@@ -71,11 +71,13 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response endreTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
-                .filter(SpesialBehandling::erIkkeSpesialBehandling)
-                .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
-        var antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(),
-                dto.getUtstedtdato(), dto.getBegrunnelse());
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId)
+            .stream()
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
+            .findFirst()
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+        var antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(), dto.getUtstedtdato(),
+            dto.getBegrunnelse());
 
         return Response.ok(antall).build();
     }
@@ -87,13 +89,16 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response manglendeTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId)
+            .stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
-            .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+            .findFirst()
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var behandlingId = behandling.getId();
         var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
-        if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent())
+        if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandlingId);
         var terminbuilder = hendelsebuilder.getTerminbekreftelseBuilder()
             .medTermindato(dto.getTermindato())
@@ -111,13 +116,15 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response manglendeFødselsdato(@BeanParam @Valid SaksnummerFødselsdatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId)
+            .stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
-            .findFirst().orElseGet(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElseThrow());
+            .findFirst()
+            .orElseGet(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElseThrow());
         var behandlingId = behandling.getId();
         var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (gjeldende.isEmpty() || !gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(List.of()).isEmpty()
-           // || gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent()
+            // || gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent()
         ) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -138,21 +145,24 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response settNorskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId)
+            .stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
-                .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+            .findFirst()
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
-        if (dto.getBegrunnelse() == null)
+        if (dto.getBegrunnelse() == null) {
             throw new ForvaltningException("Mangler begrunnelse");
+        }
         var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
         var antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = :anpa, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
-                .setParameter("anpa", nyAktørId.getId())
-                .setParameter("ident", dto.getIdentAnnenPart())
-                .setParameter("apid", oap.getId())
-                .setParameter("begr", dto.getBegrunnelse())
-                .executeUpdate();
+            .setParameter("anpa", nyAktørId.getId())
+            .setParameter("ident", dto.getIdentAnnenPart())
+            .setParameter("apid", oap.getId())
+            .setParameter("begr", dto.getBegrunnelse())
+            .executeUpdate();
         entityManager.flush();
 
         return Response.ok(antall).build();
@@ -165,20 +175,23 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response settUtlandskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId)
+            .stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
-            .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+            .findFirst()
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
         var eksisterendeAnnenPart = oap.getAktørId();
-        if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId()))
+        if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId())) {
             throw new ForvaltningException("Støtter bare patching der aktørId er null eller lik bruker i saken");
+        }
         var antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = null, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
-                .setParameter("ident", dto.getIdentAnnenPart())
-                .setParameter("apid", oap.getId())
-                .setParameter("begr", dto.getBegrunnelse())
-                .executeUpdate();
+            .setParameter("ident", dto.getIdentAnnenPart())
+            .setParameter("apid", oap.getId())
+            .setParameter("begr", dto.getBegrunnelse())
+            .executeUpdate();
         entityManager.flush();
 
         return Response.ok(antall).build();

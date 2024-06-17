@@ -41,8 +41,8 @@ class VedtakJsonFeedRestTjenesteTest {
         var maxAntallParam = new MaxAntallParam("100");
         var hendelseTypeParam = new HendelseTypeParam(Meldingstype.FORELDREPENGER_ENDRET.getType());
         var aktørParam = new AktørParam(AKTØR_ID.getId());
-        when(vedtakFattetTjeneste.hentFpVedtak(1L, 100L, "ForeldrepengerEndret_v1", Optional.of(AKTØR_ID)))
-                .thenReturn(new VedtakDto(true, new ArrayList<>()));
+        when(vedtakFattetTjeneste.hentFpVedtak(1L, 100L, "ForeldrepengerEndret_v1", Optional.of(AKTØR_ID))).thenReturn(
+            new VedtakDto(true, new ArrayList<>()));
 
         var feed = tjeneste.fpVedtakHendelser(sisteLestSekvensIdParam, maxAntallParam, hendelseTypeParam, aktørParam);
         assertThat(feed.getTittel()).isEqualTo("ForeldrepengerVedtak_v1");

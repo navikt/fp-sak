@@ -29,13 +29,13 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
     }
 
     @Inject
-    public TotrinnskontrollAksjonspunkterTjeneste(TotrinnsaksjonspunktDtoTjeneste totrinnsaksjonspunktDtoTjeneste,
-                                                  TotrinnTjeneste totrinnTjeneste) {
+    public TotrinnskontrollAksjonspunkterTjeneste(TotrinnsaksjonspunktDtoTjeneste totrinnsaksjonspunktDtoTjeneste, TotrinnTjeneste totrinnTjeneste) {
         this.totrinnsaksjonspunktDtoTjeneste = totrinnsaksjonspunktDtoTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
     }
 
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsSkjermlenkeContext(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsSkjermlenkeContext(Behandling behandling,
+                                                                                      Behandlingsresultat behandlingsresultat) {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
         var aksjonspunkter = behandling.getAksjonspunkterMedTotrinnskontroll();
         var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
@@ -46,9 +46,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
         }
         for (var ap : aksjonspunkter) {
             var builder = new Totrinnsvurdering.Builder(behandling, ap.getAksjonspunktDefinisjon());
-            var vurdering = ttVurderinger.stream()
-                .filter(v -> v.getAksjonspunktDefinisjon().equals(ap.getAksjonspunktDefinisjon()))
-                .findFirst();
+            var vurdering = ttVurderinger.stream().filter(v -> v.getAksjonspunktDefinisjon().equals(ap.getAksjonspunktDefinisjon())).findFirst();
             vurdering.ifPresent(ttVurdering -> {
                 if (ttVurdering.isGodkjent()) {
                     builder.medGodkjent(ttVurdering.isGodkjent());
@@ -57,8 +55,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, builder.build());
         }
         for (var skjermlenke : skjermlenkeMap.entrySet()) {
-            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(),
-                skjermlenke.getValue());
+            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(), skjermlenke.getValue());
             skjermlenkeContext.add(context);
         }
         return skjermlenkeContext;
@@ -69,17 +66,16 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
                                          Map<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>> skjermlenkeMap,
                                          Totrinnsvurdering vurdering) {
         var totrinnresultatOpt = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId());
-        var totrinnsAksjonspunkt = totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(vurdering,
-            behandling, totrinnresultatOpt);
-        var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(), behandling,
-            behandlingsresultat);
+        var totrinnsAksjonspunkt = totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(vurdering, behandling, totrinnresultatOpt);
+        var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(), behandling, behandlingsresultat);
         if (SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType)) {
             var aksjonspktContextListe = skjermlenkeMap.computeIfAbsent(skjermlenkeType, k -> new ArrayList<>());
             aksjonspktContextListe.add(totrinnsAksjonspunkt);
         }
     }
 
-    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsvurderingSkjermlenkeContext(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+    public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsvurderingSkjermlenkeContext(Behandling behandling,
+                                                                                               Behandlingsresultat behandlingsresultat) {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
         var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
@@ -87,8 +83,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, vurdering);
         }
         for (var skjermlenke : skjermlenkeMap.entrySet()) {
-            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(),
-                skjermlenke.getValue());
+            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(), skjermlenke.getValue());
             skjermlenkeContext.add(context);
         }
         return skjermlenkeContext;

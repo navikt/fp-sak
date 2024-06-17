@@ -101,8 +101,10 @@ public class FagsakRestTjeneste {
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, HistorikkRepository historikkRepository,
-                              FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository,
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste,
+                              HistorikkRepository historikkRepository,
+                              FagsakFullTjeneste fagsakFullTjeneste,
+                              FagsakEgenskapRepository fagsakEgenskapRepository,
                               ProsessTaskTjeneste taskTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fagsakFullTjeneste = fagsakFullTjeneste;
@@ -113,16 +115,11 @@ public class FagsakRestTjeneste {
 
     @GET
     @Path(STATUS_PART_PATH)
-    @Operation(description = "Url for å polle på fagsak mens behandlingprosessen pågår i bakgrunnen(asynkront)", summary = "Returnerer link til enten samme (hvis ikke ferdig) eller redirecter til /fagsak dersom asynkrone operasjoner er ferdig.", tags = "fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Status", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class))),
-            @ApiResponse(responseCode = "303", description = "Pågående prosesstasks avsluttet", headers = @Header(name = HttpHeaders.LOCATION)),
-            @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
-    })
+    @Operation(description = "Url for å polle på fagsak mens behandlingprosessen pågår i bakgrunnen(asynkront)", summary = "Returnerer link til enten samme (hvis ikke ferdig) eller redirecter til /fagsak dersom asynkrone operasjoner er ferdig.", tags = "fagsak", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Status", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class))), @ApiResponse(responseCode = "303", description = "Pågående prosesstasks avsluttet", headers = @Header(name = HttpHeaders.LOCATION)), @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentFagsakMidlertidigStatus(@Context HttpServletRequest request,
                                                 @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto idDto,
-                                                @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
-        throws URISyntaxException {
+                                                @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
         var saksnummer = new Saksnummer(idDto.getVerdi());
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
@@ -132,10 +129,7 @@ public class FagsakRestTjeneste {
 
     @GET
     @Path(FAGSAK_FULL_PART_PATH)
-    @Operation(description = "Hent full fagsaksaksinformasjon for saksnummer", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakFullDto.class))),
-        @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
-    })
+    @Operation(description = "Hent full fagsaksaksinformasjon for saksnummer", tags = "fagsak", responses = {@ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakFullDto.class))), @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentFullFagsak(@Context HttpServletRequest request,
                                    @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
@@ -148,13 +142,9 @@ public class FagsakRestTjeneste {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     // re-enable hvis endres til ikke-tom @Path(FAGSAK_PART_PATH)
-    @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
-            @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
-    })
+    @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {@ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))), @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
         var saksnummer = new Saksnummer(s.getVerdi());
         return fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer)
@@ -168,8 +158,7 @@ public class FagsakRestTjeneste {
     @Operation(description = "Søk etter saker på saksnummer eller fødselsnummer", tags = "fagsak", summary =
         "Spesifikke saker kan søkes via saksnummer. " + "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
-        @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
+    public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class) @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
     }
 
@@ -181,8 +170,7 @@ public class FagsakRestTjeneste {
             var attributter = AbacDataAttributter.opprett();
             var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
             if (AktørId.erGyldigAktørId(søkestring)) {
-                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring)
-                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, søkestring);
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring).leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, søkestring);
             } else if (PersonIdent.erGyldigFnr(søkestring)) {
                 attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
             } else {
@@ -197,8 +185,7 @@ public class FagsakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre nytt notat for sak", tags = "fagsak", summary = "Lagre nytt notat.")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response lagreFagsakNotat(@TilpassetAbacAttributt(supplierClass = LagreFagsakNotatAbacSupplier.class)
-                                     @Parameter(description = "Saksnummer og nytt notat") @Valid LagreFagsakNotatDto notatDto) {
+    public Response lagreFagsakNotat(@TilpassetAbacAttributt(supplierClass = LagreFagsakNotatAbacSupplier.class) @Parameter(description = "Saksnummer og nytt notat") @Valid LagreFagsakNotatDto notatDto) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(notatDto.saksnummer())).orElse(null);
         if (fagsak != null && !notatDto.notat().isEmpty()) {
             fagsakTjeneste.lagreFagsakNotat(fagsak, notatDto.notat());
@@ -209,14 +196,12 @@ public class FagsakRestTjeneste {
     }
 
 
-
     @POST
     @Path(ENDRE_UTLAND_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Endre merking (utland) av sak", tags = "fagsak", summary = "Endre merking fra tidligere verdi.")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response endreFagsakMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
-                                          @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
+    public Response endreFagsakMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class) @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
@@ -228,15 +213,18 @@ public class FagsakRestTjeneste {
             lagHistorikkInnslag(fagsak, eksisterende, endreUtland.fagsakMarkering());
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
-            var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
+            var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak)
+                .stream()
                 .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, endreUtland.fagsakMarkering()).isPresent())
                 .toList();
             behandlingerSomBytterEnhet.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
             // Oppdater LOS-oppgaver for andre tilfelle av endre saksmerking
             var behandlingBytterEnhetId = behandlingerSomBytterEnhet.stream().map(Behandling::getId).collect(Collectors.toSet());
-            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).stream()
+            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak)
+                .stream()
                 .filter(b -> !behandlingBytterEnhetId.contains(b.getId()))
-                .map(this::opprettLosProsessTask).forEach(taskGruppe::addNesteSekvensiell);
+                .map(this::opprettLosProsessTask)
+                .forEach(taskGruppe::addNesteSekvensiell);
             if (!taskGruppe.getTasks().isEmpty()) {
                 taskTjeneste.lagre(taskGruppe);
             }
@@ -283,14 +271,12 @@ public class FagsakRestTjeneste {
         var fraVerdi = HistorikkEndretFeltVerdiType.valueOf(eksisterende.name());
         var tilVerdi = HistorikkEndretFeltVerdiType.valueOf(ny.name());
 
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medFagsakId(fagsak.getId())
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(fagsak.getId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medType(HistorikkinnslagType.FAKTA_ENDRET)
             .build();
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medEndretFelt(HistorikkEndretFeltType.SAKSMARKERING, fraVerdi, tilVerdi);
 
         builder.build(historikkinnslag);

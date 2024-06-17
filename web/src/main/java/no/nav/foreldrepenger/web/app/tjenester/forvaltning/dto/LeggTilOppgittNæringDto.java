@@ -34,7 +34,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     @NotNull
     @FormParam("typeKode")
     @Pattern(regexp = "^(?:ANNEN|DAGMAMMA|FISKE|JORDBRUK_SKOGBRUK)$")
-    @Schema(allowableValues = { "ANNEN", "DAGMAMMA", "FISKE", "JORDBRUK_SKOGBRUK" })
+    @Schema(allowableValues = {"ANNEN", "DAGMAMMA", "FISKE", "JORDBRUK_SKOGBRUK"})
     private String typeKode;
 
     @NotNull

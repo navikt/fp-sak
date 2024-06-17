@@ -19,8 +19,8 @@ class TilgangerTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnOverstyrer,
-            gruppenavnOppgavestyrer, gruppenavnKode6);
+        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnOverstyrer, gruppenavnOppgavestyrer,
+            gruppenavnKode6);
     }
 
     @Test
@@ -28,8 +28,7 @@ class TilgangerTjenesteTest {
         var brukerUtenforSaksbehandlerGruppe = getTestBruker();
         var brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
-        var innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null,
-                brukerUtenforSaksbehandlerGruppe);
+        var innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforSaksbehandlerGruppe);
         var innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
         assertThat(innloggetBrukerUtenSaksbehandlerRettighet.kanSaksbehandle()).isFalse();

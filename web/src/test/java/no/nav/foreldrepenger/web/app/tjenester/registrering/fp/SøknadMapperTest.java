@@ -108,8 +108,7 @@ class SøknadMapperTest {
         behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager),
-            repositoryProvider.getBehandlingRepository(),
-            new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste));
+            repositoryProvider.getBehandlingRepository(), new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).build();
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
@@ -443,8 +442,8 @@ class SøknadMapperTest {
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
-            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider,
+            virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);

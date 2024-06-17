@@ -76,7 +76,8 @@ class FordelRestTjenesteTest {
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository());
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider,
+            vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
     }
 
     @Test
@@ -159,8 +160,11 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(behandlingRepositoryProviderMock.getFamilieHendelseRepository()).thenReturn(familieHendelseRepositoryMock);
 
-        var sakDto1 = new SakInfoV2Dto(new SaksnummerDto(saknr1.getVerdi()),  forventetYtelseType, forventetStatus, new SakInfoV2Dto.FamiliehendelseInfoDto(skjæringstidspunkt, SakInfoV2Dto.FamilieHendelseTypeDto.FØDSEL), opprettetTidSak1.toLocalDate(), førsteuttaksdato);
-        var sakDto2 = new SakInfoV2Dto(new SaksnummerDto(saknr2.getVerdi()), forventetYtelseType, forventetStatus, null, opprettetTidSak2.toLocalDate(), null);
+        var sakDto1 = new SakInfoV2Dto(new SaksnummerDto(saknr1.getVerdi()), forventetYtelseType, forventetStatus,
+            new SakInfoV2Dto.FamiliehendelseInfoDto(skjæringstidspunkt, SakInfoV2Dto.FamilieHendelseTypeDto.FØDSEL), opprettetTidSak1.toLocalDate(),
+            førsteuttaksdato);
+        var sakDto2 = new SakInfoV2Dto(new SaksnummerDto(saknr2.getVerdi()), forventetYtelseType, forventetStatus, null,
+            opprettetTidSak2.toLocalDate(), null);
 
         when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak1)).thenReturn(sakDto1);
         when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak2)).thenReturn(sakDto2);
@@ -176,8 +180,8 @@ class FordelRestTjenesteTest {
     @Test
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
     void exception_om_ikke_gyldig_aktørId() {
-        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakTjenesteMock, mock(
-            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakTjenesteMock,
+            mock(BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
         var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBrukerV2(aktørIdDto));

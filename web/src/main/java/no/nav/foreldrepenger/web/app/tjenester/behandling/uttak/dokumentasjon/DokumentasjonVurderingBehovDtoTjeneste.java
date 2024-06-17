@@ -33,9 +33,6 @@ public class DokumentasjonVurderingBehovDtoTjeneste {
     public List<DokumentasjonVurderingBehovDto> lagDtos(UuidDto behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId.getBehandlingUuid());
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        return utleder.utledDokumentasjonVurderingBehov(uttakInput)
-            .stream()
-            .map(DokumentasjonVurderingBehovDto::from)
-            .toList();
+        return utleder.utledDokumentasjonVurderingBehov(uttakInput).stream().map(DokumentasjonVurderingBehovDto::from).toList();
     }
 }

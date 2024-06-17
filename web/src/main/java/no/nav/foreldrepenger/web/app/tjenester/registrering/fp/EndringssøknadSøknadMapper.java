@@ -40,7 +40,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
         var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
 
         var endringssøknad = new ObjectFactory().createEndringssoeknad();
-        endringssøknad.setFordeling(mapFordelingEndringssøknad((ManuellRegistreringEndringsøknadDto)registreringDto));
+        endringssøknad.setFordeling(mapFordelingEndringssøknad((ManuellRegistreringEndringsøknadDto) registreringDto));
         var omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
         omYtelse.getAny().add(new ObjectFactory().createEndringssoeknad(endringssøknad));
         søknad.setOmYtelse(omYtelse);
@@ -72,11 +72,11 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
     }
 
     private static List<Uttaksperiode> mapGraderingsperioder(List<GraderingDto> graderingsperioder) {
-       return YtelseSøknadMapper.mapGraderingsperioder(graderingsperioder);
+        return YtelseSøknadMapper.mapGraderingsperioder(graderingsperioder);
     }
 
     private static List<Oppholdsperiode> mapOppholdsperioder(List<OppholdDto> oppholdPerioder) {
-       return YtelseSøknadMapper.mapOppholdsperioder(oppholdPerioder);
+        return YtelseSøknadMapper.mapOppholdsperioder(oppholdPerioder);
     }
 
     private static List<Utsettelsesperiode> mapUtsettelsesperioder(List<UtsettelseDto> utsettelserDto) {

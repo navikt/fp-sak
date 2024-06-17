@@ -39,24 +39,20 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
         List<SvangerskapspengerUttakResultatArbeidsforholdDto> arbeidsforholdDtos = new ArrayList<>();
         for (var arbeidsforholdEntitet : uttakResultat.getUttaksResultatArbeidsforhold()) {
 
-            var uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream()
-                .map(this::mapSvpUttakResultatPeriodeDto).toList();
+            var uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream().map(this::mapSvpUttakResultatPeriodeDto).toList();
 
-            arbeidsforholdDtos.add(mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet,
-                sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos)));
+            arbeidsforholdDtos.add(
+                mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet, sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos)));
         }
 
         return Optional.of(new SvangerskapspengerUttakResultatDto(arbeidsforholdDtos));
     }
 
     private List<SvangerskapspengerUttakResultatPeriodeDto> sortSvpUttakResultatPeriodeDtoer(List<SvangerskapspengerUttakResultatPeriodeDto> uttakResultatPeriodeDtos) {
-        return uttakResultatPeriodeDtos.stream()
-            .sorted(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeDto::getFom))
-            .toList();
+        return uttakResultatPeriodeDtos.stream().sorted(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeDto::getFom)).toList();
     }
 
-    private SvangerskapspengerUttakResultatPeriodeDto mapSvpUttakResultatPeriodeDto(
-        SvangerskapspengerUttakResultatPeriodeEntitet svangerskapspengerUttakResultatPeriodeEntitet) {
+    private SvangerskapspengerUttakResultatPeriodeDto mapSvpUttakResultatPeriodeDto(SvangerskapspengerUttakResultatPeriodeEntitet svangerskapspengerUttakResultatPeriodeEntitet) {
         return SvangerskapspengerUttakResultatPeriodeDto.builder()
             .medUtbetalingsgrad(svangerskapspengerUttakResultatPeriodeEntitet.getUtbetalingsgrad())
             .medPeriodeResultatType(svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeResultatType())

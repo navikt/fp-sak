@@ -12,15 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 /**
  * Brukes for oppslag på aktørId eller søk etter saksnummer/fnr. Med fødselsdato for visnings/sorteringsformål
  */
-public record FagsakSøkDto(String saksnummer,
-                           FagsakYtelseType fagsakYtelseType,
-                           FagsakStatus status,
-                           RelasjonsRolleType relasjonsRolleType,
-                           String aktørId,
-                           PersonDto person,
-                           LocalDate barnFødt,
-                           LocalDate opprettet,
-                           LocalDate endret) {
+public record FagsakSøkDto(String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus status, RelasjonsRolleType relasjonsRolleType,
+                           String aktørId, PersonDto person, LocalDate barnFødt, LocalDate opprettet, LocalDate endret) {
 
     public FagsakSøkDto(Fagsak fagsak, PersonDto person, LocalDate barnFødt) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getStatus(), fagsak.getRelasjonsRolleType(),

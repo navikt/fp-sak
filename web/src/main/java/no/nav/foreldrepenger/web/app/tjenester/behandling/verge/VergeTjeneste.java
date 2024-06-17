@@ -83,8 +83,7 @@ public class VergeTjeneste {
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
-            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig",
-                behandling.getId());
+            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", behandling.getId());
             throw new TekniskException("FP-185321", msg);
         }
 
@@ -107,14 +106,13 @@ public class VergeTjeneste {
 
     private void fjernVergeAksjonspunkt(Behandling behandling) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE).
-            ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
-                behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
+        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE)
+            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
+                List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(
-            HistorikkinnslagType.FJERNET_VERGE);
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FJERNET_VERGE);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(HistorikkinnslagType.FJERNET_VERGE);
@@ -128,6 +126,7 @@ public class VergeTjeneste {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
             .map(PersonopplysningerAggregat::getSøker)
             .map(PersonopplysningEntitet::getFødselsdato)
-            .filter(d -> d.isAfter(LocalDate.now().minusYears(18))).isPresent();
+            .filter(d -> d.isAfter(LocalDate.now().minusYears(18)))
+            .isPresent();
     }
 }

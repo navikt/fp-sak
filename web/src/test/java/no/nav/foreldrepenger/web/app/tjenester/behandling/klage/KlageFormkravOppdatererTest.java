@@ -281,7 +281,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         final String fritekstTilBrev = "Tester at fritekst lagres på vurderingsresulatet";
 
-        var klageAvvistMedFritekst = new KlageFormkravAksjonspunktDto(true, true, false, true, behandling.getUuid(), "test", false, null, fritekstTilBrev);
+        var klageAvvistMedFritekst = new KlageFormkravAksjonspunktDto(true, true, false, true, behandling.getUuid(), "test", false, null,
+            fritekstTilBrev);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageAvvistMedFritekst,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 

@@ -49,20 +49,16 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), koder.toString()));
         }
         var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).toList();
-        var feilmelding = String.format(
-            "Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
+        var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
             feltNavn);
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto(feilmelding, feilene))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feilmelding, feilene)).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Set<String> constraints(ConstraintViolationException exception) {
         return exception.getConstraintViolations()
             .stream()
-            .map(cv -> cv.getRootBeanClass().getSimpleName() + "." + cv.getLeafBean().getClass().getSimpleName()
-                + "." + fieldName(cv) + " - " + cv.getMessage())
+            .map(cv -> cv.getRootBeanClass().getSimpleName() + "." + cv.getLeafBean().getClass().getSimpleName() + "." + fieldName(cv) + " - "
+                + cv.getMessage())
             .collect(Collectors.toSet());
     }
 

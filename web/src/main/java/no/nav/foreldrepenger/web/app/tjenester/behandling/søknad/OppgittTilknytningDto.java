@@ -34,12 +34,8 @@ public class OppgittTilknytningDto {
 
     public static OppgittTilknytningDto mapFra(MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
         if (oppgittTilknytning != null) {
-            return new OppgittTilknytningDto(
-                oppgittTilknytning.isOppholdNå(),
-                oppgittTilknytning.isOppholdINorgeSistePeriode(),
-                oppgittTilknytning.isOppholdINorgeNestePeriode(),
-                mapFør(oppgittTilknytning.getOpphold()),
-                mapEtter(oppgittTilknytning.getOpphold()));
+            return new OppgittTilknytningDto(oppgittTilknytning.isOppholdNå(), oppgittTilknytning.isOppholdINorgeSistePeriode(),
+                oppgittTilknytning.isOppholdINorgeNestePeriode(), mapFør(oppgittTilknytning.getOpphold()), mapEtter(oppgittTilknytning.getOpphold()));
         }
         return null;
     }
@@ -52,10 +48,8 @@ public class OppgittTilknytningDto {
     }
 
     private static List<UtlandsoppholdDto> mapEtter(Set<MedlemskapOppgittLandOppholdEntitet> utlandsopphold) {
-        return UtlandsoppholdDto.mapFra(utlandsopphold.stream()
-            .filter(o -> !o.isTidligereOpphold())
-            .filter(o -> !o.getLand().equals(Landkoder.NOR))
-            .toList());
+        return UtlandsoppholdDto.mapFra(
+            utlandsopphold.stream().filter(o -> !o.isTidligereOpphold()).filter(o -> !o.getLand().equals(Landkoder.NOR)).toList());
     }
 
     public boolean isOppholdNorgeNa() {

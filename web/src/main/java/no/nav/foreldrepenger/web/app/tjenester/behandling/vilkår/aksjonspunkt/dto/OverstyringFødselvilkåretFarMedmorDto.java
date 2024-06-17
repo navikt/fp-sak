@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE)
 public class OverstyringFødselvilkåretFarMedmorDto extends OverstyringAksjonspunktDto {
 
@@ -35,6 +35,7 @@ public class OverstyringFødselvilkåretFarMedmorDto extends OverstyringAksjonsp
         this.erVilkarOk = erVilkarOk;
         this.avslagskode = avslagskode;
     }
+
     @Override
     public String getAvslagskode() {
         return avslagskode;

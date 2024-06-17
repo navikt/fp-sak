@@ -13,27 +13,16 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
-public record FagsakFullDto(String saksnummer,
-                            FagsakYtelseType fagsakYtelseType,
-                            RelasjonsRolleType relasjonsRolleType,
-                            FagsakStatus status,
-                            String aktørId,
-                            boolean sakSkalTilInfotrygd,
-                            Integer dekningsgrad,
-                            PersonDto bruker,
-                            boolean brukerManglerAdresse,
-                            PersonDto annenPart,
-                            AnnenPartBehandlingDto annenpartBehandling,
-                            SakHendelseDto familiehendelse,
-                            FagsakMarkering utlandMarkering,
-                            FagsakMarkering fagsakMarkering,
-                            List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
-                            List<FagsakBehandlingDto> behandlinger,
-                            List<HistorikkinnslagDto> historikkinnslag,
-                            List<FagsakNotatDto> notater,
-                            KontrollresultatDto kontrollResultat) {
+public record FagsakFullDto(String saksnummer, FagsakYtelseType fagsakYtelseType, RelasjonsRolleType relasjonsRolleType, FagsakStatus status,
+                            String aktørId, boolean sakSkalTilInfotrygd, Integer dekningsgrad, PersonDto bruker, boolean brukerManglerAdresse,
+                            PersonDto annenPart, AnnenPartBehandlingDto annenpartBehandling, SakHendelseDto familiehendelse,
+                            FagsakMarkering utlandMarkering, FagsakMarkering fagsakMarkering,
+                            List<BehandlingOpprettingDto> behandlingTypeKanOpprettes, List<FagsakBehandlingDto> behandlinger,
+                            List<HistorikkinnslagDto> historikkinnslag, List<FagsakNotatDto> notater, KontrollresultatDto kontrollResultat) {
 
-    public FagsakFullDto(Fagsak fagsak, Integer dekningsgrad, PersonDto bruker,
+    public FagsakFullDto(Fagsak fagsak,
+                         Integer dekningsgrad,
+                         PersonDto bruker,
                          boolean brukerManglerAdresse,
                          PersonDto annenPart,
                          AnnenPartBehandlingDto annenpartBehandling,
@@ -42,7 +31,8 @@ public record FagsakFullDto(String saksnummer,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                          List<FagsakBehandlingDto> behandlinger,
                          List<HistorikkinnslagDto> historikkinnslag,
-                         List<FagsakNotatDto> notater, KontrollresultatDto kontrollResultat) {
+                         List<FagsakNotatDto> notater,
+                         KontrollresultatDto kontrollResultat) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
             familiehendelse, fagsakMarkering, fagsakMarkering, behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);

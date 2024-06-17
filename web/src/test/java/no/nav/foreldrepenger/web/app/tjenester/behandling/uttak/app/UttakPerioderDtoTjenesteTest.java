@@ -66,25 +66,19 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var internArbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var eksternArbeidsforholdId = EksternArbeidsforholdRef.ref("ID1");
         var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, internArbeidsforholdId)
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver, internArbeidsforholdId)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
         var periodeType = UttakPeriodeType.MØDREKVOTE;
         var mottattDato = LocalDate.now();
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(periodeType)
-            .medMottattDato(mottattDato)
-            .build();
-        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
-            .medGraderingInnvilget(true)
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(periodeType).medMottattDato(mottattDato).build();
+        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2)).medGraderingInnvilget(true)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medTrekkonto(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medErSøktGradering(true)
             .medUtbetalingsgrad(new Utbetalingsgrad(1))
@@ -108,15 +102,19 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
         assertThat(result.perioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
         assertThat(result.perioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
-        assertThat(result.perioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
+        assertThat(result.perioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(
+            eksternArbeidsforholdId.getReferanse());
         assertThat(result.perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
         assertThat(result.perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
         assertThat(result.perioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
         assertThat(result.perioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
         assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
-        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(
+            periodeAktivitet.getArbeidsforholdRef().getReferanse());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(
+            eksternArbeidsforholdId.getReferanse());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(
+            periodeAktivitet.getArbeidsgiver().getIdentifikator());
         assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
         assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
         assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
@@ -153,8 +151,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private UttakPerioderDtoTjeneste tjeneste() {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
-            repositoryProvider.getYtelsesFordelingRepository(),
-            inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());
+            repositoryProvider.getYtelsesFordelingRepository(), inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());
     }
 
     @Test
@@ -192,13 +189,13 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         return periodeAktivitet(periode, orgnr, InternArbeidsforholdRef.nyRef());
     }
 
-    private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr, InternArbeidsforholdRef internArbeidsforholdRef) {
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), internArbeidsforholdRef)
+    private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode,
+                                                                  String orgnr,
+                                                                  InternArbeidsforholdRef internArbeidsforholdRef) {
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), internArbeidsforholdRef)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
-        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medArbeidsprosent(BigDecimal.ZERO)
+        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
             .build();
     }
@@ -267,7 +264,8 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var builder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         builder.leggTil(arbeidsgiver, internArbeidsforholdIdSøker, EksternArbeidsforholdRef.ref("ID1"));
         inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingSøker.getId(), builder);
-        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingAnnenpart.getId(), lagFiktivtArbeidsforholdOverstyring(internArbeidsforholdIdAnnenPart));
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingAnnenpart.getId(),
+            lagFiktivtArbeidsforholdOverstyring(internArbeidsforholdIdAnnenPart));
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
 
@@ -289,10 +287,10 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var builder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         builder.leggTil(arbeidsgiver, internArbeidsforholdRef, EksternArbeidsforholdRef.ref("ID2"));
         builder.leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
-                .medArbeidsgiver(arbeidsgiver)
-                .medHandling(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER)
-                .leggTilOverstyrtPeriode(LocalDate.of(2017, 1, 1), LocalDate.of(2020, 1, 1))
-                .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100))));
+            .medArbeidsgiver(arbeidsgiver)
+            .medHandling(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER)
+            .leggTilOverstyrtPeriode(LocalDate.of(2017, 1, 1), LocalDate.of(2020, 1, 1))
+            .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100))));
         return builder;
     }
 
@@ -300,18 +298,13 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     void dtoSkalInneholdeSamtidigUttak() {
         var perioder = new UttakResultatPerioderEntitet();
 
-        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2))
-            .medSamtidigUttak(true)
+        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2)).medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
 
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .build();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE).build();
 
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medArbeidsprosent(BigDecimal.ZERO).build();
 
         periode.leggTilAktivitet(periodeAktivitet);
 
@@ -348,8 +341,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void setter_eøs_rett_oppgitt_men_ikke_avklart() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         var tjeneste = tjeneste();
@@ -366,8 +358,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void setter_eøs_rett_avklart_ikke_eøs_rett() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         avklarEøsRett(behandling, false);
@@ -381,8 +372,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void setter_eøs_rett_avklart_eøs_rett() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         avklarEøsRett(behandling, true);
@@ -397,9 +387,9 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private void avklarEøsRett(Behandling behandling, boolean harRettEøs) {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
-        ytelsesFordelingRepository.lagre(behandling.getId(),
-            YtelseFordelingAggregat.oppdatere(yfa)
-                .medOverstyrtRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getOverstyrtRettighet().orElse(null), harRettEøs)).build());
+        ytelsesFordelingRepository.lagre(behandling.getId(), YtelseFordelingAggregat.oppdatere(yfa)
+            .medOverstyrtRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getOverstyrtRettighet().orElse(null), harRettEøs))
+            .build());
     }
 
     @Test
@@ -443,7 +433,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
-        return new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
+        return new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
     }
 }

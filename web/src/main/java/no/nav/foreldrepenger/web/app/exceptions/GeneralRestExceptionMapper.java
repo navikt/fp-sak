@@ -61,58 +61,49 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
     private static Response oppdragNedetid(String feilmelding) {
-        return Response
-            .status(Response.Status.SERVICE_UNAVAILABLE)
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE)
             .entity(new FeilDto(FeilType.OPPDRAG_FORVENTET_NEDETID, feilmelding))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
 
     private static Response handleTomtResultatFeil(String feilmelding) {
-        return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, feilmelding))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, feilmelding))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static Response serverError(String feilmelding) {
-        return Response.serverError()
-                .entity(new FeilDto(FeilType.GENERELL_FEIL, feilmelding))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+        return Response.serverError().entity(new FeilDto(FeilType.GENERELL_FEIL, feilmelding)).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Response ikkeTilgang(String feilmelding) {
         return Response.status(Response.Status.FORBIDDEN)
-                .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, feilmelding))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+            .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, feilmelding))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static Response behandlingEndret() {
         var feilmelding = "Behandlingen er endret av en annen saksbehandler, eller har blitt oppdatert med ny informasjon av systemet. Last inn behandlingen på nytt.";
         return Response.status(Response.Status.CONFLICT)
-                .entity(new FeilDto(FeilType.BEHANDLING_ENDRET_FEIL, feilmelding))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+            .entity(new FeilDto(FeilType.BEHANDLING_ENDRET_FEIL, feilmelding))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static Response valideringsfeil(Valideringsfeil valideringsfeil) {
-        var feltNavn = valideringsfeil.getFeltFeil().stream()
-            .map(FeltFeilDto::getNavn)
-            .toList();
-        return Response
-            .status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto("Det oppstod valideringsfeil på felt " + feltNavn
-                + ". Vennligst kontroller at alle feltverdier er korrekte.", valideringsfeil.getFeltFeil()))
+        var feltNavn = valideringsfeil.getFeltFeil().stream().map(FeltFeilDto::getNavn).toList();
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new FeilDto("Det oppstod valideringsfeil på felt " + feltNavn + ". Vennligst kontroller at alle feltverdier er korrekte.",
+                valideringsfeil.getFeltFeil()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
 
     private static Response faktaUttakReutledetAksjonspunkt(String exceptionMelding) {
-        return Response
-            .status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.BAD_REQUEST)
             .entity(new FeilDto(FeilType.GENERELL_FEIL, exceptionMelding))
             .type(MediaType.APPLICATION_JSON)
             .build();

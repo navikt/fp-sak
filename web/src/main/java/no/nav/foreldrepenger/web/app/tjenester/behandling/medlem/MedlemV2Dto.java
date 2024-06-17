@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class MedlemV2Dto {
 
-    private List<MedlemskapPerioderDto> medlemskapPerioder  = new ArrayList<>();
+    private List<MedlemskapPerioderDto> medlemskapPerioder = new ArrayList<>();
     private Set<MedlemPeriodeDto> perioder = new HashSet<>();
     private List<OppholdstillatelseDto> opphold = new ArrayList<>();
     private LocalDate fom; // Opphør fra dato - stp eller senere

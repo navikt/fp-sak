@@ -5,9 +5,6 @@ import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
-record InntektsmeldingDto(JournalpostId journalpostId,
-                          Arbeidsgiver arbeidsgiver,
-                          LocalDateTime innsendingstidspunkt,
-                          BigDecimal inntekt,
+record InntektsmeldingDto(JournalpostId journalpostId, Arbeidsgiver arbeidsgiver, LocalDateTime innsendingstidspunkt, BigDecimal inntekt,
                           LocalDateTime mottattTidspunkt) {
 }
