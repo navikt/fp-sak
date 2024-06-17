@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -21,12 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 @ApplicationScoped
 public class BehandlingVedtakTjeneste {
 
-    private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
@@ -36,9 +37,9 @@ public class BehandlingVedtakTjeneste {
     }
 
     @Inject
-    public BehandlingVedtakTjeneste(BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer,
+    public BehandlingVedtakTjeneste(BehandlingEventPubliserer behandlingEventPubliserer,
             BehandlingRepositoryProvider repositoryProvider) {
-        this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -62,7 +63,7 @@ public class BehandlingVedtakTjeneste {
                 .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
                 .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
-        behandlingVedtakEventPubliserer.fireEvent(behandlingVedtak, behandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingVedtakEvent(behandlingVedtak, behandling));
     }
 
     public Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

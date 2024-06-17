@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Set;
 
 import jakarta.inject.Inject;
 
@@ -35,6 +36,9 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 
 @CdiDbAwareTest
 class AksjonspunktTjenesteTest {
@@ -109,11 +113,15 @@ class AksjonspunktTjenesteTest {
 
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
+        KontekstHolder.setKontekst(RequestKontekst.forRequest("IDENT", "IDENT", IdentType.InternBruker, null, Set.of()));
+
         // Act
         aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
 
         // Assert
         verify(behandlingSpy, times(1)).setAnsvarligSaksbehandler(any());
+
+        KontekstHolder.fjernKontekst();
     }
 
     @Test

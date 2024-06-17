@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -25,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 
 @ExtendWith(MockitoExtension.class)
 class BehandlendeEnhetTjenesteTest {
@@ -42,7 +42,7 @@ class BehandlendeEnhetTjenesteTest {
     @Mock
     private FagsakEgenskapRepository egenskapRepository;
     @Mock
-    private BehandlingEnhetEventPubliserer eventPubliserer;
+    private BehandlingEventPubliserer eventPubliserer;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 

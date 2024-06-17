@@ -13,11 +13,13 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -139,6 +141,24 @@ class BehandlingskontrollEventPublisererTest {
                 , steg3StatusEvent0, steg3StatusEvent//
                 , steg4StatusEvent//
         );
+    }
+
+    @Test
+    void skal_fyre_event_behandling_status_endring_ved_prosessering() {
+        // Arrange
+        var scenario = TestScenario.forEngangsstønad();;
+
+        var behandling = scenario.lagre(serviceProvider);
+
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+
+        // Act
+        kontrollTjeneste.prosesserBehandling(kontekst);
+
+        // Assert
+
+        var statusEvent = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.UTREDES);
+        TestEventObserver.containsExactly(statusEvent);
     }
 
     @Test

@@ -9,27 +9,28 @@ import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.util.TypeLiteral;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
-import no.nav.foreldrepenger.mottak.publiserer.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.exception.TekniskException;
 
 @SuppressWarnings("rawtypes")
 @ApplicationScoped
 public class MottattDokumentPersisterer {
 
-    private MottattDokumentPersistertPubliserer publiserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     MottattDokumentPersisterer() {
     }
 
     @Inject
-    public MottattDokumentPersisterer(MottattDokumentPersistertPubliserer publiserer) {
-        this.publiserer = publiserer;
+    public MottattDokumentPersisterer(BehandlingEventPubliserer behandlingEventPubliserer) {
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     public MottattDokumentWrapper xmlTilWrapper(MottattDokument dokument) {
@@ -43,7 +44,7 @@ public class MottattDokumentPersisterer {
                                          Optional<LocalDate> gjelderFra) {
         MottattDokumentOversetter dokumentOversetter = getDokumentOversetter(wrapper.getSkjemaType());
         dokumentOversetter.trekkUtDataOgPersister(wrapper, dokument, behandling, gjelderFra);
-        publiserer.fireEvent(dokument, behandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new MottattDokumentPersistertEvent(dokument, behandling));
     }
 
     public void persisterDokumentinnhold(MottattDokument dokument, Behandling behandling) {

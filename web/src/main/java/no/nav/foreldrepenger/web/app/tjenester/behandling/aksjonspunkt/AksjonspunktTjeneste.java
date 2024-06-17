@@ -13,6 +13,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -70,6 +72,7 @@ public class AksjonspunktTjeneste {
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     public AksjonspunktTjeneste() {
         // CDI proxy
@@ -81,7 +84,8 @@ public class AksjonspunktTjeneste {
                                 BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                 HistorikkTjenesteAdapter historikkTjenesteAdapter,
-                                HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+                                HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                                BehandlingEventPubliserer behandlingEventPubliserer) {
 
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -90,6 +94,7 @@ public class AksjonspunktTjeneste {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     public void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Long behandlingId) {
@@ -122,7 +127,12 @@ public class AksjonspunktTjeneste {
         if (bekreftedeAksjonspunktDtoer.stream().anyMatch(dto -> dto instanceof FatterVedtakAksjonspunktDto)) {
             return;
         }
-        behandling.setAnsvarligSaksbehandler(getCurrentUserId());
+        var aktivBruker = getCurrentUserId();
+        if (!Objects.equals(behandling.getAnsvarligSaksbehandler(), aktivBruker)) {
+            behandling.setAnsvarligSaksbehandler(aktivBruker);
+            // Datavarehus
+            behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingSaksbehandlerEvent(behandling));
+        }
     }
 
     protected String getCurrentUserId() {
@@ -166,6 +176,7 @@ public class AksjonspunktTjeneste {
                 "Vurder behov for ordinær revurdering etter at denne behnadlingen er avsluttet");
         }
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        setAnsvarligSaksbehandler(List.of(), behandling);
 
         // Tilbakestill gjeldende steg før fremføring
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
