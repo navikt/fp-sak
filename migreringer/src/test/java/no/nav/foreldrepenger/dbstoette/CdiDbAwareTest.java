@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @ExtendWith(CdiAwareExtension.class)
