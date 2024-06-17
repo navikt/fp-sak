@@ -32,8 +32,7 @@ final class OverstyrUttakValideringFeil {
     }
 
     static TekniskException trekkdagerOverskriderKontoMaksDager() {
-        return new TekniskException("FP-128621",
-            "Trekkdager for periodene overskrider maks tilgjengelige dager på konto");
+        return new TekniskException("FP-128621", "Trekkdager for periodene overskrider maks tilgjengelige dager på konto");
     }
 
     static TekniskException perioderFørEndringsdatoKanIkkeEndres(LocalDate endringsdato, ForeldrepengerUttakPeriode periode) {

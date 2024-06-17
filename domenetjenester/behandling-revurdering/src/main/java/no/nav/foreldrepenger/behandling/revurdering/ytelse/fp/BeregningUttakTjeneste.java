@@ -45,8 +45,7 @@ public class BeregningUttakTjeneste {
     }
 
     @Inject
-    public BeregningUttakTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
-                                  YtelsesFordelingRepository ytelsesFordelingRepository) {
+    public BeregningUttakTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste, YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.uttakTjeneste = uttakTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
@@ -54,6 +53,7 @@ public class BeregningUttakTjeneste {
     /**
      * Siden beregning kjøres før uttak må vi gjøre en estimering for når siste uttaksdag er.
      * Vi ser på ytelsesfordelingen om vi har det, eller ser vi på forrige behandlings uttaksresultat.
+     *
      * @param ref referanse til behandlingen
      * @return
      */
@@ -61,8 +61,8 @@ public class BeregningUttakTjeneste {
         var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
         return yfAggregat.map(this::finnSisteSøkteUttaksdag)
             .orElseGet(() -> ref.getOriginalBehandlingId()
-            .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
-            .flatMap(this::finnSisteInnvilgedeUttak));
+                .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
+                .flatMap(this::finnSisteInnvilgedeUttak));
     }
 
     private Optional<LocalDate> finnSisteInnvilgedeUttak(ForeldrepengerUttak uttak) {
@@ -74,10 +74,7 @@ public class BeregningUttakTjeneste {
     }
 
     private Optional<LocalDate> finnSisteSøkteUttaksdag(YtelseFordelingAggregat yfAggregat) {
-        return yfAggregat.getGjeldendeFordeling().getPerioder()
-            .stream()
-            .map(OppgittPeriodeEntitet::getTom)
-            .max(Comparator.naturalOrder());
+        return yfAggregat.getGjeldendeFordeling().getPerioder().stream().map(OppgittPeriodeEntitet::getTom).max(Comparator.naturalOrder());
     }
 
     public AktivitetGradering finnAktivitetGraderinger(BehandlingReferanse ref) {
@@ -94,7 +91,7 @@ public class BeregningUttakTjeneste {
 
         if (ref.erRevurdering()) {
             var originalBehandling = ref.getOriginalBehandlingId()
-                    .orElseThrow(() -> new IllegalStateException("Forventer original behandling i revurdering"));
+                .orElseThrow(() -> new IllegalStateException("Forventer original behandling i revurdering"));
             // Første periode i søknad kan starte midt i periode i vedtak
             var førsteDatoSøknad = førsteDatoSøknad(søknadsperioder.getPerioder());
             var perioderMedGraderingFraVedtak = fraVedtak(førsteDatoSøknad, originalBehandling);
@@ -109,7 +106,7 @@ public class BeregningUttakTjeneste {
         perioderMedGradering.forEach(periodeMedGradering -> {
             var aktivitetStatus = periodeMedGradering.aktivitetStatus;
             var nyBuilder = AndelGradering.builder()
-                    .medStatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
+                .medStatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
             if (AktivitetStatus.ARBEIDSTAKER.equals(aktivitetStatus)) {
                 var arbeidsgiver = periodeMedGradering.arbeidsgiver;
                 Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
@@ -133,16 +130,12 @@ public class BeregningUttakTjeneste {
     }
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return oppgittePerioder.stream()
-                .filter(OppgittPeriodeEntitet::isGradert)
-                .map(this::map)
-                .toList();
+        return oppgittePerioder.stream().filter(OppgittPeriodeEntitet::isGradert).map(this::map).toList();
     }
 
     private PeriodeMedGradering map(OppgittPeriodeEntitet gradertPeriode) {
         return new PeriodeMedGradering(gradertPeriode.getFom(), gradertPeriode.getTom(), gradertPeriode.getArbeidsprosent(),
-                mapAktivitetStatus(gradertPeriode),
-                gradertPeriode.getArbeidsgiver() == null ? null : mapArbeidsgiver(gradertPeriode.getArbeidsgiver()));
+            mapAktivitetStatus(gradertPeriode), gradertPeriode.getArbeidsgiver() == null ? null : mapArbeidsgiver(gradertPeriode.getArbeidsgiver()));
     }
 
     private List<PeriodeMedGradering> fraVedtak(Optional<LocalDate> førsteDatoSøknad, Long originalBehandling) {
@@ -161,19 +154,17 @@ public class BeregningUttakTjeneste {
     }
 
     private PeriodeMedGradering map(ForeldrepengerUttakPeriode gradertPeriode,
-            ForeldrepengerUttakPeriodeAktivitet gradertAktivitet,
-            Optional<LocalDate> førsteDatoSøknad) {
+                                    ForeldrepengerUttakPeriodeAktivitet gradertAktivitet,
+                                    Optional<LocalDate> førsteDatoSøknad) {
         final LocalDate tom;
         if (førsteDatoSøknad.isPresent()) {
             tom = førstAv(førsteDatoSøknad.get().minusDays(1), gradertPeriode.getTom());
         } else {
             tom = gradertPeriode.getTom();
         }
-        var arbeidsgiver = gradertAktivitet.getArbeidsgiver()
-                .map(IAYMapperTilKalkulus::mapArbeidsgiver);
+        var arbeidsgiver = gradertAktivitet.getArbeidsgiver().map(IAYMapperTilKalkulus::mapArbeidsgiver);
         return new PeriodeMedGradering(gradertPeriode.getFom(), tom, gradertAktivitet.getArbeidsprosent(),
-                mapAktivitetStatus(gradertAktivitet.getUttakArbeidType()),
-                arbeidsgiver.orElse(null));
+            mapAktivitetStatus(gradertAktivitet.getUttakArbeidType()), arbeidsgiver.orElse(null));
     }
 
     private LocalDate førstAv(LocalDate dato1, LocalDate dato2) {
@@ -181,10 +172,7 @@ public class BeregningUttakTjeneste {
     }
 
     private Optional<LocalDate> førsteDatoSøknad(List<OppgittPeriodeEntitet> søknadsperioder) {
-        return søknadsperioder.stream()
-                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-                .map(OppgittPeriodeEntitet::getFom)
-                .findFirst();
+        return søknadsperioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).map(OppgittPeriodeEntitet::getFom).findFirst();
     }
 
     private static AktivitetStatus mapAktivitetStatus(UttakArbeidType uttakArbeidType) {
@@ -204,7 +192,7 @@ public class BeregningUttakTjeneste {
     }
 
     private static AktivitetStatus mapAktivitetStatus(OppgittPeriodeEntitet oppgittPeriode) {
-        if (oppgittPeriode.getGraderingAktivitetType() == null ) {
+        if (oppgittPeriode.getGraderingAktivitetType() == null) {
             throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
         }
 
@@ -215,7 +203,7 @@ public class BeregningUttakTjeneste {
         };
     }
 
-    public record PeriodeMedGradering(LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent,
-                                      AktivitetStatus aktivitetStatus, Arbeidsgiver arbeidsgiver) {
+    public record PeriodeMedGradering(LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent, AktivitetStatus aktivitetStatus,
+                                      Arbeidsgiver arbeidsgiver) {
     }
 }

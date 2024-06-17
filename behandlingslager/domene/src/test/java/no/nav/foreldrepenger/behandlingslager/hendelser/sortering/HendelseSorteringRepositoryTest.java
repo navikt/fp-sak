@@ -59,8 +59,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_returnere_tom_liste_når_aktør_id_ikke_er_knyttet_til_sak() {
         // setup
-        @SuppressWarnings("unused")
-        var personer = genererFagsaker(4); // aktør ID: 100 - 103
+        @SuppressWarnings("unused") var personer = genererFagsaker(4); // aktør ID: 100 - 103
 
         var finnAktørIder = List.of(AktørId.dummy());
 
@@ -171,23 +170,16 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
 
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medNavn("Barn Hansen")
-                    .medFødselsdato(fødselsdato))
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(morAktørId)
-                    .medKjønn(NavBrukerKjønn.KVINNE)
-                    .medNavn("Mor Hansen")
-                    .medFødselsdato(fødselsdato.minusYears(25)))
-            .leggTil(
-                informasjonBuilder
-                    .getRelasjonBuilder(morAktørId, barnAktørId, RelasjonsRolleType.BARN))
-            .leggTil(
-                informasjonBuilder
-                    .getRelasjonBuilder(barnAktørId, morAktørId, RelasjonsRolleType.MORA));
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medNavn("Barn Hansen")
+                .medFødselsdato(fødselsdato))
+            .leggTil(informasjonBuilder.getPersonopplysningBuilder(morAktørId)
+                .medKjønn(NavBrukerKjønn.KVINNE)
+                .medNavn("Mor Hansen")
+                .medFødselsdato(fødselsdato.minusYears(25)))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(morAktørId, barnAktørId, RelasjonsRolleType.BARN))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(barnAktørId, morAktørId, RelasjonsRolleType.MORA));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -226,17 +218,14 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
 
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medNavn("Barn Hansen")
-                    .medFødselsdato(fødselsdato))
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(morAktørId)
-                    .medKjønn(NavBrukerKjønn.KVINNE)
-                    .medNavn("Mor Hansen")
-                    .medFødselsdato(fødselsdato.minusYears(25)));
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medNavn("Barn Hansen")
+                .medFødselsdato(fødselsdato))
+            .leggTil(informasjonBuilder.getPersonopplysningBuilder(morAktørId)
+                .medKjønn(NavBrukerKjønn.KVINNE)
+                .medNavn("Mor Hansen")
+                .medFødselsdato(fødselsdato.minusYears(25)));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 

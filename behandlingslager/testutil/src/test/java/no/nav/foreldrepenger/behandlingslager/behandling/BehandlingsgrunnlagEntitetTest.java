@@ -79,8 +79,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         familieGrunnlagRepository.lagre(behandling.getId(), hendelseBuilder);
 
-        var søknadBuilder = new SøknadEntitet.Builder()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato);
+        var søknadBuilder = new SøknadEntitet.Builder().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato);
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
 
         // Assert
@@ -114,15 +113,11 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
         familieGrunnlagRepository.lagre(behandling.getId(), hendelseBuilder);
         var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling.getId());
-        oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(omsorgsovertakelseDato)
-            .medAdoptererAlene(true)
-            .medErEktefellesBarn(false));
+        oppdatere.medAdopsjon(
+            oppdatere.getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelseDato).medAdoptererAlene(true).medErEktefellesBarn(false));
         familieGrunnlagRepository.lagre(behandling.getId(), oppdatere);
 
-        var søknadBuilder = new SøknadEntitet.Builder()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
-            .medSøknadsdato(søknadsdato);
+        var søknadBuilder = new SøknadEntitet.Builder().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato);
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
 
         // Assert
@@ -156,10 +151,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
         familieGrunnlagRepository.lagre(behandling.getId(), hendelseBuilder);
 
-        var søknad = new SøknadEntitet.Builder()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
-            .medSøknadsdato(søknadsdato)
-            .build();
+        var søknad = new SøknadEntitet.Builder().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         var hentet = behandlingRepository.hentBehandling(behandling.getId());
@@ -202,10 +194,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
         familieGrunnlagRepository.lagre(behandling.getId(), hendelseBuilder);
 
-        var søknad = new SøknadEntitet.Builder()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
-            .medSøknadsdato(søknadsdato)
-            .build();
+        var søknad = new SøknadEntitet.Builder().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Assert
@@ -230,8 +219,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTilBarn(fødselsdato);
         familieGrunnlagRepository.lagre(behandling.getId(), hendelseBuilder1);
 
-        var søknadBuilder = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now());
+        var søknadBuilder = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now());
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
 
         // Assert
@@ -251,17 +239,12 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
         var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling.getId());
-        søknadVersjon.medTerminbekreftelse(søknadVersjon.getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now())
-            .medUtstedtDato(LocalDate.now())
-            .medNavnPå("LEGEN MIN"));
+        søknadVersjon.medTerminbekreftelse(
+            søknadVersjon.getTerminbekreftelseBuilder().medTermindato(LocalDate.now()).medUtstedtDato(LocalDate.now()).medNavnPå("LEGEN MIN"));
         familieGrunnlagRepository.lagre(behandling.getId(), søknadVersjon);
         var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling.getId());
-        oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN")
-            .medUtstedtDato(utstedtDato))
-            .medAntallBarn(1);
+        oppdatere.medTerminbekreftelse(
+            oppdatere.getTerminbekreftelseBuilder().medTermindato(termindato).medNavnPå("LEGEN MIN").medUtstedtDato(utstedtDato)).medAntallBarn(1);
         familieGrunnlagRepository.lagre(behandling.getId(), oppdatere);
         var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
@@ -286,8 +269,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
 
         var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling.getId());
-        søknadVersjon.medAdopsjon(søknadVersjon.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now()));
+        søknadVersjon.medAdopsjon(søknadVersjon.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         familieGrunnlagRepository.lagre(behandling.getId(), søknadVersjon);
         var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling.getId());
         oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
@@ -319,35 +301,24 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medNavn("Barn 1")
-                    .medFødselsdato(fødselsdato)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(forelderAktørId)
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medFødselsdato(fødselsdato.minusYears(25))
-                    .medNavn("Forelder"))
-            .leggTil(
-                informasjonBuilder
-                    .getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN)
-                    .harSammeBosted(true))
-            .leggTil(
-                informasjonBuilder
-                    .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
-                    .harSammeBosted(true))
-            .leggTil(
-                informasjonBuilder.
-                    getAdresseBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), AdresseType.BOSTEDSADRESSE)
-                    .medAdresselinje1("Lyckliga gatan 1")
-                    .medPostnummer("1150")
-                    .medPoststed("Hundremeterskogen"))
-            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12))).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), Landkoder.NOR));
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medNavn("Barn 1")
+                .medFødselsdato(fødselsdato)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonopplysningBuilder(forelderAktørId)
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medSivilstand(SivilstandType.UGIFT)
+                .medFødselsdato(fødselsdato.minusYears(25))
+                .medNavn("Forelder"))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(forelderAktørId, barnAktørId, RelasjonsRolleType.BARN).harSammeBosted(true))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA).harSammeBosted(true))
+            .leggTil(informasjonBuilder.getAdresseBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)),
+                AdresseType.BOSTEDSADRESSE).medAdresselinje1("Lyckliga gatan 1").medPostnummer("1150").medPoststed("Hundremeterskogen"))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)),
+                Landkoder.NOR));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -369,9 +340,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personInformasjon.getPersonstatus()).hasSize(1);
         assertThat(personInformasjon.getStatsborgerskap()).hasSize(1);
 
-        var barna = personInformasjon.getRelasjoner().stream()
-            .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+        var barna = personInformasjon.getRelasjoner().stream().filter(e -> e.getAktørId().equals(forelderAktørId)).collect(toList());
 
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getRelasjonsrolle()).isEqualTo(RelasjonsRolleType.BARN);
@@ -380,9 +349,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Arrange 2. Oppdater barn 1
 
         var overstyringBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        overstyringBuilder.leggTil(overstyringBuilder
-            .getPersonopplysningBuilder(barnAktørId)
-            .medFødselsdato(oppdatertFødselsdato));
+        overstyringBuilder.leggTil(overstyringBuilder.getPersonopplysningBuilder(barnAktørId).medFødselsdato(oppdatertFødselsdato));
 
         personopplysningRepository.lagre(behandlingId, overstyringBuilder);
 
@@ -393,15 +360,16 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var personInformasjon2 = personopplysningGrunnlag2.getRegisterVersjon();
 
         assertThat(personInformasjon2).isPresent();
-        barna = personInformasjon2.get().getRelasjoner().stream()
-            .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+        barna = personInformasjon2.get().getRelasjoner().stream().filter(e -> e.getAktørId().equals(forelderAktørId)).collect(toList());
 
         assertThat(barna).hasSize(1);
-        assertThat(
-            personInformasjon2.get().getPersonopplysninger().stream()
-                .filter(e -> e.getAktørId().equals(barnAktørId))
-                .findFirst().get().getFødselsdato()).isEqualTo(oppdatertFødselsdato);
+        assertThat(personInformasjon2.get()
+            .getPersonopplysninger()
+            .stream()
+            .filter(e -> e.getAktørId().equals(barnAktørId))
+            .findFirst()
+            .get()
+            .getFødselsdato()).isEqualTo(oppdatertFødselsdato);
 
         // Arrange 3: Anvend grunnlagsbuilder uten å gjøre endringer på bekreftet barn
         // -> skal ikke føre til utilsiktede oppdateringer av BekreftetBarn
@@ -414,10 +382,11 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Assert 3: Fortsatt bare barn 1 lagret
         @SuppressWarnings("unused") var opphentet3 = behandlingRepository.hentBehandling(behandlingId);
 
-        barna = hentSøkerPersonopplysninger(behandlingId)
-            .getGjeldendeVersjon()
-            .getRelasjoner().stream()
-            .filter(e -> e.getAktørId().equals(forelderAktørId)).collect(toList());
+        barna = hentSøkerPersonopplysninger(behandlingId).getGjeldendeVersjon()
+            .getRelasjoner()
+            .stream()
+            .filter(e -> e.getAktørId().equals(forelderAktørId))
+            .collect(toList());
 
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getTilAktørId()).isEqualTo(barnAktørId);
@@ -438,37 +407,28 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Arrange 1. Legge til forelder og barn 1
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(forelderAktørId)
-                    .medNavn("Forelder")
-                    .medKjønn(NavBrukerKjønn.KVINNE)
-                    .medFødselsdato(fødselsdatoForelder)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(barnNummer1)
-                    .medNavn("Barn 1")
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medFødselsdato(fødselsdatoBarn1)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(
-                informasjonBuilder
-                    .getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder)).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder
-                .getPersonstatusBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1)).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder), Landkoder.NOR))
-            .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR))
-            .leggTil(informasjonBuilder
-                .getAdresseBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), AdresseType.BOSTEDSADRESSE)
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(forelderAktørId)
+                .medNavn("Forelder")
+                .medKjønn(NavBrukerKjønn.KVINNE)
+                .medFødselsdato(fødselsdatoForelder)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonopplysningBuilder(barnNummer1)
+                .medNavn("Barn 1")
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medFødselsdato(fødselsdatoBarn1)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder), Landkoder.NOR))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR))
+            .leggTil(informasjonBuilder.getAdresseBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("Sverige").medPostnummer("1234"))
-            .leggTil(informasjonBuilder
-                .getRelasjonBuilder(forelderAktørId, barnNummer1, RelasjonsRolleType.BARN))
-            .leggTil(informasjonBuilder
-               .getRelasjonBuilder(barnNummer1, forelderAktørId, RelasjonsRolleType.MORA)
-            );
+                .medLand("Sverige")
+                .medPostnummer("1234"))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(forelderAktørId, barnNummer1, RelasjonsRolleType.BARN))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(barnNummer1, forelderAktørId, RelasjonsRolleType.MORA));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -483,8 +443,10 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personInformasjon.getPersonstatus()).hasSize(2);
         assertThat(personInformasjon.getStatsborgerskap()).hasSize(2);
 
-        var barna = personopplysningGrunnlag.getGjeldendeVersjon().getRelasjoner()
-            .stream().filter(e -> e.getAktørId().equals(forelderAktørId))
+        var barna = personopplysningGrunnlag.getGjeldendeVersjon()
+            .getRelasjoner()
+            .stream()
+            .filter(e -> e.getAktørId().equals(forelderAktørId))
             .collect(toList());
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getRelasjonsrolle()).isEqualTo(RelasjonsRolleType.BARN);
@@ -492,26 +454,20 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         // Arrange 2. Legg til barn 2
         informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(barnNummer2)
-                    .medNavn("Barn 2")
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medFødselsdato(fødselsdatoBarn2)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(informasjonBuilder
-                .getPersonstatusBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2)).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), Landkoder.NOR))
-            .leggTil(informasjonBuilder
-                .getAdresseBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), AdresseType.BOSTEDSADRESSE)
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(barnNummer2)
+                .medNavn("Barn 2")
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medFødselsdato(fødselsdatoBarn2)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), Landkoder.NOR))
+            .leggTil(informasjonBuilder.getAdresseBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("Sverige").medPostnummer("1234"))
-            .leggTil(informasjonBuilder
-                .getRelasjonBuilder(forelderAktørId, barnNummer2, RelasjonsRolleType.BARN))
-            .leggTil(informasjonBuilder
-               .getRelasjonBuilder(barnNummer2, forelderAktørId, RelasjonsRolleType.MORA)
-            );
+                .medLand("Sverige")
+                .medPostnummer("1234"))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(forelderAktørId, barnNummer2, RelasjonsRolleType.BARN))
+            .leggTil(informasjonBuilder.getRelasjonBuilder(barnNummer2, forelderAktørId, RelasjonsRolleType.MORA));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -526,14 +482,13 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personInformasjon.getStatsborgerskap()).hasSize(3);
 
 
-        barna = personInformasjon.getRelasjoner().stream()
-            .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+        barna = personInformasjon.getRelasjoner().stream().filter(e -> e.getAktørId().equals(forelderAktørId)).collect(toList());
         assertThat(barna).hasSize(2);
 
         assertThat(barna.stream().map(PersonRelasjonEntitet::getRelasjonsrolle).collect(Collectors.toSet())).containsExactly(RelasjonsRolleType.BARN);
         assertThat(barna.stream().map(PersonRelasjonEntitet::getAktørId).collect(Collectors.toSet())).containsExactly(forelderAktørId);
-        assertThat(barna.stream().map(PersonRelasjonEntitet::getTilAktørId).collect(Collectors.toSet())).containsExactlyInAnyOrder(barnNummer1, barnNummer2);
+        assertThat(barna.stream().map(PersonRelasjonEntitet::getTilAktørId).collect(Collectors.toSet())).containsExactlyInAnyOrder(barnNummer1,
+            barnNummer2);
     }
 
     private PersonopplysningGrunnlagEntitet hentSøkerPersonopplysninger(Long behandlingId) {
@@ -552,22 +507,18 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Arrange 1. Legge til forelder 1
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
-            .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(forelder)
-                    .medNavn("Navn")
-                    .medKjønn(NavBrukerKjønn.KVINNE)
-                    .medFødselsdato(fødselsdato)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(
-                informasjonBuilder
-                    .getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato)).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
-            .leggTil(informasjonBuilder
-                .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(forelder)
+                .medNavn("Navn")
+                .medKjønn(NavBrukerKjønn.KVINNE)
+                .medFødselsdato(fødselsdato)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
+            .leggTil(informasjonBuilder.getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(OSLO));
+                .medLand("NOR")
+                .medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -587,9 +538,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         // Arrange 2. Oppdater forelder 1
         informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder.leggTil(
-            informasjonBuilder.getPersonopplysningBuilder(forelder)
-                .medDødsdato(oppdatertDødsdato));
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(forelder).medDødsdato(oppdatertDødsdato));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -600,9 +549,12 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personopplysningGrunnlag1).isNotNull();
         assertThat(personInformasjon1).isNotNull();
 
-        var dødsdatoFraBasen = personInformasjon1.getPersonopplysninger().stream()
+        var dødsdatoFraBasen = personInformasjon1.getPersonopplysninger()
+            .stream()
             .filter(e -> e.getAktørId().equals(forelder))
-            .findFirst().get().getDødsdato();
+            .findFirst()
+            .get()
+            .getDødsdato();
 
         assertThat(dødsdatoFraBasen).isEqualTo(oppdatertDødsdato);
 
@@ -631,27 +583,23 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Arrange 1. Legge til forelder 1
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        informasjonBuilder
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(forelder)
+                .medNavn("Forelder 1")
+                .medKjønn(NavBrukerKjønn.MANN)
+                .medFødselsdato(fødselsdato)
+                .medDødsdato(dødsdato)
+                .medSivilstand(SivilstandType.UGIFT))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
             .leggTil(
-                informasjonBuilder.getPersonopplysningBuilder(forelder)
-                    .medNavn("Forelder 1")
-                    .medKjønn(NavBrukerKjønn.MANN)
-                    .medFødselsdato(fødselsdato)
-                    .medDødsdato(dødsdato)
-                    .medSivilstand(SivilstandType.UGIFT))
-            .leggTil(
-                informasjonBuilder
-                    .getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato)).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
-            .leggTil(informasjonBuilder
-                .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
-                .medAdresselinje1("Utlandsadresse")
-                .medLand("Sverige"))
-            .leggTil(informasjonBuilder
-                .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
+                informasjonBuilder.getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
+                    .medAdresselinje1("Utlandsadresse")
+                    .medLand("Sverige"))
+            .leggTil(informasjonBuilder.getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(OSLO));
+                .medLand("NOR")
+                .medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -669,8 +617,9 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personInformasjon.getPersonstatus()).hasSize(1);
         assertThat(personInformasjon.getStatsborgerskap()).hasSize(1);
 
-        assertThat(personInformasjon.getPersonopplysninger().stream()
-            .filter(e -> e.getAktørId().equals(forelder)).findFirst().get().getAktørId()).isEqualTo(forelder);
+        assertThat(
+            personInformasjon.getPersonopplysninger().stream().filter(e -> e.getAktørId().equals(forelder)).findFirst().get().getAktørId()).isEqualTo(
+            forelder);
     }
 
     @Test
@@ -684,26 +633,20 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var behandlingId = behandling.getId();
         var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
         var fødselsdato = dødsdatoForelder1.minusYears(40);
-        informasjonBuilder.leggTil(
-            informasjonBuilder.getPersonopplysningBuilder(aktørId)
+        informasjonBuilder.leggTil(informasjonBuilder.getPersonopplysningBuilder(aktørId)
                 .medNavn("Navn")
                 .medKjønn(NavBrukerKjønn.KVINNE)
                 .medFødselsdato(fødselsdato)
                 .medDødsdato(dødsdatoForelder1)
-                .medSivilstand(SivilstandType.GIFT)
-        ).leggTil(informasjonBuilder
-            .getPersonstatusBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1)).medPersonstatus(PersonstatusType.BOSA)
-        ).leggTil(informasjonBuilder
-            .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.BOSTEDSADRESSE)
-            .medAdresselinje1("Testadresse")
-            .medLand("NOR").medPostnummer("1234").medPoststed(OSLO)
-        ).leggTil(informasjonBuilder
-            .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
-            .medAdresselinje1("Testadresse")
-            .medLand("Sverige").medPostnummer("1234")
-        ).leggTil(informasjonBuilder
-            .getStatsborgerskapBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), Landkoder.NOR)
-        );
+                .medSivilstand(SivilstandType.GIFT))
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1))
+                .medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1),
+                AdresseType.BOSTEDSADRESSE).medAdresselinje1("Testadresse").medLand("NOR").medPostnummer("1234").medPoststed(OSLO))
+            .leggTil(informasjonBuilder.getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1),
+                AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND).medAdresselinje1("Testadresse").medLand("Sverige").medPostnummer("1234"))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1),
+                Landkoder.NOR));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -738,16 +681,14 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var tom = LocalDate.now().plusDays(100);
         var beslutningsdato = LocalDate.now().minusDays(10);
 
-        var medlemskapPerioder1 = new MedlemskapPerioderBuilder()
-            .medPeriode(fom, tom)
+        var medlemskapPerioder1 = new MedlemskapPerioderBuilder().medPeriode(fom, tom)
             .medMedlemskapType(MedlemskapType.FORELOPIG)
             .medDekningType(MedlemskapDekningType.FTL_2_7_A)
             .medKildeType(MedlemskapKildeType.FS22)
             .medBeslutningsdato(beslutningsdato)
             .build();
 
-        var medlemskapPerioder2 = new MedlemskapPerioderBuilder()
-            .medPeriode(fom, tom)
+        var medlemskapPerioder2 = new MedlemskapPerioderBuilder().medPeriode(fom, tom)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medDekningType(MedlemskapDekningType.FTL_2_7_B)
             .medKildeType(MedlemskapKildeType.AVGSYS)
@@ -769,8 +710,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     void skal_kunne_lagre_medlemskap() {
         var behandling = lagBehandling();
 
-        var vurdertMedlemskap = new VurdertMedlemskapBuilder()
-            .medOppholdsrettVurdering(true)
+        var vurdertMedlemskap = new VurdertMedlemskapBuilder().medOppholdsrettVurdering(true)
             .medLovligOppholdVurdering(true)
             .medBosattVurdering(true)
             .build();

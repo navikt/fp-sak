@@ -23,10 +23,8 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class AdopsjonsvilkårOversetter {
 
-    private static final Map<NavBrukerKjønn, RegelKjønn> MAP_KJØNN = Map.of(
-        NavBrukerKjønn.KVINNE, RegelKjønn.KVINNE,
-        NavBrukerKjønn.MANN, RegelKjønn.MANN
-    );
+    private static final Map<NavBrukerKjønn, RegelKjønn> MAP_KJØNN = Map.of(NavBrukerKjønn.KVINNE, RegelKjønn.KVINNE, NavBrukerKjønn.MANN,
+        RegelKjønn.MANN);
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -36,8 +34,7 @@ public class AdopsjonsvilkårOversetter {
     }
 
     @Inject
-    public AdopsjonsvilkårOversetter(BehandlingRepositoryProvider repositoryProvider,
-                                     PersonopplysningTjeneste personopplysningTjeneste) {
+    public AdopsjonsvilkårOversetter(BehandlingRepositoryProvider repositoryProvider, PersonopplysningTjeneste personopplysningTjeneste) {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
@@ -46,13 +43,8 @@ public class AdopsjonsvilkårOversetter {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetAdopsjon = byggBekreftetAdopsjon(ref, familieHendelseGrunnlag);
         var adopsjonBarn = bekreftetAdopsjon.adopsjonBarn();
-        return new AdopsjonsvilkårGrunnlag(
-            adopsjonBarn,
-            bekreftetAdopsjon.ektefellesBarn(),
-            tilSøkerKjøenn(getSøkersKjønn(ref)),
-            bekreftetAdopsjon.adoptererAlene(),
-            bekreftetAdopsjon.omsorgsovertakelseDato(),
-            false);
+        return new AdopsjonsvilkårGrunnlag(adopsjonBarn, bekreftetAdopsjon.ektefellesBarn(), tilSøkerKjøenn(getSøkersKjønn(ref)),
+            bekreftetAdopsjon.adoptererAlene(), bekreftetAdopsjon.omsorgsovertakelseDato(), false);
     }
 
     private static BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

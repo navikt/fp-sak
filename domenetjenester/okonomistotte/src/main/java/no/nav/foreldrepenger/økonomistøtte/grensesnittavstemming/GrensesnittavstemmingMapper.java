@@ -114,8 +114,7 @@ public class GrensesnittavstemmingMapper {
             return JaxbHelper.marshalAndValidateJaxb(GrensesnittavstemmingSkjemaConstants.JAXB_CLASS, avstemmingsdata,
                 GrensesnittavstemmingSkjemaConstants.XSD_LOCATION);
         } catch (JAXBException | SAXException e) {
-            throw new TekniskException("FP-531167",
-                "Kan ikke opprette avstemmingsmelding. Problemer ved generering av xml", e);
+            throw new TekniskException("FP-531167", "Kan ikke opprette avstemmingsmelding. Problemer ved generering av xml", e);
         }
     }
 

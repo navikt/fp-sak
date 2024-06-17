@@ -56,41 +56,45 @@ public abstract class DokumentmottakerTestsupport {
         Behandling behandling = null;
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(FØRSTEGANGSSØKNAD);
+            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
         }
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(FØRSTEGANGSSØKNAD);
+            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
         }
 
         return behandling;
     }
 
-    protected Behandling opprettBehandling(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak, VedtakResultatType vedtakResultatType, LocalDate vedtaksdato) {
+    protected Behandling opprettBehandling(FagsakYtelseType fagsakYtelseType,
+                                           BehandlingType behandlingType,
+                                           BehandlingResultatType behandlingResultatType,
+                                           Avslagsårsak avslagsårsak,
+                                           VedtakResultatType vedtakResultatType,
+                                           LocalDate vedtaksdato) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(behandlingType);
+            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);
         }
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(behandlingType);
+            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);
         }
 
         throw new UnsupportedOperationException("Fiks testoppsett");
     }
 
-    private Behandling opprettBehandling(AbstractTestScenario<?> scenario, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak, VedtakResultatType vedtakResultatType, LocalDate vedtaksdato) {
+    private Behandling opprettBehandling(AbstractTestScenario<?> scenario,
+                                         BehandlingResultatType behandlingResultatType,
+                                         Avslagsårsak avslagsårsak,
+                                         VedtakResultatType vedtakResultatType,
+                                         LocalDate vedtaksdato) {
 
-        scenario.medBehandlingsresultat(Behandlingsresultat.builder()
-            .medBehandlingResultatType(behandlingResultatType)
-            .medAvslagsårsak(avslagsårsak));
+        scenario.medBehandlingsresultat(
+            Behandlingsresultat.builder().medBehandlingResultatType(behandlingResultatType).medAvslagsårsak(avslagsårsak));
         var behandling = scenario.lagre(repositoryProvider);
 
         var behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
@@ -129,7 +133,8 @@ public abstract class DokumentmottakerTestsupport {
     }
 
     protected MottattDokument dummySøknadDokument(Behandling behandling) {
-        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, behandling.getFagsakId(), "", now(), true, "456");
+        return DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL, behandling.getFagsakId(), "", now(), true,
+            "456");
     }
 
 }

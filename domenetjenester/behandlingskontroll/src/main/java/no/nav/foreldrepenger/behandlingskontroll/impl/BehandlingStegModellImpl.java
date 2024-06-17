@@ -51,9 +51,7 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
      * Holder for å referere til en konkret, men lazy-initialisert CDI
      * implementasjon av et {@link BehandlingSteg}.
      */
-    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell,
-            @Any Instance<BehandlingSteg> bean,
-            BehandlingStegType stegType) {
+    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell, @Any Instance<BehandlingSteg> bean, BehandlingStegType stegType) {
         Objects.requireNonNull(behandlingModell, "behandlingModell");
         Objects.requireNonNull(bean, "bean");
         Objects.requireNonNull(stegType, "stegType");
@@ -62,7 +60,9 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         this.behandlingStegType = stegType;
     }
 
-    /** Direkte injisering av {@link BehandlingSteg}. For testing. */
+    /**
+     * Direkte injisering av {@link BehandlingSteg}. For testing.
+     */
     BehandlingStegModellImpl(BehandlingModellImpl behandlingModell, BehandlingSteg steg, BehandlingStegType stegType) {
         Objects.requireNonNull(behandlingModell, "behandlingModell");
         Objects.requireNonNull(steg, "steg");
@@ -87,12 +87,11 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
 
     protected void initSteg() {
         if (steg == null) {
-            steg = BehandlingStegRef.Lookup
-                    .find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(), behandlingModell.getBehandlingType(), behandlingStegType)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType="
-                                    + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType()
-                                    + "]"));
+            steg = BehandlingStegRef.Lookup.find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(),
+                    behandlingModell.getBehandlingType(), behandlingStegType)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType=" + behandlingModell.getBehandlingType()
+                        + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType() + "]"));
         }
     }
 
@@ -146,10 +145,7 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + behandlingStegType.getKode() + ", "
-                + "inngangAksjonspunkter=" + inngangAksjonpunkt + ", "
-                + "utgangAksjonspunkter=" + utgangAksjonpunkt + ", "
-                + "impl=" + steg
-                + ">";
+        return getClass().getSimpleName() + "<" + behandlingStegType.getKode() + ", " + "inngangAksjonspunkter=" + inngangAksjonpunkt + ", "
+            + "utgangAksjonspunkter=" + utgangAksjonpunkt + ", " + "impl=" + steg + ">";
     }
 }

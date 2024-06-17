@@ -12,7 +12,8 @@ public final class OmfordelRevurderingsandelerSomHarFåttRef {
         // SKjuler default
     }
 
-    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
+    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler,
+                                                            BRNøkkelMedAndeler originalNøkkelMedAndeler) {
         List<EndringIBeregningsresultat> list = new ArrayList<>();
 
         var revurderingBrukersAndel = revurderingNøkkelMedAndeler.getBrukersAndelerTilknyttetNøkkel().stream().findFirst();
@@ -22,16 +23,21 @@ public final class OmfordelRevurderingsandelerSomHarFåttRef {
 
         int originalBrukersDagsats = originalBrukersAndel.map(BeregningsresultatAndel::getDagsats).orElse(0);
 
-        revurderingBrukersAndel.flatMap(andel -> omfordelBrukersAndel(andel, revurderingArbeidgiversAndel, originalBrukersDagsats)).ifPresent(list::add);
-        revurderingArbeidgiversAndel.flatMap(andel -> omfordelArbeidsgiversAndel(revurderingBrukersAndel, andel, originalBrukersDagsats)).ifPresent(list::add);
+        revurderingBrukersAndel.flatMap(andel -> omfordelBrukersAndel(andel, revurderingArbeidgiversAndel, originalBrukersDagsats))
+            .ifPresent(list::add);
+        revurderingArbeidgiversAndel.flatMap(andel -> omfordelArbeidsgiversAndel(revurderingBrukersAndel, andel, originalBrukersDagsats))
+            .ifPresent(list::add);
 
         return list;
     }
 
-    private static Optional<EndringIBeregningsresultat> omfordelBrukersAndel(BeregningsresultatAndel brukersAndel, Optional<BeregningsresultatAndel> arbeidsgiversAndel, int originalBrukersDagsats) {
+    private static Optional<EndringIBeregningsresultat> omfordelBrukersAndel(BeregningsresultatAndel brukersAndel,
+                                                                             Optional<BeregningsresultatAndel> arbeidsgiversAndel,
+                                                                             int originalBrukersDagsats) {
         var revurderingBrukersDagsats = brukersAndel.getDagsats();
         int revurderingArbeidsgiverDagsats = arbeidsgiversAndel.map(BeregningsresultatAndel::getDagsats).orElse(0);
-        var reberegnetBrukersDagsats = OmfordelDagsats.beregnDagsatsBruker(revurderingBrukersDagsats, revurderingArbeidsgiverDagsats, originalBrukersDagsats);
+        var reberegnetBrukersDagsats = OmfordelDagsats.beregnDagsatsBruker(revurderingBrukersDagsats, revurderingArbeidsgiverDagsats,
+            originalBrukersDagsats);
         if (erDagsatsEndret(brukersAndel, reberegnetBrukersDagsats)) {
             var endring = new EndringIBeregningsresultat(brukersAndel, reberegnetBrukersDagsats);
             return Optional.of(endring);
@@ -39,11 +45,14 @@ public final class OmfordelRevurderingsandelerSomHarFåttRef {
         return Optional.empty();
     }
 
-    private static Optional<EndringIBeregningsresultat> omfordelArbeidsgiversAndel(Optional<BeregningsresultatAndel> brukersAndel, BeregningsresultatAndel revurderingArbeidgiversAndel, int originalBrukersDagsats) {
+    private static Optional<EndringIBeregningsresultat> omfordelArbeidsgiversAndel(Optional<BeregningsresultatAndel> brukersAndel,
+                                                                                   BeregningsresultatAndel revurderingArbeidgiversAndel,
+                                                                                   int originalBrukersDagsats) {
         int revurderingBrukersDagsats = brukersAndel.map(BeregningsresultatAndel::getDagsats).orElse(0);
         var revurderingArbeidsgiverDagsats = revurderingArbeidgiversAndel.getDagsats();
 
-        var reberegnetArbeidsgiversDagsats = OmfordelDagsats.beregnDagsatsArbeidsgiver(revurderingArbeidsgiverDagsats, revurderingBrukersDagsats, originalBrukersDagsats);
+        var reberegnetArbeidsgiversDagsats = OmfordelDagsats.beregnDagsatsArbeidsgiver(revurderingArbeidsgiverDagsats, revurderingBrukersDagsats,
+            originalBrukersDagsats);
         if (erDagsatsEndret(revurderingArbeidgiversAndel, reberegnetArbeidsgiversDagsats)) {
             var endring = new EndringIBeregningsresultat(revurderingArbeidgiversAndel, reberegnetArbeidsgiversDagsats);
             return Optional.of(endring);

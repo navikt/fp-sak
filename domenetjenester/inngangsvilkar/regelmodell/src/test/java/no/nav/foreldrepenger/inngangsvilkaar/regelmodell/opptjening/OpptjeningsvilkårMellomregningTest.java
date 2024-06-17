@@ -19,9 +19,10 @@ class OpptjeningsvilkårMellomregningTest {
 
         var aktiviteter = List.of(
             AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(8), Period.ofWeeks(6)), aktivitet),
-            AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(7), Period.ofMonths(6)), aktivitet),
-            AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(2), Period.ofWeeks(4)), aktivitet)
-        );
+            AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(7), Period.ofMonths(6)),
+                aktivitet),
+            AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(2), Period.ofWeeks(4)),
+                aktivitet));
 
         var grunnlag = new Opptjeningsgrunnlag(LocalDate.now(), LocalDate.now().minusMonths(10), LocalDate.now(), aktiviteter, List.of());
 

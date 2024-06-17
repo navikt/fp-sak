@@ -84,14 +84,9 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/henleggVentendeBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ta alle behandlinger for sak av vent og henlegg", tags = "FORVALTNING-behandling", responses = {
-            @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Ta alle behandlinger for sak av vent og henlegg", tags = "FORVALTNING-behandling", responses = {@ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response henleggVentendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response henleggVentendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
@@ -109,11 +104,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/henleggBehandlingTeknisk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ta en gitt behandling av vent og henlegg", tags = "FORVALTNING-behandling", responses = {
-        @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Ta en gitt behandling av vent og henlegg", tags = "FORVALTNING-behandling", responses = {@ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response henleggBehandlingTeknisk(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
@@ -137,23 +128,17 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/henleggÅpenFørstegangsbehandlingOgOpprettNy")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henlegger en åpen førstegangsbehandling og oppretter ny basert på siste søknad", tags = "FORVALTNING-behandling", responses = {
-            @ApiResponse(responseCode = "200", description = "Ny behandling er opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Henlegger en åpen førstegangsbehandling og oppretter ny basert på siste søknad", tags = "FORVALTNING-behandling", responses = {@ApiResponse(responseCode = "200", description = "Ny behandling er opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response henleggÅpenFørstegangsbehandlingOgOpprettNy(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response henleggÅpenFørstegangsbehandlingOgOpprettNy(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus()) ||
-                FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
+        if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())
+            || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             LOG.info("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
-                BehandlingType.FØRSTEGANGSSØKNAD);
+        var behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
         if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
             LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi());
             behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
@@ -167,11 +152,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/reInnsendInntektsmelding")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Angi hvilken inntektsmelding som skal brukes ved samtidig mottatt. Send inn hvis åpen behandling.", tags = "FORVALTNING-behandling", responses = {
-            @ApiResponse(responseCode = "200", description = "Inntektsmelding reinnsendt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Angi hvilken inntektsmelding som skal brukes ved samtidig mottatt. Send inn hvis åpen behandling.", tags = "FORVALTNING-behandling", responses = {@ApiResponse(responseCode = "200", description = "Inntektsmelding reinnsendt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response reInnsendInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
         var journalpostId = new JournalpostId(dto.getJournalpostId());
@@ -182,10 +163,11 @@ public class ForvaltningBehandlingRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var fagsakId = fagsak.getId();
-        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId).stream()
-                .filter(md -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()))
-                .filter(md -> journalpostId.equals(md.getJournalpostId()))
-                .forEach(im -> opprettMottaDokumentTask(fagsakId, im));
+        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
+            .stream()
+            .filter(md -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()))
+            .filter(md -> journalpostId.equals(md.getJournalpostId()))
+            .forEach(im -> opprettMottaDokumentTask(fagsakId, im));
         return Response.ok().build();
     }
 
@@ -203,14 +185,9 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/startNyRevurderingBerørtBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Starter ny revurdering (berørt)", tags = "FORVALTNING-behandling", responses = {
-            @ApiResponse(responseCode = "200", description = "Ny behandling er opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Starter ny revurdering (berørt)", tags = "FORVALTNING-behandling", responses = {@ApiResponse(responseCode = "200", description = "Ny behandling er opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response opprettNyRevurderingBerørtBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response opprettNyRevurderingBerørtBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {

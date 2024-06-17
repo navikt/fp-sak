@@ -44,7 +44,9 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling.erSaksbehandlingAvsluttet()) return;
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            return;
+        }
         var startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
@@ -57,10 +59,11 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
     }
 
     private void reaktiverAksjonspunkter(BehandlingskontrollKontekst kontekst, Behandling behandling, StartpunktType startpunkt) {
-        var aksjonspunkterFraOgMedStartpunkt = behandlingskontrollTjeneste
-            .finnAksjonspunktDefinisjonerFraOgMed(behandling, startpunkt.getBehandlingSteg(), true);
+        var aksjonspunkterFraOgMedStartpunkt = behandlingskontrollTjeneste.finnAksjonspunktDefinisjonerFraOgMed(behandling,
+            startpunkt.getBehandlingSteg(), true);
 
-        behandling.getAksjonspunkter().stream()
+        behandling.getAksjonspunkter()
+            .stream()
             .filter(ap -> !ap.getAksjonspunktDefinisjon().erUtgått())
             .filter(ap -> aksjonspunkterFraOgMedStartpunkt.contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !AksjonspunktType.AUTOPUNKT.equals(ap.getAksjonspunktDefinisjon().getAksjonspunktType()))

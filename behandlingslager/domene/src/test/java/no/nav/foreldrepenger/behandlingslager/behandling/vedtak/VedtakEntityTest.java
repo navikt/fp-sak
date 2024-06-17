@@ -39,21 +39,15 @@ class VedtakEntityTest {
     void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
         // mangler vedtaksdato
-        assertThatThrownBy(() -> vedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("vedtakstidspunkt");
+        assertThatThrownBy(() -> vedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("vedtakstidspunkt");
 
         // mangler ansvarligSaksbehandler
         vedtakBuilder.medVedtakstidspunkt(VEDTAKSDATO);
-        assertThatThrownBy(() -> vedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("ansvarligSaksbehandler");
+        assertThatThrownBy(() -> vedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("ansvarligSaksbehandler");
 
         // mangler vedtakResultatType
         vedtakBuilder.medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER);
-        assertThatThrownBy(() -> vedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("vedtakResultatType");
+        assertThatThrownBy(() -> vedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("vedtakResultatType");
     }
 
     @Test
@@ -108,9 +102,9 @@ class VedtakEntityTest {
 
     private static BehandlingVedtak.Builder lagBuilderMedPaakrevdeFelter() {
         return BehandlingVedtak.builder()
-                .medVedtakstidspunkt(VEDTAKSDATO)
-                .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER)
-                .medVedtakResultatType(VEDTAK_RESULTAT_TYPE);
+            .medVedtakstidspunkt(VEDTAKSDATO)
+            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHBANDLER)
+            .medVedtakResultatType(VEDTAK_RESULTAT_TYPE);
     }
 
 }

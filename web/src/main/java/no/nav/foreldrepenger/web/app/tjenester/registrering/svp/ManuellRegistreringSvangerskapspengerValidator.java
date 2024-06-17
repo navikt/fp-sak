@@ -31,19 +31,11 @@ public class ManuellRegistreringSvangerskapspengerValidator {
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringSvangerskapspengerDto registreringDto) {
 
-        return Stream.concat(
-            Stream.of(
-                validerEgenVirksomhet(registreringDto.getEgenVirksomhet()))
-                .flatMap(Collection::stream),
-            Stream.of(
-                validerTidligereUtenlandsopphold(registreringDto),
-                validerFremtidigUtenlandsopphold(registreringDto),
-                validerTermindato(registreringDto),
-                validerMottattDato(registreringDto),
-                validerFrilans(registreringDto.getFrilans()))
+        return Stream.concat(Stream.of(validerEgenVirksomhet(registreringDto.getEgenVirksomhet())).flatMap(Collection::stream),
+            Stream.of(validerTidligereUtenlandsopphold(registreringDto), validerFremtidigUtenlandsopphold(registreringDto),
+                    validerTermindato(registreringDto), validerMottattDato(registreringDto), validerFrilans(registreringDto.getFrilans()))
                 .filter(Optional::isPresent)
-                .map(Optional::get)
-        ).toList();
+                .map(Optional::get)).toList();
     }
 
 
@@ -104,7 +96,8 @@ public class ManuellRegistreringSvangerskapspengerValidator {
         return Optional.empty();
     }
 
-    private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands, String feltnavn) {
+    private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands,
+                                                                                String feltnavn) {
         var feil = new ArrayList<String>();
         var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
@@ -124,12 +117,15 @@ public class ManuellRegistreringSvangerskapspengerValidator {
             if (erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
                 return Optional.of(new FeltFeilDto(feltnavn, OPPHOLDSSKJEMA_TOMT));
             }
-            return validerFremtidigOppholdUtenlandsDatoer(registreringDto.getFremtidigeOppholdUtenlands(), registreringDto.getMottattDato(), feltnavn);
+            return validerFremtidigOppholdUtenlandsDatoer(registreringDto.getFremtidigeOppholdUtenlands(), registreringDto.getMottattDato(),
+                feltnavn);
         }
         return Optional.empty();
     }
 
-    private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands, LocalDate mottattDato, String feltnavn) {
+    private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands,
+                                                                                LocalDate mottattDato,
+                                                                                String feltnavn) {
         var feil = new ArrayList<String>();
         var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
@@ -155,7 +151,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
         var feltnavn = "mottattDato";
         var mottattDato = manuellRegistreringDto.getMottattDato();
         if (nonNull(mottattDato) && mottattDato.isAfter(LocalDate.now())) {
-                return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
+            return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
 
         }
         if (isNull(mottattDato)) {

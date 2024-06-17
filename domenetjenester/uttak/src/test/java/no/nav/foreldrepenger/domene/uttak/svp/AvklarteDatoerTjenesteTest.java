@@ -22,8 +22,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 class AvklarteDatoerTjenesteTest {
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
 
-    private final AvklarteDatoerTjeneste avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(
-        repositoryProvider.getUttaksperiodegrenseRepository(), new PersonopplysningerForUttakStub());
+    private final AvklarteDatoerTjeneste avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(repositoryProvider.getUttaksperiodegrenseRepository(),
+        new PersonopplysningerForUttakStub());
     private final GrunnlagOppretter grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);
 
     @Test
@@ -42,8 +42,7 @@ class AvklarteDatoerTjenesteTest {
         assertThat(avklarteDatoer.getBarnetsDødsdato()).isNotPresent();
         assertThat(avklarteDatoer.getBrukersDødsdato()).isNotPresent();
         assertThat(avklarteDatoer.getOpphørsdatoForMedlemskap()).isNotPresent();
-        assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(
-            LocalDate.of(2019, Month.MAY, 1));
+        assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(LocalDate.of(2019, Month.MAY, 1));
     }
 
     @Test
@@ -62,8 +61,7 @@ class AvklarteDatoerTjenesteTest {
         assertThat(avklarteDatoer.getBarnetsDødsdato()).isNotPresent();
         assertThat(avklarteDatoer.getBrukersDødsdato()).isNotPresent();
         assertThat(avklarteDatoer.getOpphørsdatoForMedlemskap()).isNotPresent();
-        assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(
-            LocalDate.of(2019, Month.MAY, 1));
+        assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(LocalDate.of(2019, Month.MAY, 1));
     }
 
 

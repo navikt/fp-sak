@@ -26,8 +26,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 @ApplicationScoped
 public class PersonopplysningTjeneste implements StandardPersonopplysningTjeneste {
 
-    private static final LocalDate OPPHOLD_AKSEPTER_FOM_ETTER = LocalDate.of(2020, 1,1);
-    private static final LocalDate OPPHOLD_BRUK_UDEFINERT_FOM = LocalDate.of(2020, 10,1);
+    private static final LocalDate OPPHOLD_AKSEPTER_FOM_ETTER = LocalDate.of(2020, 1, 1);
+    private static final LocalDate OPPHOLD_BRUK_UDEFINERT_FOM = LocalDate.of(2020, 10, 1);
 
     private PersonopplysningRepository personopplysningRepository;
 
@@ -62,7 +62,9 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
         throw new IllegalStateException("Utvikler feil: Har ikke innhentet opplysninger fra register enda.");
     }
 
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
+    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(Long behandlingId,
+                                                                                                        AktørId aktørId,
+                                                                                                        LocalDate tidspunkt) {
         var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
@@ -72,7 +74,8 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
     }
 
     @Override
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(BehandlingReferanse ref, LocalDate tidspunkt) {
+    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(BehandlingReferanse ref,
+                                                                                                        LocalDate tidspunkt) {
         var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
@@ -82,7 +85,8 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
     }
 
     @Override
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref, DatoIntervallEntitet forPeriode) {
+    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref,
+                                                                                                       DatoIntervallEntitet forPeriode) {
         var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
         if (grunnlagOpt.isPresent()) {
             return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), forPeriode, ref.getUtledetSkjæringstidspunkt()));
@@ -96,8 +100,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
         var funnetId = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).map(PersonopplysningGrunnlagEntitet::getId);
-        return funnetId
-            .map(id -> EndringsresultatSnapshot.medSnapshot(PersonInformasjonEntitet.class, id))
+        return funnetId.map(id -> EndringsresultatSnapshot.medSnapshot(PersonInformasjonEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
     }
 
@@ -106,31 +109,44 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
     }
 
     public List<OppholdstillatelseEntitet> hentOppholdstillatelser(Long behandlingId) {
-         return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
-            .map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of());
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
+            .map(PersonInformasjonEntitet::getOppholdstillatelser)
+            .orElse(List.of());
     }
 
     public boolean harOppholdstillatelsePåDato(Long behandlingId, LocalDate dato) {
-        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
-            .map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of()).stream()
-            .filter(ot -> OppholdstillatelseType.PERMANENT.equals(ot.getTillatelse()) || OppholdstillatelseType.MIDLERTIDIG.equals(ot.getTillatelse()))
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
+            .map(PersonInformasjonEntitet::getOppholdstillatelser)
+            .orElse(List.of())
+            .stream()
+            .filter(
+                ot -> OppholdstillatelseType.PERMANENT.equals(ot.getTillatelse()) || OppholdstillatelseType.MIDLERTIDIG.equals(ot.getTillatelse()))
             .map(OppholdstillatelseEntitet::getPeriode)
-            .filter(p -> p.getTomDato().isAfter(dato) && (p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) || OPPHOLD_BRUK_UDEFINERT_FOM.isBefore(p.getTomDato())))
-            .map(p -> new LocalDateInterval(p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) ? p.getFomDato() : OPPHOLD_BRUK_UDEFINERT_FOM, p.getTomDato()))
+            .filter(p -> p.getTomDato().isAfter(dato) && (p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) || OPPHOLD_BRUK_UDEFINERT_FOM.isBefore(
+                p.getTomDato())))
+            .map(p -> new LocalDateInterval(p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) ? p.getFomDato() : OPPHOLD_BRUK_UDEFINERT_FOM,
+                p.getTomDato()))
             .anyMatch(i -> i.encloses(dato));
     }
 
     public boolean harOppholdstillatelseForPeriode(Long behandlingId, LocalDateInterval datointervall) {
-        return hentOppholdstillatelseTidslinje(behandlingId).getLocalDateIntervals().stream().anyMatch(i -> i.contains(datointervall)) ;
+        return hentOppholdstillatelseTidslinje(behandlingId).getLocalDateIntervals().stream().anyMatch(i -> i.contains(datointervall));
     }
 
     public LocalDateTimeline<Boolean> hentOppholdstillatelseTidslinje(Long behandlingId) {
-        var segmenter = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
-            .map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of()).stream()
-            .filter(ot -> OppholdstillatelseType.PERMANENT.equals(ot.getTillatelse()) || OppholdstillatelseType.MIDLERTIDIG.equals(ot.getTillatelse()))
+        var segmenter = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
+            .map(PersonInformasjonEntitet::getOppholdstillatelser)
+            .orElse(List.of())
+            .stream()
+            .filter(
+                ot -> OppholdstillatelseType.PERMANENT.equals(ot.getTillatelse()) || OppholdstillatelseType.MIDLERTIDIG.equals(ot.getTillatelse()))
             .map(OppholdstillatelseEntitet::getPeriode)
             .filter(p -> p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) || OPPHOLD_BRUK_UDEFINERT_FOM.isBefore(p.getTomDato()))
-            .map(p -> new LocalDateInterval(p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) ? p.getFomDato() : OPPHOLD_BRUK_UDEFINERT_FOM, p.getTomDato()))
+            .map(p -> new LocalDateInterval(p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) ? p.getFomDato() : OPPHOLD_BRUK_UDEFINERT_FOM,
+                p.getTomDato()))
             .map(ot -> new LocalDateSegment<>(ot, Boolean.TRUE))
             .toList();
         return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();

@@ -15,9 +15,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
-@JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU_KODE)
-public class BekreftSokersOpplysningspliktManuDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto{
+public class BekreftSokersOpplysningspliktManuDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto {
 
 
     @JsonProperty("erVilkarOk")
@@ -32,7 +32,9 @@ public class BekreftSokersOpplysningspliktManuDto extends BekreftetAksjonspunktD
         // For Jackson
     }
 
-    public BekreftSokersOpplysningspliktManuDto(String begrunnelse, Boolean erVilkarOk, List<InntektsmeldingSomIkkeKommerDto> inntektsmeldingerSomIkkeKommer) {
+    public BekreftSokersOpplysningspliktManuDto(String begrunnelse,
+                                                Boolean erVilkarOk,
+                                                List<InntektsmeldingSomIkkeKommerDto> inntektsmeldingerSomIkkeKommer) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
         this.inntektsmeldingerSomIkkeKommer = inntektsmeldingerSomIkkeKommer;

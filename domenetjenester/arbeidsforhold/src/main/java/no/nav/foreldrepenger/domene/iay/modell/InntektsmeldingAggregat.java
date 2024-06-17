@@ -39,14 +39,16 @@ public class InntektsmeldingAggregat {
      * Alle gjeldende inntektsmeldinger i behandlingen (de som skal brukes)
      *
      * @return Liste med {@link Inntektsmelding}
-     *
-     *         Merk denne filtrerer inntektsmeldinger ifht hva som skal brukes.
+     * <p>
+     * Merk denne filtrerer inntektsmeldinger ifht hva som skal brukes.
      */
     public List<Inntektsmelding> getInntektsmeldingerSomSkalBrukes() {
         return inntektsmeldinger.stream().filter(this::skalBrukes).toList();
     }
 
-    /** Get alle inntetksmeldinger (både de som skal brukes og ikke brukes). */
+    /**
+     * Get alle inntetksmeldinger (både de som skal brukes og ikke brukes).
+     */
     public List<Inntektsmelding> getAlleInntektsmeldinger() {
         return List.copyOf(inntektsmeldinger);
     }
@@ -82,17 +84,19 @@ public class InntektsmeldingAggregat {
             inntektsmeldinger.add(inntektsmelding);
         }
 
-        inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(
-                e -> LOG.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
-                        e.getJournalpostId(), inntektsmelding.getJournalpostId()));
+        inntektsmeldinger.stream()
+            .filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet)
+            .findFirst()
+            .ifPresent(e -> LOG.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
+                e.getJournalpostId(), inntektsmelding.getJournalpostId()));
     }
 
     private boolean skalFjerneInntektsmelding(Inntektsmelding gammel, Inntektsmelding ny) {
         if (gammel.gjelderSammeArbeidsforhold(ny)) {
-            if (ALTINN_SYSTEM_NAVN.equals(gammel.getKildesystem()) || ALTINN_SYSTEM_NAVN.equals(ny.getKildesystem())
-                && gammel.getKanalreferanse() != null && ny.getKanalreferanse() != null) {
-                    // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
-                    return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
+            if (ALTINN_SYSTEM_NAVN.equals(gammel.getKildesystem())
+                || ALTINN_SYSTEM_NAVN.equals(ny.getKildesystem()) && gammel.getKanalreferanse() != null && ny.getKanalreferanse() != null) {
+                // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
+                return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
 
             }
             if (gammel.getInnsendingstidspunkt().isBefore(ny.getInnsendingstidspunkt())) {

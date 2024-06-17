@@ -13,8 +13,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import no.nav.vedtak.exception.TekniskException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +29,7 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
 class OpprettSakTjenesteTest {
@@ -40,7 +39,7 @@ class OpprettSakTjenesteTest {
     protected static final NavBruker NAV_BRUKER = NavBruker.opprettNy(EXPECTED_AKTØR_ID, Språkkode.NB);
     private static final Saksnummer EXPECTED_SAKSNUMMER = new Saksnummer("23424243");
     private static final Fagsak FAGSAK = Fagsak.opprettNy(EXPECTED_YTELSE_TYPE, NavBruker.opprettNyNB(EXPECTED_AKTØR_ID), EXPECTED_SAKSNUMMER);
-    private  static final JournalpostId EXPECTED_JOURNALPOST_ID = new JournalpostId("1234567");
+    private static final JournalpostId EXPECTED_JOURNALPOST_ID = new JournalpostId("1234567");
 
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
@@ -130,7 +129,8 @@ class OpprettSakTjenesteTest {
     @Test
     void skal_kaste_exception_om_knytting_allerede_finnes() {
         var journalpostMock = mock(Journalpost.class);
-        when(journalpostMock.getFagsak()).thenReturn(Fagsak.opprettNy(EXPECTED_YTELSE_TYPE, NavBruker.opprettNyNB(EXPECTED_AKTØR_ID), new Saksnummer("12343432")));
+        when(journalpostMock.getFagsak()).thenReturn(
+            Fagsak.opprettNy(EXPECTED_YTELSE_TYPE, NavBruker.opprettNyNB(EXPECTED_AKTØR_ID), new Saksnummer("12343432")));
         when(fagsakTjeneste.hentJournalpost(EXPECTED_JOURNALPOST_ID)).thenReturn(Optional.of(journalpostMock));
 
         assertThrows(TekniskException.class, () -> opprettSakTjeneste.knyttSakOgJournalpost(EXPECTED_SAKSNUMMER, EXPECTED_JOURNALPOST_ID));

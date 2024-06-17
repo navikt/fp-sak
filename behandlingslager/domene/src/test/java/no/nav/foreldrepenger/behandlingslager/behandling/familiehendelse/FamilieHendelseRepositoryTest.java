@@ -88,29 +88,29 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
         hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
-        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
+        hendelseBuilder.medAdopsjon(
+            hendelseBuilder.getAdopsjonBuilder().medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
 
         familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
-        assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår())
-            .isEqualTo(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+        assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(
+            OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
         var hendelseBuilder1 = repository.opprettBuilderFor(behandling.getId());
-        hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
+        hendelseBuilder1.medAdopsjon(
+            hendelseBuilder1.getAdopsjonBuilder().medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagre(behandling.getId(), hendelseBuilder1);
 
         familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getBekreftetVersjon()).isNotPresent();
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon()).isPresent();
-        assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår())
-            .isEqualTo(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+        assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(
+            OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
@@ -134,18 +134,17 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         var grunnlagIdFørste = repository.hentIdPåAktivFamiliehendelse(behandling.getId());
 
         hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
-        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
+        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
 
         var hendelseBuilder1 = repository.opprettBuilderFor(behandling.getId());
-        hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
+        hendelseBuilder1.medAdopsjon(
+            hendelseBuilder1.getAdopsjonBuilder().medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagre(behandling.getId(), hendelseBuilder1);
 
         var hendelseBuilder2 = repository.opprettBuilderFor(behandling.getId());
-        hendelseBuilder2.medAdopsjon(hendelseBuilder2.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
+        hendelseBuilder2.medAdopsjon(
+            hendelseBuilder2.getAdopsjonBuilder().medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagre(behandling.getId(), hendelseBuilder2);
 
         var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());

@@ -72,15 +72,9 @@ public class ForvaltningTekniskRestTjeneste {
     @Path("/sett-oppgave-ferdigstilt")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
-        @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
-        @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {@ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."), @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response ferdigstillOppgave(
-        @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
-        @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
+    public Response ferdigstillOppgave(@TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
         try {
             oppgaveTjeneste.ferdigstillOppgaveForForvaltning(oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
@@ -94,11 +88,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Path("/hent-alle-aapne-oppgaver")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {@ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."), @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response hentAlleÅpneOppgaver() {
         try {
@@ -113,18 +103,14 @@ public class ForvaltningTekniskRestTjeneste {
     @Path("/sett-aksjonspunkt-avbrutt")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter åpent aksjonspunkt til status AVBR", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Aksjonspunkt avbrutt."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Setter åpent aksjonspunkt til status AVBR", tags = "FORVALTNING-teknisk", responses = {@ApiResponse(responseCode = "200", description = "Aksjonspunkt avbrutt."), @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
-                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
+            .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
         behandlingRepository.lagre(behandling, lås);

@@ -1,4 +1,3 @@
-
 package no.nav.foreldrepenger.domene.medlem.kontrollerfakta;
 
 import java.util.EnumMap;
@@ -41,9 +40,7 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
-        return resultat.stream()
-            .map(mr -> opprettForMedlemResultat(param.getRef(), mr))
-           .toList();
+        return resultat.stream().map(mr -> opprettForMedlemResultat(param.getRef(), mr)).toList();
     }
 
     private AksjonspunktResultat opprettForMedlemResultat(BehandlingReferanse ref, MedlemResultat mr) {

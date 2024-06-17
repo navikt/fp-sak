@@ -61,11 +61,9 @@ public class ScenarioInnsynEngangsstønad {
         behandling = builder.build();
 
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                .buildFor(behandling);
+        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(behandling);
 
-        opprettedeAksjonspunktDefinisjoner.forEach(
-                (apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType));
+        opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType));
 
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);

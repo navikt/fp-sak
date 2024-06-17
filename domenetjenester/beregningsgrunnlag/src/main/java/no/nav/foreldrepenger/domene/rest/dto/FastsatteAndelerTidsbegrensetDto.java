@@ -19,12 +19,14 @@ public class FastsatteAndelerTidsbegrensetDto {
         // Jackson
     }
 
-    public FastsatteAndelerTidsbegrensetDto(Long andelsnr,
-                                            Integer bruttoFastsattInntekt) {
+    public FastsatteAndelerTidsbegrensetDto(Long andelsnr, Integer bruttoFastsattInntekt) {
         this.andelsnr = andelsnr;
         this.bruttoFastsattInntekt = bruttoFastsattInntekt;
     }
-    public Long getAndelsnr() { return andelsnr; }
+
+    public Long getAndelsnr() {
+        return andelsnr;
+    }
 
     public Integer getBruttoFastsattInntekt() {
         return bruttoFastsattInntekt;

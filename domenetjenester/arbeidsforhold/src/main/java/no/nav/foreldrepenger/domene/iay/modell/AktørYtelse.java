@@ -65,7 +65,7 @@ public class AktørYtelse implements IndexKey {
     YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer saksnummer) {
         var ytelse = getAlleYtelser().stream()
             .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && saksnummer.equals(ya.getSaksnummer()))
-                .findFirst();
+            .findFirst();
         return YtelseBuilder.oppdatere(ytelse).medYtelseType(type).medKilde(fagsystem).medSaksnummer(saksnummer);
     }
 
@@ -91,9 +91,6 @@ public class AktørYtelse implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "aktørId=" + aktørId +
-                ", ytelser=" + ytelser +
-                '>';
+        return getClass().getSimpleName() + "<" + "aktørId=" + aktørId + ", ytelser=" + ytelser + '>';
     }
 }

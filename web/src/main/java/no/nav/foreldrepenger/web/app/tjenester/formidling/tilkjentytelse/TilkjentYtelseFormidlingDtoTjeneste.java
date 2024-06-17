@@ -24,10 +24,7 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
     }
 
     public static TilkjentYtelseDagytelseDto mapDagytelse(BeregningsresultatEntitet bgRes) {
-        var perioder = bgRes.getBeregningsresultatPerioder()
-            .stream()
-            .map(TilkjentYtelseFormidlingDtoTjeneste::mapPeriode)
-            .toList();
+        var perioder = bgRes.getBeregningsresultatPerioder().stream().map(TilkjentYtelseFormidlingDtoTjeneste::mapPeriode).toList();
         return new TilkjentYtelseDagytelseDto(perioder);
     }
 
@@ -74,11 +71,12 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
             case VENTELØNN_VARTPENGER -> TilkjentYtelseDagytelseDto.Aktivitetstatus.VENTELØNN_VARTPENGER;
             case UDEFINERT -> TilkjentYtelseDagytelseDto.Aktivitetstatus.UDEFINERT;
             case KOMBINERT_AT_SN, KOMBINERT_AT_FL_SN, // Burde ikke oppstå for aktivitetstatuser på andeler
-                KOMBINERT_AT_FL, KOMBINERT_FL_SN -> throw new IllegalArgumentException("Ugyldig aktivitetstatus " + aktivitetStatus);
+                 KOMBINERT_AT_FL, KOMBINERT_FL_SN -> throw new IllegalArgumentException("Ugyldig aktivitetstatus " + aktivitetStatus);
         };
     }
 
-    private record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {}
+    private record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {
+    }
 
     private static AktivitetStatusMedIdentifikator genererAndelKey(BeregningsresultatAndel andel) {
         return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));

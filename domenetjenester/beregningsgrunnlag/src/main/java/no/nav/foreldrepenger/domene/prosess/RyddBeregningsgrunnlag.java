@@ -9,8 +9,7 @@ public class RyddBeregningsgrunnlag {
     private final BehandlingskontrollKontekst kontekst;
     private final BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
-    RyddBeregningsgrunnlag(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                           BehandlingskontrollKontekst kontekst) {
+    RyddBeregningsgrunnlag(BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingskontrollKontekst kontekst) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.kontekst = kontekst;
     }
@@ -25,26 +24,23 @@ public class RyddBeregningsgrunnlag {
     }
 
     public void gjenopprettFastsattBeregningAktivitetBeregningsgrunnlag() {
-        var bgReaktivert = beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(
-            kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+        var bgReaktivert = beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         if (!bgReaktivert) {
             gjenopprettFørsteBeregningsgrunnlag();
         }
     }
 
     public void ryddForeslåBesteberegningVedTilbakeføring() {
-        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
-            BeregningsgrunnlagTilstand.BESTEBEREGNET);
+        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.BESTEBEREGNET);
     }
 
     public void ryddForeslåBeregningsgrunnlagVedTilbakeføring() {
-        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
-            BeregningsgrunnlagTilstand.FORESLÅTT);
+        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT);
     }
 
     public void ryddForeslåBeregningsgrunnlag2VedTilbakeføring() {
-        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
-            BeregningsgrunnlagTilstand.FORESLÅTT_2);
+        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_2);
     }
 
     public void ryddVurderVilkårBeregningsgrunnlagVedTilbakeføring() {
@@ -58,8 +54,7 @@ public class RyddBeregningsgrunnlag {
     }
 
     private void gjenopprettFørsteBeregningsgrunnlag() {
-        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
-            BeregningsgrunnlagTilstand.OPPRETTET);
+        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
     public void ryddFordelBeregningsgrunnlagVedTilbakeføring(boolean harAksjonspunktSomErUtførtIUtgang) {

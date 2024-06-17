@@ -108,6 +108,7 @@ public class BeregningsresultatPeriodeAndelDto {
             this.arbeidsgiverReferanse = ref;
             return this;
         }
+
         public Builder medRefusjon(Integer refusjon) {
             this.refusjon = refusjon;
             return this;

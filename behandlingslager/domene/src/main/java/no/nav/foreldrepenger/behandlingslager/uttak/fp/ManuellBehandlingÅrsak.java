@@ -24,14 +24,16 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
     ADOPSJON_IKKE_STØTTET("5007", "Støtte for automatisk behandling av adopsjon er ikke implementert i saksbehandlingsløsningen."),
     SØKER_HAR_IKKE_OMSORG("5009", "Søker har ikke omsorg for barnet. Vurder bruk av annen stønadskonto eller avslå perioden."),
     SØKNADSFRIST("5010", "For sent fremsatt søknad. Vurder om uttak i perioden er gyldig."),
-    IKKE_GYLDIG_GRUNN_FOR_UTSETTELSE("5011", "Ikke gyldig grunn for utsettelse av perioden, avslå utsettelsen, og sett riktig stønadskonto som skal benyttes."),
+    IKKE_GYLDIG_GRUNN_FOR_UTSETTELSE("5011",
+        "Ikke gyldig grunn for utsettelse av perioden, avslå utsettelsen, og sett riktig stønadskonto som skal benyttes."),
     PERIODE_UAVKLART("5012", "Perioden er uavklart. Vurder trekkdager og sett utbetalingsgrad."),
     VURDER_SAMTIDIG_UTTAK("5014", "Vurder samtidig uttak av foreldrepenger."),
     VURDER_OVERFØRING("5016", "Vurder søknad om overføring av kvote."),
     OPPHØR_INNGANGSVILKÅR("5018", "Opphør av foreldrepenger fordi inngangsvilkår ikke oppfylt, avslå stønadsperiode"),
     STEBARNSADOPSJON("5019", "Stebarnsadopsjon - sjekk uttak med tanke på aktivitetskravet"),
     OPPHOLD_STØRRE_ENN_TILGJENGELIGE_DAGER("5024", "Opphold større enn tilgjengelige dager"),
-    IKKE_HELTIDSARBEID("5025", "Søker er ikke registrert med en heltidsstilling i Aa-registeret. Avklar om søker jobber 100 % og dermed har rett til utsettelse"),
+    IKKE_HELTIDSARBEID("5025",
+        "Søker er ikke registrert med en heltidsstilling i Aa-registeret. Avklar om søker jobber 100 % og dermed har rett til utsettelse"),
     DØDSFALL("5026", "Vurder uttak med hensyn på dødsfall"),
     MOR_UFØR("5027", "Vurder fars/medmors rett til uttak på grunn av mors uføretrygd"),
     OVERLAPPENDE_PLEIEPENGER_MED_INNLEGGELSE("5028", "Innvilget pleiepenger med innleggelse, vurder riktig ytelse"),
@@ -72,6 +74,7 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, ManuellBehandlingÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

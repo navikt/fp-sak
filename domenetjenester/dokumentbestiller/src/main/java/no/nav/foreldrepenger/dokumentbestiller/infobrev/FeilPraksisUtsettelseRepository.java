@@ -78,8 +78,7 @@ public class FeilPraksisUtsettelseRepository {
         var query = entityManager.createNativeQuery(QUERY_MERKING_MOR)
             .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        @SuppressWarnings("unchecked")
-        var resultat = query.getResultList();
+        @SuppressWarnings("unchecked") var resultat = query.getResultList();
         return resultat;
     }
 
@@ -138,8 +137,7 @@ public class FeilPraksisUtsettelseRepository {
         var query = entityManager.createNativeQuery(QUERY_MERKING_FAR_BEGGE_ALENE)
             .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        @SuppressWarnings("unchecked")
-        var resultat = query.getResultList();
+        @SuppressWarnings("unchecked") var resultat = query.getResultList();
         return resultat;
     }
 
@@ -160,11 +158,9 @@ public class FeilPraksisUtsettelseRepository {
             .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
             .setParameter("feilp", BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE.getKode())
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        @SuppressWarnings("unchecked")
-        var resultat = query.getResultList();
+        @SuppressWarnings("unchecked") var resultat = query.getResultList();
         return resultat;
     }
-
 
 
 }

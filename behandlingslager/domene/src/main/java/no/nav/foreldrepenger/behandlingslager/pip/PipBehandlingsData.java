@@ -55,8 +55,7 @@ public class PipBehandlingsData {
         if (!(object instanceof PipBehandlingsData other)) {
             return false;
         }
-        return Objects.equals(getBehandligStatus(), other.getBehandligStatus())
-            && Objects.equals(getFagsakStatus(), other.getFagsakStatus())
+        return Objects.equals(getBehandligStatus(), other.getBehandligStatus()) && Objects.equals(getFagsakStatus(), other.getFagsakStatus())
             && Objects.equals(getAnsvarligSaksbehandler(), other.getAnsvarligSaksbehandler());
     }
 
@@ -67,12 +66,8 @@ public class PipBehandlingsData {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "behandligStatus=" + behandligStatus + ", "
-            + "fagsakId=" + fagsakId + ", "
-            + "fagsakStatus=" + fagsakStatus + ", "
-            + "ansvarligSaksbehandler=" + ansvarligSaksbehandler + ","
-            + ">";
+        return getClass().getSimpleName() + "<" + "behandligStatus=" + behandligStatus + ", " + "fagsakId=" + fagsakId + ", " + "fagsakStatus="
+            + fagsakStatus + ", " + "ansvarligSaksbehandler=" + ansvarligSaksbehandler + "," + ">";
     }
 
 

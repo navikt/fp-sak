@@ -139,8 +139,7 @@ public class InntektArbeidYtelseRestTjeneste {
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
     @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = "Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = IAYYtelseDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public IAYYtelseDto getInntektArbeidYtelser(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public IAYYtelseDto getInntektArbeidYtelser(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return getYtelserFraBehandling(behandling);
     }
@@ -173,8 +172,7 @@ public class InntektArbeidYtelseRestTjeneste {
     @Path(ALLE_INNTEKTSMELDINGER_PART_PATH)
     @Operation(description = "Hent informasjon om inntektsmelding", summary = "Returnerer info om alle inntektsmeldinger.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektsmeldingerDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingerDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public InntektsmeldingerDto getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                          @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public InntektsmeldingerDto getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
@@ -187,8 +185,7 @@ public class InntektArbeidYtelseRestTjeneste {
     @Path(ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH)
     @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = "Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidsgiverOversiktDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public ArbeidsgiverOversiktDto getArbeidsgiverOpplysninger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public ArbeidsgiverOversiktDto getArbeidsgiverOpplysninger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
@@ -203,33 +200,78 @@ public class InntektArbeidYtelseRestTjeneste {
 
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-                .map(YtelseFordelingAggregat::getOppgittFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
-                .map(OppgittPeriodeEntitet::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
+                .map(YtelseFordelingAggregat::getOppgittFordeling)
+                .map(OppgittFordelingEntitet::getPerioder)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(OppgittPeriodeEntitet::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             svangerskapspengerRepository.hentGrunnlag(behandling.getId())
-                .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger).map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(Collections.emptyList()).stream()
-                .map(SvpTilretteleggingEntitet::getArbeidsgiver).flatMap(Optional::stream).forEach(arbeidsgivere::add);
+                .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
+                .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(SvpTilretteleggingEntitet::getArbeidsgiver)
+                .flatMap(Optional::stream)
+                .forEach(arbeidsgivere::add);
         }
 
         iayTjeneste.finnGrunnlag(behandling.getId()).ifPresent(iayg -> {
-            iayg.getAktørArbeidFraRegister(behandling.getAktørId()).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
-                .map(Yrkesaktivitet::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getBekreftetAnnenOpptjening(behandling.getAktørId()).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
-                .map(Yrkesaktivitet::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getAktørInntektFraRegister(behandling.getAktørId()).map(AktørInntekt::getInntekt).orElse(Collections.emptyList()).stream()
-                .map(Inntekt::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getAktørYtelseFraRegister(behandling.getAktørId()).map(AktørYtelse::getAlleYtelser).orElse(Collections.emptyList()).stream()
-                .flatMap(y -> y.getYtelseGrunnlag().stream()).flatMap(g -> g.getYtelseStørrelse().stream())
-                .flatMap(s -> s.getVirksomhet().stream().map(Arbeidsgiver::virksomhet)).forEach(arbeidsgivere::add);
-            iayg.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList()).stream()
-                .map(Inntektsmelding::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getArbeidsforholdInformasjon().map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser).orElse(Collections.emptyList()).stream()
-                .map(ArbeidsforholdReferanse::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getArbeidsforholdOverstyringer().stream()
-                .map(ArbeidsforholdOverstyring::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
-            iayg.getArbeidsforholdOverstyringer().stream()
-                .filter(o -> o.getArbeidsgiver() != null && o.getArbeidsgiverNavn() != null && OrgNummer.KUNSTIG_ORG.equals(o.getArbeidsgiver().getIdentifikator()))
+            iayg.getAktørArbeidFraRegister(behandling.getAktørId())
+                .map(AktørArbeid::hentAlleYrkesaktiviteter)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Yrkesaktivitet::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getBekreftetAnnenOpptjening(behandling.getAktørId())
+                .map(AktørArbeid::hentAlleYrkesaktiviteter)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Yrkesaktivitet::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getAktørInntektFraRegister(behandling.getAktørId())
+                .map(AktørInntekt::getInntekt)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Inntekt::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getAktørYtelseFraRegister(behandling.getAktørId())
+                .map(AktørYtelse::getAlleYtelser)
+                .orElse(Collections.emptyList())
+                .stream()
+                .flatMap(y -> y.getYtelseGrunnlag().stream())
+                .flatMap(g -> g.getYtelseStørrelse().stream())
+                .flatMap(s -> s.getVirksomhet().stream().map(Arbeidsgiver::virksomhet))
+                .forEach(arbeidsgivere::add);
+            iayg.getInntektsmeldinger()
+                .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Inntektsmelding::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getArbeidsforholdInformasjon()
+                .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ArbeidsforholdReferanse::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getArbeidsforholdOverstyringer()
+                .stream()
+                .map(ArbeidsforholdOverstyring::getArbeidsgiver)
+                .filter(Objects::nonNull)
+                .forEach(arbeidsgivere::add);
+            iayg.getArbeidsforholdOverstyringer()
+                .stream()
+                .filter(o -> o.getArbeidsgiver() != null && o.getArbeidsgiverNavn() != null && OrgNummer.KUNSTIG_ORG.equals(
+                    o.getArbeidsgiver().getIdentifikator()))
                 .forEach(o -> overstyrtNavn.add(o.getArbeidsgiverNavn()));
             arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
             alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
@@ -250,8 +292,7 @@ public class InntektArbeidYtelseRestTjeneste {
             .map(this::mapFra)
             .collect(Collectors.toSet());
         alleReferanser.addAll(arbeidsgivereDtos);
-        var oversikt = alleReferanser.stream()
-            .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
+        var oversikt = alleReferanser.stream().collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
         // Sørg for at kunstig er tilstede i tilfelle det legges til
         oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
 
@@ -259,19 +300,32 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private static Set<ArbeidsgiverOpplysningerDto> referanserFraOppgittOpptjening(Optional<OppgittOpptjening> oppgittOpptjening) {
-        Set<ArbeidsgiverOpplysningerDto> refFraOppgittOpptjening= new HashSet<>();
-        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
-            .map(OppgittEgenNæring::getVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-            .filter(Objects::nonNull).collect(Collectors.toSet()));
-        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getOppgittArbeidsforhold).orElse(Collections.emptyList()).stream()
-            .map(OppgittArbeidsforhold::getUtenlandskVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-            .filter(Objects::nonNull).collect(Collectors.toSet()));
+        Set<ArbeidsgiverOpplysningerDto> refFraOppgittOpptjening = new HashSet<>();
+        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getEgenNæring)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(OppgittEgenNæring::getVirksomhet)
+            .map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet()));
+        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getOppgittArbeidsforhold)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(OppgittArbeidsforhold::getUtenlandskVirksomhet)
+            .map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet()));
         return refFraOppgittOpptjening;
     }
 
     private static Set<Arbeidsgiver> finnArbeidsgivereFraOppgittOpptjening(Optional<OppgittOpptjening> opptjening) {
-        return opptjening.map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
-            .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).collect(Collectors.toSet());
+        return opptjening.map(OppgittOpptjening::getEgenNæring)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(OppgittEgenNæring::getVirksomhetOrgnr)
+            .filter(Objects::nonNull)
+            .map(Arbeidsgiver::virksomhet)
+            .collect(Collectors.toSet());
     }
 
 
@@ -281,7 +335,8 @@ public class InntektArbeidYtelseRestTjeneste {
             if (arbeidsgiver.getErVirksomhet()) {
                 return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getNavn());
             }
-            return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getIdentifikator(), opplysninger.getNavn(), opplysninger.getFødselsdato());
+            return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getIdentifikator(), opplysninger.getNavn(),
+                opplysninger.getFødselsdato());
         } catch (Exception e) {
             return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), "Feil ved oppslag");
         }
@@ -294,6 +349,7 @@ public class InntektArbeidYtelseRestTjeneste {
         var ref = MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(virksomhet.getNavn());
         return new ArbeidsgiverOpplysningerDto(ref, virksomhet.getNavn());
     }
+
     private Set<Arbeidsgiver> finnArbeidsgivereFraSimulering(SimuleringDto simDto) {
         var agFraSimRes = finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultat());
         agFraSimRes.addAll(finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultatUtenInntrekk()));
@@ -304,7 +360,8 @@ public class InntektArbeidYtelseRestTjeneste {
         if (simuleringResultat == null || simuleringResultat.perioderPerMottaker() == null) {
             return Collections.emptySet();
         }
-        return simuleringResultat.perioderPerMottaker().stream()
+        return simuleringResultat.perioderPerMottaker()
+            .stream()
             .map(InntektArbeidYtelseRestTjeneste::mapSimuleringsmottaker)
             .filter(Optional::isPresent)
             .map(Optional::get)

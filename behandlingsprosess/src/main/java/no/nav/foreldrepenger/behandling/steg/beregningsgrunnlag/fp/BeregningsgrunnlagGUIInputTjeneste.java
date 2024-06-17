@@ -20,7 +20,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -32,6 +31,7 @@ import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -73,8 +73,10 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
             .map(BeregningsgrunnlagGUIInputTjeneste::mapTilVurderinsgrunnlag);
-        var fpGr = besteberegninggrunnlag.map(bbGrunnlag -> new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), bbGrunnlag))
-            .orElse(new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering));
+        var fpGr = besteberegninggrunnlag.map(
+                bbGrunnlag -> new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), bbGrunnlag))
+            .orElse(
+                new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering));
         fpGr.setAktivitetGradering(aktivitetGradering);
         return fpGr;
     }
@@ -91,21 +93,23 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
     }
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
-        return new BesteberegningVurderingGrunnlag(besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), Beløp.fra(besteberegninggrunnlagEntitet.getAvvik().orElse(null)));
+        return new BesteberegningVurderingGrunnlag(
+            besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream().map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(),
+            Beløp.fra(besteberegninggrunnlagEntitet.getAvvik().orElse(null)));
     }
 
     private static BesteberegningMånedGrunnlag mapTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
-        return new BesteberegningMånedGrunnlag(månedsgrunnlagEntitet.getInntekter().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilInntekt).toList(), YearMonth.from(månedsgrunnlagEntitet.getPeriode().getFomDato()));
+        return new BesteberegningMånedGrunnlag(
+            månedsgrunnlagEntitet.getInntekter().stream().map(BeregningsgrunnlagGUIInputTjeneste::mapTilInntekt).toList(),
+            YearMonth.from(månedsgrunnlagEntitet.getPeriode().getFomDato()));
     }
 
     private static Inntekt mapTilInntekt(BesteberegningInntektEntitet besteberegningInntektEntitet) {
         if (besteberegningInntektEntitet.getArbeidsgiver() != null) {
             return new Inntekt(mapArbeidsgiver(besteberegningInntektEntitet.getArbeidsgiver()),
-                mapArbeidsforholdRef(besteberegningInntektEntitet.getArbeidsforholdRef()),
-                Beløp.fra(besteberegningInntektEntitet.getInntekt()));
+                mapArbeidsforholdRef(besteberegningInntektEntitet.getArbeidsforholdRef()), Beløp.fra(besteberegningInntektEntitet.getInntekt()));
         }
-        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()), Beløp.fra(besteberegningInntektEntitet.getInntekt()));
+        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()),
+            Beløp.fra(besteberegningInntektEntitet.getInntekt()));
     }
 }

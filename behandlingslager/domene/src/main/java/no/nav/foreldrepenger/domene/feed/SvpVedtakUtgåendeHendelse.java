@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 
 @Entity(name = "SvpVedtakUtgåendeHendelse")
 @DiscriminatorValue(SvpVedtakUtgåendeHendelse.FEED_NAVN_VEDTAK)
-@SekvensnummerNavn(value=SvpVedtakUtgåendeHendelse.SEQ_GENERATOR_NAVN)
+@SekvensnummerNavn(value = SvpVedtakUtgåendeHendelse.SEQ_GENERATOR_NAVN)
 public class SvpVedtakUtgåendeHendelse extends UtgåendeHendelse {
 
     static final String FEED_NAVN_VEDTAK = "VEDTAK_SVP";

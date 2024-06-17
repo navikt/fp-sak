@@ -55,13 +55,13 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     @Inject
     public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepository behandlingRepository,
-            FagsakTjeneste fagsakTjeneste,
-            PersonopplysningTjeneste personopplysningTjeneste,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            BehandlendeEnhetTjeneste enhetTjeneste,
-            KompletthetModell kompletthetModell,
-            FagsakEgenskapRepository fagsakEgenskapRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                                 FagsakTjeneste fagsakTjeneste,
+                                                                 PersonopplysningTjeneste personopplysningTjeneste,
+                                                                 FamilieHendelseTjeneste familieHendelseTjeneste,
+                                                                 BehandlendeEnhetTjeneste enhetTjeneste,
+                                                                 KompletthetModell kompletthetModell,
+                                                                 FagsakEgenskapRepository fagsakEgenskapRepository,
+                                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakTjeneste = fagsakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -85,9 +85,10 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
             var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
-            if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&
-                !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
+            if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(
+                AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
+                var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING,
+                    etterlysIM.ventefrist());
                 return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
             }
         }
@@ -98,9 +99,10 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         fagsakTjeneste.oppdaterFagsak(behandling, personopplysninger, barnSøktStønadFor);
 
         enhetTjeneste.sjekkEnhetEtterEndring(behandling)
-                .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
+            .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
 
-        return erSøkerUnder18ar(ref) ? BehandleStegResultat.utførtMedAksjonspunkter(List.of(AVKLAR_VERGE)) : BehandleStegResultat.utførtUtenAksjonspunkter();
+        return erSøkerUnder18ar(ref) ? BehandleStegResultat.utførtMedAksjonspunkter(
+            List.of(AVKLAR_VERGE)) : BehandleStegResultat.utførtUtenAksjonspunkter();
 
     }
 
@@ -111,7 +113,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     }
 
     private boolean skalPassereUtenBrev(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        return behandling.getBehandlingÅrsaker()
+            .stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
     }
@@ -121,7 +124,9 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         if (eksisterende.filter(FagsakMarkering::erPrioritert).isPresent()) {
             return;
         }
-        var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
+        var dødsrelatert = behandling.getBehandlingÅrsaker()
+            .stream()
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(bat -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(bat));
         if (dødsrelatert) {
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.DØD_DØDFØDSEL);

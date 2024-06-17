@@ -66,7 +66,8 @@ public class FagsakFullTjeneste {
     }
 
     @Inject
-    public FagsakFullTjeneste(FagsakRepository fagsakRepository,  // NOSONAR
+    public FagsakFullTjeneste(FagsakRepository fagsakRepository,
+                              // NOSONAR
                               BehandlingRepository behandlingRepository,
                               PersoninfoAdapter personinfoAdapter,
                               FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
@@ -101,7 +102,8 @@ public class FagsakFullTjeneste {
         var bruker = lagBrukerPersonDto(fagsak).orElse(null);
         var manglerAdresse = personinfoAdapter.sjekkOmBrukerManglerAdresse(fagsak.getYtelseType(), fagsak.getAktørId());
         var annenpart = lagAnnenpartPersonDto(fagsak).orElse(null);
-        var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper()).flatMap(Collection::stream)
+        var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
+            .flatMap(Collection::stream)
             .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), bt)))
             .toList();
         var fagsakMarkering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(null);
@@ -120,7 +122,8 @@ public class FagsakFullTjeneste {
 
     private Optional<PersonDto> lagBrukerPersonDto(Fagsak fagsak) {
         return personinfoAdapter.hentBrukerBasisForAktør(fagsak.getYtelseType(), fagsak.getAktørId())
-            .map(pi -> mapFraPersoninfoBasisTilPersonDto(pi, Optional.ofNullable(fagsak.getNavBruker()).map(NavBruker::getSpråkkode).orElse(Språkkode.NB)));
+            .map(pi -> mapFraPersoninfoBasisTilPersonDto(pi,
+                Optional.ofNullable(fagsak.getNavBruker()).map(NavBruker::getSpråkkode).orElse(Språkkode.NB)));
     }
 
     private Optional<PersonDto> lagAnnenpartPersonDto(Fagsak fagsak) {
@@ -169,7 +172,8 @@ public class FagsakFullTjeneste {
     private Optional<AnnenPartBehandlingDto> hentAnnenPartsGjeldendeYtelsesBehandling(Fagsak fagsak) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsakFraId(fagsak.getId()))
-            .map(Fagsak::getId).flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId)
+            .map(Fagsak::getId)
+            .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId)
             .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(),
                 behandling.getFagsak().getRelasjonsRolleType(), behandling.getUuid()));
     }

@@ -64,8 +64,9 @@ public class OppdaterFagsakStatusTjeneste {
         if (erBehandlingOpprettetEllerUnderBehandling(nyStatus)) {
             oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.UNDER_BEHANDLING);
         } else {
-            throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingOpprettet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandlingId , nyStatus));
+            throw new IllegalStateException(String.format(
+                "Utviklerfeil: oppdaterFagsakNårBehandlingOpprettet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
+                behandlingId, nyStatus));
         }
     }
 
@@ -87,7 +88,9 @@ public class OppdaterFagsakStatusTjeneste {
     public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAutomatiskAvslBatch(Behandling behandling) {
         var fagsak = behandling.getFagsak();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            throw new IllegalStateException(String.format("Utviklerfeil: BehandlingId: %s med ytelsestype %s skal ikke trigges av AutomatiskFagsakAvslutningTask. Noe er galt.",  behandling.getId() ,behandling.getStatus()));
+            throw new IllegalStateException(
+                String.format("Utviklerfeil: BehandlingId: %s med ytelsestype %s skal ikke trigges av AutomatiskFagsakAvslutningTask. Noe er galt.",
+                    behandling.getId(), behandling.getStatus()));
         } else {
             if (alleAndreBehandlingerErLukket(fagsak, behandling.getId())) {
                 oppdaterFagsakStatus(fagsak, behandling.getId(), FagsakStatus.AVSLUTTET);
@@ -106,7 +109,7 @@ public class OppdaterFagsakStatusTjeneste {
                                                                                            boolean tvingAvsluttSak) {
         if (alleAndreBehandlingerErLukket(fagsak, behandlingId)) {
             if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-                oppdaterFagsakStatus(fagsak,behandlingId, FagsakStatus.AVSLUTTET);
+                oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             } else {
                 if ((behandlingId == null && tvingAvsluttSak) || ingenLøpendeYtelseVedtak(fagsak)) {
@@ -128,7 +131,9 @@ public class OppdaterFagsakStatusTjeneste {
 
         if (sisteYtelsesvedtak.isPresent()) {
             //avlutter fagsak når avslått da fagsakstatus er under behandling, og vil ikke plukkes opp av AutomatiskFagsakAvslutningBatchTjeneste
-            if (erBehandlingResultatAvslått(sisteYtelsesvedtak.get())) return true;
+            if (erBehandlingResultatAvslått(sisteYtelsesvedtak.get())) {
+                return true;
+            }
 
             //Dersom saken har en avslutningsdato vil avslutning av saken hånderes av AutomatiskFagsakAvslutningBatchTjeneste
             //Hvis den ikke har en avslutningsdato skal den derfor avsluttes
@@ -138,11 +143,11 @@ public class OppdaterFagsakStatusTjeneste {
     }
 
     private boolean erBehandlingOpprettetEllerUnderBehandling(BehandlingStatus status) {
-        return BehandlingStatus.OPPRETTET.equals(status) || BehandlingStatus.UTREDES.equals(status) ;
+        return BehandlingStatus.OPPRETTET.equals(status) || BehandlingStatus.UTREDES.equals(status);
     }
 
     private boolean erFagsakOpprettetEllerUnderBehandling(FagsakStatus status) {
-        return FagsakStatus.OPPRETTET.equals(status) || FagsakStatus.UNDER_BEHANDLING.equals(status) ;
+        return FagsakStatus.OPPRETTET.equals(status) || FagsakStatus.UNDER_BEHANDLING.equals(status);
     }
 
     private void oppdaterFagsakStatus(Fagsak fagsak, Long behandlingId, FagsakStatus nyStatus) {
@@ -173,7 +178,8 @@ public class OppdaterFagsakStatusTjeneste {
             var nyStatusKode = Optional.ofNullable(nyStatus).map(FagsakStatus::getKode).orElse("null");
 
             if (behandlingId != null) {
-                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatusKode, nyStatusKode, fagsak.getId(), behandlingId);
+                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatusKode, nyStatusKode, fagsak.getId(),
+                    behandlingId);
             } else {
                 LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatusKode, nyStatusKode, fagsak.getId());
             }

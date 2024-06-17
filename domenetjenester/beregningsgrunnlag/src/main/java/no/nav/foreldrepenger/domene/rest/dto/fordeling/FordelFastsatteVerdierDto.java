@@ -28,13 +28,16 @@ public class FordelFastsatteVerdierDto {
         // Jackson
     }
 
-    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) Integer refusjonPrÅr, @Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse, @NotNull Inntektskategori inntektskategori) {
+    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) Integer refusjonPrÅr,
+                                     @Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse,
+                                     @NotNull Inntektskategori inntektskategori) {
         this.refusjonPrÅr = refusjonPrÅr;
         this.fastsattÅrsbeløpInklNaturalytelse = fastsattÅrsbeløpInklNaturalytelse;
         this.inntektskategori = inntektskategori;
     }
 
-    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse, @NotNull Inntektskategori inntektskategori) {
+    public FordelFastsatteVerdierDto(@Min(0) @Max(Integer.MAX_VALUE) @NotNull Integer fastsattÅrsbeløpInklNaturalytelse,
+                                     @NotNull Inntektskategori inntektskategori) {
         this.fastsattÅrsbeløpInklNaturalytelse = fastsattÅrsbeløpInklNaturalytelse;
         this.inntektskategori = inntektskategori;
     }

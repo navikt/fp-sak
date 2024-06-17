@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
-public class SettBehandlingPaVentDto extends DtoMedBehandlingId  {
+public class SettBehandlingPaVentDto extends DtoMedBehandlingId {
 
     @NotNull
     @Min(0)

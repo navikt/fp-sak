@@ -20,7 +20,8 @@ public class VedtakInnsynTjeneste {
     }
 
     public String hentVedtaksdokument(Long behandlingId) {
-        return VedtakXMLTilHTMLTransformator.transformer(lagretVedtakRepository.hentLagretVedtakForBehandling(behandlingId).getXmlClob(), behandlingId);
+        return VedtakXMLTilHTMLTransformator.transformer(lagretVedtakRepository.hentLagretVedtakForBehandling(behandlingId).getXmlClob(),
+            behandlingId);
     }
 
 }

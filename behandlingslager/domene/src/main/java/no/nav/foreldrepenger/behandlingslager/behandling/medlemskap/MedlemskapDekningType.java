@@ -34,14 +34,11 @@ public enum MedlemskapDekningType implements Kodeverdi {
     ;
 
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPER = unmodifiableList(asList(
-        FTL_2_6, FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_B, FTL_2_9_1_C, FTL_2_9_2_A, FTL_2_9_2_C,
-        FULL,
-        UNNTATT));
+    public static final List<MedlemskapDekningType> DEKNINGSTYPER = unmodifiableList(
+        asList(FTL_2_6, FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_B, FTL_2_9_1_C, FTL_2_9_2_A, FTL_2_9_2_C, FULL, UNNTATT));
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM = List.of(FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_C,
-        FTL_2_9_2_A, FTL_2_9_2_C,
-        FULL);
+        FTL_2_9_2_A, FTL_2_9_2_C, FULL);
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_MEDLEM_UNNTATT = List.of(UNNTATT);
 

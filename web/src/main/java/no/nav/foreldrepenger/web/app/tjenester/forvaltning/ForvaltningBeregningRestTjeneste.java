@@ -37,7 +37,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.revurdering.satsregulering.GrunnbeløpReguleringTask;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
@@ -59,6 +58,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -146,8 +146,9 @@ public class ForvaltningBeregningRestTjeneste {
             }
         } else {
             // Nytt innslag. Sett sluttdato på gjeldende og legg til ny
-            if (!sjekkVerdierOK(dto, gjeldende, brukTom))
+            if (!sjekkVerdierOK(dto, gjeldende, brukTom)) {
                 throw new ForvaltningException("Ulovlige verdier " + dto);
+            }
             LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
             gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
             beregningsresultatRepository.lagreSats(gjeldende);
@@ -159,10 +160,12 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {
-        if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato()))
+        if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato())) {
             return false;
+        }
         if (BeregningSatsType.GRUNNBELØP.equals(gjeldende.getSatsType())) {
-            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth()) && dto.getSatsFom().getDayOfMonth() == 1;
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth())
+                && dto.getSatsFom().getDayOfMonth() == 1;
         }
         if (BeregningSatsType.ENGANG.equals(gjeldende.getSatsType())) {
             return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom());
@@ -182,7 +185,8 @@ public class ForvaltningBeregningRestTjeneste {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
-            .stream().anyMatch(SpesialBehandling::erIkkeSpesialBehandling);
+            .stream()
+            .anyMatch(SpesialBehandling::erIkkeSpesialBehandling);
         if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) || åpneBehandlinger) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -306,9 +310,9 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private static List<Inntektspost> hentInntekterFraAInntektIBeregningsperioden(Behandling behandling,
-                                                                      Arbeidsgiver arbeidsgiver,
-                                                                      DatoIntervallEntitet beregningsperiode,
-                                                                      InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+                                                                                  Arbeidsgiver arbeidsgiver,
+                                                                                  DatoIntervallEntitet beregningsperiode,
+                                                                                  InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         return inntektArbeidYtelseGrunnlag.getAktørInntektFraRegister(behandling.getAktørId())
             .map(AktørInntekt::getInntekt)
             .orElse(Collections.emptyList())
@@ -349,14 +353,16 @@ public class ForvaltningBeregningRestTjeneste {
 
     private List<InntektPerioderRegister> mapInntekter(List<Inntektspost> inntekterIBeregningsperioden) {
         List<InntektPerioderRegister> inntekterFraRegister = new ArrayList<>();
-        inntekterIBeregningsperioden.forEach(inntektspost -> inntekterFraRegister.add(new InntektPerioderRegister(inntektspost.getPeriode(), inntektspost.getBeløp().getVerdi())));
+        inntekterIBeregningsperioden.forEach(
+            inntektspost -> inntekterFraRegister.add(new InntektPerioderRegister(inntektspost.getPeriode(), inntektspost.getBeløp().getVerdi())));
         return inntekterFraRegister;
     }
 
     record DiffInntektIMData(int antallUtendiff, int antallMedDiff, List<DetaljerMedDiff> listeOverAvvikeneIperioden) {
     }
 
-    record DetaljerMedDiff(String saksnummer, UUID behandlingUuid, DatoIntervallEntitet beregningsperiode, BigDecimal gjennsnittAbakus, BigDecimal beløpFraIm, BigDecimal differanse, List<InntektPerioderRegister> inntPerioder) {
+    record DetaljerMedDiff(String saksnummer, UUID behandlingUuid, DatoIntervallEntitet beregningsperiode, BigDecimal gjennsnittAbakus,
+                           BigDecimal beløpFraIm, BigDecimal differanse, List<InntektPerioderRegister> inntPerioder) {
     }
 
     record InntektPerioderRegister(DatoIntervallEntitet periode, BigDecimal beløp) {

@@ -72,11 +72,8 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "UttakResultatDokRegelEntitet{" +
-            "id=" + id +
-            ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak.getKode() +
-            ", tilManuellVurdering=" + tilManuellBehandling +
-            '}';
+        return "UttakResultatDokRegelEntitet{" + "id=" + id + ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak.getKode()
+            + ", tilManuellVurdering=" + tilManuellBehandling + '}';
     }
 
     public static Builder medManuellBehandling(ManuellBehandlingÅrsak manuellBehandlingÅrsak) {

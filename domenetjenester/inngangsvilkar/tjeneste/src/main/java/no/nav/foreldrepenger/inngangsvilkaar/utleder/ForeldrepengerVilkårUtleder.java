@@ -26,14 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-public final class ForeldrepengerVilkårUtleder  {
+public final class ForeldrepengerVilkårUtleder {
 
-    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(
-        MEDLEMSKAPSVILKÅRET,
-        SØKERSOPPLYSNINGSPLIKT,
-        OPPTJENINGSPERIODEVILKÅR,
-        OPPTJENINGSVILKÅRET,
-        BEREGNINGSGRUNNLAGVILKÅR);
+    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR,
+        OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
 
     private ForeldrepengerVilkårUtleder() {
     }
@@ -55,8 +51,8 @@ public final class ForeldrepengerVilkårUtleder  {
             return FORELDREANSVARSVILKÅRET_2_LEDD;
         } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
             var rolle = behandling.getRelasjonsRolleType();
-            return RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ?
-                FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
+            return
+                RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ? FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
         }
         throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
     }

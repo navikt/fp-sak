@@ -27,9 +27,7 @@ public class DokumentBestilt {
         this.historikkRepository = historikkRepository;
     }
 
-    public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
-                                        Behandling behandling,
-                                        DokumentBestilling bestilling) {
+    public void opprettHistorikkinnslag(HistorikkAktør historikkAktør, Behandling behandling, DokumentBestilling bestilling) {
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);

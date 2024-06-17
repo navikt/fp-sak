@@ -41,8 +41,10 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
-        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> !b.erYtelseBehandling()).findFirst();
+        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+            .stream()
+            .filter(b -> !b.erYtelseBehandling())
+            .findFirst();
 
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
@@ -60,8 +62,10 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
-        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> !b.erYtelseBehandling()).findFirst();
+        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+            .stream()
+            .filter(b -> !b.erYtelseBehandling())
+            .findFirst();
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
         } else if (eksisterendeKøetBehandling.isPresent()) { //#V5

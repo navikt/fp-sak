@@ -60,8 +60,7 @@ class IverksetteVedtakStegYtelseTest {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         historikkRepository = repositoryProvider.getHistorikkRepository();
-        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
-                vurderBehandlingerUnderIverksettelse);
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
         behandling = opprettBehandling();
     }
 
@@ -105,8 +104,7 @@ class IverksetteVedtakStegYtelseTest {
     }
 
     private Behandling opprettBehandling() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingStegStart(BehandlingStegType.IVERKSETT_VEDTAK);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingStegStart(BehandlingStegType.IVERKSETT_VEDTAK);
 
         var behandling = scenario.lagre(repositoryProvider);
         var lås = behandlingRepository.taSkriveLås(behandling);
@@ -124,12 +122,12 @@ class IverksetteVedtakStegYtelseTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         var behandlingsresultat = getBehandlingsresultat(behandling);
         var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-                .medAnsvarligSaksbehandler("E2354345")
-                .medVedtakResultatType(resultatType)
-                .medIverksettingStatus(iverksettingStatus)
-                .medBehandlingsresultat(behandlingsresultat)
-                .build();
+            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
+            .medAnsvarligSaksbehandler("E2354345")
+            .medVedtakResultatType(resultatType)
+            .medIverksettingStatus(iverksettingStatus)
+            .medBehandlingsresultat(behandlingsresultat)
+            .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         return behandlingVedtak;
     }

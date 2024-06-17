@@ -29,7 +29,7 @@ class ManuellRegistreringFellesValidatorTest {
         var feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Detaljer om tidligere utenlandsopphold er påkrevd hvis man har oppholdt seg i utlandet").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Detaljer om tidligere utenlandsopphold er påkrevd hvis man har oppholdt seg i utlandet")
-                .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
+            .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setHarTidligereOppholdUtenlands(false);
@@ -49,7 +49,7 @@ class ManuellRegistreringFellesValidatorTest {
         var feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Periode for utenlandsopphold kan ikke overlappe dagens dato").isPresent();
         assertThat(feltFeil.get().getMelding()).as(" Periode for utenlandsopphold kan ikke overlappe dagensdato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var etterDagensDato = opprettUtenlandsOpphold(idag, idag.plusDays(3), "FRA");
@@ -57,7 +57,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Periode for utenlandsopphold kan ikke være etter dagens dato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Periode for utenlandsopphold kan ikke være etter dagens dato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var fireMånederSidenTilTreMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(3), "FRA");
@@ -65,7 +65,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke fullstendig overlappe").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Perioder for utenlandsopphold kan ikke fullstendig overlappe")
-                .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
+            .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var femMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(5), idag.minusMonths(2), "FRA");
@@ -73,7 +73,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke delvis overlappe").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Perioder for utenlandsopphold kan ikke delvis overlappe")
-                .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
+            .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var treMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(3), idag.minusMonths(2), "FRA");
@@ -81,7 +81,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke delvis overlappe").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Perioder for utenlandsopphold kan ikke delvis overlappe")
-                .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
+            .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setTidligereOppholdUtenlands(asList(fireMånederSidenTilTreMånederSiden, treMånederSidenTilToMånederSiden));
@@ -93,7 +93,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Dato for start av periode må være før dato for slutt av periode.").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Dato for start av periode må være før dato for slutt av periode.")
-                .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
     }
 
@@ -115,7 +115,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Startdato kan ikke være før mottatt dato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Startdato kan ikke være før mottatt dato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.LIK_ELLER_ETTER_MOTTATT_DATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.LIK_ELLER_ETTER_MOTTATT_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var tomFørFom = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(2), "SWE");
@@ -123,7 +123,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Startdato må være før sluttdato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Startdato må være før sluttdato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         var periode1 = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(100), "SWE");
@@ -147,7 +147,7 @@ class ManuellRegistreringFellesValidatorTest {
         var feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Detaljer om fremtidige utenlandsopphold er påkrevd hvis man skal oppholde seg i utlandet").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Detaljer om fremtidige utenlandsopphold er påkrevd hvis man skal oppholde seg i utlandet")
-                .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
+            .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setHarFremtidigeOppholdUtenlands(false);
@@ -174,7 +174,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
 
         assertThat(feltFeil).isNotPresent(); // Ikke feil at termin- og fødselsdato begge er satt. Er barnet født styrer
-                                             // hvilken vi bruker.
+        // hvilken vi bruker.
 
         registreringDto.setTermindato(null);
 
@@ -219,7 +219,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Terminbekreftelsesdato kan ikke være etter dagens dato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Terminbekreftelsesdato kan ikke være etter dagens dato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.FØR_ELLER_LIK_DAGENS_DATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.FØR_ELLER_LIK_DAGENS_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setTermindato(now().minusWeeks(1));
@@ -227,7 +227,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Terminbekreftelsesdato kan ikke være etter termindato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Terminbekreftelsesdato kan ikke være etter termindato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setTermindato(now().minusWeeks(1));
@@ -235,7 +235,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Terminbekreftelsesdato kan ikke være lik termindato").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Terminbekreftelsesdato kan ikke være lik termindato")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         registreringDto.setFoedselsDato(LocalDate.now());
@@ -243,7 +243,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelsesdato når fødselsdato er fylt ut").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Skal ikke fylle inn terminbekreftelsesdato når fødselsdato er fylt ut")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_OG_FØDSELSDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_OG_FØDSELSDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
     }
@@ -269,7 +269,7 @@ class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelseAntallBarn når fødselsdato er fylt ut").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Skal ikke fylle inn terminbekreftelseAntallBarn når fødselsdato er fylt ut")
-                .isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_OG_FØDSELSDATO);
+            .isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_OG_FØDSELSDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
     }
 
@@ -344,14 +344,14 @@ class ManuellRegistreringFellesValidatorTest {
         var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
         assertThat(feltFeil).as("En fødselsdato pr barn er påkrevd (ingen er fylt ut)").isPresent();
         assertThat(feltFeil.get().getMelding()).as("En fødselsdato pr barn er påkrevd (ingen er fylt ut)")
-                .isEqualTo(ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER);
+            .isEqualTo(ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         fødselsdatoer.add(LocalDate.now().minusYears(2));
         feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
         assertThat(feltFeil).as("En fødselsdato pr barn er påkrevd (kun en er fylt ut)").isPresent();
         assertThat(feltFeil.get().getMelding()).as("En fødselsdato pr barn er påkrevd (kun en er fylt ut)")
-                .isEqualTo(ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER);
+            .isEqualTo(ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
         fødselsdatoer.add(LocalDate.now().minusYears(1));
@@ -392,7 +392,7 @@ class ManuellRegistreringFellesValidatorTest {
         kanIkkeOppgiBegrunnelse.setUtenlandskFoedselsnummer("123456789012345678801");
         var feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderUtenlandskFoedselsnummer(registreringDto);
         assertThat(feltFeil.get().getMelding()).as("Fornavn til annen forelder er stoerre enn 20")
-                .isEqualTo(ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE + "20");
+            .isEqualTo(ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE + "20");
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
     }
 

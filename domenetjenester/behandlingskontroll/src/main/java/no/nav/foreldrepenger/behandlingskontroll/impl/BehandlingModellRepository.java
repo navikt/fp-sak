@@ -42,8 +42,8 @@ public class BehandlingModellRepository implements AutoCloseable {
 
     protected BehandlingModell byggModell(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
         return BehandlingTypeRef.Lookup.find(BehandlingModell.class, ytelseType, behandlingType)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Har ikke BehandlingModell for BehandlingType:" + behandlingType + ", ytelseType:" + ytelseType));
+            .orElseThrow(
+                () -> new IllegalStateException("Har ikke BehandlingModell for BehandlingType:" + behandlingType + ", ytelseType:" + ytelseType));
     }
 
     @Override

@@ -39,10 +39,10 @@ public class BeregningAktivitetOverstyring {
 
     public BeregningAktivitetNøkkel getNøkkel() {
         return BeregningAktivitetNøkkel.builder()
-                .medArbeidsgiverIdentifikator(getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
-                .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
-                .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .build();
+            .medArbeidsgiverIdentifikator(getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
+            .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
+            .medOpptjeningAktivitetType(opptjeningAktivitetType)
+            .build();
     }
 
     public static Builder builder() {

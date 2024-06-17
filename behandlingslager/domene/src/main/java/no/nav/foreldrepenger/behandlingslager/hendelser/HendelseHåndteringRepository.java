@@ -22,23 +22,17 @@ public class HendelseHåndteringRepository {
     }
 
     @Inject
-    public HendelseHåndteringRepository( EntityManager entityManager) {
+    public HendelseHåndteringRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     public List<Fagsak> hentFagsakerSomHarAktørIdSomBarn(AktørId aktørId) {
-        var query = entityManager.createQuery(
-            "select distinct f from Fagsak f " +
-                "inner join Behandling b on b.fagsak = f " +
-                "inner join PersonopplysningGrunnlagEntitet gr on gr.behandlingId = b.id " +
-                "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi " +
-                "inner join PersonopplysningRelasjon por on por.personopplysningInformasjon = poi " +
-                "where por.relasjonsrolle = :relasjonsRolle " +
-                "and por.tilAktørId = (:aktørId) " +
-                "and gr.aktiv = :aktiv " +
-                "and f.fagsakStatus != :fagsakStatus " +
-                "and f.ytelseType = :ytelseType ",
-            Fagsak.class);
+        var query = entityManager.createQuery("select distinct f from Fagsak f " + "inner join Behandling b on b.fagsak = f "
+            + "inner join PersonopplysningGrunnlagEntitet gr on gr.behandlingId = b.id "
+            + "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi "
+            + "inner join PersonopplysningRelasjon por on por.personopplysningInformasjon = poi " + "where por.relasjonsrolle = :relasjonsRolle "
+            + "and por.tilAktørId = (:aktørId) " + "and gr.aktiv = :aktiv " + "and f.fagsakStatus != :fagsakStatus "
+            + "and f.ytelseType = :ytelseType ", Fagsak.class);
         query.setParameter("relasjonsRolle", RelasjonsRolleType.BARN);
         query.setParameter("aktørId", aktørId);
         query.setParameter("aktiv", true);

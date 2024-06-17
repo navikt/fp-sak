@@ -39,8 +39,7 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         var opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER);
         var ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER);
 
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(gammelBehandling.getId())
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(gammelBehandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(opprTilrettelegging))
             .medOverstyrteTilrettelegginger(List.of(ovstTilrettelegging))
             .build();
@@ -53,26 +52,31 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         var kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
         assertThat(kopiertGrunnlag).isPresent();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe()).hasSize(1);
-        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
+        assertThat(
+            kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
-        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
-        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getTilretteleggingFOMListe().get(0).getKilde()).isEqualTo(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK);
+        assertThat(
+            kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(
+            OM_TRE_DAGER);
+        assertThat(kopiertGrunnlag.get()
+            .getOpprinneligeTilrettelegginger()
+            .getTilretteleggingListe()
+            .get(0)
+            .getTilretteleggingFOMListe()
+            .get(0)
+            .getKilde()).isEqualTo(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK);
         assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
     }
 
     private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate fom) {
-        return new SvpTilretteleggingEntitet.Builder()
-            .medKopiertFraTidligereBehandling(false)
+        return new SvpTilretteleggingEntitet.Builder().medKopiertFraTidligereBehandling(false)
             .medMottattTidspunkt(I_GÅR)
             .medBehovForTilretteleggingFom(fom)
-            .medTilretteleggingFom(new TilretteleggingFOM.Builder()
-                .medFomDato(LocalDate.now())
+            .medTilretteleggingFom(new TilretteleggingFOM.Builder().medFomDato(LocalDate.now())
                 .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
                 .build())
-            .medAvklartOpphold(SvpAvklartOpphold.Builder.nytt()
-                .medOppholdPeriode(fom, fom.plusWeeks(1))
-                .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
-                .build())
+            .medAvklartOpphold(
+                SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, fom.plusWeeks(1)).medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER).build())
             .build();
     }
 }

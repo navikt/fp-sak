@@ -101,7 +101,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     @Test
     void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         //Arrange
-        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ,1, 1);
+        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ, 1, 1);
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
@@ -112,7 +112,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     @Test
     void ingen_akjsonspunkter_dersom_fødsel_overstyrt() {
         //Arrange
-        var behandling = opprettBehandlingForFødselOverstyrt(FØDSELSDATO_NÅ,1, 1);
+        var behandling = opprettBehandlingForFødselOverstyrt(FØDSELSDATO_NÅ, 1, 1);
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
@@ -132,15 +132,15 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     }
 
     private Behandling opprettBehandlingMedOppgittTermin(LocalDate termindato, BehandlingType behandlingType) {
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medBehandlingType(behandlingType);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(behandlingType);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
 
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
         return scenario.lagre(repositoryProvider);
     }
 
@@ -154,23 +154,17 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     }
 
     private Behandling opprettBehandlingForFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato, antallBarnSøknad)
-            .medAntallBarn(antallBarnSøknad);
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato, antallBarnSøknad).medAntallBarn(antallBarnSøknad);
         scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
 
     private Behandling opprettBehandlingForFødselOverstyrt(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
-        scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
-            .medAntallBarn(antallBarnSøknad);
+        scenario.medSøknadHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnSøknad);
         scenario.medOverstyrtHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
@@ -178,10 +172,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
-            .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn).build();
         scenario.medRegisterOpplysninger(søker);
     }
 

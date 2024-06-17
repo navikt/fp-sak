@@ -38,8 +38,7 @@ public class KontrollerBesteberegningOppdaterer implements AksjonspunktOppdatere
 
     private void lagHistorikk(KontrollerBesteberegningDto dto) {
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        historikkInnslagTekstBuilder
-            .medEndretFelt(HistorikkEndretFeltType.KONTROLL_AV_BESTEBEREGNING, null, dto.getBesteberegningErKorrekt())
+        historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.KONTROLL_AV_BESTEBEREGNING, null, dto.getBesteberegningErKorrekt())
             .medSkjermlenke(SkjermlenkeType.BESTEBEREGNING)
             .medBegrunnelse(dto.getBegrunnelse());
     }

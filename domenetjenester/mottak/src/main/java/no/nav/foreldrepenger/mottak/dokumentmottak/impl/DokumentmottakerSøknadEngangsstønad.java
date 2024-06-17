@@ -28,25 +28,29 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
                                                KøKontroller køKontroller,
                                                ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                                BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
-        super(behandlingRepository,
-            dokumentmottakerFelles,
-            behandlingsoppretter,
-            kompletthetskontroller,
-            køKontroller,
-            fpUttakTjeneste, behandlingRevurderingTjeneste);
+        super(behandlingRepository, dokumentmottakerFelles, behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste,
+            behandlingRevurderingTjeneste);
     }
 
     @Override
-    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument,
+                                                     Fagsak fagsak,
+                                                     Behandling avsluttetBehandling,
+                                                     BehandlingÅrsakType behandlingÅrsakType) {
         if (erAvslag(avsluttetBehandling) || BehandlingÅrsakType.ETTER_KLAGE.equals(behandlingÅrsakType)) {
-            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType)); //#SE1
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak,
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType)); //#SE1
         } else {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument); //#SE2
         }
     }
 
     @Override
-    public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) { //SExx
+    public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak,
+                                                       Long avsluttetMedSøknadBehandlingId,
+                                                       MottattDokument mottattDokument,
+                                                       BehandlingÅrsakType behandlingÅrsakType,
+                                                       boolean opprettSomKøet) { //SExx
         var avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
         dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
     }

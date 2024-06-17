@@ -85,8 +85,8 @@ public enum KodeKlassifik {
     }
 
     public boolean gjelderFeriepenger() {
-        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPA_FERIEPENGER_BRUKER) || this.equals(SVP_FERIEPENGER_BRUKER) ||
-            this.equals(FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(SVP_FERIEPENGER_AG);
+        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPA_FERIEPENGER_BRUKER) || this.equals(SVP_FERIEPENGER_BRUKER) || this.equals(
+            FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(SVP_FERIEPENGER_AG);
     }
 
     public boolean gjelderArbeidsgiver() {

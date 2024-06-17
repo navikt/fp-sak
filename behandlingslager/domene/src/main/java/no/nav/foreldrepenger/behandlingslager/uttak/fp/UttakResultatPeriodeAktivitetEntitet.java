@@ -46,7 +46,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     private UttakAktivitetEntitet uttakAktivitet;
 
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
-    @Column(name="trekkonto", nullable = false)
+    @Column(name = "trekkonto", nullable = false)
     private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
 
     @Embedded
@@ -64,15 +64,9 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "UttakResultatPeriodeAktivitetEntitet{" +
-            "periode=" + periode.getId() +
-            ", trekkonto=" + trekkonto +
-            ", trekkdagerDesimal='" + trekkdagerDesimal + '\'' +
-            ", arbeidsprosent=" + arbeidsprosent +
-            ", utbetalingsgrad=" + utbetalingsgrad +
-            ", uttakAktivitet=" + uttakAktivitet +
-            ", gradering=" + gradering +
-            '}';
+        return "UttakResultatPeriodeAktivitetEntitet{" + "periode=" + periode.getId() + ", trekkonto=" + trekkonto + ", trekkdagerDesimal='"
+            + trekkdagerDesimal + '\'' + ", arbeidsprosent=" + arbeidsprosent + ", utbetalingsgrad=" + utbetalingsgrad + ", uttakAktivitet="
+            + uttakAktivitet + ", gradering=" + gradering + '}';
     }
 
     public Long getId() {
@@ -149,11 +143,14 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (UttakResultatPeriodeAktivitetEntitet) o;
-        return Objects.equals(periode, that.periode) &&
-            Objects.equals(uttakAktivitet, that.uttakAktivitet);
+        return Objects.equals(periode, that.periode) && Objects.equals(uttakAktivitet, that.uttakAktivitet);
     }
 
     @Override

@@ -38,8 +38,12 @@ public class Trekkdager implements Comparable<Trekkdager> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Trekkdager) o;
         return Objects.equals(decimalValue(), that.decimalValue());
     }

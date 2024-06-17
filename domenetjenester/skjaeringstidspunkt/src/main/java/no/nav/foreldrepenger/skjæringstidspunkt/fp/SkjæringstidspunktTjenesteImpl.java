@@ -47,7 +47,7 @@ import no.nav.vedtak.konfig.Tid;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste , SkjæringstidspunktRegisterinnhentingTjeneste {
+public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste, SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
 
@@ -97,7 +97,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
         var overstyrtStartdato = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
-            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
+            .orElse(null);
         if (overstyrtStartdato != null && intervall.getTomDato().isBefore(overstyrtStartdato.plusYears(1))) {
             return SimpleLocalDateInterval.fraOgMedTomNotNull(intervall.getFomDato(), overstyrtStartdato.plusYears(1));
         } else {
@@ -113,10 +114,12 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var utenMinsterett = minsterett2022.utenMinsterett(behandling);
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
         var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, familieHendelseGrunnlag, sammenhengendeUttak, utenMinsterett));
-        var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
+        var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(
+            LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
         var gjelderFødsel = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
+            .map(FamilieHendelseEntitet::getGjelderFødsel)
+            .orElse(true);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
@@ -145,10 +148,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 .build();
         }
 
-        Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
-            ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
-        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
-            familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
+        Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() : ytelseMaksdatoTjeneste.beregnMorsMaksdato(
+            behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
+        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato, familieHendelseGrunnlag,
+            morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
@@ -162,11 +165,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
         var utenMinsterett = minsterett2022.utenMinsterett(behandling);
 
-        var førsteUttaksdato = finnFørsteDatoIUttakResultat(behandlingId, sammenhengendeUttak).orElseThrow(() -> finnerIkkeStpException(behandlingId));
+        var førsteUttaksdato = finnFørsteDatoIUttakResultat(behandlingId, sammenhengendeUttak).orElseThrow(
+            () -> finnerIkkeStpException(behandlingId));
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
         var gjelderFødsel = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
+            .map(FamilieHendelseEntitet::getGjelderFødsel)
+            .orElse(true);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
@@ -186,43 +191,54 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .map(valg -> valg && !utenMinsterett)
             .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
 
-        opptjeningRepository.finnOpptjening(behandlingId).filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
+        opptjeningRepository.finnOpptjening(behandlingId)
+            .filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
             .ifPresent(o -> builder.medSkjæringstidspunktOpptjening(o.getTom().plusDays(1)));
 
-        Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
-            ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
-        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
-            familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
+        Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() : ytelseMaksdatoTjeneste.beregnMorsMaksdato(
+            behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
+        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato, familieHendelseGrunnlag,
+            morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervallAvsluttetBehandling(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
             .build();
     }
 
-    private LocalDate førsteUttaksdag(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {
+    private LocalDate førsteUttaksdag(Behandling behandling,
+                                      Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag,
+                                      boolean kreverSammenhengendeUttak,
+                                      boolean utenMinsterett) {
         var ytelseFordelingAggregat = hentYtelseFordelingAggregatFor(behandling.getId());
 
         var avklartStartDato = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
 
-        return avklartStartDato
-            .or(() -> stpForFlyttbareFedreOgMedmødre(behandling, ytelseFordelingAggregat, fhGrunnlag, utenMinsterett))
+        return avklartStartDato.or(() -> stpForFlyttbareFedreOgMedmødre(behandling, ytelseFordelingAggregat, fhGrunnlag, utenMinsterett))
             .orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat, kreverSammenhengendeUttak));
     }
 
-    private Optional<LocalDate> stpForFlyttbareFedreOgMedmødre(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat, Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag, boolean utenMinsterett) {
-        if (utenMinsterett || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType()) || aggregat.isEmpty() ||
-            !aggregat.get().getGjeldendeFordeling().ønskerJustertVedFødsel() || fhGrunnlag.isEmpty()) {
+    private Optional<LocalDate> stpForFlyttbareFedreOgMedmødre(Behandling behandling,
+                                                               Optional<YtelseFordelingAggregat> aggregat,
+                                                               Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag,
+                                                               boolean utenMinsterett) {
+        if (utenMinsterett || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType()) || aggregat.isEmpty() || !aggregat.get()
+            .getGjeldendeFordeling()
+            .ønskerJustertVedFødsel() || fhGrunnlag.isEmpty()) {
             return Optional.empty();
         }
-        return fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag);
+        return fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .flatMap(FamilieHendelseEntitet::getFødselsdato)
+            .map(VirkedagUtil::fomVirkedag);
     }
 
     private Optional<YtelseFordelingAggregat> hentYtelseFordelingAggregatFor(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
     }
 
-    private LocalDate førsteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat, boolean kreverSammenhengendeUttak) {
+    private LocalDate førsteØnskedeUttaksdag(Behandling behandling,
+                                             Optional<YtelseFordelingAggregat> ytelseFordelingAggregat,
+                                             boolean kreverSammenhengendeUttak) {
         var oppgittFordeling = ytelseFordelingAggregat.map(YtelseFordelingAggregat::getOppgittFordeling);
 
         var førsteØnskedeUttaksdagIBehandling = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);
@@ -231,7 +247,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             // Forutsetning: at man ikke oppretter revurdering uten søknad (manuell/im) på sak uten innvilget uttaksperioder.
             var førsteUttaksdagIForrigeVedtak = finnFørsteDatoIUttakResultat(originalBehandling(behandling), kreverSammenhengendeUttak);
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
-                    return finnFørsteDatoFraForrigeFordeling(behandling, kreverSammenhengendeUttak).orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
+                return finnFørsteDatoFraForrigeFordeling(behandling, kreverSammenhengendeUttak).orElseThrow(
+                    () -> finnerIkkeStpException(behandling.getId()));
             }
             // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad
             var utsattStartdato = getUtsattStartdato(kreverSammenhengendeUttak, førsteUttaksdagIForrigeVedtak, oppgittFordeling);
@@ -250,8 +267,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda
             return førsteØnskedeUttaksdagIBehandling.orElse(null);
         }
-        return førsteØnskedeUttaksdagIBehandling
-            .or(() -> unntaksTilfellerFriUtsettelse(behandling))
+        return førsteØnskedeUttaksdagIBehandling.or(() -> unntaksTilfellerFriUtsettelse(behandling))
             .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
     }
 
@@ -270,26 +286,30 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private TekniskException finnerIkkeStpException(Long behandlingId) {
-        return new TekniskException("FP-931232",
-            "Finner ikke skjæringstidspunkt for foreldrepenger som forventet for behandling=" + behandlingId);
+        return new TekniskException("FP-931232", "Finner ikke skjæringstidspunkt for foreldrepenger som forventet for behandling=" + behandlingId);
     }
 
     private LocalDateInterval utledYtelseintervall(Behandling behandling, LocalDate skjæringsTidspunkt, boolean kreverSammenhengendeUttak) {
-        var sistedato = sisteØnskedeUttaksdag(behandling, hentYtelseFordelingAggregatFor(behandling.getId()), skjæringsTidspunkt, kreverSammenhengendeUttak);
-        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ?
-            skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1) : sistedato;
+        var sistedato = sisteØnskedeUttaksdag(behandling, hentYtelseFordelingAggregatFor(behandling.getId()), skjæringsTidspunkt,
+            kreverSammenhengendeUttak);
+        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ? skjæringsTidspunkt.plus(MAX_STØNADSPERIODE)
+            .minusDays(1) : sistedato;
         return new LocalDateInterval(skjæringsTidspunkt, bruktomdato.isAfter(skjæringsTidspunkt) ? bruktomdato : skjæringsTidspunkt);
     }
 
-    private LocalDateInterval utledYtelseintervallAvsluttetBehandling(Behandling behandling, LocalDate skjæringsTidspunkt, boolean kreverSammenhengendeUttak) {
+    private LocalDateInterval utledYtelseintervallAvsluttetBehandling(Behandling behandling,
+                                                                      LocalDate skjæringsTidspunkt,
+                                                                      boolean kreverSammenhengendeUttak) {
         var sistedato = finnSisteDatoIUttakResultat(behandling.getId(), kreverSammenhengendeUttak).orElseThrow();
-        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ?
-            skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1) : sistedato;
+        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ? skjæringsTidspunkt.plus(MAX_STØNADSPERIODE)
+            .minusDays(1) : sistedato;
         return new LocalDateInterval(skjæringsTidspunkt, bruktomdato.isAfter(skjæringsTidspunkt) ? bruktomdato : skjæringsTidspunkt);
     }
 
-    private LocalDate sisteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat,
-                                            LocalDate skjæringsTidspunkt, boolean kreverSammenhengendeUttak) {
+    private LocalDate sisteØnskedeUttaksdag(Behandling behandling,
+                                            Optional<YtelseFordelingAggregat> ytelseFordelingAggregat,
+                                            LocalDate skjæringsTidspunkt,
+                                            boolean kreverSammenhengendeUttak) {
         var oppgittFordeling = ytelseFordelingAggregat.map(YtelseFordelingAggregat::getOppgittFordeling);
 
         var sisteØnskedeUttaksdagIBehandling = UtsettelseCore2021.finnSisteDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);
@@ -297,8 +317,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         if (behandling.erRevurdering()) {
             var sisteUttaksdagIForrigeVedtak = finnSisteDatoIUttakResultat(originalBehandling(behandling), kreverSammenhengendeUttak);
             if (sisteUttaksdagIForrigeVedtak.isEmpty() && sisteØnskedeUttaksdagIBehandling.isEmpty()) {
-                return finnSisteDatoFraForrigeFordeling(behandling, kreverSammenhengendeUttak)
-                    .orElse(skjæringsTidspunkt);
+                return finnSisteDatoFraForrigeFordeling(behandling, kreverSammenhengendeUttak).orElse(skjæringsTidspunkt);
             }
             var sistedato = utledSeneste(sisteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_BEGYNNELSE),
                 sisteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_BEGYNNELSE));
@@ -308,20 +327,20 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private boolean manglerSøknadIFørstegangsbehandling(Behandling behandling) {
-        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isEmpty();
+        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .isEmpty();
     }
 
     private static LocalDate utledTidligste(LocalDate første, LocalDate andre) {
-        return første.isBefore(andre) ? første :  andre;
+        return første.isBefore(andre) ? første : andre;
     }
 
     private static LocalDate utledSeneste(LocalDate første, LocalDate andre) {
-        return første.isAfter(andre) ? første :  andre;
+        return første.isAfter(andre) ? første : andre;
     }
 
     private Long originalBehandling(Behandling behandling) {
-        return behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
+        return behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
     }
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Long behandlingId, boolean kreverSammenhengendeUttak) {
@@ -348,8 +367,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var ytelseFordelingForOriginalBehandling = originalBehandling.map(Behandling::getId).flatMap(this::hentYtelseFordelingAggregatFor);
         var førsteUttaksdagFraOriginalSøknad = ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling)
             .flatMap(f -> UtsettelseCore2021.finnFørsteDatoFraSøknad(Optional.of(f), kreverSammenhengendeUttak));
-        return førsteUttaksdagFraOriginalSøknad
-            .or(() -> ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeFordeling) // Sjekk gjeldende fordeling i fall overstyrt
+        return førsteUttaksdagFraOriginalSøknad.or(() -> ytelseFordelingForOriginalBehandling.map(
+                    YtelseFordelingAggregat::getGjeldendeFordeling) // Sjekk gjeldende fordeling i fall overstyrt
                 .flatMap(f -> UtsettelseCore2021.finnFørsteDatoFraSøknad(Optional.of(f), kreverSammenhengendeUttak)))
             .or(() -> finnFørsteDatoFraForrigeFordeling(originalBehandling.orElseThrow(), kreverSammenhengendeUttak)); // Forrige behandling
     }
@@ -362,19 +381,22 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var ytelseFordelingForOriginalBehandling = originalBehandling.map(Behandling::getId).flatMap(this::hentYtelseFordelingAggregatFor);
         var sisteUttaksdagFraOriginalSøknad = ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling)
             .flatMap(f -> UtsettelseCore2021.finnSisteDatoFraSøknad(Optional.of(f), kreverSammenhengendeUttak));
-        return sisteUttaksdagFraOriginalSøknad
-            .or(() -> ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+        return sisteUttaksdagFraOriginalSøknad.or(() -> ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeFordeling)
                 .flatMap(f -> UtsettelseCore2021.finnSisteDatoFraSøknad(Optional.of(f), kreverSammenhengendeUttak)))
             .or(() -> finnSisteDatoFraForrigeFordeling(originalBehandling.orElseThrow(), kreverSammenhengendeUttak));
     }
 
-    private LocalDate førsteDatoHensyntattTidligFødsel(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlag,
-                                                       LocalDate førsteUttaksdato, boolean utenMinsterett) {
-        return grunnlag.map(g -> MinsterettCore2022.førsteUttaksDatoForBeregning(behandling.getRelasjonsRolleType(), g, førsteUttaksdato, utenMinsterett))
+    private LocalDate førsteDatoHensyntattTidligFødsel(Behandling behandling,
+                                                       Optional<FamilieHendelseGrunnlagEntitet> grunnlag,
+                                                       LocalDate førsteUttaksdato,
+                                                       boolean utenMinsterett) {
+        return grunnlag.map(
+                g -> MinsterettCore2022.førsteUttaksDatoForBeregning(behandling.getRelasjonsRolleType(), g, førsteUttaksdato, utenMinsterett))
             .orElse(førsteUttaksdato);
     }
 
-    private static Optional<LocalDate> getUtsattStartdato(boolean kreverSammenhengendeUttak, Optional<LocalDate> førsteUttaksdagIForrigeVedtak,
+    private static Optional<LocalDate> getUtsattStartdato(boolean kreverSammenhengendeUttak,
+                                                          Optional<LocalDate> førsteUttaksdagIForrigeVedtak,
                                                           Optional<OppgittFordelingEntitet> oppgittFordeling) {
         var førsteSøkteUttaksdag = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);
         var førsteSøkteUtsettelsedag = UtsettelseCore2021.finnFørsteUtsettelseDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);

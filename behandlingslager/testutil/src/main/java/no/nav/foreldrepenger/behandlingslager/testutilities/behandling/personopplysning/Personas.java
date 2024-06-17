@@ -33,11 +33,7 @@ public class Personas {
         } else {
             throw new IllegalArgumentException("En Personas har kun en aktørId, allerede satt til " + this.aktørId + ", angitt=" + aktørId);
         }
-        builder.leggTilPersonopplysninger(persInfoBuilder
-            .aktørId(aktørId)
-            .brukerKjønn(kjønn)
-            .fødselsdato(fødselsdato)
-            .sivilstand(st));
+        builder.leggTilPersonopplysninger(persInfoBuilder.aktørId(aktørId).brukerKjønn(kjønn).fødselsdato(fødselsdato).sivilstand(st));
         return this;
     }
 
@@ -48,11 +44,8 @@ public class Personas {
         } else {
             throw new IllegalArgumentException("En Personas har kun en aktørId, allerede satt til " + this.aktørId + ", angitt=" + aktørId);
         }
-        builder.leggTilPersonopplysninger(persInfoBuilder
-            .aktørId(aktørId)
-            .fødselsdato(fødselsdato)
-            .brukerKjønn(NavBrukerKjønn.MANN)
-            .sivilstand(SivilstandType.UOPPGITT));
+        builder.leggTilPersonopplysninger(
+            persInfoBuilder.aktørId(aktørId).fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.MANN).sivilstand(SivilstandType.UOPPGITT));
         return this;
     }
 
@@ -77,12 +70,15 @@ public class Personas {
     }
 
     public Personas personstatus(PersonstatusType personstatus, LocalDate fom, LocalDate tom) {
-        builder.leggTilPersonstatus(Personstatus.builder().aktørId(aktørId).personstatus(personstatus).periode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
+        builder.leggTilPersonstatus(
+            Personstatus.builder().aktørId(aktørId).personstatus(personstatus).periode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
         return this;
     }
 
     public Personas opphold(OppholdstillatelseType oppholdstillatelseType, LocalDate fom, LocalDate tom) {
-        builder.leggTilOpphold(Oppholdstillatelse.builder().medAktørId(aktørId).medOppholdstillatelse(oppholdstillatelseType)
+        builder.leggTilOpphold(Oppholdstillatelse.builder()
+            .medAktørId(aktørId)
+            .medOppholdstillatelse(oppholdstillatelseType)
             .medPeriode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
         return this;
     }
@@ -139,7 +135,8 @@ public class Personas {
     }
 
     public Personas relasjonTil(AktørId tilAktørId, RelasjonsRolleType rolle, Boolean sammeBosted) {
-        builder.leggTilRelasjon(PersonRelasjon.builder().fraAktørId(aktørId).tilAktørId(tilAktørId).relasjonsrolle(rolle).harSammeBosted(sammeBosted));
+        builder.leggTilRelasjon(
+            PersonRelasjon.builder().fraAktørId(aktørId).tilAktørId(tilAktørId).relasjonsrolle(rolle).harSammeBosted(sammeBosted));
         return this;
     }
 

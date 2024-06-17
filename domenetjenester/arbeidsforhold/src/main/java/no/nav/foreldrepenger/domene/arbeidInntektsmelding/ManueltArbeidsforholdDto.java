@@ -62,27 +62,16 @@ public class ManueltArbeidsforholdDto {
     public ManueltArbeidsforholdDto() {
     }
 
-    public ManueltArbeidsforholdDto(
-            @JsonProperty("behandlingUuid")
-            UUID behandlingUuid,
-            @JsonProperty("begrunnelse")
-            String begrunnelse,
-            @JsonProperty("arbeidsgiverIdent")
-            String arbeidsgiverIdent,
-            @JsonProperty("internArbeidsforholdRef")
-            String internArbeidsforholdRef,
-            @JsonProperty("arbeidsgiverNavn")
-            String arbeidsgiverNavn,
-            @JsonProperty("fom")
-            LocalDate fom,
-            @JsonProperty("tom")
-            LocalDate tom,
-            @JsonProperty("stillingsprosent")
-            Integer stillingsprosent,
-            @JsonProperty("vurdering")
-            ArbeidsforholdKomplettVurderingType vurdering,
-            @NotNull @JsonProperty("behandlingVersjon")
-            Long behandlingVersjon) {
+    public ManueltArbeidsforholdDto(@JsonProperty("behandlingUuid") UUID behandlingUuid,
+                                    @JsonProperty("begrunnelse") String begrunnelse,
+                                    @JsonProperty("arbeidsgiverIdent") String arbeidsgiverIdent,
+                                    @JsonProperty("internArbeidsforholdRef") String internArbeidsforholdRef,
+                                    @JsonProperty("arbeidsgiverNavn") String arbeidsgiverNavn,
+                                    @JsonProperty("fom") LocalDate fom,
+                                    @JsonProperty("tom") LocalDate tom,
+                                    @JsonProperty("stillingsprosent") Integer stillingsprosent,
+                                    @JsonProperty("vurdering") ArbeidsforholdKomplettVurderingType vurdering,
+                                    @NotNull @JsonProperty("behandlingVersjon") Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.arbeidsgiverIdent = arbeidsgiverIdent;

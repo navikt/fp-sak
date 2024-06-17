@@ -13,10 +13,12 @@ public class MedlemEndringIdentifiserer {
 
     public static boolean erEndretForPeriode(MedlemskapAggregat grunnlag1, MedlemskapAggregat grunnlag2, DatoIntervallEntitet periode) {
         var differ = new RegisterdataDiffsjekker(true);
-        var medlemPerioder1 = grunnlag1.getRegistrertMedlemskapPerioder().stream()
+        var medlemPerioder1 = grunnlag1.getRegistrertMedlemskapPerioder()
+            .stream()
             .filter(p -> p.getPeriode().overlapper(periode))
             .collect(Collectors.toSet());
-        var medlemPerioder2 = grunnlag2.getRegistrertMedlemskapPerioder().stream()
+        var medlemPerioder2 = grunnlag2.getRegistrertMedlemskapPerioder()
+            .stream()
             .filter(p -> p.getPeriode().overlapper(periode))
             .collect(Collectors.toSet());
         return differ.erForskjellPå(medlemPerioder1, medlemPerioder2);

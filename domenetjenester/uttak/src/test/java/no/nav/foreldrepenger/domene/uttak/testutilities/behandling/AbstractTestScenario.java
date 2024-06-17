@@ -67,8 +67,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Stønadskontoberegning stønadskontoberegning;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
-        fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
-                new Saksnummer(nyId() + ""));
+        fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle, new Saksnummer(nyId() + ""));
 
     }
 
@@ -97,8 +96,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
 
             @Override
-            public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                    InntektArbeidYtelseAggregatBuilder builder) {
+            public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
                 throw new UnsupportedOperationException("Get outta here - no longer supporting this");
             }
 
@@ -107,14 +105,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return lagre(repositoryProvider, new LegacyBridgeIay());
     }
 
-    public Behandling lagre(UttakRepositoryProvider repositoryProvider,
-            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat) {
+    public Behandling lagre(UttakRepositoryProvider repositoryProvider, BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat) {
 
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
 
             @Override
-            public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                    InntektArbeidYtelseAggregatBuilder builder) {
+            public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
                 lagreIayAggregat.accept(behandlingId, builder);
             }
         }
@@ -129,8 +125,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void build(UttakRepositoryProvider repositoryProvider, LagreInntektArbeidYtelse lagreIay) {
         if (behandling != null) {
-            throw new IllegalStateException(
-                    "build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
+            throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
         var behandlingBuilder = grunnBuild(repositoryProvider);
 
@@ -165,8 +160,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medJustertFordeling(justertFordeling)
             .medOverstyrtFordeling(overstyrtFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
-            .medOverstyrtOmsorg(overstyrtOmsorg)
-            ;
+            .medOverstyrtOmsorg(overstyrtOmsorg);
         ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
 
@@ -181,8 +175,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                    .medBehandlingÅrsak(
-                            BehandlingÅrsak.builder(List.copyOf(behandlingÅrsaker)).medOriginalBehandlingId(originalBehandling.getId()));
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(List.copyOf(behandlingÅrsaker)).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         return behandlingBuilder;

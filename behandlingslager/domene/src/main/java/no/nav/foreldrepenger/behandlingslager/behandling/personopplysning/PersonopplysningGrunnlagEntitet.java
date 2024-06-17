@@ -69,6 +69,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
 
     /**
      * Kun synlig for abstract test scenario
+     *
      * @return id
      */
 
@@ -130,10 +131,9 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
             return false;
         }
         var that = (PersonopplysningGrunnlagEntitet) o;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-                Objects.equals(søknadAnnenPart, that.søknadAnnenPart) &&
-                Objects.equals(registrertePersonopplysninger, that.registrertePersonopplysninger) &&
-                Objects.equals(overstyrtePersonopplysninger, that.overstyrtePersonopplysninger);
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(søknadAnnenPart, that.søknadAnnenPart) && Objects.equals(
+            registrertePersonopplysninger, that.registrertePersonopplysninger) && Objects.equals(overstyrtePersonopplysninger,
+            that.overstyrtePersonopplysninger);
     }
 
 

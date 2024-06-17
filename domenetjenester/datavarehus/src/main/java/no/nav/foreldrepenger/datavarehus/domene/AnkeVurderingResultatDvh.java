@@ -66,13 +66,13 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
 
-    @Column(name="tr_vurdering")
+    @Column(name = "tr_vurdering")
     private String trygderettVurdering;
 
-    @Column(name="tr_omgjoer_aarsak")
+    @Column(name = "tr_omgjoer_aarsak")
     private String trygderettOmgjørÅrsak;
 
-    @Column(name="tr_vurdering_omgjoer")
+    @Column(name = "tr_vurdering_omgjoer")
     private String trygderettVurderingOmgjør;
 
     @Column(name = "tr_kjennelse_dato")
@@ -163,34 +163,31 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         var that = (AnkeVurderingResultatDvh) o;
-        return gjelderVedtak == that.gjelderVedtak &&
-            erMerknaderMottatt == that.erMerknaderMottatt &&
-            erAnkerIkkePart == that.erAnkerIkkePart &&
-            erFristIkkeOverholdt == that.erFristIkkeOverholdt &&
-            erIkkeKonkret == that.erIkkeKonkret &&
-            erIkkeSignert == that.erIkkeSignert &&
-            erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles &&
-            Objects.equals(id, that.id) &&
-            Objects.equals(ankeBehandlingId, that.ankeBehandlingId) &&
-            Objects.equals(ankeVurdering, that.ankeVurdering) &&
-            Objects.equals(ankeOmgjørÅrsak, that.ankeOmgjørÅrsak) &&
-            Objects.equals(ankeVurderingOmgjør, that.ankeVurderingOmgjør) &&
-            Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt) &&
-            Objects.equals(trygderettVurdering, that.trygderettVurdering) &&
-            Objects.equals(trygderettOmgjørÅrsak, that.trygderettOmgjørÅrsak) &&
-            Objects.equals(trygderettVurderingOmgjør, that.trygderettVurderingOmgjør) &&
-            Objects.equals(trygderettKjennelseDato, that.trygderettKjennelseDato);
+        return gjelderVedtak == that.gjelderVedtak && erMerknaderMottatt == that.erMerknaderMottatt && erAnkerIkkePart == that.erAnkerIkkePart
+            && erFristIkkeOverholdt == that.erFristIkkeOverholdt && erIkkeKonkret == that.erIkkeKonkret && erIkkeSignert == that.erIkkeSignert
+            && erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles && Objects.equals(id, that.id) && Objects.equals(
+            ankeBehandlingId, that.ankeBehandlingId) && Objects.equals(ankeVurdering, that.ankeVurdering) && Objects.equals(ankeOmgjørÅrsak,
+            that.ankeOmgjørÅrsak) && Objects.equals(ankeVurderingOmgjør, that.ankeVurderingOmgjør) && Objects.equals(opprettetTidspunkt,
+            that.opprettetTidspunkt) && Objects.equals(trygderettVurdering, that.trygderettVurdering) && Objects.equals(trygderettOmgjørÅrsak,
+            that.trygderettOmgjørÅrsak) && Objects.equals(trygderettVurderingOmgjør, that.trygderettVurderingOmgjør) && Objects.equals(
+            trygderettKjennelseDato, that.trygderettKjennelseDato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, ankeBehandlingId, gjelderVedtak, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, erMerknaderMottatt,
-            erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles, opprettetTidspunkt,
-            trygderettVurdering, trygderettOmgjørÅrsak, trygderettVurderingOmgjør, trygderettKjennelseDato);
+        return Objects.hash(super.hashCode(), id, ankeBehandlingId, gjelderVedtak, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør,
+            erMerknaderMottatt, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles,
+            opprettetTidspunkt, trygderettVurdering, trygderettOmgjørÅrsak, trygderettVurderingOmgjør, trygderettKjennelseDato);
     }
 
     public static class Builder {

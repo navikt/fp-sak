@@ -51,17 +51,15 @@ final class JusterFordelingTjeneste {
                                                               LocalDate nyFamiliehendelse,
                                                               RelasjonsRolleType relasjonsRolleType,
                                                               boolean ønskerJustertVedFødsel) {
-        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ?
-            new MorsJustering(gammelFamiliehendelse, nyFamiliehendelse) :
-            new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
+        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ? new MorsJustering(gammelFamiliehendelse,
+            nyFamiliehendelse) : new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
             return justering.justerVedFødselEtterTermin(oppgittePerioder);
         }
         return justering.justerVedFødselFørTermin(oppgittePerioder);
     }
 
-    private static List<OppgittPeriodeEntitet> splitPåDato(LocalDate dato,
-                                                           List<OppgittPeriodeEntitet> perioder) {
+    private static List<OppgittPeriodeEntitet> splitPåDato(LocalDate dato, List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream().flatMap(p -> {
             if (p.getTidsperiode().inkluderer(dato) && p.getFom().isBefore(dato)) {
                 var p1 = kopier(p, p.getFom(), dato.minusDays(1));
@@ -73,10 +71,7 @@ final class JusterFordelingTjeneste {
     }
 
     private static List<OppgittPeriodeEntitet> fjernHelgerFraStartOgSlutt(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return oppgittePerioder.stream()
-            .filter(p -> !erHelg(p))
-            .map(p -> kopier(p, p.getFom(), p.getTom()))
-            .toList();
+        return oppgittePerioder.stream().filter(p -> !erHelg(p)).map(p -> kopier(p, p.getFom(), p.getTom())).toList();
     }
 
     static LocalDate flyttFraHelgTilFredag(LocalDate dato) {

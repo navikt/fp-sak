@@ -116,29 +116,33 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (KlageVurderingResultat) o;
-        return harLikVurdering(that) &&
-            godkjentAvMedunderskriver == that.godkjentAvMedunderskriver &&
-            Objects.equals(klageResultat, that.klageResultat) &&
-            Objects.equals(fritekstTilBrev, that.fritekstTilBrev);
+        return harLikVurdering(that) && godkjentAvMedunderskriver == that.godkjentAvMedunderskriver && Objects.equals(klageResultat,
+            that.klageResultat) && Objects.equals(fritekstTilBrev, that.fritekstTilBrev);
     }
 
     public boolean harLikVurdering(KlageVurderingResultat that) {
-        if (this == that) return true;
-        if (that == null || getClass() != that.getClass()) return false;
-        return klageVurdertAv == that.klageVurdertAv &&
-            klageVurdering == that.klageVurdering &&
-            klageMedholdÅrsak == that.klageMedholdÅrsak &&
-            klageVurderingOmgjør == that.klageVurderingOmgjør &&
-            klageHjemmel == that.klageHjemmel &&
-            Objects.equals(begrunnelse, that.begrunnelse);
+        if (this == that) {
+            return true;
+        }
+        if (that == null || getClass() != that.getClass()) {
+            return false;
+        }
+        return klageVurdertAv == that.klageVurdertAv && klageVurdering == that.klageVurdering && klageMedholdÅrsak == that.klageMedholdÅrsak
+            && klageVurderingOmgjør == that.klageVurderingOmgjør && klageHjemmel == that.klageHjemmel && Objects.equals(begrunnelse,
+            that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(klageResultat, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel, begrunnelse, fritekstTilBrev, godkjentAvMedunderskriver);
+        return Objects.hash(klageResultat, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel, begrunnelse,
+            fritekstTilBrev, godkjentAvMedunderskriver);
     }
 
     public static Builder builder() {
@@ -217,15 +221,9 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "klageVurdertAv=" + getKlageVurdertAv() + ", "
-            + "klageVurdering=" + getKlageVurdering() + ", "
-            + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", "
-            + "klageMedholdÅrsak=" + getKlageMedholdÅrsak() + ", "
-            + "klageHjemmel=" + getKlageHjemmel() + ", "
-            + "begrunnelse=" + begrunnelse + ", "
-            + "fritekstTilBrev=" + fritekstTilBrev + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "klageVurdertAv=" + getKlageVurdertAv() + ", "
+            + "klageVurdering=" + getKlageVurdering() + ", " + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", " + "klageMedholdÅrsak="
+            + getKlageMedholdÅrsak() + ", " + "klageHjemmel=" + getKlageHjemmel() + ", " + "begrunnelse=" + begrunnelse + ", " + "fritekstTilBrev="
+            + fritekstTilBrev + ", " + ">";
     }
 }

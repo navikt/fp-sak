@@ -60,7 +60,7 @@ class OppdaterPersonoversiktTaskTest {
         task.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandling.getType().getKode());
 
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        observer = new OppdaterPersonoversiktTask(producer,mock(PersoninfoAdapter.class), repositoryProvider, mock(BehandlendeEnhetTjeneste.class));
+        observer = new OppdaterPersonoversiktTask(producer, mock(PersoninfoAdapter.class), repositoryProvider, mock(BehandlendeEnhetTjeneste.class));
 
         var captorKey = ArgumentCaptor.forClass(String.class);
         var captorVal = ArgumentCaptor.forClass(String.class);
@@ -90,7 +90,7 @@ class OppdaterPersonoversiktTaskTest {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
-        var fagsak =behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
@@ -129,7 +129,7 @@ class OppdaterPersonoversiktTaskTest {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
-        var fagsak =behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         var tbkUUID = UUID.randomUUID();
         task.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
@@ -169,7 +169,7 @@ class OppdaterPersonoversiktTaskTest {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
-        var fagsak =behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         var tbkUUID = UUID.randomUUID();
         task.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());

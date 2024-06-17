@@ -49,10 +49,10 @@ public class BeregningsgrunnlagPeriode {
 
     public BigDecimal getBeregnetPrÅr() {
         return beregningsgrunnlagPrStatusOgAndelList.stream()
-                .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
     }
 
     public BigDecimal getBruttoPrÅr() {
@@ -76,14 +76,13 @@ public class BeregningsgrunnlagPeriode {
     }
 
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
-        return beregningsgrunnlagPeriodeÅrsaker.stream()
-            .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
-            .toList();
+        return beregningsgrunnlagPeriodeÅrsaker.stream().map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak).toList();
     }
 
     void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
         Objects.requireNonNull(bgPeriodeÅrsak, "beregningsgrunnlagPeriodeÅrsak");
-        if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsgrunnlagPeriodeÅrsaker.contains(
+            bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             beregningsgrunnlagPeriodeÅrsaker.add(bgPeriodeÅrsak);
         }
     }
@@ -96,12 +95,10 @@ public class BeregningsgrunnlagPeriode {
             return false;
         }
         var other = (BeregningsgrunnlagPeriode) obj;
-        return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato())
-                && Objects.equals(this.periode.getTomDato(), other.periode.getTomDato())
-                && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr())
-                && Objects.equals(this.getAvkortetPrÅr(), other.getAvkortetPrÅr())
-                && Objects.equals(this.getRedusertPrÅr(), other.getRedusertPrÅr())
-                && Objects.equals(this.getDagsats(), other.getDagsats());
+        return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato()) && Objects.equals(this.periode.getTomDato(),
+            other.periode.getTomDato()) && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr()) && Objects.equals(this.getAvkortetPrÅr(),
+            other.getAvkortetPrÅr()) && Objects.equals(this.getRedusertPrÅr(), other.getRedusertPrÅr()) && Objects.equals(this.getDagsats(),
+            other.getDagsats());
     }
 
     @Override
@@ -111,13 +108,8 @@ public class BeregningsgrunnlagPeriode {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "periode=" + periode + ", "
-                + "bruttoPrÅr=" + bruttoPrÅr + ", "
-                + "avkortetPrÅr=" + avkortetPrÅr + ", "
-                + "redusertPrÅr=" + redusertPrÅr + ", "
-                + "dagsats=" + dagsats + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "periode=" + periode + ", " + "bruttoPrÅr=" + bruttoPrÅr + ", " + "avkortetPrÅr=" + avkortetPrÅr
+            + ", " + "redusertPrÅr=" + redusertPrÅr + ", " + "dagsats=" + dagsats + ", " + ">";
     }
 
     public static Builder builder() {
@@ -190,21 +182,20 @@ public class BeregningsgrunnlagPeriode {
         }
 
         private void verifiserKanModifisere() {
-            if(built) {
+            if (built) {
                 throw new IllegalStateException("Er allerede bygd, kan ikke oppdatere videre: " + this.kladd);
             }
         }
 
         private void verifiserAndelsnr() {
             Set<Long> andelsnrIBruk = new HashSet<>();
-            kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
-                .map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
-                .forEach(andelsnr -> {
-                    if (andelsnrIBruk.contains(andelsnr)) {
-                        throw new IllegalStateException("Utviklerfeil: Kan ikke bygge andel. Andelsnr eksisterer allerede på en annen andel i samme bgPeriode.");
-                    }
-                    andelsnrIBruk.add(andelsnr);
-                });
+            kladd.beregningsgrunnlagPrStatusOgAndelList.stream().map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr).forEach(andelsnr -> {
+                if (andelsnrIBruk.contains(andelsnr)) {
+                    throw new IllegalStateException(
+                        "Utviklerfeil: Kan ikke bygge andel. Andelsnr eksisterer allerede på en annen andel i samme bgPeriode.");
+                }
+                andelsnrIBruk.add(andelsnr);
+            });
         }
 
         private void verifyStateForBuild() {

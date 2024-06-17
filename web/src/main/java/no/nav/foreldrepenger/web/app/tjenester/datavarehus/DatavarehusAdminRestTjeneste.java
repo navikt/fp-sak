@@ -66,18 +66,18 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus på nytt for behandling(er).", tags = "datavarehus")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response genererVedtaksXmlTilDvh(
-            @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType kan settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml, dersom .") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
+    public Response genererVedtaksXmlTilDvh(@Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType kan settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml, dersom .") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
         LOG.info("Forsøker å regenerere vedtaks XML  for datavarehus i intervall [{}] - [{}]", genererVedtaksXmlDvhDto.getFom(),
-                genererVedtaksXmlDvhDto.getTom());
+            genererVedtaksXmlDvhDto.getTom());
 
         var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(genererVedtaksXmlDvhDto.getFom(), genererVedtaksXmlDvhDto.getTom());
         var antBehandlinger = 0;
         for (var behandlingId : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-            if (genererVedtaksXmlDvhDto.getFagsakYtelseType() == null
-                    || behandling.getFagsakYtelseType().getKode().equals(genererVedtaksXmlDvhDto.getFagsakYtelseType())) {
+            if (genererVedtaksXmlDvhDto.getFagsakYtelseType() == null || behandling.getFagsakYtelseType()
+                .getKode()
+                .equals(genererVedtaksXmlDvhDto.getFagsakYtelseType())) {
                 var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
                 prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -95,14 +95,13 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus for behandling(er) uten at det trenger å finnes DVH vedtaks-xml fra før. Finner behandlinger via LAGRET_VEDTAK.", tags = "datavarehus")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response genererVedtaksXmlTilDvhSomKanMangleDvhVedtakXml(
-            @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml.") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
+    public Response genererVedtaksXmlTilDvhSomKanMangleDvhVedtakXml(@Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml.") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
         LOG.info("Forsøker å generere vedtaks XML for datavarehus i intervall [{}] - [{}] med fagsakYtelseType {}", genererVedtaksXmlDvhDto.getFom(),
-                genererVedtaksXmlDvhDto.getTom(), genererVedtaksXmlDvhDto.getFagsakYtelseType());
+            genererVedtaksXmlDvhDto.getTom(), genererVedtaksXmlDvhDto.getFagsakYtelseType());
 
-        var behandlinger = lagretVedtakRepository.hentLagretVedtakBehandlingId(genererVedtaksXmlDvhDto.getFom(),
-                genererVedtaksXmlDvhDto.getTom(), FagsakYtelseType.fraKode(genererVedtaksXmlDvhDto.getFagsakYtelseType()));
+        var behandlinger = lagretVedtakRepository.hentLagretVedtakBehandlingId(genererVedtaksXmlDvhDto.getFom(), genererVedtaksXmlDvhDto.getTom(),
+            FagsakYtelseType.fraKode(genererVedtaksXmlDvhDto.getFagsakYtelseType()));
 
         for (var behandlingId : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);

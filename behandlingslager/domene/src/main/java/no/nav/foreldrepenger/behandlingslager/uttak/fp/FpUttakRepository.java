@@ -37,16 +37,16 @@ public class FpUttakRepository {
     }
 
 
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, Stønadskontoberegning stønadskontoberegning,
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      Stønadskontoberegning stønadskontoberegning,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
         // Nullstilling er forventet - fjerner evt overstyring
-        lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder)
-            .medStønadskontoberegning(stønadskontoberegning));
+        lagreUttaksresultat(behandlingId,
+            builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder).medStønadskontoberegning(stønadskontoberegning));
     }
 
     // Kun testformål
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
-                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet opprinneligPerioder) {
         lagreOpprinneligUttakResultatPerioder(behandlingId, null, opprinneligPerioder);
     }
 
@@ -54,8 +54,7 @@ public class FpUttakRepository {
         lagreUttaksresultat(behandlingId, builder -> builder.medOverstyrtPerioder(overstyrtPerioder));
     }
 
-    private void lagreUttaksresultat(Long behandlingId,
-                                     UnaryOperator<UttakResultatEntitet.Builder> resultatTransformator) {
+    private void lagreUttaksresultat(Long behandlingId, UnaryOperator<UttakResultatEntitet.Builder> resultatTransformator) {
         var lås = behandlingLåsRepository.taLås(behandlingId);
 
         var eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
@@ -85,8 +84,7 @@ public class FpUttakRepository {
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
-            .orElseThrow(() -> new IllegalStateException(
-                "Må ha behandlingsresultat ved lagring av uttak. Behandling " + behandlingId));
+            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak. Behandling " + behandlingId));
     }
 
     private void persistResultat(UttakResultatEntitet resultat) {
@@ -153,18 +151,16 @@ public class FpUttakRepository {
 
     public Optional<UttakResultatEntitet> hentUttakResultatHvisEksisterer(Long behandlingId) {
         var query = entityManager.createQuery(
-            "select uttakResultat from UttakResultatEntitet uttakResultat "
-                + "join uttakResultat.behandlingsresultat resultat"
-                + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv = true",
-            UttakResultatEntitet.class);
+            "select uttakResultat from UttakResultatEntitet uttakResultat " + "join uttakResultat.behandlingsresultat resultat"
+                + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv = true", UttakResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }
 
     public UttakResultatEntitet hentUttakResultat(Long behandlingId) {
         var resultat = hentUttakResultatHvisEksisterer(behandlingId);
-        return resultat.orElseThrow(() -> new NoResultException(
-            "Fant ikke uttak resultat på behandlingen " + behandlingId + ", selv om det var forventet."));
+        return resultat.orElseThrow(
+            () -> new NoResultException("Fant ikke uttak resultat på behandlingen " + behandlingId + ", selv om det var forventet."));
     }
 
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long id) {

@@ -36,8 +36,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                inntektsmeldingTjeneste);
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, inntektsmeldingTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 
@@ -46,7 +45,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(ref);
 
         return new SvangerskapspengerGrunnlag(
-                TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
+            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
     }
 
 }

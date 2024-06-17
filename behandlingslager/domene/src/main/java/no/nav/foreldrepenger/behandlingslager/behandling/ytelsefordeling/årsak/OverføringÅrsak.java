@@ -49,6 +49,7 @@ public enum OverføringÅrsak implements Årsak {
         }
         return ad;
     }
+
     public static Map<String, OverføringÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

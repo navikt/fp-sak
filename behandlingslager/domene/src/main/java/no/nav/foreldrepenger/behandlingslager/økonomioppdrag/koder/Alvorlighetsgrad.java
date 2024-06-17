@@ -10,8 +10,7 @@ import jakarta.persistence.Converter;
 public enum Alvorlighetsgrad {
     OK("00"),
     OK_MED_MERKNAD("04"),
-    FEIL("08")
-    ;
+    FEIL("08");
 
     private static final Map<String, Alvorlighetsgrad> KODER = new LinkedHashMap<>();
 

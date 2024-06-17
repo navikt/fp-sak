@@ -46,25 +46,24 @@ public class ForeldrepengerUttakTjeneste {
     }
 
     private static ForeldrepengerUttak map(UttakResultatEntitet entitet, boolean ignoreDok) {
-        var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream()
+        var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream().map(p -> map(p, ignoreDok)).toList();
+        var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder()
+            .getPerioder()
+            .stream()
             .map(p -> map(p, ignoreDok))
             .toList();
-        var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder().getPerioder().stream()
-            .map(p -> map(p, ignoreDok))
-            .toList();
-        var kontoutregning = Optional.ofNullable(entitet.getStønadskontoberegning()).map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
+        var kontoutregning = Optional.ofNullable(entitet.getStønadskontoberegning())
+            .map(Stønadskontoberegning::getStønadskontoutregning)
+            .orElse(Map.of());
         return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder, kontoutregning);
     }
 
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet, boolean ignoreDok) {
-        var aktiviteter = entitet.getAktiviteter().stream()
-            .map(ForeldrepengerUttakTjeneste::map)
-            .toList();
+        var aktiviteter = entitet.getAktiviteter().stream().map(ForeldrepengerUttakTjeneste::map).toList();
         var mottattDato = entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null);
         var tidligsMottatt = entitet.getPeriodeSøknad().flatMap(UttakResultatPeriodeSøknadEntitet::getTidligstMottattDato).orElse(null);
 
-        var periodeBuilder = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))
+        var periodeBuilder = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))
             .medAktiviteter(aktiviteter)
             .medBegrunnelse(entitet.getBegrunnelse())
             .medResultatType(entitet.getResultatType())
@@ -92,8 +91,7 @@ public class ForeldrepengerUttakTjeneste {
     private static ForeldrepengerUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetEntitet periodeAktivitet) {
         var uttakAktivitet = new ForeldrepengerUttakAktivitet(periodeAktivitet.getUttakArbeidType(), periodeAktivitet.getArbeidsgiver(),
             periodeAktivitet.getArbeidsforholdRef());
-        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medArbeidsprosent(periodeAktivitet.getArbeidsprosent())
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medArbeidsprosent(periodeAktivitet.getArbeidsprosent())
             .medTrekkonto(periodeAktivitet.getTrekkonto())
             .medTrekkdager(periodeAktivitet.getTrekkdager())
             .medUtbetalingsgrad(periodeAktivitet.getUtbetalingsgrad())

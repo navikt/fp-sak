@@ -80,13 +80,8 @@ public class BekreftOpptjeningPeriodeDto {
 
     @Override
     public String toString() {
-        return "BekreftOpptjeningPeriodeDto{" +
-            "aktivitetType=" + aktivitetType +
-            ", opptjeningFom=" + opptjeningFom +
-            ", opptjeningTom=" + opptjeningTom +
-            ", arbeidsforholdRef='" + arbeidsforholdRef + '\'' +
-            ", erGodkjent=" + erGodkjent +
-            ", begrunnelse='" + begrunnelse + '\'' +
-            '}';
+        return "BekreftOpptjeningPeriodeDto{" + "aktivitetType=" + aktivitetType + ", opptjeningFom=" + opptjeningFom + ", opptjeningTom="
+            + opptjeningTom + ", arbeidsforholdRef='" + arbeidsforholdRef + '\'' + ", erGodkjent=" + erGodkjent + ", begrunnelse='" + begrunnelse
+            + '\'' + '}';
     }
 }

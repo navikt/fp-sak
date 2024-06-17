@@ -51,6 +51,7 @@ public enum UtsettelseÅrsak implements Årsak {
         }
         return ad;
     }
+
     public static Map<String, UtsettelseÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

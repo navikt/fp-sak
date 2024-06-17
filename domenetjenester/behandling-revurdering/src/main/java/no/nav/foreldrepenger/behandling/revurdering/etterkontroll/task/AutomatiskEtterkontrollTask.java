@@ -50,12 +50,12 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     @Inject
     public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider,
-            EtterkontrollRepository etterkontrollRepository,
-            HistorikkRepository historikkRepository,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            PersoninfoAdapter personinfoAdapter,
-            ProsessTaskTjeneste taskTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+                                       EtterkontrollRepository etterkontrollRepository,
+                                       HistorikkRepository historikkRepository,
+                                       FamilieHendelseTjeneste familieHendelseTjeneste,
+                                       PersoninfoAdapter personinfoAdapter,
+                                       ProsessTaskTjeneste taskTjeneste,
+                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -83,16 +83,16 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
         if (familieHendelseGrunnlag != null) {
             var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-            barnFødtIPeriode.addAll(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), intervaller));
+            barnFødtIPeriode.addAll(
+                personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), intervaller));
             if (!barnFødtIPeriode.isEmpty()) {
                 revurderingHistorikk.opprettHistorikkinnslagForFødsler(behandling, barnFødtIPeriode);
             }
         }
 
-        var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
-                .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
-        var revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag,
-                barnFødtIPeriode);
+        var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup.find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType())
+            .orElseThrow();
+        var revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
 
         revurderingsÅrsak.ifPresent(årsak -> {
             var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

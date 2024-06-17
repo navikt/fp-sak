@@ -66,12 +66,22 @@ public class OppdragTestDataHelper {
         return lagOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FPREF, true, true, false);
     }
 
-    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde kodeFagområde,
-                                           boolean medOppdraglinje150, boolean refusjon, boolean feriepenger) {
+    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll,
+                                           Long fagsystemId,
+                                           KodeFagområde kodeFagområde,
+                                           boolean medOppdraglinje150,
+                                           boolean refusjon,
+                                           boolean feriepenger) {
         return lagOppdrag110(oppdragskontroll, fagsystemId, kodeFagområde, medOppdraglinje150, false, refusjon, feriepenger);
     }
-    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde kodeFagområde,
-                                           boolean medOppdraglinje150, boolean medOmpostering, boolean refusjon, boolean feriepenger) {
+
+    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll,
+                                           Long fagsystemId,
+                                           KodeFagområde kodeFagområde,
+                                           boolean medOppdraglinje150,
+                                           boolean medOmpostering,
+                                           boolean refusjon,
+                                           boolean feriepenger) {
         var oppdrag110 = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(kodeFagområde)
@@ -80,8 +90,7 @@ public class OppdragTestDataHelper {
             .medSaksbehId("J5624215")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)
-            .medOmpostering116(medOmpostering ? new Ompostering116.Builder()
-                .medOmPostering(true)
+            .medOmpostering116(medOmpostering ? new Ompostering116.Builder().medOmPostering(true)
                 .medDatoOmposterFom(LocalDate.now())
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .build() : null)
@@ -96,11 +105,9 @@ public class OppdragTestDataHelper {
     }
 
     private static void lagOppdragslinje150FeriePenger(Oppdrag110 oppdrag110, boolean refusjon) {
-        var kodeKlassifik = oppdrag110.getKodeFagomrade().equals(KodeFagområde.FP) ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
-        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, 100L)
-            .medKodeKlassifik(kodeKlassifik)
-            .medTypeSats(TypeSats.ENG)
-            .build();
+        var kodeKlassifik = oppdrag110.getKodeFagomrade()
+            .equals(KodeFagområde.FP) ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
+        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, 100L).medKodeKlassifik(kodeKlassifik).medTypeSats(TypeSats.ENG).build();
         if (refusjon && oppdrag110.getKodeFagomrade().equals(KodeFagområde.FPREF)) {
             lagRefusjonsinfo156(oppdragslinje150);
         }
@@ -115,10 +122,7 @@ public class OppdragTestDataHelper {
             case FP, FPREF -> refusjon ? KodeKlassifik.FPF_FERIEPENGER_AG : KodeKlassifik.FERIEPENGER_BRUKER;
             default -> KodeKlassifik.ES_FØDSEL;
         };
-        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, delytelseId)
-            .medKodeKlassifik(kodeKlassifik)
-            .medTypeSats(TypeSats.DAG)
-            .build();
+        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, delytelseId).medKodeKlassifik(kodeKlassifik).medTypeSats(TypeSats.DAG).build();
         if (refusjon && oppdrag110.getKodeFagomrade().equals(KodeFagområde.FPREF)) {
             lagRefusjonsinfo156(oppdragslinje150);
         }

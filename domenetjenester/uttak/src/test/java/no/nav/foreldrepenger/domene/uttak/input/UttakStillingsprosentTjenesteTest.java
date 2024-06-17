@@ -79,10 +79,8 @@ class UttakStillingsprosentTjenesteTest {
         var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom))
-            .isEqualTo(stillingsprosent1);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom))
-            .isEqualTo(stillingsprosent2);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom)).isEqualTo(stillingsprosent1);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom)).isEqualTo(stillingsprosent2);
     }
 
     @Test
@@ -107,10 +105,8 @@ class UttakStillingsprosentTjenesteTest {
         var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom1))
-            .isEqualTo(stillingsprosent1);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom2))
-            .isEqualTo(stillingsprosent2);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom1)).isEqualTo(stillingsprosent1);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom2)).isEqualTo(stillingsprosent2);
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom2)).isZero();
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId2, fom1)).isZero();
     }
@@ -151,8 +147,7 @@ class UttakStillingsprosentTjenesteTest {
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(tom.minusDays(2), tom))
             .medProsentsats(BigDecimal.TEN);
 
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         var yrkesAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(førsteAktivitetsavtale)
@@ -166,8 +161,8 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom.plusDays(2)))
-            .isEqualTo(stillingsprosentFørsteAktivitetsavtale);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom.plusDays(2))).isEqualTo(
+            stillingsprosentFørsteAktivitetsavtale);
     }
 
     @Test
@@ -186,8 +181,7 @@ class UttakStillingsprosentTjenesteTest {
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom.plusDays(4), tom.minusWeeks(1)))
             .medProsentsats(stillingsprosentSisteAktivitetsavtale);
 
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         var yrkesAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(førsteAktivitetsavtale)
@@ -201,8 +195,8 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, tom.minusDays(2)))
-            .isEqualTo(stillingsprosentSisteAktivitetsavtale);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, tom.minusDays(2))).isEqualTo(
+            stillingsprosentSisteAktivitetsavtale);
     }
 
     @Test
@@ -221,8 +215,7 @@ class UttakStillingsprosentTjenesteTest {
         var aktivitetAvtale1 = AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
             .medProsentsats(stillingsprosent1);
-        var ansettelsesperiode1 = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var ansettelsesperiode1 = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var yrkesAktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(aktivitetAvtale1)
             .leggTilAktivitetsAvtale(ansettelsesperiode1)
@@ -249,8 +242,7 @@ class UttakStillingsprosentTjenesteTest {
         var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom))
-            .isEqualTo(stillingsprosent1);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom)).isEqualTo(stillingsprosent1);
     }
 
     @Test
@@ -270,10 +262,8 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom))
-            .isEqualTo(stillingsprosent);
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom))
-            .isEqualTo(stillingsprosent);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom)).isEqualTo(stillingsprosent);
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom)).isEqualTo(stillingsprosent);
     }
 
     @Test
@@ -293,10 +283,8 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom))
-            .isEqualTo(stillingsprosent.abs());
-        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom))
-            .isEqualTo(stillingsprosent.abs());
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, fom)).isEqualTo(stillingsprosent.abs());
+        assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId, tom)).isEqualTo(stillingsprosent.abs());
     }
 
     private UttakYrkesaktiviteter tjeneste(Behandling behandling, InntektArbeidYtelseGrunnlag grunnlag, List<Yrkesaktivitet> yrkesaktiviteter) {
@@ -311,14 +299,17 @@ class UttakStillingsprosentTjenesteTest {
         return input.medBeregningsgrunnlagStatuser(bgStatuser).getYrkesaktiviteter();
     }
 
-    private YrkesaktivitetBuilder arbeidAktivitet(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbId, LocalDate fom, LocalDate tom, BigDecimal stillingsprosent) {
+    private YrkesaktivitetBuilder arbeidAktivitet(Arbeidsgiver arbeidsgiver,
+                                                  InternArbeidsforholdRef arbId,
+                                                  LocalDate fom,
+                                                  LocalDate tom,
+                                                  BigDecimal stillingsprosent) {
 
         var aktivitetAvtale = AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
             .medProsentsats(stillingsprosent);
 
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(aktivitetAvtale)

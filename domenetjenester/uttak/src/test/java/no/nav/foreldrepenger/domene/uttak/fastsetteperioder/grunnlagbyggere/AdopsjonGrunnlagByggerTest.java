@@ -24,8 +24,8 @@ class AdopsjonGrunnlagByggerTest {
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(LocalDate ankomstNorge, boolean stebarnsadopsjon) {
-        var bekreftetFamilieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(LocalDate.now(),
-            List.of(new Barn()), 1, ankomstNorge, stebarnsadopsjon);
+        var bekreftetFamilieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(LocalDate.now(), List.of(new Barn()), 1, ankomstNorge,
+            stebarnsadopsjon);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
         return new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
     }

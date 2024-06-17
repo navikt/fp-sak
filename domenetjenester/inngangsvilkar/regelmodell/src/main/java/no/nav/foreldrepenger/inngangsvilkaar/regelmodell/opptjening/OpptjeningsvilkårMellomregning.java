@@ -27,13 +27,19 @@ public class OpptjeningsvilkårMellomregning {
 
     private final Map<Aktivitet, AktivitetMellomregning> mellomregning = new HashMap<>();
 
-    /** Beregnet total opptjening (inklusiv bekreftet og antatt) */
+    /**
+     * Beregnet total opptjening (inklusiv bekreftet og antatt)
+     */
     private OpptjentTidslinje antattTotalOpptjening;
 
-    /** Beregnet total opptjening (kun bekreftet). */
+    /**
+     * Beregnet total opptjening (kun bekreftet).
+     */
     private OpptjentTidslinje bekreftetTotalOpptjening;
 
-    /** Beregnet total opptjening. */
+    /**
+     * Beregnet total opptjening.
+     */
     private OpptjentTidslinje totalOpptjening;
 
     /**
@@ -52,59 +58,52 @@ public class OpptjeningsvilkårMellomregning {
         var maxIntervall = grunnlag.getOpptjeningPeriode();
 
         // grupper aktivitet perioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
-        splitAktiviter(
-            a -> a.getVurderingsStatus() == null)
-                .forEach(e -> mellomregning.computeIfAbsent(e.getKey(),
-                    a -> new AktivitetMellomregning(a, e.getValue())));
+        splitAktiviter(a -> a.getVurderingsStatus() == null).forEach(
+            e -> mellomregning.computeIfAbsent(e.getKey(), a -> new AktivitetMellomregning(a, e.getValue())));
 
-        splitAktiviter(
-            a -> Objects.equals(AktivitetPeriode.VurderingsStatus.TIL_VURDERING, a.getVurderingsStatus()))
-                .forEach(e -> mellomregning.computeIfAbsent(e.getKey(),
-                    a -> new AktivitetMellomregning(a, e.getValue())));
+        splitAktiviter(a -> Objects.equals(AktivitetPeriode.VurderingsStatus.TIL_VURDERING, a.getVurderingsStatus())).forEach(
+            e -> mellomregning.computeIfAbsent(e.getKey(), a -> new AktivitetMellomregning(a, e.getValue())));
 
-        splitAktiviter(
-            a -> Objects.equals(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT, a.getVurderingsStatus()))
-                .forEach(e -> mellomregning.computeIfAbsent(e.getKey(),
-                    AktivitetMellomregning::new).setAktivitetManueltGodkjent(e.getValue()));
+        splitAktiviter(a -> Objects.equals(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT, a.getVurderingsStatus())).forEach(
+            e -> mellomregning.computeIfAbsent(e.getKey(), AktivitetMellomregning::new).setAktivitetManueltGodkjent(e.getValue()));
 
-        splitAktiviter(
-            a -> Objects.equals(AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT, a.getVurderingsStatus()))
-                .forEach(
-                    e -> mellomregning.computeIfAbsent(e.getKey(),
-                        AktivitetMellomregning::new).setAktivitetManueltUnderkjent(e.getValue()));
+        splitAktiviter(a -> Objects.equals(AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT, a.getVurderingsStatus())).forEach(
+            e -> mellomregning.computeIfAbsent(e.getKey(), AktivitetMellomregning::new).setAktivitetManueltUnderkjent(e.getValue()));
 
         // grupper inntektperioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
-        var grupperInntekterEtterAktiitet = Optional.ofNullable(grunnlag.inntektPerioder()).orElse(List.of()).stream().collect(
-            Collectors.groupingBy(InntektPeriode::getAktivitet,
+        var grupperInntekterEtterAktiitet = Optional.ofNullable(grunnlag.inntektPerioder())
+            .orElse(List.of())
+            .stream()
+            .collect(Collectors.groupingBy(InntektPeriode::getAktivitet,
                 Collectors.mapping(a1 -> new LocalDateSegment<>(a1.getDatoInterval(), a1.getInntektBeløp()), Collectors.toSet())));
 
         LocalDateSegmentCombinator<Long, Long, Long> inntektOverlapDuplikatCombinator = StandardCombinators::sum;
 
         var inntektsIntervall = new LocalDateInterval(maxIntervall.getFomDato().minusMonths(1).withDayOfMonth(1), maxIntervall.getTomDato());
-        grupperInntekterEtterAktiitet
-            .entrySet().stream()
+        grupperInntekterEtterAktiitet.entrySet()
+            .stream()
             .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(),
                 new LocalDateTimeline<>(e.getValue(), inntektOverlapDuplikatCombinator).intersection(inntektsIntervall)))
             .filter(e -> !e.getValue().isEmpty())
-            .forEach(
-                e -> mellomregning.computeIfAbsent(e.getKey(),
-                    AktivitetMellomregning::new).setInntektTidslinjer(e.getValue()));
+            .forEach(e -> mellomregning.computeIfAbsent(e.getKey(), AktivitetMellomregning::new).setInntektTidslinjer(e.getValue()));
 
     }
 
     private Stream<Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>> splitAktiviter(Predicate<AktivitetPeriode> filter) {
-        var aktiviteter = Optional.ofNullable(grunnlag.aktivitetPerioder()).orElse(List.of()).stream()
+        var aktiviteter = Optional.ofNullable(grunnlag.aktivitetPerioder())
+            .orElse(List.of())
+            .stream()
             .filter(filter)
-            .collect(
-                Collectors.groupingBy(AktivitetPeriode::getAktivitet,
-                    Collectors.mapping(a -> new LocalDateSegment<>(a.getDatoIntervall(), Boolean.TRUE), Collectors.toSet())));
+            .collect(Collectors.groupingBy(AktivitetPeriode::getAktivitet,
+                Collectors.mapping(a -> new LocalDateSegment<>(a.getDatoIntervall(), Boolean.TRUE), Collectors.toSet())));
 
         LocalDateSegmentCombinator<Boolean, Boolean, Boolean> aktivitetOverlappDuplikatCombinator = StandardCombinators::alwaysTrueForMatch;
 
-        return aktiviteter
-            .entrySet().stream()
+        return aktiviteter.entrySet()
+            .stream()
             .map(e -> (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>) new AbstractMap.SimpleEntry<>(e.getKey(),
-                new LocalDateTimeline<>(e.getValue().stream().sorted(Comparator.comparing(LocalDateSegment::getLocalDateInterval)).toList(), aktivitetOverlappDuplikatCombinator)))
+                new LocalDateTimeline<>(e.getValue().stream().sorted(Comparator.comparing(LocalDateSegment::getLocalDateInterval)).toList(),
+                    aktivitetOverlappDuplikatCombinator)))
             .filter(e -> !e.getValue().isEmpty());
     }
 
@@ -113,7 +112,8 @@ public class OpptjeningsvilkårMellomregning {
     }
 
     private <V> Map<Aktivitet, LocalDateTimeline<V>> getMellomregningTidslinje(Function<AktivitetMellomregning, LocalDateTimeline<V>> fieldGetter) {
-        return mellomregning.entrySet().stream()
+        return mellomregning.entrySet()
+            .stream()
             .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), fieldGetter.apply(e.getValue())))
             .filter(e -> !e.getValue().isEmpty())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -127,13 +127,13 @@ public class OpptjeningsvilkårMellomregning {
      * Returnerer aktivitet tidslinjer, uten underkjente perioder (hvis satt), og med valgfritt med/uten antatt
      * godkjente perioder.
      */
-    public Map<Aktivitet, LocalDateTimeline<Boolean>> getAktivitetTidslinjer(boolean medAntattGodkjentePerioder, boolean medIkkebekreftedeGodkjentePerioder) {
+    public Map<Aktivitet, LocalDateTimeline<Boolean>> getAktivitetTidslinjer(boolean medAntattGodkjentePerioder,
+                                                                             boolean medIkkebekreftedeGodkjentePerioder) {
 
-        return mellomregning
-            .entrySet().stream()
-            .map(
-                e -> new AbstractMap.SimpleEntry<>(e.getKey(),
-                    e.getValue().getAktivitetTidslinje(medAntattGodkjentePerioder, medIkkebekreftedeGodkjentePerioder)))
+        return mellomregning.entrySet()
+            .stream()
+            .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(),
+                e.getValue().getAktivitetTidslinje(medAntattGodkjentePerioder, medIkkebekreftedeGodkjentePerioder)))
             .filter(e -> !e.getValue().isEmpty())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -236,15 +236,15 @@ public class OpptjeningsvilkårMellomregning {
         return sjekkErErOverAntallPåkrevd(opptjeningPeriode, minsteAntallMåneder, minsteAntallDager);
     }
 
-    private static boolean sjekkErErOverAntallPåkrevd(Period opptjentPeriode, int minsteAntallMåneder,
-                                                      int minsteAntallDager) {
+    private static boolean sjekkErErOverAntallPåkrevd(Period opptjentPeriode, int minsteAntallMåneder, int minsteAntallDager) {
         return opptjentPeriode.getMonths() > minsteAntallMåneder
             || opptjentPeriode.getMonths() == minsteAntallMåneder && opptjentPeriode.getDays() >= minsteAntallDager;
     }
 
     private static Map<Aktivitet, LocalDateTimeline<Boolean>> trimTidslinje(Map<Aktivitet, LocalDateTimeline<Boolean>> tidslinjer,
                                                                             LocalDateInterval maxInterval) {
-        return tidslinjer.entrySet().stream()
+        return tidslinjer.entrySet()
+            .stream()
             .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().intersection(maxInterval)))
             .filter(e -> !e.getValue().isEmpty())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

@@ -17,8 +17,7 @@ class KontrollerFaktaTjeneste extends KontrollerFaktaTjenesteInngangsVilkår {
     }
 
     @Inject
-    KontrollerFaktaTjeneste(KontrollerFaktaUtledereTjenesteImpl utlederTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+    KontrollerFaktaTjeneste(KontrollerFaktaUtledereTjenesteImpl utlederTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         super(utlederTjeneste, behandlingskontrollTjeneste);
     }
 }

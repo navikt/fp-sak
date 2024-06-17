@@ -67,7 +67,7 @@ public class YtelseFordelingDto {
             return this;
         }
 
-        public Builder medGjeldendeDekningsgrad(int gjeldendeDekningsgrad){
+        public Builder medGjeldendeDekningsgrad(int gjeldendeDekningsgrad) {
             kladd.gjeldendeDekningsgrad = gjeldendeDekningsgrad;
             return this;
         }

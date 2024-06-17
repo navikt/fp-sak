@@ -30,7 +30,7 @@ public class BeregningsresultatRepository {
     }
 
     @Inject
-    public BeregningsresultatRepository( EntityManager entityManager) {
+    public BeregningsresultatRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
@@ -48,28 +48,25 @@ public class BeregningsresultatRepository {
 
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {
         var query = entityManager.createQuery(
-            "from BeregningsresultatFPAggregatEntitet aggregat " +
-                "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = true", BehandlingBeregningsresultatEntitet.class);
+            "from BeregningsresultatFPAggregatEntitet aggregat " + "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = true",
+            BehandlingBeregningsresultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }
 
     public void lagre(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
-        var builder = opprettResultatBuilderFor(behandling.getId())
-            .medBgBeregningsresultatFP(beregningsresultat)
+        var builder = opprettResultatBuilderFor(behandling.getId()).medBgBeregningsresultatFP(beregningsresultat)
             .medBeregningsresultatFeriepenger(beregningsresultat.getBeregningsresultatFeriepenger().orElse(null));
         lagreOgFlush(behandling, builder);
     }
 
     public void lagreFeriepenger(Behandling behandling, BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
-        var builder = opprettResultatBuilderFor(behandling.getId())
-            .medBeregningsresultatFeriepenger(beregningsresultatFeriepenger);
+        var builder = opprettResultatBuilderFor(behandling.getId()).medBeregningsresultatFeriepenger(beregningsresultatFeriepenger);
         lagreOgFlush(behandling, builder);
     }
 
     public void lagreUtbetBeregningsresultat(Behandling behandling, BeregningsresultatEntitet utbetBeregningsresultatFP) {
-        var builder = opprettResultatBuilderFor(behandling.getId())
-            .medUtbetBeregningsresultatFP(utbetBeregningsresultatFP)
+        var builder = opprettResultatBuilderFor(behandling.getId()).medUtbetBeregningsresultatFP(utbetBeregningsresultatFP)
             .medBeregningsresultatFeriepenger(utbetBeregningsresultatFP.getBeregningsresultatFeriepenger().orElse(null));
         lagreOgFlush(behandling, builder);
     }
@@ -77,7 +74,7 @@ public class BeregningsresultatRepository {
     /**
      * Lagrer beregningsresultataggregatet med en verdi for hindreTilbaketrekk
      *
-     * @param behandling en {@link Behandling}
+     * @param behandling             en {@link Behandling}
      * @param skalHindreTilbaketrekk skal tilkjent ytelse omfordeles mellom bruker og arbeidsgiver?
      * @return Tidligere verdi
      */
@@ -156,9 +153,8 @@ public class BeregningsresultatRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
-                " and periode.fomDato<=:dato" +
-                " and periode.tomDato>=:dato", BeregningSats.class);
+        var query = entityManager.createQuery(
+            "from BeregningSats where satsType=:satsType" + " and periode.fomDato<=:dato" + " and periode.tomDato>=:dato", BeregningSats.class);
 
         query.setParameter("satsType", satsType);
         query.setParameter("dato", dato);
@@ -171,8 +167,10 @@ public class BeregningsresultatRepository {
         var query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class);
 
         query.setParameter("satsType", satsType);
-        return query.getResultList().stream()
-            .max(Comparator.comparing(s -> s.getPeriode().getFomDato())).orElseThrow(() -> new IllegalStateException("Fant ikke nyeste sats"));
+        return query.getResultList()
+            .stream()
+            .max(Comparator.comparing(s -> s.getPeriode().getFomDato()))
+            .orElseThrow(() -> new IllegalStateException("Fant ikke nyeste sats"));
     }
 
     public void lagreSats(BeregningSats sats) {

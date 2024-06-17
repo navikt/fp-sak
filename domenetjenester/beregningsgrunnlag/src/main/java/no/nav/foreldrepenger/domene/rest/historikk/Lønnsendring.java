@@ -97,7 +97,7 @@ public class Lønnsendring {
             lønnsendringMal = lønnsendring;
         }
 
-        public static Builder ny(){
+        public static Builder ny() {
             return new Builder();
         }
 

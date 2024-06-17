@@ -115,8 +115,7 @@ public class EndringsresultatSnapshot {
             return false;
         }
 
-        return Objects.equals(getGrunnlagRef(), that.getGrunnlagRef()) &&
-            Objects.equals(grunnlagKlasse, that.grunnlagKlasse);
+        return Objects.equals(getGrunnlagRef(), that.getGrunnlagRef()) && Objects.equals(grunnlagKlasse, that.grunnlagKlasse);
     }
 
     @Override
@@ -129,18 +128,15 @@ public class EndringsresultatSnapshot {
         var idDiff = EndringsresultatDiff.opprett();
 
         Map<Class<?>, Object> førMap = new HashMap<>();
-        før.children.forEach(endring ->
-            førMap.put(endring.grunnlagKlasse, endring.getGrunnlagRef()));
+        før.children.forEach(endring -> førMap.put(endring.grunnlagKlasse, endring.getGrunnlagRef()));
 
         Map<Class<?>, Object> etterMap = new HashMap<>();
-        etter.children.forEach(endring ->
-            etterMap.put(endring.grunnlagKlasse, endring.getGrunnlagRef()));
+        etter.children.forEach(endring -> etterMap.put(endring.grunnlagKlasse, endring.getGrunnlagRef()));
 
-        var alleGrunnlagsklasser = Stream.concat(førMap.keySet().stream(), etterMap.keySet().stream())
-            .collect(toSet());
+        var alleGrunnlagsklasser = Stream.concat(førMap.keySet().stream(), etterMap.keySet().stream()).collect(toSet());
 
-        alleGrunnlagsklasser.forEach(grunnlag ->
-            idDiff.leggTilIdDiff(EndringsresultatDiff.medDiff(grunnlag, førMap.get(grunnlag), etterMap.get(grunnlag))));
+        alleGrunnlagsklasser.forEach(
+            grunnlag -> idDiff.leggTilIdDiff(EndringsresultatDiff.medDiff(grunnlag, førMap.get(grunnlag), etterMap.get(grunnlag))));
 
         return idDiff;
     }

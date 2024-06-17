@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
 /**
  * Spoler fremover fra steg A til steg B UTEN at stegene besøkes.
- *
+ * <p>
  * NB! Merk at denne transisjonstypen IKKE besøker stegene slik at
  * {@see BehandlingSteg#vedHoppOverFramover} IKKE kalles på.
  */
@@ -30,9 +30,10 @@ class SpolFremoverTransisjon implements StegTransisjon {
 
     @Override
     public BehandlingStegModell nesteSteg(BehandlingStegModell nåværendeSteg) {
-        var funnetMålsteg = nåværendeSteg.getBehandlingModell().hvertStegEtter(nåværendeSteg.getBehandlingStegType())
-                .filter(s -> s.getBehandlingStegType().equals(målsteg))
-                .findFirst();
+        var funnetMålsteg = nåværendeSteg.getBehandlingModell()
+            .hvertStegEtter(nåværendeSteg.getBehandlingStegType())
+            .filter(s -> s.getBehandlingStegType().equals(målsteg))
+            .findFirst();
         if (funnetMålsteg.isPresent()) {
             return funnetMålsteg.get();
         }
@@ -56,8 +57,6 @@ class SpolFremoverTransisjon implements StegTransisjon {
 
     @Override
     public String toString() {
-        return "FremoverhoppTransisjon{" +
-                "id='" + id + '\'' +
-                '}';
+        return "FremoverhoppTransisjon{" + "id='" + id + '\'' + '}';
     }
 }

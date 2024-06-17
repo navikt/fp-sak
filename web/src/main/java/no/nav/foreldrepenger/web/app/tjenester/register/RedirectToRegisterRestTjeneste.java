@@ -48,16 +48,16 @@ public class RedirectToRegisterRestTjeneste {
     }
 
     @Inject
-    public RedirectToRegisterRestTjeneste(PersoninfoAdapter personinfoAdapter, FagsakRepository fagsakRepository, RegisterPathTjeneste registerPathTjeneste) {
+    public RedirectToRegisterRestTjeneste(PersoninfoAdapter personinfoAdapter,
+                                          FagsakRepository fagsakRepository,
+                                          RegisterPathTjeneste registerPathTjeneste) {
         this.personinfoAdapter = personinfoAdapter;
         this.fagsakRepository = fagsakRepository;
         this.registerPathTjeneste = registerPathTjeneste;
     }
 
     @GET
-    @Operation(description = "Redirecter til aa-reg for arbeidstakeren", tags = "aktoer", responses = {
-        @ApiResponse(responseCode = "307", description = "Redirecter til aa-reg for arbeidstakeren")
-    })
+    @Operation(description = "Redirecter til aa-reg for arbeidstakeren", tags = "aktoer", responses = {@ApiResponse(responseCode = "307", description = "Redirecter til aa-reg for arbeidstakeren")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AAREG_REG_POSTFIX)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
@@ -78,9 +78,7 @@ public class RedirectToRegisterRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Redirecter til a-inntekt for arbeidstakeren forhåndsvalgt nasjonal enhet og filter 8-30", tags = "aktoer", responses = {
-        @ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")
-    })
+    @Operation(description = "Redirecter til a-inntekt for arbeidstakeren forhåndsvalgt nasjonal enhet og filter 8-30", tags = "aktoer", responses = {@ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AINNTEKT_REG_POSTFIX)
     public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = NullableSaksnummerAbacSupplier.class) @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {

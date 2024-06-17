@@ -39,8 +39,7 @@ class GjenopptaBehandlingTaskTest {
     void skal_gjenoppta_behandling() {
         final Long behandlingId = 10L;
 
-        var scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
 

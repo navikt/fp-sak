@@ -59,8 +59,7 @@ class EksisterendeOppdragMapperTest {
         var kjede = kjeder.get(kjedeNøkkel);
         assertThat(kjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(150)).medRefDelytelseId(delytelseId1)
-                .build());
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(150)).medRefDelytelseId(delytelseId1).build());
     }
 
     @Test
@@ -96,11 +95,19 @@ class EksisterendeOppdragMapperTest {
         assertThat(kjeder).containsOnlyKeys(kjedeNøkkel);
         var kjede = kjeder.get(kjedeNøkkel);
         assertThat(kjede.getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(101)).medRefDelytelseId(linje1.getDelytelseId()).build(),
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build(), OppdragLinje.builder()
+                .medDelytelseId(delytelseId2)
+                .medPeriode(p2)
+                .medSats(Satsen.dagsats(101))
+                .medRefDelytelseId(linje1.getDelytelseId())
+                .build(),
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(101)).medOpphørFomDato(opphørsdato).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId3).medPeriode(p3).medSats(Satsen.dagsats(100)).medRefDelytelseId(linje2.getDelytelseId()).build()
-        );
+            OppdragLinje.builder()
+                .medDelytelseId(delytelseId3)
+                .medPeriode(p3)
+                .medSats(Satsen.dagsats(100))
+                .medRefDelytelseId(linje2.getDelytelseId())
+                .build());
     }
 
     @Test
@@ -119,22 +126,15 @@ class EksisterendeOppdragMapperTest {
         assertThat(kjeder).containsOnlyKeys(kjedeNøkkel, kjedeNøkkel2);
         var aktivKjede = kjeder.get(kjedeNøkkel);
         assertThat(aktivKjede.getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(mai).medSats(Satsen.engang(1000)).build()
-        );
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(mai).medSats(Satsen.engang(1000)).build());
         var opphørtKjede = kjeder.get(kjedeNøkkel2);
         assertThat(opphørtKjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Satsen.engang(1000)).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Satsen.engang(1000)).medOpphørFomDato(mai.getFom()).build()
-        );
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Satsen.engang(1000)).medOpphørFomDato(mai.getFom()).build());
     }
 
     private Oppdragskontroll lagOppdragskontroll() {
-        return Oppdragskontroll.builder()
-            .medBehandlingId(1L)
-            .medProsessTaskId(1000L)
-            .medSaksnummer(saksnummer)
-            .medVenterKvittering(true)
-            .build();
+        return Oppdragskontroll.builder().medBehandlingId(1L).medProsessTaskId(1000L).medSaksnummer(saksnummer).medVenterKvittering(true).build();
     }
 
     private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Satsen sats, LocalDate opphørFomDato) {
@@ -145,8 +145,13 @@ class EksisterendeOppdragMapperTest {
         return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null, FPF_ARBEIDSTAKER);
     }
 
-    private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Satsen sats, DelytelseId refDelytelseId,
-                                                 LocalDate opphørFomDato, KodeKlassifik kodeKlassifik) {
+    private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110,
+                                                 DelytelseId delytelseId,
+                                                 Periode p,
+                                                 Satsen sats,
+                                                 DelytelseId refDelytelseId,
+                                                 LocalDate opphørFomDato,
+                                                 KodeKlassifik kodeKlassifik) {
         return Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.parseLong(delytelseId.toString()))

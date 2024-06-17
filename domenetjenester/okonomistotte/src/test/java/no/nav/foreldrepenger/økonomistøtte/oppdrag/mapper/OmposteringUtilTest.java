@@ -31,14 +31,22 @@ class OmposteringUtilTest {
 
         var feriepengerFom = LocalDate.of(2021, 5, 1);
         var feriepengerPeriode = Periode.of(feriepengerFom, LocalDate.of(2021, 5, 31));
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
-            nøkkelBruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
-                .build(),
-            nøkkelFp2021Bruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(feriepengerPeriode).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(feriepengerPeriode).medOpphørFomDato(feriepengerFom).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .build()));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelBruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+            .build(), nøkkelFp2021Bruker, OppdragKjede.builder()
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(feriepengerPeriode)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(feriepengerPeriode)
+                .medOpphørFomDato(feriepengerFom)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .build())
+            .build()));
 
         var resultat = OmposteringUtil.harGjeldendeUtbetalingerFraTidligere(tidligereOppdrag.filter(Betalingsmottaker.BRUKER));
 
@@ -52,16 +60,25 @@ class OmposteringUtilTest {
         var nøkkelFp2021Bruker = KjedeNøkkel.lag(KodeKlassifik.FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2021);
 
         var fp1 = Periode.of(LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31));
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
-            nøkkelBruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).medOpphørFomDato(p1.getFom()).build())
-                .build(),
-            nøkkelFp2021Bruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).medOpphørFomDato(
-                    fp1.getFom()).build())
-                .build()));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelBruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p1)
+                .medSats(Satsen.dagsats(100))
+                .medDelytelseId(DelytelseId.parse("FooBAR-1-1"))
+                .medOpphørFomDato(p1.getFom())
+                .build())
+            .build(), nøkkelFp2021Bruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(fp1)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .medOpphørFomDato(fp1.getFom())
+                .build())
+            .build()));
 
         var resultat = OmposteringUtil.harGjeldendeUtbetalingerFraTidligere(tidligereOppdrag.filter(Betalingsmottaker.BRUKER));
 
@@ -75,16 +92,25 @@ class OmposteringUtilTest {
         var nøkkelFp2021Bruker = KjedeNøkkel.lag(KodeKlassifik.FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2021);
 
         var fp1 = Periode.of(LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31));
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
-            nøkkelBruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).medOpphørFomDato(p1.getFom()).build())
-                .build(),
-            nøkkelFp2021Bruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).medOpphørFomDato(
-                    fp1.getFom()).build())
-                .build()));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelBruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(p1)
+                .medSats(Satsen.dagsats(100))
+                .medDelytelseId(DelytelseId.parse("FooBAR-1-1"))
+                .medOpphørFomDato(p1.getFom())
+                .build())
+            .build(), nøkkelFp2021Bruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(fp1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(fp1)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .medOpphørFomDato(fp1.getFom())
+                .build())
+            .build()));
 
         var resultat = OmposteringUtil.erOpphørForMottaker(tidligereOppdrag.filter(Betalingsmottaker.BRUKER));
 
@@ -99,14 +125,22 @@ class OmposteringUtilTest {
 
         var feriepengerFom = LocalDate.of(2021, 5, 1);
         var feriepengerPeriode = Periode.of(feriepengerFom, LocalDate.of(2021, 5, 31));
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
-            nøkkelBruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
-                .build(),
-            nøkkelFp2021Bruker, OppdragKjede.builder()
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(feriepengerPeriode).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .medOppdragslinje(OppdragLinje.builder().medPeriode(feriepengerPeriode).medOpphørFomDato(feriepengerFom).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("Feriep-1-1")).build())
-                .build()));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelBruker, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+            .build(), nøkkelFp2021Bruker, OppdragKjede.builder()
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(feriepengerPeriode)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .build())
+            .medOppdragslinje(OppdragLinje.builder()
+                .medPeriode(feriepengerPeriode)
+                .medOpphørFomDato(feriepengerFom)
+                .medSats(Satsen.dagsats(1000))
+                .medDelytelseId(DelytelseId.parse("Feriep-1-1"))
+                .build())
+            .build()));
 
         var resultat = OmposteringUtil.erOpphørForMottaker(tidligereOppdrag.filter(Betalingsmottaker.BRUKER));
 

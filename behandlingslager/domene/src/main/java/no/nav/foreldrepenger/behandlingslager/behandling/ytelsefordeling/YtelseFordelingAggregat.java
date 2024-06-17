@@ -33,20 +33,18 @@ public class YtelseFordelingAggregat {
     }
 
     public boolean harAleneomsorg() {
-        return Optional.ofNullable(getAleneomsorgAvklaring())
-            .orElseGet(() -> TRUE.equals(getOppgittRettighet().getHarAleneomsorgForBarnet()));
+        return Optional.ofNullable(getAleneomsorgAvklaring()).orElseGet(() -> TRUE.equals(getOppgittRettighet().getHarAleneomsorgForBarnet()));
     }
 
     public boolean harAnnenForelderRett(boolean annenpartHarForeldrepengerUtbetaling) {
         if (annenpartHarForeldrepengerUtbetaling || avklartAnnenForelderHarRettEØS()) {
             return true;
         }
-        return Optional.ofNullable(getAnnenForelderRettAvklaring())
-            .orElseGet(() -> {
-                var oppgittRettighet = getOppgittRettighet();
-                Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
-                return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
-            });
+        return Optional.ofNullable(getAnnenForelderRettAvklaring()).orElseGet(() -> {
+            var oppgittRettighet = getOppgittRettighet();
+            Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
+            return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
+        });
     }
 
     public boolean morMottarUføretrygd(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
@@ -61,8 +59,7 @@ public class YtelseFordelingAggregat {
 
     public boolean oppgittAnnenForelderTilknytningEØS() {
         //Tidligere søknaden hadde ikke spørsmål om opphold, bare rett
-        return Objects.equals(getOppgittRettighet().getAnnenForelderOppholdEØS(), TRUE)
-            || oppgittAnnenForelderRettEØS();
+        return Objects.equals(getOppgittRettighet().getAnnenForelderOppholdEØS(), TRUE) || oppgittAnnenForelderRettEØS();
     }
 
     public boolean oppgittAnnenForelderRettEØS() {
@@ -90,18 +87,15 @@ public class YtelseFordelingAggregat {
     }
 
     public Boolean getAleneomsorgAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
-            .orElse(null);
+        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet).orElse(null);
     }
 
     public Boolean getAnnenForelderRettAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
-            .orElse(null);
+        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett).orElse(null);
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
-            .orElse(null);
+        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable).orElse(null);
     }
 
     public Boolean getMorUføretrygdAvklaring() {
@@ -119,6 +113,7 @@ public class YtelseFordelingAggregat {
     public Optional<AvklarteUttakDatoerEntitet> getAvklarteDatoer() {
         return Optional.ofNullable(avklarteDatoer);
     }
+
     public Optional<OppgittFordelingEntitet> getOverstyrtFordeling() {
         return Optional.ofNullable(overstyrtFordeling);
     }
@@ -132,8 +127,7 @@ public class YtelseFordelingAggregat {
     }
 
     public LocalDate getGjeldendeEndringsdato() {
-        return getGjeldendeEndringsdatoHvisEksisterer()
-            .orElseThrow(() -> new IllegalStateException("Finner ikke endringsdato"));
+        return getGjeldendeEndringsdatoHvisEksisterer().orElseThrow(() -> new IllegalStateException("Finner ikke endringsdato"));
     }
 
     public Optional<LocalDate> getGjeldendeEndringsdatoHvisEksisterer() {
@@ -187,8 +181,7 @@ public class YtelseFordelingAggregat {
 
         public Builder medOverstyrtFordeling(OppgittFordelingEntitet fordeling) {
             if (fordeling != null && kladd.getOppgittFordeling() == null) {
-                throw new TekniskException("FP-852328",
-                    "Kan ikke overstyre søknadsperioder før det finnes noen søknadsperioder å overstyre.");
+                throw new TekniskException("FP-852328", "Kan ikke overstyre søknadsperioder før det finnes noen søknadsperioder å overstyre.");
             }
             kladd.overstyrtFordeling = fordeling;
             return this;

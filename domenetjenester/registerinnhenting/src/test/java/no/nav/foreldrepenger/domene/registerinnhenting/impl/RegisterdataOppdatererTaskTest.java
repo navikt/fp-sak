@@ -61,8 +61,7 @@ class RegisterdataOppdatererTaskTest {
         var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
         var lås = mock(BehandlingLås.class);
         var kontekst = mock(BehandlingskontrollKontekst.class);
-        var scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
@@ -89,8 +88,7 @@ class RegisterdataOppdatererTaskTest {
         var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
         var lås = mock(BehandlingLås.class);
         var kontekst = mock(BehandlingskontrollKontekst.class);
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
@@ -100,8 +98,7 @@ class RegisterdataOppdatererTaskTest {
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
-        var snapshot= EndringsresultatSnapshot.opprett()
-            .leggTil(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
+        var snapshot = EndringsresultatSnapshot.opprett().leggTil(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
         var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
         prosessTaskData.setBehandling(0L, behandlingId, "0");
         prosessTaskData.setPayload(StandardJsonConfig.toJson(snapshot));

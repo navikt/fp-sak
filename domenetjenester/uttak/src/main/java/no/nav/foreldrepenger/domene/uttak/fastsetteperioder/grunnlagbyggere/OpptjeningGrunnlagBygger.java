@@ -10,7 +10,6 @@ public class OpptjeningGrunnlagBygger {
 
     public Opptjening.Builder byggGrunnlag(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        return new Opptjening.Builder()
-            .skjæringstidspunkt(ref.getUtledetSkjæringstidspunkt());
+        return new Opptjening.Builder().skjæringstidspunkt(ref.getUtledetSkjæringstidspunkt());
     }
 }

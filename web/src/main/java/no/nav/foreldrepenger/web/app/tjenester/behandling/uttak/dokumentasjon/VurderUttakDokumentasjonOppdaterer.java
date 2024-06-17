@@ -79,8 +79,8 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             dto.getVurderingBehov().stream().map(vb -> new LocalDateSegment<>(vb.fom(), vb.tom(), vb)).toList());
         var yfTimeline = new LocalDateTimeline<>(gjeldendePerioder.stream().map(op -> new LocalDateSegment<>(op.getFom(), op.getTom(), op)).toList());
 
-        if (vurderingTimeline.getMinLocalDate().isBefore(yfTimeline.getMinLocalDate())
-            || vurderingTimeline.getMaxLocalDate().isAfter(yfTimeline.getMaxLocalDate())) {
+        if (vurderingTimeline.getMinLocalDate().isBefore(yfTimeline.getMinLocalDate()) || vurderingTimeline.getMaxLocalDate()
+            .isAfter(yfTimeline.getMaxLocalDate())) {
             throw new IllegalArgumentException("Vurdering " + vurderingTimeline + " ligger utenfor yf perioder " + yfTimeline);
         }
 
@@ -111,15 +111,15 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         };
     }
 
-    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.Årsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.Årsak årsak,
+                                                   DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
-                AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
-                switch (vurdering) {
-                    case GODKJENT -> MORS_AKTIVITET_GODKJENT;
-                    case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
-                    case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-                };
+                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
+                case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
+                case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
+            };
             case TIDLIG_OPPSTART_FAR -> switch (vurdering) {
                 case GODKJENT -> TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
@@ -180,12 +180,11 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> SYKDOM_SØKER_IKKE_GODKJENT;
             };
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
-                AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
-                switch (vurdering) {
-                    case GODKJENT -> MORS_AKTIVITET_GODKJENT;
-                    case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
-                    case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-                };
+                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
+                case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
+                case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
+            };
             default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
     }

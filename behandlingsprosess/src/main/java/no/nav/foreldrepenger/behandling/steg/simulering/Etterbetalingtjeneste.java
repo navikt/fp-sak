@@ -30,7 +30,9 @@ public class Etterbetalingtjeneste {
      * @param nyttBeregningsresultat
      * @return
      */
-    public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat) {
+    public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato,
+                                                                             BeregningsresultatEntitet forrigeRes,
+                                                                             BeregningsresultatEntitet nyttBeregningsresultat) {
         var sisteDagSomErUtbetalt = finnSisteUtbetalteDato(dagensDato);
 
         var originalUtbetaltTidslinje = lagUtbetaltTidslinje(sisteDagSomErUtbetalt, forrigeRes);
@@ -62,7 +64,8 @@ public class Etterbetalingtjeneste {
         var segmenter = forrigeRes.getBeregningsresultatPerioder()
             .stream()
             .filter(p -> p.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), finnSumDirekteutbetaling(p.getBeregningsresultatAndelList())))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(),
+                finnSumDirekteutbetaling(p.getBeregningsresultatAndelList())))
             .toList();
         var beregningsresultatTidslinje = new LocalDateTimeline<>(segmenter);
         var utbetaltPeriodeTidslinje = new LocalDateTimeline<>(Tid.TIDENES_BEGYNNELSE, sisteDagSomErUtbetalt, null);

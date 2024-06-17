@@ -34,8 +34,7 @@ public class OpptjeningDtoTjeneste {
     }
 
     @Inject
-    public OpptjeningDtoTjeneste(OpptjeningsperioderTjeneste forSaksbehandlingTjeneste,
-            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+    public OpptjeningDtoTjeneste(OpptjeningsperioderTjeneste forSaksbehandlingTjeneste, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.forSaksbehandlingTjeneste = forSaksbehandlingTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
@@ -45,22 +44,22 @@ public class OpptjeningDtoTjeneste {
         var fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
         var resultat = new OpptjeningDto();
-        fastsattOpptjening.filter(Opptjening::getAktiv).ifPresent(fastsatt ->
-            resultat.setFastsattOpptjening(new FastsattOpptjeningDto(fastsatt.getFom(), fastsatt.getTom(),
-                mapFastsattOpptjening(fastsatt), MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));
+        fastsattOpptjening.filter(Opptjening::getAktiv)
+            .ifPresent(fastsatt -> resultat.setFastsattOpptjening(
+                new FastsattOpptjeningDto(fastsatt.getFom(), fastsatt.getTom(), mapFastsattOpptjening(fastsatt),
+                    MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));
 
         if (fastsattOpptjening.isPresent()) {
 
             resultat.setOpptjeningAktivitetList(
-                    forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
-                            .stream()
-                            .map(this::lagDtoFraOAPeriode)
-                            .toList());
+                forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref).stream().map(this::lagDtoFraOAPeriode).toList());
             // Ta med ferdiglignete år dersom finnes aktivitet næring
             if (resultat.getOpptjeningAktivitetList().stream().anyMatch(oa -> OpptjeningAktivitetType.NÆRING.equals(oa.getAktivitetType()))) {
-                var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref).stream()
+                var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref)
+                    .stream()
                     .collect(Collectors.groupingBy(FerdiglignetNæring::år, Collectors.reducing(0L, FerdiglignetNæring::beløp, Long::sum)))
-                    .entrySet().stream()
+                    .entrySet()
+                    .stream()
                     .map(e -> new FerdiglignetNæringDto(e.getKey(), e.getValue()))
                     .sorted(Comparator.comparing(FerdiglignetNæringDto::år))
                     .toList();
@@ -77,13 +76,13 @@ public class OpptjeningDtoTjeneste {
     }
 
     private FastsattOpptjeningDto.OpptjeningPeriodeDto mapFastsattOpptjening(Opptjening fastsattOpptjening) {
-        return fastsattOpptjening.getOpptjentPeriode() != null ? new FastsattOpptjeningDto.OpptjeningPeriodeDto(fastsattOpptjening.getOpptjentPeriode().getMonths(),
-                fastsattOpptjening.getOpptjentPeriode().getDays()) : new FastsattOpptjeningDto.OpptjeningPeriodeDto(0, 0);
+        return fastsattOpptjening.getOpptjentPeriode() != null ? new FastsattOpptjeningDto.OpptjeningPeriodeDto(
+            fastsattOpptjening.getOpptjentPeriode().getMonths(),
+            fastsattOpptjening.getOpptjentPeriode().getDays()) : new FastsattOpptjeningDto.OpptjeningPeriodeDto(0, 0);
     }
 
     private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap) {
-        var dto = new OpptjeningAktivitetDto(oap.getOpptjeningAktivitetType(),
-                oap.getPeriode().getFomDato(), oap.getPeriode().getTomDato());
+        var dto = new OpptjeningAktivitetDto(oap.getOpptjeningAktivitetType(), oap.getPeriode().getFomDato(), oap.getPeriode().getTomDato());
 
         var arbeidsgiver = oap.getArbeidsgiver();
         if (arbeidsgiver != null && arbeidsgiver.erAktørId()) {
@@ -114,9 +113,9 @@ public class OpptjeningDtoTjeneste {
         dto.setErEndret(oap.erManueltBehandlet());
         dto.setErPeriodeEndret(oap.getErPeriodeEndret());
         dto.setArbeidsforholdRef(Optional.ofNullable(oap.getOpptjeningsnøkkel())
-                .flatMap(Opptjeningsnøkkel::getArbeidsforholdRef)
-                .map(InternArbeidsforholdRef::getReferanse)
-                .orElse(null));
+            .flatMap(Opptjeningsnøkkel::getArbeidsforholdRef)
+            .map(InternArbeidsforholdRef::getReferanse)
+            .orElse(null));
     }
 
     private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto, boolean kunstig) {
@@ -131,7 +130,7 @@ public class OpptjeningDtoTjeneste {
     private void lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto) {
         if (oap.getArbeidsgiverUtlandNavn() != null) {
             dto.setArbeidsgiverReferanse(
-                    MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(oap.getArbeidsgiverUtlandNavn()));
+                MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(oap.getArbeidsgiverUtlandNavn()));
         }
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
     }

@@ -19,7 +19,10 @@ public class OppdragForMottakerTjeneste {
     private final Betalingsmottaker betalingsmottaker;
     private final LocalDate fellesEndringstidspunkt;
 
-    public OppdragForMottakerTjeneste(KodeFagområde økonomiFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, LocalDate fellesEndringstidspunkt) {
+    public OppdragForMottakerTjeneste(KodeFagområde økonomiFagområde,
+                                      FagsystemId fagsystemId,
+                                      Betalingsmottaker betalingsmottaker,
+                                      LocalDate fellesEndringstidspunkt) {
         this.økonomiFagområde = økonomiFagområde;
         this.fagsystemId = fagsystemId;
         this.betalingsmottaker = betalingsmottaker;
@@ -30,9 +33,10 @@ public class OppdragForMottakerTjeneste {
         var factory = lagOppdragskjedeFactory(eksisterendeOppdrag);
         var builder = Oppdrag.builder(økonomiFagområde, fagsystemId, betalingsmottaker);
         for (var nøkkel : SetUtil.sortertUnionOfKeys(eksisterendeOppdrag.getKjeder(), nyTilkjentYtelse)) {
-            var kjede = fellesEndringstidspunkt == null
-                ? factory.lagOppdragskjede(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling())
-                : factory.lagOppdragskjedeFraFellesEndringsdato(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling(), fellesEndringstidspunkt);
+            var kjede = fellesEndringstidspunkt == null ? factory.lagOppdragskjede(eksisterendeOppdrag.getKjede(nøkkel),
+                nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY),
+                nøkkel.gjelderEngangsutbetaling()) : factory.lagOppdragskjedeFraFellesEndringsdato(eksisterendeOppdrag.getKjede(nøkkel),
+                nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling(), fellesEndringstidspunkt);
             if (kjede != null) {
                 builder.leggTil(nøkkel, kjede);
             }
@@ -41,9 +45,8 @@ public class OppdragForMottakerTjeneste {
     }
 
     private OppdragKjedeFactory lagOppdragskjedeFactory(MottakerOppdragKjedeOversikt eksisterendeOppdrag) {
-        return eksisterendeOppdrag.isEmpty()
-            ? OppdragKjedeFactory.lagForNyMottaker(fagsystemId)
-            : OppdragKjedeFactory.lagForEksisterendeMottaker(eksisterendeOppdrag.finnHøyesteDelytelseId());
+        return eksisterendeOppdrag.isEmpty() ? OppdragKjedeFactory.lagForNyMottaker(fagsystemId) : OppdragKjedeFactory.lagForEksisterendeMottaker(
+            eksisterendeOppdrag.finnHøyesteDelytelseId());
     }
 
 }

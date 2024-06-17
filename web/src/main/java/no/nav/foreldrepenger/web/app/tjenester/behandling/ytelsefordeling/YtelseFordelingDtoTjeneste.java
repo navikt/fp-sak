@@ -59,25 +59,23 @@ public class YtelseFordelingDtoTjeneste {
 
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
         var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
-        var avklareUføretrygd = yfa.getMorUføretrygdAvklaring() == null && uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
+        var avklareUføretrygd =
+            yfa.getMorUføretrygdAvklaring() == null && uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
+                .isPresent();
         var avklareRettEØS = yfa.getAnnenForelderRettEØSAvklaring() == null && yfa.oppgittAnnenForelderTilknytningEØS();
-        return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
-            yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
+        return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(), yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
             yfa.getMorUføretrygdAvklaring(), avklareUføretrygd);
     }
 
     public LocalDate finnFørsteUttaksdato(Behandling behandling) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        var førsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer()
-            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
-        return førsteUttaksdato.orElseGet(() -> behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(
-                behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling));
+        var førsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
+        return førsteUttaksdato.orElseGet(
+            () -> behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling));
     }
 
     private LocalDate finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
-        return ytelseFordelingTjeneste.hentAggregat(behandling.getId())
-            .getGjeldendeFordeling()
-            .finnFørsteUttaksdato().orElseThrow();
+        return ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getGjeldendeFordeling().finnFørsteUttaksdato().orElseThrow();
     }
 
     private LocalDate finnFørsteUttaksdatoRevurdering(Behandling behandling) {
@@ -87,13 +85,11 @@ public class YtelseFordelingDtoTjeneste {
         var førsteUttakOriginal = uttakOriginal.flatMap(ForeldrepengerUttak::finnFørsteUttaksdatoHvisFinnes);
         var førsteUttaksdatoTidligereBehandling = førsteUttakOriginal.orElse(Tid.TIDENES_ENDE);
 
-        var førsteUttaksdatoSøkt = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
-            .getOppgittFordeling()
-            .finnFørsteUttaksdato();
+        var førsteUttaksdatoSøkt = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getOppgittFordeling().finnFørsteUttaksdato();
 
-        return førsteUttaksdatoSøkt.filter(søktFom -> søktFom.isBefore(førsteUttaksdatoTidligereBehandling)).orElse(førsteUttaksdatoTidligereBehandling);
+        return førsteUttaksdatoSøkt.filter(søktFom -> søktFom.isBefore(førsteUttaksdatoTidligereBehandling))
+            .orElse(førsteUttaksdatoTidligereBehandling);
     }
-
 
 
 }

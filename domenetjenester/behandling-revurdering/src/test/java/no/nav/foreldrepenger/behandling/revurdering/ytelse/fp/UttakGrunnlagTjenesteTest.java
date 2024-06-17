@@ -71,15 +71,13 @@ class UttakGrunnlagTjenesteTest {
     @Test
     void skal_sette_dødsfall_hvis_det_er_endringer_om_død() {
         var behandlingMedEndretOpplysningerOmDød = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse().medDefaultFordeling(LocalDate.of(2019, 1, 1))
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultFordeling(LocalDate.of(2019, 1, 1))
             .lagre(repositoryProvider);
         var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        var registerVersjon = personopplysningRepository
-            .hentPersonopplysninger(behandlingMedEndretOpplysningerOmDød.getId()).getRegisterVersjon();
-        var builder = PersonInformasjonBuilder
-            .oppdater(registerVersjon, PersonopplysningVersjonType.REGISTRERT);
-        builder.leggTil(builder.getPersonopplysningBuilder(behandlingMedEndretOpplysningerOmDød.getAktørId())
-            .medDødsdato(LocalDate.now()));
+        var registerVersjon = personopplysningRepository.hentPersonopplysninger(behandlingMedEndretOpplysningerOmDød.getId()).getRegisterVersjon();
+        var builder = PersonInformasjonBuilder.oppdater(registerVersjon, PersonopplysningVersjonType.REGISTRERT);
+        builder.leggTil(builder.getPersonopplysningBuilder(behandlingMedEndretOpplysningerOmDød.getAktørId()).medDødsdato(LocalDate.now()));
         personopplysningRepository.lagre(behandlingMedEndretOpplysningerOmDød.getId(), builder);
 
         var resultat = tjeneste.grunnlag(BehandlingReferanse.fra(behandlingMedEndretOpplysningerOmDød));
@@ -90,7 +88,8 @@ class UttakGrunnlagTjenesteTest {
     @Test
     void skal_sette_dødsfall_hvis_det_er_ingen_endringer_om_død() {
         var behandlingUtenEndringIOpplysninger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse().medDefaultFordeling(LocalDate.of(2019, 1, 1))
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultFordeling(LocalDate.of(2019, 1, 1))
             .lagre(repositoryProvider);
 
         var resultat = tjeneste.grunnlag(BehandlingReferanse.fra(behandlingUtenEndringIOpplysninger));
@@ -102,11 +101,13 @@ class UttakGrunnlagTjenesteTest {
     void skal_sette_dødsfall_hvis_behandlingårsak_død() {
         var fom = LocalDate.of(2019, 1, 1);
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultBekreftetTerminbekreftelse().medDefaultFordeling(fom)
+            .medDefaultBekreftetTerminbekreftelse()
+            .medDefaultFordeling(fom)
             .lagre(repositoryProvider);
         var behandlingUtenEndringIOpplysninger = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_DØD_BARN)
-            .medDefaultSøknadTerminbekreftelse().medDefaultFordeling(fom)
+            .medDefaultSøknadTerminbekreftelse()
+            .medDefaultFordeling(fom)
             .lagre(repositoryProvider);
 
         var resultat = tjeneste.grunnlag(BehandlingReferanse.fra(behandlingUtenEndringIOpplysninger));

@@ -110,9 +110,8 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
         if (!(obj instanceof TerminbekreftelseEntitet other)) {
             return false;
         }
-        return Objects.equals(this.termindato, other.getTermindato())
-                && Objects.equals(this.utstedtdato, other.getUtstedtdato())
-                && Objects.equals(this.navn, other.getNavnPå());
+        return Objects.equals(this.termindato, other.getTermindato()) && Objects.equals(this.utstedtdato, other.getUtstedtdato()) && Objects.equals(
+            this.navn, other.getNavnPå());
     }
 
 
@@ -124,10 +123,7 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-                "<termindato=" + termindato
-                + ", utstedtdato=" + utstedtdato
-                + ", navn=" + navn + ">";
+        return getClass().getSimpleName() + "<termindato=" + termindato + ", utstedtdato=" + utstedtdato + ", navn=" + navn + ">";
     }
 
 }

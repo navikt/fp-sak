@@ -64,11 +64,7 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
 
     public Optional<LegacyESBeregning> getSisteBeregning() {
         // tar overstyrt over siste
-        var comparator = Comparator
-                .comparing(LegacyESBeregning::isOverstyrt)
-                .thenComparing(LegacyESBeregning::getBeregnetTidspunkt)
-                .reversed()
-                ;
+        var comparator = Comparator.comparing(LegacyESBeregning::isOverstyrt).thenComparing(LegacyESBeregning::getBeregnetTidspunkt).reversed();
         return beregninger.stream().min(comparator);
     }
 
@@ -151,9 +147,7 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
                     beregning.getBeregnetTilkjentYtelse(), beregning.getBeregnetTidspunkt(), beregning.isOverstyrt(),
                     beregning.getOpprinneligBeregnetTilkjentYtelse()))
                 .collect(toSet());
-            var urørte = this.originaleBeregninger.stream()
-                .filter(beregning -> !oppdaterteBeregninger.contains(beregning))
-                .collect(toSet());
+            var urørte = this.originaleBeregninger.stream().filter(beregning -> !oppdaterteBeregninger.contains(beregning)).collect(toSet());
             nye.addAll(urørte);
 
             resultat.setBeregninger(nye);

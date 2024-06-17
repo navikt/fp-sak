@@ -56,7 +56,8 @@ public class SimulerInntrekkSjekkeTjeneste {
 
             var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
             if (simuleringResultatDto.filter(SimuleringIntegrasjonTjeneste::harFeilutbetaling).isPresent()) {
-                tilbakekrevingRepository.lagre(behandling, TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));
+                tilbakekrevingRepository.lagre(behandling,
+                    TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));
                 opprettHistorikkInnslag(behandling.getId());
             }
         }
@@ -70,7 +71,8 @@ public class SimulerInntrekkSjekkeTjeneste {
 
         var tekstBuilder = new HistorikkInnslagTekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_SIMULERING);
         tekstBuilder.medHendelse(innslag.getType());
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_VIDERE_BEHANDLING, TilbakekrevingVidereBehandling.INNTREKK, TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
+        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_VIDERE_BEHANDLING, TilbakekrevingVidereBehandling.INNTREKK,
+            TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
         tekstBuilder.build(innslag);
         historikkRepository.lagre(innslag);
     }

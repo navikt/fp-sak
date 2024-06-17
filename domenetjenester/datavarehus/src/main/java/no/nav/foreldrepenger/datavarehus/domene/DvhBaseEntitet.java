@@ -35,6 +35,7 @@ public class DvhBaseEntitet implements Serializable {
     public void setFunksjonellTid(LocalDateTime funksjonellTid) {
         this.funksjonellTid = funksjonellTid;
     }
+
     public void setTransTid(LocalDateTime transTid) {
         this.transTid = transTid;
     }
@@ -55,9 +56,8 @@ public class DvhBaseEntitet implements Serializable {
         if (!(obj instanceof DvhBaseEntitet other)) {
             return false;
         }
-        return Objects.equals(transTid, other.transTid)
-                && Objects.equals(funksjonellTid, other.funksjonellTid)
-                && Objects.equals(endretAv, other.endretAv);
+        return Objects.equals(transTid, other.transTid) && Objects.equals(funksjonellTid, other.funksjonellTid) && Objects.equals(endretAv,
+            other.endretAv);
     }
 
     @Override

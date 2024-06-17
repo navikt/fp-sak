@@ -45,7 +45,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
 
-
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
 
@@ -133,7 +132,8 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMor(FH_DATO, AKTØR_ID_MOR, null);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(behandling.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
         Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
-        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(STP_NORMAL);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(STP_NORMAL));
 
@@ -151,13 +151,15 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(1));
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(STP_NORMAL, STP_NORMAL)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(
+            Optional.of(new LocalDateInterval(STP_NORMAL, STP_NORMAL)));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyBehSVPOverlapper.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
         Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
-        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(12));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehSVPOverlapper.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(12)));
 
@@ -206,7 +208,8 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(behandling.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
         Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
-        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE.plusWeeks(8));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.plusWeeks(8)));
 
@@ -240,7 +243,8 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         lenient().when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
-        lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(gammelBehandlingMor.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(3)));
+        lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(gammelBehandlingMor.getFagsak()))
+            .thenReturn(Optional.of(FH_DATO.minusWeeks(3)));
 
         var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(behandling.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
@@ -271,7 +275,8 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(1));
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FH_DATO.minusWeeks(15), FH_DATO)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(
+            Optional.of(new LocalDateInterval(FH_DATO.minusWeeks(15), FH_DATO)));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
@@ -291,17 +296,11 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioMor.medSøknadHendelse().medFødselsDato(fødselsDato);
         if (medfAktørId != null) {
-            scenarioMor.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
+            scenarioMor.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
         }
-        scenarioMor.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioMor.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioMor.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2)).medVedtakResultatType(VedtakResultatType.INNVILGET);
         return scenarioMor.lagre(repositoryProvider);
     }
 
@@ -310,37 +309,23 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioFar.medSøknadHendelse().medFødselsDato(fødselsDato);
         if (medfAktørId != null) {
-            scenarioFar.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Is Pinne")
-                .medType(SøknadAnnenPartType.MOR);
+            scenarioFar.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Is Pinne").medType(SøknadAnnenPartType.MOR);
         }
-        scenarioFar.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioFar.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFar.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioFar.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioFar.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2)).medVedtakResultatType(VedtakResultatType.INNVILGET);
         return scenarioFar.lagre(repositoryProvider);
     }
 
     private Behandling lagBehandlingFPAdopsjonMor(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(
-                scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
         if (medfAktørId != null) {
-            scenario.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
+            scenario.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
         }
-        scenario.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2)).medVedtakResultatType(VedtakResultatType.INNVILGET);
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling);
 
@@ -349,21 +334,13 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
     private Behandling lagBehandlingFPAdopsjonFar(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
         var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(
-                scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
+        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
         if (medfAktørId != null) {
-            scenario.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
+            scenario.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
         }
-        scenario.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(2)).medVedtakResultatType(VedtakResultatType.INNVILGET);
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling);
 
@@ -374,23 +351,21 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioSVP.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         scenarioSVP.medDefaultOppgittTilknytning();
-        scenarioSVP.medSøknadHendelse().medTerminbekreftelse(scenarioSVP.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenarioSVP.medSøknadHendelse()
+            .medTerminbekreftelse(scenarioSVP.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("LEGEN MIN")
                 .medTermindato(FH_DATO)
                 .medUtstedtDato(LocalDate.now().minusDays(3)))
             .medAntallBarn(1);
-        scenarioSVP.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioSVP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioSVP.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now().minusMonths(1)).medVedtakResultatType(VedtakResultatType.INNVILGET);
         return scenarioSVP.lagre(repositoryProvider);
     }
 
     private void avsluttBehandling(Behandling behandling) {
         behandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository()
-            .lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
     }
 }

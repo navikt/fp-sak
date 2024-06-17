@@ -30,8 +30,10 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
     private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt. Opprett en ny behandling.";
     private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller anken avvist av Trygderetten, dette til informasjon.";
 
-    private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
-    private static final Set<KlageVurdering> KLAGE_ENDRES = Set.of(KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdering.OPPHEVE_YTELSESVEDTAK, KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE);
+    private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER,
+        AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
+    private static final Set<KlageVurdering> KLAGE_ENDRES = Set.of(KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdering.OPPHEVE_YTELSESVEDTAK,
+        KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE);
 
     private ProsessTaskTjeneste taskTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -71,8 +73,9 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
 
     private void opprettTaskDataForAnke(Behandling behandling) {
         var vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
-        if (vurderingsresultat == null)
+        if (vurderingsresultat == null) {
             return;
+        }
         var vurdering = vurderingsresultat.getAnkeVurdering();
         var trygderett = vurderingsresultat.getTrygderettVurdering();
         var sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
@@ -85,8 +88,9 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
 
     private void opprettTaskDataForKlage(Behandling behandling) {
         var vurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
-        if (vurderingResultat == null)
+        if (vurderingResultat == null) {
             return;
+        }
         var vurdering = vurderingResultat.getKlageVurdering();
         var sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
         if (KLAGE_ENDRES.contains(vurdering)) {

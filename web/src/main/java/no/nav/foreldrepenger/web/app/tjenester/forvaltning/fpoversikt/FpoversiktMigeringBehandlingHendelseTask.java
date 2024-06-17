@@ -66,10 +66,7 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
         if (ytelseType != null) {
             query.setParameter("ytelseType", ytelseType);
         }
-        return query.getResultList()
-            .stream()
-            .map(num -> Long.parseLong(num.toString()))
-            .toList();
+        return query.getResultList().stream().map(num -> Long.parseLong(num.toString())).toList();
     }
 
     private void pushKafkaHendelse(Long fagsakId) {
@@ -80,8 +77,7 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
         }
         var behandling = behandlingOpt.get();
         LOG.info("Publiser migreringshendelse på kafka for fagsak {} {}", fagsakId, behandling.getId());
-        var hendelse = new BehandlingHendelseV1.Builder()
-            .medHendelse(Hendelse.MIGRERING)
+        var hendelse = new BehandlingHendelseV1.Builder().medHendelse(Hendelse.MIGRERING)
             .medHendelseUuid(UUID.randomUUID())
             .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
             .build();

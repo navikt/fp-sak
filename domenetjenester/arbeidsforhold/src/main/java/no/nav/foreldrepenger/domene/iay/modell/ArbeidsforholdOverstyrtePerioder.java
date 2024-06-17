@@ -57,10 +57,7 @@ public class ArbeidsforholdOverstyrtePerioder implements IndexKey {
 
     @Override
     public String toString() {
-        return "ArbeidsforholdInformasjonEntitet{" +
-                "periode=" + periode +
-                ", arbeidsforholdOverstyring=" + arbeidsforholdOverstyring +
-                '}';
+        return "ArbeidsforholdInformasjonEntitet{" + "periode=" + periode + ", arbeidsforholdOverstyring=" + arbeidsforholdOverstyring + '}';
     }
 
     public DatoIntervallEntitet getOverstyrtePeriode() {

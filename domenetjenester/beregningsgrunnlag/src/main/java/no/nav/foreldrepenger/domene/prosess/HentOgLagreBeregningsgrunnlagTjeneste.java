@@ -40,8 +40,8 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId,
                                                                                                                  Optional<Long> originalBehandlingId,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId,
-            originalBehandlingId, beregningsgrunnlagTilstand);
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
+            beregningsgrunnlagTilstand);
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
@@ -54,8 +54,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingid,
                                                                                                   BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingid,
-            beregningsgrunnlagTilstand);
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingid, beregningsgrunnlagTilstand);
     }
 
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagEntitetForId(Long beregningsgrunnlagId) {
@@ -67,8 +66,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
     }
 
     public void lagre(Long behandlingId, BeregningsgrunnlagGrunnlagDto fraKalkulus) {
-        var builder = BeregningsgrunnlagGrunnlagBuilder.kopi(
-            beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
+        var builder = BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
 
         fraKalkulus.getSaksbehandletAktiviteter()
             .map(KalkulusTilBehandlingslagerMapper::mapSaksbehandletAktivitet)
@@ -79,16 +77,13 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
             .ifPresent(builder::medRefusjonOverstyring);
 
         fraKalkulus.getBeregningsgrunnlagHvisFinnes()
-            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
-                beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat(), Optional.empty()))
+            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus,
+                fraKalkulus.getFaktaAggregat(), Optional.empty()))
             .ifPresent(builder::medBeregningsgrunnlag);
 
-        fraKalkulus.getOverstyring()
-            .map(KalkulusTilBehandlingslagerMapper::mapAktivitetOverstyring)
-            .ifPresent(builder::medOverstyring);
+        fraKalkulus.getOverstyring().map(KalkulusTilBehandlingslagerMapper::mapAktivitetOverstyring).ifPresent(builder::medOverstyring);
 
-        beregningsgrunnlagRepository.lagre(behandlingId, builder,
-            mapTilstand(fraKalkulus.getBeregningsgrunnlagTilstand()));
+        beregningsgrunnlagRepository.lagre(behandlingId, builder, mapTilstand(fraKalkulus.getBeregningsgrunnlagTilstand()));
     }
 
 }

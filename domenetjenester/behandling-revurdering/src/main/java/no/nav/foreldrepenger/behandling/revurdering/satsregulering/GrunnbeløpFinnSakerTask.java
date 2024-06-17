@@ -36,16 +36,23 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     static final String ARENA_JUSTERT_KEY = "justertdato"; // Mandag etter foretatt regulering av AAP og Dagpenger
     static final String REVURDERING_KEY = "revurdering"; // Skal revurderinger opprettes?
 
-    private enum Ytelse { FP, SVP }
-    private enum ReguleringType { G6, MS, SN, ARENA }
+    private enum Ytelse {
+        FP,
+        SVP
+    }
+
+    private enum ReguleringType {
+        G6,
+        MS,
+        SN,
+        ARENA
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(GrunnbeløpFinnSakerTask.class);
 
-    private static final Map<ReguleringType, Supplier<Long>> MULTIPLIKATORER = Map.of(
-        ReguleringType.G6, BeregningsresultatRepository::avkortingMultiplikatorG,
-        ReguleringType.MS, BeregningsresultatRepository::militærMultiplikatorG,
-        ReguleringType.SN, () -> 0L
-    );
+    private static final Map<ReguleringType, Supplier<Long>> MULTIPLIKATORER = Map.of(ReguleringType.G6,
+        BeregningsresultatRepository::avkortingMultiplikatorG, ReguleringType.MS, BeregningsresultatRepository::militærMultiplikatorG,
+        ReguleringType.SN, () -> 0L);
 
     private final SatsReguleringRepository satsReguleringRepository;
     private final BeregningsresultatRepository beregningsresultatRepository;
@@ -64,23 +71,28 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var ytelse = Optional.ofNullable(prosessTaskData.getPropertyValue(YTELSE_KEY))
             .filter(y -> Arrays.stream(Ytelse.values()).map(Ytelse::name).collect(Collectors.toSet()).contains(y))
-            .map(Ytelse::valueOf).orElse(null);
+            .map(Ytelse::valueOf)
+            .orElse(null);
         var reguleringType = Optional.ofNullable(prosessTaskData.getPropertyValue(REGULERING_TYPE_KEY))
             .filter(a -> Arrays.stream(ReguleringType.values()).map(ReguleringType::name).collect(Collectors.toSet()).contains(a))
-            .map(ReguleringType::valueOf).orElse(null);
+            .map(ReguleringType::valueOf)
+            .orElse(null);
         if (ytelse == null || reguleringType == null || Ytelse.SVP.equals(ytelse) && ReguleringType.ARENA.equals(reguleringType)) {
             LOG.warn("GrunnbeløpRegulering ukjent ytelse {} eller reguleringtype {}", ytelse, reguleringType);
             return;
         }
         boolean revurder = Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_KEY)).map(Boolean::parseBoolean).orElse(false);
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        if (MDCOperations.getCallId() == null) {
+            MDCOperations.putCallId();
+        }
         var callIdRoot = MDCOperations.getCallId() + "_";
 
         var gFomDato = finnGjeldendeGrunnbeløpFomDato();
         if (gFomDato == null) {
             return;
         }
-        var kandidater = ReguleringType.ARENA.equals(reguleringType) ? finnArenaKandidater(prosessTaskData, gFomDato) : finnKandidater(ytelse, reguleringType, gFomDato);
+        var kandidater = ReguleringType.ARENA.equals(reguleringType) ? finnArenaKandidater(prosessTaskData, gFomDato) : finnKandidater(ytelse,
+            reguleringType, gFomDato);
 
         if (revurder) {
             kandidater.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callIdRoot));
@@ -90,8 +102,7 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
 
     private LocalDate finnGjeldendeGrunnbeløpFomDato() {
         var gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
-        var forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
-            gjeldende.getPeriode().getFomDato().minusDays(1));
+        var forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             LOG.warn("GrunnbeløpRegulering Samme sats i periodene: gammel {} ny {}", forrige, gjeldende);
             return null;
@@ -100,10 +111,8 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     }
 
     private List<SatsReguleringRepository.FagsakIdAktørId> finnArenaKandidater(ProsessTaskData prosessTaskData, LocalDate gFomDato) {
-        var satsdato = Optional.ofNullable(prosessTaskData.getPropertyValue(ARENA_SATSFOM_KEY))
-            .map(LocalDate::parse).orElse(gFomDato);
-        var arenadato = Optional.ofNullable(prosessTaskData.getPropertyValue(ARENA_JUSTERT_KEY))
-            .map(LocalDate::parse).orElse(null);
+        var satsdato = Optional.ofNullable(prosessTaskData.getPropertyValue(ARENA_SATSFOM_KEY)).map(LocalDate::parse).orElse(gFomDato);
+        var arenadato = Optional.ofNullable(prosessTaskData.getPropertyValue(ARENA_JUSTERT_KEY)).map(LocalDate::parse).orElse(null);
         if (arenadato == null || !satsdato.isBefore(arenadato)) {
             LOG.warn("GrunnbeløpRegulering ugyldig Arena-dato {} for satsdato {}", arenadato, satsdato);
             return List.of();
@@ -112,18 +121,16 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     }
 
     private List<SatsReguleringRepository.FagsakIdAktørId> finnKandidater(Ytelse ytelse, ReguleringType regType, LocalDate gFomDato) {
-        var multiplikator = Optional.ofNullable(MULTIPLIKATORER.get(regType)).map(Supplier::get)
+        var multiplikator = Optional.ofNullable(MULTIPLIKATORER.get(regType))
+            .map(Supplier::get)
             .orElseThrow(() -> new IllegalArgumentException("Logisk brist for ytelse " + ytelse.name() + " reg.type " + regType.name()));
         return switch (regType) {
-            case G6 -> Ytelse.FP.equals(ytelse) ?
-                satsReguleringRepository.finnSakerMedBehovForGrunnbeløpRegulering(gFomDato, multiplikator) :
-                satsReguleringRepository.finnSakerMedBehovForGrunnbeløpReguleringSVP(gFomDato, multiplikator);
-            case MS -> Ytelse.FP.equals(ytelse) ?
-                satsReguleringRepository.finnSakerMedBehovForMilSivRegulering(gFomDato, multiplikator) :
-                satsReguleringRepository.finnSakerMedBehovForMilSivReguleringSVP(gFomDato, multiplikator);
-            case SN -> Ytelse.FP.equals(ytelse) ?
-                satsReguleringRepository.finnSakerMedBehovForNæringsdrivendeRegulering(gFomDato, multiplikator) :
-                satsReguleringRepository.finnSakerMedBehovForNæringsdrivendeReguleringSVP(gFomDato, multiplikator);
+            case G6 -> Ytelse.FP.equals(ytelse) ? satsReguleringRepository.finnSakerMedBehovForGrunnbeløpRegulering(gFomDato,
+                multiplikator) : satsReguleringRepository.finnSakerMedBehovForGrunnbeløpReguleringSVP(gFomDato, multiplikator);
+            case MS -> Ytelse.FP.equals(ytelse) ? satsReguleringRepository.finnSakerMedBehovForMilSivRegulering(gFomDato,
+                multiplikator) : satsReguleringRepository.finnSakerMedBehovForMilSivReguleringSVP(gFomDato, multiplikator);
+            case SN -> Ytelse.FP.equals(ytelse) ? satsReguleringRepository.finnSakerMedBehovForNæringsdrivendeRegulering(gFomDato,
+                multiplikator) : satsReguleringRepository.finnSakerMedBehovForNæringsdrivendeReguleringSVP(gFomDato, multiplikator);
             default -> throw new IllegalArgumentException("Logisk brist for ytelse " + ytelse.name() + " reg.type " + regType.name());
         };
     }

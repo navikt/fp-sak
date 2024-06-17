@@ -61,7 +61,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
     private InternArbeidsforholdRef arbeidsforholdRef;
 
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
-    @Column(name="arbeidsforhold_type", nullable = false)
+    @Column(name = "arbeidsforhold_type", nullable = false)
     private OpptjeningAktivitetType arbeidsforholdType;
 
     @Column(name = "dagsats", nullable = false)
@@ -80,12 +80,12 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultatAndel", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe;
 
-    @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status", nullable = false)
+    @Convert(converter = AktivitetStatus.KodeverdiConverter.class)
+    @Column(name = "aktivitet_status", nullable = false)
     private AktivitetStatus aktivitetStatus;
 
-    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
-    @Column(name="inntektskategori", nullable = false)
+    @Convert(converter = Inntektskategori.KodeverdiConverter.class)
+    @Column(name = "inntektskategori", nullable = false)
     private Inntektskategori inntektskategori;
 
     public BeregningsresultatAndel() {
@@ -161,6 +161,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
     /**
      * Returnerer en aktivitetsnøkkel som kan brukes til å identifisere like andeler
      * men som ikke skiller på andeler hos samme arbeidsgiver på forskjellige arbeidsforhold.
+     *
      * @return Nøkkel med Aktivitetstatus og arbeidsgiver
      */
     public AktivitetOgArbeidsgiverNøkkel getAktivitetOgArbeidsgiverNøkkel() {
@@ -169,14 +170,8 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "BeregningsresultatAndel{" +
-            "brukerErMottaker=" + brukerErMottaker +
-            ", arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", dagsats=" + dagsats +
-            ", aktivitetStatus=" + aktivitetStatus +
-            ", inntektskategori=" + inntektskategori +
-            '}';
+        return "BeregningsresultatAndel{" + "brukerErMottaker=" + brukerErMottaker + ", arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef="
+            + arbeidsforholdRef + ", dagsats=" + dagsats + ", aktivitetStatus=" + aktivitetStatus + ", inntektskategori=" + inntektskategori + '}';
     }
 
     @Override
@@ -187,21 +182,18 @@ public class BeregningsresultatAndel extends BaseEntitet {
         if (!(obj instanceof BeregningsresultatAndel other)) {
             return false;
         }
-        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
-            && Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef())
-            && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType())
-            && Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-            && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
-            && Objects.equals(this.erBrukerMottaker(), other.erBrukerMottaker())
-            && Objects.equals(this.getDagsats(), other.getDagsats())
-            && Objects.equals(this.getStillingsprosent(), other.getStillingsprosent())
-            && Objects.equals(this.getUtbetalingsgrad(), other.getUtbetalingsgrad())
-            && Objects.equals(this.getDagsatsFraBg(), other.getDagsatsFraBg());
+        return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver()) && Objects.equals(this.getArbeidsforholdRef(),
+            other.getArbeidsforholdRef()) && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType()) && Objects.equals(
+            this.getAktivitetStatus(), other.getAktivitetStatus()) && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
+            && Objects.equals(this.erBrukerMottaker(), other.erBrukerMottaker()) && Objects.equals(this.getDagsats(), other.getDagsats())
+            && Objects.equals(this.getStillingsprosent(), other.getStillingsprosent()) && Objects.equals(this.getUtbetalingsgrad(),
+            other.getUtbetalingsgrad()) && Objects.equals(this.getDagsatsFraBg(), other.getDagsatsFraBg());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(brukerErMottaker, arbeidsgiver, arbeidsforholdRef, arbeidsforholdType, dagsats, aktivitetStatus, dagsatsFraBg, inntektskategori);
+        return Objects.hash(brukerErMottaker, arbeidsgiver, arbeidsforholdRef, arbeidsforholdType, dagsats, aktivitetStatus, dagsatsFraBg,
+            inntektskategori);
     }
 
     public static Builder builder() {
@@ -307,8 +299,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
         private void verifyUtbetalingsgrad(BigDecimal utbetalingsgrad) {
             Objects.requireNonNull(utbetalingsgrad, "utbetalingsgrad");
-            var mellomGyldigIntervall = utbetalingsgrad.compareTo(BigDecimal.ZERO) >= 0 &&
-                utbetalingsgrad.compareTo(BigDecimal.valueOf(100)) <= 0;
+            var mellomGyldigIntervall = utbetalingsgrad.compareTo(BigDecimal.ZERO) >= 0 && utbetalingsgrad.compareTo(BigDecimal.valueOf(100)) <= 0;
             if (!mellomGyldigIntervall) {
                 throw new IllegalStateException("Utviklerfeil: Utbetalingsgrad må være mellom 0 og 100");
             }

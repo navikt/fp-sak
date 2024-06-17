@@ -59,13 +59,12 @@ class VurderRefusjonHistorikkTjenesteTest {
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager),
-            mock(DokumentArkivTjeneste.class), new BehandlingRepository(entityManager));
+        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), mock(DokumentArkivTjeneste.class),
+            new BehandlingRepository(entityManager));
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator())).thenReturn(
             new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());
-        var arbeidsgiverHistorikkinnslag = new ArbeidsgiverHistorikkinnslag(
-            new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
+        var arbeidsgiverHistorikkinnslag = new ArbeidsgiverHistorikkinnslag(new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
         vurderRefusjonHistorikkTjeneste = new VurderRefusjonHistorikkTjeneste(arbeidsgiverHistorikkinnslag);
     }
 
@@ -77,9 +76,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.empty(), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.FALSE);
@@ -93,9 +91,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.empty(), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.TRUE);
@@ -110,9 +107,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.of(forrige),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.TRUE, Boolean.FALSE);
@@ -127,9 +123,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.of(forrige),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.TRUE, Boolean.TRUE);
@@ -144,9 +139,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.of(forrige),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.FALSE, Boolean.FALSE);
@@ -161,9 +155,8 @@ class VurderRefusjonHistorikkTjenesteTest {
 
         // Act
         var historikkInnslagTekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder,
-            grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.of(forrige),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        vurderRefusjonHistorikkTjeneste.lagHistorikk(1L, dto, historikkInnslagTekstBuilder, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertHistorikk(historikkInnslagTekstBuilder, Boolean.FALSE, Boolean.TRUE);
@@ -181,9 +174,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         assertThat(endredeFelt.get(0).getTilVerdi()).isEqualTo(tilVerdi.toString());
     }
 
-    private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder,
-                                 Boolean tilVerdi,
-                                 Boolean fraVerdi) {
+    private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, Boolean tilVerdi, Boolean fraVerdi) {
         var deler = historikkInnslagTekstBuilder.build(historikkinnslag);
         assertThat(deler).hasSize(1);
         var del = deler.get(0);
@@ -195,8 +186,7 @@ class VurderRefusjonHistorikkTjenesteTest {
     }
 
     private FaktaBeregningLagreDto lagDto(boolean skalUtvideGyldighet) {
-        var dto = new FaktaBeregningLagreDto(
-            List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT));
+        var dto = new FaktaBeregningLagreDto(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT));
 
         var ref1 = new RefusjonskravPrArbeidsgiverVurderingDto();
         ref1.setArbeidsgiverId(VIRKSOMHET.getIdentifikator());
@@ -209,8 +199,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .leggTilFaktaOmBeregningTilfeller(
-                List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
+            .leggTilFaktaOmBeregningTilfeller(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
             .build();
         var periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
@@ -221,10 +210,7 @@ class VurderRefusjonHistorikkTjenesteTest {
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(periode1);
         var overstyring = BeregningRefusjonOverstyringerEntitet.builder()
-            .leggTilOverstyring(BeregningRefusjonOverstyringEntitet.builder()
-                .medArbeidsgiver(VIRKSOMHET)
-                .medFørsteMuligeRefusjonFom(dato)
-                .build())
+            .leggTilOverstyring(BeregningRefusjonOverstyringEntitet.builder().medArbeidsgiver(VIRKSOMHET).medFørsteMuligeRefusjonFom(dato).build())
             .build();
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
             .medBeregningsgrunnlag(beregningsgrunnlag)
@@ -236,8 +222,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .leggTilFaktaOmBeregningTilfeller(
-                List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
+            .leggTilFaktaOmBeregningTilfeller(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
             .build();
         var periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))

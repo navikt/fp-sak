@@ -51,11 +51,10 @@ public class VedtakXMLTilHTMLTransformator {
 
     static {
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(VedtakConstants.NAMESPACE,
-            new DokumentParserKonfig(VedtakConstants.JAXB_CLASS, VedtakConstants.XSD_LOCATION,
-                VedtakConstants.ADDITIONAL_XSD_LOCATIONS, VedtakConstants.ADDITIONAL_CLASSES));
+            new DokumentParserKonfig(VedtakConstants.JAXB_CLASS, VedtakConstants.XSD_LOCATION, VedtakConstants.ADDITIONAL_XSD_LOCATIONS,
+                VedtakConstants.ADDITIONAL_CLASSES));
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(ForeldrepengerVedtakConstants.NAMESPACE,
-            new DokumentParserKonfig(ForeldrepengerVedtakConstants.JAXB_CLASS,
-                ForeldrepengerVedtakConstants.XSD_LOCATION));
+            new DokumentParserKonfig(ForeldrepengerVedtakConstants.JAXB_CLASS, ForeldrepengerVedtakConstants.XSD_LOCATION));
     }
 
     private VedtakXMLTilHTMLTransformator() {
@@ -90,9 +89,7 @@ public class VedtakXMLTilHTMLTransformator {
         }
     }
 
-    private static String transformer(Transformer transformer,
-                                      Source vedtakXmlStream,
-                                      String kilder) throws TransformerException {
+    private static String transformer(Transformer transformer, Source vedtakXmlStream, String kilder) throws TransformerException {
         var resultat = new StringWriter();
         var streamResultat = new StreamResult(resultat);
 
@@ -128,17 +125,15 @@ public class VedtakXMLTilHTMLTransformator {
         return sb.toString();
     }
 
-    private static Set<String> utledKilder(String vedtakXml,
-                                           String namespace) throws JAXBException, XMLStreamException, SAXException {
+    private static Set<String> utledKilder(String vedtakXml, String namespace) throws JAXBException, XMLStreamException, SAXException {
         Set<String> kilder = new HashSet<>();
 
         var dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
         if (dokumentParserKonfig == null) {
             throw ukjentNamespace(0L, namespace);
         }
-        var vedtak = (Vedtak) JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, vedtakXml,
-            dokumentParserKonfig.xsdLocation, dokumentParserKonfig.additionalXsd,
-            dokumentParserKonfig.additionalClasses);
+        var vedtak = (Vedtak) JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, vedtakXml, dokumentParserKonfig.xsdLocation,
+            dokumentParserKonfig.additionalXsd, dokumentParserKonfig.additionalClasses);
         kilder.add(TPS); // en behandling vil alltid innhente opplysninger fra TPS
         var personopplysninger = vedtak.getPersonOpplysninger();
         personopplysninger.getAny().forEach(ob -> håndterPersonopplysninger(ob, kilder, vedtak));
@@ -202,10 +197,7 @@ public class VedtakXMLTilHTMLTransformator {
             this.xsdLocation = xsdLocation;
         }
 
-        public DokumentParserKonfig(Class<?> jaxbClass,
-                                    String xsdLocation,
-                                    String[] additionalXsd,
-                                    Class<?>... additionalClasses) {
+        public DokumentParserKonfig(Class<?> jaxbClass, String xsdLocation, String[] additionalXsd, Class<?>... additionalClasses) {
             this.jaxbClass = jaxbClass;
             this.xsdLocation = xsdLocation;
             this.additionalXsd = additionalXsd;

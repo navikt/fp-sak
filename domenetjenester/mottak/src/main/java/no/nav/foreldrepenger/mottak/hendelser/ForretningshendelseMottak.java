@@ -54,12 +54,14 @@ public class ForretningshendelseMottak {
     // Setter kjøring av mottak litt etter at Oppdrag har åpnet for business kl 06:00.
     private static final LocalTime OPPDRAG_VÅKNER = LocalTime.of(6, 30);
 
-    private static final Map<ForretningshendelseType, Function<HendelseDto , ? extends Forretningshendelse>> OVERSETTER = Map.of(
-        ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto)d).getDødsdato(), getEndringstype(d)),
-        ForretningshendelseType.DØDFØDSEL, d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto)d).getDødfødselsdato(), getEndringstype(d)),
-        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato(), getEndringstype(f)),
-        ForretningshendelseType.UTFLYTTING, f -> new UtflyttingForretningshendelse(mapToAktørIds(f), ((UtflyttingHendelseDto)f).getUtflyttingsdato(), getEndringstype(f))
-    );
+    private static final Map<ForretningshendelseType, Function<HendelseDto, ? extends Forretningshendelse>> OVERSETTER = Map.of(
+        ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto) d).getDødsdato(), getEndringstype(d)),
+        ForretningshendelseType.DØDFØDSEL,
+        d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto) d).getDødfødselsdato(), getEndringstype(d)),
+        ForretningshendelseType.FØDSEL,
+        f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto) f).getFødselsdato(), getEndringstype(f)),
+        ForretningshendelseType.UTFLYTTING,
+        f -> new UtflyttingForretningshendelse(mapToAktørIds(f), ((UtflyttingHendelseDto) f).getUtflyttingsdato(), getEndringstype(f)));
 
     private static final Logger LOG = LoggerFactory.getLogger(ForretningshendelseMottak.class);
 
@@ -95,8 +97,8 @@ public class ForretningshendelseMottak {
     }
 
     /**
-    * 1. steg av håndtering av mottatt forretningshendelse. Identifiserer fagsaker som er kandidat for revurdering.
-    */
+     * 1. steg av håndtering av mottatt forretningshendelse. Identifiserer fagsaker som er kandidat for revurdering.
+     */
     public void mottaForretningshendelse(ForretningshendelseType hendelseType, HendelseDto dto) {
         var forretningshendelse = OVERSETTER.get(hendelseType).apply(dto);
         var saksvelger = saksvelgerProvider.finnSaksvelger(hendelseType);
@@ -148,7 +150,9 @@ public class ForretningshendelseMottak {
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
-            LOG.info("FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.", hendelseType.getKode(), fagsakId);
+            LOG.info(
+                "FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.",
+                hendelseType.getKode(), fagsakId);
             return;
         }
         var innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();
@@ -157,7 +161,9 @@ public class ForretningshendelseMottak {
         håndterer.håndterAvsluttetBehandling(innvilgetBehandling, hendelseType, behandlingÅrsakType);
     }
 
-    private ProsessTaskData opprettProsesstaskForFagsak(Fagsak fagsak, ForretningshendelseType hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    private ProsessTaskData opprettProsesstaskForFagsak(Fagsak fagsak,
+                                                        ForretningshendelseType hendelseType,
+                                                        BehandlingÅrsakType behandlingÅrsakType) {
         var taskData = ProsessTaskData.forProsessTask(MottaHendelseFagsakTask.class);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType.getKode());
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());

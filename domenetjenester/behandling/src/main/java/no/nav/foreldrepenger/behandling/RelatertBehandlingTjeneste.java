@@ -44,18 +44,22 @@ public class RelatertBehandlingTjeneste {
 
         if (annenPartsFagsak.isPresent()) {
             var vedtakAnnenpart = behandlingVedtakRepository.hentGjeldendeVedtak(annenPartsFagsak.get());
-            return vedtakAnnenpart.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId)
-                    .map(behandlingRepository::hentBehandling);
+            return vedtakAnnenpart.map(BehandlingVedtak::getBehandlingsresultat)
+                .map(Behandlingsresultat::getBehandlingId)
+                .map(behandlingRepository::hentBehandling);
         }
         return Optional.empty();
     }
 
     public List<Fagsak> hentAnnenPartsInnvilgeteFagsakerMedYtelseType(AktørId aktørId, FagsakYtelseType ytelseType) {
-        return fagsakRepository.hentForBruker(aktørId).stream()
-                .filter(f -> ytelseType.equals(f.getYtelseType()))
-                .filter(f -> behandlingVedtakRepository.hentGjeldendeVedtak(f).map(BehandlingVedtak::getVedtakResultatType)
-                        .filter(VedtakResultatType.INNVILGET::equals).isPresent())
-                .toList();
+        return fagsakRepository.hentForBruker(aktørId)
+            .stream()
+            .filter(f -> ytelseType.equals(f.getYtelseType()))
+            .filter(f -> behandlingVedtakRepository.hentGjeldendeVedtak(f)
+                .map(BehandlingVedtak::getVedtakResultatType)
+                .filter(VedtakResultatType.INNVILGET::equals)
+                .isPresent())
+            .toList();
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(Behandling behandling) {
@@ -63,8 +67,8 @@ public class RelatertBehandlingTjeneste {
         if (annenPartsFagsak.isEmpty()) {
             return Optional.empty();
         }
-        var alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart = behandlingRepository
-                .finnAlleAvsluttedeIkkeHenlagteBehandlinger(annenPartsFagsak.get().getId());
+        var alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(
+            annenPartsFagsak.get().getId());
         var annenpartVedtak = sortertPåVedtakstidspunkt(alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart);
         var behandlingVedtak = vedtakForBehandling(behandling);
         if (annenpartVedtak.size() == 1) {
@@ -92,10 +96,7 @@ public class RelatertBehandlingTjeneste {
      * opprettet tidspunkt Vedtak hadde bare dato og ikke klokkeslett før PFP-8620
      */
     private List<BehandlingVedtak> sortertPåVedtakstidspunkt(List<Behandling> behandlinger) {
-        return behandlinger.stream()
-                .map(this::vedtakForBehandling)
-                .sorted(this::compare)
-                .toList();
+        return behandlinger.stream().map(this::vedtakForBehandling).sorted(this::compare).toList();
     }
 
     private boolean harVedtakFør(BehandlingVedtak vedtak1, BehandlingVedtak vedtak2) {
@@ -112,6 +113,6 @@ public class RelatertBehandlingTjeneste {
 
     private Optional<Fagsak> hentAnnenPartsFagsak(Saksnummer saksnummer) {
         return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer)
-                .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()));
+            .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()));
     }
 }

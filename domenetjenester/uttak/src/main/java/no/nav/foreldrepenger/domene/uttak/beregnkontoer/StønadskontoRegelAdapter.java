@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
-
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -40,8 +39,8 @@ public class StønadskontoRegelAdapter {
                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
                                                Map<StønadskontoType, Integer> tidligereUtregning) {
-        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
-            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
+        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag,
+            tidligereUtregning);
         return konverterTilStønadskontoberegning(resultat);
     }
 
@@ -51,19 +50,19 @@ public class StønadskontoRegelAdapter {
                                                                   Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                                   ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
                                                                   Map<StønadskontoType, Integer> tidligereUtregning) {
-        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
-            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
+        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag,
+            tidligereUtregning);
         return endretUtregning(tidligereUtregning, resultat) ? Optional.of(konverterTilStønadskontoberegning(resultat)) : Optional.empty();
     }
 
     private StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
-                                                         YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                         Dekningsgrad dekningsgrad,
-                                                         Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
-                                                         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
-                                                         Map<StønadskontoType, Integer> tidligereUtregning) {
-        var grunnlag = StønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat,
-            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning, uttakCore2024);
+                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
+                                                          Dekningsgrad dekningsgrad,
+                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
+                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
+                                                          Map<StønadskontoType, Integer> tidligereUtregning) {
+        var grunnlag = StønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan,
+            ytelsespesifiktGrunnlag, ref, tidligereUtregning, uttakCore2024);
 
         return STØNADSKONTO_REGEL.beregnKontoer(grunnlag);
     }
@@ -75,17 +74,16 @@ public class StønadskontoRegelAdapter {
 
         var maksDagerStønadskonto = stønadskontoResultat.getStønadskontoer();
         for (var entry : maksDagerStønadskonto.entrySet()) {
-            var stønadskonto = Stønadskonto.builder()
-                .medMaxDager(entry.getValue())
-                .medStønadskontoType(map(entry.getKey()))
-                .build();
+            var stønadskonto = Stønadskonto.builder().medMaxDager(entry.getValue()).medStønadskontoType(map(entry.getKey())).build();
             stønadskontoberegningBuilder.medStønadskonto(stønadskonto);
         }
         return stønadskontoberegningBuilder.build();
     }
 
     private boolean endretUtregning(Map<StønadskontoType, Integer> tidligereUtregning, StønadskontoResultat resultat) {
-        var nyUtregning = resultat.getStønadskontoer().entrySet().stream()
+        var nyUtregning = resultat.getStønadskontoer()
+            .entrySet()
+            .stream()
             .filter(e -> e.getValue() > 0)
             .collect(Collectors.toMap(e -> map(e.getKey()), Map.Entry::getValue));
         return !nyUtregning.equals(tidligereUtregning);

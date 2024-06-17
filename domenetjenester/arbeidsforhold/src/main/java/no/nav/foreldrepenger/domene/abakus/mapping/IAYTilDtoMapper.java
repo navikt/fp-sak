@@ -25,10 +25,7 @@ public class IAYTilDtoMapper {
     private UUID grunnlagReferanse;
     private UUID behandlingReferanse;
 
-    public IAYTilDtoMapper(AktørId aktørId,
-            YtelseType ytelseType,
-            UUID grunnlagReferanse,
-            UUID behandlingReferanse) {
+    public IAYTilDtoMapper(AktørId aktørId, YtelseType ytelseType, UUID grunnlagReferanse, UUID behandlingReferanse) {
         this.aktørId = aktørId;
         this.ytelseType = ytelseType;
         this.grunnlagReferanse = grunnlagReferanse;
@@ -41,10 +38,9 @@ public class IAYTilDtoMapper {
         }
 
         var overstyrt = grunnlag.getSaksbehandletVersjon().map(a -> mapSaksbehandlerOverstyrteOpplysninger(getArbeidforholdInfo(grunnlag), a));
-        var arbeidsforholdInfo = grunnlag.getArbeidsforholdInformasjon().map(ai -> new MapArbeidsforholdInformasjon.MapTilDto().map(ai, grunnlag.getEksternReferanse(), grunnlag.isAktiv()));
-        return new OverstyrtInntektArbeidYtelseDto(new AktørIdPersonident(aktørId.getId()), grunnlagReferanse,
-            behandlingReferanse,
-            ytelseType,
+        var arbeidsforholdInfo = grunnlag.getArbeidsforholdInformasjon()
+            .map(ai -> new MapArbeidsforholdInformasjon.MapTilDto().map(ai, grunnlag.getEksternReferanse(), grunnlag.isAktiv()));
+        return new OverstyrtInntektArbeidYtelseDto(new AktørIdPersonident(aktørId.getId()), grunnlagReferanse, behandlingReferanse, ytelseType,
             arbeidsforholdInfo.orElse(null), overstyrt.orElse(null));
     }
 
@@ -58,11 +54,13 @@ public class IAYTilDtoMapper {
     }
 
     private ArbeidsforholdInformasjon getArbeidforholdInfo(InntektArbeidYtelseGrunnlag grunnlag) {
-        return grunnlag.getArbeidsforholdInformasjon().orElseThrow(
+        return grunnlag.getArbeidsforholdInformasjon()
+            .orElseThrow(
                 () -> new IllegalStateException("Mangler ArbeidsforholdInformasjon i grunnlag (påkrevd her): " + grunnlag.getEksternReferanse()));
     }
 
-    private InntektArbeidYtelseAggregatOverstyrtDto mapSaksbehandlerOverstyrteOpplysninger(ArbeidsforholdInformasjon arbeidsforholdInformasjon, InntektArbeidYtelseAggregat aggregat) {
+    private InntektArbeidYtelseAggregatOverstyrtDto mapSaksbehandlerOverstyrteOpplysninger(ArbeidsforholdInformasjon arbeidsforholdInformasjon,
+                                                                                           InntektArbeidYtelseAggregat aggregat) {
         var tidspunkt = Optional.ofNullable(aggregat.getOpprettetTidspunkt()).orElse(LocalDateTime.now());
         var aktørArbeid = aggregat.getAktørArbeid();
         var arbeid = new MapAktørArbeid.MapTilDto(arbeidsforholdInformasjon).map(aktørArbeid);

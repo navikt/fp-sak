@@ -7,12 +7,12 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av Proposisjonene
@@ -31,8 +31,8 @@ public class UttakCore2024 {
 
     private static final String PROP_NAME_DATO_DEL1 = "dato.for.aatti.prosent";
     private static final String PROP_NAME_DATO_DEL2 = "dato.for.minsterett.andre";
-    private static final LocalDate DATO_FOR_PROD_DEL1 = LocalDate.of(2024, Month.JULY,1); // LA STÅ
-    private static final LocalDate DATO_FOR_PROD_DEL2 = LocalDate.of(2024,Month.AUGUST,2); // LA STÅ.
+    private static final LocalDate DATO_FOR_PROD_DEL1 = LocalDate.of(2024, Month.JULY, 1); // LA STÅ
+    private static final LocalDate DATO_FOR_PROD_DEL2 = LocalDate.of(2024, Month.AUGUST, 2); // LA STÅ.
 
     private LocalDate ikrafttredelseDato1 = DATO_FOR_PROD_DEL1;
     private LocalDate ikrafttredelseDato2 = DATO_FOR_PROD_DEL2;
@@ -57,9 +57,10 @@ public class UttakCore2024 {
      *  - Tidstester - At overgangsmekaismen fungerer - vedtak fattet på gammelt regelverk skal omgjøres til nytt dersom saken tilsier det
      */
     public LocalDate utledRegelvalgsdato(FamilieHendelse familieHendelse) {
-        var familieHendelseDato = Optional.ofNullable(familieHendelse)
-            .map(FamilieHendelse::getFamilieHendelseDato).orElse(null);
-        if (familieHendelseDato == null) return null;
+        var familieHendelseDato = Optional.ofNullable(familieHendelse).map(FamilieHendelse::getFamilieHendelseDato).orElse(null);
+        if (familieHendelseDato == null) {
+            return null;
+        }
         // ikrafttredelseDato1 kan være før, på eller etter PROP_NAME_DATO_DEL1
         // Først sak som skal ha regelverk før endring uansett dagens dato - sørg for mapping til riktig dato
         if (familieHendelseDato.isBefore(ikrafttredelseDato1)) {

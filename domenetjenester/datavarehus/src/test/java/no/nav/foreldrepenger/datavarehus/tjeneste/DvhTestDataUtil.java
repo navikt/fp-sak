@@ -17,7 +17,7 @@ class DvhTestDataUtil {
     static final String ANSVARLIG_SAKSBEHANDLER = "ansvarligSaksbehandler";
     static final String BEHANDLENDE_ENHET = "BE";
     static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
-    static final Saksnummer SAKSNUMMER  = new Saksnummer("12345");
+    static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
     static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
     static LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
 }

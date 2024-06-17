@@ -33,10 +33,7 @@ public class MedlemskapsvilkåretOverstyringshåndterer extends InngangsvilkårO
                                                     MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter,
-            AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET,
-            VilkårType.MEDLEMSKAPSVILKÅRET,
-            inngangsvilkårTjeneste);
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, VilkårType.MEDLEMSKAPSVILKÅRET, inngangsvilkårTjeneste);
         this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }

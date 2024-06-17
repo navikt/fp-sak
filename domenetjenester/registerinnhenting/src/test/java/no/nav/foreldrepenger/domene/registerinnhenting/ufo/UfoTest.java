@@ -22,7 +22,7 @@ class UfoTest {
     void ufotest() {
         var dto = StandardJsonConfig.fromJson(UFO_PERIODE, HarUføreGrad.class);
         var uføreperiode = new Uføreperiode(dto);
-        assertThat(uføreperiode.virkningsdato()).isEqualTo(LocalDate.of(2017,4,20));
+        assertThat(uføreperiode.virkningsdato()).isEqualTo(LocalDate.of(2017, 4, 20));
         System.out.println(uføreperiode);
     }
 }

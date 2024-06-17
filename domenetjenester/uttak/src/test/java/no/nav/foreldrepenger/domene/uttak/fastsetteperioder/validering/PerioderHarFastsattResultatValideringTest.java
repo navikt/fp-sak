@@ -51,9 +51,9 @@ class PerioderHarFastsattResultatValideringTest {
     private ForeldrepengerUttakPeriode periodeMedResultat(PeriodeResultatType resultatType) {
         return periodeMedResultat(resultatType, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE);
     }
+
     private ForeldrepengerUttakPeriode periodeMedResultat(PeriodeResultatType resultatType, PeriodeResultatÅrsak periodeResultatÅrsak) {
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
             .medResultatType(resultatType)
             .medResultatÅrsak(periodeResultatÅrsak)
             .build();

@@ -43,11 +43,12 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
-            mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, false), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
-            mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
-                .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, iayGrunnlag.get()),
-                    iayGrunnlag.get(),referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+            mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, false),
+                AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+            mangler.addAll(lagArbeidsforholdMedMangel(
+                InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, iayGrunnlag.get()),
+                    iayGrunnlag.get(), referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt()),
+                AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
         }
 
         return mangler;
@@ -56,8 +57,11 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
     private List<Inntektsmelding> hentRelevanteInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
     }
-    private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
-        return arbeidsgiverSetMap.entrySet().stream()
+
+    private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap,
+                                                                  AksjonspunktÅrsak manglendeInntektsmelding) {
+        return arbeidsgiverSetMap.entrySet()
+            .stream()
             .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdMangel(entry.getKey(), refer, manglendeInntektsmelding)).toList())
             .flatMap(Collection::stream)
             .toList();

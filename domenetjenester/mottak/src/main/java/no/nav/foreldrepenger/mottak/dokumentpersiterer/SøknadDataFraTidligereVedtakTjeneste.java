@@ -46,26 +46,33 @@ public class SøknadDataFraTidligereVedtakTjeneste {
     }
 
     public List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
-        var forrigeUttak = behandling.getOriginalBehandlingId()
-            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
+        var forrigeUttak = behandling.getOriginalBehandlingId().flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
         if (nysøknad.isEmpty() || forrigeUttak == null || forrigeUttak.getGjeldendePerioder().getPerioder().isEmpty()) {
             return nysøknad;
         }
-        var foreldrepenger = nysøknad.stream().map(OppgittPeriodeEntitet::getPeriodeType).anyMatch(UttakPeriodeType.FORELDREPENGER::equals) ||
-            forrigeUttak.getGjeldendePerioder().getPerioder().stream()
-                .anyMatch(p -> p.getAktiviteter().stream().map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto).anyMatch(UttakPeriodeType.FORELDREPENGER::equals));
+        var foreldrepenger = nysøknad.stream().map(OppgittPeriodeEntitet::getPeriodeType).anyMatch(UttakPeriodeType.FORELDREPENGER::equals)
+            || forrigeUttak.getGjeldendePerioder()
+            .getPerioder()
+            .stream()
+            .anyMatch(p -> p.getAktiviteter()
+                .stream()
+                .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto)
+                .anyMatch(UttakPeriodeType.FORELDREPENGER::equals));
         // Skal ikke legge inn utsettelse for BFHR
         var kreverSammenhengendeUttak = !behandling.erRevurdering() || utsettelseBehandling.kreverSammenhengendeUttak(behandling)
             || foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType());
         return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, kreverSammenhengendeUttak);
     }
 
-    public List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(Behandling behandling, LocalDate mottattDato, List<OppgittPeriodeEntitet> nysøknad) {
+    public List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(Behandling behandling,
+                                                                   LocalDate mottattDato,
+                                                                   List<OppgittPeriodeEntitet> nysøknad) {
         if (nysøknad.isEmpty()) {
             return nysøknad;
         }
 
-        var tidligereFordelinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+        var tidligereFordelinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId())
+            .stream()
             .filter(Behandling::erYtelseBehandling)
             .map(Behandling::getId)
             .filter(b -> !b.equals(behandling.getId()))
@@ -74,15 +81,13 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             .toList();
 
         // Vedtaksperioder fra forrige uttaksresultat - bruker sammenhengende = true for å få med avslåtte
-        var forrigeUttak = behandling.getOriginalBehandlingId()
-            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
+        var forrigeUttak = behandling.getOriginalBehandlingId().flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
 
         return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(nysøknad, mottattDato, tidligereFordelinger, forrigeUttak);
     }
 
     private Optional<OppgittFordelingEntitet> fordelingForBehandling(Long behandlingId) {
-        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getGjeldendeFordeling);
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).map(YtelseFordelingAggregat::getGjeldendeFordeling);
     }
 
     public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
@@ -91,8 +96,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
         }
 
         // Vedtaksperioder fra forrige uttaksresultat
-        var forrigeUttak = behandling.getOriginalBehandlingId()
-            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
+        var forrigeUttak = behandling.getOriginalBehandlingId().flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
 
         // Kopier kun godkjent vurdering for søknadsperioder. Vedtaksperioder vil innholde alle vurderinger
         return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(nysøknad, List.of(), forrigeUttak);

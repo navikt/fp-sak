@@ -41,10 +41,9 @@ public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        behandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling)
-            .ifPresent(nyEnhet -> {
-                LOG.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId());
-                behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, nyEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, BEGRUNNELSE);
+        behandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling).ifPresent(nyEnhet -> {
+            LOG.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId());
+            behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, nyEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, BEGRUNNELSE);
         });
     }
 }

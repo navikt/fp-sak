@@ -48,7 +48,8 @@ public class AktørTjeneste {
             return Optional.of(fraCache);
         }
         var aktørId = hentAktørIdForPersonIdentNonCached(personIdent);
-        aktørId.ifPresent(a -> CACHE_IDENT_TIL_AKTØR_ID.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
+        aktørId.ifPresent(
+            a -> CACHE_IDENT_TIL_AKTØR_ID.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
         return aktørId;
     }
 
@@ -57,8 +58,7 @@ public class AktørTjeneste {
         request.setIdent(personIdent.getIdent());
         request.setGrupper(List.of(IdentGruppe.AKTORID));
         request.setHistorikk(Boolean.FALSE);
-        var projection = new IdentlisteResponseProjection()
-                .identer(new IdentInformasjonResponseProjection().ident());
+        var projection = new IdentlisteResponseProjection().identer(new IdentInformasjonResponseProjection().ident());
 
         try {
             var identliste = pdlKlient.hentIdenter(request, projection);
@@ -93,8 +93,7 @@ public class AktørTjeneste {
         request.setIdent(aktørId.getId());
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
-        var projection = new IdentlisteResponseProjection()
-                .identer(new IdentInformasjonResponseProjection().ident());
+        var projection = new IdentlisteResponseProjection().identer(new IdentInformasjonResponseProjection().ident());
 
 
         try {

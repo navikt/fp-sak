@@ -108,7 +108,11 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon,
+                                                                LocalDate avsluttningsdato,
+                                                                FagsakRelasjonLås relasjonLås,
+                                                                Optional<FagsakLås> fagsak1Lås,
+                                                                Optional<FagsakLås> fagsak2Lås) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 }

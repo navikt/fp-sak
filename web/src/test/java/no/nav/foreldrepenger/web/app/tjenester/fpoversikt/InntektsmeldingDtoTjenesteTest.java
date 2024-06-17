@@ -60,8 +60,7 @@ class InntektsmeldingDtoTjenesteTest {
     }
 
     private static MottattDokument mottattDokument(Behandling behandling, JournalpostId journalPostId, LocalDateTime mottattTidspunkt) {
-        return new MottattDokument.Builder()
-            .medJournalPostId(journalPostId)
+        return new MottattDokument.Builder().medJournalPostId(journalPostId)
             .medMottattTidspunkt(mottattTidspunkt)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

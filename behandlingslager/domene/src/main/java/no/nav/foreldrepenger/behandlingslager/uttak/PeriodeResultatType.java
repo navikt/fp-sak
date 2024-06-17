@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public enum PeriodeResultatType implements Kodeverdi {
 

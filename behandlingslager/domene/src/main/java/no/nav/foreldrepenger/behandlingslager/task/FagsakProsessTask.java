@@ -33,8 +33,7 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
         var fagsakId = prosessTaskData.getFagsakId();
         var behandlingId = getBehandlingId(prosessTaskData);
 
-        identifiserBehandling(prosessTaskData)
-            .stream()
+        identifiserBehandling(prosessTaskData).stream()
             .sorted(Comparator.naturalOrder())
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 

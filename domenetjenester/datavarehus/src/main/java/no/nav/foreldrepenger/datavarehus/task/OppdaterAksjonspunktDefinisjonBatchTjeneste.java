@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.LagretKodeverdiNavn;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.LagretKodeverdiRepository;
 
 /**
- *  Batchservice som lagrer ned kodeverdier med tilhørende navn slik at navn kan brukes i db-spørringer
+ * Batchservice som lagrer ned kodeverdier med tilhørende navn slik at navn kan brukes i db-spørringer
  */
 @ApplicationScoped
 public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjeneste {
@@ -46,11 +46,7 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
         var eksisterende = lagretKodeverdiRepository.hentLagretKodeverk(kodeverk);
         verdier.stream().filter(ad -> ad.getKode() != null).forEach(ad -> {
             if (eksisterende.get(ad.getKode()) == null) {
-                var kodeverdi = LagretKodeverdiNavn.builder()
-                    .kodeverk(kodeverk)
-                    .kode(ad.getKode())
-                    .navn(ad.getNavn())
-                    .build();
+                var kodeverdi = LagretKodeverdiNavn.builder().kodeverk(kodeverk).kode(ad.getKode()).navn(ad.getNavn()).build();
                 lagretKodeverdiRepository.lagre(kodeverdi);
             } else {
                 var kodeverdi = eksisterende.get(ad.getKode());

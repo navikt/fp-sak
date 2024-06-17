@@ -60,19 +60,29 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
      */
     public static final String EVAL_RESULT_AKSEPTERT_MELLOMLIGGENDE_PERIODE = "akseptertMellomliggendePerioder";
 
-    /** Evaluation Property: Bekreftet opptjening aktivitet tidslinje bestemmes av {@link BeregnOpptjening}. */
+    /**
+     * Evaluation Property: Bekreftet opptjening aktivitet tidslinje bestemmes av {@link BeregnOpptjening}.
+     */
     public static final String EVAL_RESULT_BEKREFTET_AKTIVITET_TIDSLINJE = "bekreftetOpptjeningAktivitetTidslinje";
 
-    /** Evaluation Property: Antatt opptjening aktivitet tidslinje bestemmes av {@link BeregnOpptjening}. Settes dersom Bekreftet tidslinje ikke gir nok opptjening. */
+    /**
+     * Evaluation Property: Antatt opptjening aktivitet tidslinje bestemmes av {@link BeregnOpptjening}. Settes dersom Bekreftet tidslinje ikke gir nok opptjening.
+     */
     public static final String EVAL_RESULT_ANTATT_AKTIVITET_TIDSLINJE = "antattOpptjeningAktivitetTidslinje";
 
-    /** Evaluation Property: Bekreftet opptjening uttrykt som en Period (ISO 8601). eks. P4M22D = 4 måneder + 22 dager. */
+    /**
+     * Evaluation Property: Bekreftet opptjening uttrykt som en Period (ISO 8601). eks. P4M22D = 4 måneder + 22 dager.
+     */
     public static final String EVAL_RESULT_BEKREFTET_OPPTJENING = "bekreftetOpptjening";
 
-    /** Evaluation Property: Antatt opptjening uttrykt som en Period (ISO 8601). eks. P4M22D = 4 måneder + 22 dager. Settes dersom Antatt opptjening ikke er nok.*/
+    /**
+     * Evaluation Property: Antatt opptjening uttrykt som en Period (ISO 8601). eks. P4M22D = 4 måneder + 22 dager. Settes dersom Antatt opptjening ikke er nok.
+     */
     public static final String EVAL_RESULT_ANTATT_OPPTJENING = "antattOpptjening";
 
-    /** Evaluation Property: Antatt godkjente perioder med arbeid. */
+    /**
+     * Evaluation Property: Antatt godkjente perioder med arbeid.
+     */
     public static final String EVAL_RESULT_ANTATT_GODKJENT = "antattGodkjentArbeid";
 
     /// TODO (FC) Konstant for AAReg Arbeid
@@ -98,16 +108,12 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
         var rs = new Ruleset<OpptjeningsvilkårMellomregning>();
 
         Specification<OpptjeningsvilkårMellomregning> sjekkOpptjeningsvilkåret = rs.hvisRegel("FP_VK 23.2", "Hvis tilstrekkelig opptjening")
-                .hvis(new SjekkTilstrekkeligOpptjening(), new Oppfylt())
-                .ellers(new SjekkTilstrekkeligOpptjeningInklAntatt());
+            .hvis(new SjekkTilstrekkeligOpptjening(), new Oppfylt())
+            .ellers(new SjekkTilstrekkeligOpptjeningInklAntatt());
 
-        return new SequenceSpecification<>("FP_VK 23.1",
-                "Sammenstill Arbeid aktivitet med Inntekt, og Mellomliggende perioder",
-                Arrays.asList(
-                        new SjekkInntektSamsvarerMedArbeidAktivitet(),
-                        new SjekkMellomliggendePerioderForArbeid(),
-                        new BeregnOpptjening(),
-                        sjekkOpptjeningsvilkåret));
+        return new SequenceSpecification<>("FP_VK 23.1", "Sammenstill Arbeid aktivitet med Inntekt, og Mellomliggende perioder",
+            Arrays.asList(new SjekkInntektSamsvarerMedArbeidAktivitet(), new SjekkMellomliggendePerioderForArbeid(), new BeregnOpptjening(),
+                sjekkOpptjeningsvilkåret));
     }
 
 }

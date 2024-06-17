@@ -48,9 +48,7 @@ class HistorikkRepositoryTest {
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setType(HistorikkinnslagType.VEDTAK_FATTET);
-        var builder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
-                .medSkjermlenke(SkjermlenkeType.VEDTAK);
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.VEDTAK_FATTET).medSkjermlenke(SkjermlenkeType.VEDTAK);
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
@@ -82,9 +80,8 @@ class HistorikkRepositoryTest {
         vedtakFattet.setAktør(HistorikkAktør.SØKER);
         vedtakFattet.setBehandling(behandling);
         vedtakFattet.setType(HistorikkinnslagType.VEDTAK_FATTET);
-        var vedtakFattetBuilder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
-                .medSkjermlenke(SkjermlenkeType.VEDTAK);
+        var vedtakFattetBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
+            .medSkjermlenke(SkjermlenkeType.VEDTAK);
         vedtakFattetBuilder.build(vedtakFattet);
         historikkRepository.lagre(vedtakFattet);
 
@@ -92,8 +89,7 @@ class HistorikkRepositoryTest {
         brevSent.setBehandling(behandling);
         brevSent.setType(HistorikkinnslagType.BREV_SENT);
         brevSent.setAktør(HistorikkAktør.SØKER);
-        var mottattDokBuilder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.BREV_SENT);
+        var mottattDokBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_SENT);
         mottattDokBuilder.build(brevSent);
         historikkRepository.lagre(brevSent);
 

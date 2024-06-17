@@ -46,8 +46,8 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
         // regn utførste dato for antatt godkjent bakover
         var periodeAntattGodkjentAksepteres = data.getRegelParametre().periodeAntattGodkjentFørBehandlingstidspunkt();
-        var førsteDatoForAntattGodkjent = sisteAntattGodkjentDato
-            .plusMonths(1).withDayOfMonth(1) // Periode P2M blir denne måneden (enn så lenge) og forrige måned
+        var førsteDatoForAntattGodkjent = sisteAntattGodkjentDato.plusMonths(1)
+            .withDayOfMonth(1) // Periode P2M blir denne måneden (enn så lenge) og forrige måned
             .minus(periodeAntattGodkjentAksepteres);
 
         var antattGodkjentInterval = new LocalDateInterval(førsteDatoForAntattGodkjent, sisteAntattGodkjentDato);
@@ -67,7 +67,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
     }
 
     private static LocalDate sisteAntattGodkjentDato(OpptjeningsvilkårMellomregning data) {
-        if(data.getGrunnlag().behandlingsDato().isAfter(data.getGrunnlag().sisteDatoForOpptjening())) {
+        if (data.getGrunnlag().behandlingsDato().isAfter(data.getGrunnlag().sisteDatoForOpptjening())) {
             return data.getGrunnlag().behandlingsDato();
         }
         return data.getGrunnlag().sisteDatoForOpptjening();
@@ -80,7 +80,8 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         var grunnlag = data.getGrunnlag();
         var underkjennPerioder = new UnderkjennPerioder(inntekter, data.getRegelParametre().minsteInntekt());
 
-        aktiviteter.entrySet().stream()
+        aktiviteter.entrySet()
+            .stream()
             .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()) || FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
             .forEach(underkjennPerioder::underkjennPeriode);
 
@@ -114,14 +115,11 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
                 var inntekt = inntekter.get(key);
 
-                var okInntekt = inntekt
-                    .filterValue(this::filtrerInntektFunksjon);
+                var okInntekt = inntekt.filterValue(this::filtrerInntektFunksjon);
 
-                var okArbeid = okInntekt.intersection(arbeid,
-                    StandardCombinators::rightOnly);
+                var okArbeid = okInntekt.intersection(arbeid, StandardCombinators::rightOnly);
 
-                var underkjentArbeid = arbeid.disjoint(okArbeid,
-                    StandardCombinators::leftOnly);
+                var underkjentArbeid = arbeid.disjoint(okArbeid, StandardCombinators::leftOnly);
 
                 periode = underkjentArbeid.mapValue(a -> AktivitetStatus.IKKE_GODKJENT);
             }
@@ -149,20 +147,19 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
         /**
          * @param antattGodkjentInterval - interval der arbeid skal antas godkjent selv om det er underkjent av tidligere regler ang. krav
-         *            til inntekt.
+         *                               til inntekt.
          * @param aktiviteter
          */
         AntaGodkjent(final LocalDateInterval antattGodkjentInterval, final Map<Aktivitet, LocalDateTimeline<AktivitetStatus>> aktiviteter) {
             antattGodkjent = new LocalDateTimeline<>(antattGodkjentInterval, AktivitetStatus.ANTATT_GODKJENT);
 
-            aktiviteter.entrySet().stream()
-                .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
-                .forEach(this::fyllAntattGodkjent);
+            aktiviteter.entrySet().stream().filter(e -> ARBEID.equals(e.getKey().getAktivitetType())).forEach(this::fyllAntattGodkjent);
 
             // Denne er for å få med underkjente (aktiviteter)
             // Frilansperioder uten inntekt blir ikke antatt godkjent - inntil videre
             // Obs på 1) ytelser som godkjenner antatt o
-            aktiviteter.entrySet().stream()
+            aktiviteter.entrySet()
+                .stream()
                 .filter(e -> FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
                 .filter(e -> !e.getValue().isEmpty())
                 .forEach(e -> medAntattGodkjentFramforIkkeGodkjent.put(e.getKey(), e.getValue()));
@@ -174,8 +171,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
             var arbeid = e.getValue();
 
             // la antatt godkjent overstyre ikke godkjent.
-            var medAntattGodkjent = arbeid.combine(antattGodkjent,
-                this::antaGodkjentFramforIkkeGodkjent, JoinStyle.LEFT_JOIN);
+            var medAntattGodkjent = arbeid.combine(antattGodkjent, this::antaGodkjentFramforIkkeGodkjent, JoinStyle.LEFT_JOIN);
 
             if (!medAntattGodkjent.isEmpty()) {
                 medAntattGodkjentFramforIkkeGodkjent.put(key, medAntattGodkjent);
@@ -191,24 +187,27 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         }
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> getAntattGodkjentResultat(LocalDateInterval interval) {
-            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
+            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet()
+                .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> filtrertForStatus(e.getValue(), AktivitetStatus.ANTATT_GODKJENT)));
 
             return avgrensTilPeriode(resultat, interval);
         }
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> getUnderkjentResultat(LocalDateInterval interval) {
-            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
+            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet()
+                .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> filtrertForStatus(e.getValue(), AktivitetStatus.IKKE_GODKJENT)));
             return avgrensTilPeriode(resultat, interval);
         }
 
-        /** avgrens til angitt interval og fjern tomme tidslinjer */
+        /**
+         * avgrens til angitt interval og fjern tomme tidslinjer
+         */
         private static Map<Aktivitet, LocalDateTimeline<Boolean>> avgrensTilPeriode(Map<Aktivitet, LocalDateTimeline<Boolean>> tidslinjer,
                                                                                     LocalDateInterval interval) {
 
-            return tidslinjer
-                .entrySet()
+            return tidslinjer.entrySet()
                 .stream()
                 .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().intersection(interval)))
                 .filter(e -> !e.getValue().isEmpty())

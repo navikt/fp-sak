@@ -71,32 +71,27 @@ public class KalkulatorStegProsesseringInputTjeneste {
     public FastsettBeregningsaktiviteterInput lagStartInput(Long behandlingId, BeregningsgrunnlagInput input) {
         // Vurder om vi skal begynne å ta inn koblingId for originalbehandling ved revurdering
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var grunnlagFraSteg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandling.getId(), behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.OPPRETTET);
+        var grunnlagFraSteg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(),
+            behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.OPPRETTET);
         var grunnlagFraStegUt = finnForrigeAvklarteGrunnlagForTilstand(behandling, grunnlagFraSteg,
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);
         var stegProsesseringInput = new StegProsesseringInput(input,
             no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.OPPRETTET).medForrigeGrunnlagFraStegUt(
-            grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
+                grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medForrigeGrunnlagFraSteg(grunnlagFraSteg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
-            .medStegUtTilstand(
-                no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+            .medStegUtTilstand(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         return new FastsettBeregningsaktiviteterInput(stegProsesseringInput).medGrunnbeløpInput(finnSatser());
     }
 
-    public StegProsesseringInput lagFortsettInput(Long behandlingId,
-                                                  BeregningsgrunnlagInput input,
-                                                  BehandlingStegType stegType) {
+    public StegProsesseringInput lagFortsettInput(Long behandlingId, BeregningsgrunnlagInput input, BehandlingStegType stegType) {
         Objects.requireNonNull(behandlingId, "behandlingId");
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return mapStegInput(behandling, input, stegType);
     }
 
-    public StegProsesseringInput mapStegInput(Behandling behandling,
-                                              BeregningsgrunnlagInput input,
-                                              BehandlingStegType stegType) {
+    public StegProsesseringInput mapStegInput(Behandling behandling, BeregningsgrunnlagInput input, BehandlingStegType stegType) {
         var stegProsesseringInput = lagStegProsesseringInput(behandling, input, stegType);
         if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
             return new FaktaOmBeregningInput(stegProsesseringInput).medGrunnbeløpInput(finnSatser());
@@ -118,13 +113,11 @@ public class KalkulatorStegProsesseringInputTjeneste {
             return lagInputVurderRefusjon(stegProsesseringInput, behandling);
         }
         if (stegType.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
-            var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(
-                behandling.getId());
+            var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
             return lagInputFordel(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
         }
         if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
-            var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(
-                behandling.getId());
+            var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
             return lagInputFullføre(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
         }
         return stegProsesseringInput;
@@ -134,7 +127,8 @@ public class KalkulatorStegProsesseringInputTjeneste {
                                                                      Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet) {
         var vurderVilkårInput = new VurderBeregningsgrunnlagvilkårInput(stegProsesseringInput);
         if (førsteFastsatteGrunnlagEntitet.isPresent()) {
-            vurderVilkårInput = førsteFastsatteGrunnlagEntitet.get().getBeregningsgrunnlag()
+            vurderVilkårInput = førsteFastsatteGrunnlagEntitet.get()
+                .getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi)
                 .map(no.nav.folketrygdloven.kalkulator.modell.typer.Beløp::fra)
@@ -144,8 +138,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         return vurderVilkårInput;
     }
 
-    private StegProsesseringInput lagInputVurderRefusjon(StegProsesseringInput stegProsesseringInput,
-                                                         Behandling behandling) {
+    private StegProsesseringInput lagInputVurderRefusjon(StegProsesseringInput stegProsesseringInput, Behandling behandling) {
         var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
         var vurderRefusjonBeregningsgrunnlagInput = new VurderRefusjonBeregningsgrunnlagInput(stegProsesseringInput);
         if (førsteFastsatteGrunnlagEntitet.isPresent()) {
@@ -169,16 +162,13 @@ public class KalkulatorStegProsesseringInputTjeneste {
 
     }
 
-    private StegProsesseringInput lagStegProsesseringInput(Behandling behandling,
-                                                           BeregningsgrunnlagInput input,
-                                                           BehandlingStegType stegType) {
+    private StegProsesseringInput lagStegProsesseringInput(Behandling behandling, BeregningsgrunnlagInput input, BehandlingStegType stegType) {
         var inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        var grunnlagFraSteg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandling.getId(), Optional.empty(), mapTilStegTilstand(stegType));
+        var grunnlagFraSteg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(),
+            Optional.empty(), mapTilStegTilstand(stegType));
         var grunnlagFraStegUt = finnForrigeAvklartGrunnlagHvisFinnes(behandling, grunnlagFraSteg, stegType);
-        return new StegProsesseringInput(inputMedBG,
-            mapTilKalkulatorStegTilstand(stegType)).medForrigeGrunnlagFraStegUt(
-            grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
+        return new StegProsesseringInput(inputMedBG, mapTilKalkulatorStegTilstand(stegType)).medForrigeGrunnlagFraStegUt(
+                grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medForrigeGrunnlagFraSteg(grunnlagFraSteg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medStegUtTilstand(mapTilKalkulatorStegUtTilstand(stegType).orElse(null));
     }
@@ -241,9 +231,9 @@ public class KalkulatorStegProsesseringInputTjeneste {
                 BeregningsgrunnlagTilstand.FASTSATT))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .filter(gr -> MonthDay.from(gr.getBeregningsgrunnlag()
-                .orElseThrow(() -> new IllegalStateException("Skal ha beregningsgrunnlag"))
-                .getSkjæringstidspunkt()).isAfter(ENDRING_AV_GRUNNBELØP))
+            .filter(gr -> MonthDay.from(
+                    gr.getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha beregningsgrunnlag")).getSkjæringstidspunkt())
+                .isAfter(ENDRING_AV_GRUNNBELØP))
             .min(Comparator.comparing(BaseEntitet::getOpprettetTidspunkt));
     }
 
@@ -264,8 +254,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         if (forrigeGrunnlagFraSteg.isEmpty()) {
             return Optional.empty();
         }
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(
-            behandling.getId(), behandling.getOriginalBehandlingId(),
-            forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), beregningsgrunnlagTilstand);
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(behandling.getId(),
+            behandling.getOriginalBehandlingId(), forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), beregningsgrunnlagTilstand);
     }
 }

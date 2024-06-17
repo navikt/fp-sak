@@ -41,7 +41,8 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     public void setVilkårsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Vilkaar vilkår) {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
         var familieHendelseDato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
         var vilkaarsgrunnlag = getVilkaarsgrunnlag(behandling, vilkårFraBehandling, søknad, familieHendelseDato); //Må implementeres i hver subklasse
 
         if (Objects.nonNull(vilkaarsgrunnlag)) {
@@ -51,12 +52,15 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
         }
     }
 
-    protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato);
+    protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling,
+                                                            Vilkår vilkårFraBehandling,
+                                                            Optional<SøknadEntitet> søknad,
+                                                            Optional<LocalDate> familieHendelseDato);
 
     protected boolean erBarnetFødt(Behandling behandling) {
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
-        return inneholderFødsel(familieHendelseGrunnlag.getOverstyrtVersjon()) || inneholderFødsel(familieHendelseGrunnlag.getBekreftetVersjon()) ||
-            inneholderFødsel(Optional.of(familieHendelseGrunnlag.getSøknadVersjon()));
+        return inneholderFødsel(familieHendelseGrunnlag.getOverstyrtVersjon()) || inneholderFødsel(familieHendelseGrunnlag.getBekreftetVersjon())
+            || inneholderFødsel(Optional.of(familieHendelseGrunnlag.getSøknadVersjon()));
     }
 
     private boolean inneholderFødsel(Optional<FamilieHendelseEntitet> familieHendelse) {

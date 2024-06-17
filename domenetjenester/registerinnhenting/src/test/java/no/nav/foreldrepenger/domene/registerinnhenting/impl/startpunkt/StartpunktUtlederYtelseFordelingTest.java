@@ -68,13 +68,20 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         var førsteuttaksdato = LocalDate.now();
         var endretUttaksdato = førsteuttaksdato.plusDays(1);
 
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
-        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(endretUttaksdato).medUtledetSkjæringstidspunkt(endretUttaksdato).build();
+        var revSkjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(endretUttaksdato)
+            .medUtledetSkjæringstidspunkt(endretUttaksdato)
+            .build();
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(
+            INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -89,12 +96,19 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
 
         var førsteuttaksdato = LocalDate.now();
         var endretUttaksdato = førsteuttaksdato.plusDays(1);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
-        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(endretUttaksdato).medUtledetSkjæringstidspunkt(endretUttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
+        var revSkjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(endretUttaksdato)
+            .medUtledetSkjæringstidspunkt(endretUttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(
+            INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -108,7 +122,10 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
 
         var førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
@@ -125,7 +142,10 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
 
         var førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
@@ -143,7 +163,10 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
 
         var førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
@@ -179,7 +202,10 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.valueOf(50));
 
         var førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act
@@ -197,7 +223,10 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         var førsteuttaksdato = LocalDate.now();
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteuttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteuttaksdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.ZERO);
@@ -212,14 +241,12 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
 
 
     private Behandling lagFørstegangsBehandling() {
-        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         return førstegangScenario.lagre(repositoryProvider);
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsakType) {
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING);
         revurderingScenario.medOriginalBehandling(originalBehandling, behandlingÅrsakType);
         return revurderingScenario.lagre(repositoryProvider);
     }
@@ -238,16 +265,14 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
             .build();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var oppgittFordeling = new OppgittFordelingEntitet(List.of(periode), true);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(oppgittFordeling);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medOppgittFordeling(oppgittFordeling);
 
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private void lagreEndringssøknad(Behandling behandling) {
         byggFamilieHendelse(behandling.getId());
-        var søknad = new SøknadEntitet.Builder()
-            .medElektroniskRegistrert(true)
+        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .medMottattDato(LocalDate.now())
             .medErEndringssøknad(true)
@@ -256,12 +281,9 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
-        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandlingId)
-            .medAntallBarn(1);
-        søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now())
-            .medUtstedtDato(LocalDate.now()));
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandlingId).medAntallBarn(1);
+        søknadHendelse.medTerminbekreftelse(
+            søknadHendelse.getTerminbekreftelseBuilder().medTermindato(LocalDate.now()).medUtstedtDato(LocalDate.now()));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
         return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getSøknadVersjon();
     }

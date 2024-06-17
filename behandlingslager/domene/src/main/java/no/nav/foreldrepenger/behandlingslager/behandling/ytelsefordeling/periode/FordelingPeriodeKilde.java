@@ -17,8 +17,7 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
     SØKNAD("SØKNAD", "Søknad"),
     TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Vedtak"),
     ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Vedtak andre ytelser"),
-    SAKSBEHANDLER("SAKSBEHANDLER", "Saksbehandler")
-    ;
+    SAKSBEHANDLER("SAKSBEHANDLER", "Saksbehandler");
     private static final Map<String, FordelingPeriodeKilde> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "FORDELING_PERIODE_KILDE";

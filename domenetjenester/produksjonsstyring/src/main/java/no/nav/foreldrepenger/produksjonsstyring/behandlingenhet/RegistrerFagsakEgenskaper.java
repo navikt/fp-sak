@@ -95,7 +95,9 @@ public class RegistrerFagsakEgenskaper {
     private boolean vurderOppgittUtlandsopphold(Long behandlingId) {
         var oppgittUtlandsOpphold = medlemskapRepository.hentMedlemskap(behandlingId)
             .flatMap(MedlemskapAggregat::getOppgittTilknytning)
-            .map(MedlemskapOppgittTilknytningEntitet::getOpphold).orElse(Set.of()).stream()
+            .map(MedlemskapOppgittTilknytningEntitet::getOpphold)
+            .orElse(Set.of())
+            .stream()
             .filter(opphold -> !Landkoder.NOR.equals(opphold.getLand()))
             .toList();
         var oppgittFramtidigUtlandsOpphold = oppgittUtlandsOpphold.stream().anyMatch(land -> !land.isTidligereOpphold());
@@ -105,14 +107,16 @@ public class RegistrerFagsakEgenskaper {
         var utlandSegmenter = oppgittUtlandsOpphold.stream()
             .map(opphold -> new LocalDateSegment<>(opphold.getPeriodeFom(), opphold.getPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.toSet());
-        return new LocalDateTimeline<>(utlandSegmenter, StandardCombinators::alwaysTrueForMatch).compress().stream()
+        return new LocalDateTimeline<>(utlandSegmenter, StandardCombinators::alwaysTrueForMatch).compress()
+            .stream()
             .anyMatch(segment -> Math.abs(DAYS.between(segment.getFom(), segment.getTom())) > 365);
     }
 
     private boolean harOppgittEgenNæring(Long behandlingId) {
         return !iayTjeneste.finnGrunnlag(behandlingId)
             .flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening)
-            .map(OppgittOpptjening::getEgenNæring).orElse(List.of())
+            .map(OppgittOpptjening::getEgenNæring)
+            .orElse(List.of())
             .isEmpty();
     }
 

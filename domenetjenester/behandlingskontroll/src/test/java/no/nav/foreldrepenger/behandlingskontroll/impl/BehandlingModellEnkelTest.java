@@ -27,10 +27,9 @@ class BehandlingModellEnkelTest {
     private final DummySteg dummyBehandlingSteg_3 = new DummySteg();
 
     private final TriFunction<BehandlingStegType, BehandlingType, FagsakYtelseType, BehandlingSteg> finnSteg = DummySteg.map(
-            List.of(
-                    new TestStegKonfig(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_1),
-                    new TestStegKonfig(STEG_2, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_2),
-                    new TestStegKonfig(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_3)));
+        List.of(new TestStegKonfig(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_1),
+            new TestStegKonfig(STEG_2, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_2),
+            new TestStegKonfig(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_3)));
 
     @Test
     void skal_bygge_behandlingskontroll_med_ett_steg() {

@@ -52,9 +52,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandling() {
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
-                .medSaksnummer(new Saksnummer("29999"))
-                .medBrukerAktørId(AKTØRID).build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medSaksnummer(new Saksnummer("29999")).medBrukerAktørId(AKTØRID).build();
 
         behandlingRepositoryProvider.getFagsakRepository().opprettNy(fagsak);
 
@@ -79,30 +77,27 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
         var mottattDato = LocalDate.now();
         var førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); // En dag forbi søknadsfrist
         var periode1 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
-                .build();
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
+            .build();
 
         var periode2 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
-                .build();
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
+            .build();
 
         var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittFordeling(fordeling)
-            .medOppgittDekningsgrad(dekningsgrad);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medOppgittFordeling(fordeling).medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling.getId());
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         var fagsak = behandling.getFagsak();
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
@@ -110,8 +105,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(behandleStegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
 
-        var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandlingId);
+        var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandlingId);
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottattDato);
     }
@@ -122,22 +116,20 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
         var førsteUttaksdato = LocalDate.now().with(DAY_OF_MONTH, 1).minusMonths(3);
         var mottattDato = LocalDate.now();
         var periode1 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
-                .build();
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
+            .build();
 
         var periode2 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
-                .build();
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
+            .build();
 
         var dekningsgrad = Dekningsgrad._100;
         var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittFordeling(fordeling)
-            .medOppgittDekningsgrad(dekningsgrad);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medOppgittFordeling(fordeling).medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling.getId());
@@ -145,16 +137,14 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
 
         var fagsak = behandling.getFagsak();
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
 
-        var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandlingId);
+        var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandlingId);
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottattDato);
     }
@@ -163,11 +153,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
         var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandlingId).medAntallBarn(1).medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandlingId, søknadHendelse);
 
-        return new SøknadEntitet.Builder()
-                .medSøknadsdato(LocalDate.now())
-                .medMottattDato(mottattDato)
-                .medElektroniskRegistrert(true)
-                .build();
+        return new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).medMottattDato(mottattDato).medElektroniskRegistrert(true).build();
     }
 
 }

@@ -173,5 +173,4 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
 
-
 }

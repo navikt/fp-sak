@@ -9,8 +9,11 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 public class OpptjeningAktivitetVurderingBeregning implements OpptjeningAktivitetVurdering {
 
     @Override
-    public VurderingsStatus vurderStatus(OpptjeningAktivitetType type, BehandlingReferanse behandlingReferanse, Yrkesaktivitet overstyrtAktivitet,
-            InntektArbeidYtelseGrunnlag iayGrunnlag, boolean harVærtSaksbehandlet) {
+    public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
+                                         BehandlingReferanse behandlingReferanse,
+                                         Yrkesaktivitet overstyrtAktivitet,
+                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                         boolean harVærtSaksbehandlet) {
         return VurderingsStatus.GODKJENT;
     }
 

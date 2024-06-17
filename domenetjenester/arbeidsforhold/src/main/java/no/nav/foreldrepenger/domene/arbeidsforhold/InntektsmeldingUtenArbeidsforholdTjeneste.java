@@ -34,8 +34,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class InntektsmeldingUtenArbeidsforholdTjeneste {
     private static final Integer MND_FØR_STP_INNTEKT_ER_RELEVANT = 6;
-    private static final Set<ArbeidType> ARBEIDSFORHOLD_TYPER = Stream.of(ORDINÆRT_ARBEIDSFORHOLD,
-            FORENKLET_OPPGJØRSORDNING, MARITIMT_ARBEIDSFORHOLD)
+    private static final Set<ArbeidType> ARBEIDSFORHOLD_TYPER = Stream.of(ORDINÆRT_ARBEIDSFORHOLD, FORENKLET_OPPGJØRSORDNING, MARITIMT_ARBEIDSFORHOLD)
         .collect(Collectors.toSet());
 
     private InntektsmeldingUtenArbeidsforholdTjeneste() {
@@ -44,7 +43,8 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
 
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeArbeidsforhold(List<Inntektsmelding> inntektsmeldinger,
                                                                                                InntektArbeidYtelseGrunnlag grunnlag,
-                                                                                               AktørId aktørId, LocalDate utledetStp) {
+                                                                                               AktørId aktørId,
+                                                                                               LocalDate utledetStp) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> resultat = new HashMap<>();
         for (var inntektsmelding : inntektsmeldinger) {
             if (måVurderes(grunnlag, inntektsmelding, aktørId, utledetStp)) {
@@ -56,10 +56,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
         return resultat;
     }
 
-    private static boolean måVurderes(InntektArbeidYtelseGrunnlag grunnlag,
-                                      Inntektsmelding inntektsmelding,
-                                      AktørId aktørId,
-                                      LocalDate utledetStp) {
+    private static boolean måVurderes(InntektArbeidYtelseGrunnlag grunnlag, Inntektsmelding inntektsmelding, AktørId aktørId, LocalDate utledetStp) {
         var erRegistrertSomFrilans = gjelderFrilans(aktørId, grunnlag, inntektsmelding);
         var erAmbasade = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver());
         if (erRegistrertSomFrilans && !erAmbasade) {
@@ -67,7 +64,8 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
             // Dette er ikke riktig praksis, og saksbehandlingen ignorerer disse så vi trenger ikke lage arbeidsforhold på de.
             return false;
         }
-        var harRapportertInntektHosArbeidsgiver = harRapportertInntekt(new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)), utledetStp, inntektsmelding.getArbeidsgiver());
+        var harRapportertInntektHosArbeidsgiver = harRapportertInntekt(new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)), utledetStp,
+            inntektsmelding.getArbeidsgiver());
         var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver());
         var erAmbasadeUtenArbeidsforhold = erAmbasade && harIngenArbeidsforholdHosArbeidsgiver;
         var finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
@@ -77,8 +75,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
     }
 
     private static boolean kreverRefusjon(Inntektsmelding inntektsmelding) {
-        return inntektsmelding.getRefusjonBeløpPerMnd() != null
-            && inntektsmelding.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0;
+        return inntektsmelding.getRefusjonBeløpPerMnd() != null && inntektsmelding.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private static boolean erArbeidsgiverAmbasade(Arbeidsgiver arbeidsgiver) {
@@ -86,22 +83,25 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
     }
 
     private static boolean gjelderFrilans(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Inntektsmelding inntektsmelding) {
-        var filter = new YrkesaktivitetFilter(grunnlag.getAktørArbeidFraRegister(aktørId)
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList()));
-        return filter.getFrilansOppdrag().stream()
+        var filter = new YrkesaktivitetFilter(
+            grunnlag.getAktørArbeidFraRegister(aktørId).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()));
+        return filter.getFrilansOppdrag()
+            .stream()
             .anyMatch(ya -> ya.gjelderFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef()));
     }
 
     private static boolean harRapportertInntekt(InntektFilter inntektFilter, LocalDate utledetStp, Arbeidsgiver arbeidsgiver) {
-        var periodeViSerEtterInntekt = DatoIntervallEntitet.fraOgMedTilOgMed(utledetStp.minusMonths(MND_FØR_STP_INNTEKT_ER_RELEVANT).withDayOfMonth(1), utledetStp);
-        return inntektFilter.getAlleInntektBeregningsgrunnlag().stream()
+        var periodeViSerEtterInntekt = DatoIntervallEntitet.fraOgMedTilOgMed(
+            utledetStp.minusMonths(MND_FØR_STP_INNTEKT_ER_RELEVANT).withDayOfMonth(1), utledetStp);
+        return inntektFilter.getAlleInntektBeregningsgrunnlag()
+            .stream()
             .filter(intk -> Objects.equals(intk.getArbeidsgiver(), arbeidsgiver))
             .anyMatch(intk -> harInntektIPeriode(periodeViSerEtterInntekt, intk.getAlleInntektsposter()));
     }
 
     private static boolean harInntektIPeriode(DatoIntervallEntitet periodeViSerEtterInntekt, Collection<Inntektspost> alleInntektsposter) {
-        return alleInntektsposter.stream().anyMatch(post -> post.getPeriode().overlapper(periodeViSerEtterInntekt) && !post.getBeløp().erNullEllerNulltall());
+        return alleInntektsposter.stream()
+            .anyMatch(post -> post.getPeriode().overlapper(periodeViSerEtterInntekt) && !post.getBeløp().erNullEllerNulltall());
     }
 
     private static boolean erFiskerUtenAktivtArbeid(AktørId aktørId,
@@ -115,32 +115,34 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
                                                         LocalDate utledetStp,
                                                         Inntektsmelding inntektsmelding,
                                                         InntektArbeidYtelseGrunnlag grunnlag) {
-        var filter = new YrkesaktivitetFilter(grunnlag.getAktørArbeidFraRegister(aktørId)
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList()));
-        return filter.getYrkesaktiviteter().stream()
+        var filter = new YrkesaktivitetFilter(
+            grunnlag.getAktørArbeidFraRegister(aktørId).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()));
+        return filter.getYrkesaktiviteter()
+            .stream()
             .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), ya))
-            .noneMatch(ya -> ya.getAlleAktivitetsAvtaler().stream()
-                .filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(aa -> aa.getPeriode().inkluderer(utledetStp)));
+            .noneMatch(ya -> ya.getAlleAktivitetsAvtaler()
+                .stream()
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+                .anyMatch(aa -> aa.getPeriode().inkluderer(utledetStp)));
     }
 
     private static boolean harOppgittFiske(InntektArbeidYtelseGrunnlag grunnlag) {
-        return grunnlag.getGjeldendeOppgittOpptjening().stream().anyMatch(
-            oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
+        return grunnlag.getGjeldendeOppgittOpptjening()
+            .stream()
+            .anyMatch(
+                oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 
     private static boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, Yrkesaktivitet yr) {
-        return ARBEIDSFORHOLD_TYPER.contains(yr.getArbeidType())
-            && yr.getArbeidsgiver().equals(arbeidsgiver);
+        return ARBEIDSFORHOLD_TYPER.contains(yr.getArbeidType()) && yr.getArbeidsgiver().equals(arbeidsgiver);
     }
 
-    private static boolean harArbeidsforholdIRegistreHosArbeidsgiver(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
+    private static boolean harArbeidsforholdIRegistreHosArbeidsgiver(AktørId aktørId,
+                                                                     InntektArbeidYtelseGrunnlag grunnlag,
                                                                      Arbeidsgiver arbeidsgiverFraIM) {
-        var filter = new YrkesaktivitetFilter(grunnlag.getAktørArbeidFraRegister(aktørId)
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList()));
-        return filter.getYrkesaktiviteter().stream()
-            .anyMatch(yr -> gjelderInntektsmeldingFor(arbeidsgiverFraIM, yr));
+        var filter = new YrkesaktivitetFilter(
+            grunnlag.getAktørArbeidFraRegister(aktørId).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()));
+        return filter.getYrkesaktiviteter().stream().anyMatch(yr -> gjelderInntektsmeldingFor(arbeidsgiverFraIM, yr));
     }
 
     private static Set<InternArbeidsforholdRef> trekkUtRef(Inntektsmelding inntektsmelding) {

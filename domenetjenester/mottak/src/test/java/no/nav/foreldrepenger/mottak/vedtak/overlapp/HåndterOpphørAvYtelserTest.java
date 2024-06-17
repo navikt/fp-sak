@@ -60,8 +60,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = VirkedagUtil.fomVirkedag(
-        LocalDate.now().minusMonths(1));
+    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(1));
     private static final LocalDate SISTE_DAG_PER_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1.plusWeeks(6);
 
     private static final int DAGSATS = 100;
@@ -93,9 +92,8 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
-        håndterOpphørAvYtelser = new HåndterOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP,
-            revurderingTjenesteMockSVP, taskTjeneste, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock,
-            mock(KøKontroller.class), mock(Kompletthetskontroller.class));
+        håndterOpphørAvYtelser = new HåndterOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP, taskTjeneste,
+            behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, mock(KøKontroller.class), mock(Kompletthetskontroller.class));
     }
 
     @Test
@@ -107,13 +105,11 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fsavsluttetBehMor = avsluttetBehMor.getFagsak();
 
         var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
-        var berResMorOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP,
-            Inntektskategori.ARBEIDSTAKER);
+        var berResMorOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(nyAvsBehandlingMor, berResMorOverlapp);
 
         // Act
-        håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE,
-            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+        håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
 
         // Assert
         verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor),
@@ -122,11 +118,9 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
         var vurderKonsekvens = captor.getValue();
-        assertThat(vurderKonsekvens.taskType()).isEqualTo(
-            TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
-        assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(
-            BESKRIVELSE);
+        assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
     }
 
     @Test
@@ -137,17 +131,14 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(avsluttetBehMor, berResMorBeh1);
         var fsavsluttetBehMor = avsluttetBehMor.getFagsak();
         var revurdering = Behandling.nyBehandlingFor(fsavsluttetBehMor, BehandlingType.REVURDERING).build();
-        repositoryProvider.getBehandlingRepository()
-            .lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
+        repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
 
         var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
-        var berResMorOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP,
-            Inntektskategori.ARBEIDSTAKER);
+        var berResMorOverlapp = lagBeregningsresultat(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(nyAvsBehandlingMor, berResMorOverlapp);
 
         // Act
-        håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE,
-            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+        håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
 
         // Assert
         verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
@@ -155,11 +146,9 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
         var vurderKonsekvens = captor.getValue();
-        assertThat(vurderKonsekvens.taskType()).isEqualTo(
-            TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
-        assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(
-            BESKRIVELSE);
+        assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
 
         assertThat(revurdering.harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)).isTrue();
     }
@@ -168,13 +157,9 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(fødselsDato);
         if (medfAktørId != null) {
-            scenarioAvsluttetBehMor.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
+            scenarioAvsluttetBehMor.medSøknadAnnenPart().medAktørId(medfAktørId).medNavn("Seig Pinne").medType(SøknadAnnenPartType.FAR);
         }
-        scenarioAvsluttetBehMor.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioAvsluttetBehMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
@@ -184,13 +169,8 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom,
-                                                            LocalDate periodeTom,
-                                                            Inntektskategori inntektskategori) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
+    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
             .build(beregningsresultat);
@@ -208,8 +188,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private void avsluttBehandlingOgFagsak(Behandling behandling) {
         behandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository()
-            .lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
     }
 }

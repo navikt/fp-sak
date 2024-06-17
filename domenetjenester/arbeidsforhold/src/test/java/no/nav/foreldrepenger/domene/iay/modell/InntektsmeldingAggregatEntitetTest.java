@@ -18,12 +18,10 @@ class InntektsmeldingAggregatEntitetTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         var førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        førsteInntektsmeldingBuilder.medKanalreferanse("AR123")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+        førsteInntektsmeldingBuilder.medKanalreferanse("AR123").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var sisteInntektsmedlingBuilder = InntektsmeldingBuilder.builder();
-        sisteInntektsmedlingBuilder.medKanalreferanse("AR124")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+        sisteInntektsmedlingBuilder.medKanalreferanse("AR124").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
@@ -40,12 +38,13 @@ class InntektsmeldingAggregatEntitetTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         var førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        førsteInntektsmeldingBuilder.medKanalreferanse("AR123").medKildesystem("U4BW")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+        førsteInntektsmeldingBuilder.medKanalreferanse("AR123").medKildesystem("U4BW").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var sisteInntektsmedlingBuilder = InntektsmeldingBuilder.builder();
-        sisteInntektsmedlingBuilder.medKanalreferanse("AR124").medKildesystem("AltinnPortal")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå.minusMinutes(2));
+        sisteInntektsmedlingBuilder.medKanalreferanse("AR124")
+            .medKildesystem("AltinnPortal")
+            .medArbeidsgiver(arbeidsgiver)
+            .medInnsendingstidspunkt(nå.minusMinutes(2));
 
         var inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(førsteInntektsmeldingBuilder.build());
@@ -62,12 +61,10 @@ class InntektsmeldingAggregatEntitetTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         var sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        sisteInntektsmeldingBuilder.medKanalreferanse("AR125")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+        sisteInntektsmeldingBuilder.medKanalreferanse("AR125").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        førsteInntektsmeldingBuilder.medKanalreferanse("AR124")
-                .medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
+        førsteInntektsmeldingBuilder.medKanalreferanse("AR124").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());
@@ -83,14 +80,12 @@ class InntektsmeldingAggregatEntitetTest {
         var nå = LocalDateTime.now();
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
-        var sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder()
-                .medArbeidsgiver(arbeidsgiver)
-                .medInnsendingstidspunkt(nå);
+        var sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder().medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder()
-                .medKanalreferanse("AR124")
-                .medArbeidsgiver(arbeidsgiver)
-                .medInnsendingstidspunkt(nå);
+            .medKanalreferanse("AR124")
+            .medArbeidsgiver(arbeidsgiver)
+            .medInnsendingstidspunkt(nå);
 
         var inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());
@@ -108,16 +103,10 @@ class InntektsmeldingAggregatEntitetTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
         var sisteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        sisteInntektsmeldingBuilder
-                .medKanalreferanse("AR124")
-                .medArbeidsgiver(arbeidsgiver)
-                .medInnsendingstidspunkt(omTi);
+        sisteInntektsmeldingBuilder.medKanalreferanse("AR124").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(omTi);
 
         var førsteInntektsmeldingBuilder = InntektsmeldingBuilder.builder();
-        førsteInntektsmeldingBuilder
-                .medKanalreferanse("AR125")
-                .medArbeidsgiver(arbeidsgiver)
-                .medInnsendingstidspunkt(nå);
+        førsteInntektsmeldingBuilder.medKanalreferanse("AR125").medArbeidsgiver(arbeidsgiver).medInnsendingstidspunkt(nå);
 
         var inntektsmeldingAggregat = new InntektsmeldingAggregat();
         inntektsmeldingAggregat.leggTil(sisteInntektsmeldingBuilder.build());

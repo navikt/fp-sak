@@ -18,9 +18,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
  * <p>
  * (antar at dersom bruker ikke trenger antatt godkjente perioder er det sjekket av tidligere regel)
  */
-@RuleDocumentation(value = "FP_VK_23.2.2", outcomes = {
-        @RuleOutcomeDocumentation(code = SjekkTilstrekkeligOpptjeningInklAntatt.IKKE_TILSTREKKELIG_OPPTJENING_ID, result = Resultat.NEI, description = "Ikke tilstrekkelig opptjening")
-})
+@RuleDocumentation(value = "FP_VK_23.2.2", outcomes = {@RuleOutcomeDocumentation(code = SjekkTilstrekkeligOpptjeningInklAntatt.IKKE_TILSTREKKELIG_OPPTJENING_ID, result = Resultat.NEI, description = "Ikke tilstrekkelig opptjening")})
 public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<OpptjeningsvilkårMellomregning> {
 
     public static final String ID = SjekkTilstrekkeligOpptjeningInklAntatt.class.getSimpleName();
@@ -28,8 +26,8 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
     private static final int INNTEKT_RAPPORTERING_SENEST = 5;
 
     public static final String IKKE_TILSTREKKELIG_OPPTJENING_ID = "1035";
-    public static final MerknadRuleReasonRef IKKE_TILSTREKKELIG_OPPTJENING =
-        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1035, "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
+    public static final MerknadRuleReasonRef IKKE_TILSTREKKELIG_OPPTJENING = new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1035,
+        "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
 
     public SjekkTilstrekkeligOpptjeningInklAntatt() {
         super(ID);
@@ -60,7 +58,8 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
                 data.setTotalOpptjening(antattOpptjeningTidsserie);
                 return nei(IKKE_TILSTREKKELIG_OPPTJENING, opptjentPeriode);
             }
-            var totalOpptjening = new OpptjentTidslinje(Period.between(avkortetTidsserie.getMinLocalDate(), avkortetTidsserie.getMaxLocalDate().plusDays(1)), avkortetTidsserie);
+            var totalOpptjening = new OpptjentTidslinje(
+                Period.between(avkortetTidsserie.getMinLocalDate(), avkortetTidsserie.getMaxLocalDate().plusDays(1)), avkortetTidsserie);
             data.setTotalOpptjening(totalOpptjening);
             var opptjentPeriode = totalOpptjening.getOpptjentPeriode();
             if (data.sjekkErInnenforMinstePeriodeGodkjent(opptjentPeriode)) {

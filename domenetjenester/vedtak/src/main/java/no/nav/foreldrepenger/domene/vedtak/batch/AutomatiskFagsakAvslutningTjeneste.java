@@ -26,8 +26,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
     }
 
     @Inject
-    public AutomatiskFagsakAvslutningTjeneste(ProsessTaskTjeneste taskTjeneste,
-                                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    public AutomatiskFagsakAvslutningTjeneste(ProsessTaskTjeneste taskTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }

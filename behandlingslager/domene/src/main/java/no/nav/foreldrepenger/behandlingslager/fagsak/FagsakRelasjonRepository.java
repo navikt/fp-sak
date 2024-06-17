@@ -38,7 +38,8 @@ public class FagsakRelasjonRepository {
     }
 
     @Inject
-    public FagsakRelasjonRepository( EntityManager entityManager, YtelsesFordelingRepository ytelsesFordelingRepository,
+    public FagsakRelasjonRepository(EntityManager entityManager,
+                                    YtelsesFordelingRepository ytelsesFordelingRepository,
                                     FagsakLåsRepository fagsakLåsRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
@@ -70,11 +71,8 @@ public class FagsakRelasjonRepository {
 
     private Query finnRelasjonQueryHvisEksisterer(Saksnummer saksnummer) {
         var query = entityManager.createNativeQuery(
-            "SELECT fr.* FROM FAGSAK_RELASJON fr" +
-                " INNER JOIN FAGSAK fagsak ON fagsak.id IN (fr.fagsak_en_id, fr.fagsak_to_id)" +
-                " WHERE fr.AKTIV = 'J'" +
-                " AND fagsak.saksnummer = :saksnummer",
-            FagsakRelasjon.class);
+            "SELECT fr.* FROM FAGSAK_RELASJON fr" + " INNER JOIN FAGSAK fagsak ON fagsak.id IN (fr.fagsak_en_id, fr.fagsak_to_id)"
+                + " WHERE fr.AKTIV = 'J'" + " AND fagsak.saksnummer = :saksnummer", FagsakRelasjon.class);
         query.setParameter("saksnummer", saksnummer.getVerdi());
         return query;
     }
@@ -116,8 +114,8 @@ public class FagsakRelasjonRepository {
             deaktiverEksisterendeRelasjon(fagsakRelasjon);
             persisterStønadskontoberegning(stønadskontoberegning);
             var nyFagsakRelasjon = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-                stønadskontoberegning, fagsakRelasjon.getDekningsgrad(),
-                fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
+                stønadskontoberegning, fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
+                fagsakRelasjon.getAvsluttningsdato());
 
             entityManager.persist(nyFagsakRelasjon);
         }
@@ -214,8 +212,7 @@ public class FagsakRelasjonRepository {
             throw new TekniskException("FP-831923", msg);
         }
         if (fagsakEn.getAktørId().equals(fagsakTo.getAktørId())) {
-            var msg = String.format(
-                "Kan ikke koble sammen to saker med identisk aktørid. Prøver å koble sammen fagsakene %s og %s, aktør %s.",
+            var msg = String.format("Kan ikke koble sammen to saker med identisk aktørid. Prøver å koble sammen fagsakene %s og %s, aktør %s.",
                 fagsakEn.getSaksnummer(), fagsakTo.getSaksnummer(), fagsakEn.getAktørId());
             throw new TekniskException("FP-102432", msg);
         }
@@ -263,8 +260,7 @@ public class FagsakRelasjonRepository {
         Objects.requireNonNull(fagsakRelasjon, FAGSAK_QP);
 
         var nyFagsakRelasjon = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), null, fagsakRelasjon.getStønadskontoberegning().orElse(null),
-            fagsakRelasjon.getDekningsgrad(),
-            fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
+            fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
         entityManager.persist(nyFagsakRelasjon);
         fagsakLåsRepository.oppdaterLåsVersjon(fagsakLås);
         entityManager.flush();
@@ -312,7 +308,11 @@ public class FagsakRelasjonRepository {
         return new DiffEntity(traverser);
     }
 
-    public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon,
+                                                                LocalDate avsluttningsdato,
+                                                                FagsakRelasjonLås lås,
+                                                                Optional<FagsakLås> fagsak1Lås,
+                                                                Optional<FagsakLås> fagsak2Lås) {
         Objects.requireNonNull(avsluttningsdato, "avsluttningsdato");
 
         if (relasjon.getAvsluttningsdato() != null && relasjon.getAvsluttningsdato().equals(avsluttningsdato)) {
@@ -321,8 +321,8 @@ public class FagsakRelasjonRepository {
         deaktiverEksisterendeRelasjon(relasjon);
 
         var nyFagsakRelasjon = new FagsakRelasjon(relasjon.getFagsakNrEn(), relasjon.getFagsakNrTo().orElse(null),
-            relasjon.getStønadskontoberegning().orElse(null), relasjon.getDekningsgrad(),
-            relasjon.getOverstyrtDekningsgrad().orElse(null), avsluttningsdato);
+            relasjon.getStønadskontoberegning().orElse(null), relasjon.getDekningsgrad(), relasjon.getOverstyrtDekningsgrad().orElse(null),
+            avsluttningsdato);
 
         entityManager.persist(nyFagsakRelasjon);
 
@@ -334,10 +334,9 @@ public class FagsakRelasjonRepository {
 
     public List<Fagsak> finnFagsakerForAvsluttning(LocalDate dato) {
         // La saker som er unde behandling være i fred
-        var query = entityManager.createQuery("select f from Fagsak f " +
-                "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn.id, fr.fagsakNrTo.id) and fr.aktiv=true) " +
-                "where f.fagsakStatus = :lopende and fr.avsluttningsdato < :datogrense",
-            Fagsak.class)
+        var query = entityManager.createQuery(
+                "select f from Fagsak f " + "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn.id, fr.fagsakNrTo.id) and fr.aktiv=true) "
+                    + "where f.fagsakStatus = :lopende and fr.avsluttningsdato < :datogrense", Fagsak.class)
             .setParameter("datogrense", Optional.ofNullable(dato).orElseGet(LocalDate::now))
             .setParameter("lopende", FagsakStatus.LØPENDE);
 

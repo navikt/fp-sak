@@ -76,16 +76,15 @@ public class MapAktørYtelse {
 
         private YtelseBuilder mapYtelse(YtelseDto ytelseDto) {
             var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty());
-            ytelseBuilder
-                    .medYtelseGrunnlag(mapYtelseGrunnlag(ytelseDto.getGrunnlag(), ytelseBuilder.getGrunnlagBuilder()))
-                    .medYtelseType(KodeverkMapper.mapYtelseTypeFraDto(ytelseDto.getYtelseType()))
-                    .medKilde(KodeverkMapper.mapFagsystemFraDto(ytelseDto.getFagsystemDto()))
-                    .medPeriode(mapPeriode(ytelseDto.getPeriode()))
-                    .medVedtattTidspunkt(ytelseDto.getVedtattTidspunkt())
-                    .medSaksnummer(ytelseDto.getSaksnummer() == null ? null : new Saksnummer(ytelseDto.getSaksnummer()))
-                    .medStatus(KodeverkMapper.getFpsakRelatertYtelseTilstandForAbakusYtelseStatus(ytelseDto.getStatus()));
+            ytelseBuilder.medYtelseGrunnlag(mapYtelseGrunnlag(ytelseDto.getGrunnlag(), ytelseBuilder.getGrunnlagBuilder()))
+                .medYtelseType(KodeverkMapper.mapYtelseTypeFraDto(ytelseDto.getYtelseType()))
+                .medKilde(KodeverkMapper.mapFagsystemFraDto(ytelseDto.getFagsystemDto()))
+                .medPeriode(mapPeriode(ytelseDto.getPeriode()))
+                .medVedtattTidspunkt(ytelseDto.getVedtattTidspunkt())
+                .medSaksnummer(ytelseDto.getSaksnummer() == null ? null : new Saksnummer(ytelseDto.getSaksnummer()))
+                .medStatus(KodeverkMapper.getFpsakRelatertYtelseTilstandForAbakusYtelseStatus(ytelseDto.getStatus()));
             ytelseDto.getAnvisninger()
-                    .forEach(anvisning -> ytelseBuilder.medYtelseAnvist(mapYtelseAnvist(anvisning, ytelseBuilder.getAnvistBuilder())));
+                .forEach(anvisning -> ytelseBuilder.medYtelseAnvist(mapYtelseAnvist(anvisning, ytelseBuilder.getAnvistBuilder())));
             return ytelseBuilder;
         }
 
@@ -94,26 +93,25 @@ public class MapAktørYtelse {
                 return null;
             }
             if (anvisning.getAndeler() != null) {
-                anvisning.getAndeler().stream()
-                    .map(this::mapTilAnvistAndel)
-                    .forEach(anvistBuilder::leggTilYtelseAnvistAndel);
+                anvisning.getAndeler().stream().map(this::mapTilAnvistAndel).forEach(anvistBuilder::leggTilYtelseAnvistAndel);
             }
 
-            return anvistBuilder
-                    .medAnvistPeriode(mapPeriode(anvisning.getPeriode()))
-                    .medBeløp(anvisning.getBeløp())
-                    .medDagsats(anvisning.getDagsats())
-                    .medUtbetalingsgradProsent(anvisning.getUtbetalingsgrad())
-                    .build();
+            return anvistBuilder.medAnvistPeriode(mapPeriode(anvisning.getPeriode()))
+                .medBeløp(anvisning.getBeløp())
+                .medDagsats(anvisning.getDagsats())
+                .medUtbetalingsgradProsent(anvisning.getUtbetalingsgrad())
+                .build();
         }
 
         private YtelseAnvistAndel mapTilAnvistAndel(AnvistAndelDto a) {
-            return YtelseAnvistAndelBuilder.ny().medDagsats(a.getDagsats())
+            return YtelseAnvistAndelBuilder.ny()
+                .medDagsats(a.getDagsats())
                 .medInntektskategori(a.getInntektskategori())
                 .medRefusjonsgrad(a.getRefusjonsgrad())
                 .medUtbetalingsgrad(a.getUtbetalingsgrad())
                 .medArbeidsgiver(mapArbeidsgiver(a.getArbeidsgiver()))
-                .medArbeidsforholdRef(a.getArbeidsforholdId() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(a.getArbeidsforholdId()))
+                .medArbeidsforholdRef(
+                    a.getArbeidsforholdId() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(a.getArbeidsforholdId()))
                 .build();
         }
 
@@ -131,15 +129,13 @@ public class MapAktørYtelse {
             if (grunnlag == null) {
                 return null;
             }
-            grunnlagBuilder
-                    .medArbeidskategori(KodeverkMapper.mapArbeidskategoriFraDto(grunnlag.getArbeidskategoriDto()))
-                    .medDekningsgradProsent(grunnlag.getDekningsgradProsent())
-                    .medGraderingProsent(grunnlag.getGraderingProsent())
-                    .medInntektsgrunnlagProsent(grunnlag.getInntektsgrunnlagProsent())
-                    .medVedtaksDagsats(grunnlag.getVedtaksDagsats())
-                    .medOpprinneligIdentdato(grunnlag.getOpprinneligIdentDato());
-            grunnlag.getFordeling()
-                    .forEach(fordeling -> grunnlagBuilder.medYtelseStørrelse(mapYtelseStørrelse(fordeling)));
+            grunnlagBuilder.medArbeidskategori(KodeverkMapper.mapArbeidskategoriFraDto(grunnlag.getArbeidskategoriDto()))
+                .medDekningsgradProsent(grunnlag.getDekningsgradProsent())
+                .medGraderingProsent(grunnlag.getGraderingProsent())
+                .medInntektsgrunnlagProsent(grunnlag.getInntektsgrunnlagProsent())
+                .medVedtaksDagsats(grunnlag.getVedtaksDagsats())
+                .medOpprinneligIdentdato(grunnlag.getOpprinneligIdentDato());
+            grunnlag.getFordeling().forEach(fordeling -> grunnlagBuilder.medYtelseStørrelse(mapYtelseStørrelse(fordeling)));
             return grunnlagBuilder.build();
         }
 
@@ -149,11 +145,11 @@ public class MapAktørYtelse {
             }
             var arbeidsgiver = fordeling.getArbeidsgiver();
             return YtelseStørrelseBuilder.ny()
-                    .medBeløp(fordeling.getBeløp())
-                    .medErRefusjon(fordeling.getErRefusjon())
-                    .medHyppighet(KodeverkMapper.mapInntektPeriodeTypeFraDto(fordeling.getHyppighet()))
-                    .medVirksomhet(arbeidsgiver == null ? null : new OrgNummer(arbeidsgiver.getIdent()))
-                    .build();
+                .medBeløp(fordeling.getBeløp())
+                .medErRefusjon(fordeling.getErRefusjon())
+                .medHyppighet(KodeverkMapper.mapInntektPeriodeTypeFraDto(fordeling.getHyppighet()))
+                .medVirksomhet(arbeidsgiver == null ? null : new OrgNummer(arbeidsgiver.getIdent()))
+                .build();
         }
 
     }

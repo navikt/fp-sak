@@ -53,7 +53,7 @@ public class UttakGrunnlagTjeneste {
 
     private Optional<FamilieHendelse> familieHendelse(BehandlingReferanse ref) {
         var gjeldendeFamiliehendelseOpt = familieHendelseRepository.hentAggregatHvisEksisterer(ref.behandlingId())
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         if (gjeldendeFamiliehendelseOpt.isEmpty()) {
             return Optional.empty();
         }

@@ -96,7 +96,8 @@ public class BrevmalTjeneste {
     private boolean manglerInntektsmelding(Behandling behandling) {
         var arbeidsforhold = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(
             BehandlingReferanse.fra(behandling));
-        return arbeidsforhold.stream().anyMatch(af -> ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT.equals(af.inntektsmeldingStatus()));
+        return arbeidsforhold.stream()
+            .anyMatch(af -> ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT.equals(af.inntektsmeldingStatus()));
     }
 
     private boolean erÅpenBehandling(Behandling behandling) {

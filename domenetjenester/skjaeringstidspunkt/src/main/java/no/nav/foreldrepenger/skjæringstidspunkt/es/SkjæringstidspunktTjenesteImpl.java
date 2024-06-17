@@ -29,8 +29,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     @Inject
-    public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                          RegisterInnhentingIntervall endringTjeneste) {
+    public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, RegisterInnhentingIntervall endringTjeneste) {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.endringTjeneste = endringTjeneste;
     }
@@ -48,7 +47,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
      */
     private LocalDate utledSkjæringstidspunktFraOppgitteData(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat) {
         return familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .orElse(null);
     }
 
     @Override
@@ -68,19 +68,23 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
 
-        var skjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat)
-            .orElseGet(() -> utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat));
+        var skjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat).orElseGet(
+            () -> utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat));
         var gjelderFødsel = familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
-        var ytelseIntervall = skjæringstidspunkt != null ? new LocalDateInterval(skjæringstidspunkt.minusWeeks(4), skjæringstidspunkt.plusWeeks(4)) : null;
+            .map(FamilieHendelseEntitet::getGjelderFødsel)
+            .orElse(true);
+        var ytelseIntervall =
+            skjæringstidspunkt != null ? new LocalDateInterval(skjæringstidspunkt.minusWeeks(4), skjæringstidspunkt.plusWeeks(4)) : null;
 
         var builder = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medUtledetMedlemsintervall(ytelseIntervall)
             .medGjelderFødsel(gjelderFødsel);
-        familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+        familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseAggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+        familieHendelseAggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .ifPresent(builder::medBekreftetFamiliehendelsedato);
         return builder.build();
     }

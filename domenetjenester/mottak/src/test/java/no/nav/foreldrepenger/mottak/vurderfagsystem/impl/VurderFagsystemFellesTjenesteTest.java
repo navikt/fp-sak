@@ -30,7 +30,7 @@ class VurderFagsystemFellesTjenesteTest {
     private FagsakTjeneste fagsakTjenesteMock;
 
     private Fagsak fagsakFødselES = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, BehandlingslagerTestUtil.lagNavBruker(), null,
-            VurderFagsystemTestUtils.ÅPEN_SAKSNUMMER_1);
+        VurderFagsystemTestUtils.ÅPEN_SAKSNUMMER_1);
 
     @BeforeEach
     public void setup() {

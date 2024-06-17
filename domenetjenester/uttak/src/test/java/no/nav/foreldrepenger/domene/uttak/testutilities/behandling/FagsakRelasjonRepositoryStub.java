@@ -60,10 +60,8 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
         if (fagsakRelasjon == null) {
             fagsakRelasjon = opprettRelasjon(fagsak, Dekningsgrad._100);
         }
-        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            stønadskontoberegning,
-                fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
-            fagsakRelasjon.getAvsluttningsdato());
+        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null), stønadskontoberegning,
+            fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }
 
@@ -83,23 +81,21 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
         var fagsakRelasjon = finnRelasjonFor(fagsak);
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(), overstyrtVerdi, fagsakRelasjon.getAvsluttningsdato());
+            fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(), overstyrtVerdi,
+            fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
         return ny;
     }
 
     @Override
-    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak,
-                                                    Optional<FagsakRelasjon> fagsakRelasjon,
-                                                    Dekningsgrad dekningsgrad) {
+    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
         throw new IkkeImplementertForTestException();
     }
 
     @Override
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
         var fagsakRelasjon = finnRelasjonFor(fagsakEn);
-        var ny = new FagsakRelasjon(fagsakEn, fagsakTo, fagsakRelasjon.getStønadskontoberegning().orElse(null),
-                fagsakRelasjon.getDekningsgrad(),
+        var ny = new FagsakRelasjon(fagsakEn, fagsakTo, fagsakRelasjon.getStønadskontoberegning().orElse(null), fagsakRelasjon.getDekningsgrad(),
             fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsakEn, ny);
         lagre(fagsakTo, ny);

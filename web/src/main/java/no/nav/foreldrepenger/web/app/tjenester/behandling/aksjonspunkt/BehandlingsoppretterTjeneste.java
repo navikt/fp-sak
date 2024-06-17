@@ -63,7 +63,8 @@ public class BehandlingsoppretterTjeneste {
             return false;
         }
         return switch (type) {
-            case KLAGE -> behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId).stream()
+            case KLAGE -> behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId)
+                .stream()
                 .filter(Behandling::erSaksbehandlingAvsluttet)
                 .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
             case INNSYN -> true;
@@ -99,8 +100,7 @@ public class BehandlingsoppretterTjeneste {
         }
     }
 
-    private void opprettNyBehandlingFraSøknad(BehandlingÅrsakType behandlingÅrsakType,
-                                              MottattDokument sisteMottatteSøknad) {
+    private void opprettNyBehandlingFraSøknad(BehandlingÅrsakType behandlingÅrsakType, MottattDokument sisteMottatteSøknad) {
         if (sisteMottatteSøknad.getBehandlingId() != null) {
             if (sisteMottatteSøknad.getPayloadXml() == null) {
                 // For å registrere papirsøknad på nytt ....
@@ -108,8 +108,7 @@ public class BehandlingsoppretterTjeneste {
                 saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(nyMottatt, behandlingÅrsakType);
             } else {
                 var sisteBehandling = behandlingRepository.hentBehandling(sisteMottatteSøknad.getBehandlingId());
-                saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteSøknad, sisteBehandling,
-                    behandlingÅrsakType);
+                saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteSøknad, sisteBehandling, behandlingÅrsakType);
             }
         } else {
             saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(sisteMottatteSøknad, behandlingÅrsakType);
@@ -120,8 +119,8 @@ public class BehandlingsoppretterTjeneste {
         var sisteMottatteInntektsmelding = finnSisteMottatteInntektsmeldingPåFagsak(fagsakId);
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
         if (sisteMottatteInntektsmelding != null && sisteBehandling.isPresent()) {
-            saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteInntektsmelding,
-                sisteBehandling.get(), behandlingÅrsakType);
+            saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteInntektsmelding, sisteBehandling.get(),
+                behandlingÅrsakType);
         } else {
             throw ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(fagsakId);
         }
@@ -138,44 +137,39 @@ public class BehandlingsoppretterTjeneste {
     }
 
     public Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, String opprettetAv) {
-        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType())
-            .orElseThrow();
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         var kanRevurderingOpprettes = kanOppretteRevurdering(fagsak.getId());
         if (!kanRevurderingOpprettes) {
             throw kanIkkeOppretteRevurdering(fagsak.getSaksnummer());
         }
 
-        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak), opprettetAv);
+        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak),
+            opprettetAv);
     }
 
     private boolean kanOppretteRevurdering(Long fagsakId) {
         var finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId)
             .stream()
-            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(
-                b.getType()));
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
         //Strengere versjon var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsakId).orElse(null);
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
         if (finnesÅpneBehandlingerAvType || behandling == null) {
             return false;
         }
-        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-            behandling.getFagsakYtelseType()).orElseThrow();
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow();
         return revurderingTjeneste.kanRevurderingOpprettes(behandling.getFagsak());
     }
 
     private boolean kanOppretteFørstegangsbehandling(Long fagsakId) {
         var finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId)
             .stream()
-            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(
-                b.getType()));
+            .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()) || BehandlingType.REVURDERING.equals(b.getType()));
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElse(null);
-        var sisteIkkeHenlagteBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId)
-            .orElse(null);
+        var sisteIkkeHenlagteBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElse(null);
         if (finnesÅpneBehandlingerAvType || sisteBehandling == null) {
             return false;
         }
-        if (sisteIkkeHenlagteBehandling == null || FagsakYtelseType.ENGANGSTØNAD.equals(
-            sisteIkkeHenlagteBehandling.getFagsakYtelseType())) {
+        if (sisteIkkeHenlagteBehandling == null || FagsakYtelseType.ENGANGSTØNAD.equals(sisteIkkeHenlagteBehandling.getFagsakYtelseType())) {
             return true;
         }
         return Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.OPPHØR)
@@ -189,8 +183,7 @@ public class BehandlingsoppretterTjeneste {
             // Søknader lagret fra utfylte papirsøknader skal ikke hentes, altså hvis de ikke er elektronisk
             // registert og har payLoadXml
             .filter(md -> md.getElektroniskRegistrert() || md.getPayloadXml() == null)
-            .max(Comparator.comparing(MottattDokument::getMottattDato)
-                .thenComparing(MottattDokument::getOpprettetTidspunkt))
+            .max(Comparator.comparing(MottattDokument::getMottattDato).thenComparing(MottattDokument::getOpprettetTidspunkt))
             .orElse(null);
     }
 
@@ -198,8 +191,7 @@ public class BehandlingsoppretterTjeneste {
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
             .stream()
             .filter(md -> md.getDokumentType().erInntektsmelding())
-            .max(Comparator.comparing(MottattDokument::getMottattDato)
-                .thenComparing(MottattDokument::getOpprettetTidspunkt))
+            .max(Comparator.comparing(MottattDokument::getMottattDato).thenComparing(MottattDokument::getOpprettetTidspunkt))
             .orElse(null);
     }
 
@@ -218,8 +210,7 @@ public class BehandlingsoppretterTjeneste {
     }
 
     private boolean erEtterKlageGyldigValg(Long fagsakId) {
-        var klage = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE)
-            .orElse(null);
+        var klage = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE).orElse(null);
 
         // Vurdere å differensiere på KlageVurderingResultat (er tilstede) eller henlagt (resultat ikke tilstede)
         return klage != null && klage.erAvsluttet();
@@ -231,23 +222,21 @@ public class BehandlingsoppretterTjeneste {
     }
 
     private static FunksjonellException kanIkkeOppretteNyFørstegangsbehandling(Long fagsakId) {
-        return new FunksjonellException("FP-909861", "Det eksisterer allerede en åpen ytelsesbehandling eller det"
-            + " eksisterer ingen avsluttede behandlinger for fagsakId " + fagsakId);
+        return new FunksjonellException("FP-909861",
+            "Det eksisterer allerede en åpen ytelsesbehandling eller det" + " eksisterer ingen avsluttede behandlinger for fagsakId " + fagsakId);
     }
 
     private static FunksjonellException kanIkkeHenleggeÅpenBehandlingOgOppretteNyFørstegangsbehandling(Long fagsakId) {
-        return new FunksjonellException("FP-102451",
-            "Det finnes ikke en åpen ytelsesbehandling som kan henlegges " + "for fagsakId " + fagsakId);
+        return new FunksjonellException("FP-102451", "Det finnes ikke en åpen ytelsesbehandling som kan henlegges " + "for fagsakId " + fagsakId);
     }
 
     private static FunksjonellException kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(Long fagsakId) {
-        return new FunksjonellException("FP-909862",
-            "Det eksisterer ingen avsluttede klagebehandlinger " + "for fagsakId " + fagsakId);
+        return new FunksjonellException("FP-909862", "Det eksisterer ingen avsluttede klagebehandlinger " + "for fagsakId " + fagsakId);
     }
 
     private static FunksjonellException ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(Long fagsakId) {
-        var msg = String.format("FagsakId %s har ingen mottatte søknader eller "
-            + "inntektsmeldinger som kan brukes til å opprette ny førstegangsbehandling", fagsakId);
+        var msg = String.format(
+            "FagsakId %s har ingen mottatte søknader eller " + "inntektsmeldinger som kan brukes til å opprette ny førstegangsbehandling", fagsakId);
         return new FunksjonellException("FP-287882", msg);
     }
 

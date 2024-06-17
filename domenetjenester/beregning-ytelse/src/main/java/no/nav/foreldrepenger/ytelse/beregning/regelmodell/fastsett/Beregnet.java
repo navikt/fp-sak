@@ -5,7 +5,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 
 public class Beregnet extends LeafSpecification<BeregningsresultatRegelmodellMellomregning> {
 
-    public Beregnet(){
+    public Beregnet() {
         super("Beregnet");
     }
 

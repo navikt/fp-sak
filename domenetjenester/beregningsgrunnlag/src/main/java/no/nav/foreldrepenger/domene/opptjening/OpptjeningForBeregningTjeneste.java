@@ -34,7 +34,7 @@ public class OpptjeningForBeregningTjeneste {
      * Henter aktiviteter vurdert i opptjening som er relevant for beregning.
      *
      * @param behandlingReferanse Aktuell behandling referanse
-     * @param iayGrunnlag {@link InntektArbeidYtelseGrunnlag}
+     * @param iayGrunnlag         {@link InntektArbeidYtelseGrunnlag}
      * @return {@link OpptjeningsperiodeForSaksbehandling}er
      */
     List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningsaktiviteterForBeregning(BehandlingReferanse behandlingReferanse,
@@ -48,8 +48,8 @@ public class OpptjeningForBeregningTjeneste {
         }
         var opptjening = opptjeningOpt.get();
         // Sjekk på lang/kort opptjeningsperiode
-        var opptjeningsperiodeFom = opptjening.getFom().isBefore(opptjening.getTom().minusMonths(4)) ?
-            opptjening.getFom() : opptjening.getTom().minusMonths(4);
+        var opptjeningsperiodeFom = opptjening.getFom().isBefore(opptjening.getTom().minusMonths(4)) ? opptjening.getFom() : opptjening.getTom()
+            .minusMonths(4);
 
         var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.fagsakYtelseType());
         var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderOpptjening);
@@ -60,11 +60,9 @@ public class OpptjeningForBeregningTjeneste {
             .toList();
     }
 
-    public Optional<OpptjeningAktiviteter> hentOpptjeningForBeregning(BehandlingReferanse ref,
-                                                                      InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var opptjeningsPerioder = hentRelevanteOpptjeningsaktiviteterForBeregning(ref, iayGrunnlag).stream()
-            .map(this::mapOpptjeningPeriode).toList();
-        if(opptjeningsPerioder.isEmpty()) {
+    public Optional<OpptjeningAktiviteter> hentOpptjeningForBeregning(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var opptjeningsPerioder = hentRelevanteOpptjeningsaktiviteterForBeregning(ref, iayGrunnlag).stream().map(this::mapOpptjeningPeriode).toList();
+        if (opptjeningsPerioder.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new OpptjeningAktiviteter(opptjeningsPerioder));

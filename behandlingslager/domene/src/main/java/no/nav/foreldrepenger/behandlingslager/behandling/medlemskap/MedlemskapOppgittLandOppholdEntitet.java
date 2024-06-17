@@ -23,10 +23,10 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for opphold.
- *
+ * <p>
  * Implementert iht. builder pattern (ref. "Effective Java, 2. ed." J.Bloch).
  * Non-public constructors og setters, dvs. immutable.
- *
+ * <p>
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
@@ -39,7 +39,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     private Long id;
 
     @Convert(converter = Landkoder.KodeverdiConverter.class)
-    @Column(name="land", nullable = false)
+    @Column(name = "land", nullable = false)
     private Landkoder land = Landkoder.UDEFINERT;
 
     @Embedded
@@ -61,10 +61,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
 
     public MedlemskapOppgittLandOppholdEntitet(MedlemskapOppgittLandOppholdEntitet utlandsopphold) {
         this.setLand(utlandsopphold.getLand());
-        this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(
-            utlandsopphold.getPeriodeFom(),
-            utlandsopphold.getPeriodeTom()
-                );
+        this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(utlandsopphold.getPeriodeFom(), utlandsopphold.getPeriodeTom());
         this.tidligereOpphold = utlandsopphold.isTidligereOpphold();
 
         // kopier ikke oppgitt tilknytning. Det settes p.t. separat i builder (setOppgittTilknytning) for å knytte til OppgittTilknytningEntitet
@@ -120,9 +117,8 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
         if (!(obj instanceof MedlemskapOppgittLandOppholdEntitet other)) {
             return false;
         }
-        return Objects.equals(this.getLand(), other.getLand())
-                && Objects.equals(this.periode, other.periode)
-                && Objects.equals(this.tidligereOpphold, other.isTidligereOpphold());
+        return Objects.equals(this.getLand(), other.getLand()) && Objects.equals(this.periode, other.periode) && Objects.equals(this.tidligereOpphold,
+            other.isTidligereOpphold());
     }
 
 

@@ -59,8 +59,8 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
-    @Convert(converter= BeregningsgrunnlagTilstand.KodeverdiConverter.class)
-    @Column(name="steg_opprettet", nullable = false)
+    @Convert(converter = BeregningsgrunnlagTilstand.KodeverdiConverter.class)
+    @Column(name = "steg_opprettet", nullable = false)
     private BeregningsgrunnlagTilstand beregningsgrunnlagTilstand;
 
     public BeregningsgrunnlagGrunnlagEntitet() {
@@ -70,7 +70,8 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
         this.beregningsgrunnlagTilstand = grunnlag.getBeregningsgrunnlagTilstand();
         this.behandlingId = grunnlag.getBehandlingId();
         grunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::new).ifPresent(this::setBeregningsgrunnlag);
-        this.setRegisterAktiviteter(grunnlag.getRegisterAktiviteter() == null ? null : new BeregningAktivitetAggregatEntitet(grunnlag.getRegisterAktiviteter()));
+        this.setRegisterAktiviteter(
+            grunnlag.getRegisterAktiviteter() == null ? null : new BeregningAktivitetAggregatEntitet(grunnlag.getRegisterAktiviteter()));
         grunnlag.getSaksbehandletAktiviteter().map(BeregningAktivitetAggregatEntitet::new).ifPresent(this::setSaksbehandletAktiviteter);
         grunnlag.getOverstyring().map(BeregningAktivitetOverstyringerEntitet::new).ifPresent(this::setOverstyringer);
         grunnlag.getRefusjonOverstyringer().map(BeregningRefusjonOverstyringerEntitet::new).ifPresent(this::setRefusjonOverstyringer);
@@ -102,16 +103,15 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
 
     private Optional<BeregningAktivitetAggregatEntitet> getOverstyrteAktiviteter() {
         if (overstyringer != null) {
-            var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter().stream()
-                    .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
-                    .toList();
+            var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter()
+                .stream()
+                .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
+                .toList();
             var overstyrtBuilder = BeregningAktivitetAggregatEntitet.builder()
-                    .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
+                .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {
                 var overstyrtAktivitet = hentOverstyrtAktivitet(overstyringer, aktivitet);
-                var kopiert = BeregningAktivitetEntitet.kopier(aktivitet)
-                    .medPeriode(getIntervall(aktivitet, overstyrtAktivitet))
-                    .build();
+                var kopiert = BeregningAktivitetEntitet.kopier(aktivitet).medPeriode(getIntervall(aktivitet, overstyrtAktivitet)).build();
                 overstyrtBuilder.leggTilAktivitet(kopiert);
             });
             return Optional.of(overstyrtBuilder.build());
@@ -125,24 +125,25 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
      * har blitt overstyrt, og hvis ikke, så har ikke aktiviteten overstyrt.
      *
      * @param overstyringsAktiviteter OverstyringAktiviteter
-     * @param aktivitet Beregningaktivitet
+     * @param aktivitet               Beregningaktivitet
      * @return En 'BeregningAktivitetOverstyringDto' hvis 'BeregningAktivitetDto' er overstyrt.
      */
-    private Optional<BeregningAktivitetOverstyringEntitet> hentOverstyrtAktivitet(BeregningAktivitetOverstyringerEntitet overstyringsAktiviteter, BeregningAktivitetEntitet aktivitet) {
-        return overstyringsAktiviteter
-            .getOverstyringer()
+    private Optional<BeregningAktivitetOverstyringEntitet> hentOverstyrtAktivitet(BeregningAktivitetOverstyringerEntitet overstyringsAktiviteter,
+                                                                                  BeregningAktivitetEntitet aktivitet) {
+        return overstyringsAktiviteter.getOverstyringer()
             .stream()
             .filter(overstyrtAktivitet -> overstyrtAktivitet.getNøkkel().equals(aktivitet.getNøkkel()))
             .findFirst();
     }
 
 
-        /**
-         * Henter periode fra overstyrt aktivitet hvis aktivitet er overstyrt. Hvis ikke så hentes periode fra aktivitet.
-         * @param aktivitet  beregningaktivitet
-         * @param overstyring Gjeldende Overstyring
-         * @return opprinnelig eller overstyrt intervall
-         */
+    /**
+     * Henter periode fra overstyrt aktivitet hvis aktivitet er overstyrt. Hvis ikke så hentes periode fra aktivitet.
+     *
+     * @param aktivitet   beregningaktivitet
+     * @param overstyring Gjeldende Overstyring
+     * @return opprinnelig eller overstyrt intervall
+     */
     private ÅpenDatoIntervallEntitet getIntervall(BeregningAktivitetEntitet aktivitet, Optional<BeregningAktivitetOverstyringEntitet> overstyring) {
         if (overstyring.isPresent()) {
             return overstyring.get().getPeriode();
@@ -151,9 +152,7 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     }
 
     public BeregningAktivitetAggregatEntitet getGjeldendeAktiviteter() {
-        return getOverstyrteAktiviteter()
-                .or(this::getSaksbehandletAktiviteter)
-                .orElse(registerAktiviteter);
+        return getOverstyrteAktiviteter().or(this::getSaksbehandletAktiviteter).orElse(registerAktiviteter);
     }
 
     public BeregningAktivitetAggregatEntitet getOverstyrteEllerRegisterAktiviteter() {

@@ -17,8 +17,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +35,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdD
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -98,8 +97,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Path(ARBEID_OG_INNTEKTSMELDING_PART_PATH)
     @Operation(description = "Hent informasjon arbeidsforhold og tilhørende inntektsmeldinger", summary = "Returnerer info om arbeidsforhold og inntektsmeldinger tilknyttet saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "Returnerer ArbeidOgInntektsmeldingDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidOgInntektsmeldingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                          @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var ref = lagReferanse(uuidDto.getBehandlingUuid());
         return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref).orElse(null);
     }
@@ -112,11 +110,11 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         "Lagrer vurdering av manglende inntektsmelding for et enkelt arbeidsforhold, "
             + "eller manglende arbeidsforhold for en enkelt inntektsmelding.", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class)
-                                                                   @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
+    public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class) @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
         LOG.info("Lagrer valg på behandling {}", manglendeOpplysningerVurderingDto.getBehandlingUuid());
         if (manglendeOpplysningerVurderingDto.getBehandlingVersjon() != null) {
-            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manglendeOpplysningerVurderingDto.getBehandlingUuid()), manglendeOpplysningerVurderingDto.getBehandlingVersjon());
+            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manglendeOpplysningerVurderingDto.getBehandlingUuid()),
+                manglendeOpplysningerVurderingDto.getBehandlingVersjon());
         }
         var ref = lagReferanse(manglendeOpplysningerVurderingDto.getBehandlingUuid());
         arbeidsforholdInntektsmeldingMangelTjeneste.lagreManglendeOpplysningerVurdering(ref, manglendeOpplysningerVurderingDto);
@@ -128,15 +126,15 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre registrering av arbeidsforhold", summary = "Lagrer registrering av arbeidsforhold fra saksbehandler", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
-                                                 @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
+    public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class) @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
         var ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
         if (manueltArbeidsforholdDto.getBehandlingVersjon() != null) {
-            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid()), manueltArbeidsforholdDto.getBehandlingVersjon());
+            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid()),
+                manueltArbeidsforholdDto.getBehandlingVersjon());
         }
         if (endringGjelderHelmanueltArbeidsforhold(manueltArbeidsforholdDto) && !erOverstyringLovlig()) {
-            var msg = String.format(
-                    "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.behandlingId());
+            var msg = String.format("Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s",
+                ref.behandlingId());
             throw new TekniskException("FP-657812", msg);
         }
         arbeidsforholdInntektsmeldingMangelTjeneste.lagreManuelleArbeidsforhold(ref, manueltArbeidsforholdDto);
@@ -148,8 +146,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Åpner behandling for endring av vurdering i arbeid og inntektsmelding, hvis dette er mulig.", summary = "Åpner behandling for endring ved å rulle saken tilbake til korrekt steg", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response åpneForEndring(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-                                                @NotNull @Parameter(description = "BehandlingUID og versjon på behadlingen.") @Valid BehandlingIdVersjonDto behandlingIdVersjonDto) {
+    public Response åpneForEndring(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @NotNull @Parameter(description = "BehandlingUID og versjon på behadlingen.") @Valid BehandlingIdVersjonDto behandlingIdVersjonDto) {
         var behandling = behandlingRepository.hentBehandling(behandlingIdVersjonDto.getBehandlingUuid());
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, false);
@@ -173,15 +170,14 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
 
     private boolean endringGjelderHelmanueltArbeidsforhold(ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
         return manueltArbeidsforholdDto.getVurdering().equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)
-                || manueltArbeidsforholdDto.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
+            || manueltArbeidsforholdDto.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
     }
 
     public static class ManglendeInntektsmeldingVurderingAbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ManglendeOpplysningerVurderingDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
@@ -190,8 +186,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ManueltArbeidsforholdDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 

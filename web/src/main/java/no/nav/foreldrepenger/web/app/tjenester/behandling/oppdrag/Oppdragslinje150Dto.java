@@ -163,7 +163,8 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.sats = oppdragslinje150.getSats().getVerdi().longValue();
         oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats().name();
         oppdragslinje150Dto.utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad().getVerdi();
-        oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
+        oppdragslinje150Dto.refusjonInfo156 =
+            oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
         return oppdragslinje150Dto;
 
     }

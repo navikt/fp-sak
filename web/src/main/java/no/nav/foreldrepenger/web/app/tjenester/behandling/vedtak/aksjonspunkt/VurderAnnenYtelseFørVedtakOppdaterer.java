@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = VurdereAnnenYteleseFørVedtakDto.class, adapter=AksjonspunktOppdaterer.class)
+@DtoTilServiceAdapter(dto = VurdereAnnenYteleseFørVedtakDto.class, adapter = AksjonspunktOppdaterer.class)
 class VurderAnnenYtelseFørVedtakOppdaterer implements AksjonspunktOppdaterer<VurdereAnnenYteleseFørVedtakDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -30,9 +30,8 @@ class VurderAnnenYtelseFørVedtakOppdaterer implements AksjonspunktOppdaterer<Vu
 
     @Override
     public OppdateringResultat oppdater(VurdereAnnenYteleseFørVedtakDto dto, AksjonspunktOppdaterParameter param) {
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
-            .medBegrunnelse("Vurder konsekvens for ytelse",true);
+        var tekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
+            .medBegrunnelse("Vurder konsekvens for ytelse", true);
 
         var innslag = new Historikkinnslag();
         innslag.setType(HistorikkinnslagType.OPPGAVE_VEDTAK);

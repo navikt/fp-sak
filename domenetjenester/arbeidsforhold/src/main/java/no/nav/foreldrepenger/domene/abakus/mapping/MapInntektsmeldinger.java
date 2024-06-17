@@ -37,29 +37,29 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class MapInntektsmeldinger {
-    private static final Comparator<RefusjonDto> COMP_ENDRINGER_REFUSJON = Comparator
-            .comparing(RefusjonDto::getFom, Comparator.nullsLast(Comparator.naturalOrder()));
+    private static final Comparator<RefusjonDto> COMP_ENDRINGER_REFUSJON = Comparator.comparing(RefusjonDto::getFom,
+        Comparator.nullsLast(Comparator.naturalOrder()));
 
-    private static final Comparator<GraderingDto> COMP_GRADERING = Comparator
-            .comparing((GraderingDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
+    private static final Comparator<GraderingDto> COMP_GRADERING = Comparator.comparing((GraderingDto dto) -> dto.getPeriode().getFom(),
+            Comparator.nullsFirst(Comparator.naturalOrder()))
+        .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
-    private static final Comparator<NaturalytelseDto> COMP_NATURALYTELSE = Comparator
-            .comparing((NaturalytelseDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getType() == null ? null : dto.getType().getKode(), Comparator.nullsLast(Comparator.naturalOrder()));
+    private static final Comparator<NaturalytelseDto> COMP_NATURALYTELSE = Comparator.comparing((NaturalytelseDto dto) -> dto.getPeriode().getFom(),
+            Comparator.nullsFirst(Comparator.naturalOrder()))
+        .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()))
+        .thenComparing(dto -> dto.getType() == null ? null : dto.getType().getKode(), Comparator.nullsLast(Comparator.naturalOrder()));
 
-    private static final Comparator<UtsettelsePeriodeDto> COMP_UTSETTELSE = Comparator
-            .comparing((UtsettelsePeriodeDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getUtsettelseÅrsakDto() == null ? null : dto.getUtsettelseÅrsakDto().getKode(),
-                    Comparator.nullsLast(Comparator.naturalOrder()));
+    private static final Comparator<UtsettelsePeriodeDto> COMP_UTSETTELSE = Comparator.comparing(
+            (UtsettelsePeriodeDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
+        .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()))
+        .thenComparing(dto -> dto.getUtsettelseÅrsakDto() == null ? null : dto.getUtsettelseÅrsakDto().getKode(),
+            Comparator.nullsLast(Comparator.naturalOrder()));
 
-    private static final Comparator<InntektsmeldingDto> COMP_INNTEKTSMELDING = Comparator
-            .comparing((InntektsmeldingDto im) -> im.getArbeidsgiver().getIdent())
-            .thenComparing(InntektsmeldingDto::getInnsendingstidspunkt)
-            .thenComparing(im -> im.getArbeidsforholdRef() == null ? null : im.getArbeidsforholdRef().getAbakusReferanse(),
-                    Comparator.nullsLast(Comparator.naturalOrder()));
+    private static final Comparator<InntektsmeldingDto> COMP_INNTEKTSMELDING = Comparator.comparing(
+            (InntektsmeldingDto im) -> im.getArbeidsgiver().getIdent())
+        .thenComparing(InntektsmeldingDto::getInnsendingstidspunkt)
+        .thenComparing(im -> im.getArbeidsforholdRef() == null ? null : im.getArbeidsforholdRef().getAbakusReferanse(),
+            Comparator.nullsLast(Comparator.naturalOrder()));
 
     private MapInntektsmeldinger() {
         // skjul public constructor
@@ -71,14 +71,14 @@ public class MapInntektsmeldinger {
         MapTilDto() {
         }
 
-        public InntektsmeldingerDto map(ArbeidsforholdInformasjon arbeidsforholdInformasjon,
-                InntektsmeldingAggregat inntektsmeldingAggregat) {
+        public InntektsmeldingerDto map(ArbeidsforholdInformasjon arbeidsforholdInformasjon, InntektsmeldingAggregat inntektsmeldingAggregat) {
 
             return map(arbeidsforholdInformasjon, inntektsmeldingAggregat, false);
         }
 
         public InntektsmeldingerDto map(ArbeidsforholdInformasjon arbeidsforholdInformasjon,
-                InntektsmeldingAggregat inntektsmeldingAggregat, boolean validerArbeidsforholdId) {
+                                        InntektsmeldingAggregat inntektsmeldingAggregat,
+                                        boolean validerArbeidsforholdId) {
 
             if (arbeidsforholdInformasjon == null && inntektsmeldingAggregat == null) {
                 return null;
@@ -95,24 +95,25 @@ public class MapInntektsmeldinger {
                 return dto;
             }
             throw new IllegalStateException(
-                    "Utvikler-feil: Både arbeidsforholdInformasjon og inntektsmeldingAggregat må samtidig eksistere, men har arbeidsforholdInformasjon:"
-                            + arbeidsforholdInformasjon + ", inntektsmeldingAggregat=" + inntektsmeldingAggregat);
+                "Utvikler-feil: Både arbeidsforholdInformasjon og inntektsmeldingAggregat må samtidig eksistere, men har arbeidsforholdInformasjon:"
+                    + arbeidsforholdInformasjon + ", inntektsmeldingAggregat=" + inntektsmeldingAggregat);
         }
 
-        private InntektsmeldingDto mapInntektsmelding(ArbeidsforholdInformasjon arbeidsforholdInformasjon, Inntektsmelding im,
-                boolean validerArbeidsforholdId) {
+        private InntektsmeldingDto mapInntektsmelding(ArbeidsforholdInformasjon arbeidsforholdInformasjon,
+                                                      Inntektsmelding im,
+                                                      boolean validerArbeidsforholdId) {
             var arbeidsgiver = mapAktør(im.getArbeidsgiver());
             var journalpostId = new JournalpostId(im.getJournalpostId().getVerdi());
             var innsendingstidspunkt = im.getInnsendingstidspunkt();
             EksternArbeidsforholdRef eksternRef;
             try {
-                eksternRef = validerArbeidsforholdId ? arbeidsforholdInformasjon.finnEksternRaw(im.getArbeidsgiver(), im.getArbeidsforholdRef())
-                        : null;
+                eksternRef = validerArbeidsforholdId ? arbeidsforholdInformasjon.finnEksternRaw(im.getArbeidsgiver(),
+                    im.getArbeidsforholdRef()) : null;
             } catch (IllegalStateException e) {
                 if (e.getMessage().startsWith("Mangler eksternReferanse for internReferanse:")) {
                     // Sukk, må håndtere at det ligger dritt her også ..
                     LOG.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping",
-                            im.getArbeidsforholdRef());
+                        im.getArbeidsforholdRef());
                     eksternRef = null;
                 } else {
                     throw e;
@@ -123,28 +124,26 @@ public class MapInntektsmeldinger {
             var innsendingsårsak = KodeverkMapper.mapInntektsmeldingInnsendingsårsak(im.getInntektsmeldingInnsendingsårsak());
             var mottattDato = im.getMottattDato();
 
-            var inntektsmeldingDto = new InntektsmeldingDto(arbeidsgiver, journalpostId, innsendingstidspunkt, mottattDato)
-                    .medArbeidsforholdRef(arbeidsforholdsDto)
-                    .medInnsendingsårsak(innsendingsårsak)
-                    .medInntektBeløp(im.getInntektBeløp().getVerdi())
-                    .medKanalreferanse(im.getKanalreferanse())
-                    .medKildesystem(im.getKildesystem())
-                    .medRefusjonOpphører(im.getRefusjonOpphører())
-                    .medRefusjonsBeløpPerMnd(im.getRefusjonBeløpPerMnd() == null ? null : im.getRefusjonBeløpPerMnd().getVerdi())
-                    .medStartDatoPermisjon(im.getStartDatoPermisjon().orElse(null))
-                    .medNærRelasjon(im.getErNærRelasjon());
+            var inntektsmeldingDto = new InntektsmeldingDto(arbeidsgiver, journalpostId, innsendingstidspunkt, mottattDato).medArbeidsforholdRef(
+                    arbeidsforholdsDto)
+                .medInnsendingsårsak(innsendingsårsak)
+                .medInntektBeløp(im.getInntektBeløp().getVerdi())
+                .medKanalreferanse(im.getKanalreferanse())
+                .medKildesystem(im.getKildesystem())
+                .medRefusjonOpphører(im.getRefusjonOpphører())
+                .medRefusjonsBeløpPerMnd(im.getRefusjonBeløpPerMnd() == null ? null : im.getRefusjonBeløpPerMnd().getVerdi())
+                .medStartDatoPermisjon(im.getStartDatoPermisjon().orElse(null))
+                .medNærRelasjon(im.getErNærRelasjon());
 
             inntektsmeldingDto.medEndringerRefusjon(
-                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
+                im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
 
-            inntektsmeldingDto
-                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
+            inntektsmeldingDto.medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
 
-            inntektsmeldingDto.medNaturalytelser(
-                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
+            inntektsmeldingDto.medNaturalytelser(im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
 
             inntektsmeldingDto.medUtsettelsePerioder(
-                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
+                im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
 
             return inntektsmeldingDto;
         }
@@ -173,9 +172,7 @@ public class MapInntektsmeldinger {
         }
 
         private Aktør mapAktør(Arbeidsgiver arbeidsgiver) {
-            return arbeidsgiver.erAktørId()
-                    ? new AktørIdPersonident(arbeidsgiver.getAktørId().getId())
-                    : new Organisasjon(arbeidsgiver.getOrgnr());
+            return arbeidsgiver.erAktørId() ? new AktørIdPersonident(arbeidsgiver.getAktørId().getId()) : new Organisasjon(arbeidsgiver.getOrgnr());
         }
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(InternArbeidsforholdRef internRef,
@@ -194,16 +191,15 @@ public class MapInntektsmeldinger {
                 return null;
             }
             throw new IllegalStateException(
-                    "Både internArbeidsforholdRef og eksternArbeidsforholdRef må være satt (eller begge ikke satt), har nå internRef=" + internRef
-                            + ", eksternRef=" + eksternRef);
+                "Både internArbeidsforholdRef og eksternArbeidsforholdRef må være satt (eller begge ikke satt), har nå internRef=" + internRef
+                    + ", eksternRef=" + eksternRef);
         }
 
         public InntektsmeldingerDto map(Collection<InntektsmeldingBuilder> inntektsmeldingBuildere) {
             if (inntektsmeldingBuildere == null || inntektsmeldingBuildere.isEmpty()) {
                 return null;
             }
-            return new InntektsmeldingerDto()
-                    .medInntektsmeldinger(inntektsmeldingBuildere.stream().map(this::map).toList());
+            return new InntektsmeldingerDto().medInntektsmeldinger(inntektsmeldingBuildere.stream().map(this::map).toList());
         }
 
         private InntektsmeldingDto map(InntektsmeldingBuilder builder) {
@@ -216,28 +212,26 @@ public class MapInntektsmeldinger {
             var innsendingsårsak = KodeverkMapper.mapInntektsmeldingInnsendingsårsak(im.getInntektsmeldingInnsendingsårsak());
             var mottattDato = im.getMottattDato();
 
-            var inntektsmeldingDto = new InntektsmeldingDto(arbeidsgiver, journalpostId, innsendingstidspunkt, mottattDato)
-                    .medArbeidsforholdRef(arbeidsforholdsDto)
-                    .medInnsendingsårsak(innsendingsårsak)
-                    .medInntektBeløp(im.getInntektBeløp().getVerdi())
-                    .medKanalreferanse(im.getKanalreferanse())
-                    .medKildesystem(im.getKildesystem())
-                    .medRefusjonOpphører(im.getRefusjonOpphører())
-                    .medRefusjonsBeløpPerMnd(im.getRefusjonBeløpPerMnd() == null ? null : im.getRefusjonBeløpPerMnd().getVerdi())
-                    .medStartDatoPermisjon(im.getStartDatoPermisjon().orElse(null))
-                    .medNærRelasjon(im.getErNærRelasjon());
+            var inntektsmeldingDto = new InntektsmeldingDto(arbeidsgiver, journalpostId, innsendingstidspunkt, mottattDato).medArbeidsforholdRef(
+                    arbeidsforholdsDto)
+                .medInnsendingsårsak(innsendingsårsak)
+                .medInntektBeløp(im.getInntektBeløp().getVerdi())
+                .medKanalreferanse(im.getKanalreferanse())
+                .medKildesystem(im.getKildesystem())
+                .medRefusjonOpphører(im.getRefusjonOpphører())
+                .medRefusjonsBeløpPerMnd(im.getRefusjonBeløpPerMnd() == null ? null : im.getRefusjonBeløpPerMnd().getVerdi())
+                .medStartDatoPermisjon(im.getStartDatoPermisjon().orElse(null))
+                .medNærRelasjon(im.getErNærRelasjon());
 
             inntektsmeldingDto.medEndringerRefusjon(
-                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
+                im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
 
-            inntektsmeldingDto
-                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
+            inntektsmeldingDto.medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
 
-            inntektsmeldingDto.medNaturalytelser(
-                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
+            inntektsmeldingDto.medNaturalytelser(im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
 
             inntektsmeldingDto.medUtsettelsePerioder(
-                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
+                im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
 
             return inntektsmeldingDto;
         }
@@ -249,8 +243,7 @@ public class MapInntektsmeldinger {
             if (dto == null) {
                 return null;
             }
-            var inntektsmeldinger = dto.getInntektsmeldinger().stream().map(im -> mapInntektsmelding(arbeidsforholdInformasjon, im))
-                    .toList();
+            var inntektsmeldinger = dto.getInntektsmeldinger().stream().map(im -> mapInntektsmelding(arbeidsforholdInformasjon, im)).toList();
             return new InntektsmeldingAggregat(inntektsmeldinger);
         }
 
@@ -277,46 +270,38 @@ public class MapInntektsmeldinger {
             var innsendingsårsak = KodeverkMapper.mapInntektsmeldingInnsendingsårsakFraDto(dto.getInnsendingsårsak());
 
             var builder = InntektsmeldingBuilder.builder()
-                    .medJournalpostId(journalpostId)
-                    .medArbeidsgiver(arbeidsgiver)
-                    .medInnsendingstidspunkt(innsendingstidspunkt)
-                    .medBeløp(dto.getInntektBeløp())
-                    .medArbeidsforholdId(eksternRef)
-                    .medArbeidsforholdId(internRef)
-                    .medStartDatoPermisjon(dto.getStartDatoPermisjon())
-                    .medRefusjon(dto.getRefusjonsBeløpPerMnd(), dto.getRefusjonOpphører())
-                    .medKanalreferanse(dto.getKanalreferanse())
-                    .medInntektsmeldingaarsak(innsendingsårsak)
-                    .medNærRelasjon(dto.isNærRelasjon() != null && dto.isNærRelasjon())
-                    .medKildesystem(dto.getKildesystem())
-                    .medMottattDato(dto.getMottattDato());
+                .medJournalpostId(journalpostId)
+                .medArbeidsgiver(arbeidsgiver)
+                .medInnsendingstidspunkt(innsendingstidspunkt)
+                .medBeløp(dto.getInntektBeløp())
+                .medArbeidsforholdId(eksternRef)
+                .medArbeidsforholdId(internRef)
+                .medStartDatoPermisjon(dto.getStartDatoPermisjon())
+                .medRefusjon(dto.getRefusjonsBeløpPerMnd(), dto.getRefusjonOpphører())
+                .medKanalreferanse(dto.getKanalreferanse())
+                .medInntektsmeldingaarsak(innsendingsårsak)
+                .medNærRelasjon(dto.isNærRelasjon() != null && dto.isNærRelasjon())
+                .medKildesystem(dto.getKildesystem())
+                .medMottattDato(dto.getMottattDato());
 
-            dto.getEndringerRefusjon().stream()
-                    .map(eir -> new Refusjon(eir.getRefusjonsbeløpMnd(), eir.getFom()))
-                    .forEach(builder::leggTil);
+            dto.getEndringerRefusjon().stream().map(eir -> new Refusjon(eir.getRefusjonsbeløpMnd(), eir.getFom())).forEach(builder::leggTil);
 
-            dto.getGraderinger().stream()
-                    .map(gr -> {
-                        var periode = gr.getPeriode();
-                        return new Gradering(periode.getFom(), periode.getTom(), gr.getArbeidstidProsent());
-                    })
-                    .forEach(builder::leggTil);
+            dto.getGraderinger().stream().map(gr -> {
+                var periode = gr.getPeriode();
+                return new Gradering(periode.getFom(), periode.getTom(), gr.getArbeidstidProsent());
+            }).forEach(builder::leggTil);
 
-            dto.getNaturalytelser().stream()
-                    .map(ny -> {
-                        var periode = ny.getPeriode();
-                        var naturalYtelseType = KodeverkMapper.mapNaturalYtelseFraDto(ny.getType());
-                        return new NaturalYtelse(periode.getFom(), periode.getTom(), ny.getBeløpPerMnd(), naturalYtelseType);
-                    })
-                    .forEach(builder::leggTil);
+            dto.getNaturalytelser().stream().map(ny -> {
+                var periode = ny.getPeriode();
+                var naturalYtelseType = KodeverkMapper.mapNaturalYtelseFraDto(ny.getType());
+                return new NaturalYtelse(periode.getFom(), periode.getTom(), ny.getBeløpPerMnd(), naturalYtelseType);
+            }).forEach(builder::leggTil);
 
-            dto.getUtsettelsePerioder().stream()
-                    .map(up -> {
-                        var periode = up.getPeriode();
-                        var utsettelseÅrsak = KodeverkMapper.mapUtsettelseÅrsakFraDto(up.getUtsettelseÅrsakDto());
-                        return UtsettelsePeriode.utsettelse(periode.getFom(), periode.getTom(), utsettelseÅrsak);
-                    })
-                    .forEach(builder::leggTil);
+            dto.getUtsettelsePerioder().stream().map(up -> {
+                var periode = up.getPeriode();
+                var utsettelseÅrsak = KodeverkMapper.mapUtsettelseÅrsakFraDto(up.getUtsettelseÅrsakDto());
+                return UtsettelsePeriode.utsettelse(periode.getFom(), periode.getTom(), utsettelseÅrsak);
+            }).forEach(builder::leggTil);
 
             return builder.build();
         }

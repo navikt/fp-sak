@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,8 +15,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class OpprettSakTjeneste {
@@ -40,7 +40,8 @@ public class OpprettSakTjeneste {
     }
 
     private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, AktørId bruker) {
-        return fagsakTjeneste.hentJournalpost(journalpostId).map(Journalpost::getFagsak)
+        return fagsakTjeneste.hentJournalpost(journalpostId)
+            .map(Journalpost::getFagsak)
             .orElseGet(() -> opprettSakVL(bruker, ytelseType, journalpostId));
     }
 
@@ -77,8 +78,7 @@ public class OpprettSakTjeneste {
                 return;
             }
             //Knyttet til en annen fagsak
-            throw journalpostAlleredeKnyttetTilAnnenFagsak(journalpostId, knyttetTilSaksnummer,
-                saksnummer.getVerdi());
+            throw journalpostAlleredeKnyttetTilAnnenFagsak(journalpostId, knyttetTilSaksnummer, saksnummer.getVerdi());
         }
 
         //HER: Finnes ikke knytnign mellom journalpost og sak. La oss oprpette en:
@@ -98,8 +98,9 @@ public class OpprettSakTjeneste {
     private static TekniskException journalpostAlleredeKnyttetTilAnnenFagsak(JournalpostId journalPostId,
                                                                              Saksnummer tilknyttetSak,
                                                                              String forsøktSak) {
-        var msg = String.format("Journalpost-Fagsak knytning finnes allerede. Journalpost %s er knyttet "
-            + "mot fagsak %s. Forsøkt knyttet mot sak %s", journalPostId, tilknyttetSak, forsøktSak);
+        var msg = String.format(
+            "Journalpost-Fagsak knytning finnes allerede. Journalpost %s er knyttet " + "mot fagsak %s. Forsøkt knyttet mot sak %s", journalPostId,
+            tilknyttetSak, forsøktSak);
         return new TekniskException("FP-863070", msg);
     }
 

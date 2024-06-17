@@ -41,10 +41,12 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
 
     @ChangeTracked
     @Convert(converter = ReferanseType.KodeverdiConverter.class)
-    @Column(name="referanse_type")
+    @Column(name = "referanse_type")
     private ReferanseType aktivitetReferanseType = ReferanseType.UDEFINERT;
 
-    /** Custom aktivitet referanse. Form og innhold avhenger av #aktivitetType . */
+    /**
+     * Custom aktivitet referanse. Form og innhold avhenger av #aktivitetType .
+     */
     @ChangeTracked
     @Column(name = "aktivitet_referanse")
     private String aktivitetReferanse;
@@ -58,13 +60,19 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
         // fur hibernate
     }
 
-    public OpptjeningAktivitet(LocalDate fom, LocalDate tom, OpptjeningAktivitetType aktivitetType,
+    public OpptjeningAktivitet(LocalDate fom,
+                               LocalDate tom,
+                               OpptjeningAktivitetType aktivitetType,
                                OpptjeningAktivitetKlassifisering klassifisering) {
         this(fom, tom, aktivitetType, klassifisering, null, null);
     }
 
-    public OpptjeningAktivitet(LocalDate fom, LocalDate tom, OpptjeningAktivitetType aktivitetType,
-                               OpptjeningAktivitetKlassifisering klassifisering, String aktivitetReferanse, ReferanseType aktivitetReferanseType) {
+    public OpptjeningAktivitet(LocalDate fom,
+                               LocalDate tom,
+                               OpptjeningAktivitetType aktivitetType,
+                               OpptjeningAktivitetKlassifisering klassifisering,
+                               String aktivitetReferanse,
+                               ReferanseType aktivitetReferanseType) {
         Objects.requireNonNull(fom, "fom");
         Objects.requireNonNull(tom, "tom");
         Objects.requireNonNull(aktivitetType, "aktivitetType");
@@ -81,15 +89,16 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
         }
     }
 
-    /** copy constructor - kun data uten metadata som aktiv/endretAv etc. */
+    /**
+     * copy constructor - kun data uten metadata som aktiv/endretAv etc.
+     */
     public OpptjeningAktivitet(OpptjeningAktivitet annen) {
 
         this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(annen.getFom(), annen.getTom());
         this.aktivitetReferanse = annen.getAktivitetReferanse();
         this.aktivitetType = annen.getAktivitetType();
         this.klassifisering = annen.getKlassifisering();
-        this.aktivitetReferanseType = annen.getAktivitetReferanseType() == null ? ReferanseType.UDEFINERT
-            : annen.getAktivitetReferanseType();
+        this.aktivitetReferanseType = annen.getAktivitetReferanseType() == null ? ReferanseType.UDEFINERT : annen.getAktivitetReferanseType();
 
     }
 
@@ -127,12 +136,10 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
         }
 
         var other = (OpptjeningAktivitet) obj;
-        return Objects.equals(periode, other.periode)
-            && Objects.equals(aktivitetType, other.aktivitetType)
-            && Objects.equals(aktivitetReferanse, other.aktivitetReferanse)
-            && Objects.equals(aktivitetReferanseType, other.aktivitetReferanseType)
-        // tar ikke med klassifisering, da det ikke er del av dette objektets identitet
-        ;
+        return Objects.equals(periode, other.periode) && Objects.equals(aktivitetType, other.aktivitetType) && Objects.equals(aktivitetReferanse,
+            other.aktivitetReferanse) && Objects.equals(aktivitetReferanseType, other.aktivitetReferanseType)
+            // tar ikke med klassifisering, da det ikke er del av dette objektets identitet
+            ;
     }
 
     @Override
@@ -147,12 +154,9 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-            + "<aktivitetType=" + aktivitetType
-            + (aktivitetReferanse == null ? "" : ", aktivitetReferanse[" + aktivitetReferanseType + "]=" + aktivitetReferanse)
-            + ", klassifisering=" + klassifisering
-            + " [" + periode.getFomDato() + ", " + periode.getTomDato() + "]"
-            + ">";
+        return getClass().getSimpleName() + "<aktivitetType=" + aktivitetType + (
+            aktivitetReferanse == null ? "" : ", aktivitetReferanse[" + aktivitetReferanseType + "]=" + aktivitetReferanse) + ", klassifisering="
+            + klassifisering + " [" + periode.getFomDato() + ", " + periode.getTomDato() + "]" + ">";
     }
 
 }

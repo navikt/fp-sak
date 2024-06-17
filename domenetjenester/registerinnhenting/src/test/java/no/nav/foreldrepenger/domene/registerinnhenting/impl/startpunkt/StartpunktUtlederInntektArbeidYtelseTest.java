@@ -22,8 +22,7 @@ class StartpunktUtlederInntektArbeidYtelseTest {
             .medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusYears(1)))
             .medVirksomhet(OrgNummer.KUNSTIG_ORG)
             .medVirksomhetType(VirksomhetType.ANNEN);
-        var oppgitt1 = OppgittOpptjeningBuilder.ny()
-            .leggTilEgenNæring(næring1.build());
+        var oppgitt1 = OppgittOpptjeningBuilder.ny().leggTilEgenNæring(næring1.build());
 
         var næring2 = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusYears(1)))
@@ -31,8 +30,7 @@ class StartpunktUtlederInntektArbeidYtelseTest {
             .medVirksomhetType(VirksomhetType.ANNEN)
             .medNyoppstartet(true)
             .medBruttoInntekt(new BigDecimal(500000));
-        var oppgitt2 = OppgittOpptjeningBuilder.ny()
-            .leggTilEgenNæring(næring2.build());
+        var oppgitt2 = OppgittOpptjeningBuilder.ny().leggTilEgenNæring(næring2.build());
 
 
         assertThat(IAYGrunnlagDiff.erEndringPåOppgittOpptjening(Optional.of(oppgitt1.build()), Optional.of(oppgitt2.build()))).isTrue();

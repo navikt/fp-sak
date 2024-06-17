@@ -48,14 +48,13 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR,
-                BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         // Dto
-        var overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(
-                false, "test overstyring av inngangsvilkår far/medmor", Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
+        var overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(false, "test overstyring av inngangsvilkår far/medmor",
+            Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -76,8 +75,8 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR);
 
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
 
         assertThat(aksjonspunktSet).hasSize(1);
     }

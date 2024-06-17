@@ -60,8 +60,8 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
 
         var gruppertePerioder = grupperPerioder(bekreftedeOpptjeningsaktiviteter);
         for (var aktivitet : gruppertePerioder.entrySet()) {
-            var yrkesaktivitetBuilder = getYrkesaktivitetBuilder(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder,
-                aktivitet.getKey(), kodeRelasjonMap.get(aktivitet.getKey().opptjeningAktivitetType()));
+            var yrkesaktivitetBuilder = getYrkesaktivitetBuilder(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder, aktivitet.getKey(),
+                kodeRelasjonMap.get(aktivitet.getKey().opptjeningAktivitetType()));
             var ansettelserSomSkalErstattes = getNettoPerioderSomSkalErstattes(aktivitet.getValue());
             ansettelserSomSkalErstattes.forEach(yrkesaktivitetBuilder::fjernAnsettelsesPeriode);
             for (var periode : aktivitet.getValue()) {
@@ -73,7 +73,8 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
                     yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder);
                     overstyrtBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
                 }
-                if (yrkesaktivitetBuilder.harIngenAvtaler() && yrkesaktivitetBuilder.harIngenAnsettelsesPerioder() && yrkesaktivitetBuilder.getErOppdatering()) {
+                if (yrkesaktivitetBuilder.harIngenAvtaler() && yrkesaktivitetBuilder.harIngenAnsettelsesPerioder()
+                    && yrkesaktivitetBuilder.getErOppdatering()) {
                     // Finnes perioden i builder så skal den fjernes.
                     overstyrtBuilder.fjernYrkesaktivitetHvisFinnes(yrkesaktivitetBuilder);
                 }
@@ -186,7 +187,8 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
     private YrkesaktivitetBuilder getYrkesaktivitetBuilderForArbeid(Long behandlingId,
                                                                     AktørId aktørId,
                                                                     Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
-                                                                    InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder, Set<ArbeidType> arbeidType,
+                                                                    InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder,
+                                                                    Set<ArbeidType> arbeidType,
                                                                     Opptjeningsnøkkel opptjeningsnøkkel) {
         var builder = overstyrtBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
 
@@ -204,8 +206,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
     }
 
     private static Map<GrupperingNøkkel, List<BekreftOpptjeningPeriodeDto>> grupperPerioder(Collection<BekreftOpptjeningPeriodeDto> perioder) {
-        return perioder.stream()
-            .collect(Collectors.groupingBy(BekreftOpptjeningPeriodeAksjonspunkt.GrupperingNøkkel::new));
+        return perioder.stream().collect(Collectors.groupingBy(BekreftOpptjeningPeriodeAksjonspunkt.GrupperingNøkkel::new));
     }
 
     private static Opptjeningsnøkkel utledOpptjeningsnøkkel(String arbeidsgiverReferanse, InternArbeidsforholdRef ref) {

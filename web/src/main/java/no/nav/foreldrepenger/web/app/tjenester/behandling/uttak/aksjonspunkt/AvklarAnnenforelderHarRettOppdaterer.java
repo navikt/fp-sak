@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenf
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarAnnenforelderHarRettDto.class, adapter = AksjonspunktOppdaterer.class)
-public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdaterer<AvklarAnnenforelderHarRettDto>  {
+public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdaterer<AvklarAnnenforelderHarRettDto> {
 
     private FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste;
 
@@ -30,14 +30,15 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
         var annenforelderHarRett = dto.getAnnenforelderHarRett();
-        var annenForelderHarRettEØS = TRUE.equals(annenforelderHarRett) && dto.getAnnenForelderHarRettEØS() != null ? Boolean.FALSE : dto.getAnnenForelderHarRettEØS();
-        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
-        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
+        var annenForelderHarRettEØS =
+            TRUE.equals(annenforelderHarRett) && dto.getAnnenForelderHarRettEØS() != null ? Boolean.FALSE : dto.getAnnenForelderHarRettEØS();
+        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
+            annenForelderHarRettEØS);
+        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
+            annenForelderHarRettEØS);
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
-        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
+        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
+            annenForelderHarRettEØS);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 

@@ -35,17 +35,15 @@ public class YtelserGrunnlagBygger {
 
     private Optional<Pleiepenger> getPleiepengerMedInnleggelse(UttakInput uttakInput) {
         var iayGrunnlag = uttakInput.getIayGrunnlag();
-        var aktørYtelseFraRegister = iayGrunnlag.getAktørYtelseFraRegister(
-            uttakInput.getBehandlingReferanse().aktørId());
+        var aktørYtelseFraRegister = iayGrunnlag.getAktørYtelseFraRegister(uttakInput.getBehandlingReferanse().aktørId());
         if (aktørYtelseFraRegister.isEmpty()) {
             return Optional.empty();
         }
 
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
 
-        var perioder = pleiepengerAnvistePerioderMedUtbetaling(aktørYtelseFraRegister.get())
-            .map(ya -> new PleiepengerPeriode(ya.getAnvistFOM(), ya.getAnvistTOM(), erInnlagt(ya, fpGrunnlag)))
-            .toList();
+        var perioder = pleiepengerAnvistePerioderMedUtbetaling(aktørYtelseFraRegister.get()).map(
+            ya -> new PleiepengerPeriode(ya.getAnvistFOM(), ya.getAnvistTOM(), erInnlagt(ya, fpGrunnlag))).toList();
         var slåttSammen = slåSammenLike(perioder);
         return Optional.of(new Pleiepenger(slåttSammen));
     }
@@ -71,11 +69,12 @@ public class YtelserGrunnlagBygger {
     }
 
     private Stream<YtelseAnvist> pleiepengerAnvistePerioderMedUtbetaling(AktørYtelse aktørYtelseFraRegister) {
-        return aktørYtelseFraRegister.getAlleYtelser().stream()
+        return aktørYtelseFraRegister.getAlleYtelser()
+            .stream()
             .filter(y -> K9SAK.equals(y.getKilde()))
             .filter(y -> RelatertYtelseType.PLEIEPENGER.contains(y.getRelatertYtelseType()))
-            .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
-                .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall()));
+            .flatMap(
+                ytelse -> ytelse.getYtelseAnvist().stream().filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall()));
     }
 
     private boolean erInnlagt(YtelseAnvist ya, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -87,8 +86,9 @@ public class YtelserGrunnlagBygger {
         if (perioderMedInnleggelse.isEmpty()) {
             return false;
         }
-        return perioderMedInnleggelse.get().getInnleggelser().stream()
-            .anyMatch(p -> fraOgMedTilOgMed(ya.getAnvistFOM(), ya.getAnvistTOM()).erOmsluttetAv(p.getPeriode())
-        );
+        return perioderMedInnleggelse.get()
+            .getInnleggelser()
+            .stream()
+            .anyMatch(p -> fraOgMedTilOgMed(ya.getAnvistFOM(), ya.getAnvistTOM()).erOmsluttetAv(p.getPeriode()));
     }
 }

@@ -31,7 +31,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 
-/** Repository for å håndtere kobling mellom Fagsak (og Behandling) mot Prosess Tasks. */
+/**
+ * Repository for å håndtere kobling mellom Fagsak (og Behandling) mot Prosess Tasks.
+ */
 @ApplicationScoped
 public class FagsakProsessTaskRepository {
 
@@ -45,7 +47,7 @@ public class FagsakProsessTaskRepository {
     }
 
     @Inject
-    public FagsakProsessTaskRepository( EntityManager entityManager, ProsessTaskTjeneste taskTjeneste) {
+    public FagsakProsessTaskRepository(EntityManager entityManager, ProsessTaskTjeneste taskTjeneste) {
         this.entityManager = entityManager;
         this.taskTjeneste = taskTjeneste;
     }
@@ -53,15 +55,15 @@ public class FagsakProsessTaskRepository {
 
     public void lagre(FagsakProsessTask fagsakProsessTask) {
         var ptData = taskTjeneste.finn(fagsakProsessTask.getProsessTaskId());
-        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
+        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(),
+            fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
         var em = getEntityManager();
         em.persist(fagsakProsessTask);
         em.flush();
     }
 
     public Optional<FagsakProsessTask> hent(Long prosessTaskId, boolean lås) {
-        var query = getEntityManager().createQuery("from FagsakProsessTask fpt where fpt.prosessTaskId=:prosessTaskId",
-            FagsakProsessTask.class);
+        var query = getEntityManager().createQuery("from FagsakProsessTask fpt where fpt.prosessTaskId=:prosessTaskId", FagsakProsessTask.class);
         query.setParameter("prosessTaskId", prosessTaskId);
         if (lås) {
             query.setLockMode(LockModeType.PESSIMISTIC_FORCE_INCREMENT);
@@ -71,7 +73,8 @@ public class FagsakProsessTaskRepository {
 
     public void fjern(Long fagsakId, Long prosessTaskId, Long gruppeSekvensNr) {
         var ptData = taskTjeneste.finn(prosessTaskId);
-        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
+        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(),
+            gruppeSekvensNr);
         var em = getEntityManager();
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
         query.setParameter("prosessTaskId", prosessTaskId);
@@ -82,13 +85,17 @@ public class FagsakProsessTaskRepository {
 
     public void fjernForAvsluttedeBehandlinger() {
         var em = getEntityManager();
-        var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK fp where fp.id in ( select fpt.id from FAGSAK_PROSESS_TASK fpt join BEHANDLING b on fpt.behandling_id=b.id where behandling_status = :avsluttet )");
+        var query = em.createNativeQuery(
+            "delete from FAGSAK_PROSESS_TASK fp where fp.id in ( select fpt.id from FAGSAK_PROSESS_TASK fpt join BEHANDLING b on fpt.behandling_id=b.id where behandling_status = :avsluttet )");
         query.setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode());
         query.executeUpdate();
         em.flush();
     }
 
-    public List<ProsessTaskData> finnAlleForAngittSøk(Long fagsakId, Long behandlingId, String gruppeId, Collection<ProsessTaskStatus> statuser,
+    public List<ProsessTaskData> finnAlleForAngittSøk(Long fagsakId,
+                                                      Long behandlingId,
+                                                      String gruppeId,
+                                                      Collection<ProsessTaskStatus> statuser,
                                                       LocalDateTime nesteKjoeringFraOgMed,
                                                       LocalDateTime nesteKjoeringTilOgMed) {
 
@@ -96,18 +103,13 @@ public class FagsakProsessTaskRepository {
 
         // native sql for å håndtere join og subselect,
         // samt cast til hibernate spesifikk håndtering av parametere som kan være NULL
-        @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager
-            .createNativeQuery(
-                "SELECT pt.* FROM PROSESS_TASK pt"
-                    + " INNER JOIN FAGSAK_PROSESS_TASK fpt ON fpt.prosess_task_id = pt.id"
-                    + " WHERE pt.status IN (:statuses)"
-                    + " AND pt.task_gruppe = coalesce(:gruppe, pt.task_gruppe)"
-                    + " AND (pt.neste_kjoering_etter IS NULL"
-                    + "      OR ("
-                    + "           pt.neste_kjoering_etter >= cast(:nesteKjoeringFraOgMed as timestamp(0)) AND pt.neste_kjoering_etter <= cast(:nesteKjoeringTilOgMed as timestamp(0))"
-                    + "      ))"
-                    + " AND fpt.fagsak_id = :fagsakId AND fpt.behandling_id = coalesce(:behandlingId, fpt.behandling_id)",
-                ProsessTaskEntitet.class);
+        @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager.createNativeQuery(
+            "SELECT pt.* FROM PROSESS_TASK pt" + " INNER JOIN FAGSAK_PROSESS_TASK fpt ON fpt.prosess_task_id = pt.id"
+                + " WHERE pt.status IN (:statuses)" + " AND pt.task_gruppe = coalesce(:gruppe, pt.task_gruppe)"
+                + " AND (pt.neste_kjoering_etter IS NULL" + "      OR ("
+                + "           pt.neste_kjoering_etter >= cast(:nesteKjoeringFraOgMed as timestamp(0)) AND pt.neste_kjoering_etter <= cast(:nesteKjoeringTilOgMed as timestamp(0))"
+                + "      ))" + " AND fpt.fagsak_id = :fagsakId AND fpt.behandling_id = coalesce(:behandlingId, fpt.behandling_id)",
+            ProsessTaskEntitet.class);
 
         query.setParameter("statuses", statusNames)
             .setParameter("gruppe", gruppeId, StandardBasicTypes.STRING)
@@ -142,7 +144,7 @@ public class FagsakProsessTaskRepository {
         var eksisterendeTaskTyper = eksisterendeTasks.stream().map(ProsessTaskData::taskType).collect(Collectors.toSet());
 
         if (feilet.isEmpty()) {
-            if(eksisterendeTaskTyper.containsAll(nyeTaskTyper)){
+            if (eksisterendeTaskTyper.containsAll(nyeTaskTyper)) {
                 return eksisterendeTasks.get(0).getGruppe();
             }
             return taskTjeneste.lagre(gruppe);
@@ -194,15 +196,16 @@ public class FagsakProsessTaskRepository {
             }
             // Dersom den ikke er NULL er den kun tillatt dersom den matcher laveste gruppe_sekvensnr for Fagsak i
             // FAGSAK_PROSESS_TASK tabell.
-            var query = getEntityManager().createQuery("from FagsakProsessTask fpt " +
-                    "where fpt.fagsakId=:fagsakId and gruppeSekvensNr is not null " +
-                    "order by gruppeSekvensNr ",
+            var query = getEntityManager().createQuery(
+                "from FagsakProsessTask fpt " + "where fpt.fagsakId=:fagsakId and gruppeSekvensNr is not null " + "order by gruppeSekvensNr ",
                 FagsakProsessTask.class);
             query.setParameter("fagsakId", fagsakId);
 
-            var førsteFagsakProsessTask = query.getResultList().stream()
+            var førsteFagsakProsessTask = query.getResultList()
+                .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Skal ikke være mulig å havne her, da eksistens av matchende fagsaktask er verifisert ovenfor."));
+                .orElseThrow(
+                    () -> new IllegalStateException("Skal ikke være mulig å havne her, da eksistens av matchende fagsaktask er verifisert ovenfor."));
             if (!førsteFagsakProsessTask.getGruppeSekvensNr().equals(fagsakProsessTask.getGruppeSekvensNr())) {
                 // Den første tasken (sortert på gruppe_sekvensnr) er ikke samme som gjeldende => en blokkerende task
                 return Optional.of(førsteFagsakProsessTask);
@@ -214,7 +217,9 @@ public class FagsakProsessTaskRepository {
 
     }
 
-    /** Observerer og vedlikeholder relasjon mellom fagsak og prosess task for enklere søk (dvs. fjerner relasjon når FERDIG). */
+    /**
+     * Observerer og vedlikeholder relasjon mellom fagsak og prosess task for enklere søk (dvs. fjerner relasjon når FERDIG).
+     */
     public void observeProsessTask(@Observes ProsessTaskEvent ptEvent) {
 
         var fagsakId = ptEvent.getFagsakId();

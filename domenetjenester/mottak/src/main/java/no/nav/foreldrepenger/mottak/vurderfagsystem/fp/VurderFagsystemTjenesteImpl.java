@@ -71,17 +71,19 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             LOG.info("VurderFagsystem FP strukturert søknad {} mer enn 1 åpen sak {}", vurderFagsystem.getJournalpostIdLog(), åpneSaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
-        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
+        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType)
+            .stream()
             .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(vurderFagsystem, s))
             .toList();
         // Mønster av 1 sak basert på inntektsmelding som blir henlagt ila siste 10 mnd. Bruk saken hvis fersk nok IM.
         var potensiellImSak = sakOpprettetInnenIntervall.size() == 1 ? sakOpprettetInnenIntervall.get(0) : null;
         if (potensiellImSak != null && fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(potensiellImSak)) {
-            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, potensiellImSak) ?
-                new BehandlendeFagsystem(VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) :  new BehandlendeFagsystem(VEDTAKSLØSNING);
+            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, potensiellImSak) ? new BehandlendeFagsystem(
+                VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         if (!sakOpprettetInnenIntervall.isEmpty()) {
-            LOG.info("VurderFagsystem FP strukturert søknad {} nyere sak enn 10mnd for {}", vurderFagsystem.getJournalpostIdLog(), sakOpprettetInnenIntervall);
+            LOG.info("VurderFagsystem FP strukturert søknad {} nyere sak enn 10mnd for {}", vurderFagsystem.getJournalpostIdLog(),
+                sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -98,11 +100,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         var kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
-        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType()
+            && kompatibleFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
-        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
+        if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId())
+            || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
             // Inntil videre kan man ikke se periode. OBS på forskjell mot ES: FP-saker lever mye lenger.
             LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling a for {}", vurderFagsystem.getJournalpostIdLog());
             return new BehandlendeFagsystem(MANUELL_VURDERING);

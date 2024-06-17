@@ -13,29 +13,28 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
 
-    KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING", "Saksbehandler kontakter arbeidsgiver for å avklare manglende inntektsmelding"),
+    KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING",
+        "Saksbehandler kontakter arbeidsgiver for å avklare manglende inntektsmelding"),
     FORTSETT_UTEN_INNTEKTSMELDING("FORTSETT_UTEN_INNTEKTSMELDING", "Behandlingen kan fortsette uten inntektsmelding for dette arbeidsforholdet"),
 
-    KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD", "Saksbehandler kontakter arbeidsgiver for å avklare manglende arbeidsforhold"),
-    IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING("IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING", "Arbeidsforhold som tilhører inntetksmeldingen skal ikke opprettes manuelt."),
-    OPPRETT_BASERT_PÅ_INNTEKTSMELDING("OPPRETT_BASERT_PÅ_INNTEKTSMELDING", "Arbeidsforholdet er opprettet av saksbehandler på bakgrunn av motatt inntektsmelding"),
+    KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD",
+        "Saksbehandler kontakter arbeidsgiver for å avklare manglende arbeidsforhold"),
+    IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING("IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING",
+        "Arbeidsforhold som tilhører inntetksmeldingen skal ikke opprettes manuelt."),
+    OPPRETT_BASERT_PÅ_INNTEKTSMELDING("OPPRETT_BASERT_PÅ_INNTEKTSMELDING",
+        "Arbeidsforholdet er opprettet av saksbehandler på bakgrunn av motatt inntektsmelding"),
 
-    MANUELT_OPPRETTET_AV_SAKSBEHANDLER("MANUELT_OPPRETTET_AV_SAKSBEHANDLER", "Arbeidsforholdet er manuelt opprettet" +
-        " av sksbehandler og skal brukes videre i behandlingen."),
-    FJERN_FRA_BEHANDLINGEN("FJERN_FRA_BEHANDLINGEN", "Saksbehandler har slettet dette arbeidsforholdet fra behandlingen." +
-        " Kan kun velges for arbeidsforhold som er manuelt opprettet, ikke registerdata."),
+    MANUELT_OPPRETTET_AV_SAKSBEHANDLER("MANUELT_OPPRETTET_AV_SAKSBEHANDLER",
+        "Arbeidsforholdet er manuelt opprettet" + " av sksbehandler og skal brukes videre i behandlingen."),
+    FJERN_FRA_BEHANDLINGEN("FJERN_FRA_BEHANDLINGEN", "Saksbehandler har slettet dette arbeidsforholdet fra behandlingen."
+        + " Kan kun velges for arbeidsforhold som er manuelt opprettet, ikke registerdata."),
 
     // Følgende kodeverk skal ikke brukes til annet enn visning av valg gjort i gammelt aksjonspunkt (5080)
-    @Deprecated
-    SLÅTT_SAMMEN_MED_ANNET("SLÅTT_SAMMEN_MED_ANNET", "Arbeidsforholdet er slått sammen med et annet"),
-    @Deprecated
-    BRUK_MED_OVERSTYRT_PERIODE("BRUK_MED_OVERSTYRT_PERIODE", "Bruk arbeidsforholdet med overstyrt periode"),
-    @Deprecated
-    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Inntekten til arbeidsforholdet skal ikke være med i beregningsgrunnlaget"),
-    @Deprecated
-    BRUK("BRUK", "Bruk"),
-    @Deprecated
-    NYTT_ARBEIDSFORHOLD("NYTT_ARBEIDSFORHOLD", "Arbeidsforholdet er ansett som nytt"),
+    @Deprecated SLÅTT_SAMMEN_MED_ANNET("SLÅTT_SAMMEN_MED_ANNET", "Arbeidsforholdet er slått sammen med et annet"),
+    @Deprecated BRUK_MED_OVERSTYRT_PERIODE("BRUK_MED_OVERSTYRT_PERIODE", "Bruk arbeidsforholdet med overstyrt periode"),
+    @Deprecated INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Inntekten til arbeidsforholdet skal ikke være med i beregningsgrunnlaget"),
+    @Deprecated BRUK("BRUK", "Bruk"),
+    @Deprecated NYTT_ARBEIDSFORHOLD("NYTT_ARBEIDSFORHOLD", "Arbeidsforholdet er ansett som nytt"),
 
     UDEFINERT("-", "Ikke definert"),
     ;

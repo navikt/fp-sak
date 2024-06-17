@@ -37,13 +37,8 @@ class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandlingTest 
     void setUp() {
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.køKontroller = Mockito.mock(KøKontroller.class);
-        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
-            repositoryProvider.getBehandlingRepository(),
-            dokumentmottakerFelles,
-            behandlingsoppretterSpied,
-            kompletthetskontroller,
-            køKontroller, fpUttakTjeneste,
-                behandlingRevurderingTjeneste);
+        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(repositoryProvider.getBehandlingRepository(), dokumentmottakerFelles,
+            behandlingsoppretterSpied, kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
     }
 
     @Test
@@ -53,39 +48,26 @@ class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandlingTest 
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var taskrepo = mock(ProsessTaskTjeneste.class);
-        var felles = new DokumentmottakerFelles(repositoryProvider,
-                behandlingRevurderingTjeneste,
-            taskrepo,
-            enhetsTjeneste,
-            mockHist,
-            mockMD,
-            behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class), null);
-        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
-            repositoryProvider.getBehandlingRepository(),
-            felles,
-            behandlingsoppretterSpied,
-            kompletthetskontroller,
-            køKontroller, fpUttakTjeneste,
-                behandlingRevurderingTjeneste);
+        var felles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskrepo, enhetsTjeneste, mockHist, mockMD,
+            behandlingsoppretterSpied, mock(TomtUttakTjeneste.class), null);
+        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(repositoryProvider.getBehandlingRepository(), felles,
+            behandlingsoppretterSpied, kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
-        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
+        Mockito.doReturn(nyBehandling)
+            .when(behandlingsoppretterSpied)
+            .opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
 
-        var behandling = opprettBehandling(
-            FagsakYtelseType.ENGANGSTØNAD,
-            BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingResultatType.AVSLÅTT,
-            Avslagsårsak.MANGLENDE_DOKUMENTASJON,
-            VedtakResultatType.AVSLAG,
-            DATO_FØR_INNSENDINGSFRISTEN);
+        var behandling = opprettBehandling(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT,
+            Avslagsårsak.MANGLENDE_DOKUMENTASJON, VedtakResultatType.AVSLAG, DATO_FØR_INNSENDINGSFRISTEN);
         var søknadDokument = dummySøknadDokument(behandling);
 
         // Act
         dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
+        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1))
+            .opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(Mockito.any(), Mockito.any(), any(), anyBoolean());
     }
 
     @Test
@@ -95,37 +77,26 @@ class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandlingTest 
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var taskrepo = mock(ProsessTaskTjeneste.class);
-        var felles = new DokumentmottakerFelles(repositoryProvider,
-                behandlingRevurderingTjeneste,
-            taskrepo,
-            enhetsTjeneste,
-            mockHist,
-            mockMD,
-            behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class), null);
-        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
-            repositoryProvider.getBehandlingRepository(),
-            felles,
-            behandlingsoppretterSpied,
-            kompletthetskontroller,
-            køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
+        var felles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskrepo, enhetsTjeneste, mockHist, mockMD,
+            behandlingsoppretterSpied, mock(TomtUttakTjeneste.class), null);
+        dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(repositoryProvider.getBehandlingRepository(), felles,
+            behandlingsoppretterSpied, kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
-        Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingFraTidligereSøknad(Mockito.any(),  Mockito.any(), Mockito.any());
+        Mockito.doReturn(nyBehandling)
+            .when(behandlingsoppretterSpied)
+            .opprettNyFørstegangsbehandlingFraTidligereSøknad(Mockito.any(), Mockito.any(), Mockito.any());
 
-        var behandling = opprettBehandling(
-            FagsakYtelseType.ENGANGSTØNAD,
-            BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingResultatType.AVSLÅTT,
-            Avslagsårsak.MANGLENDE_DOKUMENTASJON,
-            VedtakResultatType.AVSLAG,
-            DATO_FØR_INNSENDINGSFRISTEN);
+        var behandling = opprettBehandling(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT,
+            Avslagsårsak.MANGLENDE_DOKUMENTASJON, VedtakResultatType.AVSLAG, DATO_FØR_INNSENDINGSFRISTEN);
         var søknadDokument = dummySøknadDokument(behandling);
 
         // Act
-        dokumentmottakerSøknad.opprettFraTidligereAvsluttetBehandling(behandling.getFagsak(), behandling.getId(), søknadDokument, BehandlingÅrsakType.RE_ANNET, false);
+        dokumentmottakerSøknad.opprettFraTidligereAvsluttetBehandling(behandling.getFagsak(), behandling.getId(), søknadDokument,
+            BehandlingÅrsakType.RE_ANNET, false);
 
         // Assert
-        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1)).opprettNyFørstegangsbehandlingFraTidligereSøknad(behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET, behandling);
+        Mockito.verify(behandlingsoppretterSpied, Mockito.times(1))
+            .opprettNyFørstegangsbehandlingFraTidligereSøknad(behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET, behandling);
     }
 
 }

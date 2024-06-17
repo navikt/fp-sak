@@ -23,12 +23,10 @@ public class OppdatereFagsakRelasjonVedVedtak {
     }
 
     @Inject
-    public OppdatereFagsakRelasjonVedVedtak(FpUttakRepository uttakRepository,
-                                            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+    public OppdatereFagsakRelasjonVedVedtak(FpUttakRepository uttakRepository, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.uttakRepository = uttakRepository;
     }
-
 
 
     public void oppdaterRelasjonVedVedtattBehandling(Behandling behandling) {
@@ -41,7 +39,8 @@ public class OppdatereFagsakRelasjonVedVedtak {
         var gjeldendeKontoutregning = fagsakrelasjon.getStønadskontoberegning()
             .map(Stønadskontoberegning::getStønadskontoutregning)
             .orElseGet(Map::of);
-        if (!UtregnetStønadskontoTjeneste.harSammeAntallStønadsdager(gjeldendeKontoutregning, uttak.getStønadskontoberegning().getStønadskontoutregning())) {
+        if (!UtregnetStønadskontoTjeneste.harSammeAntallStønadsdager(gjeldendeKontoutregning,
+            uttak.getStønadskontoberegning().getStønadskontoutregning())) {
             fagsakRelasjonTjeneste.lagre(behandling.getFagsakId(), behandling.getId(), uttak.getStønadskontoberegning());
         }
     }

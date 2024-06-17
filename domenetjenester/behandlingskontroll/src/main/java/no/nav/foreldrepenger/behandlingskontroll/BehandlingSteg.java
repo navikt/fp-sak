@@ -26,13 +26,16 @@ public interface BehandlingSteg {
      * @param sisteSteg  - Det siste steget av stegene det hoppes mellom. Vil være
      *                   steget det hoppes fra ved bakoverhopp.
      */
-    default void vedTransisjon(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, TransisjonType transisjonType,
-            BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+    default void vedTransisjon(BehandlingskontrollKontekst kontekst,
+                               BehandlingStegModell modell,
+                               TransisjonType transisjonType,
+                               BehandlingStegType førsteSteg,
+                               BehandlingStegType sisteSteg) {
         switch (transisjonType) {
             case HOPP_OVER_BAKOVER -> vedHoppOverBakover(kontekst, modell, førsteSteg, sisteSteg);
             case HOPP_OVER_FRAMOVER -> vedHoppOverFramover(kontekst, modell, førsteSteg, sisteSteg);
-            default -> throw new IllegalArgumentException("Uhåndtert transisjonType: " + transisjonType
-                + " i steg: " + modell.getBehandlingStegType());
+            default ->
+                throw new IllegalArgumentException("Uhåndtert transisjonType: " + transisjonType + " i steg: " + modell.getBehandlingStegType());
         }
     }
 
@@ -47,14 +50,18 @@ public interface BehandlingSteg {
     }
 
     @SuppressWarnings("unused")
-    default void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
+    default void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType førsteSteg,
+                                    BehandlingStegType sisteSteg) {
         // TEMPLATE METHOD
     }
 
     @SuppressWarnings("unused")
-    default void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
+    default void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                     BehandlingStegModell modell,
+                                     BehandlingStegType førsteSteg,
+                                     BehandlingStegType sisteSteg) {
         // TEMPLATE METHOD
     }
 
@@ -62,7 +69,7 @@ public interface BehandlingSteg {
         /**
          * Kalles for steg som hoppes over når behandlingen skrider frem. Kan f.eks.
          * brukes til å avbryte
-         *
+         * <p>
          * resultater/vilkår som ikke kan settes når et steg hoppes over. Aksjonspunkt
          * vil håndteres automatisk avhengig av hvilket vurderingspunkt de tilhører og
          * hvor de ble identifisert.
@@ -72,7 +79,7 @@ public interface BehandlingSteg {
         /**
          * Kalles for steg som hoppes over ved tilbakeføring av behandling. Kan f.eks.
          * brukes til å rydde vekk
-         *
+         * <p>
          * resultater/vilkår som bør resettes. Aksjonspunkt vil håndteres automatisk
          * avhengig av hvilket vurderingspunkt de tilhører.
          */

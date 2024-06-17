@@ -22,7 +22,7 @@ public class SøkersopplysningspliktVilkårStegImpl extends InngangsvilkårStegI
 
     @Inject
     public SøkersopplysningspliktVilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+                                                InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
     }
 

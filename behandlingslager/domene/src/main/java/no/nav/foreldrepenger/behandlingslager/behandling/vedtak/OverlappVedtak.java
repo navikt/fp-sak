@@ -113,27 +113,33 @@ public class OverlappVedtak extends BaseEntitet {
     public long getUtbetalingsprosent() {
         return utbetalingsprosent;
     }
+
     public long getFpsakUtbetalingsprosent() {
         return fpsakUtbetalingsprosent;
     }
 
-    public enum OverlappYtelseType { SP, BS, PLEIEPENGER, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN }
+    public enum OverlappYtelseType {
+        SP,
+        BS,
+        PLEIEPENGER,
+        OMSORGSPENGER,
+        OPPLÆRINGSPENGER,
+        FRISINN
+    }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (OverlappVedtak) o;
-        return versjon == that.versjon &&
-            utbetalingsprosent == that.utbetalingsprosent &&
-            Objects.equals(saksnummer, that.saksnummer) &&
-            Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(periode, that.periode) &&
-            Objects.equals(hendelse, that.hendelse) &&
-            Objects.equals(fagsystem, that.fagsystem) &&
-            Objects.equals(ytelse, that.ytelse) &&
-            Objects.equals(referanse, that.referanse);
+        return versjon == that.versjon && utbetalingsprosent == that.utbetalingsprosent && Objects.equals(saksnummer, that.saksnummer)
+            && Objects.equals(behandlingId, that.behandlingId) && Objects.equals(periode, that.periode) && Objects.equals(hendelse, that.hendelse)
+            && Objects.equals(fagsystem, that.fagsystem) && Objects.equals(ytelse, that.ytelse) && Objects.equals(referanse, that.referanse);
     }
 
     @Override
@@ -191,6 +197,7 @@ public class OverlappVedtak extends BaseEntitet {
             this.kladd.utbetalingsprosent = Optional.ofNullable(utbetalingsprosent).orElse(0L);
             return this;
         }
+
         public Builder medFpsakUtbetalingsprosent(Long fpsakUtbetalingsprosent) {
             this.kladd.fpsakUtbetalingsprosent = Optional.ofNullable(fpsakUtbetalingsprosent).orElse(0L);
             return this;

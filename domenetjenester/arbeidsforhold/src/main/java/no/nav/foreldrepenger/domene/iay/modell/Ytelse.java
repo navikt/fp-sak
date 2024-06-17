@@ -142,9 +142,8 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         if (!(o instanceof Ytelse that)) {
             return false;
         }
-        return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
-                Objects.equals(periode, that.periode) &&
-                Objects.equals(saksnummer, that.saksnummer);
+        return Objects.equals(relatertYtelseType, that.relatertYtelseType) && Objects.equals(periode, that.periode) && Objects.equals(saksnummer,
+            that.saksnummer);
     }
 
     @Override
@@ -154,12 +153,8 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "YtelseEntitet{" +
-                "relatertYtelseType=" + relatertYtelseType +
-                ", periode=" + periode +
-                ", relatertYtelseStatus=" + status +
-                ", saksNummer='" + saksnummer + '\'' +
-                '}';
+        return "YtelseEntitet{" + "relatertYtelseType=" + relatertYtelseType + ", periode=" + periode + ", relatertYtelseStatus=" + status
+            + ", saksNummer='" + saksnummer + '\'' + '}';
     }
 
 }

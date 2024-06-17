@@ -17,30 +17,21 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 /**
  * Minimal metadata for en behandling.
  *
- * @param saksnummer Saksnummer til saken.
- * @param fagsakId Fagsak id til saken.
- * @param fagsakYtelseType fagsak ytelse type
- * @param behandlingId Behandling id til saken.
- * @param behandlingUuid Eksternt refererbar UUID for behandlin.
- * @param behandlingStatus Behandling status.
- * @param behandlingType Behandling type
- * @param aktørId Søkers aktørid.
- * @param relasjonRolle Søkers rolle ifht. subjekt for ytelsen (eks. barn).
+ * @param saksnummer           Saksnummer til saken.
+ * @param fagsakId             Fagsak id til saken.
+ * @param fagsakYtelseType     fagsak ytelse type
+ * @param behandlingId         Behandling id til saken.
+ * @param behandlingUuid       Eksternt refererbar UUID for behandlin.
+ * @param behandlingStatus     Behandling status.
+ * @param behandlingType       Behandling type
+ * @param aktørId              Søkers aktørid.
+ * @param relasjonRolle        Søkers rolle ifht. subjekt for ytelsen (eks. barn).
  * @param originalBehandlingId Original behandling id (i tilfelle dette f.eks er en revurdering av en annen behandling.
- * @param skjæringstidspunkt Inneholder relevante tidspunkter for en behandling
- *
+ * @param skjæringstidspunkt   Inneholder relevante tidspunkter for en behandling
  */
-public record BehandlingReferanse(Saksnummer saksnummer,
-                                  Long fagsakId,
-                                  FagsakYtelseType fagsakYtelseType,
-                                  Long behandlingId,
-                                  UUID behandlingUuid,
-                                  BehandlingStatus behandlingStatus,
-                                  BehandlingType behandlingType,
-                                  Long originalBehandlingId,
-                                  AktørId aktørId,
-                                  RelasjonsRolleType relasjonRolle,
-                                  Skjæringstidspunkt skjæringstidspunkt) {
+public record BehandlingReferanse(Saksnummer saksnummer, Long fagsakId, FagsakYtelseType fagsakYtelseType, Long behandlingId, UUID behandlingUuid,
+                                  BehandlingStatus behandlingStatus, BehandlingType behandlingType, Long originalBehandlingId, AktørId aktørId,
+                                  RelasjonsRolleType relasjonRolle, Skjæringstidspunkt skjæringstidspunkt) {
 
     /**
      * Oppretter referanse uten skjæringstidspunkt fra behandling.
@@ -50,18 +41,9 @@ public record BehandlingReferanse(Saksnummer saksnummer,
     }
 
     public static BehandlingReferanse fra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(
-                behandling.getFagsak().getSaksnummer(),
-                behandling.getFagsakId(),
-                behandling.getFagsakYtelseType(),
-                behandling.getId(),
-                behandling.getUuid(),
-                behandling.getStatus(),
-                behandling.getType(),
-                behandling.getOriginalBehandlingId().orElse(null),
-                behandling.getAktørId(),
-                behandling.getRelasjonsRolleType(),
-                skjæringstidspunkt);
+        return new BehandlingReferanse(behandling.getFagsak().getSaksnummer(), behandling.getFagsakId(), behandling.getFagsakYtelseType(),
+            behandling.getId(), behandling.getUuid(), behandling.getStatus(), behandling.getType(), behandling.getOriginalBehandlingId().orElse(null),
+            behandling.getAktørId(), behandling.getRelasjonsRolleType(), skjæringstidspunkt);
     }
 
     /**
@@ -69,18 +51,8 @@ public record BehandlingReferanse(Saksnummer saksnummer,
      * skjæringstidspunkt av flere typer
      */
     public BehandlingReferanse medSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(
-            saksnummer(),
-            fagsakId(),
-            fagsakYtelseType(),
-            behandlingId(),
-            behandlingUuid(),
-            behandlingStatus(),
-            behandlingType(),
-            originalBehandlingId(),
-            aktørId(),
-            relasjonRolle(),
-            skjæringstidspunkt);
+        return new BehandlingReferanse(saksnummer(), fagsakId(), fagsakYtelseType(), behandlingId(), behandlingUuid(), behandlingStatus(),
+            behandlingType(), originalBehandlingId(), aktørId(), relasjonRolle(), skjæringstidspunkt);
     }
 
     public Optional<Long> getOriginalBehandlingId() {
@@ -116,7 +88,7 @@ public record BehandlingReferanse(Saksnummer saksnummer,
      */
     private void sjekkSkjæringstidspunkt() {
         Objects.requireNonNull(skjæringstidspunkt,
-                "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
+            "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
     }
 
     @Override
@@ -133,13 +105,9 @@ public record BehandlingReferanse(Saksnummer saksnummer,
             return false;
         }
         var other = (BehandlingReferanse) obj;
-        return Objects.equals(behandlingId, other.behandlingId)
-            && Objects.equals(saksnummer, other.saksnummer)
-            && Objects.equals(aktørId, other.aktørId)
-            && Objects.equals(fagsakYtelseType, other.fagsakYtelseType)
-            && Objects.equals(behandlingType, other.behandlingType)
-            && Objects.equals(relasjonRolle, other.relasjonRolle)
-            && Objects.equals(originalBehandlingId, other.originalBehandlingId)
+        return Objects.equals(behandlingId, other.behandlingId) && Objects.equals(saksnummer, other.saksnummer) && Objects.equals(aktørId,
+            other.aktørId) && Objects.equals(fagsakYtelseType, other.fagsakYtelseType) && Objects.equals(behandlingType, other.behandlingType)
+            && Objects.equals(relasjonRolle, other.relasjonRolle) && Objects.equals(originalBehandlingId, other.originalBehandlingId)
             // tar ikke med status eller skjæringstidspunkt i equals siden de kan endre seg
             ;
     }

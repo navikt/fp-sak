@@ -53,13 +53,11 @@ class StartpunktUtlederInntektsmelding {
     }
 
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
-        var fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId());
+        var fersktGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId());
         var eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(fersktGrunnlag, grunnlag1, grunnlag2);
         var gamleIm = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
         var nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
-        var deltaIM = nyim.stream()
-            .filter(im -> !gamleIm.contains(im))
-            .toList();
+        var deltaIM = nyim.stream().filter(im -> !gamleIm.contains(im)).toList();
 
         var saksbehandlersArbeidsforholdvalg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(ref);
         if (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
@@ -83,15 +81,16 @@ class StartpunktUtlederInntektsmelding {
                                                     List<Inntektsmelding> nyeIm,
                                                     List<Inntektsmelding> gamleIm,
                                                     List<ArbeidsforholdValg> saksbehandlersArbeidsforholdvalg) {
-        var erImForOverstyrtUtenIM =  nyeIm.stream()
+        var erImForOverstyrtUtenIM = nyeIm.stream()
             .anyMatch(i -> erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, i, saksbehandlersArbeidsforholdvalg));
         if (erImForOverstyrtUtenIM) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.behandlingId(), "en av arbeidsgivere");
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
 
-        if ( FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyeIm.stream().anyMatch(nyIm -> nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm))
-            || nyeIm.stream().anyMatch(nyIm -> endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm)))) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (
+            nyeIm.stream().anyMatch(nyIm -> nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm)) || nyeIm.stream()
+                .anyMatch(nyIm -> endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm)))) {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
 
@@ -108,7 +107,8 @@ class StartpunktUtlederInntektsmelding {
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
 
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm) || endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm))){
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm)
+            || endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm))) {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref)) {
@@ -129,12 +129,15 @@ class StartpunktUtlederInntektsmelding {
             .anyMatch(HANDLING_SOM_IKKE_VENTER_IM::contains);
         var erIkkeVentetFraSaksbehandler = saksbehandlersArbeidsforholdvalg.stream()
             .filter(valg -> valg.getArbeidsgiver().equals(agIM))
-            .anyMatch(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)
-                || valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING));
+            .anyMatch(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING) || valg.getVurdering()
+                .equals(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING));
         return erIkkeVentetFraIAY || erIkkeVentetFraSaksbehandler;
     }
 
-    private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref) {
+    private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag,
+                                                 Inntektsmelding nyIm,
+                                                 List<Inntektsmelding> gamleIm,
+                                                 BehandlingReferanse ref) {
         var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, gamleIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
@@ -142,9 +145,9 @@ class StartpunktUtlederInntektsmelding {
         }
 
         // Endring til/fra angitt arbeidsforholdId og ingen slik id
-        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold()) ||
-            (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold()) &&
-                harFlereArbeidsforholdSammeArbeidsgiver(grunnlag, nyIm, ref.aktørId())) {
+        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold())
+            || (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold())
+            && harFlereArbeidsforholdSammeArbeidsgiver(grunnlag, nyIm, ref.aktørId())) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "im-arbeidsforhold", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
         }
@@ -165,7 +168,9 @@ class StartpunktUtlederInntektsmelding {
     }
 
 
-    private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Optional<InntektArbeidYtelseGrunnlag> grunnlagForBehandling, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
+    private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Optional<InntektArbeidYtelseGrunnlag> grunnlagForBehandling,
+                                                                                   InntektArbeidYtelseGrunnlag grunnlag1,
+                                                                                   InntektArbeidYtelseGrunnlag grunnlag2) {
         var gjeldendeGrunnlag = grunnlagForBehandling.orElse(null);
         if (gjeldendeGrunnlag == null) {
             return Optional.empty();
@@ -182,14 +187,14 @@ class StartpunktUtlederInntektsmelding {
     }
 
     private Optional<Inntektsmelding> sisteInntektsmeldingForArbeidsforhold(Inntektsmelding ny, List<Inntektsmelding> gamleIm) {
-        return gamleIm.stream()
-            .filter(ny::gjelderSammeArbeidsforhold)
-            .max(COMP_REKKEFØLGE);
+        return gamleIm.stream().filter(ny::gjelderSammeArbeidsforhold).max(COMP_REKKEFØLGE);
     }
 
     private boolean harFlereArbeidsforholdSammeArbeidsgiver(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding ny, AktørId aktørId) {
         return grunnlag.flatMap(g -> g.getAktørArbeidFraRegister(aktørId))
-            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of()).stream()
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(List.of())
+            .stream()
             .filter(Yrkesaktivitet::erArbeidsforhold)
             .filter(ya -> Objects.equals(ya.getArbeidsgiver(), ny.getArbeidsgiver()))
             .map(Yrkesaktivitet::getArbeidsforholdRef)
@@ -199,14 +204,12 @@ class StartpunktUtlederInntektsmelding {
 
     private boolean nyttArbForholdForEksisterendeArbgiver(Inntektsmelding ny, List<Inntektsmelding> origIM) {
         var arbeidsgiverFinnesFraFør = origIM.stream().anyMatch(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()));
-        return arbeidsgiverFinnesFraFør && origIM.stream()
-            .noneMatch(ny::gjelderSammeArbeidsforhold);
+        return arbeidsgiverFinnesFraFør && origIM.stream().noneMatch(ny::gjelderSammeArbeidsforhold);
     }
 
     private boolean endringIArbeidsforholdIdForSammeArbgiver(Inntektsmelding ny, List<Inntektsmelding> origIM) {
         var arbeidsgiverFinnesFraFør = origIM.stream().anyMatch(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()));
-        return arbeidsgiverFinnesFraFør && origIM.stream()
-            .anyMatch(ny::endringIArbeidsforholdsIdForSammeArbGiver);
+        return arbeidsgiverFinnesFraFør && origIM.stream().anyMatch(ny::endringIArbeidsforholdsIdForSammeArbGiver);
     }
 
     private boolean erEndringPåNaturalYtelser(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {
@@ -216,10 +219,12 @@ class StartpunktUtlederInntektsmelding {
     }
 
     private boolean erEndringPåRefusjon(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {
-        var erEndringPåBeløp = !Objects.equals(nyInntektsmelding.getRefusjonBeløpPerMnd(), opprinneligInntektsmelding.getRefusjonBeløpPerMnd())
-            || !Objects.equals(nyInntektsmelding.getRefusjonOpphører(), opprinneligInntektsmelding.getRefusjonOpphører());
+        var erEndringPåBeløp =
+            !Objects.equals(nyInntektsmelding.getRefusjonBeløpPerMnd(), opprinneligInntektsmelding.getRefusjonBeløpPerMnd()) || !Objects.equals(
+                nyInntektsmelding.getRefusjonOpphører(), opprinneligInntektsmelding.getRefusjonOpphører());
 
-        var erEndringerPåEndringerRefusjon = erEndringerPåEndringerRefusjon(nyInntektsmelding.getEndringerRefusjon(), opprinneligInntektsmelding.getEndringerRefusjon());
+        var erEndringerPåEndringerRefusjon = erEndringerPåEndringerRefusjon(nyInntektsmelding.getEndringerRefusjon(),
+            opprinneligInntektsmelding.getEndringerRefusjon());
         return erEndringPåBeløp || erEndringerPåEndringerRefusjon;
     }
 

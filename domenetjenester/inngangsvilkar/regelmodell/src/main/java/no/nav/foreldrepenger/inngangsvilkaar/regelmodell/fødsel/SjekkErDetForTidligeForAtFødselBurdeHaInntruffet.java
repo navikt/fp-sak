@@ -9,8 +9,8 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
 
     static final String ID = SjekkErDetForTidligeForAtFødselBurdeHaInntruffet.class.getSimpleName();
 
-    static final MerknadRuleReasonRef FØDSEL_BURDE_HA_INNTRUFFET =
-        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1026, "Fødsel ikke funnet i folkeregisteret");
+    static final MerknadRuleReasonRef FØDSEL_BURDE_HA_INNTRUFFET = new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1026,
+        "Fødsel ikke funnet i folkeregisteret");
 
     public SjekkErDetForTidligeForAtFødselBurdeHaInntruffet() {
         super(ID);
@@ -27,7 +27,7 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
             // Det er allerede ventet en periode etter angitt fødselsdato
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }
-        if (grunnlag.erFødselRegistreringFristUtløpt()){
+        if (grunnlag.erFødselRegistreringFristUtløpt()) {
             // Det er søkt på termin og det er ikke registrert eller bekreftet barn.
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }

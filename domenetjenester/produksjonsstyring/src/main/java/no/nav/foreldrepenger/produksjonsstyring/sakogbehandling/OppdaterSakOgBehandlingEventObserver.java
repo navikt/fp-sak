@@ -19,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * Observerer relevante status endringer på behandling og fagsak og varsler til Sakogbehandling (eksternt system).
- *
  */
 @ApplicationScoped
 public class OppdaterSakOgBehandlingEventObserver {
@@ -30,8 +29,7 @@ public class OppdaterSakOgBehandlingEventObserver {
     static final String FORELDREPENGER_SAKSTEMA = Tema.FOR.getOffisiellKode();
 
     @Inject
-    public OppdaterSakOgBehandlingEventObserver(BehandlingRepositoryProvider repositoryProvider,
-                                                ProsessTaskTjeneste taskTjeneste) {
+    public OppdaterSakOgBehandlingEventObserver(BehandlingRepositoryProvider repositoryProvider, ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.taskTjeneste = taskTjeneste;
     }

@@ -60,8 +60,7 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
         var begrunnelseOrg = vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null);
 
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_EOS, orginalOppholdsrett, bekreftetOppholdsrett);
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_IKKE_EOS, originalLovligOpphold, bekreftetLovligOpphold)
-            || erEndret;
+        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_IKKE_EOS, originalLovligOpphold, bekreftetLovligOpphold) || erEndret;
 
         var begrunnelse = bekreftet.getBegrunnelse();
         historikkAdapter.tekstBuilder()
@@ -90,7 +89,9 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
         return harOppholdsrett ? HistorikkEndretFeltVerdiType.OPPHOLDSRETT : HistorikkEndretFeltVerdiType.IKKE_OPPHOLDSRETT;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, HistorikkEndretFeltVerdiType original, HistorikkEndretFeltVerdiType bekreftet) {
+    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                           HistorikkEndretFeltVerdiType original,
+                                           HistorikkEndretFeltVerdiType bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
             if (bekreftet != null) {
                 historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);

@@ -20,10 +20,14 @@ class MergeOverlappendePeriodeHjelp {
 
     static List<FastsattOpptjeningDto.FastsattOpptjeningAktivitetDto> mergeOverlappenePerioder(List<OpptjeningAktivitet> opptjeningAktivitet) {
         var tidslinje = new LocalDateTimeline<OpptjeningAktivitetKlassifisering>(Collections.emptyList());
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, StandardCombinators::coalesceRightHandSide); // Skal foretrekkes
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE, MergeOverlappendePeriodeHjelp::mergeMellomliggende);
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT, StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
-        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST, StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT,
+            StandardCombinators::coalesceRightHandSide); // Skal foretrekkes
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE,
+            MergeOverlappendePeriodeHjelp::mergeMellomliggende);
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT,
+            StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST,
+            StandardCombinators::coalesceLeftHandSide); // Skal vike for tidliger
         return lagDtoer(tidslinje);
 
     }
@@ -37,16 +41,16 @@ class MergeOverlappendePeriodeHjelp {
         for (var intervall : datoIntervaller) {
             var segment = resultatInn.getSegment(intervall);
             var klassifisering = segment.getValue();
-            resultat.add(new FastsattOpptjeningDto.FastsattOpptjeningAktivitetDto(intervall.getFomDato(), intervall.getTomDato(),
-                    klassifisering));
+            resultat.add(new FastsattOpptjeningDto.FastsattOpptjeningAktivitetDto(intervall.getFomDato(), intervall.getTomDato(), klassifisering));
         }
         resultat.sort(Comparator.comparing(FastsattOpptjeningDto.FastsattOpptjeningAktivitetDto::fom));
         return resultat;
     }
 
-    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> slåSammenTidslinje(
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet, OpptjeningAktivitetKlassifisering filter,
-        LocalDateSegmentCombinator<OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering> combinator) {
+    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> slåSammenTidslinje(LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie,
+                                                                                           List<OpptjeningAktivitet> opptjeningAktivitet,
+                                                                                           OpptjeningAktivitetKlassifisering filter,
+                                                                                           LocalDateSegmentCombinator<OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering> combinator) {
 
         var linjeForFilter = opptjeningAktivitet.stream()
             .filter(oa -> filter.equals(oa.getKlassifisering()))
@@ -57,8 +61,8 @@ class MergeOverlappendePeriodeHjelp {
     }
 
     private static LocalDateSegment<OpptjeningAktivitetKlassifisering> mergeMellomliggende(LocalDateInterval di,
-            LocalDateSegment<OpptjeningAktivitetKlassifisering> lhs,
-            LocalDateSegment<OpptjeningAktivitetKlassifisering> rhs) {
+                                                                                           LocalDateSegment<OpptjeningAktivitetKlassifisering> lhs,
+                                                                                           LocalDateSegment<OpptjeningAktivitetKlassifisering> rhs) {
 
         // legger inn perioden for mellomliggende
         if (lhs == null || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE)) {

@@ -78,19 +78,24 @@ class Forelder2ErDødEndringIdentifisererTest {
         var erEndret = differ.erForeldreDødsdatoEndret();
 
         // Assert
-        assertThat(erEndret).as("Forventer at endring om forelder2 død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
+        assertThat(erEndret).as(
+            "Forventer at endring om forelder2 død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysning(LocalDate dødsdatoForelder2) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
-        builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_MEDMOR).medFødselsdato(LocalDate.now().minusYears(28)).medDødsdato(dødsdatoForelder2));
+        builder.leggTil(
+            builder.getPersonopplysningBuilder(AKTØRID_MEDMOR).medFødselsdato(LocalDate.now().minusYears(28)).medDødsdato(dødsdatoForelder2));
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusYears(1)));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_SØKER, AKTØRID_BARN, RelasjonsRolleType.BARN));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_BARN, AKTØRID_SØKER, RelasjonsRolleType.MORA));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_BARN, AKTØRID_MEDMOR, RelasjonsRolleType.MEDMOR));
         builder.leggTil(builder.getRelasjonBuilder(AKTØRID_MEDMOR, AKTØRID_BARN, RelasjonsRolleType.BARN));
-        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AKTØRID_MEDMOR).build()).build();
+        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
+            .medRegistrertVersjon(builder)
+            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AKTØRID_MEDMOR).build())
+            .build();
     }
 
     private PersonopplysningGrunnlagEntitet opprettTomtPersonopplysningGrunnlag() {

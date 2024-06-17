@@ -22,9 +22,12 @@ public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {
     }
 
     public FastsettBeregningsgrunnlagAndelDto(RedigerbarAndelDto andelDto,
-                                              FastsatteVerdierDto fastsatteVerdier, Inntektskategori forrigeInntektskategori, Integer forrigeRefusjonPrÅr, Integer forrigeArbeidsinntektPrÅr) {
-        super(andelDto.getNyAndel(), andelDto.getArbeidsgiverId(), andelDto.getArbeidsforholdId(),
-            andelDto.getAndelsnr(), andelDto.getLagtTilAvSaksbehandler(), andelDto.getAktivitetStatus(), OpptjeningAktivitetType.ARBEID);
+                                              FastsatteVerdierDto fastsatteVerdier,
+                                              Inntektskategori forrigeInntektskategori,
+                                              Integer forrigeRefusjonPrÅr,
+                                              Integer forrigeArbeidsinntektPrÅr) {
+        super(andelDto.getNyAndel(), andelDto.getArbeidsgiverId(), andelDto.getArbeidsforholdId(), andelDto.getAndelsnr(),
+            andelDto.getLagtTilAvSaksbehandler(), andelDto.getAktivitetStatus(), OpptjeningAktivitetType.ARBEID);
         this.fastsatteVerdier = fastsatteVerdier;
         this.forrigeArbeidsinntektPrÅr = forrigeArbeidsinntektPrÅr;
         this.forrigeInntektskategori = forrigeInntektskategori;

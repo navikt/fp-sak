@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BrevForhåndsvisningTest {
 

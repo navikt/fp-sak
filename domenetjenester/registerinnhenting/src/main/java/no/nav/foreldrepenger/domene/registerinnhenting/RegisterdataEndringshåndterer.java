@@ -48,12 +48,12 @@ public class RegisterdataEndringshåndterer {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Inject
-    public RegisterdataEndringshåndterer( BehandlingRepositoryProvider repositoryProvider,
-                                          @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
-                                          Endringskontroller endringskontroller,
-                                          EndringsresultatSjekker endringsresultatSjekker,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          BehandlingÅrsakTjeneste behandlingÅrsakTjeneste) {
+    public RegisterdataEndringshåndterer(BehandlingRepositoryProvider repositoryProvider,
+                                         @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
+                                         Endringskontroller endringskontroller,
+                                         EndringsresultatSjekker endringsresultatSjekker,
+                                         FamilieHendelseTjeneste familieHendelseTjeneste,
+                                         BehandlingÅrsakTjeneste behandlingÅrsakTjeneste) {
 
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -71,8 +71,8 @@ public class RegisterdataEndringshåndterer {
     }
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
-        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)
-            || behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
+        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling) || behandling.erSaksbehandlingAvsluttet()
+            || SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return false;
         }
         var midnatt = LocalDate.now().atStartOfDay();
@@ -95,38 +95,39 @@ public class RegisterdataEndringshåndterer {
         behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(1).minusDays(1));
     }
 
-    boolean erOpplysningerOppdatertTidspunktFør(LocalDateTime nårOppdatereRegisterdata,
-                                                Optional<LocalDateTime> opplysningerOppdatertTidspunkt) {
+    boolean erOpplysningerOppdatertTidspunktFør(LocalDateTime nårOppdatereRegisterdata, Optional<LocalDateTime> opplysningerOppdatertTidspunkt) {
         return opplysningerOppdatertTidspunkt.isPresent() && opplysningerOppdatertTidspunkt.get().isBefore(nårOppdatereRegisterdata);
     }
 
     private void doReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
         var gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
-            LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
-                behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat);
+            LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}", behandling.getId(),
+                gåttOverTerminDatoOgIngenFødselsdato, endringsresultat);
             if (utledÅrsaker) {
                 behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
             }
             // Sikre håndtering av manglende fødsel
-            endringskontroller.spolTilStartpunkt(behandling, endringsresultat,
-                senesteStartpunkt(behandling, gåttOverTerminDatoOgIngenFødselsdato));
+            endringskontroller.spolTilStartpunkt(behandling, endringsresultat, senesteStartpunkt(behandling, gåttOverTerminDatoOgIngenFødselsdato));
         }
         endringskontroller.vurderNySimulering(behandling);
     }
 
     private StartpunktType senesteStartpunkt(Behandling behandling, boolean gåttOverTerminDatoOgIngenFødselsdato) {
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()))
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             return StartpunktType.UDEFINERT;
+        }
         return gåttOverTerminDatoOgIngenFødselsdato ? StartpunktType.SØKERS_RELASJON_TIL_BARNET : StartpunktType.UDEFINERT;
     }
 
-    public void utledDiffOgReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatSnapshot grunnlagSnapshot, boolean utledÅrsaker) {
+    public void utledDiffOgReposisjonerBehandlingVedEndringer(Behandling behandling,
+                                                              EndringsresultatSnapshot grunnlagSnapshot,
+                                                              boolean utledÅrsaker) {
         if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
             return;
         }
-        var endringsresultat = grunnlagSnapshot != null ?
-            endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot) : opprettDiffUtenEndring();
+        var endringsresultat = grunnlagSnapshot != null ? endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(),
+            grunnlagSnapshot) : opprettDiffUtenEndring();
 
         doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, utledÅrsaker);
     }
@@ -143,7 +144,9 @@ public class RegisterdataEndringshåndterer {
     private boolean erAvslag(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
             .map(Behandlingsresultat::getVilkårResultat)
-            .map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
+            .map(VilkårResultat::getVilkårene)
+            .orElse(Collections.emptyList())
+            .stream()
             .map(Vilkår::getGjeldendeVilkårUtfall)
             .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }

@@ -39,8 +39,8 @@ public class SendBrevForAutopunkt {
 
     public void sendBrevForSøknadIkkeMottatt(Behandling behandling) {
         var dokumentMal = DokumentMalType.IKKE_SØKT;
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
-            || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD) || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING) || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD)
+            || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
             dokumentMal = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
         } else if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
             dokumentMal = DokumentMalType.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
@@ -66,9 +66,8 @@ public class SendBrevForAutopunkt {
     public void sendBrevForEtterkontroll(Behandling behandling) {
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
-            var dokumentBestilling = getBuilder(behandling, dokumentMal)
-                .medRevurderingÅrsak(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER)
-                .build();
+            var dokumentBestilling = getBuilder(behandling, dokumentMal).medRevurderingÅrsak(
+                RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER).build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
@@ -78,8 +77,7 @@ public class SendBrevForAutopunkt {
     }
 
     private boolean erSøktPåPapir(Behandling behandling) {
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-            .filter(søknad -> !søknad.getElektroniskRegistrert()).isPresent();
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).filter(søknad -> !søknad.getElektroniskRegistrert()).isPresent();
     }
 
     private boolean harIkkeSendtBrevForMal(Long behandlingId, DokumentMalType malType) {

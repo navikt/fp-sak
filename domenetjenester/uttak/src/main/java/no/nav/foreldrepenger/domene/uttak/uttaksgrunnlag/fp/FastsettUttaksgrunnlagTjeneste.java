@@ -56,7 +56,9 @@ public class FastsettUttaksgrunnlagTjeneste {
     public void fastsettUttaksgrunnlag(UttakInput input) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId());
         var eksisterendeJustertFordeling = ytelseFordelingAggregat.getJustertFordeling().orElse(null);
-        var eksisterendeEndringsdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getOpprinneligEndringsdato).orElse(LocalDate.MIN);
+        var eksisterendeEndringsdato = ytelseFordelingAggregat.getAvklarteDatoer()
+            .map(AvklarteUttakDatoerEntitet::getOpprinneligEndringsdato)
+            .orElse(LocalDate.MIN);
 
         var endringsdatoRevurdering = utledEndringsdatoVedRevurdering(input);
         var justertFordeling = justerFordeling(input, endringsdatoRevurdering);
@@ -67,16 +69,15 @@ public class FastsettUttaksgrunnlagTjeneste {
             endringsdato = endringsdatoRevurdering;
         } else {
             endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().behandlingId(),
-                    justertFordeling.getPerioder());
+                justertFordeling.getPerioder());
         }
         LOG.info("Utledet endringsdato {}", endringsdato);
 
-        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || endringsdato == null || !eksisterendeEndringsdato.isEqual(endringsdato)) {
+        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || endringsdato == null
+            || !eksisterendeEndringsdato.isEqual(endringsdato)) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
             var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
-            yfBuilder.medJustertFordeling(justertFordeling)
-                .medAvklarteDatoer(avklarteUttakDatoer)
-                .medOverstyrtFordeling(null);
+            yfBuilder.medJustertFordeling(justertFordeling).medAvklarteDatoer(avklarteUttakDatoer).medOverstyrtFordeling(null);
             ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
         }
     }
@@ -100,7 +101,8 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
 
         if (skalJustereFordelingEtterFamiliehendelse(input, justertePerioder)) {
-            justertePerioder = justerFordelingEtterFamilieHendelse(input.getYtelsespesifiktGrunnlag(), justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
+            justertePerioder = justerFordelingEtterFamilieHendelse(input.getYtelsespesifiktGrunnlag(), justertePerioder, ref.relasjonRolle(),
+                fordeling.ønskerJustertVedFødsel());
             LOG.info("Justerte perioder etter flytting ved endring i familiehendelse {}", justertePerioder);
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
@@ -149,15 +151,18 @@ public class FastsettUttaksgrunnlagTjeneste {
                 return false;
             }
 
-            var gjeldendeFamilieHendelseOriginalBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse();
+            var gjeldendeFamilieHendelseOriginalBehandling = fpGrunnlag.getOriginalBehandling()
+                .get()
+                .getFamilieHendelser()
+                .getGjeldendeFamilieHendelse();
             var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-            if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() &&
-                input.getBehandlingÅrsaker().contains(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
-                gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
+            if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() && input.getBehandlingÅrsaker()
+                .contains(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) && gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
                 var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get();
                 var mottattDato = førsteUttaksperiode.getMottattDato();
                 var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
-                LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny behandling har registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+                LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny behandling har registret fødsel {} med mottatdato {}",
+                    fødselsdato, mottattDato);
 
                 if (fødselsdato.isEqual(førsteUttaksperiode.getFom())) {
                     LOG.info("Termin til fødsel: Startdato for første uttaksperiode er lik fødseldato {}", fødselsdato);
@@ -182,9 +187,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
-        var sortertePerioder = perioder.stream()
-                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-                .collect(Collectors.toList());
+        var sortertePerioder = perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).collect(Collectors.toList());
 
         while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).isOpphold()) {
             sortertePerioder.remove(sortertePerioder.size() - 1);
@@ -206,16 +209,11 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
-        var gammelFamiliehendelse = gjeldenedFamiliehendelsedatoFraOrginalbehandling(fpGrunnlag)
-            .orElseGet(() -> fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse().getFamilieHendelseDato());
+        var gammelFamiliehendelse = gjeldenedFamiliehendelsedatoFraOrginalbehandling(fpGrunnlag).orElseGet(
+            () -> fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse().getFamilieHendelseDato());
         var nyFamiliehendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-        return JusterFordelingTjeneste.justerForFamiliehendelse(
-            oppgittePerioder,
-            gammelFamiliehendelse,
-            nyFamiliehendelse,
-            relasjonsRolleType,
-            ønskerJustertVedFødsel
-        );
+        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType,
+            ønskerJustertVedFødsel);
     }
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
@@ -248,8 +246,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private static boolean nySøknadPåTermin(FamilieHendelser familiehendels) {
-        return familiehendels.getOverstyrtFamilieHendelse().isEmpty()
-            && familiehendels.getSøknadFamilieHendelse().getFødselsdato().isEmpty()
+        return familiehendels.getOverstyrtFamilieHendelse().isEmpty() && familiehendels.getSøknadFamilieHendelse().getFødselsdato().isEmpty()
             && familiehendels.getBekreftetFamilieHendelse().filter(fh -> fh.getFødselsdato().isPresent()).isEmpty();
     }
 
@@ -261,7 +258,9 @@ public class FastsettUttaksgrunnlagTjeneste {
         var periodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(input.getBehandlingReferanse().behandlingId());
         if (periodegrense.isPresent()) {
             var mottattDato = periodegrense.orElseThrow().getMottattDato();
-            return aggregat.getOppgittFordeling().getPerioder().stream()
+            return aggregat.getOppgittFordeling()
+                .getPerioder()
+                .stream()
                 .map(p -> OppgittPeriodeBuilder.fraEksisterende(p)
                     .medTidligstMottattDato(utledMottattDato(p.getTidligstMottattDato().orElseGet(p::getMottattDato), mottattDato))
                     .build())
@@ -272,8 +271,6 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private static LocalDate utledMottattDato(LocalDate datoFraPeriode, LocalDate mottattdato) {
-        return Optional.ofNullable(datoFraPeriode)
-            .filter(d -> d.isBefore(mottattdato))
-            .orElse(mottattdato);
+        return Optional.ofNullable(datoFraPeriode).filter(d -> d.isBefore(mottattdato)).orElse(mottattdato);
     }
 }

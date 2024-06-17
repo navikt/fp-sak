@@ -25,7 +25,9 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     ANKE("BT-008", "Anke", "ae0046", 0),
     INNSYN("BT-006", "Dokumentinnsyn", "ae0042", 1),
 
-    /** Tilbakekrevingene brukes mot personoversikt inntil videre. Kan vurdere ae0041 klage/tilbake */
+    /**
+     * Tilbakekrevingene brukes mot personoversikt inntil videre. Kan vurdere ae0041 klage/tilbake
+     */
     TILBAKEKREVING_ORDINÆR("BT-007", "Tilbakekreving", "ae0054", 6),
     TILBAKEKREVING_REVURDERING("BT-009", "Revurdering tilbakekreving", "ae0043", 6),
 
@@ -56,10 +58,7 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     @JsonValue
     private final String kode;
 
-    BehandlingType(String kode,
-                   String navn,
-                   String offisiellKode,
-                   int behandlingstidFristUker) {
+    BehandlingType(String kode, String navn, String offisiellKode, int behandlingstidFristUker) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

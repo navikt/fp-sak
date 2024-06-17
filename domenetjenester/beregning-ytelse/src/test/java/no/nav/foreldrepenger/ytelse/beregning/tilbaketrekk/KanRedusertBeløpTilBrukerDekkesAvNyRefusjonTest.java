@@ -16,9 +16,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -34,9 +32,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -52,9 +48,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -70,9 +64,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -88,9 +80,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -106,9 +96,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -124,9 +112,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -142,9 +128,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -160,9 +144,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -178,9 +160,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -196,9 +176,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -214,9 +192,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -232,9 +208,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -250,9 +224,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -268,9 +240,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -286,9 +256,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -304,9 +272,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -322,9 +288,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -340,9 +304,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -358,9 +320,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -376,9 +336,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -394,9 +352,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -412,9 +368,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -430,9 +384,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -448,9 +400,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -466,9 +416,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -484,9 +432,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -502,9 +448,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -520,9 +464,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -538,9 +480,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -556,9 +496,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -574,9 +512,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -592,9 +528,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -610,9 +544,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -628,9 +560,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -646,9 +576,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -664,9 +592,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -682,9 +608,7 @@ class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
         var endringIDagsatsBruker = revurderingDagsatsBruker - originalDagsatsBruker;
 
         // Act
-        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-                endringIDagsatsBruker,
-                revurderingRefusjon);
+        var resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(endringIDagsatsBruker, revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();

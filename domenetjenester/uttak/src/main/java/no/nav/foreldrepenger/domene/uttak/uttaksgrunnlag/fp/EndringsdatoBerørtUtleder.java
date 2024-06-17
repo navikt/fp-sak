@@ -45,7 +45,8 @@ public final class EndringsdatoBerørtUtleder {
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var utenMinsterett = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett();
-        if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak, berørtUttakOpt.get()).isEmpty()) {
+        if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak,
+            berørtUttakOpt.get()).isEmpty()) {
             return Optional.empty();
         }
         var berørtUttak = berørtUttakOpt.get();
@@ -71,8 +72,7 @@ public final class EndringsdatoBerørtUtleder {
         var periodeTom = finnMaxAktivDato(utløsendeUttak, berørtUttak).filter(endringsdato::isBefore).orElse(endringsdato);
         var periodeFomEndringsdato = new LocalDateInterval(endringsdato, periodeTom);
 
-        var overlapp = overlappSomIkkeErFulltSamtidigUttak(familieHendelser, utenMinsterett, periodeFomEndringsdato, utløsendeUttak,
-            berørtUttak);
+        var overlapp = overlappSomIkkeErFulltSamtidigUttak(familieHendelser, utenMinsterett, periodeFomEndringsdato, utløsendeUttak, berørtUttak);
         if (overlapp.isPresent()) {
             LOG.info("{}: OverlappUtenSamtidig fom {} endringsdato {}", loggPrefix, overlapp.get(), endringsdato);
             berørtBehovDatoer.add(overlapp.get());
@@ -86,17 +86,21 @@ public final class EndringsdatoBerørtUtleder {
                 TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
             if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker)) {
                 var tidslinjeFørsteSeksUker = fellesTidslinjeForSammenheng.intersection(førsteSeksUker);
-                var tidligsteGap = Optional.ofNullable(tidslinjeFørsteSeksUker.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
+                var tidligsteGap = Optional.ofNullable(tidslinjeFørsteSeksUker.firstDiscontinuity())
+                    .map(LocalDateInterval::getFomDato)
+                    .orElse(endringsdato);
                 LOG.info("{}: Første 6 uker gap fom {} endringsdato {}", loggPrefix, tidligsteGap, endringsdato);
                 berørtBehovDatoer.add(tidligsteGap);
             }
         }
 
-        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato).isEmpty() &&
-            !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
+        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato).isEmpty()
+            && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
         if (opprett) {
             var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
-            var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
+            var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity())
+                .map(LocalDateInterval::getFomDato)
+                .orElse(endringsdato);
             LOG.info("{}: Sammenhengende etter uke 6 gap fom {} endringsdato {}", loggPrefix, tidligsteGap, endringsdato);
             berørtBehovDatoer.add(tidligsteGap);
         }
@@ -109,7 +113,8 @@ public final class EndringsdatoBerørtUtleder {
                                                                            ForeldrepengerUttak brukersUttak,
                                                                            ForeldrepengerUttak annenpartsUttak) {
         var tidslinjeBruker = lagTidslinje(brukersUttak, p -> !p.isOpphold(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold() && p.erFraSøknad(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold() && p.erFraSøknad(),
+            EndringsdatoBerørtUtleder::helgFomMandagSegment);
         // Tidslinje der begge har uttak - fom endringsdato.
         var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
         if (tidslinjeOverlappendeUttakFomEndringsdato.isEmpty()) {
@@ -117,12 +122,15 @@ public final class EndringsdatoBerørtUtleder {
         }
 
         var farRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(familieHendelser, utenMinsterett).orElse(null);
-        var tidslinjeBrukerSamtidig = lagTidslinje(brukersUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), EndringsdatoBerørtUtleder::helgFomMandagSegment);
-        var tidslinjeAnnenpartSamtidig = lagTidslinje(annenpartsUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var tidslinjeBrukerSamtidig = lagTidslinje(brukersUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel),
+            EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var tidslinjeAnnenpartSamtidig = lagTidslinje(annenpartsUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel),
+            EndringsdatoBerørtUtleder::helgFomMandagSegment);
         var tidslinjeSamtidigUttak = slåSammenTidslinjer(tidslinjeBrukerSamtidig, tidslinjeAnnenpartSamtidig);
 
         var overlappUtenomAkseptertFulltSamtidigUttak = tidslinjeOverlappendeUttakFomEndringsdato.disjoint(tidslinjeSamtidigUttak);
-        return overlappUtenomAkseptertFulltSamtidigUttak.isEmpty() ? Optional.empty() : Optional.of(overlappUtenomAkseptertFulltSamtidigUttak.getMinLocalDate());
+        return overlappUtenomAkseptertFulltSamtidigUttak.isEmpty() ? Optional.empty() : Optional.of(
+            overlappUtenomAkseptertFulltSamtidigUttak.getMinLocalDate());
     }
 
     private static boolean akseptertFulltSamtidigUttak(ForeldrepengerUttakPeriode periode, LocalDateInterval farRundtFødsel) {
@@ -130,7 +138,8 @@ public final class EndringsdatoBerørtUtleder {
         return periode.isSamtidigUttak() && (periode.isFlerbarnsdager() || periodeRundtFødsel);
     }
 
-    private static LocalDateTimeline<Boolean> tidslinjeForSammenhengendeUttaksplan(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
+    private static LocalDateTimeline<Boolean> tidslinjeForSammenhengendeUttaksplan(ForeldrepengerUttak brukersUttak,
+                                                                                   ForeldrepengerUttak annenpartsUttak) {
         var tidslinjeBruker = lagTidslinje(brukersUttak, p -> true, EndringsdatoBerørtUtleder::helgTomSøndagSegment);
         var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> true, EndringsdatoBerørtUtleder::helgTomSøndagSegment);
         return slåSammenTidslinjer(tidslinjeBruker, tidslinjeAnnenpart);
@@ -141,9 +150,11 @@ public final class EndringsdatoBerørtUtleder {
         return tidslinje1.crossJoin(tidslinje2, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
-    private static LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak, Predicate<ForeldrepengerUttakPeriode> periodefilter,
-                                                    Function<ForeldrepengerUttakPeriode, LocalDateSegment<Boolean>> segmentMapper) {
-        var segmenter = uttak.getGjeldendePerioder().stream()
+    private static LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak,
+                                                           Predicate<ForeldrepengerUttakPeriode> periodefilter,
+                                                           Function<ForeldrepengerUttakPeriode, LocalDateSegment<Boolean>> segmentMapper) {
+        var segmenter = uttak.getGjeldendePerioder()
+            .stream()
             .filter(EndringsdatoBerørtUtleder::isAktivtUttak)
             .filter(periodefilter)
             .map(segmentMapper)
@@ -169,15 +180,15 @@ public final class EndringsdatoBerørtUtleder {
     }
 
     private static Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak uttak) {
-        return uttak.getGjeldendePerioder().stream()
+        return uttak.getGjeldendePerioder()
+            .stream()
             .filter(EndringsdatoBerørtUtleder::isAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private static Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
-            .min(Comparator.naturalOrder());
+        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream()).min(Comparator.naturalOrder());
     }
 
     private static Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {

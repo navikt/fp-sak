@@ -47,13 +47,14 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     void skal_ikke_opprette_aksjonspunkt_om_det_ikke_er_søkt_på_bakgrunn_av_fødsel() {
         //Arrange
         var termindato = LocalDate.now().minusDays(5L); // Oppgir termindato, dvs. søknad ikke basert på fødsel
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
-        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato)
-            .medNavnPå("LEGEN MIN"));
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN MIN"));
 
         var oppholdStart = termindato.minusDays(2L);
         var oppholdSlutt = termindato.plusDays(2L);
@@ -140,8 +141,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     private MedlemskapOppgittLandOppholdEntitet lagUtlandsopphold(LocalDate oppholdStart, LocalDate oppholdSlutt) {
-        return new MedlemskapOppgittLandOppholdEntitet.Builder()
-            .erTidligereOpphold(false)
+        return new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
             .medLand(Landkoder.SWE)
             .medPeriode(oppholdStart, oppholdSlutt)
             .build();

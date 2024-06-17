@@ -28,8 +28,7 @@ public class SendTilKabalTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public SendTilKabalTask(BehandlingRepositoryProvider repositoryProvider,
-                            KabalTjeneste kabalTjeneste) {
+    public SendTilKabalTask(BehandlingRepositoryProvider repositoryProvider, KabalTjeneste kabalTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.kabalTjeneste = kabalTjeneste;
@@ -39,8 +38,7 @@ public class SendTilKabalTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
 
-        var klagehjemmel = Optional.ofNullable(prosessTaskData.getPropertyValue(HJEMMEL_KEY))
-            .map(KlageHjemmel::fraKode).orElse(null);
+        var klagehjemmel = Optional.ofNullable(prosessTaskData.getPropertyValue(HJEMMEL_KEY)).map(KlageHjemmel::fraKode).orElse(null);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         switch (behandling.getType()) {

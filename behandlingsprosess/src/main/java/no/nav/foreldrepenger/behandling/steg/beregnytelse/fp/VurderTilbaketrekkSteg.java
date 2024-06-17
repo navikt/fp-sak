@@ -76,8 +76,7 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
             // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan omfordele igjen pga tilkommede arbeidsforhold,
             // i slike tilfeller må vi sjekke om foreslått resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
             // TFP-4279
-            if (SpesialBehandling.erJusterFeriepenger(behandling)
-                && kopierUtbetResultatTjeneste.kanKopiereForrigeUtbetResultat(ref)) {
+            if (SpesialBehandling.erJusterFeriepenger(behandling) && kopierUtbetResultatTjeneste.kanKopiereForrigeUtbetResultat(ref)) {
                 kopierUtbetResultatTjeneste.kopierOgLagreUtbetBeregningsresultat(ref);
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -93,9 +92,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         // tilfeller skal håndterers i beregning via aksjonspunkt 5059.
         // At det fortsatt utledes skyldes feil i aksjonspunktutlederTilbaketrekk.
         // Når alle saker som har hatt 5090 er avsluttet kan man avvikle alt relatert til tilbaketrekk.
-        LOGGER.info("FP-584196: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
-                "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.saksnummer().getVerdi(),
-            ref.behandlingId(), ref.getOriginalBehandlingId().orElse(null));
+        LOGGER.info("FP-584196: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, "
+                + "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.saksnummer().getVerdi(), ref.behandlingId(),
+            ref.getOriginalBehandlingId().orElse(null));
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
@@ -104,9 +103,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
             .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid))
             .flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk)
             .orElseThrow();
-        LOGGER.info("FP-584197: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
-                "kopierer valget som ble tatt i  forrige behandling med id {} der valget var {}.", ref.saksnummer().getVerdi(),
-            ref.behandlingId(), ref.getOriginalBehandlingId().orElse(null), originalBeslutning);
+        LOGGER.info("FP-584197: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, "
+                + "kopierer valget som ble tatt i  forrige behandling med id {} der valget var {}.", ref.saksnummer().getVerdi(), ref.behandlingId(),
+            ref.getOriginalBehandlingId().orElse(null), originalBeslutning);
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         beregningsresultatRepository.lagreMedTilbaketrekk(behandling, originalBeslutning);
     }

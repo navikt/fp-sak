@@ -40,7 +40,8 @@ class TilbaketrekkForTilkommetArbeidEntry {
 
     public List<BRNøkkelMedAndeler> getAndelerIRevurderingMedSluttFørDatoSortertPåDato() {
 
-        var sorterteAndeler = andelerIRevurderingSluttdatoTilNøkkelMap.entrySet().stream()
+        var sorterteAndeler = andelerIRevurderingSluttdatoTilNøkkelMap.entrySet()
+            .stream()
             .sorted(Map.Entry.comparingByKey())
             .flatMap(e -> e.getValue().stream())
             .collect(Collectors.toList());
@@ -63,13 +64,19 @@ class TilbaketrekkForTilkommetArbeidEntry {
     }
 
     private Integer finnTotalBrukersAndel(List<BRNøkkelMedAndeler> nøkler) {
-        return nøkler.stream().flatMap(a -> a.getBrukersAndelerTilknyttetNøkkel().stream())
-            .map(BeregningsresultatAndel::getDagsats).reduce(Integer::sum).orElse(0);
+        return nøkler.stream()
+            .flatMap(a -> a.getBrukersAndelerTilknyttetNøkkel().stream())
+            .map(BeregningsresultatAndel::getDagsats)
+            .reduce(Integer::sum)
+            .orElse(0);
     }
 
     int finnTotalRefusjonForTilkomneAndeler() {
-        return tilkomneNøklerMedStartEtterDato.stream().flatMap(a -> a.getArbeidsgiversAndelerTilknyttetNøkkel().stream())
-            .map(BeregningsresultatAndel::getDagsats).reduce(Integer::sum).orElse(0);
+        return tilkomneNøklerMedStartEtterDato.stream()
+            .flatMap(a -> a.getArbeidsgiversAndelerTilknyttetNøkkel().stream())
+            .map(BeregningsresultatAndel::getDagsats)
+            .reduce(Integer::sum)
+            .orElse(0);
     }
 
     int finnHindretTilbaketrekk() {
@@ -79,7 +86,10 @@ class TilbaketrekkForTilkommetArbeidEntry {
     }
 
     BRNøkkelMedAndeler finnOriginalForNøkkel(AktivitetOgArbeidsgiverNøkkel nøkkel) {
-        return andelerIOriginalMedSluttFørDato.stream().filter(n -> n.getNøkkel().equals(nøkkel)).findFirst().orElseThrow(() -> new IllegalArgumentException("Forventet å finne matchende nøkkel."));
+        return andelerIOriginalMedSluttFørDato.stream()
+            .filter(n -> n.getNøkkel().equals(nøkkel))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Forventet å finne matchende nøkkel."));
     }
 
 }

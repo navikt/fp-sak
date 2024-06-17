@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
 public enum RegelYtelse {
-    ENGANGSTØNAD, FORELDREPENGER, SVANGERSKAPSPENGER
+    ENGANGSTØNAD,
+    FORELDREPENGER,
+    SVANGERSKAPSPENGER
 }
 

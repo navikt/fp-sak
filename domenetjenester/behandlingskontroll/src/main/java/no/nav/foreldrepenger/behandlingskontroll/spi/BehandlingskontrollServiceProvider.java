@@ -36,8 +36,9 @@ public class BehandlingskontrollServiceProvider {
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     @Inject
-    public BehandlingskontrollServiceProvider(EntityManager entityManager, BehandlingModellRepository behandlingModellRepository,
-            BehandlingskontrollEventPubliserer eventPubliserer) {
+    public BehandlingskontrollServiceProvider(EntityManager entityManager,
+                                              BehandlingModellRepository behandlingModellRepository,
+                                              BehandlingskontrollEventPubliserer eventPubliserer) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
 
@@ -54,11 +55,11 @@ public class BehandlingskontrollServiceProvider {
     }
 
     public BehandlingskontrollServiceProvider(FagsakRepository fagsakRepository,
-            BehandlingRepository behandlingRepository,
-            FagsakLåsRepository fagsakLåsRepository,
-            BehandlingLåsRepository behandlingLåsRepository,
-            BehandlingModellRepository behandlingModellRepository,
-            AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
+                                              BehandlingRepository behandlingRepository,
+                                              FagsakLåsRepository fagsakLåsRepository,
+                                              BehandlingLåsRepository behandlingLåsRepository,
+                                              BehandlingModellRepository behandlingModellRepository,
+                                              AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakLåsRepository = fagsakLåsRepository;

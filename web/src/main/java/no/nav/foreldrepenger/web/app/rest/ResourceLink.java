@@ -133,9 +133,7 @@ public class ResourceLink {
             return false;
         }
         var other = (ResourceLink) obj;
-        return Objects.equals(this.href, other.href)
-            && Objects.equals(this.rel, other.rel)
-            && Objects.equals(this.type, other.type);
+        return Objects.equals(this.href, other.href) && Objects.equals(this.rel, other.rel) && Objects.equals(this.type, other.type);
     }
 
     public URI getHref() {

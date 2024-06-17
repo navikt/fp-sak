@@ -45,16 +45,14 @@ final class BeregningsresultatOutputVerifiserer {
 
         if (!andel.erBrukerMottaker()) {
             var arbeidsgiver = andel.getArbeidsgiver()
-                .orElseThrow(() -> new TekniskException("FP-370745",
-                    "Postcondition feilet: Beregningsresultat i ugyldig "
-                        + "tilstand etter steg. Dagsats på andel skal til arbeidsgiver men arbeidsgiver er ikke satt"));
+                .orElseThrow(() -> new TekniskException("FP-370745", "Postcondition feilet: Beregningsresultat i ugyldig "
+                    + "tilstand etter steg. Dagsats på andel skal til arbeidsgiver men arbeidsgiver er ikke satt"));
             verifiserArbeidsgiver(arbeidsgiver);
         }
 
         if (!andel.getAktivitetStatus().erArbeidstaker() && !andel.erBrukerMottaker()) {
-            var msg = String.format(
-                "Postcondition feilet: Beregningsresultat i ugyldig tilstand etter steg. Andel med status %s skal "
-                    + "aldri ha utbetaling til arbeidsgiver", andel.getAktivitetStatus().getKode());
+            var msg = String.format("Postcondition feilet: Beregningsresultat i ugyldig tilstand etter steg. Andel med status %s skal "
+                + "aldri ha utbetaling til arbeidsgiver", andel.getAktivitetStatus().getKode());
             throw new TekniskException("FP-370747", msg);
         }
     }

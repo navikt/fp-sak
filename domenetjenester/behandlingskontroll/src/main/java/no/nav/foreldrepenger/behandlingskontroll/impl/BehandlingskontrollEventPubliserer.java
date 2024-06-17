@@ -54,8 +54,10 @@ public class BehandlingskontrollEventPubliserer {
         doFireEvent(event);
     }
 
-    public void fireEvent(BehandlingskontrollKontekst kontekst, BehandlingStegType stegType, BehandlingStegStatus forrigeStatus,
-            BehandlingStegStatus nyStatus) {
+    public void fireEvent(BehandlingskontrollKontekst kontekst,
+                          BehandlingStegType stegType,
+                          BehandlingStegStatus forrigeStatus,
+                          BehandlingStegStatus nyStatus) {
         if (Objects.equals(forrigeStatus, nyStatus)) {
             // gjør ingenting
             return;

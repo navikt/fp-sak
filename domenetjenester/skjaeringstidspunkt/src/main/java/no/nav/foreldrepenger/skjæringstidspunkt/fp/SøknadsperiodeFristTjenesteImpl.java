@@ -26,7 +26,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTjeneste  {
+public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTjeneste {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SøknadRepository søknadRepository;
@@ -36,16 +36,14 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     @Inject
-    public SøknadsperiodeFristTjenesteImpl(YtelsesFordelingRepository ytelsesFordelingRepository,
-                                           SøknadRepository søknadRepository) {
+    public SøknadsperiodeFristTjenesteImpl(YtelsesFordelingRepository ytelsesFordelingRepository, SøknadRepository søknadRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.søknadRepository = søknadRepository;
     }
 
     @Override
     public Optional<Søknadsfristdatoer> finnSøknadsfrist(Long behandlingId) {
-        var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(SøknadEntitet::getMottattDato).orElse(null);
+        var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId).map(SøknadEntitet::getMottattDato).orElse(null);
         var perioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::getPerioder)
@@ -62,9 +60,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
         var brukfrist = søknadsperiode != null ? Søknadsfrister.søknadsfristDagytelse(søknadsperiode.getFomDato()) : null;
 
-        var builder = Søknadsfristdatoer.builder()
-            .medSøknadGjelderPeriode(søknadsperiode)
-            .medUtledetSøknadsfrist(brukfrist);
+        var builder = Søknadsfristdatoer.builder().medSøknadGjelderPeriode(søknadsperiode).medUtledetSøknadsfrist(brukfrist);
         søknad.ifPresent(s -> builder.medSøknadMottattDato(s.getMottattDato()));
         søknad.filter(s -> brukfrist != null && s.getMottattDato() != null && s.getMottattDato().isAfter(brukfrist))
             .ifPresent(s -> builder.medDagerOversittetFrist(DAYS.between(brukfrist, s.getMottattDato())));

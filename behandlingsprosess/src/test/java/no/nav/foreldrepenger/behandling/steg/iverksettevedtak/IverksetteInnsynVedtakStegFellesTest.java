@@ -31,12 +31,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
     }
 
     @Test
@@ -48,12 +47,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
         assertThat(argumentCaptor.getValue().fritekst()).isNull();
     }
@@ -68,12 +66,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
         assertThat(argumentCaptor.getValue().fritekst()).isEqualTo(begrunnelse);
     }

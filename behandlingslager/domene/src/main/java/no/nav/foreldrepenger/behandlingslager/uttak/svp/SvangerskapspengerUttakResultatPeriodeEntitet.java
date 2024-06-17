@@ -54,12 +54,8 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "SvangerskapspengerUttakResultatPeriodeEntitet{" +
-            "tidsperiode=" + tidsperiode +
-            ", utbetalingsgrad=" + utbetalingsgrad +
-            ", periodeResultatType=" + periodeResultatType +
-            ", periodeIkkeOppfyltÅrsak=" + periodeIkkeOppfyltÅrsak +
-            '}';
+        return "SvangerskapspengerUttakResultatPeriodeEntitet{" + "tidsperiode=" + tidsperiode + ", utbetalingsgrad=" + utbetalingsgrad
+            + ", periodeResultatType=" + periodeResultatType + ", periodeIkkeOppfyltÅrsak=" + periodeIkkeOppfyltÅrsak + '}';
     }
 
     public Long getId() {
@@ -104,15 +100,15 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         var that = (SvangerskapspengerUttakResultatPeriodeEntitet) o;
-        return Objects.equals(tidsperiode, that.tidsperiode) &&
-            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
-            Objects.equals(periodeResultatType, that.periodeResultatType) &&
-            Objects.equals(periodeIkkeOppfyltÅrsak, that.periodeIkkeOppfyltÅrsak);
+        return Objects.equals(tidsperiode, that.tidsperiode) && Objects.equals(utbetalingsgrad, that.utbetalingsgrad) && Objects.equals(
+            periodeResultatType, that.periodeResultatType) && Objects.equals(periodeIkkeOppfyltÅrsak, that.periodeIkkeOppfyltÅrsak);
     }
 
     @Override

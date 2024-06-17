@@ -84,12 +84,9 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
             return false;
         }
         var that = (BehandlingDokumentBestiltEntitet) o;
-        return Objects.equals(behandlingDokument, that.behandlingDokument) &&
-            Objects.equals(dokumentMalType, that.dokumentMalType) &&
-            Objects.equals(bestillingUuid, that.bestillingUuid) &&
-            Objects.equals(journalpostId, that.journalpostId) &&
-            Objects.equals(opprineligDokumentMal, that.opprineligDokumentMal)
-            ;
+        return Objects.equals(behandlingDokument, that.behandlingDokument) && Objects.equals(dokumentMalType, that.dokumentMalType) && Objects.equals(
+            bestillingUuid, that.bestillingUuid) && Objects.equals(journalpostId, that.journalpostId) && Objects.equals(opprineligDokumentMal,
+            that.opprineligDokumentMal);
     }
 
     @Override
@@ -99,14 +96,9 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "behandlingDokument=" + behandlingDokument + ", "
-            + "dokumentMalType=" + dokumentMalType + ", "
-            + "bestillingUuid=" + bestillingUuid + ", "
-            + "journalpostId=" + journalpostId + ", "
-            + "opprineligDokumentMal=" + opprineligDokumentMal
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "behandlingDokument=" + behandlingDokument + ", "
+            + "dokumentMalType=" + dokumentMalType + ", " + "bestillingUuid=" + bestillingUuid + ", " + "journalpostId=" + journalpostId + ", "
+            + "opprineligDokumentMal=" + opprineligDokumentMal + ">";
     }
 
     public static class Builder {

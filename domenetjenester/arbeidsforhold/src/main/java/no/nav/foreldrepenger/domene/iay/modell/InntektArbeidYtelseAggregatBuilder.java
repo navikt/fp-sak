@@ -43,11 +43,12 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     public static InntektArbeidYtelseAggregatBuilder builderFor(Optional<InntektArbeidYtelseAggregat> kopierDataFra,
-            UUID angittReferanse, LocalDateTime angittTidspunkt, VersjonType versjon) {
-        return kopierDataFra
-                .map(kopier -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt, kopier),
-                        versjon))
-                .orElseGet(() -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt), versjon));
+                                                                UUID angittReferanse,
+                                                                LocalDateTime angittTidspunkt,
+                                                                VersjonType versjon) {
+        return kopierDataFra.map(
+                kopier -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt, kopier), versjon))
+            .orElseGet(() -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt), versjon));
     }
 
     /**

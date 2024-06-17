@@ -66,22 +66,13 @@ class VurderTilbaketrekkTjenesteTest {
     }
 
     private BehandlingReferanse mockReferanse(Behandling behandling) {
-        return new BehandlingReferanse(null,
-            null,
-            null,
-            behandling.getId(),
-            UUID.randomUUID(),
-            BehandlingStatus.UTREDES,
-            BehandlingType.REVURDERING,
-            ORIGINAL_BEHANDLING_ID,
-            behandling.getAktørId(),
-            null,
+        return new BehandlingReferanse(null, null, null, behandling.getId(), UUID.randomUUID(), BehandlingStatus.UTREDES, BehandlingType.REVURDERING,
+            ORIGINAL_BEHANDLING_ID, behandling.getAktørId(), null,
             Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
     }
 
     private Behandling opprettBehandling() {
-        return ScenarioMorSøkerForeldrepenger.forFødsel()
-                .lagre(repositoryProvider);
+        return ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
     }
 
     @Test
@@ -107,12 +98,12 @@ class VurderTilbaketrekkTjenesteTest {
         var registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
         var ya1 = lagYrkesaktivitet(ARBEIDSGIVER1, arbeidsforholdId1,
-                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
+            DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
         var ya2 = lagYrkesaktivitet(ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef(),
-                DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
+            DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var ya3 = lagYrkesaktivitet(ARBEIDSGIVER1, arbeidsforholdId,
-                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
+            DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
         leggTilYrkesaktiviteter(behandling, registerBuilder, ya1, ya2, ya3);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
 
@@ -137,110 +128,100 @@ class VurderTilbaketrekkTjenesteTest {
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver,
-            InternArbeidsforholdRef arbeidsforholdId,
-            DatoIntervallEntitet periode) {
+                                                    InternArbeidsforholdRef arbeidsforholdId,
+                                                    DatoIntervallEntitet periode) {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(periode))
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .medPeriode(periode))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsforholdId(arbeidsforholdId)
-                .medArbeidsgiver(arbeidsgiver);
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(periode))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medProsentsats(BigDecimal.valueOf(100)).medPeriode(periode))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .medArbeidsgiver(arbeidsgiver);
     }
 
     private void lagIayForAvsluttetOgTilkommetArbeid(Behandling behandling) {
         var registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         var aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
-        aktørArbeidBuilder.leggTilYrkesaktivitet(lagYrkesaktivitetForAvsluttetArbeid())
-                .leggTilYrkesaktivitet(lagYrkesaktivitetForTilkommetArbeid());
+        aktørArbeidBuilder.leggTilYrkesaktivitet(lagYrkesaktivitetForAvsluttetArbeid()).leggTilYrkesaktivitet(lagYrkesaktivitetForTilkommetArbeid());
         registerBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitetForAvsluttetArbeid() {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), SKJÆRINGSTIDSPUNKT.plusMonths(1))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(ARBEIDSGIVER1);
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), SKJÆRINGSTIDSPUNKT.plusMonths(1))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(ARBEIDSGIVER1);
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitetForTilkommetArbeid() {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1))))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(ARBEIDSGIVER2);
+            .leggTilAktivitetsAvtale(
+                AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1))))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(ARBEIDSGIVER2);
     }
 
     private void lagUtbetaltBeregningsresultatMedEnAndelTilBruker(Arbeidsgiver arbeidsgiver, LocalDate beregningsresultatPeriodeFom) {
-        var build = BeregningsresultatEntitet.builder()
-                .medRegelInput("regelinput")
-                .medRegelSporing("Regelsporing")
-                .build();
+        var build = BeregningsresultatEntitet.builder().medRegelInput("regelinput").medRegelSporing("Regelsporing").build();
         var periode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
-                .build(build);
+            .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
+            .build(build);
         BeregningsresultatAndel.builder()
-                .medDagsats(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medArbeidsgiver(arbeidsgiver)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-                .medDagsatsFraBg(DAGSATS)
-                .build(periode);
+            .medDagsats(DAGSATS)
+            .medBrukerErMottaker(true)
+            .medArbeidsgiver(arbeidsgiver)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsatsFraBg(DAGSATS)
+            .build(periode);
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(ORIGINAL_BEHANDLING_ID)).thenReturn(Optional.of(build));
     }
 
     private void lagBeregningsresultatForTilkommetArbeidMedRefusjon(Arbeidsgiver tilkommetArbeid,
-            Arbeidsgiver bortfaltArbeid,
-            LocalDate beregningsresultatPeriodeFom,
-            Long behandlingId) {
-        var build = BeregningsresultatEntitet.builder()
-                .medRegelInput("regelinput")
-                .medRegelSporing("Regelsporing")
-                .build();
+                                                                    Arbeidsgiver bortfaltArbeid,
+                                                                    LocalDate beregningsresultatPeriodeFom,
+                                                                    Long behandlingId) {
+        var build = BeregningsresultatEntitet.builder().medRegelInput("regelinput").medRegelSporing("Regelsporing").build();
         var periode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
-                .build(build);
+            .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
+            .build(build);
         BeregningsresultatAndel.builder()
-                .medDagsats(0)
-                .medBrukerErMottaker(true)
-                .medArbeidsgiver(bortfaltArbeid)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-                .medDagsatsFraBg(0)
-                .build(periode);
+            .medDagsats(0)
+            .medBrukerErMottaker(true)
+            .medArbeidsgiver(bortfaltArbeid)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsatsFraBg(0)
+            .build(periode);
         BeregningsresultatAndel.builder()
-                .medDagsats(DAGSATS)
-                .medBrukerErMottaker(false)
-                .medArbeidsgiver(tilkommetArbeid)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-                .medDagsatsFraBg(DAGSATS)
-                .build(periode);
+            .medDagsats(DAGSATS)
+            .medBrukerErMottaker(false)
+            .medArbeidsgiver(tilkommetArbeid)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsatsFraBg(DAGSATS)
+            .build(periode);
         BeregningsresultatAndel.builder()
-                .medDagsats(0)
-                .medBrukerErMottaker(true)
-                .medArbeidsgiver(tilkommetArbeid)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medStillingsprosent(BigDecimal.valueOf(0))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-                .medDagsatsFraBg(0)
-                .build(periode);
+            .medDagsats(0)
+            .medBrukerErMottaker(true)
+            .medArbeidsgiver(tilkommetArbeid)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(0))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsatsFraBg(0)
+            .build(periode);
         when(beregningsresultatRepository.hentBeregningsresultat(behandlingId)).thenReturn(Optional.of(build));
     }
 

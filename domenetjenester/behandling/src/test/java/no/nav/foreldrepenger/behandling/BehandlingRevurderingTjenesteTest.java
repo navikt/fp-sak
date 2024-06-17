@@ -55,7 +55,8 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         var fagsakId = behandling.getFagsakId();
 
         var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
+            .build();
         behandlingRepository.lagreOgClear(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         revurderingsBehandling = behandlingRepository.hentBehandling(revurderingsBehandling.getId());
@@ -65,7 +66,8 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         revurderingsBehandling = behandlingRepository.hentBehandling(revurderingsBehandling.getId());
 
         var nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .build();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
         nyRevurderingsBehandling = behandlingRepository.hentBehandling(nyRevurderingsBehandling.getId());
@@ -76,7 +78,8 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         var revurderingsBehandlingId = revurderingsBehandling.getId();
         var result = behandlingRevurderingTjeneste.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
         assertThat(result).isNotEmpty();
-        result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.HENLAGT_FEILOPPRETTET));
+        result.forEach(
+            r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.HENLAGT_FEILOPPRETTET));
         assertThat(result).anyMatch(r -> r.getId().equals(revurderingsBehandlingId));
         assertThat(result).hasSize(2);
     }
@@ -91,7 +94,8 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         opprettOgLagreRevurderingMedBehandlingÅrsak(behandling);
 
         var nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .build();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
         nyRevurderingsBehandling = behandlingRepository.hentBehandling(nyRevurderingsBehandling.getId());
@@ -108,7 +112,8 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling opprettOgLagreRevurderingMedBehandlingÅrsak(Behandling behandling) {
         var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
+            .build();
         behandlingRepository.lagreOgClear(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         revurderingsBehandling = behandlingRepository.hentBehandling(revurderingsBehandling.getId());

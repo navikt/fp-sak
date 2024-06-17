@@ -50,8 +50,7 @@ public class OppgittAnnenAktivitet implements IndexKey {
         if (!(o instanceof OppgittAnnenAktivitet that)) {
             return false;
         }
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(arbeidType, that.arbeidType);
+        return Objects.equals(periode, that.periode) && Objects.equals(arbeidType, that.arbeidType);
     }
 
     @Override
@@ -61,9 +60,6 @@ public class OppgittAnnenAktivitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "AnnenAktivitetEntitet{" +
-                "periode=" + periode +
-                ", arbeidType=" + arbeidType +
-                '}';
+        return "AnnenAktivitetEntitet{" + "periode=" + periode + ", arbeidType=" + arbeidType + '}';
     }
 }

@@ -54,7 +54,8 @@ public class UttakStegImpl implements UttakSteg {
                          FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
                          UttakInputTjeneste uttakInputTjeneste,
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
-                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste, KopierForeldrepengerUttaktjeneste kopierUttaktjeneste,
+                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                         KopierForeldrepengerUttaktjeneste kopierUttaktjeneste,
                          LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo,
                          YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
@@ -76,8 +77,10 @@ public class UttakStegImpl implements UttakSteg {
 
         try {
             loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(input);
-        } catch (Exception e){
-            LOG.info("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på {}", input.getBehandlingReferanse().saksnummer(), e);
+        } catch (Exception e) {
+            LOG.info(
+                "VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID på {}",
+                input.getBehandlingReferanse().saksnummer(), e);
         }
 
         var kontoutregningForBehandling = beregnStønadskontoTjeneste.fastsettStønadskontoerForBehandling(input);
@@ -85,14 +88,18 @@ public class UttakStegImpl implements UttakSteg {
         fastsettePerioderTjeneste.fastsettePerioder(input, kontoutregningForBehandling);
 
         var aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input)
-            .stream().map(AksjonspunktResultat::opprettForAksjonspunkt).toList();
+            .stream()
+            .map(AksjonspunktResultat::opprettForAksjonspunkt)
+            .toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
     private void loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(UttakInput input) {
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         var ytelseaggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        var aktuellePerioder = ytelseaggregat.getGjeldendeFordeling().getPerioder().stream()
+        var aktuellePerioder = ytelseaggregat.getGjeldendeFordeling()
+            .getPerioder()
+            .stream()
             .filter(p -> MorsAktivitet.ARBEID.equals(p.getMorsAktivitet()) && erAktivitetskravVurdert(p.getDokumentasjonVurdering()))
             .toList();
 

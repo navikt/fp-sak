@@ -65,8 +65,11 @@ class VurderOgSendØkonomiOppdragTaskTest {
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
         lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID))
-            .thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
-        task = new VurderOgSendØkonomiOppdragTask(repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, oppdragInputTjeneste);
+            .thenReturn(
+                Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)),
+                    BehandlingType.FØRSTEGANGSSØKNAD).build());
+        task = new VurderOgSendØkonomiOppdragTask(repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste,
+            oppdragInputTjeneste);
     }
 
     @Test
@@ -78,8 +81,7 @@ class VurderOgSendØkonomiOppdragTaskTest {
             .medVenterKvittering(true)
             .medSaksnummer(new Saksnummer(BEHANDLING_ID.toString()))
             .build();
-        when(nyOppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(
-            Optional.ofNullable(oppdragskontroll));
+        when(nyOppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(Optional.ofNullable(oppdragskontroll));
         when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.empty());
 
         // Act

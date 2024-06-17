@@ -50,7 +50,7 @@ class SakInfoDtoTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        sakInfoDtoTjeneste = new SakInfoDtoTjeneste(behandlingRepositoryMock, familieHendelseRepositoryMock, skjæringstidspunktTjenesteMock );
+        sakInfoDtoTjeneste = new SakInfoDtoTjeneste(behandlingRepositoryMock, familieHendelseRepositoryMock, skjæringstidspunktTjenesteMock);
     }
 
     @Test
@@ -61,7 +61,7 @@ class SakInfoDtoTjenesteTest {
         var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
-        var fagsak= Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
 
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -93,7 +93,7 @@ class SakInfoDtoTjenesteTest {
         var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
-        var fagsak= Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
 
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();

@@ -100,7 +100,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
             k.taHensynTilBetraktninger();
         }
         kladd = null; // må ikke finne på å gjenbruke buildere her, tar heller straffen i en NPE ved
-                      // første feilkall
+        // første feilkall
         return k;
     }
 

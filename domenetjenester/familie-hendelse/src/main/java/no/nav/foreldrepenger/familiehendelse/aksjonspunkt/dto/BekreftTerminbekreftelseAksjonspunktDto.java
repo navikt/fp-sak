@@ -30,11 +30,7 @@ public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspun
         // For Jackson
     }
 
-    public BekreftTerminbekreftelseAksjonspunktDto(
-                                                    String begrunnelse,
-                                                    LocalDate termindato,
-                                                    LocalDate utstedtdato,
-                                                    int antallBarn) {
+    public BekreftTerminbekreftelseAksjonspunktDto(String begrunnelse, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
 
         super(begrunnelse);
         this.termindato = termindato;

@@ -54,26 +54,24 @@ class SamletInngangsvilkårStegImplTest {
     void skal_gjenskape_overstyring_mellomliggende_vilkår() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_VURDERT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+            .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
+            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagMocked();
 
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat()).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of()), any(), any())).thenReturn(val);
 
         // Act
-        var stegResultat = new SamletInngangsvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, ivTjeneste)
-                .utførSteg(kontekst);
+        var stegResultat = new SamletInngangsvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, ivTjeneste).utførSteg(kontekst);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
@@ -86,26 +84,24 @@ class SamletInngangsvilkårStegImplTest {
     void alle_vilkår_oppfylt() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medVilkårResultatType(VilkårResultatType.INNVILGET)
+            .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
+            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
+            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+            .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagMocked();
 
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat()).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of()), any(), any())).thenReturn(val);
 
         // Act
-        var stegResultat = new SamletInngangsvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, ivTjeneste)
-                .utførSteg(kontekst);
+        var stegResultat = new SamletInngangsvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, ivTjeneste).utførSteg(kontekst);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FellesTransisjoner.UTFØRT.getId()));

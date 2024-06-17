@@ -84,14 +84,14 @@ class FaktaUttakFellesTjenesteTest {
         var mødrekvoteDto = mødrekvote(opprinneligPeriode1.getFom(), opprinneligPeriode1.getTom(), TIDLIGERE_VEDTAK);
         var utsettelseDto = new FaktaUttakPeriodeDto(mødrekvoteDto.tom().plusDays(1), mødrekvoteDto.tom().plusWeeks(1), null, UtsettelseÅrsak.SYKDOM,
             null, null, null, null, null, false, MorsAktivitet.ARBEID, SAKSBEHANDLER, "begrunnelse");
-        var oppholdDto = new FaktaUttakPeriodeDto(utsettelseDto.tom().plusDays(1), utsettelseDto.tom().plusWeeks(1), null, null,
-            null, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, SAKSBEHANDLER, null);
-        var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), FEDREKVOTE,
-            null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK, null);
-        var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), FELLESPERIODE,
-            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, null, null);
-        var resultat = kjørOppdaterer(behandling, List.of(mødrekvoteFørOpprinnelig, mødrekvoteDto, utsettelseDto,
-            oppholdDto, overføringDto, samtidigUttak));
+        var oppholdDto = new FaktaUttakPeriodeDto(utsettelseDto.tom().plusDays(1), utsettelseDto.tom().plusWeeks(1), null, null, null,
+            OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, SAKSBEHANDLER, null);
+        var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), FEDREKVOTE, null,
+            OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK, null);
+        var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), FELLESPERIODE, null, null,
+            null, null, null, SamtidigUttaksprosent.TEN, true, null, null, null);
+        var resultat = kjørOppdaterer(behandling,
+            List.of(mødrekvoteFørOpprinnelig, mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var lagretPerioder = yfa.getGjeldendeFordeling().getPerioder();
 
@@ -184,8 +184,8 @@ class FaktaUttakFellesTjenesteTest {
             .medPeriode(fødsel.plusWeeks(4), fødsel.plusWeeks(10))
             .build();
         var lagretUendretVedtaksperiode = mødrekvote(fødsel, fødsel.plusWeeks(1).minusDays(1), TIDLIGERE_VEDTAK);
-        var lagretEndretVedtaksperiode = periode(lagretUendretVedtaksperiode.tom().plusDays(1),
-            lagretUendretVedtaksperiode.tom().plusWeeks(1), SAKSBEHANDLER, FELLESPERIODE);
+        var lagretEndretVedtaksperiode = periode(lagretUendretVedtaksperiode.tom().plusDays(1), lagretUendretVedtaksperiode.tom().plusWeeks(1),
+            SAKSBEHANDLER, FELLESPERIODE);
         var originalBehandling = lagreVedtak(fødsel, lagretUendretVedtaksperiode, lagretEndretVedtaksperiode);
 
         var opprinneligEndringsdato = søknadsperiode.getFom();
@@ -193,9 +193,7 @@ class FaktaUttakFellesTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
             .medFødselAdopsjonsdato(fødsel)
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder()
-                .medOpprinneligEndringsdato(opprinneligEndringsdato)
-                .build())
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(opprinneligEndringsdato).build())
             .lagre(repositoryProvider);
         var lagretUendretSøknadsperiode = mødrekvote(søknadsperiode.getFom(), søknadsperiode.getTom(), SØKNAD);
 
@@ -218,29 +216,24 @@ class FaktaUttakFellesTjenesteTest {
             .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT)
             .build();
         var lagretEndretVedtaksperiode = periode(fødsel, fødsel.plusWeeks(1), SAKSBEHANDLER, MØDREKVOTE);
-        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(fødsel)
-            .lagre(repositoryProvider);
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(fødsel).lagre(repositoryProvider);
 
         var uttakperioder = new UttakResultatPerioderEntitet();
-        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(lagretEndretVedtaksperiode.fom(), lagretEndretVedtaksperiode.tom())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medUttakPeriodeType(lagretEndretVedtaksperiode.uttakPeriodeType())
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(lagretEndretVedtaksperiode.fom(),
+            lagretEndretVedtaksperiode.tom()).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(lagretEndretVedtaksperiode.uttakPeriodeType())
                 .medMottattDato(fødsel.minusWeeks(2))
                 .medTidligstMottattDato(fødsel.minusWeeks(3))
                 .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
                 .build())
             .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.FRILANS)
-            .build())
-            .medArbeidsprosent(BigDecimal.ZERO)
+        new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medTrekkdager(new Trekkdager(10))
             .medTrekkonto(lagretEndretVedtaksperiode.uttakPeriodeType())
             .build();
-            uttakperioder.leggTilPeriode(uttaksperiode);
+        uttakperioder.leggTilPeriode(uttaksperiode);
 
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(originalBehandling.getId(), uttakperioder);
 
@@ -249,9 +242,7 @@ class FaktaUttakFellesTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
             .medFødselAdopsjonsdato(fødsel)
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder()
-                .medOpprinneligEndringsdato(opprinneligEndringsdato)
-                .build())
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(opprinneligEndringsdato).build())
             .lagre(repositoryProvider);
         var lagretUendretSøknadsperiode = mødrekvote(søknadsperiode.getFom(), søknadsperiode.getTom(), SØKNAD);
 
@@ -273,22 +264,17 @@ class FaktaUttakFellesTjenesteTest {
     }
 
     private Behandling lagreVedtak(LocalDate fødsel, FaktaUttakPeriodeDto... perioder) {
-        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(fødsel)
-            .lagre(repositoryProvider);
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(fødsel).lagre(repositoryProvider);
 
         var uttakperioder = new UttakResultatPerioderEntitet();
         for (var faktaUttakPeriodeDto : perioder) {
-            var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(faktaUttakPeriodeDto.fom(), faktaUttakPeriodeDto.tom())
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-                .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                    .medUttakPeriodeType(faktaUttakPeriodeDto.uttakPeriodeType())
-                    .build())
+            var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(faktaUttakPeriodeDto.fom(), faktaUttakPeriodeDto.tom()).medResultatType(
+                    PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+                .medPeriodeSoknad(
+                    new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(faktaUttakPeriodeDto.uttakPeriodeType()).build())
                 .build();
-            new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.FRILANS)
-                .build())
-                .medArbeidsprosent(BigDecimal.ZERO)
+            new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode,
+                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medArbeidsprosent(BigDecimal.ZERO)
                 .medUtbetalingsgrad(Utbetalingsgrad.FULL)
                 .medTrekkdager(new Trekkdager(10))
                 .medTrekkonto(faktaUttakPeriodeDto.uttakPeriodeType())
@@ -327,8 +313,8 @@ class FaktaUttakFellesTjenesteTest {
             .medFødselAdopsjonsdato(opprinneligFom)
             .lagre(repositoryProvider);
         var mødrekvoteDto = mødrekvote(opprinneligFom, opprinneligFom.plusWeeks(2), SØKNAD);
-        var utsettelseDto = new FaktaUttakPeriodeDto(opprinneligFom.minusWeeks(2), mødrekvoteDto.fom().minusDays(1),
-            null, UtsettelseÅrsak.SYKDOM, null, null, null, null, null, false, null, SØKNAD, null);
+        var utsettelseDto = new FaktaUttakPeriodeDto(opprinneligFom.minusWeeks(2), mødrekvoteDto.fom().minusDays(1), null, UtsettelseÅrsak.SYKDOM,
+            null, null, null, null, null, false, null, SØKNAD, null);
         kjørOppdaterer(behandling, List.of(mødrekvoteDto, utsettelseDto));
 
         var lagretPerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getGjeldendeFordeling().getPerioder();
@@ -340,8 +326,7 @@ class FaktaUttakFellesTjenesteTest {
     }
 
     private static FaktaUttakPeriodeDto periode(LocalDate fom, LocalDate tom, FordelingPeriodeKilde kilde, UttakPeriodeType uttakPeriodeType) {
-        return new FaktaUttakPeriodeDto(fom, tom, uttakPeriodeType, null, null, null, null,
-            null, null, false, null, kilde, null);
+        return new FaktaUttakPeriodeDto(fom, tom, uttakPeriodeType, null, null, null, null, null, null, false, null, kilde, null);
     }
 
     private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {

@@ -22,11 +22,9 @@ public class UtlandsoppholdDto {
 
     public static List<UtlandsoppholdDto> mapFra(List<MedlemskapOppgittLandOppholdEntitet> utlandsoppholdList) {
         return utlandsoppholdList.stream()
-                .map(utlandsopphold -> new UtlandsoppholdDto(
-                        utlandsopphold.getLand().getNavn(),
-                        utlandsopphold.getPeriodeFom(),
-                        utlandsopphold.getPeriodeTom())
-                ).toList();
+            .map(utlandsopphold -> new UtlandsoppholdDto(utlandsopphold.getLand().getNavn(), utlandsopphold.getPeriodeFom(),
+                utlandsopphold.getPeriodeTom()))
+            .toList();
     }
 
     public String getLandNavn() {

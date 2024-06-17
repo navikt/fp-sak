@@ -46,8 +46,8 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     @JoinColumn(name = "beregningsresultat_andel_id")
     private BeregningsresultatAndel beregningsresultatAndel;
 
-    @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status")
+    @Convert(converter = AktivitetStatus.KodeverdiConverter.class)
+    @Column(name = "aktivitet_status")
     private AktivitetStatus aktivitetStatus;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -131,12 +131,10 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
         if (!(obj instanceof BeregningsresultatFeriepengerPrÅr other)) {
             return false;
         }
-        return Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår())
-            && Objects.equals(this.getÅrsbeløp(), other.getÅrsbeløp())
-            && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
-            && Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef())
-            && Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-            && Objects.equals(this.erBrukerMottaker(), other.erBrukerMottaker());
+        return Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår()) && Objects.equals(this.getÅrsbeløp(), other.getÅrsbeløp())
+            && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver()) && Objects.equals(this.getArbeidsforholdRef(),
+            other.getArbeidsforholdRef()) && Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus()) && Objects.equals(
+            this.erBrukerMottaker(), other.erBrukerMottaker());
     }
 
     @Override
@@ -146,15 +144,9 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "BRFerPrÅr{" +
-            "brFerie=" + beregningsresultatFeriepenger +
-            ", opptjeningsår=" + opptjeningsår +
-            ", årsbeløp=" + årsbeløp +
-            ", brukerErMottaker=" + brukerErMottaker +
-            ", arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", aktivitetStatus=" + aktivitetStatus +
-            '}';
+        return "BRFerPrÅr{" + "brFerie=" + beregningsresultatFeriepenger + ", opptjeningsår=" + opptjeningsår + ", årsbeløp=" + årsbeløp
+            + ", brukerErMottaker=" + brukerErMottaker + ", arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef
+            + ", aktivitetStatus=" + aktivitetStatus + '}';
     }
 
     public static Builder builder() {
@@ -188,9 +180,11 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
             return this;
         }
 
-        public BeregningsresultatFeriepengerPrÅr build(BeregningsresultatFeriepenger beregningsresultatFeriepenger, BeregningsresultatAndel beregningsresultatAndel) {
+        public BeregningsresultatFeriepengerPrÅr build(BeregningsresultatFeriepenger beregningsresultatFeriepenger,
+                                                       BeregningsresultatAndel beregningsresultatAndel) {
             beregningsresultatFeriepengerPrÅrMal.beregningsresultatFeriepenger = beregningsresultatFeriepenger;
-            BeregningsresultatFeriepenger.builder(beregningsresultatFeriepenger).leggTilBeregningsresultatFeriepengerPrÅr(beregningsresultatFeriepengerPrÅrMal);
+            BeregningsresultatFeriepenger.builder(beregningsresultatFeriepenger)
+                .leggTilBeregningsresultatFeriepengerPrÅr(beregningsresultatFeriepengerPrÅrMal);
             beregningsresultatFeriepengerPrÅrMal.beregningsresultatAndel = beregningsresultatAndel;
             beregningsresultatFeriepengerPrÅrMal.brukerErMottaker = beregningsresultatAndel.erBrukerMottaker();
             beregningsresultatFeriepengerPrÅrMal.aktivitetStatus = beregningsresultatAndel.getAktivitetStatus();

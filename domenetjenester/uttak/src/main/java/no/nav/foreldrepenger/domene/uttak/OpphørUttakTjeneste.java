@@ -65,7 +65,9 @@ public class OpphørUttakTjeneste {
     private List<UttakResultatPeriodeEntitet> getUttaksperioderIOmvendtRekkefølge(UttakResultatEntitet uttakResultat) {
         return Optional.ofNullable(uttakResultat)
             .map(UttakResultatEntitet::getGjeldendePerioder)
-            .map(UttakResultatPerioderEntitet::getPerioder).orElse(Collections.emptyList()).stream()
+            .map(UttakResultatPerioderEntitet::getPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom).reversed())
             .toList();
     }

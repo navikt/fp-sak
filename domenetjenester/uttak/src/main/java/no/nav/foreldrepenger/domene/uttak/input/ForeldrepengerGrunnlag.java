@@ -18,6 +18,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
     private NesteSakGrunnlagEntitet nesteSakGrunnlag;
     private boolean dødsfall;
+
     public ForeldrepengerGrunnlag() {
 
     }

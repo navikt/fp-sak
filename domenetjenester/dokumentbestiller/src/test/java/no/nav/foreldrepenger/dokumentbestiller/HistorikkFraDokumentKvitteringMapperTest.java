@@ -17,7 +17,8 @@ class HistorikkFraDokumentKvitteringMapperTest {
 
         var behandlingId = 12L;
         var fagsakId = 34L;
-        var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
+        var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMal, journalpostId, dokumentId, behandlingId,
+            fagsakId);
 
         assertEquals(behandlingId, historikkinnslag.getBehandlingId());
         assertEquals(fagsakId, historikkinnslag.getFagsakId());

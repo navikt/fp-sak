@@ -86,11 +86,7 @@ public class BeregningSatsDto implements AbacDto {
 
     @Override
     public String toString() {
-        return "BeregningSatsDto{" +
-            "satsType='" + satsType + '\'' +
-            ", satsFom='" + satsFom + '\'' +
-            ", satsTom='" + satsTom + '\'' +
-            ", satsVerdi=" + satsVerdi +
-            '}';
+        return "BeregningSatsDto{" + "satsType='" + satsType + '\'' + ", satsFom='" + satsFom + '\'' + ", satsTom='" + satsTom + '\'' + ", satsVerdi="
+            + satsVerdi + '}';
     }
 }

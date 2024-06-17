@@ -26,8 +26,7 @@ public class VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste {
 
     public void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VurderVarigEndringEllerNyoppstartetSNDto dto) {
 
-        oppdaterVedEndretVerdi(HistorikkEndretFeltType.ENDRING_NAERING,
-            konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering()));
+        oppdaterVedEndretVerdi(HistorikkEndretFeltType.ENDRING_NAERING, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering()));
 
         if (dto.getBruttoBeregningsgrunnlag() != null) {
             oppdaterVedEndretVerdi(HistorikkEndretFeltType.BRUTTO_NAERINGSINNTEKT, dto.getBruttoBeregningsgrunnlag());
@@ -45,8 +44,7 @@ public class VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste {
         return endringNæring ? HistorikkEndretFeltVerdiType.VARIG_ENDRET_NAERING : HistorikkEndretFeltVerdiType.INGEN_VARIG_ENDRING_NAERING;
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                        HistorikkEndretFeltVerdiType bekreftet) {
+    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, HistorikkEndretFeltVerdiType bekreftet) {
         historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, bekreftet);
     }
 

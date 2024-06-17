@@ -93,8 +93,11 @@ class KompletthetssjekkerSøknadKomplettTest {
         assertThat(resultat).isTrue();
     }
 
-    private Behandling lagMocketBehandling(boolean elektroniskRegistrert, boolean gjelderFødsel, boolean manglerVedlegg,
-                                           LocalDate fødselsdatoBarn, boolean bekreftetViaTps) {
+    private Behandling lagMocketBehandling(boolean elektroniskRegistrert,
+                                           boolean gjelderFødsel,
+                                           boolean manglerVedlegg,
+                                           LocalDate fødselsdatoBarn,
+                                           boolean bekreftetViaTps) {
 
         var scenario = lagScenario(gjelderFødsel, elektroniskRegistrert);
         leggVedRegisteropplysninger(fødselsdatoBarn, bekreftetViaTps, scenario);
@@ -108,8 +111,7 @@ class KompletthetssjekkerSøknadKomplettTest {
         var barnAktørId = AktørId.dummy();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        var fødtBarn = builderForRegisteropplysninger
-            .medPersonas()
+        var fødtBarn = builderForRegisteropplysninger.medPersonas()
             .fødtBarn(barnAktørId, fødselsdatoBarn)
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, false)
             .build();
@@ -118,8 +120,7 @@ class KompletthetssjekkerSøknadKomplettTest {
             scenario.medRegisterOpplysninger(fødtBarn);
         }
 
-        var søker = builderForRegisteropplysninger
-            .medPersonas()
+        var søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, false)
@@ -137,11 +138,11 @@ class KompletthetssjekkerSøknadKomplettTest {
         testObjekt = spy(new KompletthetsjekkerImpl(repositoryProvider, null, personopplysningTjeneste));
 
         if (!manglerVedlegg) {
-            Mockito.doReturn(emptyList())
-                .when(testObjekt).utledAlleManglendeVedleggForForsendelse(any());
+            Mockito.doReturn(emptyList()).when(testObjekt).utledAlleManglendeVedleggForForsendelse(any());
         } else {
             Mockito.doReturn(Collections.singletonList(new ManglendeVedlegg(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)))
-                .when(testObjekt).utledAlleManglendeVedleggForForsendelse(any());
+                .when(testObjekt)
+                .utledAlleManglendeVedleggForForsendelse(any());
         }
         return behandling;
     }
@@ -152,16 +153,13 @@ class KompletthetssjekkerSøknadKomplettTest {
         AbstractTestScenario<?> scenario;
         if (!gjelderFødsel) {
             scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-            scenario.medSøknadHendelse()
-                .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                    .medOmsorgsovertakelseDato(LocalDate.now()));
+            scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         } else {
             scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
             scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         }
 
-        scenario.medSøknad()
-            .medElektroniskRegistrert(elektroniskRegistrert);
+        scenario.medSøknad().medElektroniskRegistrert(elektroniskRegistrert);
         return scenario;
     }
 }

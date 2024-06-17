@@ -55,7 +55,6 @@ public class SaldoerDtoTjeneste {
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
 
 
-
     public SaldoerDtoTjeneste() {
         //For CDI
     }
@@ -150,9 +149,8 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoFlerbarnsdager >= 0;
-        return new StønadskontoDto(FLERBARNSDAGER,
-            saldoUtregning.getMaxDagerFlerbarnsdager().rundOpp(), restSaldoFlerbarnsdager, aktivitetSaldoList, gyldigForbruk,
-            null);
+        return new StønadskontoDto(FLERBARNSDAGER, saldoUtregning.getMaxDagerFlerbarnsdager().rundOpp(), restSaldoFlerbarnsdager, aktivitetSaldoList,
+            gyldigForbruk, null);
     }
 
     private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {
@@ -166,9 +164,8 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoDagerUtenAktivitetskrav >= 0;
-        return new StønadskontoDto(UTEN_AKTIVITETSKRAV,
-            saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav, aktivitetSaldoList, gyldigForbruk,
-            null);
+        return new StønadskontoDto(UTEN_AKTIVITETSKRAV, saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav,
+            aktivitetSaldoList, gyldigForbruk, null);
     }
 
     private StønadskontoDto foreldrepengerMinsterettDto(SaldoUtregning saldoUtregning) {
@@ -177,14 +174,10 @@ public class SaldoerDtoTjeneste {
             var totalSaldo = saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER, a);
             return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoMinsterettDager), totalSaldo));
         }).toList();
-        int restSaldoMinsterett = aktivitetSaldoList.stream()
-            .map(AktivitetSaldoDto::saldo)
-            .max(Comparator.comparing(integer -> integer))
-            .orElse(0);
+        int restSaldoMinsterett = aktivitetSaldoList.stream().map(AktivitetSaldoDto::saldo).max(Comparator.comparing(integer -> integer)).orElse(0);
         var gyldigForbruk = restSaldoMinsterett >= 0;
-        return new StønadskontoDto(MINSTERETT,
-            saldoUtregning.getMaxDagerMinsterett().rundOpp(), restSaldoMinsterett, aktivitetSaldoList, gyldigForbruk,
-            null);
+        return new StønadskontoDto(MINSTERETT, saldoUtregning.getMaxDagerMinsterett().rundOpp(), restSaldoMinsterett, aktivitetSaldoList,
+            gyldigForbruk, null);
     }
 
     private StønadskontoDto foreldrepengerEtterNesteStønadsperiodeDto(SaldoUtregning saldoUtregning) {
@@ -192,13 +185,10 @@ public class SaldoerDtoTjeneste {
             var restSaldo = saldoUtregning.restSaldoEtterNesteStønadsperiode(a);
             return new AktivitetSaldoDto(mapToDto(a), round(restSaldo));
         }).toList();
-        int restSaldo = aktivitetSaldoList.stream()
-            .map(AktivitetSaldoDto::saldo)
-            .max(Comparator.comparing(integer -> integer))
-            .orElse(0);
+        int restSaldo = aktivitetSaldoList.stream().map(AktivitetSaldoDto::saldo).max(Comparator.comparing(integer -> integer)).orElse(0);
         var gyldigForbruk = restSaldo >= 0;
-        return new StønadskontoDto(MINSTERETT_NESTE_STØNADSPERIODE,
-            saldoUtregning.getMaxDagerEtterNesteStønadsperiode().rundOpp(), restSaldo, aktivitetSaldoList, gyldigForbruk, null);
+        return new StønadskontoDto(MINSTERETT_NESTE_STØNADSPERIODE, saldoUtregning.getMaxDagerEtterNesteStønadsperiode().rundOpp(), restSaldo,
+            aktivitetSaldoList, gyldigForbruk, null);
     }
 
     private int finnTapteDagerFpff(UttakInput input, Map<SaldoVisningStønadskontoType, StønadskontoDto> saldo) {
@@ -209,9 +199,7 @@ public class SaldoerDtoTjeneste {
     }
 
     private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        return foreldrepengerGrunnlag.getAnnenpart()
-            .map(Annenpart::gjeldendeVedtakBehandlingId)
-            .flatMap(uttakTjeneste::hentUttakHvisEksisterer);
+        return foreldrepengerGrunnlag.getAnnenpart().map(Annenpart::gjeldendeVedtakBehandlingId).flatMap(uttakTjeneste::hentUttakHvisEksisterer);
     }
 
     private Optional<KontoUtvidelser> finnKontoUtvidelser(Stønadskontotype stønadskonto, Map<StønadskontoType, Integer> kontoUtregning) {
@@ -228,8 +216,7 @@ public class SaldoerDtoTjeneste {
     }
 
     private FastsattUttakPeriode map(UttakResultatPeriodeLagreDto dto) {
-        return new FastsattUttakPeriode.Builder()
-            .samtidigUttak(dto.isSamtidigUttak())
+        return new FastsattUttakPeriode.Builder().samtidigUttak(dto.isSamtidigUttak())
             .oppholdÅrsak(UttakEnumMapper.map(dto.getOppholdÅrsak()))
             .flerbarnsdager(dto.isFlerbarnsdager())
             .aktiviteter(map(dto.getAktiviteter()))
@@ -252,7 +239,8 @@ public class SaldoerDtoTjeneste {
 
     private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet) {
         return new AktivitetIdentifikatorDto(UttakEnumMapper.map(aktivitet.getAktivitetType()),
-            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ArbeidsgiverIdentifikator::value).orElse(null), aktivitet.getArbeidsforholdId());
+            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ArbeidsgiverIdentifikator::value).orElse(null),
+            aktivitet.getArbeidsforholdId());
     }
 
 }

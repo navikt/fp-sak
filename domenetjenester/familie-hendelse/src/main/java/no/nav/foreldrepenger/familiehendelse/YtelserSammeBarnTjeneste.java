@@ -39,8 +39,7 @@ public class YtelserSammeBarnTjeneste {
     }
 
     @Inject
-    public YtelserSammeBarnTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                    FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public YtelserSammeBarnTjeneste(BehandlingRepositoryProvider repositoryProvider, FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -58,7 +57,8 @@ public class YtelserSammeBarnTjeneste {
             return false;
         }
 
-        return fagsakRepository.hentForBruker(aktørId).stream()
+        return fagsakRepository.hentForBruker(aktørId)
+            .stream()
             .filter(sak -> !saksnummer.equals(sak.getSaksnummer()) && SAKSTYPER.contains(sak.getYtelseType()))
             .map(this::gjeldendeFamilieHendelse)
             .flatMap(Optional::stream)

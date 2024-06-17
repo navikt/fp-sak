@@ -29,19 +29,22 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
-    @Mock private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    @Mock private Dokument brevTjeneste;
+    @Mock
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    @Mock
+    private Dokument brevTjeneste;
     private DokumentForhåndsvisningTjeneste tjeneste;
 
     private void settOpp(AbstractTestScenario<?> scenario, Vedtaksbrev vedtaksbrev) {
-        scenario.medBehandlingsresultat(Behandlingsresultat.builder()
-            .medVedtaksbrev(vedtaksbrev)
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(
+            Behandlingsresultat.builder().medVedtaksbrev(vedtaksbrev).medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, brevTjeneste);
+        tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(),
+            repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, brevTjeneste);
     }
+
     @Test
     @DisplayName("Brevet er ikke overstyrt med fritekst, skal forhåndsvise det automatiske brevet.")
     void skal_utlede_innvilgelse_fp_automatisk_fra_behandling_resultat() {

@@ -41,7 +41,9 @@ public class PdlKlientLogCause {
         this.pdlKlient = pdlKlient;
     }
 
-    public GeografiskTilknytning hentGT(FagsakYtelseType ytelseType, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
+    public GeografiskTilknytning hentGT(FagsakYtelseType ytelseType,
+                                        HentGeografiskTilknytningQueryRequest q,
+                                        GeografiskTilknytningResponseProjection p) {
         try {
             var ytelse = utledYtelse(ytelseType);
             return pdlKlient.hentGT(ytelse, q, p);

@@ -59,12 +59,16 @@ final class PleiepengerJustering {
         return combine(pleiepengerUtsettelser, oppgittePerioder);
     }
 
-    static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+    static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId,
+                                                                                InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
-            .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
+            .map(AktørYtelse::getAlleYtelser)
+            .orElse(List.of())
+            .stream()
             .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
             .filter(ytelse1 -> RelatertYtelseType.PLEIEPENGER.contains(ytelse1.getRelatertYtelseType()))
-            .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
+            .flatMap(ytelse -> ytelse.getYtelseAnvist()
+                .stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
                 .map(ya -> mapTilSegment(ytelse, ya)))
             .toList();
@@ -76,30 +80,31 @@ final class PleiepengerJustering {
         var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
         var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
-        var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
-            (interval, fp, pp) -> {
-                if (pp == null) {
+        var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline, (interval, fp, pp) -> {
+            if (pp == null) {
+                return copy(interval, fp.getValue());
+            }
+            if (interval.getTomDato().isBefore(førsteSøkteDag) || interval.getFomDato().isAfter(sisteSøkteDag)) {
+                return null;
+            }
+            if (fp != null) {
+                //Hvis søknad om periode er mottatt etter vedtak så beholder vi søknadsperiode
+                var vedtakdato = pp.getValue().vedtakstidspunkt();
+                var mottattDato = fp.getValue().getMottattDato();
+                if (vedtakdato != null && mottattDato != null && mottattDato.isAfter(vedtakdato.toLocalDate())) {
                     return copy(interval, fp.getValue());
                 }
-                if (interval.getTomDato().isBefore(førsteSøkteDag) || interval.getFomDato().isAfter(sisteSøkteDag)) {
-                    return null;
-                }
-                if (fp != null) {
-                    //Hvis søknad om periode er mottatt etter vedtak så beholder vi søknadsperiode
-                    var vedtakdato = pp.getValue().vedtakstidspunkt();
-                    var mottattDato = fp.getValue().getMottattDato();
-                    if (vedtakdato != null && mottattDato != null && mottattDato.isAfter(vedtakdato.toLocalDate())) {
-                        return copy(interval, fp.getValue());
-                    }
-                }
-                return copy(interval, OppgittPeriodeBuilder.ny()
-                    .medPeriode(pp.getFom(), pp.getTom())
-                    .medÅrsak(pp.getValue().årsak())
-                    .medPeriodeKilde(FordelingPeriodeKilde.ANDRE_NAV_VEDTAK)
-                    .build());
+            }
+            return copy(interval, OppgittPeriodeBuilder.ny()
+                .medPeriode(pp.getFom(), pp.getTom())
+                .medÅrsak(pp.getValue().årsak())
+                .medPeriodeKilde(FordelingPeriodeKilde.ANDRE_NAV_VEDTAK)
+                .build());
 
-            });
-        var combined = fellesTimeline.toSegments().stream().map(LocalDateSegment::getValue)
+        });
+        var combined = fellesTimeline.toSegments()
+            .stream()
+            .map(LocalDateSegment::getValue)
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .toList();
@@ -107,14 +112,12 @@ final class PleiepengerJustering {
     }
 
     private static LocalDateSegment<OppgittPeriodeEntitet> copy(LocalDateInterval interval, OppgittPeriodeEntitet eksisterende) {
-        return new LocalDateSegment<>(interval, OppgittPeriodeBuilder.fraEksisterende(eksisterende)
-            .medPeriode(interval.getFomDato(), interval.getTomDato())
-            .build());
+        return new LocalDateSegment<>(interval,
+            OppgittPeriodeBuilder.fraEksisterende(eksisterende).medPeriode(interval.getFomDato(), interval.getTomDato()).build());
     }
 
     private static LocalDateTimeline<OppgittPeriodeEntitet> oppgittPeriodeTimeline(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var segments = oppgittePerioder.stream()
-            .map(op -> new LocalDateSegment<>(op.getFom(), op.getTom(), op)).toList();
+        var segments = oppgittePerioder.stream().map(op -> new LocalDateSegment<>(op.getFom(), op.getTom(), op)).toList();
         return new LocalDateTimeline<>(segments);
     }
 
@@ -122,10 +125,10 @@ final class PleiepengerJustering {
                                                                                             LocalDateSegment<PleiepengerUtsettelse> lhs,
                                                                                             LocalDateSegment<PleiepengerUtsettelse> rhs) {
         if (lhs != null && rhs != null) {
-            var årsak = UtsettelseÅrsak.INSTITUSJON_BARN.equals(lhs.getValue().årsak()) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(rhs.getValue().årsak()) ?
-                UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
-            var senesteVedtak =  lhs.getValue().vedtakstidspunkt().isAfter(rhs.getValue().vedtakstidspunkt()) ?
-                lhs.getValue().vedtakstidspunkt() : rhs.getValue().vedtakstidspunkt();
+            var årsak = UtsettelseÅrsak.INSTITUSJON_BARN.equals(lhs.getValue().årsak()) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(
+                rhs.getValue().årsak()) ? UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
+            var senesteVedtak = lhs.getValue().vedtakstidspunkt().isAfter(rhs.getValue().vedtakstidspunkt()) ? lhs.getValue()
+                .vedtakstidspunkt() : rhs.getValue().vedtakstidspunkt();
             return new LocalDateSegment<>(dateInterval, new PleiepengerUtsettelse(senesteVedtak, årsak));
         } else {
             return lhs == null ? new LocalDateSegment<>(dateInterval, rhs.getValue()) : new LocalDateSegment<>(dateInterval, lhs.getValue());
@@ -133,11 +136,12 @@ final class PleiepengerJustering {
     }
 
     private static LocalDateSegment<PleiepengerUtsettelse> mapTilSegment(Ytelse ytelse, YtelseAnvist periodeMedUtbetaltPleiepenger) {
-        var utsettelseÅrsak = RelatertYtelseType.PLEIEPENGER_SYKT_BARN.equals(ytelse.getRelatertYtelseType()) ?
-            UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
+        var utsettelseÅrsak = RelatertYtelseType.PLEIEPENGER_SYKT_BARN.equals(
+            ytelse.getRelatertYtelseType()) ? UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
         return new LocalDateSegment<>(periodeMedUtbetaltPleiepenger.getAnvistFOM(), periodeMedUtbetaltPleiepenger.getAnvistTOM(),
             new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), utsettelseÅrsak));
     }
 
-    record PleiepengerUtsettelse(LocalDateTime vedtakstidspunkt, UtsettelseÅrsak årsak) { }
+    record PleiepengerUtsettelse(LocalDateTime vedtakstidspunkt, UtsettelseÅrsak årsak) {
+    }
 }

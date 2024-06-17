@@ -38,13 +38,16 @@ public class HåndterePermisjoner {
         for (var ya : filter.getYrkesaktiviteter()) {
             var harArbeidsforholdetPermisjonUtenSluttdato = harArbeidsforholdetPermisjonUtenSluttdato(filter, List.of(ya), stp);
             if (harArbeidsforholdetPermisjonUtenSluttdato) {
-                arbForholdMedPermUtenSluttdato.add(new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
+                arbForholdMedPermUtenSluttdato.add(
+                    new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
             }
         }
         return arbForholdMedPermUtenSluttdato;
     }
 
-    static boolean harArbeidsforholdetPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+    static boolean harArbeidsforholdetPermisjonUtenSluttdato(YrkesaktivitetFilter filter,
+                                                             Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                             LocalDate stp) {
         return yrkesaktiviteter.stream()
             .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
             .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
@@ -57,13 +60,15 @@ public class HåndterePermisjoner {
     }
 
     public static boolean harRelevantPermisjonSomOverlapperSkjæringstidspunkt(Yrkesaktivitet yrkesaktivitet, LocalDate stp) {
-        return yrkesaktivitet.getPermisjon().stream()
+        return yrkesaktivitet.getPermisjon()
+            .stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
             .anyMatch(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold());
     }
 
-    public static List<Permisjon> finnRelevantePermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
+    public static List<Permisjon> finnRelevantePermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet,
+                                                                                        LocalDate tilretteleggingBehovFom) {
         return yrkesaktivitet.getPermisjon()
             .stream()
             .filter(HåndterePermisjoner::harMerEnnNullProsentPermisjon)
@@ -77,7 +82,8 @@ public class HåndterePermisjoner {
                                                                        LocalDate stp,
                                                                        AksjonspunktÅrsak årsak,
                                                                        BekreftetPermisjonStatus status) {
-        return yrkesaktivitet.getPermisjon().stream()
+        return yrkesaktivitet.getPermisjon()
+            .stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
             .filter(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold())
@@ -89,7 +95,9 @@ public class HåndterePermisjoner {
         return filter.getAnsettelsesPerioder(ya).stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(stp));
     }
 
-    private static PermisjonOgMangelDto byggPermisjonOgMangelDto(Permisjon permisjon, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus bekreftetPermisjonStatus) {
+    private static PermisjonOgMangelDto byggPermisjonOgMangelDto(Permisjon permisjon,
+                                                                 AksjonspunktÅrsak årsak,
+                                                                 BekreftetPermisjonStatus bekreftetPermisjonStatus) {
         return new PermisjonOgMangelDto(permisjon.getFraOgMed(),
             permisjon.getTilOgMed() == null || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
             permisjon.getPermisjonsbeskrivelseType(), årsak, bekreftetPermisjonStatus);

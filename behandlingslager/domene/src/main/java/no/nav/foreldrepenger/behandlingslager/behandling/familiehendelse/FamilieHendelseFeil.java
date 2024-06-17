@@ -7,8 +7,7 @@ final class FamilieHendelseFeil {
     }
 
     static TekniskException fantIkkeForventetGrunnlagPåBehandling(long behandlingId) {
-        return new TekniskException("FP-947392",
-            "Finner ikke FamilieHendelse grunnlag for behandling med id " + behandlingId);
+        return new TekniskException("FP-947392", "Finner ikke FamilieHendelse grunnlag for behandling med id " + behandlingId);
     }
 
     static TekniskException kanIkkeEndreTypePåHendelseFraTil(FamilieHendelseType fraType, FamilieHendelseType tilType) {

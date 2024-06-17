@@ -46,10 +46,7 @@ public class Virksomhet {
 
     @Override
     public String toString() {
-        return "Virksomhet{" +
-            "navn=" + navn +
-            ", orgnr=" + tilMaskertNummer(orgnr) +
-            '}';
+        return "Virksomhet{" + "navn=" + navn + ", orgnr=" + tilMaskertNummer(orgnr) + '}';
     }
 
     public static Builder getBuilder() {

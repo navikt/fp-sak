@@ -85,13 +85,13 @@ public class KabalTjeneste {
             .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
         var enhet = utledEnhet(klageBehandling.getFagsak());
-        var klageMottattDato  = kabalDokumenter.utledDokumentMottattDato(klageBehandling);
+        var klageMottattDato = kabalDokumenter.utledDokumentMottattDato(klageBehandling);
         var klager = utledKlager(klageBehandling, Optional.of(resultat.getKlageResultat()));
         var sakMottattKaDato = LocalDateTime.now();
-        var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForKlage(klageBehandling.getId(),
-            klageBehandling.getFagsak().getSaksnummer(), resultat.getKlageResultat(), brukHjemmel);
-        var request = TilKabalDto.klage(klageBehandling, klager, enhet, dokumentReferanser,
-            klageMottattDato, klageMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
+        var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForKlage(klageBehandling.getId(), klageBehandling.getFagsak().getSaksnummer(),
+            resultat.getKlageResultat(), brukHjemmel);
+        var request = TilKabalDto.klage(klageBehandling, klager, enhet, dokumentReferanser, klageMottattDato, klageMottattDato, sakMottattKaDato,
+            List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
     }
 
@@ -102,17 +102,16 @@ public class KabalTjeneste {
         var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
         var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling);
         var klageResultat = klageBehandling.flatMap(kb -> klageVurderingTjeneste.hentKlageResultatHvisEksisterer(kb));
-        var brukHjemmel = Optional.ofNullable(hjemmel)
-            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
+        var brukHjemmel = Optional.ofNullable(hjemmel).orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
         var enhet = utledEnhet(ankeBehandling.getFagsak());
-        var ankeMottattDato  = kabalDokumenter.utledDokumentMottattDato(ankeBehandling);
+        var ankeMottattDato = kabalDokumenter.utledDokumentMottattDato(ankeBehandling);
         var klager = utledKlager(ankeBehandling, klageResultat);
         var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
         var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
         var sakMottattKaDato = ankeBehandling.getOpprettetTidspunkt();
         var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal);
-        var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet, dokumentReferanser,
-            ankeMottattDato, ankeMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()));
+        var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet, dokumentReferanser, ankeMottattDato, ankeMottattDato,
+            sakMottattKaDato, List.of(brukHjemmel.getKabal()));
         kabalKlient.sendTilKabal(request);
     }
 
@@ -128,8 +127,8 @@ public class KabalTjeneste {
      * Det er en del mulige scenarier her:
      * - TR-behandling (sendtTryderetten != null): Sette ankevurdering og sendtTrygderettenDato
      * - Avsluttet (sendtTrygdretten == null)
-     *    o Dersom avr.ankevurdering og avr.sendt_trygderetten er satt - lagre tr-vurdering
-     *    o Dersom avr.sendt_trygderetten ikke satt - lagre ankevurdering avhengig
+     * o Dersom avr.ankevurdering og avr.sendt_trygderetten er satt - lagre tr-vurdering
+     * o Dersom avr.sendt_trygderetten ikke satt - lagre ankevurdering avhengig
      */
     public void lagreAnkeUtfallFraKabal(Behandling behandling, KabalUtfall utfall, LocalDate sendtTrygderetten) {
         var gjeldendeAnkeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling)
@@ -175,19 +174,18 @@ public class KabalTjeneste {
             // Knoteri fra Kabal
             // - AnkeOpprettet kommer med en kabalref og en direkte AnkeAvsluttet har samme kabalRef
             // - AnkeOpprettet kommer med en kabalref og AnkeTrygderett vil komme med en ny kabalRef - som presumptivt kommer i AnkeAvsluttet
-            var alleAnker = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+            var alleAnker = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId())
+                .stream()
                 .filter(b -> BehandlingType.ANKE.equals(b.getType()))
                 .filter(b -> !b.erSaksbehandlingAvsluttet())
                 .toList();
             return alleAnker.stream()
                 .filter(b -> ankeVurderingTjeneste.hentAnkeResultat(b).getPåAnketKlageBehandlingId().filter(k -> k.equals(behandlingId)).isPresent())
                 .findFirst()
-                .or(() -> alleAnker.stream()
-                    .filter(b -> {
-                        var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
-                        return resultatReferanse == null || Objects.equals(kabalReferanse, resultatReferanse);
-                    })
-                    .findFirst());
+                .or(() -> alleAnker.stream().filter(b -> {
+                    var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
+                    return resultatReferanse == null || Objects.equals(kabalReferanse, resultatReferanse);
+                }).findFirst());
         } else if (BehandlingType.ANKE.equals(behandling.getType())) {
             return Optional.of(behandling);
         } else {
@@ -196,18 +194,20 @@ public class KabalTjeneste {
     }
 
     private String utledEnhet(Fagsak fagsak) {
-        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow()).enhetId();
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(
+            behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow()).enhetId();
     }
 
     private TilKabalDto.Klager utledKlager(Behandling behandling, Optional<KlageResultatEntitet> resultat) {
         var verge = vergeRepository.hentAggregat(behandling.getId())
             .or(() -> resultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).flatMap(b -> vergeRepository.hentAggregat(b)))
             .flatMap(VergeAggregat::getVerge)
-            .map(v -> v.getVergeOrganisasjon().isPresent() ?
-                new TilKabalDto.Part(TilKabalDto.PartsType.VIRKSOMHET, v.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElseThrow()) :
-                new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(v.getBruker().getAktørId()).map(PersonIdent::getIdent).orElseThrow()))
+            .map(v -> v.getVergeOrganisasjon().isPresent() ? new TilKabalDto.Part(TilKabalDto.PartsType.VIRKSOMHET,
+                v.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElseThrow()) : new TilKabalDto.Part(
+                TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(v.getBruker().getAktørId()).map(PersonIdent::getIdent).orElseThrow()))
             .map(p -> new TilKabalDto.Fullmektig(p, true));
-        var klagerPart = new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(behandling.getAktørId()).map(PersonIdent::getIdent).orElseThrow());
+        var klagerPart = new TilKabalDto.Part(TilKabalDto.PartsType.PERSON,
+            personinfoAdapter.hentFnr(behandling.getAktørId()).map(PersonIdent::getIdent).orElseThrow());
         return new TilKabalDto.Klager(klagerPart, verge.orElse(null));
     }
 
@@ -217,8 +217,7 @@ public class KabalTjeneste {
 
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, KlageVurdertAv.NK, klageVurderingOmgjør);
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.KLAGE_BEH_NK)
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.KLAGE_BEH_NK)
             .medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.KLAGE_BEH_NK);
@@ -235,8 +234,7 @@ public class KabalTjeneste {
 
         var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(klageVurdering, klageVurderingOmgjør);
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.ANKE_BEH)
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.ANKE_BEH)
             .medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat.getNavn());
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.ANKE_BEH);
@@ -286,9 +284,7 @@ public class KabalTjeneste {
     }
 
     public void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak) {
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
-            .medÅrsak(aarsak);
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.AVBRUTT_BEH).medÅrsak(aarsak);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
         historikkinnslag.setBehandlingId(behandlingsId);

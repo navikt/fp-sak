@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 
 /**
  * For å kunne identifisere andeler i fakta om beregning.
- *
+ * <p>
  * Enten andelsnr eller aktivitetstatus må vere satt.
  */
 public class RedigerbarAndelFaktaOmBeregningDto {
@@ -22,9 +22,7 @@ public class RedigerbarAndelFaktaOmBeregningDto {
         this.aktivitetStatus = aktivitetStatus;
     }
 
-    public RedigerbarAndelFaktaOmBeregningDto(Boolean nyAndel,
-                                              long andelsnr,
-                                              Boolean lagtTilAvSaksbehandler) {
+    public RedigerbarAndelFaktaOmBeregningDto(Boolean nyAndel, long andelsnr, Boolean lagtTilAvSaksbehandler) {
         this.nyAndel = nyAndel;
         this.andelsnr = andelsnr;
         this.lagtTilAvSaksbehandler = lagtTilAvSaksbehandler;

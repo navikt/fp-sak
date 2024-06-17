@@ -22,10 +22,8 @@ public class FødselsvilkåretFarMedmorOverstyringshåndterer extends Inngangsvi
     }
 
     @Inject
-    public FødselsvilkåretFarMedmorOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+    public FødselsvilkåretFarMedmorOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
             inngangsvilkårTjeneste);
     }
 

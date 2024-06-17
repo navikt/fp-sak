@@ -31,8 +31,10 @@ public class DokumentmottakTestUtil {
     public static BehandlingskontrollTjeneste lagBehandlingskontrollTjenesteMock(BehandlingskontrollServiceProvider serviceProvider) {
         return new BehandlingskontrollTjenesteImpl(serviceProvider) {
             @Override
-            protected void fireEventBehandlingStegOvergang(BehandlingskontrollKontekst kontekst, Behandling behandling,
-                                                           BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
+            protected void fireEventBehandlingStegOvergang(BehandlingskontrollKontekst kontekst,
+                                                           Behandling behandling,
+                                                           BehandlingStegTilstandSnapshot forrigeTilstand,
+                                                           BehandlingStegTilstandSnapshot nyTilstand) {
                 // NOOP
             }
 
@@ -43,7 +45,11 @@ public class DokumentmottakTestUtil {
         };
     }
 
-    static MottattDokument byggMottattDokument(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato, boolean elektroniskRegistrert,
+    static MottattDokument byggMottattDokument(DokumentTypeId dokumentTypeId,
+                                               Long fagsakId,
+                                               String xml,
+                                               LocalDate mottattDato,
+                                               boolean elektroniskRegistrert,
                                                String journalpostId) {
         var builder = new MottattDokument.Builder();
         builder.medDokumentType(dokumentTypeId);
@@ -57,8 +63,12 @@ public class DokumentmottakTestUtil {
         return builder.build();
     }
 
-    static MottattDokument byggMottattPapirsøknad(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato,
-                                                  boolean elektroniskRegistrert, String journalpostId) {
+    static MottattDokument byggMottattPapirsøknad(DokumentTypeId dokumentTypeId,
+                                                  Long fagsakId,
+                                                  String xml,
+                                                  LocalDate mottattDato,
+                                                  boolean elektroniskRegistrert,
+                                                  String journalpostId) {
         var builder = new MottattDokument.Builder();
         builder.medDokumentType(dokumentTypeId);
         builder.medDokumentKategori(DokumentKategori.SØKNAD);
@@ -72,15 +82,14 @@ public class DokumentmottakTestUtil {
         return builder.build();
     }
 
-    static Fagsak byggFagsak(AktørId aktørId, RelasjonsRolleType rolle, NavBrukerKjønn kjønn, Saksnummer saksnummer,
-                             FagsakRepository fagsakRepository, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
-        var navBruker = new NavBrukerBuilder()
-            .medAktørId(aktørId)
-            .medKjønn(kjønn)
-            .build();
-        var fagsak = FagsakBuilder.nyForeldrepengesak(rolle)
-            .medSaksnummer(saksnummer)
-            .medBruker(navBruker).build();
+    static Fagsak byggFagsak(AktørId aktørId,
+                             RelasjonsRolleType rolle,
+                             NavBrukerKjønn kjønn,
+                             Saksnummer saksnummer,
+                             FagsakRepository fagsakRepository,
+                             FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+        var navBruker = new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build();
+        var fagsak = FagsakBuilder.nyForeldrepengesak(rolle).medSaksnummer(saksnummer).medBruker(navBruker).build();
         fagsakRepository.opprettNy(fagsak);
         fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         return fagsak;

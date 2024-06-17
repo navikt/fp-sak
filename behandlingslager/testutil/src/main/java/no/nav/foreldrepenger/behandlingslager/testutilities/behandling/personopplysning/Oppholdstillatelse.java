@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class Oppholdstillatelse  {
+public class Oppholdstillatelse {
 
     private AktørId aktørId;
     private DatoIntervallEntitet periode;
@@ -58,9 +58,7 @@ public class Oppholdstillatelse  {
             return false;
         }
         var entitet = (Oppholdstillatelse) o;
-        return Objects.equals(aktørId, entitet.aktørId) &&
-                Objects.equals(periode, entitet.periode) &&
-                Objects.equals(tillatelse, entitet.tillatelse);
+        return Objects.equals(aktørId, entitet.aktørId) && Objects.equals(periode, entitet.periode) && Objects.equals(tillatelse, entitet.tillatelse);
     }
 
 
@@ -72,10 +70,7 @@ public class Oppholdstillatelse  {
 
     @Override
     public String toString() {
-        return "OppholdstillatelseEntitet{" +
-            "periode=" + periode +
-            ", tillatelse=" + tillatelse +
-            '}';
+        return "OppholdstillatelseEntitet{" + "periode=" + periode + ", tillatelse=" + tillatelse + '}';
     }
 
     public static Oppholdstillatelse.OppholdstillatelseBuilder builder() {

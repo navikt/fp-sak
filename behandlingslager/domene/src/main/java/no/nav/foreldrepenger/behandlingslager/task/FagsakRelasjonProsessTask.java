@@ -20,7 +20,9 @@ public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
     private FagsakLåsRepository fagsakLåsRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    protected FagsakRelasjonProsessTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
+    protected FagsakRelasjonProsessTask(FagsakLåsRepository fagsakLåsRepository,
+                                        FagsakRelasjonLåsRepository relasjonLåsRepository,
+                                        FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.fagsakRelasjonLåsRepository = relasjonLåsRepository;
         this.fagsakLåsRepository = fagsakLåsRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
@@ -43,6 +45,10 @@ public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
         prosesser(prosessTaskData, fagsakRelasjon, reLås, fagsak1Lås, fagsak2Lås);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData,
+                                      Optional<FagsakRelasjon> relasjon,
+                                      FagsakRelasjonLås relasjonLås,
+                                      Optional<FagsakLås> fagsak1Lås,
+                                      Optional<FagsakLås> fagsak2Lås);
 
 }

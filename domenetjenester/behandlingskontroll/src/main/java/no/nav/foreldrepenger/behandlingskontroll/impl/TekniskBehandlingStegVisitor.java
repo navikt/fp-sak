@@ -25,8 +25,7 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
 
     private BehandlingskontrollServiceProvider serviceProvider;
 
-    public TekniskBehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider,
-            BehandlingskontrollKontekst kontekst) {
+    public TekniskBehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider, BehandlingskontrollKontekst kontekst) {
         this.serviceProvider = serviceProvider;
         this.kontekst = kontekst;
     }

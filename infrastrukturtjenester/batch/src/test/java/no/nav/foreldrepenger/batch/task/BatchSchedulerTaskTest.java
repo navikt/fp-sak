@@ -38,10 +38,10 @@ class BatchSchedulerTaskTest {
         task.doTaskForDato(taskData, enVanligUkedag);
         var props = testsupport.getTaskDataList();
         var matches = props.stream()
-                .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
-                .filter(Objects::nonNull)
-                .filter(s -> s.matches("[1-7]"))
-                .toList();
+            .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
+            .filter(Objects::nonNull)
+            .filter(s -> s.matches("[1-7]"))
+            .toList();
         assertThat(matches).hasSize(7); // Antall dagsensitive batcher.
     }
 
@@ -50,10 +50,7 @@ class BatchSchedulerTaskTest {
         // Arrange
         task.doTaskForDato(taskData, enVanligUkedag);
         var props = testsupport.getTaskDataList();
-        var matches = props.stream()
-            .map(t -> t.getProperty(BatchTjeneste.FAGOMRÅDE_KEY))
-            .filter(Objects::nonNull)
-            .toList();
+        var matches = props.stream().map(t -> t.getProperty(BatchTjeneste.FAGOMRÅDE_KEY)).filter(Objects::nonNull).toList();
         assertThat(matches).hasSize(5); // Antall avstemminger.
     }
 

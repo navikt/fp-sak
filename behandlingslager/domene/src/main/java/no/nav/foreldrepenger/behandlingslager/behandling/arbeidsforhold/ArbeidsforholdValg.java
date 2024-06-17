@@ -108,20 +108,22 @@ public class ArbeidsforholdValg extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "ArbeidsforholdValg{" + "vurdering=" + vurdering + ", arbeidsgiverIdent='" + getArbeidsgiver()
-            + '\'' + ", arbeidsforholdRef=" + arbeidsforholdRef + ", aktiv=" + aktiv + '}';
+        return "ArbeidsforholdValg{" + "vurdering=" + vurdering + ", arbeidsgiverIdent='" + getArbeidsgiver() + '\'' + ", arbeidsforholdRef="
+            + arbeidsforholdRef + ", aktiv=" + aktiv + '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ArbeidsforholdValg) o;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(vurdering, that.vurdering) &&
-            Objects.equals(begrunnelse, that.begrunnelse) &&
-            Objects.equals(arbeidsgiverIdent, that.arbeidsgiverIdent) &&
-            Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(vurdering, that.vurdering) && Objects.equals(begrunnelse,
+            that.begrunnelse) && Objects.equals(arbeidsgiverIdent, that.arbeidsgiverIdent) && Objects.equals(arbeidsforholdRef,
+            that.arbeidsforholdRef);
     }
 
     @Override

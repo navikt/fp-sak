@@ -30,8 +30,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
     }
 
     @Inject
-    public BekreftEktefelleOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                      FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public BekreftEktefelleOppdaterer(HistorikkTjenesteAdapter historikkAdapter, FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
@@ -44,8 +43,8 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getErEktefellesBarn);
 
-        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.EKTEFELLES_BARN, konvertBooleanTilFaktaEndretVerdiType(erEktefellesBarn.orElse(null)),
-            konvertBooleanTilFaktaEndretVerdiType(dto.getEktefellesBarn()));
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.EKTEFELLES_BARN,
+            konvertBooleanTilFaktaEndretVerdiType(erEktefellesBarn.orElse(null)), konvertBooleanTilFaktaEndretVerdiType(dto.getEktefellesBarn()));
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
@@ -53,9 +52,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
 
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
-        oppdatertOverstyrtHendelse
-            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
-                .medErEktefellesBarn(dto.getEktefellesBarn()));
+        oppdatertOverstyrtHendelse.medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder().medErEktefellesBarn(dto.getEktefellesBarn()));
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).build();
     }
@@ -67,7 +64,9 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
         return ektefellesBarn ? HistorikkEndretFeltVerdiType.EKTEFELLES_BARN : HistorikkEndretFeltVerdiType.IKKE_EKTEFELLES_BARN;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, HistorikkEndretFeltVerdiType original, HistorikkEndretFeltVerdiType bekreftet) {
+    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                           HistorikkEndretFeltVerdiType original,
+                                           HistorikkEndretFeltVerdiType bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
             historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
             return true;

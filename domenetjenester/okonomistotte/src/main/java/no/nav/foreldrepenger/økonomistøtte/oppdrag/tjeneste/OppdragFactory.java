@@ -35,16 +35,16 @@ public class OppdragFactory {
     public List<Oppdrag> lagOppdrag(OverordnetOppdragKjedeOversikt tidligereOppdrag, GruppertYtelse målbilde) {
         var fagsystemIdUtleder = new FagsystemIdUtleder(saksnummer, tidligereOppdrag);
         List<Oppdrag> resultat = new ArrayList<>();
-        for (var betalingsmottaker : SetUtil.sortertUnion(Betalingsmottaker.COMPARATOR, tidligereOppdrag.getBetalingsmottakere(), målbilde.getBetalingsmottakere())) {
+        for (var betalingsmottaker : SetUtil.sortertUnion(Betalingsmottaker.COMPARATOR, tidligereOppdrag.getBetalingsmottakere(),
+            målbilde.getBetalingsmottakere())) {
             var tidligereOppdragForMottaker = tidligereOppdrag.filter(betalingsmottaker);
             var målbildeForMottaker = målbilde.finnYtelse(betalingsmottaker);
             var økonomiFagområde = utledØkonomiFagområde(betalingsmottaker);
-            var oppdragForMottakerTjeneste = new OppdragForMottakerTjeneste(økonomiFagområde, fagsystemIdUtleder.getFagsystemId(betalingsmottaker), betalingsmottaker, fellesEndringstidspunkt);
+            var oppdragForMottakerTjeneste = new OppdragForMottakerTjeneste(økonomiFagområde, fagsystemIdUtleder.getFagsystemId(betalingsmottaker),
+                betalingsmottaker, fellesEndringstidspunkt);
             resultat.add(oppdragForMottakerTjeneste.lagOppdrag(tidligereOppdragForMottaker, målbildeForMottaker));
         }
-        return resultat.stream()
-            .filter(Oppdrag::harLinjer)
-            .toList();
+        return resultat.stream().filter(Oppdrag::harLinjer).toList();
     }
 
     private KodeFagområde utledØkonomiFagområde(Betalingsmottaker betalingsmottaker) {

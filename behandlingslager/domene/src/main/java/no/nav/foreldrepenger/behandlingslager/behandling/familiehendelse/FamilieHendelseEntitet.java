@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Samle betegnelse for Fødsel, Adopsjon, Omsorgsovertakelse og Terminbekreftelse.
- *
+ * <p>
  * Fødsler ligger i listen med UidentifisertBarn
  * Barn som skal adopteres / overdra omsorgen for ligger i listen med UidentifisertBarn
  */
@@ -62,7 +62,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     @ChangeTracked
     @Convert(converter = FamilieHendelseType.KodeverdiConverter.class)
-    @Column(name="familie_hendelse_type", nullable = false)
+    @Column(name = "familie_hendelse_type", nullable = false)
     private FamilieHendelseType type = FamilieHendelseType.UDEFINERT;
 
     @Version
@@ -112,6 +112,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Liste over Uidentifiserte barn, dvs barn uten fnr. Dette betyr ikke at de ikke har fnr men at de ikke er identifisert med det i Behandlingen
+     *
      * @return Liste over barn
      */
     public Integer getAntallBarn() {
@@ -139,6 +140,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Data vedrørende terminbekreftelsen som er relevant for behandlingen
+     *
      * @return terminbekreftelsen
      */
     public Optional<TerminbekreftelseEntitet> getTerminbekreftelse() {
@@ -154,6 +156,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Data vedrørende adopsjonsbekreftelsen / omsorgsovertakelse som er relevant for behandlingen.
+     *
      * @return adopsjon
      */
     public Optional<AdopsjonEntitet> getAdopsjon() {
@@ -169,6 +172,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Internt kodeverk som identifiserer hva søknaden er basert på. F.eks basert på føsel.
+     *
      * @return FamilieHendelseTypen
      */
     public FamilieHendelseType getType() {
@@ -181,6 +185,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Henter ut fødselsdatoen fra listen over UidentifiserteBarn hvis typen er Føsel
+     *
      * @return Fødselsdatoen
      */
     public Optional<LocalDate> getFødselsdato() {
@@ -193,6 +198,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Henter ut termindato fra eventuell terminbekreftelse
+     *
      * @return termindatoen
      */
     public Optional<LocalDate> getTermindato() {
@@ -204,18 +210,19 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Sjekker om det er født et barn med dødsdato på samme dag som det er født.
+     *
      * @return boolean
      */
     public boolean getInnholderDøfødtBarn() {
         if (type.equals(FamilieHendelseType.FØDSEL)) {
-            return barna.stream().anyMatch(barn -> barn.getDødsdato().isPresent()
-                && barn.getDødsdato().get().equals(barn.getFødselsdato()));
+            return barna.stream().anyMatch(barn -> barn.getDødsdato().isPresent() && barn.getDødsdato().get().equals(barn.getFødselsdato()));
         }
         return false;
     }
 
     /**
      * Sjekker om hendelsen omhandler et dødt barn.
+     *
      * @return boolean
      */
     public boolean getInnholderDødtBarn() {
@@ -227,6 +234,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Henter ut oppgitt / vurdert status om mor er for syk til å ta seg av barnet
+     *
      * @return boolean
      */
     public Boolean erMorForSykVedFødsel() {
@@ -240,7 +248,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
      * - Omsorgsovertakelse dato
      * - Foreldreansvars dato
      * - Dato for stebarnsadopsjon
-     *
+     * <p>
      * NB: Tar ikke hensyn til perioder med permisjon.
      *
      * @return Skjæringstidspunktet for hendelse
@@ -261,6 +269,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Vurderer om hendelsen er av typen fødsel
+     *
      * @return true/false
      */
     public boolean getGjelderFødsel() {
@@ -269,6 +278,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     /**
      * Vurderer om hendelsen er av typen adopsjon/omsorgovertakelse
+     *
      * @return true/false
      */
     public boolean getGjelderAdopsjon() {
@@ -289,12 +299,9 @@ public class FamilieHendelseEntitet extends BaseEntitet {
             return false;
         }
         var that = (FamilieHendelseEntitet) o;
-        return Objects.equals(antallBarn, that.antallBarn) &&
-                Objects.equals(adopsjon, that.adopsjon) &&
-                Objects.equals(terminbekreftelse, that.terminbekreftelse) &&
-                Objects.equals(barna, that.barna) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(morForSykVedFødsel, that.morForSykVedFødsel);
+        return Objects.equals(antallBarn, that.antallBarn) && Objects.equals(adopsjon, that.adopsjon) && Objects.equals(terminbekreftelse,
+            that.terminbekreftelse) && Objects.equals(barna, that.barna) && Objects.equals(type, that.type) && Objects.equals(morForSykVedFødsel,
+            that.morForSykVedFødsel);
     }
 
 
@@ -306,14 +313,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "FamilieHendelseEntitet{" +
-                "id=" + id +
-                ", adopsjon=" + adopsjon +
-                ", terminbekreftelse=" + terminbekreftelse +
-                ", barna=" + barna +
-                ", antallBarn=" + antallBarn +
-                ", type=" + type +
-                ", morForSykVedFødsel=" + morForSykVedFødsel +
-                '}';
+        return "FamilieHendelseEntitet{" + "id=" + id + ", adopsjon=" + adopsjon + ", terminbekreftelse=" + terminbekreftelse + ", barna=" + barna
+            + ", antallBarn=" + antallBarn + ", type=" + type + ", morForSykVedFødsel=" + morForSykVedFødsel + '}';
     }
 }

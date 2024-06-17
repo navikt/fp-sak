@@ -26,7 +26,8 @@ class ManuellRegistreringForeldrepengerValidatorTest {
         assertThat(ManuellRegistreringSøknadValidator.validerDekningsgrad(null)).as("Dekningsgrad skal ikke kunne være null").isNotEmpty();
 
         var dekningsgrad = DekningsgradDto.HUNDRE;
-        assertThat(ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad)).as("Deksningsgrad skal være gyldig når dekningsgrad er satt").isEmpty();
+        assertThat(ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad)).as("Deksningsgrad skal være gyldig når dekningsgrad er satt")
+            .isEmpty();
     }
 
     @Test

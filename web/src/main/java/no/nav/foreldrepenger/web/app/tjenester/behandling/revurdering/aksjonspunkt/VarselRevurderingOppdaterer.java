@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = VarselRevurderingDto.class, adapter=AksjonspunktOppdaterer.class)
+@DtoTilServiceAdapter(dto = VarselRevurderingDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<VarselRevurderingDto> {
 
     private VarselRevurderingTjeneste dokumentTjeneste;
@@ -27,7 +27,8 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     @Inject
-    public VarselRevurderingOppdaterer(VarselRevurderingTjeneste dokumentTjeneste, HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+    public VarselRevurderingOppdaterer(VarselRevurderingTjeneste dokumentTjeneste,
+                                       HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                        DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.dokumentTjeneste = dokumentTjeneste;
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
@@ -42,7 +43,8 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     public OppdateringResultat oppdater(VarselRevurderingDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingRef = param.getRef();
         if (dto.isSendVarsel() && !harSendtVarselOmRevurdering(behandlingRef)) {
-            var adapter = new VarselRevurderingAksjonspunktDto(dto.getFritekst(), dto.getBegrunnelse(), dto.getFrist(), dto.getVentearsak().getKode());
+            var adapter = new VarselRevurderingAksjonspunktDto(dto.getFritekst(), dto.getBegrunnelse(), dto.getFrist(),
+                dto.getVentearsak().getKode());
             dokumentTjeneste.håndterVarselRevurdering(behandlingRef, adapter);
         } else if (!dto.isSendVarsel()) {
             opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(behandlingRef, dto, HistorikkAktør.SAKSBEHANDLER);
@@ -50,9 +52,10 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
         return OppdateringResultat.utenOverhopp();
     }
 
-    private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(BehandlingReferanse ref, VarselRevurderingDto varselRevurderingDto, HistorikkAktør historikkAktør) {
-        var historiebygger = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.VRS_REV_IKKE_SNDT)
+    private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(BehandlingReferanse ref,
+                                                                       VarselRevurderingDto varselRevurderingDto,
+                                                                       HistorikkAktør historikkAktør) {
+        var historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.VRS_REV_IKKE_SNDT)
             .medBegrunnelse(varselRevurderingDto.getBegrunnelse());
         var innslag = new Historikkinnslag();
         innslag.setAktør(historikkAktør);

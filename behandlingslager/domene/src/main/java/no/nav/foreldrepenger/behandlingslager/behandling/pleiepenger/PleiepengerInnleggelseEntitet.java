@@ -59,7 +59,6 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     }
 
 
-
     public Long getId() {
         return id;
     }
@@ -91,12 +90,15 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PleiepengerInnleggelseEntitet) o;
-        return Objects.equals(periode, that.periode) &&
-            Objects.equals(pleiepengerSaksnummer, that.pleiepengerSaksnummer) &&
-            Objects.equals(pleietrengendeAktørId, that.pleietrengendeAktørId);
+        return Objects.equals(periode, that.periode) && Objects.equals(pleiepengerSaksnummer, that.pleiepengerSaksnummer) && Objects.equals(
+            pleietrengendeAktørId, that.pleietrengendeAktørId);
     }
 
     @Override

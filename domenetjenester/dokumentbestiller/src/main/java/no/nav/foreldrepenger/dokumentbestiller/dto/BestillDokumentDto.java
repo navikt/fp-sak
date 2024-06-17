@@ -12,8 +12,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public record BestillDokumentDto(@Valid UUID behandlingUuid,
-                                 @ValidKodeverk @NotNull DokumentMalType brevmalkode,
+public record BestillDokumentDto(@Valid UUID behandlingUuid, @ValidKodeverk @NotNull DokumentMalType brevmalkode,
                                  @Size(max = 10000) @Pattern(regexp = InputValideringRegex.FRITEKST_BREV) String fritekst,
                                  @ValidKodeverk RevurderingVarslingÅrsak arsakskode) {
 }

@@ -21,13 +21,12 @@ public class MapOpptjeningTilKalkulusInput {
 
     public static OpptjeningAktiviteterDto mapOpptjening(OpptjeningAktiviteter opptjeningAktiviteter,
                                                          InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                                         BehandlingReferanse ref ) {
+                                                         BehandlingReferanse ref) {
         var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref);
         return new OpptjeningAktiviteterDto(relevanteAktiviteter.stream()
             .map(opptjeningPeriode -> new OpptjeningPeriodeDto(
                 KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(opptjeningPeriode.opptjeningAktivitetType()),
-                new Periode(opptjeningPeriode.periode().getFom(), opptjeningPeriode.periode().getTom()),
-                mapTilAktør(opptjeningPeriode),
+                new Periode(opptjeningPeriode.periode().getFom(), opptjeningPeriode.periode().getTom()), mapTilAktør(opptjeningPeriode),
                 mapReferanse(opptjeningPeriode)))
             .toList());
     }

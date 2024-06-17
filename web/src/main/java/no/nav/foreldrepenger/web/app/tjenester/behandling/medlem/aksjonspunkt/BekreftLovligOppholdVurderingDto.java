@@ -20,5 +20,4 @@ public class BekreftLovligOppholdVurderingDto extends BekreftedePerioderMalDto {
     }
 
 
-
 }

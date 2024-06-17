@@ -46,7 +46,7 @@ public class BeregningsresultatRestTjeneste {
 
     @Inject
     public BeregningsresultatRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste) {
+                                          BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.beregningsresultatTjeneste = beregningsresultatMedUttaksplanTjeneste;
     }
@@ -55,8 +55,7 @@ public class BeregningsresultatRestTjeneste {
     @Path(ENGANGSTONAD_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = "Returnerer beregningsresultat med uttaksplan for behandling.", tags = "beregningsresultat")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
@@ -65,8 +64,7 @@ public class BeregningsresultatRestTjeneste {
     @Path(DAGYTELSE_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for ytelser med daglig sats (svangerskapspenger og foreldrepenger)", summary = "Returnerer beregningsresultat med uttaksplan for behandling.", tags = "beregningsresultat")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatDagytelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                                                   @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatDagytelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(BehandlingReferanse.fra(behandling)).orElse(null);
     }

@@ -97,13 +97,10 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.kodeFagomrade = oppdrag110.getKodeFagomrade();
         oppdrag110Dto.avstemming = AvstemmingDto.fraDomene(oppdrag110.getAvstemming());
 
-        oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ?
-            List.of(OppdragKvitteringDto.fraDomene(oppdrag110.getOppdragKvittering())) :
-            List.of();
+        oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ? List.of(
+            OppdragKvitteringDto.fraDomene(oppdrag110.getOppdragKvittering())) : List.of();
         var optOmposter = oppdrag110.getOmpostering116();
-        oppdrag110Dto.oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().stream()
-            .map(Oppdragslinje150Dto::fraDomene)
-            .toList();
+        oppdrag110Dto.oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().stream().map(Oppdragslinje150Dto::fraDomene).toList();
 
         if (optOmposter.isPresent()) {
             oppdrag110Dto.ompostering116Dto = Ompostering116Dto.fraDomene(optOmposter.get());

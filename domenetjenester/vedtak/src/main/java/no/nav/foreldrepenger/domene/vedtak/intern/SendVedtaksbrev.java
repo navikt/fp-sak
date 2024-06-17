@@ -70,13 +70,17 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
-            LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId);
+        if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(
+            behandling))) {
+            LOG.info(
+                "Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}",
+                behandlingId);
             return;
         }
 
         if (erBehandlingEtterKlage(behandling) && !skalSendeVedtaksbrevEtterKlage(behandling)) {
-            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId);
+            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans",
+                behandlingId);
             return;
         }
 
@@ -85,20 +89,25 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (Boolean.TRUE.equals(behandlingVedtak.isBeslutningsvedtak())) { // Beslutningsvedtak betyr at vedtaket er innvilget men har ingen konsekvens for ytelsen.
+        if (Boolean.TRUE.equals(
+            behandlingVedtak.isBeslutningsvedtak())) { // Beslutningsvedtak betyr at vedtaket er innvilget men har ingen konsekvens for ytelsen.
             if (Boolean.TRUE.equals(harSendtVarselOmRevurdering(behandlingId)) || harFritekstBrev(behandlingVedtak)) {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
                 // Dette her håndteres videre i dokumentMalUtleder
             } else {
-                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}", behandlingId);
+                LOG.info(
+                    "Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}",
+                    behandlingId);
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
             LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId);
-        } else if (gjelderForeldrepenger(behandling)){
-            LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
+        } else if (gjelderForeldrepenger(behandling)) {
+            LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(),
+                behandlingId); //$NON-NLS-1
         } else {
-            LOG.info("Sender vedtaksbrev({}) for svangerskapspenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
+            LOG.info("Sender vedtaksbrev({}) for svangerskapspenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(),
+                behandlingId); //$NON-NLS-1
         }
         dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
     }
@@ -110,6 +119,7 @@ public class SendVedtaksbrev {
     private boolean gjelderEngangsstønad(Behandling behandling) {
         return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType());
     }
+
     private boolean gjelderForeldrepenger(Behandling behandling) {
         return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType());
     }
@@ -124,7 +134,8 @@ public class SendVedtaksbrev {
 
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {
 
-        var klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
+        var klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE)
+            .orElse(null);
 
         if (klage == null) {
             return true;
@@ -135,8 +146,7 @@ public class SendVedtaksbrev {
     }
 
     private boolean harKlageBlittBehandletAvKabal(Behandling behandling) {
-        return klageRepository.hentKlageResultatHvisEksisterer(behandling.getId())
-            .map(KlageResultatEntitet::erBehandletAvKabal).orElse(false);
+        return klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).map(KlageResultatEntitet::erBehandletAvKabal).orElse(false);
     }
 
     private boolean erBehandlingEtterKlage(Behandling behandling) {

@@ -6,8 +6,8 @@ import java.util.Objects;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 
-public record PersonDto(String aktørId, String navn, String fødselsnummer, NavBrukerKjønn kjønn, String diskresjonskode,
-                        LocalDate fødselsdato, LocalDate dødsdato, @Deprecated(forRemoval = true) LocalDate dodsdato, Språkkode språkkode) {
+public record PersonDto(String aktørId, String navn, String fødselsnummer, NavBrukerKjønn kjønn, String diskresjonskode, LocalDate fødselsdato,
+                        LocalDate dødsdato, @Deprecated(forRemoval = true) LocalDate dodsdato, Språkkode språkkode) {
 
 
     @Override
@@ -17,7 +17,9 @@ public record PersonDto(String aktørId, String navn, String fødselsnummer, Nav
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         return o instanceof PersonDto other && Objects.equals(aktørId, other.aktørId);
     }
 

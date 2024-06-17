@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -7,8 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-
-import java.util.List;
 
 public abstract class AbstractDokumentBestillerTjeneste {
 

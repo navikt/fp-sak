@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-public class MaxAntallParam implements AbacDto{
+public class MaxAntallParam implements AbacDto {
 
     @Digits(integer = 1000, fraction = 0)
     @Min(1)

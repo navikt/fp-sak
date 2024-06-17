@@ -62,8 +62,7 @@ public class TilbakekrevingRestTjeneste {
     @Operation(description = "Hent detaljert resultat av simulering mot økonomi med og uten inntrekk", tags = "tilbakekrevingsvalg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(SIMULERING_PART_PATH)
-    public SimuleringDto hentSimuleringResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public SimuleringDto hentSimuleringResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = uuidDto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -74,24 +73,20 @@ public class TilbakekrevingRestTjeneste {
     @Operation(description = "Hent tilbakekrevingsvalg for behandlingen", tags = "tilbakekrevingsvalg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(VALG_PART_PATH)
-    public TilbakekrevingValgDto hentTilbakekrevingValg(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public TilbakekrevingValgDto hentTilbakekrevingValg(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = uuidDto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var resultat = tilbakekrevingRepository.hent(behandling.getId());
 
-        return resultat
-                .map(TilbakekrevingRestTjeneste::map)
-                .orElse(null);
+        return resultat.map(TilbakekrevingRestTjeneste::map).orElse(null);
     }
 
     @GET
     @Operation(description = "Henter varseltekst for tilbakekreving", tags = "tilbakekrevingsvalg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(VARSELTEKST_PART_PATH)
-    public VarseltekstDto hentVarseltekst(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public VarseltekstDto hentVarseltekst(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
         var valgOpt = tilbakekrevingRepository.hent(behandling.getId());
@@ -105,6 +100,6 @@ public class TilbakekrevingRestTjeneste {
 
     private static TilbakekrevingValgDto map(TilbakekrevingValg valg) {
         return new TilbakekrevingValgDto(valg.getErTilbakekrevingVilkårOppfylt(), valg.getGrunnerTilReduksjon(), valg.getVidereBehandling(),
-                valg.getVarseltekst());
+            valg.getVarseltekst());
     }
 }

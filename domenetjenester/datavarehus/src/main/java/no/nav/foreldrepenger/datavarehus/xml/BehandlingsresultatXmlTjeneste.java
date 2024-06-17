@@ -270,8 +270,7 @@ public class BehandlingsresultatXmlTjeneste {
         if (!alleAksjonspunkter.isEmpty()) {
 
             var manuelleVurderinger = v2ObjectFactory.createBehandlingsresultatManuelleVurderinger();
-            alleAksjonspunkter
-                .forEach(aksjonspunkt -> leggTilManuellVurdering(manuelleVurderinger, aksjonspunkt));
+            alleAksjonspunkter.forEach(aksjonspunkt -> leggTilManuellVurdering(manuelleVurderinger, aksjonspunkt));
             behandlingsresultat.setManuelleVurderinger(manuelleVurderinger);
         }
     }
@@ -280,7 +279,8 @@ public class BehandlingsresultatXmlTjeneste {
         var manuellVurderingsResultat = v2ObjectFactory.createManuellVurderingsResultat();
         manuellVurderingsResultat.setAksjonspunkt(VedtakXmlUtil.lagKodeverksOpplysningForAksjonspunkt(aksjonspunkt.getAksjonspunktDefinisjon()));
         if (aksjonspunkt.getAksjonspunktDefinisjon().getVilkårType() != null) {
-            manuellVurderingsResultat.setGjelderVilkaar(VedtakXmlUtil.lagKodeverksOpplysning(aksjonspunkt.getAksjonspunktDefinisjon().getVilkårType()));
+            manuellVurderingsResultat.setGjelderVilkaar(
+                VedtakXmlUtil.lagKodeverksOpplysning(aksjonspunkt.getAksjonspunktDefinisjon().getVilkårType()));
         }
         if (aksjonspunkt.getBegrunnelse() != null && !aksjonspunkt.getBegrunnelse().isEmpty()) {
             manuellVurderingsResultat.setSaksbehandlersBegrunnelse(aksjonspunkt.getBegrunnelse());

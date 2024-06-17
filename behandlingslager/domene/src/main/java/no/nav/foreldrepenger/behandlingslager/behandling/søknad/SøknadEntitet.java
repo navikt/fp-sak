@@ -38,7 +38,7 @@ public class SøknadEntitet extends BaseEntitet {
     private long versjon;
 
     @Convert(converter = FarSøkerType.KodeverdiConverter.class)
-    @Column(name="far_soeker_type", nullable = false)
+    @Column(name = "far_soeker_type", nullable = false)
     private FarSøkerType farSøkerType = FarSøkerType.UDEFINERT;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -52,7 +52,7 @@ public class SøknadEntitet extends BaseEntitet {
     private String tilleggsopplysninger;
 
     @Convert(converter = Språkkode.KodeverdiConverter.class)
-    @Column(name="sprak_kode", nullable = false)
+    @Column(name = "sprak_kode", nullable = false)
     private Språkkode språkkode = Språkkode.NB;
 
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "søknad")
@@ -67,7 +67,7 @@ public class SøknadEntitet extends BaseEntitet {
 
 
     @Convert(converter = RelasjonsRolleType.KodeverdiConverter.class)
-    @Column(name="bruker_rolle", nullable = false)
+    @Column(name = "bruker_rolle", nullable = false)
     private RelasjonsRolleType brukerRolle = RelasjonsRolleType.UDEFINERT;
 
     SøknadEntitet() {
@@ -198,40 +198,27 @@ public class SøknadEntitet extends BaseEntitet {
         if (!(obj instanceof SøknadEntitet other)) {
             return false;
         }
-        return Objects.equals(this.mottattDato, other.mottattDato)
-                && Objects.equals(this.søknadsdato, other.søknadsdato)
-                && Objects.equals(this.tilleggsopplysninger, other.tilleggsopplysninger)
-                && Objects.equals(this.søknadVedlegg, other.søknadVedlegg)
-                && Objects.equals(this.begrunnelseForSenInnsending, other.begrunnelseForSenInnsending)
-                && Objects.equals(this.getFarSøkerType(), other.getFarSøkerType())
-                && Objects.equals(this.erEndringssøknad, other.erEndringssøknad)
-                && Objects.equals(this.språkkode, other.språkkode)
-                && Objects.equals(this.brukerRolle, other.brukerRolle)
-                && Objects.equals(this.elektroniskRegistrert, other.elektroniskRegistrert);
+        return Objects.equals(this.mottattDato, other.mottattDato) && Objects.equals(this.søknadsdato, other.søknadsdato) && Objects.equals(
+            this.tilleggsopplysninger, other.tilleggsopplysninger) && Objects.equals(this.søknadVedlegg, other.søknadVedlegg) && Objects.equals(
+            this.begrunnelseForSenInnsending, other.begrunnelseForSenInnsending) && Objects.equals(this.getFarSøkerType(), other.getFarSøkerType())
+            && Objects.equals(this.erEndringssøknad, other.erEndringssøknad) && Objects.equals(this.språkkode, other.språkkode) && Objects.equals(
+            this.brukerRolle, other.brukerRolle) && Objects.equals(this.elektroniskRegistrert, other.elektroniskRegistrert);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(elektroniskRegistrert, getFarSøkerType(), mottattDato, erEndringssøknad,
-            søknadsdato, tilleggsopplysninger, språkkode, søknadVedlegg, begrunnelseForSenInnsending,
-            brukerRolle);
+        return Objects.hash(elektroniskRegistrert, getFarSøkerType(), mottattDato, erEndringssøknad, søknadsdato, tilleggsopplysninger, språkkode,
+            søknadVedlegg, begrunnelseForSenInnsending, brukerRolle);
     }
 
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-                "<termindato=" + søknadsdato
-                + ", farSøkerType=" + getFarSøkerType()
-                + ", elektroniskRegistrert=" + elektroniskRegistrert
-                + ", mottattDato=" + mottattDato
-                + ", erEndringssøknad=" + erEndringssøknad
-                + ", tilleggsopplysninger=" + tilleggsopplysninger
-                + ", språkkode=" + språkkode
-                + ", begrunnelseForSenInnsending=" + begrunnelseForSenInnsending
-                + ", relasjonsRolleType=" + brukerRolle
-                + ">";
+        return getClass().getSimpleName() + "<termindato=" + søknadsdato + ", farSøkerType=" + getFarSøkerType() + ", elektroniskRegistrert="
+            + elektroniskRegistrert + ", mottattDato=" + mottattDato + ", erEndringssøknad=" + erEndringssøknad + ", tilleggsopplysninger="
+            + tilleggsopplysninger + ", språkkode=" + språkkode + ", begrunnelseForSenInnsending=" + begrunnelseForSenInnsending
+            + ", relasjonsRolleType=" + brukerRolle + ">";
     }
 
     public static class Builder {

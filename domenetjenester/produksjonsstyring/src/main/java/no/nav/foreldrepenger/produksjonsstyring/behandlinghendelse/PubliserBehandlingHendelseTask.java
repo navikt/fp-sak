@@ -35,10 +35,8 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(PubliserBehandlingHendelseTask.class);
 
-    private static final Set<AksjonspunktDefinisjon> PAPIR = Set.of(
-        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
-        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
-        AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
+    private static final Set<AksjonspunktDefinisjon> PAPIR = Set.of(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
+        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER, AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
         AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
 
     private final BehandlingHendelseProducer kafkaProducer;

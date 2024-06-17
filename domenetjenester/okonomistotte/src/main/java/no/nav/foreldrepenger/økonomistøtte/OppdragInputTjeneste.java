@@ -118,14 +118,13 @@ public class OppdragInputTjeneste {
             .medProsessTaskId(prosessTaskId);
 
         if (ytelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
-            inputBuilder
-                .medTilkjentYtelse(grupperYtelseEngangsstønad(behandlingId, vedtaksdato, tidligereOppdrag));
+            inputBuilder.medTilkjentYtelse(grupperYtelseEngangsstønad(behandlingId, vedtaksdato, tidligereOppdrag));
         } else {
             var feriepengerDødsdato = personinfoAdapter.hentBrukerBasisForAktør(behandling.getFagsakYtelseType(), behandling.getAktørId())
                 .map(PersoninfoBasis::dødsdato)
                 .orElse(null);
-            inputBuilder
-                .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak), feriepengerDødsdato))
+            inputBuilder.medTilkjentYtelse(
+                    grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak), feriepengerDødsdato))
                 .medBrukInntrekk(hentBrukInntrekk(behandlingId));
         }
 
@@ -135,13 +134,13 @@ public class OppdragInputTjeneste {
     private GruppertYtelse grupperYtelseEngangsstønad(long behandlingId, final LocalDate vedtaksdato, List<Oppdragskontroll> tidligereOppdrag) {
         var sats = hentSatsFraBehandling(behandlingId);
         if (sats.isEmpty()) {
-           return GruppertYtelse.TOM;
+            return GruppertYtelse.TOM;
         }
         var førsteOppdrag = finnFørsteUtbetaling(tidligereOppdrag);
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
-                KjedeNøkkel.lag(FamilieYtelseType.FØDSEL.equals(gjelderFødsel(behandlingId)) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON, Betalingsmottaker.BRUKER),
-                Ytelse.builder()
+                KjedeNøkkel.lag(FamilieYtelseType.FØDSEL.equals(gjelderFødsel(behandlingId)) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON,
+                    Betalingsmottaker.BRUKER), Ytelse.builder()
                     .leggTilPeriode(lagPeriode(førsteOppdrag.map(Oppdragslinje150::getDatoVedtakFom).orElse(vedtaksdato), Satsen.engang(sats.get())))
                     .build());
         return gruppertYtelse.build();
@@ -191,7 +190,9 @@ public class OppdragInputTjeneste {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId).orElse(null);
     }
 
-    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType, LocalDate feriepengerVedDød) {
+    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat,
+                                         FamilieYtelseType familieYtelseType,
+                                         LocalDate feriepengerVedDød) {
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType, feriepengerVedDød);
         return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
     }
@@ -210,11 +211,12 @@ public class OppdragInputTjeneste {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .filter(FamilieHendelseEntitet::getGjelderAdopsjon)
-            .map(fh -> FamilieYtelseType.ADOPSJON).orElse(FamilieYtelseType.FØDSEL);
+            .map(fh -> FamilieYtelseType.ADOPSJON)
+            .orElse(FamilieYtelseType.FØDSEL);
     }
 
     private static String finnSaksbehandlerFra(Behandling behandling) {
-        if ( behandling.getAnsvarligBeslutter() != null && ! behandling.getAnsvarligBeslutter().isBlank()) {
+        if (behandling.getAnsvarligBeslutter() != null && !behandling.getAnsvarligBeslutter().isBlank()) {
             return behandling.getAnsvarligBeslutter();
         }
         if (behandling.getAnsvarligSaksbehandler() != null && !behandling.getAnsvarligSaksbehandler().isBlank()) {

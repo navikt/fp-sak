@@ -92,9 +92,8 @@ public class YtelseStørrelse implements IndexKey {
         if (!(o instanceof YtelseStørrelse that)) {
             return false;
         }
-        return Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-                Objects.equals(beløp, that.beløp) &&
-                Objects.equals(hyppighet, that.hyppighet);
+        return Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) && Objects.equals(beløp, that.beløp) && Objects.equals(hyppighet,
+            that.hyppighet);
     }
 
     @Override
@@ -105,11 +104,7 @@ public class YtelseStørrelse implements IndexKey {
 
     @Override
     public String toString() {
-        return "YtelseStørrelseEntitet{" +
-                "virksomhet=" + virksomhetOrgnr +
-                ", beløp=" + beløp +
-                ", hyppighet=" + hyppighet +
-                '}';
+        return "YtelseStørrelseEntitet{" + "virksomhet=" + virksomhetOrgnr + ", beløp=" + beløp + ", hyppighet=" + hyppighet + '}';
     }
 
     boolean hasValues() {

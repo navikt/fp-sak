@@ -40,12 +40,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(String begrunnelse, boolean overstyring,
+    public void opprettHistorikkinnslag(String begrunnelse,
+                                        boolean overstyring,
                                         List<OppgittPeriodeEntitet> eksisterendePerioder,
                                         List<OppgittPeriodeEntitet> oppdatertePerioder) {
-        var builder = historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_UTTAK);
+        var builder = historikkTjenesteAdapter.tekstBuilder().medBegrunnelse(begrunnelse).medSkjermlenke(SkjermlenkeType.FAKTA_UTTAK);
         if (overstyring) {
             builder.medResultat(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK);
         }
@@ -56,7 +55,8 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         var diffTidslinje = new LocalDateTimeline<>(oppdaterteSegment).combine(new LocalDateTimeline<>(eksisterendeSegment),
             this::utledEndringForPerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
-        diffTidslinje.toSegments().stream()
+        diffTidslinje.toSegments()
+            .stream()
             .filter(Objects::nonNull)
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)
@@ -72,15 +72,16 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             });
     }
 
-    private LocalDateSegment<Endring> utledEndringForPerioder(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> lhs,
+    private LocalDateSegment<Endring> utledEndringForPerioder(LocalDateInterval di,
+                                                              LocalDateSegment<OppgittPeriodeEntitet> lhs,
                                                               LocalDateSegment<OppgittPeriodeEntitet> rhs) {
         if (rhs == null) {
             return new LocalDateSegment<>(di, new Endring(tekstIntro(di), null, "Lagt til " + tekstPeriodeFull(lhs.getValue())));
         } else if (lhs == null) {
             return new LocalDateSegment<>(di, new Endring(tekstIntro(di), null, "Slettet " + tekstPeriodeFull(rhs.getValue())));
         } else if (!erLikePerioder(lhs.getValue(), rhs.getValue())) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), tekstPeriodeEndret(lhs.getValue(), rhs.getValue()),
-                tekstPeriodeEndret(rhs.getValue(), lhs.getValue())));
+            return new LocalDateSegment<>(di,
+                new Endring(tekstIntro(di), tekstPeriodeEndret(lhs.getValue(), rhs.getValue()), tekstPeriodeEndret(rhs.getValue(), lhs.getValue())));
         } else {
             return null;
         }
@@ -91,9 +92,10 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         var førSegment = før.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
         var etterSegment = etter.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
 
-        return new LocalDateTimeline<>(etterSegment).combine(new LocalDateTimeline<>(førSegment),
-            FaktaUttakHistorikkinnslagTjeneste::utledEndringDto, LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .toSegments().stream()
+        return new LocalDateTimeline<>(etterSegment).combine(new LocalDateTimeline<>(førSegment), FaktaUttakHistorikkinnslagTjeneste::utledEndringDto,
+                LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .toSegments()
+            .stream()
             .filter(Objects::nonNull)
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)
@@ -168,15 +170,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
     }
 
     private Optional<String> uttakPeriodeTypeTekst(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(periode.getPeriodeType())
-            .filter(t -> !UttakPeriodeType.UDEFINERT.equals(t))
-            .map(UttakPeriodeType::getNavn);
+        return Optional.ofNullable(periode.getPeriodeType()).filter(t -> !UttakPeriodeType.UDEFINERT.equals(t)).map(UttakPeriodeType::getNavn);
     }
 
     private Optional<String> årsakTekst(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(periode.getÅrsak())
-            .filter(årsak -> !Årsak.UKJENT.getKode().equals(årsak.getKode()))
-            .map(Årsak::getNavn);
+        return Optional.ofNullable(periode.getÅrsak()).filter(årsak -> !Årsak.UKJENT.getKode().equals(årsak.getKode())).map(Årsak::getNavn);
     }
 
     private Optional<String> morsAktivitetTekst(OppgittPeriodeEntitet periode) {
@@ -189,21 +187,24 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         if (!periode.isGradert()) {
             return Optional.empty();
         }
-        var aktivitet = Optional.ofNullable(periode.getArbeidsgiver()).map(Arbeidsgiver::getIdentifikator)
+        var aktivitet = Optional.ofNullable(periode.getArbeidsgiver())
+            .map(Arbeidsgiver::getIdentifikator)
             .orElseGet(() -> periode.getGraderingAktivitetType().name());
-        return Optional.of(aktivitet + " - Arbeid: " + Optional.ofNullable(arbeidsprosent(periode)).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.HALF_EVEN) + "%");
+        return Optional.of(
+            aktivitet + " - Arbeid: " + Optional.ofNullable(arbeidsprosent(periode)).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.HALF_EVEN)
+                + "%");
     }
 
     private Optional<String> samtidigUttakTekst(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(samtidigUttaksprosent(periode))
-            .map(p -> p.decimalValue().setScale(0, RoundingMode.HALF_EVEN).toString());
+        return Optional.ofNullable(samtidigUttaksprosent(periode)).map(p -> p.decimalValue().setScale(0, RoundingMode.HALF_EVEN).toString());
     }
 
     private Optional<String> flerbarnsTekst(OppgittPeriodeEntitet periode) {
         return periode.isFlerbarnsdager() ? Optional.of("Flerbarnsdager") : Optional.empty();
     }
 
-    private record Endring(String intro, String tekstFra, String tekstTil) {}
+    private record Endring(String intro, String tekstFra, String tekstTil) {
+    }
 
     private static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
         return Objects.equals(før, etter) || Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) && Objects.equals(før.getÅrsak(),
@@ -214,14 +215,10 @@ public class FaktaUttakHistorikkinnslagTjeneste {
     }
 
     private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(periode.getSamtidigUttaksprosent())
-            .filter(SamtidigUttaksprosent::merEnn0)
-            .orElse(null);
+        return Optional.ofNullable(periode.getSamtidigUttaksprosent()).filter(SamtidigUttaksprosent::merEnn0).orElse(null);
     }
 
     private static BigDecimal arbeidsprosent(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(periode.getArbeidsprosent())
-            .filter(arb -> arb.compareTo(BigDecimal.ZERO) > 0)
-            .orElse(null);
+        return Optional.ofNullable(periode.getArbeidsprosent()).filter(arb -> arb.compareTo(BigDecimal.ZERO) > 0).orElse(null);
     }
 }

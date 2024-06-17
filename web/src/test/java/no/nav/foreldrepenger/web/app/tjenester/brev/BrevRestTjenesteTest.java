@@ -11,23 +11,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
-import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-
-import org.mockito.ArgumentCaptor;
 
 class BrevRestTjenesteTest {
 
@@ -48,7 +45,8 @@ class BrevRestTjenesteTest {
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock,
+            behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste);
     }
 
     @Test

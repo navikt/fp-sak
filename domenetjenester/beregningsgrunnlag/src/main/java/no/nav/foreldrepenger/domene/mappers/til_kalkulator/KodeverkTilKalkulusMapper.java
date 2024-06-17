@@ -306,6 +306,7 @@ public class KodeverkTilKalkulusMapper {
             case null -> null;
         };
     }
+
     static SkatteOgAvgiftsregelType mapSkatteOgAvgitsregelType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType type) {
         return switch (type) {
             case SÆRSKILT_FRADRAG_FOR_SJØFOLK -> SkatteOgAvgiftsregelType.SÆRSKILT_FRADRAG_FOR_SJØFOLK;

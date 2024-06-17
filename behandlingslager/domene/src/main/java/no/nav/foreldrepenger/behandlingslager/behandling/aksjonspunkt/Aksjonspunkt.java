@@ -170,10 +170,9 @@ public class Aksjonspunkt extends BaseEntitet {
         if (!(object instanceof Aksjonspunkt kontrollpunkt)) {
             return false;
         }
-        return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon())
-                && Objects.equals(behandling, kontrollpunkt.behandling)
-                && Objects.equals(getStatus(), kontrollpunkt.getStatus())
-                && Objects.equals(getFristTid(), kontrollpunkt.getFristTid());
+        return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon()) && Objects.equals(behandling,
+            kontrollpunkt.behandling) && Objects.equals(getStatus(), kontrollpunkt.getStatus()) && Objects.equals(getFristTid(),
+            kontrollpunkt.getFristTid());
     }
 
     @Override
@@ -281,15 +280,9 @@ public class Aksjonspunkt extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "Aksjonspunkt{" +
-                "id=" + id +
-                ", aksjonspunktDefinisjon=" + getAksjonspunktDefinisjon() +
-                ", status=" + status +
-                ", behandlingStegFunnet=" + getBehandlingStegFunnet() +
-                ", versjon=" + versjon +
-                ", toTrinnsBehandling=" + isToTrinnsBehandling() +
-                ", fristTid=" + getFristTid() +
-                '}';
+        return "Aksjonspunkt{" + "id=" + id + ", aksjonspunktDefinisjon=" + getAksjonspunktDefinisjon() + ", status=" + status
+            + ", behandlingStegFunnet=" + getBehandlingStegFunnet() + ", versjon=" + versjon + ", toTrinnsBehandling=" + isToTrinnsBehandling()
+            + ", fristTid=" + getFristTid() + '}';
     }
 
     void setBehandlingSteg(BehandlingStegType stegType) {

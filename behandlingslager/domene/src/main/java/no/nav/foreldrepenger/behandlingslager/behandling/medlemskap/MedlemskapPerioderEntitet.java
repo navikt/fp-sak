@@ -52,27 +52,27 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
 
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
-    @Column(name="lovvalg_land", nullable = false)
+    @Column(name = "lovvalg_land", nullable = false)
     private Landkoder lovvalgLand = Landkoder.UDEFINERT;
 
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
-    @Column(name="studie_land", nullable = false)
+    @Column(name = "studie_land", nullable = false)
     private Landkoder studieLand = Landkoder.UDEFINERT;
 
     @ChangeTracked
     @Convert(converter = MedlemskapType.KodeverdiConverter.class)
-    @Column(name="medlemskap_type", nullable = false)
+    @Column(name = "medlemskap_type", nullable = false)
     private MedlemskapType medlemskapType = MedlemskapType.UDEFINERT;
 
     @ChangeTracked
     @Convert(converter = MedlemskapDekningType.KodeverdiConverter.class)
-    @Column(name="dekning_type", nullable = false)
+    @Column(name = "dekning_type", nullable = false)
     private MedlemskapDekningType dekningType = MedlemskapDekningType.UDEFINERT;
 
     @ChangeTracked
     @Convert(converter = MedlemskapKildeType.KodeverdiConverter.class)
-    @Column(name="kilde_type", nullable = false)
+    @Column(name = "kilde_type", nullable = false)
     private MedlemskapKildeType kildeType = MedlemskapKildeType.UDEFINERT;
 
     @Column(name = "medl_id")
@@ -205,11 +205,9 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
             return false;
         }
         // minste sett med felter som angir ett medlemskap periode(uten 'muterbare' felter)
-        return Objects.equals(this.getFom(), other.getFom())
-                && Objects.equals(this.getTom(), other.getTom())
-                && Objects.equals(this.getDekningType(), other.getDekningType())
-                && Objects.equals(this.getKildeType(), other.getKildeType())
-                && Objects.equals(this.getMedlId(), other.getMedlId());
+        return Objects.equals(this.getFom(), other.getFom()) && Objects.equals(this.getTom(), other.getTom()) && Objects.equals(this.getDekningType(),
+            other.getDekningType()) && Objects.equals(this.getKildeType(), other.getKildeType()) && Objects.equals(this.getMedlId(),
+            other.getMedlId());
     }
 
 

@@ -24,7 +24,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
         // Skjuler default konstruktør
     }
 
-    public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering, List<ArbeidsforholdMangel> arbeidsforholdMedMangler) {
+    public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering,
+                                                                             List<ArbeidsforholdMangel> arbeidsforholdMedMangler) {
         var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
 
         var referanse = finnReferanse(saksbehandlersVurdering);
@@ -44,17 +45,17 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
     }
 
     private static List<ArbeidsforholdMangel> finnManglerSomBlirAvklart(Arbeidsgiver arbeidsgiver,
-                                                                                       InternArbeidsforholdRef referanse,
-                                                                                       List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
-                                                                                       AksjonspunktÅrsak... årsakPåMangel) {
+                                                                        InternArbeidsforholdRef referanse,
+                                                                        List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
+                                                                        AksjonspunktÅrsak... årsakPåMangel) {
         var gyldigeÅrsaker = Arrays.asList(årsakPåMangel);
         var manglerSomAvklares = arbeidsforholdMedMangler.stream()
             .filter(mangel -> mangel.arbeidsgiver().equals(arbeidsgiver) && mangel.ref().gjelderFor(referanse))
             .filter(mangel -> gyldigeÅrsaker.contains(mangel.årsak()))
             .toList();
         if (manglerSomAvklares.isEmpty()) {
-            throw new IllegalStateException("Feil: Finnes ingen åpne mangler på arbeidsforhold hos "
-                + arbeidsgiver + " med arbeidsforholdId " + referanse);
+            throw new IllegalStateException(
+                "Feil: Finnes ingen åpne mangler på arbeidsforhold hos " + arbeidsgiver + " med arbeidsforholdId " + referanse);
         }
         return manglerSomAvklares;
     }
@@ -67,9 +68,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
     }
 
     private static InternArbeidsforholdRef finnReferanse(ManglendeOpplysningerVurderingDto dto) {
-        return dto.getInternArbeidsforholdRef() == null
-            ? InternArbeidsforholdRef.nullRef()
-            : InternArbeidsforholdRef.ref(dto.getInternArbeidsforholdRef());
+        return dto.getInternArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+            dto.getInternArbeidsforholdRef());
     }
 
     private static void validerAtArbeidsforholdErÅpentForEndring(Arbeidsgiver arbeidsgiver,
@@ -82,8 +82,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
             .filter(arbfor -> årsaker.contains(arbfor.årsak()))
             .count();
         if (arbeidsforholdMedMangelSomMatcherAvklaring != 1) {
-            throw new IllegalStateException("Forventet at antall arbeidsforhold som matcher avklaring er akkurat 1. " +
-                "Faktisk resultat var " + arbeidsforholdMedMangelSomMatcherAvklaring);
+            throw new IllegalStateException("Forventet at antall arbeidsforhold som matcher avklaring er akkurat 1. " + "Faktisk resultat var "
+                + arbeidsforholdMedMangelSomMatcherAvklaring);
         }
     }
 
@@ -93,7 +93,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
                                                                             ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         if (saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING)) {
             var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
-            validerAtArbeidsforholdErÅpentForEndring(arbeidsgiver, InternArbeidsforholdRef.nullRef(), arbeidsforholdMedMangler, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
+            validerAtArbeidsforholdErÅpentForEndring(arbeidsgiver, InternArbeidsforholdRef.nullRef(), arbeidsforholdMedMangler,
+                AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
             leggTilArbeidsforhold(saksbehandlersVurdering, informasjonBuilder);
         } else if (saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)) {
             leggTilArbeidsforhold(saksbehandlersVurdering, informasjonBuilder);
@@ -112,9 +113,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
 
     private static void leggTilArbeidsforhold(ManueltArbeidsforholdDto saksbehandlersVurdering, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
-        var ref = saksbehandlersVurdering.getInternArbeidsforholdRef() == null
-                ? InternArbeidsforholdRef.nullRef()
-                : InternArbeidsforholdRef.ref(saksbehandlersVurdering.getInternArbeidsforholdRef());
+        var ref = saksbehandlersVurdering.getInternArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+            saksbehandlersVurdering.getInternArbeidsforholdRef());
         informasjonBuilder.fjernOverstyringVedrørende(arbeidsgiver, ref);
         var builder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, InternArbeidsforholdRef.nullRef());
         builder.medArbeidsgiver(arbeidsgiver)
@@ -122,8 +122,8 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
             .medHandling(mapTilHandling(saksbehandlersVurdering))
             .medAngittStillingsprosent(mapStillingsprosent(saksbehandlersVurdering))
             .medBeskrivelse(saksbehandlersVurdering.getBegrunnelse());
-        if (saksbehandlersVurdering.getArbeidsgiverNavn() != null
-            && saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)) {
+        if (saksbehandlersVurdering.getArbeidsgiverNavn() != null && saksbehandlersVurdering.getVurdering()
+            .equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)) {
             builder.medAngittArbeidsgiverNavn(saksbehandlersVurdering.getArbeidsgiverNavn());
         }
         var tom = saksbehandlersVurdering.getTom() == null ? Tid.TIDENES_ENDE : saksbehandlersVurdering.getTom();
@@ -132,9 +132,9 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
     }
 
     private static ArbeidsforholdHandlingType mapTilHandling(ManueltArbeidsforholdDto saksbehandlersVurdering) {
-        return switch(saksbehandlersVurdering.getVurdering()) {
+        return switch (saksbehandlersVurdering.getVurdering()) {
             case OPPRETT_BASERT_PÅ_INNTEKTSMELDING -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING;
-            case MANUELT_OPPRETTET_AV_SAKSBEHANDLER ->  ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER;
+            case MANUELT_OPPRETTET_AV_SAKSBEHANDLER -> ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER;
             default -> throw new IllegalStateException("Ukjent ArbeidsforholdKomplettVurderingType " + saksbehandlersVurdering.getVurdering());
         };
     }

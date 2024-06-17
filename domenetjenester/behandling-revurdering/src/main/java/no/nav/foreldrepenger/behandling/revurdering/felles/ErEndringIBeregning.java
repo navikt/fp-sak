@@ -38,16 +38,13 @@ public class ErEndringIBeregning {
         return false;
     }
 
-    public static boolean vurderUgunst(Optional<Beregningsgrunnlag> revurderingsGrunnlag,
-            Optional<Beregningsgrunnlag> originaltGrunnlag) {
+    public static boolean vurderUgunst(Optional<Beregningsgrunnlag> revurderingsGrunnlag, Optional<Beregningsgrunnlag> originaltGrunnlag) {
         if (revurderingsGrunnlag.isEmpty()) {
             return originaltGrunnlag.isPresent();
         }
 
-        var originalePerioder = originaltGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
-                .orElse(Collections.emptyList());
-        var revurderingsPerioder = revurderingsGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
-                .orElse(Collections.emptyList());
+        var originalePerioder = originaltGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList());
+        var revurderingsPerioder = revurderingsGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList());
 
         var allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
 
@@ -62,7 +59,7 @@ public class ErEndringIBeregning {
     }
 
     private static Set<LocalDate> finnAllePeriodersStartdatoer(List<BeregningsgrunnlagPeriode> revurderingsPerioder,
-            List<BeregningsgrunnlagPeriode> originalePerioder) {
+                                                               List<BeregningsgrunnlagPeriode> originalePerioder) {
         Set<LocalDate> startDatoer = new HashSet<>();
         revurderingsPerioder.stream().map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom).forEach(startDatoer::add);
         originalePerioder.stream().map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom).forEach(startDatoer::add);
@@ -72,8 +69,7 @@ public class ErEndringIBeregning {
     private static Long finnGjeldendeDagsatsForDenneDatoen(LocalDate dato, List<BeregningsgrunnlagPeriode> perioder) {
         // Hvis dato er før starten på den første perioden bruker vi første periodes
         // dagsats
-        var førsteKronologiskePeriode = perioder.stream()
-                .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
+        var førsteKronologiskePeriode = perioder.stream().min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.filter(periode -> dato.isBefore(periode.getBeregningsgrunnlagPeriodeFom())).isPresent()) {
             return førsteKronologiskePeriode.get().getDagsats();
         }

@@ -97,7 +97,7 @@ public class AsyncPollingStatus {
 
         private int httpStatus;
 
-        Status(int httpStatus){
+        Status(int httpStatus) {
             this.httpStatus = httpStatus;
         }
 

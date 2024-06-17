@@ -99,7 +99,7 @@ public class InngangsvilkårTjeneste {
                 builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
             }
         } else {
-            builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
+            builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         builder.buildFor(behandling);
@@ -110,7 +110,10 @@ public class InngangsvilkårTjeneste {
     /**
      * Overstyr gitt aksjonspunkt på Inngangsvilkår.
      */
-    public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, Avslagsårsak avslagsårsak,
+    public void overstyrAksjonspunkt(Long behandlingId,
+                                     VilkårType vilkårType,
+                                     VilkårUtfallType utfall,
+                                     Avslagsårsak avslagsårsak,
                                      BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -119,8 +122,10 @@ public class InngangsvilkårTjeneste {
 
         builder.overstyrVilkår(vilkårType, utfall, avslagsårsak);
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-            if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
-                LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsak);
+            if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
+                LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType,
+                    avslagsårsak);
+            }
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         } else if (utfall.equals(VilkårUtfallType.OPPFYLT) && !finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
             builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
@@ -135,7 +140,8 @@ public class InngangsvilkårTjeneste {
     }
 
     private boolean finnesOverstyrteAvviste(VilkårResultat vilkårResultat, VilkårType vilkårType) {
-        return vilkårResultat.getVilkårene().stream()
+        return vilkårResultat.getVilkårene()
+            .stream()
             .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
             .anyMatch(vilkår -> vilkår.erOverstyrt() && vilkår.erIkkeOppfylt());
     }

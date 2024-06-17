@@ -15,11 +15,11 @@ class ArbeidsgiverHistorikkinnslag {
         // Skjuler default konstruktør
     }
 
-    public static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger, Optional<EksternArbeidsforholdRef> eksternArbeidsforholdRef) {
+    public static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger,
+                                                              Optional<EksternArbeidsforholdRef> eksternArbeidsforholdRef) {
         Objects.requireNonNull(arbeidsgiverOpplysninger, "arbeidsgiverOpplysninger");
         var tekstForArbeidsgiver = lagTekstForArbeidsgiver(arbeidsgiverOpplysninger);
-        return eksternArbeidsforholdRef.map(ref -> lagTekstMedArbeidsgiverOgArbeidforholdRef(tekstForArbeidsgiver, ref))
-            .orElse(tekstForArbeidsgiver);
+        return eksternArbeidsforholdRef.map(ref -> lagTekstMedArbeidsgiverOgArbeidforholdRef(tekstForArbeidsgiver, ref)).orElse(tekstForArbeidsgiver);
     }
 
     private static String lagTekstMedArbeidsgiverOgArbeidforholdRef(String tekstForArbeidsgiver, EksternArbeidsforholdRef eksternArbeidsforholdRef) {
@@ -46,8 +46,6 @@ class ArbeidsgiverHistorikkinnslag {
             identifikator = opplysninger.getIdentifikator();
         }
 
-        return sb.append(" (")
-            .append(identifikator)
-            .append(")").toString();
+        return sb.append(" (").append(identifikator).append(")").toString();
     }
 }

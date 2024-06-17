@@ -15,6 +15,7 @@ public class FellesConfigClasses {
 
     private FellesConfigClasses() {
     }
+
     public static Set<Class<?>> getFellesConfigClasses() {
         Set<Class<?>> classes = new HashSet<>();
         // Autentisering

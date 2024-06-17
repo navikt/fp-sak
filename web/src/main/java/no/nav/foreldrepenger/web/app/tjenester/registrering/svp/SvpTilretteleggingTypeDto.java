@@ -4,11 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum SvpTilretteleggingTypeDto {
 
-    @JsonProperty("HEL_TILRETTELEGGING")
-    HEL_TILRETTELEGGING,
-    @JsonProperty("DELVIS_TILRETTELEGGING")
-    DELVIS_TILRETTELEGGING,
-    @JsonProperty("INGEN_TILRETTELEGGING")
-    INGEN_TILRETTELEGGING
+    @JsonProperty("HEL_TILRETTELEGGING") HEL_TILRETTELEGGING,
+    @JsonProperty("DELVIS_TILRETTELEGGING") DELVIS_TILRETTELEGGING,
+    @JsonProperty("INGEN_TILRETTELEGGING") INGEN_TILRETTELEGGING
 
 }

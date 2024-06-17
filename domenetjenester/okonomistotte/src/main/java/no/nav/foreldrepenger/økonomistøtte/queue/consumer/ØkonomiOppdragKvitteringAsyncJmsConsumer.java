@@ -73,8 +73,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
                 loggKvitteringUtenLinjer(kvitteringsmelding);
             }
         } catch (SAXException | JAXBException e) {
-            throw new TekniskException("FP-595437", "Uventet feil med JAXB ved parsing av melding "
-                + "oppdragskjema.oppdrag: " + message, e);
+            throw new TekniskException("FP-595437", "Uventet feil med JAXB ved parsing av melding " + "oppdragskjema.oppdrag: " + message, e);
         } catch (XMLStreamException e) {
             throw new TekniskException("FP-744861", "Feil i parsing av oppdragskjema.oppdrag", e);
         }
@@ -110,8 +109,8 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
                 .replace("xmlns=", "xmlns:xml_1=")
                 .replace("</oppdrag>", "</xml_1:oppdrag>")
                 .replace("</ns2:oppdrag>", "</xml_1:oppdrag>");
-            kvitteringsmelding = JaxbHelper.unmarshalAndValidateXMLWithStAX(OppdragSkjemaConstants.JAXB_CLASS,
-                editedMessage, OppdragSkjemaConstants.XSD_LOCATION);
+            kvitteringsmelding = JaxbHelper.unmarshalAndValidateXMLWithStAX(OppdragSkjemaConstants.JAXB_CLASS, editedMessage,
+                OppdragSkjemaConstants.XSD_LOCATION);
         }
         return kvitteringsmelding;
     }

@@ -69,7 +69,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
     }
 
     private Stream<Stønadskontoberegning> finnNesteHundreStønadskonti(Long fraId) {
-        var sql ="""
+        var sql = """
             select * from (
             select sk.* from STOENADSKONTOBEREGNING sk
             where sk.ID >:fraId
@@ -77,15 +77,14 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
             where ROWNUM <= 100
             """;
 
-        var query = entityManager.createNativeQuery(sql, Stønadskontoberegning.class)
-            .setParameter("fraId", fraId == null ? 0 : fraId);
+        var query = entityManager.createNativeQuery(sql, Stønadskontoberegning.class).setParameter("fraId", fraId == null ? 0 : fraId);
         return query.getResultStream();
     }
 
     private void håndterBeregning(Stønadskontoberegning kontoberegning, boolean dryRun) {
         var input = kontoberegning.getRegelInput();
         var stønadsdager = Stønadsdager.instance(null);
-        var endret  = false;
+        var endret = false;
         if (dryRun) {
             // DO som logging
             return;
@@ -126,10 +125,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         var finnesAllerede = kontoberegning.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).anyMatch(stønadskontoType::equals);
         if (!finnesAllerede && dager > 0) {
             LOG.info("FPSAK KONTO ETTERPOPULER id {} med konto {} dager {}", kontoberegning.getId(), stønadskontoType, dager);
-            var nyKonto = Stønadskonto.builder()
-                .medStønadskontoType(stønadskontoType)
-                .medMaxDager(dager)
-                .build();
+            var nyKonto = Stønadskonto.builder().medStønadskontoType(stønadskontoType).medMaxDager(dager).build();
             nyKonto.setStønadskontoberegning(kontoberegning);
             kontoberegning.leggTilStønadskonto(nyKonto);
         }

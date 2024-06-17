@@ -36,16 +36,14 @@ class GrunnlagOppretter {
 
     SvpGrunnlagEntitet lagTilrettelegging(Behandling behandling) {
         var behovFraDato = LocalDate.of(2019, Month.APRIL, 1);
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(behovFraDato)
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(behovFraDato)
             .medIngenTilrettelegging(behovFraDato, behovFraDato, SvpTilretteleggingFomKilde.SØKNAD)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medKopiertFraTidligereBehandling(false)
             .medMottattTidspunkt(LocalDateTime.now())
             .build();
-        return new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
+        return new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
             .build();
     }
@@ -54,14 +52,12 @@ class GrunnlagOppretter {
         var behovFraDato = LocalDate.now();
         var behovFraDato2 = LocalDate.now().plusMonths(1);
 
-        var tilr2Fom1 = new TilretteleggingFOM.Builder()
-            .medFomDato(behovFraDato)
+        var tilr2Fom1 = new TilretteleggingFOM.Builder().medFomDato(behovFraDato)
             .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
             .medTidligstMottattDato(behovFraDato.minusDays(5))
             .build();
 
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(behovFraDato)
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(behovFraDato)
             .medTilretteleggingFraDatoer(List.of(tilr2Fom1))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123456789"))
@@ -71,14 +67,12 @@ class GrunnlagOppretter {
                 opprettOpphold(behovFraDato2, behovFraDato2.plusWeeks(4), SvpOppholdÅrsak.FERIE)))
             .build();
 
-        return new SvpGrunnlagEntitet.Builder().medBehandlingId(behandlingId)
-            .medOverstyrteTilrettelegginger(List.of(tilrettelegging))
-            .build();
+        return new SvpGrunnlagEntitet.Builder().medBehandlingId(behandlingId).medOverstyrteTilrettelegginger(List.of(tilrettelegging)).build();
     }
 
 
     private SvpAvklartOpphold opprettOpphold(LocalDate fom, LocalDate tom, SvpOppholdÅrsak årsak) {
-        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak( årsak).build();
+        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak(årsak).build();
     }
 
     void lagreUttaksgrenser(Long behandlingId, LocalDate mottaksdato) {

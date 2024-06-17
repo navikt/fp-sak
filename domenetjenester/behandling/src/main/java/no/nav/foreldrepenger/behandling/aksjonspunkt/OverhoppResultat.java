@@ -29,15 +29,13 @@ public class OverhoppResultat {
 
     public Optional<TransisjonIdentifikator> finnFremoverTransisjon() {
         return oppdatereResultater.stream()
-                .filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.FREMOVERHOPP))
-                .map(OppdateringResultat::getTransisjon)
-                .findFirst(); // TODO (essv): Sorter steg ut fra deres rekkefølge
+            .filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.FREMOVERHOPP))
+            .map(OppdateringResultat::getTransisjon)
+            .findFirst(); // TODO (essv): Sorter steg ut fra deres rekkefølge
     }
 
     public Optional<OppdateringResultat> finnHenleggelse() {
-        return oppdatereResultater.stream()
-                .filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.HENLEGGELSE))
-                .findFirst();
+        return oppdatereResultater.stream().filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.HENLEGGELSE)).findFirst();
     }
 
     public Set<AksjonspunktResultat> finnEkstraAksjonspunktResultat() {
@@ -48,8 +46,6 @@ public class OverhoppResultat {
 
     @Override
     public String toString() {
-        return "OverhoppResultat{" +
-                "oppdatereResultater=" + oppdatereResultater +
-                '}';
+        return "OverhoppResultat{" + "oppdatereResultater=" + oppdatereResultater + '}';
     }
 }

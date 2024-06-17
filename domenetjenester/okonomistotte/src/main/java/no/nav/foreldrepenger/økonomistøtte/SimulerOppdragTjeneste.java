@@ -25,14 +25,14 @@ public class SimulerOppdragTjeneste {
     }
 
     @Inject
-    public SimulerOppdragTjeneste(OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
-                                  OppdragInputTjeneste oppdragInputTjeneste) {
+    public SimulerOppdragTjeneste(OppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragInputTjeneste oppdragInputTjeneste) {
         this.oppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.oppdragInputTjeneste = oppdragInputTjeneste;
     }
 
     /**
      * Henter ut oppdragskontroll for en gitt behandlingsid
+     *
      * @param behandlingId
      * @return
      */

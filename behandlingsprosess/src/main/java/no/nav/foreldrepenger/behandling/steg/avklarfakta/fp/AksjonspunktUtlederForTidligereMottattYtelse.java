@@ -42,7 +42,8 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
     }
 
     private Utfall harBrukerAnnenSakForSammeBarn(AksjonspunktUtlederInput param) {
-        var annenSakSammeBarn = ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(), param.getAktørId());
+        var annenSakSammeBarn = ytelseTjeneste.harAktørAnnenSakMedSammeFamilieHendelse(param.getSaksnummer(), param.getBehandlingId(),
+            param.getAktørId());
         return annenSakSammeBarn ? JA : NEI;
     }
 }

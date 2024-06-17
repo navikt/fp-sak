@@ -1,4 +1,3 @@
-
 package no.nav.foreldrepenger.domene.medlem.impl;
 
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
@@ -41,8 +40,8 @@ public class AvklarOmErBosatt {
     private MedlemskapPerioderTjeneste medlemskapPerioderTjeneste;
 
     public AvklarOmErBosatt(BehandlingRepositoryProvider repositoryProvider,
-                     MedlemskapPerioderTjeneste medlemskapPerioderTjeneste,
-                     PersonopplysningTjeneste personopplysningTjeneste) {
+                            MedlemskapPerioderTjeneste medlemskapPerioderTjeneste,
+                            PersonopplysningTjeneste personopplysningTjeneste) {
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.medlemskapPerioderTjeneste = medlemskapPerioderTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -71,7 +70,8 @@ public class AvklarOmErBosatt {
 
     private boolean harPersonstatusSomSkalAvklares(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
         var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.aktørId()))
-            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
+            .map(PersonstatusEntitet::getPersonstatus)
+            .orElse(PersonstatusType.UDEFINERT);
         return !STATUS_UTEN_AVKLARINGSBEHOV.contains(personstatus);
     }
 
@@ -87,12 +87,9 @@ public class AvklarOmErBosatt {
                 .map(o -> finnSegment(vurderingsdato, o.getPeriodeFom(), o.getPeriodeTom()))
                 .toList();
 
-            var fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold,
-                StandardCombinators::alwaysTrueForMatch).compress();
+            var fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold, StandardCombinators::alwaysTrueForMatch).compress();
 
-           return fremtidigePerioder.getLocalDateIntervals()
-               .stream()
-               .anyMatch(this::periodeLengreEnn12M);
+            return fremtidigePerioder.getLocalDateIntervals().stream().anyMatch(this::periodeLengreEnn12M);
         }
         return false;
     }
@@ -109,8 +106,9 @@ public class AvklarOmErBosatt {
     }
 
     private Utfall harBrukerUtenlandskPostadresseITps(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        if (personopplysninger.getAdresserFor(ref.aktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
-            !Landkoder.erNorge(adresse.getLand()))) {
+        if (personopplysninger.getAdresserFor(ref.aktørId())
+            .stream()
+            .anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) || !Landkoder.erNorge(adresse.getLand()))) {
             return JA;
         }
         return NEI;
@@ -143,9 +141,8 @@ public class AvklarOmErBosatt {
 
         var medlemskap = medlemskapRepository.hentMedlemskap(ref.behandlingId());
 
-        Collection<MedlemskapPerioderEntitet> medlemskapsPerioder = medlemskap.isPresent()
-            ? medlemskap.get().getRegistrertMedlemskapPerioder()
-            : Collections.emptyList();
+        Collection<MedlemskapPerioderEntitet> medlemskapsPerioder = medlemskap.isPresent() ? medlemskap.get()
+            .getRegistrertMedlemskapPerioder() : Collections.emptyList();
         var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapsPerioder, vurderingsdato);
 
         var erRegistrertSomIkkeMedlem = medlemskapPerioderTjeneste.erRegistrertSomIkkeMedlem(medlemskapDekningTyper);

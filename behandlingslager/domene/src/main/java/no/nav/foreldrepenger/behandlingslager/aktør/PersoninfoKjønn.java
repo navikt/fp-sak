@@ -28,11 +28,14 @@ public class PersoninfoKjønn {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PersoninfoKjønn) o;
-        return aktørId.equals(that.aktørId) &&
-            kjønn == that.kjønn;
+        return aktørId.equals(that.aktørId) && kjønn == that.kjønn;
     }
 
     @Override

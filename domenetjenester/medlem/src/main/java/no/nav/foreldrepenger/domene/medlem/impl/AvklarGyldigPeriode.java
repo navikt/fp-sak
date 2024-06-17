@@ -21,15 +21,13 @@ public class AvklarGyldigPeriode {
     private MedlemskapRepository medlemskapRepository;
     private MedlemskapPerioderTjeneste medlemskapPerioderTjeneste;
 
-    public AvklarGyldigPeriode(BehandlingRepositoryProvider repositoryProvider,
-                        MedlemskapPerioderTjeneste medlemskapPerioderTjeneste) {
+    public AvklarGyldigPeriode(BehandlingRepositoryProvider repositoryProvider, MedlemskapPerioderTjeneste medlemskapPerioderTjeneste) {
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.medlemskapPerioderTjeneste = medlemskapPerioderTjeneste;
     }
 
     public Optional<MedlemResultat> utled(Long behandlingId, LocalDate vurderingsdato) {
-        var optPerioder = medlemskapRepository.hentMedlemskap(behandlingId)
-            .map(MedlemskapAggregat::getRegistrertMedlemskapPerioder);
+        var optPerioder = medlemskapRepository.hentMedlemskap(behandlingId).map(MedlemskapAggregat::getRegistrertMedlemskapPerioder);
 
         var medlemskapPerioder = optPerioder.orElse(Collections.emptySet());
 

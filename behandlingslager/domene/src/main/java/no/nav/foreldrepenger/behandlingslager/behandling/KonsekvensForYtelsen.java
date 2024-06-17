@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KonsekvensForYtelsen implements Kodeverdi{
+public enum KonsekvensForYtelsen implements Kodeverdi {
 
 
     FORELDREPENGER_OPPHØRER("FORELDREPENGER_OPPHØRER", "Foreldrepenger opphører"),
@@ -37,6 +37,7 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
         this.kode = kode;
         this.navn = navn;
     }
+
     public static Map<String, KonsekvensForYtelsen> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

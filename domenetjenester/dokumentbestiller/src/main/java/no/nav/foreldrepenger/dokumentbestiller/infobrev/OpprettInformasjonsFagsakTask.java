@@ -65,12 +65,12 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     @Inject
     public OpprettInformasjonsFagsakTask(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-            PersoninfoAdapter personinfoAdapter,
-            NavBrukerTjeneste brukerTjeneste,
-            FagsakTjeneste fagsakTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                         BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+                                         PersoninfoAdapter personinfoAdapter,
+                                         NavBrukerTjeneste brukerTjeneste,
+                                         FagsakTjeneste fagsakTjeneste,
+                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -128,12 +128,13 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     }
 
     private List<Fagsak> hentBrukersRelevanteSaker(AktørId aktørId, LocalDate opprettetEtter, LocalDate familieHendelse) {
-        return fagsakRepository.hentForBruker(aktørId).stream()
-                .filter(sak -> FagsakYtelseType.FORELDREPENGER.equals(sak.getYtelseType()))
-                .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
-                .filter(Fagsak::erÅpen)
-                .filter(sak -> erRelevantFagsak(sak, familieHendelse))
-                .toList();
+        return fagsakRepository.hentForBruker(aktørId)
+            .stream()
+            .filter(sak -> FagsakYtelseType.FORELDREPENGER.equals(sak.getYtelseType()))
+            .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
+            .filter(Fagsak::erÅpen)
+            .filter(sak -> erRelevantFagsak(sak, familieHendelse))
+            .toList();
     }
 
     private boolean erRelevantFagsak(Fagsak fagsak, LocalDate fhDato) {
@@ -152,7 +153,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private Optional<LocalDate> finnSakensFHDato(Fagsak fagsak) {
         var siste = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         return siste.flatMap(behandling -> familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-                .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
+            .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
     }
 
     private boolean erSammeFH(LocalDate fhDato, LocalDate fagsakFhDato) {
@@ -161,7 +162,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private PersoninfoBasis hentPersonInfo(AktørId aktørId) {
         return personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId)
-                .orElseThrow(() -> new TekniskException("FP-442142", String.format("Fant ingen ident for aktør %s.", aktørId)));
+            .orElseThrow(() -> new TekniskException("FP-442142", String.format("Fant ingen ident for aktør %s.", aktørId)));
     }
 
 }

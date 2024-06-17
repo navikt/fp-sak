@@ -36,8 +36,7 @@ public class SkalKopiereUttakTjeneste {
         if (!erRevurdering) {
             return false;
         }
-        var arbeidEndret = relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(
-            uttakInput);
+        var arbeidEndret = relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(uttakInput);
         if (arbeidEndret) {
             return false;
         }
@@ -53,8 +52,7 @@ public class SkalKopiereUttakTjeneste {
         }
         var årsaker = uttakInput.getBehandlingÅrsaker();
         return årsaker.stream()
-            .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(
-                BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
+            .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
     }
 
     private boolean familiehendelseEndret(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -62,18 +60,13 @@ public class SkalKopiereUttakTjeneste {
         if (originalBehandling.isEmpty()) {
             return false;
         }
-        var familieHendelseDato = fpGrunnlag.getFamilieHendelser()
-            .getGjeldendeFamilieHendelse()
-            .getFamilieHendelseDato();
-        var origFamiliehendelseDato = originalBehandling.get().getFamilieHendelser()
-            .getGjeldendeFamilieHendelse()
-            .getFamilieHendelseDato();
+        var familieHendelseDato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+        var origFamiliehendelseDato = originalBehandling.get().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         return !familieHendelseDato.isEqual(origFamiliehendelseDato);
     }
 
     private boolean saksbehandlerHarManueltAvklartStartdato(UttakInput uttakInput) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(
-            uttakInput.getBehandlingReferanse().behandlingId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(uttakInput.getBehandlingReferanse().behandlingId());
         var avklarteDatoer = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer);
         return avklarteDatoer.map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null) != null;
     }

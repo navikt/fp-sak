@@ -47,9 +47,9 @@ class OppholdTjenesteTest {
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
-    private final LocalDate BEHOV_FRA_DATO = LocalDate.of(2023,10,1);
+    private final LocalDate BEHOV_FRA_DATO = LocalDate.of(2023, 10, 1);
     private final LocalDate BEHOV_FRA_DATO_2 = BEHOV_FRA_DATO.plusMonths(1);
-    private final Arbeidsgiver ARBEIDSGIVER_1 =  Arbeidsgiver.virksomhet("123456789");
+    private final Arbeidsgiver ARBEIDSGIVER_1 = Arbeidsgiver.virksomhet("123456789");
 
     @BeforeEach
     void setUp() {
@@ -57,10 +57,11 @@ class OppholdTjenesteTest {
     }
 
     @Test
-    void finnerOppholdFraTilrettelegging(){
+    void finnerOppholdFraTilrettelegging() {
         //lag svpGrunnlag med flere tilrettelegginger og 2 med opphold
         var fraDatoer = List.of(lagFraDatoTilr(BigDecimal.valueOf(50)));
-        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE), lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
+        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE),
+            lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
 
         var tilrettelegginger = List.of(lagTilrettelegging(fraDatoer, oppholdFraSaksbehandler, ARBEIDSGIVER_1, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
         var svpGrunnlag = lagSvpGrunnlag(tilrettelegginger);
@@ -70,9 +71,10 @@ class OppholdTjenesteTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            svangerskapspengerGrunnlag);
 
-        var arbeidsforhold = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
+        var arbeidsforhold = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null);
         var oppholdForventet = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold);
 
 
@@ -87,13 +89,15 @@ class OppholdTjenesteTest {
     }
 
     @Test
-    void finnerOppholdFraflereTilrettelegginger(){
+    void finnerOppholdFraflereTilrettelegginger() {
         //lag svpGrunnlag med flere tilrettelegginger og 2 med opphold
         var fraDatoer = List.of(lagFraDatoTilr(BigDecimal.valueOf(50)));
-        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE), lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
+        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE),
+            lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
 
         var tilrettelegginger = List.of(lagTilrettelegging(fraDatoer, oppholdFraSaksbehandler, ARBEIDSGIVER_1, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD),
-            lagTilrettelegging(fraDatoer, List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE)), null, ArbeidType.FRILANSER));
+            lagTilrettelegging(fraDatoer, List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE)),
+                null, ArbeidType.FRILANSER));
         var svpGrunnlag = lagSvpGrunnlag(tilrettelegginger);
         var inntektsmeldingUtenFerie = lagInntektsmelding(null, null);
 
@@ -102,9 +106,10 @@ class OppholdTjenesteTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            svangerskapspengerGrunnlag);
 
-        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
+        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null);
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
         var oppholdForventetArbeidsforhold1 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold1);
         var oppholdForventetArbeidsforhold2 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold2);
@@ -126,24 +131,28 @@ class OppholdTjenesteTest {
     }
 
     @Test
-    void finnerOppholdFraflereTilretteleggingerOgInntektsmelding(){
+    void finnerOppholdFraflereTilretteleggingerOgInntektsmelding() {
         //lag svpGrunnlag med flere tilrettelegginger og 2 med opphold
         var fraDatoer = List.of(lagFraDatoTilr(BigDecimal.valueOf(50)));
-        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE), lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
+        var oppholdFraSaksbehandler = List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE),
+            lagOppholdSaksbehandler(BEHOV_FRA_DATO_2.plusDays(20), BEHOV_FRA_DATO_2.plusDays(22), SvpOppholdÅrsak.SYKEPENGER));
 
         var tilrettelegginger = List.of(lagTilrettelegging(fraDatoer, oppholdFraSaksbehandler, ARBEIDSGIVER_1, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD),
-            lagTilrettelegging(fraDatoer, List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE)), null, ArbeidType.FRILANSER));
+            lagTilrettelegging(fraDatoer, List.of(lagOppholdSaksbehandler(BEHOV_FRA_DATO_2, BEHOV_FRA_DATO_2.plusDays(5), SvpOppholdÅrsak.FERIE)),
+                null, ArbeidType.FRILANSER));
         var svpGrunnlag = lagSvpGrunnlag(tilrettelegginger);
-        var inntektsmeldingMedFerie = lagInntektsmelding(UtsettelsePeriode.ferie(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusDays(5)), UtsettelsePeriode.ferie(BEHOV_FRA_DATO.plusDays(10), BEHOV_FRA_DATO.plusDays(12)));
+        var inntektsmeldingMedFerie = lagInntektsmelding(UtsettelsePeriode.ferie(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusDays(5)),
+            UtsettelsePeriode.ferie(BEHOV_FRA_DATO.plusDays(10), BEHOV_FRA_DATO.plusDays(12)));
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
 
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingMedFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            svangerskapspengerGrunnlag);
 
-        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
+        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null);
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
         var oppholdForventetArbeidsforhold1 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold1);
         var oppholdForventetArbeidsforhold2 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold2);
@@ -171,20 +180,21 @@ class OppholdTjenesteTest {
     }
 
     SvpGrunnlagEntitet lagSvpGrunnlag(List<SvpTilretteleggingEntitet> tilrettelegginger) {
-        return new SvpGrunnlagEntitet.Builder().medBehandlingId(123456L)
-            .medOverstyrteTilrettelegginger(tilrettelegginger)
-            .build();
+        return new SvpGrunnlagEntitet.Builder().medBehandlingId(123456L).medOverstyrteTilrettelegginger(tilrettelegginger).build();
     }
 
     private TilretteleggingFOM lagFraDatoTilr(BigDecimal stillingsprosent) {
-        return new TilretteleggingFOM.Builder()
-            .medFomDato(BEHOV_FRA_DATO)
+        return new TilretteleggingFOM.Builder().medFomDato(BEHOV_FRA_DATO)
             .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
             .medStillingsprosent(stillingsprosent)
             .medTidligstMottattDato(BEHOV_FRA_DATO.minusDays(5))
             .build();
     }
-    private SvpTilretteleggingEntitet lagTilrettelegging(List<TilretteleggingFOM> fraDatoer, List<SvpAvklartOpphold> oppholdListe, Arbeidsgiver arbeidsgiver, ArbeidType arbeidType){
+
+    private SvpTilretteleggingEntitet lagTilrettelegging(List<TilretteleggingFOM> fraDatoer,
+                                                         List<SvpAvklartOpphold> oppholdListe,
+                                                         Arbeidsgiver arbeidsgiver,
+                                                         ArbeidType arbeidType) {
         var builder = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
             .medTilretteleggingFraDatoer(fraDatoer)
             .medArbeidType(arbeidType)
@@ -199,7 +209,7 @@ class OppholdTjenesteTest {
     }
 
     private SvpAvklartOpphold lagOppholdSaksbehandler(LocalDate fom, LocalDate tom, SvpOppholdÅrsak årsak) {
-        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak( årsak).build();
+        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak(årsak).build();
     }
 
     private Inntektsmelding lagInntektsmelding(UtsettelsePeriode utsettelsePeriode, UtsettelsePeriode utsettelsePeriode2) {
@@ -218,20 +228,12 @@ class OppholdTjenesteTest {
         if (utsettelsePeriode2 != null) {
             builder.leggTil(utsettelsePeriode2);
         }
-        return  builder.build();
+        return builder.build();
     }
 
     private static BehandlingReferanse lagBehandlingReferanse() {
-        return new BehandlingReferanse(new Saksnummer("1234"),
-            1234L,
-            FagsakYtelseType.SVANGERSKAPSPENGER,
-            123456L,
-            UUID.randomUUID(),
-            BehandlingStatus.UTREDES,
-            BehandlingType.FØRSTEGANGSSØKNAD,
-            null,
-            null,
-            RelasjonsRolleType.MORA,
+        return new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.SVANGERSKAPSPENGER, 123456L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, null, null, RelasjonsRolleType.MORA,
             Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build());
     }
 

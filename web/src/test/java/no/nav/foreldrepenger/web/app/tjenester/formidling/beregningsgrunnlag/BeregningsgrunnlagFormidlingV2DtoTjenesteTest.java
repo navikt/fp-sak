@@ -28,13 +28,10 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
     private static final BigDecimal BRUTTO = BigDecimal.valueOf(444432);
 
 
-
     @Test
     void tester_mapping() {
         // Arrange
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
-            .medBeregningsgrunnlag(buildBeregningsgrunnlag())
-            .build(BeregningsgrunnlagTilstand.FASTSATT);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(buildBeregningsgrunnlag()).build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
         var dto = new BeregningsgrunnlagFormidlingV2DtoTjeneste(gr).map().orElse(null);
@@ -57,18 +54,29 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
 
         var andel = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList().get(0);
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler()).hasSize(1);
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).beregningsperiodeFom()).isEqualTo(andel.getBeregningsperiodeFom());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).beregningsperiodeTom()).isEqualTo(andel.getBeregningsperiodeTom());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).beregningsperiodeFom()).isEqualTo(
+            andel.getBeregningsperiodeFom());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).beregningsperiodeTom()).isEqualTo(
+            andel.getBeregningsperiodeTom());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).dagsats()).isEqualTo(andel.getDagsats());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).aktivitetStatus().name()).isEqualTo(andel.getAktivitetStatus().name());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).bruttoPrÅr()).isEqualByComparingTo(andel.getBruttoPrÅr());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).avkortetPrÅr()).isEqualByComparingTo(andel.getAvkortetPrÅr());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforholdType().name()).isEqualTo(andel.getArbeidsforholdType().name());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).aktivitetStatus().name()).isEqualTo(
+            andel.getAktivitetStatus().name());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).bruttoPrÅr()).isEqualByComparingTo(
+            andel.getBruttoPrÅr());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).avkortetPrÅr()).isEqualByComparingTo(
+            andel.getAvkortetPrÅr());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforholdType().name()).isEqualTo(
+            andel.getArbeidsforholdType().name());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erNyIArbeidslivet()).isNull();
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsforholdRef()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getArbeidsforholdRef().getReferanse());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsgiverIdent()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getArbeidsforholdOrgnr());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseBortfaltPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseBortfaltPrÅr().orElse(BigDecimal.ZERO));
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseTilkommetPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseTilkommetPrÅr().orElse(BigDecimal.ZERO));
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsforholdRef()).isEqualTo(
+            andel.getBgAndelArbeidsforhold().get().getArbeidsforholdRef().getReferanse());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsgiverIdent()).isEqualTo(
+            andel.getBgAndelArbeidsforhold().get().getArbeidsforholdOrgnr());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseBortfaltPrÅr()).isEqualTo(
+            andel.getBgAndelArbeidsforhold().get().getNaturalytelseBortfaltPrÅr().orElse(BigDecimal.ZERO));
+        assertThat(
+            dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseTilkommetPrÅr()).isEqualTo(
+            andel.getBgAndelArbeidsforhold().get().getNaturalytelseTilkommetPrÅr().orElse(BigDecimal.ZERO));
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
     }
 
@@ -84,8 +92,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel() {
-        var bga = BGAndelArbeidsforhold
-            .builder()
+        var bga = BGAndelArbeidsforhold.builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
             .medNaturalytelseBortfaltPrÅr(NAT_BORTFALT)
             .medNaturalytelseTilkommetPrÅr(NAT_TILKOMMET)

@@ -26,15 +26,14 @@ public final class BeregningsresultatRegler {
     public static FastsattFeriepengeresultat fastsettFeriepenger(BeregningsresultatFeriepengerGrunnlag grunnlag) {
 
         var regelInput = toJson(grunnlag);
-        var mellomregningsperioder = grunnlag.getBeregningsresultatPerioder().stream()
-            .map(BeregningsresultatPeriode::copyUtenFeriepenger)
-            .toList();
+        var mellomregningsperioder = grunnlag.getBeregningsresultatPerioder().stream().map(BeregningsresultatPeriode::copyUtenFeriepenger).toList();
         var mellomregning = new BeregningsresultatFeriepengerRegelModell(grunnlag, mellomregningsperioder);
 
         var evaluation = new RegelBeregnFeriepenger().evaluer(mellomregning);
         var sporing = EvaluationSerializer.asJson(evaluation, NareVersion.NARE_VERSION);
 
-        var resultat = new BeregningsresultatFeriepengerResultat(mellomregning.getBeregningsresultatPerioder(), mellomregning.getFeriepengerPeriode());
+        var resultat = new BeregningsresultatFeriepengerResultat(mellomregning.getBeregningsresultatPerioder(),
+            mellomregning.getFeriepengerPeriode());
 
         return new FastsattFeriepengeresultat(resultat, grunnlag, regelInput, sporing, null); // TODO versjon når eget repo
     }

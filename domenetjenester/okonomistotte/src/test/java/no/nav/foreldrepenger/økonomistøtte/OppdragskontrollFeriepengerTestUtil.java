@@ -151,9 +151,6 @@ public class OppdragskontrollFeriepengerTestUtil {
     }
 
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
-        return oppdrag110.getOppdragslinje150Liste()
-            .stream()
-            .filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger())
-            .toList();
+        return oppdrag110.getOppdragslinje150Liste().stream().filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger()).toList();
     }
 }

@@ -58,16 +58,19 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     }
 
     private void setBeregningsresultat(YtelseForeldrepenger ytelseForeldrepenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
-        var resultat = beregningsresultatPerioder
-            .stream()
-            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
+        var resultat = beregningsresultatPerioder.stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList)
+            .flatMap(Collection::stream)
+            .map(this::konverterFraDomene)
+            .toList();
 
         ytelseForeldrepenger.getBeregningsresultat().addAll(resultat);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat konverterFraDomene(BeregningsresultatAndel andelDomene) {
         var kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat();
-        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom(), andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom()));
+        kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom(),
+            andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom()));
         kontrakt.setBrukerErMottaker(VedtakXmlUtil.lagBooleanOpplysning(andelDomene.erBrukerMottaker()));
         kontrakt.setVirksomhet(konverterVirksomhetFraDomene(andelDomene));
         kontrakt.setAktivitetstatus(VedtakXmlUtil.lagKodeverksOpplysning(andelDomene.getAktivitetStatus()));
@@ -84,13 +87,15 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
             kontrakt.setOrgnr(VedtakXmlUtil.lagStringOpplysning(orgNr));
             if (!OrgNummer.erKunstig(orgNr)) {
                 var virksomhet = virksomhetTjeneste.finnOrganisasjon(orgNr);
-                kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning(virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNr)).getNavn()));
+                kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning(
+                    virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNr)).getNavn()));
             } else {
                 kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning("Kunstig virksomhet"));
             }
         });
 
-        Optional.ofNullable(andelDomene.getArbeidsforholdRef()).ifPresent(ref -> kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(ref.getReferanse())));
+        Optional.ofNullable(andelDomene.getArbeidsforholdRef())
+            .ifPresent(ref -> kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(ref.getReferanse())));
         return kontrakt;
     }
 }

@@ -53,9 +53,10 @@ class VedtattYtelseTjenesteTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, familieHendelseRepository);
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste,
+            familieHendelseRepository);
 
-        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling);
+        var ytelse = (YtelseV1) tjeneste.genererYtelse(behandling);
         // Assert
         assertThat(ytelse.getAnvist()).hasSize(4);
         assertThat(ytelse.getAnvist().get(0).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
@@ -74,16 +75,16 @@ class VedtattYtelseTjenesteTest {
             .medTermindato(stp)
             .medNavnPå("LEGEN LEGESEN")
             .medUtstedtDato(LocalDate.now().minusDays(7));
-        scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(terminbekreftelse);
+        scenario.medBekreftetHendelse().medTerminbekreftelse(terminbekreftelse);
         var behandling = scenario.lagMocked();
         var rp = scenario.mockBehandlingRepositoryProvider();
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.empty());
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, rp.getFamilieHendelseRepository());
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste,
+            rp.getFamilieHendelseRepository());
 
-        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling);
+        var ytelse = (YtelseV1) tjeneste.genererYtelse(behandling);
         // Assert
         assertThat(ytelse.getAnvist()).isEmpty();
         assertThat(ytelse.getPeriode().getFom()).isEqualTo(stp);
@@ -91,19 +92,12 @@ class VedtattYtelseTjenesteTest {
     }
 
     private BeregningsresultatEntitet lagBR() {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        var per1a = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(stp, stp.plusDays(14))
-            .build(beregningsresultat);
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
+        var per1a = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(stp, stp.plusDays(14)).build(beregningsresultat);
         var per1b = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.plusDays(15), knekk1.minusDays(1))
             .build(beregningsresultat);
-        var per2 = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(knekk1, knekk2.minusDays(1))
-            .build(beregningsresultat);
+        var per2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(knekk1, knekk2.minusDays(1)).build(beregningsresultat);
         var per3 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(knekk2, LocalDate.now().plusWeeks(2))
             .build(beregningsresultat);

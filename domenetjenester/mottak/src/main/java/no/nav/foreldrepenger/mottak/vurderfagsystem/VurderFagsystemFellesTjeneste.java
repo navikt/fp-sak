@@ -28,7 +28,7 @@ public class VurderFagsystemFellesTjeneste {
     private Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester;
 
 
-    public VurderFagsystemFellesTjeneste(){
+    public VurderFagsystemFellesTjeneste() {
         //Injected normal scoped bean is now proxyable
     }
 
@@ -56,9 +56,10 @@ public class VurderFagsystemFellesTjeneste {
         }
         var behandlingTema = vurderFagsystem.getBehandlingTema();
         var ytelseType = behandlingTema.getFagsakYtelseType();
-        var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
+        var alleBrukersFagsaker = fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
 
-        if (DokumentTypeId.KLAGE_DOKUMENT.equals(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(vurderFagsystem.getDokumentKategori())) {
+        if (DokumentTypeId.KLAGE_DOKUMENT.equals(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(
+            vurderFagsystem.getDokumentKategori())) {
             return fellesUtils.vurderFagsystemKlageAnke(behandlingTema, alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
@@ -107,7 +108,7 @@ public class VurderFagsystemFellesTjeneste {
         if (saksnummer.isPresent()) {
             return vurderSøknadMedSaksnummer(saksnummer.get());
         }
-        var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
+        var alleBrukersFagsaker = fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
 
         return fellesUtils.klageinstansUstrukturertDokumentVurdering(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
     }

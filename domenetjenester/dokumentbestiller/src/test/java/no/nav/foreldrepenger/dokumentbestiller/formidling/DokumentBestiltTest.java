@@ -55,7 +55,8 @@ class DokumentBestiltTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
         assertThat(historikkinnslag.getHistorikkinnslagDeler()).hasSize(1);
         assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse()).isPresent();
-        assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse().get()).containsSubsequence(journalførSom.getNavn(), malBrukt.getNavn());
+        assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse().get()).containsSubsequence(journalførSom.getNavn(),
+            malBrukt.getNavn());
     }
 
     @Test

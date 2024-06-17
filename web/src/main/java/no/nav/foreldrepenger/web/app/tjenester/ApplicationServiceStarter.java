@@ -57,8 +57,7 @@ public class ApplicationServiceStarter {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [services=" + services
-            .stream()
+        return getClass().getSimpleName() + " [services=" + services.stream()
             .map(Object::getClass)
             .map(Class::getSimpleName)
             .collect(Collectors.joining(", ")) + "]";

@@ -19,12 +19,12 @@ public class RegisterInnhentingIntervall {
     }
 
     /**
-     * @param grenseverdiFørES- Maks avvik før STP for registerinnhenting før justering av perioden (Engangsstønad)
+     * @param grenseverdiFørES-       Maks avvik før STP for registerinnhenting før justering av perioden (Engangsstønad)
      * @param grenseverdiPeriodeEtter Maks avvik etter STP for registerinnhenting før justering av perioden (Engangsstønad)
      */
     @Inject
-    public RegisterInnhentingIntervall(@KonfigVerdi(value="es.registerinnhenting.avvik.periode.før", defaultVerdi = "P9M") Period grenseverdiPeriodeFør,
-                                       @KonfigVerdi(value="es.registerinnhenting.avvik.periode.etter", defaultVerdi = "P6M") Period grenseverdiPeriodeEtter) {
+    public RegisterInnhentingIntervall(@KonfigVerdi(value = "es.registerinnhenting.avvik.periode.før", defaultVerdi = "P9M") Period grenseverdiPeriodeFør,
+                                       @KonfigVerdi(value = "es.registerinnhenting.avvik.periode.etter", defaultVerdi = "P6M") Period grenseverdiPeriodeEtter) {
         this.grenseverdiFør = grenseverdiPeriodeFør;
         this.grenseverdiEtter = grenseverdiPeriodeEtter;
     }
@@ -33,8 +33,8 @@ public class RegisterInnhentingIntervall {
         if (bekreftetSkjæringstidspunkt == null) {
             return false;
         }
-        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør)
-            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
+        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør) || vurderEndringEtter(
+            oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
     }
 
     private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {

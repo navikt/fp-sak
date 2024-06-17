@@ -56,7 +56,7 @@ public class FpoversiktMigreringRestTjeneste {
         while (!sakDato.isAfter(taskInput.tom)) {
             var task = opprettTaskForDato(sakDato, ytelseType, startDelay);
             tasks.add(task);
-            startDelay+= taskInput.delayBetween();
+            startDelay += taskInput.delayBetween();
             sakDato = sakDato.plusDays(1);
         }
         var gruppe = new ProsessTaskGruppe();

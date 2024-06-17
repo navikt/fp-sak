@@ -23,13 +23,13 @@ public class FeedRepository {
     }
 
     @Inject
-    public FeedRepository( EntityManager entityManager) {
+    public FeedRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
 
-    public<V extends UtgåendeHendelse> Long lagre(V utgåendeHendelse) {
+    public <V extends UtgåendeHendelse> Long lagre(V utgåendeHendelse) {
         Objects.requireNonNull(utgåendeHendelse);
         if (utgåendeHendelse.getSekvensnummer() == 0) {
             utgåendeHendelse.setSekvensnummer(hentNesteSekvensnummer(utgåendeHendelse.getClass()));
@@ -43,8 +43,7 @@ public class FeedRepository {
     public boolean harHendelseMedKildeId(String kildeId) {
         Objects.requireNonNull(kildeId);
 
-        var query = entityManager
-            .createNativeQuery("SELECT count(1) FROM UTGAAENDE_HENDELSE where kilde_id = :kildeId")
+        var query = entityManager.createNativeQuery("SELECT count(1) FROM UTGAAENDE_HENDELSE where kilde_id = :kildeId")
             .setParameter("kildeId", kildeId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
 
@@ -57,11 +56,11 @@ public class FeedRepository {
         return Optional.ofNullable(entityManager.find(UtgåendeHendelse.class, hendelseId));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public <V extends UtgåendeHendelse> List<V> hentUtgåendeHendelser(Class<V> cls, HendelseCriteria hendelseCriteria) {
         var discVal = cls.getDeclaredAnnotation(DiscriminatorValue.class);
         Objects.requireNonNull(discVal, "Mangler @DiscriminatorValue i klasse:" + cls);
-        var outputFeedKode  = discVal.value();
+        var outputFeedKode = discVal.value();
 
         var results = createScrollableResult(outputFeedKode, hendelseCriteria);
         List<V> hendelser = new ArrayList<>();
@@ -70,7 +69,7 @@ public class FeedRepository {
 
             if (resultObjects.length > 0) {
                 var hendelse = hentUtgåendeHendelse(Long.parseLong(resultObjects[0].toString()));
-                hendelse.ifPresent(h -> hendelser .add((V) h));
+                hendelse.ifPresent(h -> hendelser.add((V) h));
             }
         }
 
@@ -86,11 +85,11 @@ public class FeedRepository {
         sb.append(" WHERE uh.sekvensnummer > :sistLestSekvensnummer");
         sb.append(" AND output_feed_kode = :outputFeedKode");
 
-        if(type != null) {
+        if (type != null) {
             sb.append(" AND uh.type = :type");
         }
 
-        if(aktørId != null) {
+        if (aktørId != null) {
             sb.append(" AND uh.aktoer_id = :aktørId");
         }
 
@@ -104,9 +103,9 @@ public class FeedRepository {
     @SuppressWarnings("rawtypes")
     private List createScrollableResult(String outputFeedKode, HendelseCriteria hendelseCriteria) {
         var q = entityManager.createNativeQuery(createNativeSql(hendelseCriteria.getType(), hendelseCriteria.getAktørId()))
-                .setParameter("outputFeedKode", outputFeedKode)
-                .setParameter("maxAntall", hendelseCriteria.getMaxAntall())
-                .setParameter("sistLestSekvensnummer", hendelseCriteria.getSisteLestSekvensId());
+            .setParameter("outputFeedKode", outputFeedKode)
+            .setParameter("maxAntall", hendelseCriteria.getMaxAntall())
+            .setParameter("sistLestSekvensnummer", hendelseCriteria.getSisteLestSekvensId());
 
         if (hendelseCriteria.getType() != null) {
             q.setParameter("type", hendelseCriteria.getType());
@@ -122,7 +121,7 @@ public class FeedRepository {
     public <V extends UtgåendeHendelse> long hentNesteSekvensnummer(Class<V> cls) {
         var sekVal = cls.getDeclaredAnnotation(SekvensnummerNavn.class);
         Objects.requireNonNull(sekVal, "Mangler @SekvensnummerGeneratorNavn i klasse:" + cls);
-        var sql  = "select " + sekVal.value() + ".nextval as num from dual";
+        var sql = "select " + sekVal.value() + ".nextval as num from dual";
 
         var query = entityManager.createNativeQuery(sql); //NOSONAR Her har vi full kontroll på sql
         var singleResult = (BigDecimal) query.getSingleResult();

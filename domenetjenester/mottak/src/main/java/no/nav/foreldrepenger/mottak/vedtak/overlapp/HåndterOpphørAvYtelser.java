@@ -30,9 +30,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
- *  Dersom det er identifisert overlapp av VurderOpphørAvYtelser, vil denne tjenesten opprette en
- *  "vurder konsekvens for ytelse"-oppgave i Gosys, og en revurdering med egen årsak slik at saksbehandler kan vurdere
- *  om opphør skal gjennomføres eller ikke. Saksbehandling må skje manuelt, og fritekstbrev må benyttes for opphør av løpende sak.
+ * Dersom det er identifisert overlapp av VurderOpphørAvYtelser, vil denne tjenesten opprette en
+ * "vurder konsekvens for ytelse"-oppgave i Gosys, og en revurdering med egen årsak slik at saksbehandler kan vurdere
+ * om opphør skal gjennomføres eller ikke. Saksbehandling må skje manuelt, og fritekstbrev må benyttes for opphør av løpende sak.
  */
 @ApplicationScoped
 public class HåndterOpphørAvYtelser {
@@ -55,7 +55,8 @@ public class HåndterOpphørAvYtelser {
                                   ProsessTaskTjeneste taskTjeneste,
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                  KøKontroller køKontroller, Kompletthetskontroller kompletthetskontroller) {
+                                  KøKontroller køKontroller,
+                                  Kompletthetskontroller kompletthetskontroller) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.taskTjeneste = taskTjeneste;
@@ -81,19 +82,19 @@ public class HåndterOpphørAvYtelser {
             Optional.ofNullable(beskrivelse).ifPresent(b -> opprettVurderKonsekvens(eksisterendeBehandling, b));
             kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
         } else {
-            behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
-                .ifPresent(b -> {
-                    Optional.ofNullable(beskrivelse).ifPresent(beskriv -> opprettVurderKonsekvens(b, beskriv));
-                    var enhet = utledEnhetFraBehandling(b);
-                    fagsakLåsRepository.taLås(fagsak.getId());
-                    var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
-                    var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
-                    if (revurdering != null) {
-                        LOG.info("HåndterOpphør FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
-                    } else {
-                        LOG.info("HåndterOpphør FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
-                    }
-                });
+            behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId()).ifPresent(b -> {
+                Optional.ofNullable(beskrivelse).ifPresent(beskriv -> opprettVurderKonsekvens(b, beskriv));
+                var enhet = utledEnhetFraBehandling(b);
+                fagsakLåsRepository.taLås(fagsak.getId());
+                var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
+                var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
+                if (revurdering != null) {
+                    LOG.info("HåndterOpphør FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(),
+                        fagsak.getSaksnummer(), beskrivelse);
+                } else {
+                    LOG.info("HåndterOpphør FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
+                }
+            });
         }
     }
 
@@ -109,7 +110,10 @@ public class HåndterOpphørAvYtelser {
         opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
     }
 
-    private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType, OrganisasjonsEnhet enhet, boolean skalKøes) {
+    private Behandling opprettRevurdering(Fagsak sakRevurdering,
+                                          BehandlingÅrsakType behandlingÅrsakType,
+                                          OrganisasjonsEnhet enhet,
+                                          boolean skalKøes) {
         var revurdering = getRevurderingTjeneste(sakRevurdering).opprettAutomatiskRevurdering(sakRevurdering, behandlingÅrsakType, enhet);
 
         if (skalKøes) {
@@ -136,7 +140,9 @@ public class HåndterOpphørAvYtelser {
     }
 
     private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingÅrsakType behandlingÅrsakType) {
-        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) return;
+        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) {
+            return;
+        }
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (!behandling.harBehandlingÅrsak(behandlingÅrsakType)) {

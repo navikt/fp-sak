@@ -10,6 +10,11 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 public abstract class FaktaOmBeregningHistorikkTjeneste {
 
-    public abstract void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag);
+    public abstract void lagHistorikk(Long behandlingId,
+                                      FaktaBeregningLagreDto dto,
+                                      HistorikkInnslagTekstBuilder tekstBuilder,
+                                      BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                      Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                      InntektArbeidYtelseGrunnlag iayGrunnlag);
 
 }

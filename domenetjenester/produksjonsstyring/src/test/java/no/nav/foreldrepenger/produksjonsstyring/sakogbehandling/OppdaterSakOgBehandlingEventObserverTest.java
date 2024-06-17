@@ -48,8 +48,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), scenario.taSkriveLåsForBehandling());
         BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.OPPRETTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -72,8 +71,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), scenario.taSkriveLåsForBehandling());
         BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.AVSLUTTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -86,13 +84,12 @@ class OppdaterSakOgBehandlingEventObserverTest {
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData, BehandlingStatus expected) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
-        assertThat(new AktørId(prosessTaskData.getAktørId()))
-                .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
+        assertThat(new AktørId(prosessTaskData.getAktørId())).isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(scenario.getBehandling().getId().toString());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expected.getKode());
-        assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-            .isBefore(LocalDateTime.now().plusNanos(1000));
+        assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY),
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME)).isBefore(LocalDateTime.now().plusNanos(1000));
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TYPE_KEY)).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
     }
 

@@ -18,10 +18,7 @@ public class ManuellRegistreringEndringssøknadValidator {
     }
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringEndringsøknadDto registreringDto) {
-        return Stream.of(
-            validerTidsromPermisjon(registreringDto))
-            .flatMap(Collection::stream)
-            .toList();
+        return Stream.of(validerTidsromPermisjon(registreringDto)).flatMap(Collection::stream).toList();
     }
 
     private static List<FeltFeilDto> validerTidsromPermisjon(ManuellRegistreringEndringsøknadDto registreringDto) {
@@ -31,7 +28,7 @@ public class ManuellRegistreringEndringssøknadValidator {
 
         //Valider tidspermisjonsfelter som er felles for alle foreldretyper
         var tidsromPermisjon = registreringDto.getTidsromPermisjon();
-        if(tidsromPermisjon != null) {
+        if (tidsromPermisjon != null) {
             var feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
             feltFeilPermisjonsperiode.ifPresent(result::add);
 
@@ -51,8 +48,9 @@ public class ManuellRegistreringEndringssøknadValidator {
         List<String> feil = new ArrayList<>();
         var permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
         if (!isNull(permisjonperioder)) {
-            var perioder = permisjonperioder.stream().map(fkp ->
-                new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).toList();
+            var perioder = permisjonperioder.stream()
+                .map(fkp -> new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom()))
+                .toList();
             feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
             feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
             feil.addAll(ManuellRegistreringValidatorUtil.overlappendePerioder(perioder));

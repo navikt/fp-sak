@@ -52,7 +52,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 /**
- *  Opprette revurderinger der det er oppdaget feil praksis
+ * Opprette revurderinger der det er oppdaget feil praksis
  */
 @ApplicationScoped
 public class FeilPraksisOpprettBehandlingTjeneste {
@@ -141,7 +141,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
 
     private static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
         Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
-        tapteDagerGradering(perioder).forEach((k,v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
+        tapteDagerGradering(perioder).forEach((k, v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
         return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
     }
 
@@ -155,7 +155,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     }
 
     private static List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
-        return periode.getAktiviteter().stream()
+        return periode.getAktiviteter()
+            .stream()
             .filter(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling())
             .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a), a.getTrekkdager()))
             .toList();
@@ -171,7 +172,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     }
 
     private static List<UttakAktivitetTapteDager> tapteDagerGraderingPeriode(UttakResultatPeriodeEntitet periode) {
-        return periode.getAktiviteter().stream()
+        return periode.getAktiviteter()
+            .stream()
             .filter(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a))
             .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a),
                 a.getTrekkdager().subtract(graderingForventetTrekkdager(periode, a))))
@@ -186,7 +188,8 @@ public class FeilPraksisOpprettBehandlingTjeneste {
 
     private static Trekkdager graderingForventetTrekkdager(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
-        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
+        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue())
+            .divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
         return new Trekkdager(forventetTrekkdager);
     }
 
@@ -206,19 +209,22 @@ public class FeilPraksisOpprettBehandlingTjeneste {
     private boolean harDødsfall(Behandling behandling) {
         var barnDødsdato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getBarna).orElse(List.of())
-            .stream().anyMatch(b -> b.getDødsdato().isPresent());
+            .map(FamilieHendelseEntitet::getBarna)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(b -> b.getDødsdato().isPresent());
         var personDødsdato = personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getId())
             .map(PersonopplysningGrunnlagEntitet::getGjeldendeVersjon)
-            .map(PersonInformasjonEntitet::getPersonopplysninger).orElse(List.of())
-            .stream().anyMatch(p -> p.getDødsdato() != null || harDødsdato(p.getAktørId()));
+            .map(PersonInformasjonEntitet::getPersonopplysninger)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(p -> p.getDødsdato() != null || harDødsdato(p.getAktørId()));
 
         return barnDødsdato || personDødsdato;
     }
 
     private boolean harDødsdato(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId)
-            .map(PersoninfoBasis::dødsdato).isPresent();
+        return personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId).map(PersoninfoBasis::dødsdato).isPresent();
     }
 
     private record UttakAktivitetGruppering(UttakArbeidType uttakArbeidType, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
@@ -227,6 +233,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
     }
 
-    private record UttakAktivitetTapteDager(UttakAktivitetGruppering grupperingsnøkkel, Trekkdager taptedager) { }
+    private record UttakAktivitetTapteDager(UttakAktivitetGruppering grupperingsnøkkel, Trekkdager taptedager) {
+    }
 
 }

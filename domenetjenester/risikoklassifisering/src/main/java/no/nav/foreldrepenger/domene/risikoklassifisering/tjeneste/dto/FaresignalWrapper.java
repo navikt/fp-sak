@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
-public record FaresignalWrapper(@NotNull Kontrollresultat kontrollresultat,
-                                FaresignalVurdering faresignalVurdering,
-                                FaresignalGruppeWrapper medlemskapFaresignaler,
-                                FaresignalGruppeWrapper iayFaresignaler) {}
+public record FaresignalWrapper(@NotNull Kontrollresultat kontrollresultat, FaresignalVurdering faresignalVurdering,
+                                FaresignalGruppeWrapper medlemskapFaresignaler, FaresignalGruppeWrapper iayFaresignaler) {
+}
 
 

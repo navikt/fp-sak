@@ -51,21 +51,16 @@ class BehandlingsutredningTjenesteTest {
     @BeforeEach
     public void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        var behandling = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
         behandlingId = behandling.getId();
 
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
 
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
-                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+            .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
-        behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(
-                Period.parse("P4W"),
-                repositoryProvider,
-                behandlendeEnhetTjeneste,
-                behandlingskontrollTjenesteImpl);
+        behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(Period.parse("P4W"), repositoryProvider, behandlendeEnhetTjeneste,
+            behandlingskontrollTjenesteImpl);
     }
 
     @Test
@@ -102,7 +97,7 @@ class BehandlingsutredningTjenesteTest {
 
         // Act
         assertThrows(FunksjonellException.class,
-                () -> behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL));
+            () -> behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL));
     }
 
     @Test

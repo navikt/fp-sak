@@ -25,9 +25,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
     }
 
     public static DelytelseId parse(String kode) {
-        return kode.contains("-")
-            ? parseNyttFormat(kode)
-            : parseGammeltFormat(kode);
+        return kode.contains("-") ? parseNyttFormat(kode) : parseGammeltFormat(kode);
     }
 
     private static DelytelseId parseNyttFormat(String kode) {
@@ -91,8 +89,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
             return false;
         }
         var that = (DelytelseId) annen;
-        return løpenummer == that.løpenummer &&
-            fagsystemId.equals(that.fagsystemId);
+        return løpenummer == that.løpenummer && fagsystemId.equals(that.fagsystemId);
     }
 
     @Override

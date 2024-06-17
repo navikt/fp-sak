@@ -37,8 +37,7 @@ class StartpunktTjenesteImplTest {
         var familietjeneste = mock(FamilieHendelseTjeneste.class);
 
         // Mock startpunktutlederprovider
-        var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
-            (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
+        var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>((behandling, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
 
         tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker, familietjeneste);
     }
@@ -50,16 +49,15 @@ class StartpunktTjenesteImplTest {
         long grunnlagId1 = 1L, grunnlagId2 = 2L;
         var endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId2);
 
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
-            .thenReturn(endringsresultat);
+        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(
+            endringsresultat);
 
         // Act/Assert
         assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(OPPTJENING);
     }
 
     private BehandlingReferanse lagRef() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
         return BehandlingReferanse.fra(behandling);
     }
 
@@ -69,8 +67,8 @@ class StartpunktTjenesteImplTest {
         // To lik id-er indikerer ingen endring på grunnlag
         var grunnlagId1 = 1L;
         var endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId1);
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
-            .thenReturn(endringsresultat);
+        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(
+            endringsresultat);
 
         // Act/Assert
         assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);
@@ -80,7 +78,8 @@ class StartpunktTjenesteImplTest {
     void rotnode_skal_ikke_tas_med() {
         var endringsresultat = EndringsresultatDiff.opprettForSporingsendringer();
 
-        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(endringsresultat);
+        when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(
+            endringsresultat);
 
         // Act/Assert
         assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);

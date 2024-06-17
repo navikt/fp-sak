@@ -41,7 +41,11 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
     }
 
     VurdertMedlemskapPeriodeEntitet(VurdertMedlemskapPeriodeEntitet løpendeMedlemskap) {
-        perioder = løpendeMedlemskap.getPerioder().stream().map(VurdertLøpendeMedlemskapEntitet::new).peek(lm -> lm.setPeriodeHolder(this)).collect(Collectors.toSet());
+        perioder = løpendeMedlemskap.getPerioder()
+            .stream()
+            .map(VurdertLøpendeMedlemskapEntitet::new)
+            .peek(lm -> lm.setPeriodeHolder(this))
+            .collect(Collectors.toSet());
     }
 
     public VurdertLøpendeMedlemskapBuilder getBuilderFor(LocalDate vurderingsdato) {
@@ -85,8 +89,7 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
         }
 
         public Builder(Optional<VurdertMedlemskapPeriodeEntitet> medlemskap) {
-            medlemskapMal = medlemskap.map(VurdertMedlemskapPeriodeEntitet::new)
-                    .orElseGet(VurdertMedlemskapPeriodeEntitet::new);
+            medlemskapMal = medlemskap.map(VurdertMedlemskapPeriodeEntitet::new).orElseGet(VurdertMedlemskapPeriodeEntitet::new);
         }
 
         public Builder leggTil(VurdertLøpendeMedlemskapBuilder builder) {

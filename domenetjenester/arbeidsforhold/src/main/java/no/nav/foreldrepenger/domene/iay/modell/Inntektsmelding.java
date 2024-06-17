@@ -224,8 +224,9 @@ public class Inntektsmelding implements IndexKey {
     }
 
     public boolean endringIArbeidsforholdsIdForSammeArbGiver(Inntektsmelding annen) {
-        return getArbeidsgiver().equals(annen.getArbeidsgiver()) && (!gjelderForEtSpesifiktArbeidsforhold() && annen.gjelderForEtSpesifiktArbeidsforhold()
-            || gjelderForEtSpesifiktArbeidsforhold() && !annen.gjelderForEtSpesifiktArbeidsforhold());
+        return getArbeidsgiver().equals(annen.getArbeidsgiver()) && (
+            !gjelderForEtSpesifiktArbeidsforhold() && annen.gjelderForEtSpesifiktArbeidsforhold()
+                || gjelderForEtSpesifiktArbeidsforhold() && !annen.gjelderForEtSpesifiktArbeidsforhold());
     }
 
     /**
@@ -336,9 +337,8 @@ public class Inntektsmelding implements IndexKey {
         if (!(o instanceof Inntektsmelding entitet)) {
             return false;
         }
-        return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver())
-                && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
-                && Objects.equals(getJournalpostId(), entitet.getJournalpostId());
+        return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver()) && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
+            && Objects.equals(getJournalpostId(), entitet.getJournalpostId());
     }
 
     @Override
@@ -348,18 +348,9 @@ public class Inntektsmelding implements IndexKey {
 
     @Override
     public String toString() {
-        return "InntektsmeldingEntitet{" +
-                "virksomhet=" + arbeidsgiver +
-                ", arbeidsforholdId='" + arbeidsforholdRef + '\'' +
-                ", startDatoPermisjon=" + startDatoPermisjon +
-                ", nærRelasjon=" + nærRelasjon +
-                ", journalpostId=" + journalpostId +
-                ", inntektBeløp=" + inntektBeløp +
-                ", refusjonBeløpPerMnd=" + refusjonBeløpPerMnd +
-                ", refusjonOpphører=" + refusjonOpphører +
-                ", innsendingsårsak= " + innsendingsårsak +
-                ", innsendingstidspunkt= " + innsendingstidspunkt +
-                ", mottattDato = " + mottattDato +
-                '}';
+        return "InntektsmeldingEntitet{" + "virksomhet=" + arbeidsgiver + ", arbeidsforholdId='" + arbeidsforholdRef + '\'' + ", startDatoPermisjon="
+            + startDatoPermisjon + ", nærRelasjon=" + nærRelasjon + ", journalpostId=" + journalpostId + ", inntektBeløp=" + inntektBeløp
+            + ", refusjonBeløpPerMnd=" + refusjonBeløpPerMnd + ", refusjonOpphører=" + refusjonOpphører + ", innsendingsårsak= " + innsendingsårsak
+            + ", innsendingstidspunkt= " + innsendingstidspunkt + ", mottattDato = " + mottattDato + '}';
     }
 }

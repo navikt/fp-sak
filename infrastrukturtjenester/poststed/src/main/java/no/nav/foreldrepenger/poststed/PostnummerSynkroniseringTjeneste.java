@@ -27,8 +27,7 @@ public class PostnummerSynkroniseringTjeneste {
     }
 
     @Inject
-    PostnummerSynkroniseringTjeneste(PoststedKodeverkRepository poststedKodeverkRepository,
-                                     KodeverkTjeneste kodeverkTjeneste) {
+    PostnummerSynkroniseringTjeneste(PoststedKodeverkRepository poststedKodeverkRepository, KodeverkTjeneste kodeverkTjeneste) {
         this.poststedKodeverkRepository = poststedKodeverkRepository;
         this.kodeverkTjeneste = kodeverkTjeneste;
     }
@@ -37,8 +36,7 @@ public class PostnummerSynkroniseringTjeneste {
         LOG.info("Synkroniserer Postnummer");
 
         var betydninger = kodeverkTjeneste.hentKodeverkBetydninger(KODEVERK_POSTNUMMER);
-        var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
-            .collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
+        var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream().collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
         betydninger.forEach((k, v) -> {
             if (eksisterendeMap.get(k) == null) {
                 LOG.info("Nytt Postnummer {} med innhold {}", k, v);

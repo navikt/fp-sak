@@ -34,8 +34,7 @@ public class DatoerGrunnlagBygger {
         var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var ref = input.getBehandlingReferanse();
 
-        return new Datoer.Builder()
-            .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
+        return new Datoer.Builder().fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
             .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
             .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
             .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref))
@@ -43,8 +42,7 @@ public class DatoerGrunnlagBygger {
     }
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {
-        return new Dødsdatoer.Builder()
-            .søkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
+        return new Dødsdatoer.Builder().søkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
             .barnsDødsdato(barnsDødsdato(foreldrepengerGrunnlag).orElse(null))
             .alleBarnDøde(erAlleBarnDøde(foreldrepengerGrunnlag));
     }
@@ -54,7 +52,10 @@ public class DatoerGrunnlagBygger {
     }
 
     private Optional<LocalDate> barnsDødsdato(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        return foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getBarna().stream()
+        return foreldrepengerGrunnlag.getFamilieHendelser()
+            .getGjeldendeFamilieHendelse()
+            .getBarna()
+            .stream()
             .map(Barn::getDødsdato)
             .flatMap(Optional::stream)
             .max(LocalDate::compareTo);

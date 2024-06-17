@@ -23,8 +23,8 @@ public interface BatchTjeneste {
 
     /**
      * Unikt batchnavn etter følgende mønster:
-     *     B<appnavn><løpenummer>
-     *     Eks: BVLFP001 - Grensesnittavstemning
+     * B<appnavn><løpenummer>
+     * Eks: BVLFP001 - Grensesnittavstemning
      *
      * @return unikt batchnavn
      */
@@ -50,9 +50,9 @@ public interface BatchTjeneste {
         int antallDager = Optional.ofNullable(properties.getProperty(ANTALL_DAGER_KEY)).map(Integer::valueOf).orElse(1);
         if (fom != null && tom != null) {
             return new Periode(fom, tom);
-        } else  if (fom != null) {
+        } else if (fom != null) {
             return new Periode(fom, fom.plusDays(antallDager));
-        } else  if (tom != null) {
+        } else if (tom != null) {
             return new Periode(tom.minusDays(antallDager), tom);
         }
         var idag = LocalDate.now();

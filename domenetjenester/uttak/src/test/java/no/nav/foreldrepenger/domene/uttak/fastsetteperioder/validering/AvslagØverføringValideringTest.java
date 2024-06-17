@@ -51,25 +51,21 @@ class AvslagØverføringValideringTest {
         assertDoesNotThrow(() -> validering.utfør(List.of(periode)));
     }
 
-    private ForeldrepengerUttakPeriode avslåttOverføring(UttakPeriodeType trekkonto,
-                                                         UttakPeriodeType søktKonto) {
+    private ForeldrepengerUttakPeriode avslåttOverføring(UttakPeriodeType trekkonto, UttakPeriodeType søktKonto) {
         return overføring(trekkonto, søktKonto, PeriodeResultatÅrsak.DEN_ANDRE_PART_INNLEGGELSE_IKKE_OPPFYLT);
     }
 
-    private ForeldrepengerUttakPeriode innvilgetOverføring(UttakPeriodeType trekkonto,
-                                                           UttakPeriodeType søktKonto) {
+    private ForeldrepengerUttakPeriode innvilgetOverføring(UttakPeriodeType trekkonto, UttakPeriodeType søktKonto) {
         return overføring(trekkonto, søktKonto, PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT);
     }
 
-    private ForeldrepengerUttakPeriode overføring(UttakPeriodeType trekkonto,
-                                                  UttakPeriodeType søktKonto,
-                                                  PeriodeResultatÅrsak resultatÅrsak) {
+    private ForeldrepengerUttakPeriode overføring(UttakPeriodeType trekkonto, UttakPeriodeType søktKonto, PeriodeResultatÅrsak resultatÅrsak) {
         var aktivitet = aktivitetMedTrekkdager(trekkonto);
-        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(LocalDate.now().minusWeeks(1),
-            LocalDate.now().plusWeeks(3))
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(LocalDate.now().minusWeeks(1), LocalDate.now().plusWeeks(3))
             .medOverføringÅrsak(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER)
             .medResultatÅrsak(resultatÅrsak)
-            .medResultatType(resultatÅrsak != null && PeriodeResultatÅrsak.UtfallType.INNVILGET.equals(resultatÅrsak.getUtfallType()) ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT)
+            .medResultatType(resultatÅrsak != null && PeriodeResultatÅrsak.UtfallType.INNVILGET.equals(
+                resultatÅrsak.getUtfallType()) ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT)
             .medAktiviteter(List.of(aktivitet))
             .medSøktKonto(søktKonto)
             .build();

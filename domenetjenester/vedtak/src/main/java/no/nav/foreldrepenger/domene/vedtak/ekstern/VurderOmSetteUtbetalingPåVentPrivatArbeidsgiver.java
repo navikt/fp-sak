@@ -61,9 +61,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
             for (var arbeidsgiverAktørId : refusjoner) {
                 var førsteUttaksdato = hentFørsteUttaksdato(arbeidsgiverAktørId, beregningsperioder);
                 var vedtaksdato = hentVedtaksdato(behandling);
-                oppgaveTjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
-                    førsteUttaksdato,
-                    vedtaksdato,
+                oppgaveTjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(), førsteUttaksdato, vedtaksdato,
                     arbeidsgiverAktørId);
             }
         }
@@ -96,8 +94,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
 
     private List<Oppdragslinje150> hentAlleOppdragslinje150IkkeOPPH(Behandling behandling) {
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        return oppdragskontroll
-            .map(Oppdragskontroll::getOppdrag110Liste)
+        return oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
             .orElse(Collections.emptyList())
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
@@ -115,11 +112,9 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
         return !brAndel.erBrukerMottaker() && brAndel.erArbeidsgiverPrivatperson() && brAndel.getDagsats() > 0;
     }
 
-    private boolean sjekkVedtakPeriode(LocalDate vedtakPeriodeFom,
-                                       LocalDate vedtakPeriodeTom,
-                                       BeregningsresultatPeriode brPeriode) {
-        return vedtakPeriodeFom.compareTo(brPeriode.getBeregningsresultatPeriodeFom()) >= 0 &&
-            vedtakPeriodeTom.compareTo(brPeriode.getBeregningsresultatPeriodeTom()) == 0;
+    private boolean sjekkVedtakPeriode(LocalDate vedtakPeriodeFom, LocalDate vedtakPeriodeTom, BeregningsresultatPeriode brPeriode) {
+        return vedtakPeriodeFom.compareTo(brPeriode.getBeregningsresultatPeriodeFom()) >= 0
+            && vedtakPeriodeTom.compareTo(brPeriode.getBeregningsresultatPeriodeTom()) == 0;
 
     }
 
@@ -133,12 +128,13 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
         return beregningsperioder.stream()
             .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             // først uttaksdato til hver arbeidsgiver
-            .filter(brp -> brp.getBeregningsresultatAndelList().stream()
+            .filter(brp -> brp.getBeregningsresultatAndelList()
+                .stream()
                 .filter(this::erPrivatarbeidsgiverMedRefusjon)
-                .anyMatch(a -> aktørId.equals(hentArbeidsgiverPersonAktørId(a)))
-            )
+                .anyMatch(a -> aktørId.equals(hentArbeidsgiverPersonAktørId(a))))
             .findFirst()
-            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).orElse(null);
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+            .orElse(null);
     }
 
     private LocalDate hentVedtaksdato(Behandling behandling) {

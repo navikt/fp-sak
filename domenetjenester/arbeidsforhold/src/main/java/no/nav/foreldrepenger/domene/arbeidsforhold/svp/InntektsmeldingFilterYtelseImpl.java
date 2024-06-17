@@ -51,8 +51,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     private boolean erSøktTilretteleggingI(List<SvpTilretteleggingEntitet> arbeidsforholdFraSøknad, Arbeidsgiver key) {
-        return arbeidsforholdFraSøknad.stream()
-                .anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false));
+        return arbeidsforholdFraSøknad.stream().anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false));
     }
 
     private List<SvpTilretteleggingEntitet> getArbeidsforholdSøktTilretteleggingI(BehandlingReferanse referanse) {

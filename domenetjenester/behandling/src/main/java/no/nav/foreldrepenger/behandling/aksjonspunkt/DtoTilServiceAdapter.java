@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter.Contai
 @Stereotype
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Documented
 public @interface DtoTilServiceAdapter {
 
@@ -39,7 +39,9 @@ public @interface DtoTilServiceAdapter {
      */
     Class<?> adapter();
 
-    /** For søk på annotation. */
+    /**
+     * For søk på annotation.
+     */
     class Literal extends AnnotationLiteral<DtoTilServiceAdapter> implements DtoTilServiceAdapter {
 
         private Class<?> dto;
@@ -70,7 +72,7 @@ public @interface DtoTilServiceAdapter {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE })
+    @Target({ElementType.TYPE})
     @Documented
     @interface ContainerOfDtoTilServiceAdapter {
         DtoTilServiceAdapter[] value();

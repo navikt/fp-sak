@@ -65,8 +65,6 @@ public class FagsakRelasjonLås {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-            "<fagsak=" + getFagsakRelasjonId() +
-            ">";
+        return getClass().getSimpleName() + "<fagsak=" + getFagsakRelasjonId() + ">";
     }
 }

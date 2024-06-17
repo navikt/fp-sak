@@ -24,18 +24,20 @@ public class PersonstatusPeriode {
 
     @Override
     public String toString() {
-        return "PersonstatusPeriode(gyldig=" + this.getGyldighetsperiode()
-            + ", status=" + (this.getPersonstatus() != null ? this.getPersonstatus().getKode() : null)
-            + ")";
+        return "PersonstatusPeriode(gyldig=" + this.getGyldighetsperiode() + ", status=" + (
+            this.getPersonstatus() != null ? this.getPersonstatus().getKode() : null) + ")";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PersonstatusPeriode) o;
-        return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) &&
-            Objects.equals(personstatus, that.personstatus);
+        return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) && Objects.equals(personstatus, that.personstatus);
     }
 
     @Override

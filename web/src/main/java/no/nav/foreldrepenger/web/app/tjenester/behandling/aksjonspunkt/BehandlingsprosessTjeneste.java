@@ -49,12 +49,11 @@ public class BehandlingsprosessTjeneste {
     }
 
     @Inject
-    public BehandlingsprosessTjeneste(
-                                                     BehandlingRepository behandlingRepository,
-                                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                                     @KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
-                                                     HistorikkRepository historikkRepository) {
+    public BehandlingsprosessTjeneste(BehandlingRepository behandlingRepository,
+                                      ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                      @KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
+                                      HistorikkRepository historikkRepository) {
 
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.behandlingRepository = behandlingRepository;
@@ -94,12 +93,12 @@ public class BehandlingsprosessTjeneste {
         return prosesseringAsynkTjeneste.asynkStartBehandlingProsess(behandling);
     }
 
-    /** Hvorvidt betingelser for å hente inn registeropplysninger på nytt er oppfylt. */
+    /**
+     * Hvorvidt betingelser for å hente inn registeropplysninger på nytt er oppfylt.
+     */
     private boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
         var behandlingStatus = behandling.getStatus();
-        return BehandlingStatus.UTREDES.equals(behandlingStatus)
-            && !behandling.isBehandlingPåVent()
-            && harRolleSaksbehandler()
+        return BehandlingStatus.UTREDES.equals(behandlingStatus) && !behandling.isBehandlingPåVent() && harRolleSaksbehandler()
             && behandlingProsesseringTjeneste.skalInnhenteRegisteropplysningerPåNytt(behandling);
     }
 
@@ -123,11 +122,11 @@ public class BehandlingsprosessTjeneste {
      * @return Prosess Task gruppenavn som kan brukes til å sjekke fremdrift
      */
     private String asynkInnhentingAvRegisteropplysningerOgKjørProsess(Behandling behandling) {
-        return behandlingProsesseringTjeneste.finnesTasksForPolling(behandling)
-            .orElseGet(() -> {
-                var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
-                return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(), gruppe);
-            });
+        return behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).orElseGet(() -> {
+            var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
+            return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
+                gruppe);
+        });
     }
 
     /**
@@ -140,7 +139,9 @@ public class BehandlingsprosessTjeneste {
         return Optional.of(asynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling));
     }
 
-    /** Sjekker om det pågår åpne prosess tasks (for angitt gruppe). Returnerer eventuelt task gruppe for eventuell åpen prosess task gruppe. */
+    /**
+     * Sjekker om det pågår åpne prosess tasks (for angitt gruppe). Returnerer eventuelt task gruppe for eventuell åpen prosess task gruppe.
+     */
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågårForBehandling(Behandling behandling, String gruppe) {
 
         var behandlingId = behandling.getId();
@@ -215,8 +216,7 @@ public class BehandlingsprosessTjeneste {
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT);
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
             .medBegrunnelse(HistorikkBegrunnelseType.BEH_STARTET_PA_NYTT);
         historikkInnslagTekstBuilder.build(historikkinnslag);
         historikkinnslag.setBehandling(behandling);

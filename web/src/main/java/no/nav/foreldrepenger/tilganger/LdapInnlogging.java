@@ -49,6 +49,6 @@ public class LdapInnlogging {
 
     static String getRequiredProperty(String key) {
         return ENV.getRequiredProperty(key,
-                () -> new TekniskException("F-055498", format("Klarte ikke koble til LDAP da påkrevd prroperty %s ikke er satt", key)));
+            () -> new TekniskException("F-055498", format("Klarte ikke koble til LDAP da påkrevd prroperty %s ikke er satt", key)));
     }
 }

@@ -34,23 +34,23 @@ public class NyBehandlingDto {
     }
 
     public void setBehandlingType(BehandlingType behandlingType) {
-		this.behandlingType = behandlingType;
-	}
+        this.behandlingType = behandlingType;
+    }
 
     public BehandlingType getBehandlingType() {
-		return behandlingType;
-	}
+        return behandlingType;
+    }
 
     public boolean getNyBehandlingEtterKlage() {
         return nyBehandlingEtterKlage;
     }
 
     public void setBehandlingArsakType(BehandlingÅrsakType behandlingArsakType) {
-		this.behandlingArsakType = behandlingArsakType;
-	}
+        this.behandlingArsakType = behandlingArsakType;
+    }
 
     public BehandlingÅrsakType getBehandlingArsakType() {
-		return behandlingArsakType;
-	}
+        return behandlingArsakType;
+    }
 
 }

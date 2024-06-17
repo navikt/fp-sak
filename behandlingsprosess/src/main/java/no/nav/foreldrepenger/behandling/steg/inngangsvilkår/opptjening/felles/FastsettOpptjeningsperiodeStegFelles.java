@@ -28,7 +28,8 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
     }
 
     protected FastsettOpptjeningsperiodeStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, BehandlingStegType behandlingStegType) {
+                                                   InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                                   BehandlingStegType behandlingStegType) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -39,13 +40,12 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
         var op = (OpptjeningsPeriode) regelResultat.ekstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
         if (op == null) {
             throw new IllegalArgumentException(
-                    "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());
+                "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());
         }
         var opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, op.getOpptjeningsperiodeFom(), op.getOpptjeningsperiodeTom(),
-                erVilkårOverstyrt(behandling.getId()));
+            erVilkårOverstyrt(behandling.getId()));
         if (opptjening == null) {
-            throw new IllegalArgumentException(
-                    "Utvikler-feil: får ikke persistert ny opptjeningsperiode:" + behandling.getId());
+            throw new IllegalArgumentException("Utvikler-feil: får ikke persistert ny opptjeningsperiode:" + behandling.getId());
         }
     }
 
@@ -66,8 +66,10 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
         var resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
         if (resultatOpt.isPresent()) {
             var vilkårResultat = resultatOpt.get();
-            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET))
-                    .anyMatch(Vilkår::erOverstyrt);
+            return vilkårResultat.getVilkårene()
+                .stream()
+                .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET))
+                .anyMatch(Vilkår::erOverstyrt);
         }
         return false;
     }

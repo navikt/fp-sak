@@ -28,7 +28,9 @@ public class BesteberegningFødendeKvinneAndelDto {
         // For Jackson
     }
 
-    public BesteberegningFødendeKvinneAndelDto(Long andelsnr, Integer inntektPrMnd, Inntektskategori inntektskategori,
+    public BesteberegningFødendeKvinneAndelDto(Long andelsnr,
+                                               Integer inntektPrMnd,
+                                               Inntektskategori inntektskategori,
                                                boolean lagtTilAvSaksbehandler) {
         this.lagtTilAvSaksbehandler = lagtTilAvSaksbehandler;
         this.andelsnr = andelsnr;

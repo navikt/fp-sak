@@ -136,7 +136,8 @@ public final class KalkulusTilBGMapper {
         }
 
         if (fraKalkulus.getPgiSnitt() != null) {
-            builder.medPgi(mapBeløp(fraKalkulus.getPgiSnitt()), List.of(mapBeløp(fraKalkulus.getPgi1()), mapBeløp(fraKalkulus.getPgi2()), mapBeløp(fraKalkulus.getPgi3())));
+            builder.medPgi(mapBeløp(fraKalkulus.getPgiSnitt()),
+                List.of(mapBeløp(fraKalkulus.getPgi1()), mapBeløp(fraKalkulus.getPgi2()), mapBeløp(fraKalkulus.getPgi3())));
         }
 
         fraKalkulus.getBgAndelArbeidsforhold()

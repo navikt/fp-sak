@@ -4,7 +4,9 @@ import java.time.Period;
 
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-/** Beskriver opptjente dager og totalt beregnet periode opptjent. */
+/**
+ * Beskriver opptjente dager og totalt beregnet periode opptjent.
+ */
 public class OpptjentTidslinje {
     /**
      * Opptjent periode innenfor tidslinjen. Kan avvike noe fra dager i tidslinjen pga. spesielle regler rundt telling av måneder (eks. regel om

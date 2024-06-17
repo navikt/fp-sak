@@ -57,9 +57,7 @@ public class VarselRevurderingTjeneste {
     }
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
-        return frist != null
-            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
-            : LocalDateTime.now().plus(defaultVenteFrist);
+        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     private Venteårsak fraDto(String kode) {

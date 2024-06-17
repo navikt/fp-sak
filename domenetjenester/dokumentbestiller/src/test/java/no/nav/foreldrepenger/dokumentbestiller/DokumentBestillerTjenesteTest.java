@@ -33,9 +33,12 @@ class DokumentBestillerTjenesteTest {
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
     private DokumentBestillerTjeneste tjeneste;
-    @Mock private DokumentBestiller dokumentBestiller;
-    @Mock private BehandlingVedtak behandlingVedtakMock;
-    @Mock private Behandlingsresultat behandlingResultatMock;
+    @Mock
+    private DokumentBestiller dokumentBestiller;
+    @Mock
+    private BehandlingVedtak behandlingVedtakMock;
+    @Mock
+    private Behandlingsresultat behandlingResultatMock;
 
     private void settOpp(AbstractTestScenario<?> scenario) {
         this.behandling = scenario.lagMocked();

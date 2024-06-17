@@ -67,7 +67,8 @@ public class BehandlingÅrsakTjeneste {
             return;
         }
         if (endringsTyper.contains(EndringResultatType.OPPLYSNING_OM_YTELSER)) {
-            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER);
+            historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(behandling,
+                BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER);
             return;
         }
         if (medRegisterInnslag && endringsTyper.contains(EndringResultatType.REGISTEROPPLYSNING)) {
@@ -77,21 +78,22 @@ public class BehandlingÅrsakTjeneste {
 
     private Set<EndringResultatType> utledEndringsResultatTyperBasertPåDiff(Behandling behandling, EndringsresultatDiff endringsresultatDiff) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            return endringsresultatDiff.erSporedeFeltEndret() ? Collections.singleton(EndringResultatType.REGISTEROPPLYSNING) : Collections.emptySet();
+            return endringsresultatDiff.erSporedeFeltEndret() ? Collections.singleton(
+                EndringResultatType.REGISTEROPPLYSNING) : Collections.emptySet();
         }
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
         //For alle aggregat som har endringer, utled behandlingsårsak.
-        return endringsresultatDiff.hentDelresultater().stream()
+        return endringsresultatDiff.hentDelresultater()
+            .stream()
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
-            .map(diff -> finnUtleder(diff.getGrunnlag())
-                .utledEndringsResultat(ref, diff.getGrunnlagId1(), diff.getGrunnlagId2()))
+            .map(diff -> finnUtleder(diff.getGrunnlag()).utledEndringsResultat(ref, diff.getGrunnlagId1(), diff.getGrunnlagId2()))
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
     }
 
     private BehandlingÅrsakUtleder finnUtleder(Class<?> aggregat) {
         var aggrNavn = aggregat.getSimpleName();
-        if(aggregat.isAnnotationPresent(Entity.class)) {
+        if (aggregat.isAnnotationPresent(Entity.class)) {
             aggrNavn = aggregat.getAnnotation(Entity.class).name();
         }
 
@@ -104,7 +106,8 @@ public class BehandlingÅrsakTjeneste {
         }
         var minInstans = selected.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
-            throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+            throw new IllegalStateException(
+                "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }
         return selected.get();
     }

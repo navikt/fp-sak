@@ -18,7 +18,7 @@ public class SvangerskapspengerRepository {
     private EntityManager entityManager;
 
     @Inject
-    public SvangerskapspengerRepository( EntityManager entityManager) {
+    public SvangerskapspengerRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -52,29 +52,26 @@ public class SvangerskapspengerRepository {
         SvpGrunnlagEntitet.Builder nyBuilder;
 
         if (grunnlagOpt.isPresent()) {
-            nyBuilder = new SvpGrunnlagEntitet.Builder(grunnlagOpt.get())
-                    .medOverstyrteTilrettelegginger(overstyrtTilrettelegging);
+            nyBuilder = new SvpGrunnlagEntitet.Builder(grunnlagOpt.get()).medOverstyrteTilrettelegginger(overstyrtTilrettelegging);
 
         } else {
-            nyBuilder = new SvpGrunnlagEntitet.Builder()
-                    .medBehandlingId(behandling.getId())
-                    .medOverstyrteTilrettelegginger(overstyrtTilrettelegging);
+            nyBuilder = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId()).medOverstyrteTilrettelegginger(overstyrtTilrettelegging);
         }
 
         lagreOgFlush(nyBuilder.build());
     }
 
     public void kopierSvpGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Behandling nyBehandling) {
-        var kopiGjeldendeGrunnlag = hentGrunnlag(orginalBehandlingId)
-            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+        var kopiGjeldendeGrunnlag = hentGrunnlag(orginalBehandlingId).map(SvpGrunnlagEntitet::getGjeldendeVersjon)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-            .orElse(Collections.emptyList()).stream()
-            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot)
-                .medKopiertFraTidligereBehandling(true)
-                .medTilretteleggingFraDatoer(fraDatoerMedKildeTidligereVedtak(ot)).build())
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot).medKopiertFraTidligereBehandling(true)
+                .medTilretteleggingFraDatoer(fraDatoerMedKildeTidligereVedtak(ot))
+                .build())
             .toList();
 
-        if(!kopiGjeldendeGrunnlag.isEmpty()) {
+        if (!kopiGjeldendeGrunnlag.isEmpty()) {
             var nyttGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(nyBehandling.getId())
                 .medOpprinneligeTilrettelegginger(kopiGjeldendeGrunnlag)
                 .build();
@@ -83,9 +80,9 @@ public class SvangerskapspengerRepository {
     }
 
     private List<TilretteleggingFOM> fraDatoerMedKildeTidligereVedtak(SvpTilretteleggingEntitet eksTilrettelegging) {
-        return eksTilrettelegging.getTilretteleggingFOMListe().stream()
-            .map(tf -> new TilretteleggingFOM.Builder().fraEksisterende(tf).medKilde(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
-                .build())
+        return eksTilrettelegging.getTilretteleggingFOMListe()
+            .stream()
+            .map(tf -> new TilretteleggingFOM.Builder().fraEksisterende(tf).medKilde(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK).build())
             .toList();
     }
 }

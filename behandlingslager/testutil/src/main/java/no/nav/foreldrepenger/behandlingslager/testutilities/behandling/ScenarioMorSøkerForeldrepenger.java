@@ -42,9 +42,7 @@ public class ScenarioMorSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     private void settDefaultSøknad() {
-            medSøknad()
-                .medRelasjonsRolleType(RelasjonsRolleType.MORA)
-                .medSøknadsdato(LocalDate.now());
+        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.MORA).medSøknadsdato(LocalDate.now());
     }
 
     public static ScenarioMorSøkerForeldrepenger forFødsel() {
@@ -85,9 +83,9 @@ public class ScenarioMorSøkerForeldrepenger extends AbstractTestScenario<Scenar
 
     private OppgittPeriodeEntitet mødrekvote(LocalDate førsteuttaksdag) {
         return OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriode(førsteuttaksdag.plusWeeks(3), førsteuttaksdag.plusWeeks(9).minusDays(1))
-                .build();
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(førsteuttaksdag.plusWeeks(3), førsteuttaksdag.plusWeeks(9).minusDays(1))
+            .build();
     }
 
 }

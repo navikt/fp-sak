@@ -63,10 +63,9 @@ class FagsakTjenesteTest {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
         }
         return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-                .medSøknadVersjon(hendelseBuilder)
-                .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET)
-                        .medFødselsDato(fødselsdato))
-                .build();
+            .medSøknadVersjon(hendelseBuilder)
+            .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(fødselsdato))
+            .build();
     }
 
     @BeforeEach
@@ -87,8 +86,8 @@ class FagsakTjenesteTest {
 
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);
         var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(anyLong()))
-                .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(anyLong())).thenReturn(
+            Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
 
         var view = tjeneste.søkFagsakDto(FNR);
@@ -151,5 +150,7 @@ class FagsakTjenesteTest {
         var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
         assertThat(view).isEmpty();
     }
-    private record TestSak(SaksnummerDto saksnummer) {}
+
+    private record TestSak(SaksnummerDto saksnummer) {
+    }
 }

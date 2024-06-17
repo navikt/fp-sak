@@ -30,8 +30,8 @@ public class YtelsesFordelingRepository {
     }
 
     public YtelseFordelingAggregat hentAggregat(Long behandlingId) {
-        return hentAggregatHvisEksisterer(behandlingId).orElseThrow(() -> new TekniskException("FP-634781",
-                    "Fant ikke forventet YtelseFordeling grunnlag for behandling med id " + behandlingId));
+        return hentAggregatHvisEksisterer(behandlingId).orElseThrow(
+            () -> new TekniskException("FP-634781", "Fant ikke forventet YtelseFordeling grunnlag for behandling med id " + behandlingId));
 
     }
 
@@ -125,7 +125,8 @@ public class YtelsesFordelingRepository {
         var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad() == null ? null : aggregat.getOppgittDekningsgrad().getVerdi());
-        grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSakskompleksDekningsgrad().getVerdi());
+        grunnlag.setSakskompleksDekningsgrad(
+            aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSakskompleksDekningsgrad().getVerdi());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());
@@ -166,9 +167,7 @@ public class YtelsesFordelingRepository {
         origAggregat.ifPresent(ytelseFordelingAggregat -> {
             var avklarteDatoer = ytelseFordelingAggregat.getAvklarteDatoer();
 
-            var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
-                .medFørsteUttaksdato(null)
-                .build();
+            var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medFørsteUttaksdato(null).build();
             var yfBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(ytelseFordelingAggregat))
                 .medAvklarteDatoer(avklarteUttakDatoerEntitet);
             lagreOgFlush(nyBehandlingId, yfBuilder.build());

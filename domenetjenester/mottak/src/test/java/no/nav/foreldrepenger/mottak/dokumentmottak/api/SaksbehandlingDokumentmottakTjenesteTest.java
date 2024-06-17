@@ -50,16 +50,15 @@ class SaksbehandlingDokumentmottakTjenesteTest {
     @Test
     void skal_ta_imot_ankommet_saksdokument_og_opprette_prosesstask() {
         // Arrange
-        var saksdokument = new MottattDokument.Builder()
-                .medFagsakId(FAGSAK_ID)
-                .medJournalPostId(JOURNALPOST_ID)
-                .medDokumentType(DOKUMENTTYPE)
-                .medDokumentKategori(DOKUMENTKATEGORI)
-                .medMottattDato(FORSENDELSE_MOTTATT)
-                .medMottattTidspunkt(LocalDateTime.now())
-                .medElektroniskRegistrert(ELEKTRONISK_SØKNAD)
-                .medXmlPayload(PAYLOAD_XML)
-                .build();
+        var saksdokument = new MottattDokument.Builder().medFagsakId(FAGSAK_ID)
+            .medJournalPostId(JOURNALPOST_ID)
+            .medDokumentType(DOKUMENTTYPE)
+            .medDokumentKategori(DOKUMENTKATEGORI)
+            .medMottattDato(FORSENDELSE_MOTTATT)
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medElektroniskRegistrert(ELEKTRONISK_SØKNAD)
+            .medXmlPayload(PAYLOAD_XML)
+            .build();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
@@ -76,15 +75,14 @@ class SaksbehandlingDokumentmottakTjenesteTest {
     @Test
     void skal_støtte_at_journalpostId_er_null() {
         // Arrange
-        var saksdokument = new MottattDokument.Builder()
-                .medFagsakId(FAGSAK_ID)
-                .medJournalPostId(null)
-                .medDokumentType(DOKUMENTTYPE)
-                .medDokumentKategori(DOKUMENTKATEGORI)
-                .medMottattDato(FORSENDELSE_MOTTATT)
-                .medMottattTidspunkt(LocalDateTime.now())
-                .medXmlPayload(PAYLOAD_XML)
-                .build();
+        var saksdokument = new MottattDokument.Builder().medFagsakId(FAGSAK_ID)
+            .medJournalPostId(null)
+            .medDokumentType(DOKUMENTTYPE)
+            .medDokumentKategori(DOKUMENTKATEGORI)
+            .medMottattDato(FORSENDELSE_MOTTATT)
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medXmlPayload(PAYLOAD_XML)
+            .build();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
@@ -98,14 +96,15 @@ class SaksbehandlingDokumentmottakTjenesteTest {
     @Test
     void motta_ubehandlet() {
         // Arrange
-        var md1 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("123"))
+        var md1 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("123"))
             .medFagsakId(456L)
             .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
             .medMottattDato(LocalDate.now())
             .medElektroniskRegistrert(true)
-            .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
-            .medId(1L).build();
+            .medXmlPayload(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
+            .medId(1L)
+            .build();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
@@ -126,15 +125,16 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         when(behandling.getId()).thenReturn(789L);
         when(behandling.getFagsakId()).thenReturn(456L);
         when(behandling.getAktørId()).thenReturn(new AktørId("0000000000000"));
-        var md1 = new MottattDokument.Builder()
-            .medJournalPostId(new JournalpostId("123"))
+        var md1 = new MottattDokument.Builder().medJournalPostId(new JournalpostId("123"))
             .medFagsakId(456L)
             .medBehandlingId(789L)
             .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
             .medMottattDato(LocalDate.now())
             .medElektroniskRegistrert(true)
-            .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
-            .medId(1L).build();
+            .medXmlPayload(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
+            .medId(1L)
+            .build();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
@@ -146,6 +146,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isEqualTo("789");
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
-        assertThat(data.getPropertyValue(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY)).isEqualToIgnoringCase(BehandlingÅrsakType.ETTER_KLAGE.getKode());
+        assertThat(data.getPropertyValue(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY)).isEqualToIgnoringCase(
+            BehandlingÅrsakType.ETTER_KLAGE.getKode());
     }
 }

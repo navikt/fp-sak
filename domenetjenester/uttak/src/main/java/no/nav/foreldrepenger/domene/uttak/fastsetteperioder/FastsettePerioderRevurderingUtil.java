@@ -36,9 +36,7 @@ public final class FastsettePerioderRevurderingUtil {
             }
         }
 
-        return perioderFør.stream()
-            .filter(p -> !helgUtenTrekkdager(p))
-            .toList();
+        return perioderFør.stream().filter(p -> !helgUtenTrekkdager(p)).toList();
     }
 
     private static boolean helgUtenTrekkdager(UttakResultatPeriodeEntitet p) {
@@ -75,8 +73,8 @@ public final class FastsettePerioderRevurderingUtil {
     }
 
     private static UttakResultatPeriodeEntitet kopierPeriode(UttakResultatPeriodeEntitet periode, LocalDate nyTom) {
-        var builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), nyTom)
-            .medResultatType(periode.getResultatType(), periode.getResultatÅrsak())
+        var builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), nyTom).medResultatType(periode.getResultatType(),
+                periode.getResultatÅrsak())
             .medGraderingInnvilget(periode.isGraderingInnvilget())
             .medUtsettelseType(periode.getUtsettelseType())
             .medOppholdÅrsak(periode.getOppholdÅrsak())
@@ -101,17 +99,14 @@ public final class FastsettePerioderRevurderingUtil {
         } else {
             nyDokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling();
         }
-        return nyDokRegel
-            .medRegelEvaluering(dokRegel.getRegelEvaluering())
-            .medRegelInput(dokRegel.getRegelInput())
-            .build();
+        return nyDokRegel.medRegelEvaluering(dokRegel.getRegelEvaluering()).medRegelInput(dokRegel.getRegelInput()).build();
     }
 
     private static UttakResultatPeriodeAktivitetEntitet kopierAktivitet(UttakResultatPeriodeAktivitetEntitet aktivitet,
                                                                         UttakResultatPeriodeEntitet periode,
                                                                         Trekkdager nyeTrekkdager) {
-        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, aktivitet.getUttakAktivitet())
-            .medArbeidsprosent(aktivitet.getArbeidsprosent())
+        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, aktivitet.getUttakAktivitet()).medArbeidsprosent(
+                aktivitet.getArbeidsprosent())
             .medTrekkdager(nyeTrekkdager)
             .medTrekkonto(aktivitet.getTrekkonto())
             .medErSøktGradering(aktivitet.isSøktGradering())
@@ -122,8 +117,8 @@ public final class FastsettePerioderRevurderingUtil {
     private static Trekkdager regnUtTrekkdager(UttakResultatPeriodeAktivitetEntitet aktivitet, LocalDate tom) {
         if (aktivitet.getTrekkdager().merEnn0()) {
             var samtidigUttaksprosent = samtidigUttaksprosent(aktivitet);
-            return new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(aktivitet.getFom(), tom),
-                aktivitet.isGraderingInnvilget(), aktivitet.getArbeidsprosent(), samtidigUttaksprosent).decimalValue());
+            return new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(aktivitet.getFom(), tom), aktivitet.isGraderingInnvilget(),
+                aktivitet.getArbeidsprosent(), samtidigUttaksprosent).decimalValue());
         }
         return new Trekkdager(BigDecimal.ZERO);
     }

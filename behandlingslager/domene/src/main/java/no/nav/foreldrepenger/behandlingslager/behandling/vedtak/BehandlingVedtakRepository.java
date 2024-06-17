@@ -28,7 +28,7 @@ public class BehandlingVedtakRepository {
     }
 
     @Inject
-    public BehandlingVedtakRepository( EntityManager entityManager) {
+    public BehandlingVedtakRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
     }
@@ -39,14 +39,15 @@ public class BehandlingVedtakRepository {
 
     public Optional<BehandlingVedtak> hentForBehandlingHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        var query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId", BehandlingVedtak.class);
+        var query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId",
+            BehandlingVedtak.class);
         query.setParameter("behandlingId", behandlingId);
         return optionalFirstVedtak(query.getResultList());
     }
 
     public BehandlingVedtak hentForBehandling(Long behandlingId) {
-        return hentForBehandlingHvisEksisterer(behandlingId).orElseThrow(() ->
-            new IllegalStateException("Finner ikke vedtak for behandling " + behandlingId));
+        return hentForBehandlingHvisEksisterer(behandlingId).orElseThrow(
+            () -> new IllegalStateException("Finner ikke vedtak for behandling " + behandlingId));
     }
 
     public BehandlingVedtak hentBehandlingVedtakFraRevurderingensOriginaleBehandling(Behandling behandling) {
@@ -55,8 +56,8 @@ public class BehandlingVedtakRepository {
         }
         var originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        return hentForBehandlingHvisEksisterer(originalBehandlingId)
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
+        return hentForBehandlingHvisEksisterer(originalBehandlingId).orElseThrow(
+            () -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
     }
 
     /**
@@ -122,7 +123,10 @@ public class BehandlingVedtakRepository {
                 sistEndretVedtak = vedtak;
             }
         }
-        return Optional.ofNullable(sistEndretVedtak).map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).orElse(null);
+        return Optional.ofNullable(sistEndretVedtak)
+            .map(BehandlingVedtak::getBehandlingsresultat)
+            .map(Behandlingsresultat::getBehandlingId)
+            .orElse(null);
     }
 
     // sjekk lås og oppgrader til skriv

@@ -51,21 +51,18 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
     }
 
     @Override
-    protected void utførtRegler(BehandlingskontrollKontekst kontekst,
-                                Behandling behandling,
-                                RegelResultat regelResultat) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())
-            .getUtledetSkjæringstidspunkt();
+    protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
         var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
             .getVilkårene()
             .stream()
             .filter(v -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(v.getVilkårType()))
-            .findFirst().orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret."));
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret."));
 
-        var utfall = medlemskapsvilkåret
-            .getGjeldendeVilkårUtfall();
+        var utfall = medlemskapsvilkåret.getGjeldendeVilkårUtfall();
 
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var builder = grBuilder.getPeriodeBuilder();

@@ -49,9 +49,8 @@ public class BehandlingskontrollKontekst {
         if (!(obj instanceof BehandlingskontrollKontekst other)) {
             return false;
         }
-        return Objects.equals(fagsakId, other.fagsakId)
-                && Objects.equals(aktørId, other.aktørId)
-                && Objects.equals(getBehandlingId(), other.getBehandlingId());
+        return Objects.equals(fagsakId, other.fagsakId) && Objects.equals(aktørId, other.aktørId) && Objects.equals(getBehandlingId(),
+            other.getBehandlingId());
     }
 
     @Override

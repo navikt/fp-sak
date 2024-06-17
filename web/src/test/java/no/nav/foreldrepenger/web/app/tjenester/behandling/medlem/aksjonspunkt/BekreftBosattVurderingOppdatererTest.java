@@ -38,18 +38,15 @@ class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest {
     public void beforeEach() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
     }
 
     @Test
     void bekreft_bosett_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medSøknadsdato(now);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(now.minusDays(3))
-                .medAntallBarn(1);
+        scenario.medSøknad().medSøknadsdato(now);
+        scenario.medSøknadHendelse().medFødselsDato(now.minusDays(3)).medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -63,7 +60,7 @@ class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest {
             skjæringstidspunktTjeneste);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         new BekreftBosattVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste).oppdater(dto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);

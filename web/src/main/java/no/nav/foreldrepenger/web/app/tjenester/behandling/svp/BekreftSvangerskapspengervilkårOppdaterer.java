@@ -37,8 +37,7 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
         var vilkårOppfylt = dto.getAvslagskode() == null;
         lagHistorikkinnslag(dto.getBegrunnelse(), vilkårOppfylt);
         if (vilkårOppfylt) {
-            return OppdateringResultat.utenTransisjon()
-                .leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR).build();
+            return OppdateringResultat.utenTransisjon().leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR).build();
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                 .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
@@ -52,8 +51,7 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
         }
     }
 
-    private void lagHistorikkinnslag(String begrunnelse,
-                                     boolean vilkårOppfylt) {
+    private void lagHistorikkinnslag(String begrunnelse, boolean vilkårOppfylt) {
         var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
 
         historikkTjenesteAdapter.tekstBuilder()

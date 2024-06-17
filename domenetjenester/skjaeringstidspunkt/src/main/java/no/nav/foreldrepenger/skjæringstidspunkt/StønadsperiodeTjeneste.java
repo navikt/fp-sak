@@ -69,8 +69,7 @@ public class StønadsperiodeTjeneste {
     }
 
     public Optional<LocalDate> stønadsperiodeStartdato(Fagsak fagsak) {
-        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .flatMap(this::stønadsperiodeStartdato);
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).flatMap(this::stønadsperiodeStartdato);
     }
 
     public Optional<LocalDate> stønadsperiodeStartdato(Behandling behandling) {
@@ -90,26 +89,27 @@ public class StønadsperiodeTjeneste {
     }
 
     public Optional<LocalDateInterval> utbetalingsperiodeEnkeltSak(Fagsak fagsak) {
-        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .flatMap(this::stønadsperiodeEnkeltSakBR);
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).flatMap(this::stønadsperiodeEnkeltSakBR);
     }
 
     public LocalDateTimeline<Boolean> utbetalingsTidslinjeEnkeltSak(Fagsak fagsak) {
-        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .map(this::utbetalingsTidslinjeEnkeltSak).orElse(LocalDateTimeline.empty());
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .map(this::utbetalingsTidslinjeEnkeltSak)
+            .orElse(LocalDateTimeline.empty());
     }
 
     public LocalDateTimeline<Boolean> utbetalingsTidslinjeEnkeltSak(Behandling behandling) {
         return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.collectingAndThen(Collectors.toList(), s -> new LocalDateTimeline<>(s, StandardCombinators::alwaysTrueForMatch)));
     }
 
     public boolean fullUtbetalingSisteUtbetalingsperiode(Fagsak fagsak) {
-        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .map(this::erFullUtbetalingSistePeriode).orElse(false);
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).map(this::erFullUtbetalingSistePeriode).orElse(false);
     }
 
     public Optional<LocalDate> stønadsperiodeStartdatoEnkeltSak(Fagsak fagsak) {
@@ -132,17 +132,17 @@ public class StønadsperiodeTjeneste {
 
     private Optional<LocalDate> stønadsperiodeStartdatoUR(Behandling behandling) {
         var startdato = stønadsperiodeStartdatoFraBehandling(behandling);
-        var annenpartStartdato = vedtattBehandlingRelatertFagsak(behandling.getFagsakId())
-            .flatMap(this::stønadsperiodeStartdatoFraBehandling);
+        var annenpartStartdato = vedtattBehandlingRelatertFagsak(behandling.getFagsakId()).flatMap(this::stønadsperiodeStartdatoFraBehandling);
         return startdato.filter(s -> s.isBefore(annenpartStartdato.orElse(Tid.TIDENES_ENDE))).or(() -> annenpartStartdato);
     }
 
     private Optional<LocalDateInterval> stønadsperiodeUR(Behandling behandling) {
         var brukstartdato = stønadsperiodeStartdatoUR(behandling);
-        if (brukstartdato.isEmpty()) return Optional.empty();
+        if (brukstartdato.isEmpty()) {
+            return Optional.empty();
+        }
         var sluttdato = stønadsperiodeSluttdatoFraBehandling(behandling);
-        var annenpartSluttdato = vedtattBehandlingRelatertFagsak(behandling.getFagsakId())
-            .flatMap(this::stønadsperiodeSluttdatoFraBehandling);
+        var annenpartSluttdato = vedtattBehandlingRelatertFagsak(behandling.getFagsakId()).flatMap(this::stønadsperiodeSluttdatoFraBehandling);
         var bruksluttdato = sluttdato.filter(s -> s.isAfter(annenpartSluttdato.orElse(Tid.TIDENES_BEGYNNELSE))).or(() -> annenpartSluttdato);
         return brukstartdato.map(s -> new LocalDateInterval(s, bruksluttdato.orElse(Tid.TIDENES_ENDE)));
     }
@@ -163,14 +163,16 @@ public class StønadsperiodeTjeneste {
 
     private Optional<LocalDate> stønadsperiodeSluttdatoFraBehandling(Behandling behandling) {
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
-            .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder)
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder)
             .flatMap(StønadsperiodeTjeneste::finnSisteStønadsdatoFraUttakResultat);
     }
 
 
     private Optional<Behandling> vedtattBehandlingRelatertFagsak(Long fagsakId) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)
-            .flatMap(r -> r.getRelatertFagsakFraId(fagsakId)).map(Fagsak::getId)
+            .flatMap(r -> r.getRelatertFagsakFraId(fagsakId))
+            .map(Fagsak::getId)
             .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling);
     }
 
@@ -190,7 +192,9 @@ public class StønadsperiodeTjeneste {
 
     public Optional<LocalDate> stønadsperiodeStartdatoEnkeltSakBR(Behandling behandling) {
         return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> p.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(Comparator.naturalOrder());
@@ -198,7 +202,9 @@ public class StønadsperiodeTjeneste {
 
     private Optional<LocalDate> stønadsperiodeSluttdatoEnkeltSakBR(Behandling behandling) {
         return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> p.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder());
@@ -206,14 +212,18 @@ public class StønadsperiodeTjeneste {
 
     private Optional<LocalDateInterval> stønadsperiodeEnkeltSakBR(Behandling behandling) {
         var start = stønadsperiodeStartdatoEnkeltSakBR(behandling);
-        if (start.isEmpty()) return Optional.empty();
+        if (start.isEmpty()) {
+            return Optional.empty();
+        }
         var slutt = stønadsperiodeSluttdatoEnkeltSakBR(behandling);
         return start.map(s -> new LocalDateInterval(s, slutt.orElse(Tid.TIDENES_ENDE)));
     }
 
     private boolean erFullUtbetalingSistePeriode(Behandling behandling) {
         return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(List.of())
+            .stream()
             .filter(p -> p.getDagsats() > 0)
             .max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
             .map(BeregningsresultatPeriode::getKalkulertUtbetalingsgrad)

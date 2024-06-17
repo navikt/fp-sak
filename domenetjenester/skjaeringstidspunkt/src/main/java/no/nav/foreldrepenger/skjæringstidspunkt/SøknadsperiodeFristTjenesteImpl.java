@@ -30,7 +30,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         this.behandlingRepository = behandlingRepository;
         this.engangsstønadTjeneste = engangsstønadTjeneste;
         this.foreldrepengerTjeneste = foreldrepengerTjeneste;
-        this.svangerskapspengerTjeneste =svangerskapspengerTjeneste;
+        this.svangerskapspengerTjeneste = svangerskapspengerTjeneste;
     }
 
     @Override

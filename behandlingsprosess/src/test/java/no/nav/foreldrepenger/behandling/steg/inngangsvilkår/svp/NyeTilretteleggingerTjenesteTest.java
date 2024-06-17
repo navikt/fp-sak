@@ -28,10 +28,10 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 class NyeTilretteleggingerTjenesteTest {
 
     private final SvangerskapspengerRepository svangerskapspengerRepository = Mockito.mock(SvangerskapspengerRepository.class);
-    private final UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste = Mockito
-            .mock(UtledTilretteleggingerMedArbeidsgiverTjeneste.class);
-    private final NyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste = new NyeTilretteleggingerTjeneste(
-            svangerskapspengerRepository, utledTilretteleggingerMedArbeidsgiverTjeneste);
+    private final UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste = Mockito.mock(
+        UtledTilretteleggingerMedArbeidsgiverTjeneste.class);
+    private final NyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste = new NyeTilretteleggingerTjeneste(svangerskapspengerRepository,
+        utledTilretteleggingerMedArbeidsgiverTjeneste);
 
     @Test
     void skal_utlede_tilrettelegginger_med_og_uten_arbeidsgiver() {
@@ -41,23 +41,25 @@ class NyeTilretteleggingerTjenesteTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
 
         var tilretteleggingArbeidUtenInternId = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build();
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
+            .build();
         var tilretteleggingArbeidMedInternId = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("123")).medInternArbeidsforholdRef(InternArbeidsforholdRef.nyRef()).build();
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
+            .medInternArbeidsforholdRef(InternArbeidsforholdRef.nyRef())
+            .build();
         var tilretteleggingFrilans = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.FRILANSER).build();
 
         var tilretteleggingEntiteter = List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans);
-        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyList()))
-                .thenReturn(List.of(tilretteleggingArbeidMedInternId));
+        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(),
+            ArgumentMatchers.anyList())).thenReturn(List.of(tilretteleggingArbeidMedInternId));
 
-        var grunnlagEntitet = new SvpGrunnlagEntitet.Builder()
-                .medOpprinneligeTilrettelegginger(List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans))
-                .medBehandlingId(behandling.getId())
-                .build();
+        var grunnlagEntitet = new SvpGrunnlagEntitet.Builder().medOpprinneligeTilrettelegginger(
+            List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans)).medBehandlingId(behandling.getId()).build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.of(grunnlagEntitet));
 
         // Act
-        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt, grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe() );
+        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt,
+            grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe());
 
         // Assert
         assertThat(result).hasSize(2);
@@ -74,21 +76,21 @@ class NyeTilretteleggingerTjenesteTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
 
         var tilretteleggingArbeidUtenInternId = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build();
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
+            .build();
         var tilretteleggingFrilans = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.FRILANSER).build();
 
         var tilretteleggingEntiteter = List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans);
-        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyList()))
-            .thenReturn(List.of(tilretteleggingArbeidUtenInternId));
+        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(),
+            ArgumentMatchers.anyList())).thenReturn(List.of(tilretteleggingArbeidUtenInternId));
 
-        var grunnlagEntitet = new SvpGrunnlagEntitet.Builder()
-            .medOpprinneligeTilrettelegginger(List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans))
-            .medBehandlingId(behandling.getId())
-            .build();
+        var grunnlagEntitet = new SvpGrunnlagEntitet.Builder().medOpprinneligeTilrettelegginger(
+            List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans)).medBehandlingId(behandling.getId()).build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.of(grunnlagEntitet));
 
         // Act
-        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt, grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe());
+        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt,
+            grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe());
 
         // Assert
         assertThat(result).hasSize(2);
@@ -103,6 +105,7 @@ class NyeTilretteleggingerTjenesteTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> utledNyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkt));
+        assertThrows(IllegalStateException.class,
+            () -> utledNyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkt));
     }
 }

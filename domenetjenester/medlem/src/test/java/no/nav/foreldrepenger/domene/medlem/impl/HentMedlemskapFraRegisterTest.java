@@ -53,23 +53,21 @@ class HentMedlemskapFraRegisterTest {
         when(restKlient.finnMedlemsunntak(eq(AKTØR_ID.getId()), any(), any())).thenReturn(List.of(unntak));
 
         // Act
-        var medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1),
-                LocalDate.now().plusYears(1));
+        var medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
 
         // Assert
         assertThat(medlemskapsperioder).hasSize(1);
 
-        var medlemskapsperiode1 = new Medlemskapsperiode.Builder()
-                .medFom(LocalDate.of(2010, 8, 1))
-                .medTom(LocalDate.of(2010, 12, 31))
-                .medDatoBesluttet(LocalDate.of(2012, 5, 26))
-                .medErMedlem(true)
-                .medDekning(MedlemskapDekningType.FULL)
-                .medLovvalg(MedlemskapType.ENDELIG)
-                .medLovvalgsland(Landkoder.UZB)
-                .medKilde(MedlemskapKildeType.AVGSYS)
-                .medStudieland(Landkoder.VUT)
-                .medMedlId(MEDL_ID_1)
-                .build();
+        var medlemskapsperiode1 = new Medlemskapsperiode.Builder().medFom(LocalDate.of(2010, 8, 1))
+            .medTom(LocalDate.of(2010, 12, 31))
+            .medDatoBesluttet(LocalDate.of(2012, 5, 26))
+            .medErMedlem(true)
+            .medDekning(MedlemskapDekningType.FULL)
+            .medLovvalg(MedlemskapType.ENDELIG)
+            .medLovvalgsland(Landkoder.UZB)
+            .medKilde(MedlemskapKildeType.AVGSYS)
+            .medStudieland(Landkoder.VUT)
+            .medMedlId(MEDL_ID_1)
+            .build();
     }
 }

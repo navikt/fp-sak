@@ -113,10 +113,9 @@ public class Oppdragskontroll extends BaseEntitet {
         if (!(object instanceof Oppdragskontroll oppdragskontroll)) {
             return false;
         }
-        return Objects.equals(behandlingId, oppdragskontroll.getBehandlingId())
-            && Objects.equals(saksnummer, oppdragskontroll.getSaksnummer())
-            && Objects.equals(venterKvittering, oppdragskontroll.getVenterKvittering())
-            && Objects.equals(prosessTaskId, oppdragskontroll.getProsessTaskId());
+        return Objects.equals(behandlingId, oppdragskontroll.getBehandlingId()) && Objects.equals(saksnummer, oppdragskontroll.getSaksnummer())
+            && Objects.equals(venterKvittering, oppdragskontroll.getVenterKvittering()) && Objects.equals(prosessTaskId,
+            oppdragskontroll.getProsessTaskId());
     }
 
     @Override
@@ -175,13 +174,8 @@ public class Oppdragskontroll extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "behandlingId=" + behandlingId + ", "
-            + "saksnummer=" + saksnummer + ", "
-            + "venterKvittering=" + venterKvittering + ", "
-            + "prosessTaskId=" + prosessTaskId + ", "
-            + "opprettetTs=" + getOpprettetTidspunkt()
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "behandlingId=" + behandlingId + ", " + "saksnummer="
+            + saksnummer + ", " + "venterKvittering=" + venterKvittering + ", " + "prosessTaskId=" + prosessTaskId + ", " + "opprettetTs="
+            + getOpprettetTidspunkt() + ">";
     }
 }

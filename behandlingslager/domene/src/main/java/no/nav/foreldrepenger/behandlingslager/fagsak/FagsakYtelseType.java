@@ -32,7 +32,9 @@ public enum FagsakYtelseType implements Kodeverdi {
     }
 
     public enum YtelseType {
-        ES, FP, SVP;
+        ES,
+        FP,
+        SVP;
     }
 
     private final String navn;

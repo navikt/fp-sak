@@ -20,8 +20,7 @@ public class BeregningTjeneste {
     }
 
     @Inject
-    public BeregningTjeneste(BeregningFPSAK fpsakBeregner,
-                             BeregningKalkulus kalkulusBeregner) {
+    public BeregningTjeneste(BeregningFPSAK fpsakBeregner, BeregningKalkulus kalkulusBeregner) {
         this.fpsakBeregner = fpsakBeregner;
         this.kalkulusBeregner = kalkulusBeregner;
         this.skalKalleKalkulus = false;

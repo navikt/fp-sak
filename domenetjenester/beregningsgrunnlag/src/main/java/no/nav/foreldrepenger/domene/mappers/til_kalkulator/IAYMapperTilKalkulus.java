@@ -80,39 +80,49 @@ public class IAYMapperTilKalkulus {
     }
 
     public static Arbeidsgiver mapArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver) {
-        return arbeidsgiver.getErVirksomhet() ? Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr()) :
-            Arbeidsgiver.fra(new AktørId(arbeidsgiver.getAktørId().getId()));
+        return arbeidsgiver.getErVirksomhet() ? Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr()) : Arbeidsgiver.fra(
+            new AktørId(arbeidsgiver.getAktørId().getId()));
     }
 
     public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag,
                                                              List<Inntektsmelding> inntektsmeldinger,
                                                              no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
         var builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
-        iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
-        iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
+        iayGrunnlag.getRegisterVersjon()
+            .ifPresent(
+                aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
+        iayGrunnlag.getSaksbehandletVersjon()
+            .ifPresent(aggregat -> builder.medData(
+                mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
         if (!inntektsmeldinger.isEmpty()) {
             builder.setInntektsmeldinger(mapInntektsmelding(inntektsmeldinger, iayGrunnlag.getArbeidsforholdInformasjon()));
         }
-        iayGrunnlag.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
-        iayGrunnlag.getGjeldendeOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
+        iayGrunnlag.getArbeidsforholdInformasjon()
+            .ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
+        iayGrunnlag.getGjeldendeOppgittOpptjening()
+            .ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
         builder.medErAktivtGrunnlag(iayGrunnlag.isAktiv());
         return builder.build();
     }
 
     private static OppgittOpptjeningDtoBuilder mapOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
         var builder = OppgittOpptjeningDtoBuilder.ny();
-        oppgittOpptjening.getFrilans().ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getErNyoppstartet())));
+        oppgittOpptjening.getFrilans()
+            .ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getErNyoppstartet())));
 
-        oppgittOpptjening.getAnnenAktivitet().forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()), KodeverkTilKalkulusMapper.mapArbeidtype(oppgittAnnenAktivitet.getArbeidType()))));
+        oppgittOpptjening.getAnnenAktivitet()
+            .forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(
+                new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()),
+                    KodeverkTilKalkulusMapper.mapArbeidtype(oppgittAnnenAktivitet.getArbeidType()))));
         oppgittOpptjening.getEgenNæring().forEach(oppgittEgenNæring -> builder.leggTilEgneNæring(mapEgenNæring(oppgittEgenNæring)));
-        oppgittOpptjening.getOppgittArbeidsforhold().forEach(oppgittArbeidsforhold -> builder.leggTilOppgittArbeidsforhold(mapOppgittArbeidsforhold(oppgittArbeidsforhold)));
+        oppgittOpptjening.getOppgittArbeidsforhold()
+            .forEach(oppgittArbeidsforhold -> builder.leggTilOppgittArbeidsforhold(mapOppgittArbeidsforhold(oppgittArbeidsforhold)));
 
         return builder;
     }
 
     private static OppgittOpptjeningDtoBuilder.OppgittArbeidsforholdBuilder mapOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
-        return OppgittOpptjeningDtoBuilder.OppgittArbeidsforholdBuilder.ny()
-            .medPeriode(mapDatoIntervall(oppgittArbeidsforhold.getPeriode()));
+        return OppgittOpptjeningDtoBuilder.OppgittArbeidsforholdBuilder.ny().medPeriode(mapDatoIntervall(oppgittArbeidsforhold.getPeriode()));
     }
 
     private static Intervall mapDatoIntervall(DatoIntervallEntitet periode) {
@@ -137,19 +147,27 @@ public class IAYMapperTilKalkulus {
 
     private static ArbeidsforholdInformasjonDto mapArbeidsforholdInformasjon(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
         var builder = ArbeidsforholdInformasjonDtoBuilder.builder(Optional.empty());
-        arbeidsforholdInformasjon.getArbeidsforholdReferanser().forEach(arbeidsforholdReferanse -> builder.leggTilNyReferanse(mapRefDto(arbeidsforholdReferanse)));
-        arbeidsforholdInformasjon.getOverstyringer().forEach(arbeidsforholdOverstyring -> builder.leggTil(mapOverstyringerDto(arbeidsforholdOverstyring)));
+        arbeidsforholdInformasjon.getArbeidsforholdReferanser()
+            .forEach(arbeidsforholdReferanse -> builder.leggTilNyReferanse(mapRefDto(arbeidsforholdReferanse)));
+        arbeidsforholdInformasjon.getOverstyringer()
+            .forEach(arbeidsforholdOverstyring -> builder.leggTil(mapOverstyringerDto(arbeidsforholdOverstyring)));
         return builder.build();
     }
 
     private static ArbeidsforholdOverstyringDtoBuilder mapOverstyringerDto(ArbeidsforholdOverstyring arbeidsforholdOverstyring) {
         var builder = ArbeidsforholdOverstyringDtoBuilder.oppdatere(Optional.empty());
-        arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(), arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
+        arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder()
+            .forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(
+                arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(),
+                arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
         builder.medHandling(KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling()));
         builder.medArbeidsgiver(mapArbeidsgiver(arbeidsforholdOverstyring.getArbeidsgiver()));
-        builder.medAngittStillingsprosent(arbeidsforholdOverstyring.getStillingsprosent() == null ? null : new Stillingsprosent(arbeidsforholdOverstyring.getStillingsprosent().getVerdi()));
-        builder.medArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef()));
-        builder.medNyArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef()));
+        builder.medAngittStillingsprosent(arbeidsforholdOverstyring.getStillingsprosent() == null ? null : new Stillingsprosent(
+            arbeidsforholdOverstyring.getStillingsprosent().getVerdi()));
+        builder.medArbeidsforholdRef(
+            arbeidsforholdOverstyring.getArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(arbeidsforholdOverstyring.getArbeidsforholdRef()));
+        builder.medNyArbeidsforholdRef(arbeidsforholdOverstyring.getNyArbeidsforholdRef() == null ? null : mapArbeidsforholdRef(
+            arbeidsforholdOverstyring.getNyArbeidsforholdRef()));
 
         return builder;
     }
@@ -181,7 +199,8 @@ public class IAYMapperTilKalkulus {
     }
 
     private static NaturalYtelseDto mapNaturalYtelse(NaturalYtelse naturalYtelse) {
-        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(), mapTilBeløp(naturalYtelse.getBeloepPerMnd()), KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType()));
+        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(),
+            mapTilBeløp(naturalYtelse.getBeloepPerMnd()), KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType()));
     }
 
     private static RefusjonDto mapRefusjon(Refusjon refusjon) {
@@ -198,11 +217,13 @@ public class IAYMapperTilKalkulus {
     private static YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer);
         var dtoBuilder = YrkesaktivitetDtoBuilder.oppdatere(Optional.empty());
-        yrkesaktivitet.getAlleAktivitetsAvtaler().forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
+        yrkesaktivitet.getAlleAktivitetsAvtaler()
+            .forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
         dtoBuilder.medArbeidType(KodeverkTilKalkulusMapper.mapArbeidtype(yrkesaktivitet.getArbeidType()));
-        yrkesaktivitet.getPermisjon().stream()
+        yrkesaktivitet.getPermisjon()
+            .stream()
             .filter(perm -> erRelevantForBeregning(perm, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
             .forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
         return dtoBuilder.build();
@@ -213,19 +234,19 @@ public class IAYMapperTilKalkulus {
             || !erFullPermisjon(perm)) {
             return false;
         }
-        return bekreftetPermisjon
-            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
-            .orElse(true);
+        return bekreftetPermisjon.map(
+            b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus())).orElse(true);
     }
 
     private static boolean erFullPermisjon(Permisjon perm) {
         return perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0;
     }
 
-    private static Optional<BekreftetPermisjon> finnBekreftetPermisjon(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+    private static Optional<BekreftetPermisjon> finnBekreftetPermisjon(Yrkesaktivitet yrkesaktivitet,
+                                                                       List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         return arbeidsforholdOverstyringer.stream()
-            .filter(os -> Objects.equals(os.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver())
-                && os.getArbeidsforholdRef().gjelderFor(yrkesaktivitet.getArbeidsforholdRef()))
+            .filter(os -> Objects.equals(os.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver()) && os.getArbeidsforholdRef()
+                .gjelderFor(yrkesaktivitet.getArbeidsforholdRef()))
             .map(ArbeidsforholdOverstyring::getBekreftetPermisjon)
             .flatMap(Optional::stream)
             .findFirst();
@@ -239,22 +260,22 @@ public class IAYMapperTilKalkulus {
     }
 
     private static PermisjonsbeskrivelseType mapPermisjontype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
-            return switch (permisjonsbeskrivelseType) {
-                case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
-                case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
-                case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
-                case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
-                case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
-                case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
-                case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
-                case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
-                case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
-                case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
-                case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
-            };
+        return switch (permisjonsbeskrivelseType) {
+            case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
+            case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
+            case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+            case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
+            case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
+            case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+            case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
+            case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
+            case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
+            case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
+            case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
+        };
     }
 
-    private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt){
+    private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt) {
         var builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
         aktørInntekt.getInntekt().forEach(inntekt -> builder.leggTilInntekt(mapInntekt(inntekt)));
         return builder;
@@ -273,8 +294,11 @@ public class IAYMapperTilKalkulus {
         builder.medBeløp(mapTilBeløp(inntektspost.getBeløp()));
         builder.medInntektspostType(KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()));
         builder.medPeriode(inntektspost.getPeriode().getFomDato(), inntektspost.getPeriode().getTomDato());
-        builder.medSkatteOgAvgiftsregelType(inntektspost.getSkatteOgAvgiftsregelType() == null ? null : KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
-        builder.medInntektYtelse(inntektspost.getInntektYtelseType() == null ? null : KodeverkTilKalkulusMapper.mapInntektytelseType(inntektspost.getInntektYtelseType()));
+        builder.medSkatteOgAvgiftsregelType(
+            inntektspost.getSkatteOgAvgiftsregelType() == null ? null : KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(
+                inntektspost.getSkatteOgAvgiftsregelType()));
+        builder.medInntektYtelse(
+            inntektspost.getInntektYtelseType() == null ? null : KodeverkTilKalkulusMapper.mapInntektytelseType(inntektspost.getInntektYtelseType()));
 
         return builder;
     }
@@ -283,7 +307,8 @@ public class IAYMapperTilKalkulus {
     private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid,
                                                                                         List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var builder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty());
-        aktørArbeid.hentAlleYrkesaktiviteter().forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet, arbeidsforholdOverstyringer)));
+        aktørArbeid.hentAlleYrkesaktiviteter()
+            .forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet, arbeidsforholdOverstyringer)));
         return builder;
     }
 
@@ -321,7 +346,10 @@ public class IAYMapperTilKalkulus {
     private static YtelseDtoBuilder mapYtelse(Ytelse ytelse) {
         var builder = YtelseDtoBuilder.ny();
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
-        ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(b -> builder.medVedtaksDagsats(mapTilBeløp(b)));
+        ytelse.getYtelseGrunnlag()
+            .flatMap(YtelseGrunnlag::getVedtaksDagsats)
+            .map(Beløp::getVerdi)
+            .ifPresent(b -> builder.medVedtaksDagsats(mapTilBeløp(b)));
         builder.medPeriode(mapDatoIntervall(ytelse.getPeriode()));
         builder.medYtelseType(KodeverkTilKalkulusMapper.mapYtelsetype(ytelse.getRelatertYtelseType()));
         return builder;

@@ -78,8 +78,7 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
         if (!(obj instanceof BeregningsgrunnlagFrilansAndel other)) {
             return false;
         }
-        return Objects.equals(this.getMottarYtelse(), other.getMottarYtelse())
-                && Objects.equals(this.getNyoppstartet(), other.getNyoppstartet());
+        return Objects.equals(this.getMottarYtelse(), other.getMottarYtelse()) && Objects.equals(this.getNyoppstartet(), other.getNyoppstartet());
     }
 
 
@@ -90,10 +89,7 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "mottarYtelse=" + mottarYtelse + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "mottarYtelse=" + mottarYtelse + ", " + ">";
     }
 
 

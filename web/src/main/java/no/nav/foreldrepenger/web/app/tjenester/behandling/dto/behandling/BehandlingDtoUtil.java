@@ -27,7 +27,7 @@ final class BehandlingDtoUtil {
                                           boolean erBehandlingMedGjeldendeVedtak,
                                           LocalDate vedtaksDato) {
         setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
-              dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
+        dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
         dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
     }
 
@@ -54,10 +54,7 @@ final class BehandlingDtoUtil {
         return Collections.emptyList();
     }
 
-    static void setStandardfelter(Behandling behandling,
-                                  Behandlingsresultat behandlingsresultat,
-                                  BehandlingDto dto,
-                                  LocalDate vedtaksDato) {
+    static void setStandardfelter(Behandling behandling, Behandlingsresultat behandlingsresultat, BehandlingDto dto, LocalDate vedtaksDato) {
         dto.setFagsakId(behandling.getFagsakId());
         dto.setId(behandling.getId());
         dto.setUuid(behandling.getUuid());
@@ -95,17 +92,16 @@ final class BehandlingDtoUtil {
     }
 
     static Optional<BehandlingÅrsakDto> førsteÅrsak(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        return behandling.getBehandlingÅrsaker()
+            .stream()
             .sorted(Comparator.comparing(BaseEntitet::getOpprettetTidspunkt))
             .map(BehandlingDtoUtil::map)
             .findFirst();
     }
 
     static boolean erAktivPapirsøknad(Behandling behandling) {
-        var kriterier = Arrays.asList(
-            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
-            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
-            AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
+        var kriterier = Arrays.asList(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
+            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER, AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
         return !behandling.getÅpneAksjonspunkter(kriterier).isEmpty();
     }
@@ -118,6 +114,8 @@ final class BehandlingDtoUtil {
     }
 
     private static BehandlingResultatType getBehandlingsResultatType(Behandlingsresultat behandlingsresultat) {
-        return Optional.ofNullable(behandlingsresultat).map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        return Optional.ofNullable(behandlingsresultat)
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .orElse(BehandlingResultatType.IKKE_FASTSATT);
     }
 }

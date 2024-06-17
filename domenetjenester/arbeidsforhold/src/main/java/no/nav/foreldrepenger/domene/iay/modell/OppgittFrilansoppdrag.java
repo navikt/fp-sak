@@ -37,8 +37,7 @@ public class OppgittFrilansoppdrag implements IndexKey {
         if (!(o instanceof OppgittFrilansoppdrag that)) {
             return false;
         }
-        return Objects.equals(oppdragsgiver, that.oppdragsgiver) &&
-                Objects.equals(periode, that.periode);
+        return Objects.equals(oppdragsgiver, that.oppdragsgiver) && Objects.equals(periode, that.periode);
     }
 
     @Override
@@ -48,10 +47,7 @@ public class OppgittFrilansoppdrag implements IndexKey {
 
     @Override
     public String toString() {
-        return "FrilansoppdragEntitet{" +
-                ", oppdragsgiver='" + oppdragsgiver + '\'' +
-                ", periode=" + periode +
-                '}';
+        return "FrilansoppdragEntitet{" + ", oppdragsgiver='" + oppdragsgiver + '\'' + ", periode=" + periode + '}';
     }
 
     public DatoIntervallEntitet getPeriode() {

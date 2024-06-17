@@ -101,23 +101,25 @@ public class KlageFormkravDvh extends DvhBaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         var that = (KlageFormkravDvh) o;
-        return gjelderVedtak == that.gjelderVedtak &&
-            erKlagerPart == that.erKlagerPart &&
-            erFristOverholdt == that.erFristOverholdt &&
-            erKonkret == that.erKonkret &&
-            erSignert == that.erSignert &&
-            Objects.equals(klageBehandlingId, that.klageBehandlingId) &&
-            Objects.equals(klageVurdertAv, that.klageVurdertAv) &&
-            Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
+        return gjelderVedtak == that.gjelderVedtak && erKlagerPart == that.erKlagerPart && erFristOverholdt == that.erFristOverholdt
+            && erKonkret == that.erKonkret && erSignert == that.erSignert && Objects.equals(klageBehandlingId, that.klageBehandlingId)
+            && Objects.equals(klageVurdertAv, that.klageVurdertAv) && Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, gjelderVedtak, erKlagerPart, erFristOverholdt, erKonkret, erSignert, opprettetTidspunkt);
+        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, gjelderVedtak, erKlagerPart, erFristOverholdt, erKonkret, erSignert,
+            opprettetTidspunkt);
     }
 
     public static Builder builder() {

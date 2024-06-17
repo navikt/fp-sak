@@ -23,8 +23,6 @@ public class ProsessTaskGruppeIdDto {
 
     @Override
     public String toString() {
-        return "BehandlingIdDto{" +
-            "behandlingId=" + gruppe +
-            '}';
+        return "BehandlingIdDto{" + "behandlingId=" + gruppe + '}';
     }
 }

@@ -30,17 +30,17 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
     private Long id;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false, nullable = false))
     @ChangeTracked
     private AktørId fraAktørId;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false, nullable = false))
     @ChangeTracked
     private AktørId tilAktørId;
 
     @Convert(converter = RelasjonsRolleType.KodeverdiConverter.class)
-    @Column(name="relasjonsrolle", nullable = false)
+    @Column(name = "relasjonsrolle", nullable = false)
     @ChangeTracked
     private RelasjonsRolleType relasjonsrolle;
 
@@ -129,10 +129,8 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
             return false;
         }
         var entitet = (PersonRelasjonEntitet) o;
-        return Objects.equals(fraAktørId, entitet.fraAktørId) &&
-                Objects.equals(tilAktørId, entitet.tilAktørId) &&
-                Objects.equals(harSammeBosted, entitet.harSammeBosted) &&
-                Objects.equals(relasjonsrolle, entitet.relasjonsrolle);
+        return Objects.equals(fraAktørId, entitet.fraAktørId) && Objects.equals(tilAktørId, entitet.tilAktørId) && Objects.equals(harSammeBosted,
+            entitet.harSammeBosted) && Objects.equals(relasjonsrolle, entitet.relasjonsrolle);
     }
 
 

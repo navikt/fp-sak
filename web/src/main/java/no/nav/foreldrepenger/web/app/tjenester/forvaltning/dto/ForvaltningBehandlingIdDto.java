@@ -30,8 +30,7 @@ public class ForvaltningBehandlingIdDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
+        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
     }
 
     @Override

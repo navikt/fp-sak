@@ -44,7 +44,9 @@ public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements Aksj
             return INGEN_AKSJONSPUNKTER;
         }
         var uavklarteMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledUavklarteManglerPåArbeidsforholdInntektsmelding(param.getRef());
-        LOG.info("Fant {} uavklarteMangler relatert til arbeid og inntektsmeldinger på saksnummer {}. Alle uavklarteMangler var: {}", uavklarteMangler.size(), param.getSaksnummer(), uavklarteMangler);
-        return uavklarteMangler.isEmpty() ? INGEN_AKSJONSPUNKTER : opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        LOG.info("Fant {} uavklarteMangler relatert til arbeid og inntektsmeldinger på saksnummer {}. Alle uavklarteMangler var: {}",
+            uavklarteMangler.size(), param.getSaksnummer(), uavklarteMangler);
+        return uavklarteMangler.isEmpty() ? INGEN_AKSJONSPUNKTER : opprettListeForAksjonspunkt(
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
     }
 }

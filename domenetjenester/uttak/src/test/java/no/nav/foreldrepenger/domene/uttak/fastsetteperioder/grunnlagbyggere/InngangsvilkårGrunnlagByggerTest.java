@@ -25,8 +25,7 @@ class InngangsvilkårGrunnlagByggerTest {
     void setterInngangsvilkåreneErOppfylt() {
         var bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
         var vilkårBuilder = VilkårResultat.builder();
@@ -45,9 +44,9 @@ class InngangsvilkårGrunnlagByggerTest {
     }
 
     private void lagreVilkår(Behandling behandling, VilkårResultat.Builder vilkårBuilder) {
-        var behandlingsresultat =  Behandlingsresultat.builderForInngangsvilkår().build();
+        var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
         behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
-        repositoryProvider.getBehandlingsresultatRepository().lagre(behandling.getId(),behandlingsresultat);
+        repositoryProvider.getBehandlingsresultatRepository().lagre(behandling.getId(), behandlingsresultat);
     }
 
     private UttakInput input(Behandling behandling) {
@@ -64,7 +63,8 @@ class InngangsvilkårGrunnlagByggerTest {
         var vilkårBuilder = VilkårResultat.builder();
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035);
-        vilkårBuilder.manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR);
+        vilkårBuilder.manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT,
+            Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallMerknad.VM_1004);
         lagreVilkår(behandling, vilkårBuilder);
 

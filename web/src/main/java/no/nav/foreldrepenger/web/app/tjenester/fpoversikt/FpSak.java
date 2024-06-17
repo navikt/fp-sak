@@ -6,17 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-record FpSak(String saksnummer,
-             String aktørId,
-             FamilieHendelse familieHendelse,
-             boolean avsluttet,
-             Set<Vedtak> vedtak,
-             String oppgittAnnenPart,
-             Set<Aksjonspunkt> aksjonspunkt,
-             Set<Søknad> søknader,
-             BrukerRolle brukerRolle,
-             Set<String> fødteBarn,
-             Rettigheter rettigheter,
+record FpSak(String saksnummer, String aktørId, FamilieHendelse familieHendelse, boolean avsluttet, Set<Vedtak> vedtak, String oppgittAnnenPart,
+             Set<Aksjonspunkt> aksjonspunkt, Set<Søknad> søknader, BrukerRolle brukerRolle, Set<String> fødteBarn, Rettigheter rettigheter,
              boolean ønskerJustertUttakVedFødsel) implements Sak {
 
     enum Dekningsgrad {
@@ -27,9 +18,8 @@ record FpSak(String saksnummer,
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad) {
     }
 
-    record Uttaksperiode(LocalDate fom, LocalDate tom, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
-                         OverføringÅrsak overføringÅrsak, BigDecimal samtidigUttak, Boolean flerbarnsdager,
-                         MorsAktivitet morsAktivitet, Resultat resultat) {
+    record Uttaksperiode(LocalDate fom, LocalDate tom, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak, OverføringÅrsak overføringÅrsak,
+                         BigDecimal samtidigUttak, Boolean flerbarnsdager, MorsAktivitet morsAktivitet, Resultat resultat) {
         record Resultat(Type type, Årsak årsak, Set<UttaksperiodeAktivitet> aktiviteter, boolean trekkerMinsterett) {
 
             enum Type {
@@ -61,7 +51,10 @@ record FpSak(String saksnummer,
     }
 
     enum BrukerRolle {
-        MOR, FAR, MEDMOR, UKJENT
+        MOR,
+        FAR,
+        MEDMOR,
+        UKJENT
     }
 
     record Rettigheter(boolean aleneomsorg, boolean morUføretrygd, boolean annenForelderTilsvarendeRettEØS) {

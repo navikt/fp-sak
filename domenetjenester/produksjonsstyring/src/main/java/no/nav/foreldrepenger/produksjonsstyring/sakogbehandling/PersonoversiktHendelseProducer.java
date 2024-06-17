@@ -28,6 +28,7 @@ public class PersonoversiktHendelseProducer {
     public void sendJsonMedNøkkel(String nøkkel, String json) {
         LOG.info("Sender melding om personoversikt-hendelse med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
-        LOG.info("Sendte melding om personoversikt-hendelse til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
+        LOG.info("Sendte melding om personoversikt-hendelse til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(),
+            recordMetadata.offset());
     }
 }

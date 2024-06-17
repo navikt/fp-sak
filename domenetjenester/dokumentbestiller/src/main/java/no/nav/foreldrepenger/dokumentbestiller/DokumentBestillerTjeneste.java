@@ -42,8 +42,8 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
 
         var behandlingResultatType = behandlingResultat.getBehandlingResultatType();
 
-        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultatType,
-            behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
+        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultatType, behandlingVedtak.getVedtakResultatType(),
+            behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
         DokumentMalType journalførSom = null; // settes kun ved fritekst
 
@@ -53,11 +53,9 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
 
-        bestillDokument(DokumentBestilling.builder()
-            .medBehandlingUuid(behandling.getUuid())
-            .medDokumentMal(dokumentMal)
-            .medJournalførSom(journalførSom)
-            .build(), HistorikkAktør.VEDTAKSLØSNINGEN);
+        bestillDokument(
+            DokumentBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal).medJournalførSom(journalførSom).build(),
+            HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(DokumentBestilling dokumentBestilling, HistorikkAktør aktør) {

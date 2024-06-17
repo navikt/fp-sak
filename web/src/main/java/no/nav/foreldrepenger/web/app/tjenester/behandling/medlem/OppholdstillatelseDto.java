@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
+
+import java.time.LocalDate;
 
 public class OppholdstillatelseDto {
     private LocalDate fom;

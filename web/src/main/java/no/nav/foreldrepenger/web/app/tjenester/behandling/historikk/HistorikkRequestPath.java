@@ -19,14 +19,9 @@ public class HistorikkRequestPath {
         }
         var stringBuilder = new StringBuilder();
 
-        stringBuilder.append(request.getScheme())
-            .append("://")
-            .append(request.getLocalName())
-            .append(":")
-            .append(request.getLocalPort());
+        stringBuilder.append(request.getScheme()).append("://").append(request.getLocalName()).append(":").append(request.getLocalPort());
 
-        stringBuilder.append(request.getContextPath())
-            .append(request.getServletPath());
+        stringBuilder.append(request.getContextPath()).append(request.getServletPath());
         return UriBuilder.fromUri(stringBuilder.toString()).path(HENT_DOK_PATH).build();
     }
 }

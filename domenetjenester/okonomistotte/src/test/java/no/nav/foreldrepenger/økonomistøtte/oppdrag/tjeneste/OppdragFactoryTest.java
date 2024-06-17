@@ -44,7 +44,8 @@ class OppdragFactoryTest {
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_SELVSTENDIG, Betalingsmottaker.BRUKER);
         var målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelYtelse,
+                Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .build();
 
         //act
@@ -60,7 +61,12 @@ class OppdragFactoryTest {
 
         var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medDelytelseId(delytelseId("100-100"))
+            .medPeriode(periode)
+            .medSats(Satsen.dagsats(1000))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build());
     }
 
     @Test
@@ -68,7 +74,8 @@ class OppdragFactoryTest {
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
         var målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelYtelse,
+                Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .leggTilKjede(nøkkelFeriepenger, Ytelse.builder().leggTilPeriode(new YtelsePeriode(nesteMai, Satsen.engang(200))).build())
             .build();
         //act
@@ -81,11 +88,17 @@ class OppdragFactoryTest {
 
         var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medDelytelseId(delytelseId("100-100"))
+            .medPeriode(periode)
+            .medSats(Satsen.dagsats(1000))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build());
 
         var feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
-        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
+        assertLik(feriepengeKjede.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
     }
 
     @Test
@@ -95,7 +108,8 @@ class OppdragFactoryTest {
         var nøkkelYtelseTilArbeidsgiver2 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000002"));
         var nøkkelYtelseTilArbeidsgiver3 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000003"));
         var målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelYtelseTilBruker,
+                Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver1, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(101))).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver2, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(102))).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver3, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(103))).build())
@@ -106,19 +120,27 @@ class OppdragFactoryTest {
         assertThat(resultat).hasSize(4);
         var ytelsekjedeBruker = resultat.get(0).getKjeder().get(nøkkelYtelseTilBruker);
         assertThat(ytelsekjedeBruker.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeBruker.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjedeBruker.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medDelytelseId(delytelseId("100-100"))
+            .medPeriode(periode)
+            .medSats(Satsen.dagsats(1000))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build());
 
         var ytelsekjedeArbeidsgiver1 = resultat.get(1).getKjeder().get(nøkkelYtelseTilArbeidsgiver1);
         assertThat(ytelsekjedeArbeidsgiver1.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver1.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("101-100")).medPeriode(periode).medSats(Satsen.dagsats(101)).build());
+        assertLik(ytelsekjedeArbeidsgiver1.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medDelytelseId(delytelseId("101-100")).medPeriode(periode).medSats(Satsen.dagsats(101)).build());
 
         var ytelsekjedeArbeidsgiver2 = resultat.get(2).getKjeder().get(nøkkelYtelseTilArbeidsgiver2);
         assertThat(ytelsekjedeArbeidsgiver2.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver2.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("102-100")).medPeriode(periode).medSats(Satsen.dagsats(102)).build());
+        assertLik(ytelsekjedeArbeidsgiver2.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medDelytelseId(delytelseId("102-100")).medPeriode(periode).medSats(Satsen.dagsats(102)).build());
 
         var ytelsekjedeArbeidsgiver3 = resultat.get(3).getKjeder().get(nøkkelYtelseTilArbeidsgiver3);
         assertThat(ytelsekjedeArbeidsgiver3.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver3.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("103-100")).medPeriode(periode).medSats(Satsen.dagsats(103)).build());
+        assertLik(ytelsekjedeArbeidsgiver3.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medDelytelseId(delytelseId("103-100")).medPeriode(periode).medSats(Satsen.dagsats(103)).build());
     }
 
     @Test
@@ -134,7 +156,8 @@ class OppdragFactoryTest {
             .build();
 
         var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelYtelseTilBruker, OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101")).medYtelsePeriode(brukersYtelsePeriode).build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101")).medYtelsePeriode(brukersYtelsePeriode).build())
             .build()));
 
         var resultat = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
@@ -145,7 +168,8 @@ class OppdragFactoryTest {
         assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelseTilArbeidsgiver);
         var kjede = oppdrag.getKjeder().get(nøkkelYtelseTilArbeidsgiver);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
+        assertLik(kjede.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
     }
 
     @Test
@@ -162,7 +186,8 @@ class OppdragFactoryTest {
             .build();
 
         var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelYtelseTilBruker, OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101")).medYtelsePeriode(brukersYtelsePeriode).build())
+            .medOppdragslinje(
+                OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101")).medYtelsePeriode(brukersYtelsePeriode).build())
             .build()));
 
         oppdragFactory.setFellesEndringstidspunkt(periode.getFom());
@@ -175,15 +200,24 @@ class OppdragFactoryTest {
         assertThat(oppdragBruker.getKjeder()).containsOnlyKeys(nøkkelYtelseTilBruker);
         var kjede = oppdragBruker.getKjeder().get(nøkkelYtelseTilBruker);
         assertThat(kjede.getOppdragslinjer()).hasSize(2);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(brukersYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-101-101")).medOpphørFomDato(periode.getFom()).build());
-        assertLik(kjede.getOppdragslinjer().get(1), OppdragLinje.builder().medYtelsePeriode(brukersYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-101-102")).medRefDelytelseId(DelytelseId.parse("FooBar-101-101")).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medYtelsePeriode(brukersYtelsePeriode)
+            .medDelytelseId(DelytelseId.parse("FooBar-101-101"))
+            .medOpphørFomDato(periode.getFom())
+            .build());
+        assertLik(kjede.getOppdragslinjer().get(1), OppdragLinje.builder()
+            .medYtelsePeriode(brukersYtelsePeriode)
+            .medDelytelseId(DelytelseId.parse("FooBar-101-102"))
+            .medRefDelytelseId(DelytelseId.parse("FooBar-101-101"))
+            .build());
 
         var oppdragArbeidsgiver = resultat.get(1);
         assertThat(oppdragArbeidsgiver.getBetalingsmottaker()).isEqualTo(arbeidsgiver);
         assertThat(oppdragArbeidsgiver.getKjeder()).containsOnlyKeys(nøkkelYtelseTilArbeidsgiver);
         var kjedeArbg = oppdragArbeidsgiver.getKjeder().get(nøkkelYtelseTilArbeidsgiver);
         assertThat(kjedeArbg.getOppdragslinjer()).hasSize(1);
-        assertLik(kjedeArbg.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
+        assertLik(kjedeArbg.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
     }
 
     @Test
@@ -198,26 +232,23 @@ class OppdragFactoryTest {
         var nøkkelFeriepengerTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_FERIEPENGER_AG, arbeidsgiver, 2020);
         var arbeidsgiversYtelsePeriode1 = new YtelsePeriode(Periode.of(fellesEndringsdato, ytelseTom), Satsen.dagsats(102));
         var arbeidsgiversYtelsePeriode2 = new YtelsePeriode(Periode.of(ytelseFom, fellesEndringsdato.minusDays(1)), Satsen.dagsats(101));
-        var arbeidsgiversFeriepengerPeriode = new YtelsePeriode(Periode.of(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31)), Satsen.engang(101101));
+        var arbeidsgiversFeriepengerPeriode = new YtelsePeriode(Periode.of(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31)),
+            Satsen.engang(101101));
         var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelFeriepengerTilArbeidsgiver, Ytelse.builder().leggTilPeriode(arbeidsgiversFeriepengerPeriode).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver,
-                Ytelse.builder()
-                    .leggTilPeriode(arbeidsgiversYtelsePeriode1)
-                    .leggTilPeriode(arbeidsgiversYtelsePeriode2).build())
+                Ytelse.builder().leggTilPeriode(arbeidsgiversYtelsePeriode1).leggTilPeriode(arbeidsgiversYtelsePeriode2).build())
             .build();
 
-        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(
-            Map.of(
-                nøkkelYtelseTilArbeidsgiver, OppdragKjede.builder()
-                    .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101"))
-                        .medYtelsePeriode(new YtelsePeriode(Periode.of(ytelseFom, ytelseTom), Satsen.dagsats(101))).build())
-                    .build(),
-                nøkkelFeriepengerTilArbeidsgiver, OppdragKjede.builder()
-                    .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-102"))
-                        .medYtelsePeriode(arbeidsgiversFeriepengerPeriode).build())
-                    .build()
-            ));
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(nøkkelYtelseTilArbeidsgiver, OppdragKjede.builder()
+            .medOppdragslinje(OppdragLinje.builder()
+                .medDelytelseId(DelytelseId.parse("FooBar-101-101"))
+                .medYtelsePeriode(new YtelsePeriode(Periode.of(ytelseFom, ytelseTom), Satsen.dagsats(101)))
+                .build())
+            .build(), nøkkelFeriepengerTilArbeidsgiver, OppdragKjede.builder()
+            .medOppdragslinje(
+                OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-102")).medYtelsePeriode(arbeidsgiversFeriepengerPeriode).build())
+            .build()));
 
         oppdragFactory.setFellesEndringstidspunkt(fellesEndringsdato);
         var resultat = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);

@@ -17,16 +17,14 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste {
 
     @Override
-    public List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat,
-                                                              boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
+    public List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         var dagsatser = Arrays.asList(new Dagsatser(true, skalDeleAndelMellomArbeidsgiverOgBruker),
-                new Dagsatser(false, skalDeleAndelMellomArbeidsgiverOgBruker));
-        var bga = BGAndelArbeidsforhold
-                .builder()
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(1))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
+            new Dagsatser(false, skalDeleAndelMellomArbeidsgiverOgBruker));
+        var bga = BGAndelArbeidsforhold.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(1))
+            .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
+            .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         var andel1 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga)
             .medAndelsnr(1L)
@@ -39,12 +37,11 @@ public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste 
             .medBruttoPrÅr(BigDecimal.valueOf(240000))
             .medKilde(AndelKilde.PROSESS_START)
             .build();
-        var bga2 = BGAndelArbeidsforhold
-                .builder()
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
+        var bga2 = BGAndelArbeidsforhold.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
+            .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
+            .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         var andel2 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga2)
             .medAndelsnr(2L)

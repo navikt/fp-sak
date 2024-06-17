@@ -16,8 +16,11 @@ public class ManuellRegistreringAksjonspunktDto {
         this.erFullstendigSøknad = erFullstendigSøknad;
     }
 
-    public ManuellRegistreringAksjonspunktDto(boolean erFullstendigSøknad, String søknadsXml, DokumentTypeId dokumentTypeId,
-                                              LocalDate mottattDato, boolean erRegistrertVerge) {
+    public ManuellRegistreringAksjonspunktDto(boolean erFullstendigSøknad,
+                                              String søknadsXml,
+                                              DokumentTypeId dokumentTypeId,
+                                              LocalDate mottattDato,
+                                              boolean erRegistrertVerge) {
         this.erFullstendigSøknad = erFullstendigSøknad;
         this.søknadsXml = søknadsXml;
         this.dokumentTypeId = dokumentTypeId;

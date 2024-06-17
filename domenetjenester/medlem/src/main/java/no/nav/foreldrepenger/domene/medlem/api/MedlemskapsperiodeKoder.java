@@ -14,8 +14,8 @@ public class MedlemskapsperiodeKoder {
     }
 
     // Kodeverdier fra MEDL2 som mappes til kodeverk MedlemskapDekningType
-    public static final Map<String, MedlemskapDekningType> DEKNING_TYPE_MAP = Map.ofEntries(
-        Map.entry("FTL_2-6", MedlemskapDekningType.FTL_2_6),                 // Folketrygdloven § 2-6
+    public static final Map<String, MedlemskapDekningType> DEKNING_TYPE_MAP = Map.ofEntries(Map.entry("FTL_2-6", MedlemskapDekningType.FTL_2_6),
+        // Folketrygdloven § 2-6
         Map.entry("FTL_2-7_3_ledd_a", MedlemskapDekningType.FTL_2_7_A),      // Folketrygdloven § 2-7, 3. ledd bokstav a
         Map.entry("FTL_2-7_bok_a", MedlemskapDekningType.FTL_2_7_A),         // Folketrygdloven § 2-7 bokstav a
         Map.entry("FTL_2-7_3_ledd_b", MedlemskapDekningType.FTL_2_7_B),      // Folketrygdloven § 2-7, 3. ledd bokstav b

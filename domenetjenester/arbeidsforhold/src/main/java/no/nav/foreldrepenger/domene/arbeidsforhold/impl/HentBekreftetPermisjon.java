@@ -21,19 +21,20 @@ public class HentBekreftetPermisjon {
         return hent(grunnlag, yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
     }
 
-    public static Optional<BekreftetPermisjon> hent(InntektArbeidYtelseGrunnlag grunnlag, Arbeidsgiver arbeidsgiver,
-            InternArbeidsforholdRef arbeidsforholdRef) {
+    public static Optional<BekreftetPermisjon> hent(InntektArbeidYtelseGrunnlag grunnlag,
+                                                    Arbeidsgiver arbeidsgiver,
+                                                    InternArbeidsforholdRef arbeidsforholdRef) {
         var overstyringer = hentAlleOverstyringer(grunnlag);
         var overstyring = finnOverstyringSomMatcherArbeidsforhold(arbeidsgiver, arbeidsforholdRef, overstyringer);
         return overstyring.flatMap(ArbeidsforholdOverstyring::getBekreftetPermisjon);
     }
 
     private static Optional<ArbeidsforholdOverstyring> finnOverstyringSomMatcherArbeidsforhold(Arbeidsgiver arbeidsgiver,
-            InternArbeidsforholdRef arbeidsforholdRef,
-            List<ArbeidsforholdOverstyring> overstyringer) {
+                                                                                               InternArbeidsforholdRef arbeidsforholdRef,
+                                                                                               List<ArbeidsforholdOverstyring> overstyringer) {
         return overstyringer.stream()
-                .filter(over -> Objects.equals(arbeidsgiver, over.getArbeidsgiver()) && arbeidsforholdRef.gjelderFor(over.getArbeidsforholdRef()))
-                .findFirst();
+            .filter(over -> Objects.equals(arbeidsgiver, over.getArbeidsgiver()) && arbeidsforholdRef.gjelderFor(over.getArbeidsforholdRef()))
+            .findFirst();
     }
 
     private static List<ArbeidsforholdOverstyring> hentAlleOverstyringer(InntektArbeidYtelseGrunnlag grunnlag) {

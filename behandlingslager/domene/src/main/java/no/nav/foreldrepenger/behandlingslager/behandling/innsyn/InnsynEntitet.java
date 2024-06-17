@@ -44,7 +44,7 @@ public class InnsynEntitet extends BaseEntitet {
     @Column(name = "innsyn_resultat_type", nullable = false)
     private InnsynResultatType innsynResultatType = InnsynResultatType.UDEFINERT;
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "innsyn")
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "innsyn")
     private Set<InnsynDokumentEntitet> innsynDokumenter = new HashSet<>(1);
 
     protected InnsynEntitet() {
@@ -85,11 +85,7 @@ public class InnsynEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "InnsynEntitet{" +
-            "id=" + id +
-            ", innsynResultatType=" + innsynResultatType +
-            ", innsynDokumenter=" + innsynDokumenter +
-            '}';
+        return "InnsynEntitet{" + "id=" + id + ", innsynResultatType=" + innsynResultatType + ", innsynDokumenter=" + innsynDokumenter + '}';
     }
 
     public static class InnsynBuilder {

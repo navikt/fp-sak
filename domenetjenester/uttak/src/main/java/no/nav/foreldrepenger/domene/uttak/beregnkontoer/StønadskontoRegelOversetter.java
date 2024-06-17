@@ -35,7 +35,8 @@ public class StønadskontoRegelOversetter {
                                                        UttakCore2024 uttakCore2024) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
+        var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(
+            annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .regelvalgsdato(uttakCore2024.utledRegelvalgsdato(familieHendelse))
@@ -50,13 +51,12 @@ public class StønadskontoRegelOversetter {
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
         utledRegelvalgsdato(ref, dekningsgrad, familieHendelse).ifPresent(grunnlagBuilder::regelvalgsdato);
-        return grunnlagBuilder
-            .build();
+        return grunnlagBuilder.build();
     }
 
     private static void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
-                                             FamilieHendelse gjeldendeFamilieHendelse,
-                                             boolean erFødsel) {
+                                                    FamilieHendelse gjeldendeFamilieHendelse,
+                                                    boolean erFødsel) {
         if (erFødsel) {
             grunnlagBuilder.fødselsdato(gjeldendeFamilieHendelse.getFødselsdato().orElse(null));
             grunnlagBuilder.termindato(gjeldendeFamilieHendelse.getTermindato().orElse(null));
@@ -65,7 +65,9 @@ public class StønadskontoRegelOversetter {
         }
     }
 
-    private static Rettighetstype mapRettighet(RelasjonsRolleType relasjonsRolleType, YtelseFordelingAggregat ytelseFordelingAggregat, boolean annenForeldreHarRett) {
+    private static Rettighetstype mapRettighet(RelasjonsRolleType relasjonsRolleType,
+                                               YtelseFordelingAggregat ytelseFordelingAggregat,
+                                               boolean annenForeldreHarRett) {
         // Skal være avklart på dette tidspunktet - forsiktig med metoder som har fallback til oppgitt rettighet pga nyere førstegangssøknader.
         if (ytelseFordelingAggregat.robustHarAleneomsorg(relasjonsRolleType)) {
             return Rettighetstype.ALENEOMSORG;
@@ -81,8 +83,7 @@ public class StønadskontoRegelOversetter {
     }
 
     private static Map<StønadskontoKontotype, Integer> mapTilStønadskontoBeregning(Map<StønadskontoType, Integer> gjeldende) {
-        return gjeldende.entrySet().stream()
-            .collect(Collectors.toMap(e -> UttakEnumMapper.mapTilBeregning(e.getKey()), Map.Entry::getValue));
+        return gjeldende.entrySet().stream().collect(Collectors.toMap(e -> UttakEnumMapper.mapTilBeregning(e.getKey()), Map.Entry::getValue));
     }
 
     /*
@@ -97,8 +98,6 @@ public class StønadskontoRegelOversetter {
         }
         return Optional.empty();
     }
-
-
 
 
 }

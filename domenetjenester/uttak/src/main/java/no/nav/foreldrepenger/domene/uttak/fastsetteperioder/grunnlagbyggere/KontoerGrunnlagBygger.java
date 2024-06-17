@@ -32,7 +32,8 @@ public class KontoerGrunnlagBygger {
      * - Brukes framfor utenAktivitetskravDager fom FAB
      */
     public Kontoer.Builder byggGrunnlag(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoutregning) {
-        var kontoer = stønadskontoutregning.entrySet().stream()
+        var kontoer = stønadskontoutregning.entrySet()
+            .stream()
             .filter(k -> k.getKey().erStønadsdager())
             .map(k -> new Konto.Builder().trekkdager(k.getValue()).type(UttakEnumMapper.map(k.getKey())))
             .toList();
@@ -41,9 +42,9 @@ public class KontoerGrunnlagBygger {
 
     private Kontoer.Builder getBuilder(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoer) {
         var erMor = RelasjonsRolleType.MORA.equals(uttakInput.getBehandlingReferanse().relasjonRolle());
-        int toTette = erMor ? finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_MOR) : finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_FAR);
-        return new Kontoer.Builder()
-            .flerbarnsdager(finnKontoVerdi(stønadskontoer, StønadskontoType.FLERBARNSDAGER))
+        int toTette = erMor ? finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_MOR) : finnKontoVerdi(stønadskontoer,
+            StønadskontoType.TETTE_SAKER_FAR);
+        return new Kontoer.Builder().flerbarnsdager(finnKontoVerdi(stønadskontoer, StønadskontoType.FLERBARNSDAGER))
             .minsterettDager(finnKontoVerdi(stønadskontoer, StønadskontoType.BARE_FAR_RETT))
             .utenAktivitetskravDager(finnKontoVerdi(stønadskontoer, StønadskontoType.UFØREDAGER))
             .farUttakRundtFødselDager(finnKontoVerdi(stønadskontoer, StønadskontoType.FAR_RUNDT_FØDSEL))

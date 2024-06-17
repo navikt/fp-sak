@@ -84,9 +84,9 @@ class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
         orginalBehandling.avsluttBehandling();
         revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(orginalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
-                .lagMocked();
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(orginalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .lagMocked();
 
         behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(revurdering);
         when(behandlingsresultatRepository.hent(revurdering.getId())).thenReturn(behandlingsresultat);
@@ -98,20 +98,19 @@ class ForeslåVedtakRevurderingStegImplTest {
         when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
 
         foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningTjeneste,
-                repositoryProvider);
+            repositoryProvider);
         when(foreslåVedtakTjeneste.foreslåVedtak(eq(revurdering), any())).thenReturn(behandleStegResultat);
         when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
     }
 
     @Test
     void skal_ikke_opprette_aksjonspunkt_når_samme_beregningsgrunnlag() {
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+            .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling))).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
@@ -119,13 +118,12 @@ class ForeslåVedtakRevurderingStegImplTest {
 
     @Test
     void skal_opprette_aksjonspunkt_når_revurdering_har_mindre_beregningsgrunnlag() {
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+            .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(orginalBehandling))).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering);
@@ -134,30 +132,28 @@ class ForeslåVedtakRevurderingStegImplTest {
 
     @Test
     void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_avslått() {
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
-                .buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
+            .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
     }
 
     @Test
     void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_opphør() {
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR)
-                .buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.OPPHØR)
+            .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)))
-                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
     }
 
     private BeregningsgrunnlagGrunnlag buildBeregningsgrunnlag(Long bruttoPerÅr) {
-        var bgBuilder = Beregningsgrunnlag.builder()
-                .medSkjæringstidspunkt(LocalDate.now())
-                .medGrunnbeløp(BigDecimal.valueOf(91425));
+        var bgBuilder = Beregningsgrunnlag.builder().medSkjæringstidspunkt(LocalDate.now()).medGrunnbeløp(BigDecimal.valueOf(91425));
         var dagsats = BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
         var periode = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))

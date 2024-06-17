@@ -20,8 +20,7 @@ public abstract class VurderFaresignalerStegFelles implements BehandlingSteg {
         // for CDI proxy
     }
 
-    public VurderFaresignalerStegFelles(RisikovurderingTjeneste risikovurderingTjeneste,
-                                        BehandlingRepository behandlingRepository) {
+    public VurderFaresignalerStegFelles(RisikovurderingTjeneste risikovurderingTjeneste, BehandlingRepository behandlingRepository) {
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.behandlingRepository = behandlingRepository;
     }

@@ -29,7 +29,7 @@ public final class ResourceLinks {
     }
 
     private static String href(String path) {
-        var contextPath = ENV.getProperty("context.path","/fpsak");
+        var contextPath = ENV.getProperty("context.path", "/fpsak");
         var apiUri = ApiConfig.API_URI;
         return contextPath + apiUri + path;
     }

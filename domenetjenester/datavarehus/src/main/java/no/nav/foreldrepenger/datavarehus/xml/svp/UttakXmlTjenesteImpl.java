@@ -62,8 +62,8 @@ public class UttakXmlTjenesteImpl {
                 uttaksperiodegrense -> uttaksperiodegrense.finnSisteUttaksdato().flatMap(VedtakXmlUtil::lagDateOpplysning))
             .ifPresent(uttakSvangerskapspenger::setSisteUttaksdato);
 
-        svangerskapspengerUttakOptional.ifPresent(svangerskapspengerUttak ->
-            setUttakUttaksResultatArbeidsforhold(uttakSvangerskapspenger, svangerskapspengerUttak.getUttaksResultatArbeidsforhold()));
+        svangerskapspengerUttakOptional.ifPresent(svangerskapspengerUttak -> setUttakUttaksResultatArbeidsforhold(uttakSvangerskapspenger,
+            svangerskapspengerUttak.getUttaksResultatArbeidsforhold()));
 
         var tilretteleggingerSomSkalBrukes = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes);
@@ -87,13 +87,20 @@ public class UttakXmlTjenesteImpl {
         var behovForTilretteleggingFomOptional = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getBehovForTilretteleggingFom());
         behovForTilretteleggingFomOptional.ifPresent(kontrakt::setBehovForTilretteleggingFom);
 
-        var helTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
+        var helTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe()
+            .stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
+            .map(TilretteleggingFOM::getFomDato)
+            .max(LocalDate::compareTo);
         if (helTilretteleggingFomOptional.isPresent()) {
             var helTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(helTilretteleggingFomOptional.get());
             helTilretteleggingFom.ifPresent(kontrakt::setHelTilretteleggingFom);
         }
 
-        var delvisTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING)).max(Comparator.comparing(TilretteleggingFOM::getFomDato));
+        var delvisTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe()
+            .stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
+            .max(Comparator.comparing(TilretteleggingFOM::getFomDato));
         if (delvisTilretteleggingFomOptional.isPresent()) {
             var delvisTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(delvisTilretteleggingFomOptional.get().getFomDato());
             delvisTilretteleggingFom.ifPresent(kontrakt::setDelvisTilretteleggingFom);
@@ -101,7 +108,11 @@ public class UttakXmlTjenesteImpl {
             kontrakt.setStillingsprosent(VedtakXmlUtil.lagDecimalOpplysning(delvisTilretteleggingFomOptional.get().getStillingsprosent()));
         }
 
-        var slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
+        var slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe()
+            .stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
+            .map(TilretteleggingFOM::getFomDato)
+            .max(LocalDate::compareTo);
         if (slutteArbeidFomOptional.isPresent()) {
             var slutteArbeidFom = VedtakXmlUtil.lagDateOpplysning(slutteArbeidFomOptional.get());
             slutteArbeidFom.ifPresent(kontrakt::setSlutteArbeidFom);
@@ -129,7 +140,7 @@ public class UttakXmlTjenesteImpl {
             kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(arbeidsgiverOptional.get().getOrgnr()));
             kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(arbeidsgiverOptional.get().getIdentifikator()));
             kontrakt.setErVirksomhet(VedtakXmlUtil.lagBooleanOpplysning(arbeidsgiverOptional.get().getErVirksomhet()));
-        } else{
+        } else {
             kontrakt.setErVirksomhet(VedtakXmlUtil.lagBooleanOpplysning(false));
         }
 
@@ -137,16 +148,16 @@ public class UttakXmlTjenesteImpl {
     }
 
 
-    private void setUttakUttaksResultatArbeidsforhold(UttakSvangerskapspenger uttakSvangerskapspenger, List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdDomene) {
-        var kontrakt = arbeidsforholdDomene
-            .stream()
-            .map(this::konverterFraDomene).toList();
+    private void setUttakUttaksResultatArbeidsforhold(UttakSvangerskapspenger uttakSvangerskapspenger,
+                                                      List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdDomene) {
+        var kontrakt = arbeidsforholdDomene.stream().map(this::konverterFraDomene).toList();
         uttakSvangerskapspenger.getUttaksResultatArbeidsforhold().addAll(kontrakt);
     }
 
     private UttaksResultatArbeidsforhold konverterFraDomene(SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
         var kontrakt = new UttaksResultatArbeidsforhold();
-        kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(arbeidsforhold.getArbeidsgiver()==null ? null:arbeidsforhold.getArbeidsgiver().getOrgnr()));
+        kontrakt.setVirksomhet(
+            VedtakXmlUtil.lagStringOpplysning(arbeidsforhold.getArbeidsgiver() == null ? null : arbeidsforhold.getArbeidsgiver().getOrgnr()));
         kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(arbeidsforhold.getId().toString()));
         setPerioder(kontrakt, arbeidsforhold.getPerioder());
         return kontrakt;
@@ -154,9 +165,7 @@ public class UttakXmlTjenesteImpl {
 
 
     private void setPerioder(UttaksResultatArbeidsforhold kontraktArbeidsforhold, List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder) {
-        var kontrakt = perioder
-            .stream()
-            .map(this::konverterFraDomene).toList();
+        var kontrakt = perioder.stream().map(this::konverterFraDomene).toList();
         kontraktArbeidsforhold.getUttaksresultatPerioder().addAll(kontrakt);
     }
 

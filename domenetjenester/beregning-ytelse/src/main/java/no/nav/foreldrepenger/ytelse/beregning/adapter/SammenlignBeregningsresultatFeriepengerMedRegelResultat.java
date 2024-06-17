@@ -31,21 +31,24 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
 
         if (feriepengerResultat.feriepengerPeriode() == null) {
             var tilkjent = resultat.getBeregningsresultatFeriepenger()
-                .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()).stream()
+                .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
+                .orElse(List.of())
+                .stream()
                 .map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp)
                 .reduce(new Beløp(BigDecimal.ZERO), Beløp::adder);
             return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK;
         }
 
-        var andelerFraRegelKjøring =
-            feriepengerResultat.beregningsresultatPerioder().stream()
-                .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
-                .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
-                .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
-                .toList();
+        var andelerFraRegelKjøring = feriepengerResultat.beregningsresultatPerioder()
+            .stream()
+            .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
+            .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
+            .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
+            .toList();
 
-        return sammenlignFeriepengeandelerHarAvvik(andelerFraRegelKjøring,
-            resultat.getBeregningsresultatFeriepenger().map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()));
+        return sammenlignFeriepengeandelerHarAvvik(andelerFraRegelKjøring, resultat.getBeregningsresultatFeriepenger()
+            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
+            .orElse(List.of()));
     }
 
     private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr prÅr) {
@@ -85,8 +88,10 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
 
         static AndelGruppering fraBeregningEntitet(BeregningsresultatFeriepengerPrÅr andel) {
             return new AndelGruppering(Year.from(andel.getOpptjeningsår()),
-                andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
-                    andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER));
+                andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER : andel.getBeregningsresultatAndel()
+                    .getArbeidsgiver()
+                    .map(Arbeidsgiver::getIdentifikator)
+                    .orElse(ARBGIVER));
         }
 
         static AndelGruppering fraBeregningRegel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr andel) {

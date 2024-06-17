@@ -34,7 +34,8 @@ public class PersonopplysningDtoPersonIdentTjeneste {
 
     public void oppdaterMedPersonIdent(FagsakYtelseType ytelseType, PersonIdentDto dto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize(aktørId -> personinfoAdapter.hentPersoninfoForVisning(ytelseType, aktørId));
+        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize(
+            aktørId -> personinfoAdapter.hentPersoninfoForVisning(ytelseType, aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
@@ -42,7 +43,9 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         if (dto.getAktoerId() != null) {
             dto.setFnr(findFnr(dto.getAktoerId(), piDiskresjonFinder));
             dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
-            if (dto.getNavn() == null) dto.setNavn(findNavn(dto.getAktoerId(), piDiskresjonFinder));
+            if (dto.getNavn() == null) {
+                dto.setNavn(findNavn(dto.getAktoerId(), piDiskresjonFinder));
+            }
         }
     }
 
@@ -66,10 +69,15 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     }
 
     private String findNavn(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {
-        return aktørId == null ? "Navnløs" : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::navn).map(StringUtils::formaterMedStoreOgSmåBokstaver).orElse("Navnløs");
+        return aktørId == null ? "Navnløs" : piDiskresjonFinder.apply(aktørId)
+            .map(PersoninfoVisning::navn)
+            .map(StringUtils::formaterMedStoreOgSmåBokstaver)
+            .orElse("Navnløs");
     }
 
-    /** Lag en funksjon som husker resultat av tidligere input. Nyttig for repeterende lookups */
+    /**
+     * Lag en funksjon som husker resultat av tidligere input. Nyttig for repeterende lookups
+     */
     static <I, O> Function<I, O> memoize(Function<I, O> f) {
         ConcurrentMap<I, O> lookup = new ConcurrentHashMap<>();
         return input -> input == null ? null : lookup.computeIfAbsent(input, f);

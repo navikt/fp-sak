@@ -48,8 +48,8 @@ public class ArbeidsforholdValgRepository {
 
     public void fjernValg(ArbeidsforholdValg arbeidsforholdValg) {
         if (arbeidsforholdValg.getId() == null || !arbeidsforholdValg.erAktiv()) {
-            throw new IllegalStateException("FEIL: Valg som skal deaktiveres må ha "
-                    + "id og være aktive. Valg som ble forsøkt deaktivert: " + arbeidsforholdValg);
+            throw new IllegalStateException(
+                "FEIL: Valg som skal deaktiveres må ha " + "id og være aktive. Valg som ble forsøkt deaktivert: " + arbeidsforholdValg);
         }
         arbeidsforholdValg.setAktiv(false);
         lagre(arbeidsforholdValg);

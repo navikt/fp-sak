@@ -60,8 +60,7 @@ class BarnFinnerTest {
         var fødselsdato14År364Dager = overtakelseDato.minusYears(15).plusDays(1);
         var fødselsdato15År = overtakelseDato.minusYears(15);
 
-        var scenario = byggBehandlingsgrunnlagForAdopsjon(
-                asList(fødselsdato14År363Dager, fødselsdato14År364Dager, fødselsdato15År), overtakelseDato);
+        var scenario = byggBehandlingsgrunnlagForAdopsjon(asList(fødselsdato14År363Dager, fødselsdato14År364Dager, fødselsdato15År), overtakelseDato);
         var behandling = scenario.lagMocked();
 
         // Act
@@ -128,10 +127,10 @@ class BarnFinnerTest {
         }
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.NOR)
-                .build();
+            .medPersonas()
+            .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.NOR)
+            .build();
         scenario.medRegisterOpplysninger(søker);
 
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
@@ -143,8 +142,7 @@ class BarnFinnerTest {
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForAdopsjon(List<LocalDate> adopsjonsdatoer, LocalDate overtakelseDato) {
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         var hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(adopsjonsdatoer.size());
-        hendelseBuilder.medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(overtakelseDato));
+        hendelseBuilder.medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(overtakelseDato));
 
         for (var nr = 1; nr <= adopsjonsdatoer.size(); nr++) {
             hendelseBuilder.leggTilBarn(adopsjonsdatoer.get(nr - 1));

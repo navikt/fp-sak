@@ -31,7 +31,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
     private Long id;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable = false))
     private AktørId aktørId;
 
     @Embedded
@@ -39,7 +39,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
 
     @ChangeTracked
     @Convert(converter = OppholdstillatelseType.KodeverdiConverter.class)
-    @Column(name="tillatelse", nullable = false)
+    @Column(name = "tillatelse", nullable = false)
     private OppholdstillatelseType tillatelse = OppholdstillatelseType.UDEFINERT;
 
     @ManyToOne(optional = false)
@@ -105,9 +105,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
             return false;
         }
         var entitet = (OppholdstillatelseEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) &&
-                Objects.equals(periode, entitet.periode) &&
-                Objects.equals(tillatelse, entitet.tillatelse);
+        return Objects.equals(aktørId, entitet.aktørId) && Objects.equals(periode, entitet.periode) && Objects.equals(tillatelse, entitet.tillatelse);
     }
 
 
@@ -119,10 +117,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
 
     @Override
     public String toString() {
-        return "OppholdstillatelseEntitet{" +
-            "periode=" + periode +
-            ", tillatelse=" + tillatelse +
-            '}';
+        return "OppholdstillatelseEntitet{" + "periode=" + periode + ", tillatelse=" + tillatelse + '}';
     }
 
 }

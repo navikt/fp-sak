@@ -38,8 +38,7 @@ public class AvklarFaktaTestUtil {
             .build();
         var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var fordeling = new OppgittFordelingEntitet(List.of(periode_1, periode_2), true);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittFordeling(fordeling);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medOppgittFordeling(fordeling);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now().minusMonths(1));

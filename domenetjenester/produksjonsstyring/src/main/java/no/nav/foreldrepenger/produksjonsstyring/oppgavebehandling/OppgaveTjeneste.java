@@ -57,7 +57,8 @@ public class OppgaveTjeneste {
 
     @Inject
     public OppgaveTjeneste(FagsakRepository fagsakRepository,
-                           BehandlingRepository behandlingRepository, Oppgaver restKlient,
+                           BehandlingRepository behandlingRepository,
+                           Oppgaver restKlient,
                            ProsessTaskTjeneste taskTjeneste,
                            PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = fagsakRepository;
@@ -67,8 +68,13 @@ public class OppgaveTjeneste {
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    private OpprettOppgave.Builder createRestRequestBuilder(Oppgavetype oppgavetype, Saksnummer saksnummer, AktørId aktørId, String enhet, String beskrivelse,
-                                                            Prioritet prioritet, int fristDager) {
+    private OpprettOppgave.Builder createRestRequestBuilder(Oppgavetype oppgavetype,
+                                                            Saksnummer saksnummer,
+                                                            AktørId aktørId,
+                                                            String enhet,
+                                                            String beskrivelse,
+                                                            Prioritet prioritet,
+                                                            int fristDager) {
         return OpprettOppgave.getBuilderTemaFOR(oppgavetype, prioritet, fristDager)
             .medAktoerId(aktørId.getId())
             .medSaksreferanse(saksnummer != null ? saksnummer.getVerdi() : null)
@@ -104,8 +110,7 @@ public class OppgaveTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         var orequest = createRestRequestBuilder(Oppgavetype.VURDER_DOKUMENT, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
-            Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
+            Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER).medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medJournalpostId(journalpostId);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave.id());
@@ -115,30 +120,24 @@ public class OppgaveTjeneste {
     public String opprettVurderKonsekvensBasertPåFagsakId(Long fagsakId, String enhetsId, String beskrivelse, boolean høyPrioritet) {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
-        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
-            høyPrioritet ? Prioritet.HOY : Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId,
+            beskrivelse, høyPrioritet ? Prioritet.HOY : Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER).medBehandlingstema(
+            BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave.id());
         return oppgave.id().toString();
     }
 
     public void opprettVurderKonsekvensHosSykepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
-        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
-            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
-            .medTema(SYK_TEMA)
-            .medTildeltEnhetsnr(SYK_ANSVARLIG_ENHETID);
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse, Prioritet.HOY,
+            DEFAULT_OPPGAVEFRIST_DAGER).medBehandlingstype(SAMHANDLING_BS_FA_SP).medTema(SYK_TEMA).medTildeltEnhetsnr(SYK_ANSVARLIG_ENHETID);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet SYK oppgave {}", oppgave.id());
     }
 
     public void opprettVurderKonsekvensHosPleiepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
-        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
-            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
-            .medTema(OMS_TEMA)
-            .medTildeltEnhetsnr(OMS_ANSVARLIG_ENHETID);
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse, Prioritet.HOY,
+            DEFAULT_OPPGAVEFRIST_DAGER).medBehandlingstype(SAMHANDLING_BS_FA_SP).medTema(OMS_TEMA).medTildeltEnhetsnr(OMS_ANSVARLIG_ENHETID);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet OMS oppgave {}", oppgave.id());
     }
@@ -152,9 +151,8 @@ public class OppgaveTjeneste {
 
     private String opprettOkonomiSettPåVent(String beskrivelse, Behandling behandling) {
         var fagsak = behandling.getFagsak();
-        var orequest = createRestRequestBuilder(Oppgavetype.SETT_UTBETALING_VENT, fagsak.getSaksnummer(), fagsak.getAktørId(), behandling.getBehandlendeEnhet(), beskrivelse,
-            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medTildeltEnhetsnr(NØS_ANSVARLIG_ENHETID)
+        var orequest = createRestRequestBuilder(Oppgavetype.SETT_UTBETALING_VENT, fagsak.getSaksnummer(), fagsak.getAktørId(),
+            behandling.getBehandlendeEnhet(), beskrivelse, Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER).medTildeltEnhetsnr(NØS_ANSVARLIG_ENHETID)
             .medTemagruppe(null)
             .medTema(NØS_TEMA)
             .medBehandlingstema(NØS_BEH_TEMA);

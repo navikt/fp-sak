@@ -46,7 +46,8 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
             return;
         }
         var mapper = new GrensesnittavstemmingMapper(oppdragsliste, fagområde);
-        LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size());
+        LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(),
+            fomDato, tomDato, fagområde, oppdragsliste.size());
         var startmelding = mapper.lagStartmelding();
         logMelding("startmelding", startmelding);
         var datameldinger = mapper.lagDatameldinger();

@@ -30,9 +30,7 @@ public class BehandlingskontrollDto {
     }
 
     public List<String> getAksjonspunkter() {
-        return aksjonspunkter.stream()
-            .map(a -> a.getAksjonspunktDefinisjon().getNavn())
-            .collect(toList());
+        return aksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon().getNavn()).collect(toList());
     }
 
 }

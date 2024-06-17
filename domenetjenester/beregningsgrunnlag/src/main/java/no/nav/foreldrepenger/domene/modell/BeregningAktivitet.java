@@ -44,8 +44,8 @@ public class BeregningAktivitet {
 
     public BeregningAktivitetNøkkel getNøkkel() {
         var builder = BeregningAktivitetNøkkel.builder()
-                .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
+            .medOpptjeningAktivitetType(opptjeningAktivitetType)
+            .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
         if (arbeidsgiver != null) {
             builder.medArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
         }
@@ -53,13 +53,14 @@ public class BeregningAktivitet {
     }
 
     public boolean gjelderFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        return Objects.equals(this.getArbeidsgiver(), arbeidsgiver) &&
-                this.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        return Objects.equals(this.getArbeidsgiver(), arbeidsgiver) && this.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     boolean skalBrukes(BeregningAktivitetOverstyringer overstyringer) {
-        var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
-                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).toList();
+        var overstyringerForAktivitet = overstyringer.getOverstyringer()
+            .stream()
+            .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel()))
+            .toList();
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
         }
@@ -78,10 +79,8 @@ public class BeregningAktivitet {
             return false;
         }
         var that = (BeregningAktivitet) o;
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) &&
-                Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType);
+        return Objects.equals(periode, that.periode) && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(arbeidsforholdRef,
+            that.arbeidsforholdRef) && Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType);
     }
 
     @Override
@@ -91,12 +90,8 @@ public class BeregningAktivitet {
 
     @Override
     public String toString() {
-        return "BeregningAktivitetEntitet{" +
-                ", periode=" + periode +
-                ", arbeidsgiver=" + arbeidsgiver +
-                ", arbeidsforholdRef=" + arbeidsforholdRef +
-                ", opptjeningAktivitetType=" + getOpptjeningAktivitetType().getKode() +
-                '}';
+        return "BeregningAktivitetEntitet{" + ", periode=" + periode + ", arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef
+            + ", opptjeningAktivitetType=" + getOpptjeningAktivitetType().getKode() + '}';
     }
 
     public static Builder builder() {

@@ -19,5 +19,4 @@ public class BekreftBosattVurderingDto extends BekreftedePerioderMalDto {
     }
 
 
-
 }

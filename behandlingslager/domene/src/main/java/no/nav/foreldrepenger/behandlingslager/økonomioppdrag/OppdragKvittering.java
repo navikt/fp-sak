@@ -38,7 +38,8 @@ public class OppdragKvittering extends BaseCreateableEntitet {
     @JoinColumn(name = "oppdrag_110_id", nullable = false)
     private Oppdrag110 oppdrag110;
 
-    protected OppdragKvittering() {}
+    protected OppdragKvittering() {
+    }
 
     public Long getId() {
         return id;
@@ -88,9 +89,8 @@ public class OppdragKvittering extends BaseCreateableEntitet {
         if (!(object instanceof OppdragKvittering oppdragKvittering)) {
             return false;
         }
-        return Objects.equals(alvorlighetsgrad, oppdragKvittering.getAlvorlighetsgrad())
-            && Objects.equals(beskrMelding, oppdragKvittering.getBeskrMelding())
-            && Objects.equals(meldingKode, oppdragKvittering.getMeldingKode());
+        return Objects.equals(alvorlighetsgrad, oppdragKvittering.getAlvorlighetsgrad()) && Objects.equals(beskrMelding,
+            oppdragKvittering.getBeskrMelding()) && Objects.equals(meldingKode, oppdragKvittering.getMeldingKode());
     }
 
     @Override
@@ -146,13 +146,8 @@ public class OppdragKvittering extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "alvorlighetsgrad=" + alvorlighetsgrad + ", "
-            + "beskrMelding=" + beskrMelding + ", "
-            + "meldingKode=" + meldingKode + ", "
-            + "opprettetTs=" + getOpprettetTidspunkt()
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "alvorlighetsgrad=" + alvorlighetsgrad + ", "
+            + "beskrMelding=" + beskrMelding + ", " + "meldingKode=" + meldingKode + ", " + "opprettetTs=" + getOpprettetTidspunkt() + ">";
     }
 
 }

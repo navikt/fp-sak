@@ -27,10 +27,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 /**
  * Enkel scheduler for dagens situasjon der man kjører batcher mandag-fredag og
  * det er noe variasjon i parametere.
- *
+ * <p>
  * Kan evt endres slik at BatchSchedulerTask kjører tidlig på døgnet og
  * oppretter dagens batches (hvis ikke tidspunkt passert)
- *
+ * <p>
  * Skal man utvide med ukentlige, måndedlige batcher etc bør man se på
  * cron-aktige uttrykk for spesifikasjon av kjøring. FC har implementert et
  * rammeverk på github
@@ -46,43 +46,34 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
     // Gjenoppta-tasks og oppdatering spres utover 24 min, infobrev 5 min,
 
     // Her injiseres antallDager=N ut fra bereging gitt helg og helligdag ....
-    private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = List.of(
-            new BatchConfig(6, 45, AVSTEMMING, FAGOMRÅDE_KEY, "SVP"),
-            new BatchConfig(6, 46, AVSTEMMING, FAGOMRÅDE_KEY, "SVPREF"),
-            new BatchConfig(6, 47, AVSTEMMING, FAGOMRÅDE_KEY, "REFUTG"),
-            new BatchConfig(6, 48, AVSTEMMING, FAGOMRÅDE_KEY, "FP"),
-            new BatchConfig(6, 49, AVSTEMMING, FAGOMRÅDE_KEY, "FPREF"),
-            new BatchConfig(7, 3, "BVL008"), // Infobrev far - 7min spread
-            new BatchConfig(7, 13, "BVL011") // Infobrev far påminnelse - 7min spread
+    private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = List.of(new BatchConfig(6, 45, AVSTEMMING, FAGOMRÅDE_KEY, "SVP"),
+        new BatchConfig(6, 46, AVSTEMMING, FAGOMRÅDE_KEY, "SVPREF"), new BatchConfig(6, 47, AVSTEMMING, FAGOMRÅDE_KEY, "REFUTG"),
+        new BatchConfig(6, 48, AVSTEMMING, FAGOMRÅDE_KEY, "FP"), new BatchConfig(6, 49, AVSTEMMING, FAGOMRÅDE_KEY, "FPREF"),
+        new BatchConfig(7, 3, "BVL008"), // Infobrev far - 7min spread
+        new BatchConfig(7, 13, "BVL011") // Infobrev far påminnelse - 7min spread
     );
 
     // Skal kjøres hver ukedag
-    private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = List.of(
-            new BatchConfig(1, 58, "BVL010"), // Oppdatering DVH. Bør kjøre før kl 03-04.
-            new BatchConfig(6, 5, "BVL004"), // Gjenoppta - 24 min spread
-            new BatchConfig(7, 0, "BVL002"), // Etterkontroll
-            new BatchConfig(7, 1, "BVL006") // Fagsakavslutning
-            // new BatchConfig(7, 49, "BVL007", null) // Gjenoppliv åpne behandlinger uten åpent aksjonspunkt - enable etter sjekk av status
+    private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = List.of(new BatchConfig(1, 58, "BVL010"),
+        // Oppdatering DVH. Bør kjøre før kl 03-04.
+        new BatchConfig(6, 5, "BVL004"), // Gjenoppta - 24 min spread
+        new BatchConfig(7, 0, "BVL002"), // Etterkontroll
+        new BatchConfig(7, 1, "BVL006") // Fagsakavslutning
+        // new BatchConfig(7, 49, "BVL007", null) // Gjenoppliv åpne behandlinger uten åpent aksjonspunkt - enable etter sjekk av status
     );
 
-    private static final List<DagligTaskConfig> TASKS_VIRKEDAGER = List.of(
-        new DagligTaskConfig(1, 59, SlettGamleTask.class),
+    private static final List<DagligTaskConfig> TASKS_VIRKEDAGER = List.of(new DagligTaskConfig(1, 59, SlettGamleTask.class),
         new DagligTaskConfig(7, 45, RetryFeiletTask.class) // Siste steg - etter batch virkedager
     );
 
     // Skal kjøres enkelte ukedager
-    private static final Map<DayOfWeek, List<BatchConfig>> BATCH_OPPSETT_UKEDAG = Map.of(
-        DayOfWeek.WEDNESDAY, List.of(new BatchConfig(11, 30, "BVL005")), // Kodeverk
-        DayOfWeek.TUESDAY, List.of(new BatchConfig(11, 30, "BVL012") ) // Avslutter saker med kobling til annen part og enkeltopphør
+    private static final Map<DayOfWeek, List<BatchConfig>> BATCH_OPPSETT_UKEDAG = Map.of(DayOfWeek.WEDNESDAY,
+        List.of(new BatchConfig(11, 30, "BVL005")), // Kodeverk
+        DayOfWeek.TUESDAY, List.of(new BatchConfig(11, 30, "BVL012")) // Avslutter saker med kobling til annen part og enkeltopphør
     );
 
-    private final Set<MonthDay> fasteStengteDager = Set.of(
-            MonthDay.of(1, 1),
-            MonthDay.of(5, 1),
-            MonthDay.of(5, 17),
-            MonthDay.of(12, 25),
-            MonthDay.of(12, 26),
-            MonthDay.of(12, 31));
+    private final Set<MonthDay> fasteStengteDager = Set.of(MonthDay.of(1, 1), MonthDay.of(5, 1), MonthDay.of(5, 17), MonthDay.of(12, 25),
+        MonthDay.of(12, 26), MonthDay.of(12, 31));
 
     private final Map<Integer, List<LocalDate>> bevegeligeHelligdager = new HashMap<>();
 
@@ -126,9 +117,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
         if (!batchOppsett.isEmpty()) {
             var parallelle = new ArrayList<>(TASKS_VIRKEDAGER.stream().map(tc -> mapDagligTaskConfigTilTask(tc, dagensDato)).toList());
-            var batchtasks = batchOppsett.stream()
-                    .map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato))
-                    .toList();
+            var batchtasks = batchOppsett.stream().map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato)).toList();
             parallelle.addAll(batchtasks);
             var gruppeRunner = new ProsessTaskGruppe();
             gruppeRunner.addNesteParallell(parallelle);

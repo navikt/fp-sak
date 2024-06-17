@@ -11,7 +11,8 @@ public final class Omfordelingstjeneste {
         // Skjuler default
     }
 
-    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler originalNøkkelMedAndeler, BRNøkkelMedAndeler revurderingNøkkelMedAndeler) {
+    public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler originalNøkkelMedAndeler,
+                                                            BRNøkkelMedAndeler revurderingNøkkelMedAndeler) {
 
         List<EndringIBeregningsresultat> list = new ArrayList<>();
 
@@ -30,18 +31,22 @@ public final class Omfordelingstjeneste {
         return list;
     }
 
-    private static boolean kanOmfordeleUtenÅSjekkeArbeidsforholdId(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
+    private static boolean kanOmfordeleUtenÅSjekkeArbeidsforholdId(BRNøkkelMedAndeler revurderingNøkkelMedAndeler,
+                                                                   BRNøkkelMedAndeler originalNøkkelMedAndeler) {
         var revurderingAndeler = revurderingNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
         var originaleAndeler = originalNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
 
         var revurderingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(revurderingAndeler);
         var originalbehandlingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(originaleAndeler);
 
-        var ingenOriginaleAndelerHarReferanse = originaleAndeler.stream().noneMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
-        var alleRevurderingAndelerHarReferanse = revurderingAndeler.stream().allMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
+        var ingenOriginaleAndelerHarReferanse = originaleAndeler.stream()
+            .noneMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
+        var alleRevurderingAndelerHarReferanse = revurderingAndeler.stream()
+            .allMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
 
         // Hvis alle 4 conditions er møtt kan andelene omfordeles selv om referanse ikke matcher. Dette er eneste unntak.
-        return revurderingHarMaksEttSettAndeler && originalbehandlingHarMaksEttSettAndeler && ingenOriginaleAndelerHarReferanse && alleRevurderingAndelerHarReferanse;
+        return revurderingHarMaksEttSettAndeler && originalbehandlingHarMaksEttSettAndeler && ingenOriginaleAndelerHarReferanse
+            && alleRevurderingAndelerHarReferanse;
 
     }
 

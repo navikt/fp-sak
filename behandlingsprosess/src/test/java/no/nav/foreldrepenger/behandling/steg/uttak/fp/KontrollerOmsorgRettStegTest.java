@@ -59,21 +59,19 @@ class KontrollerOmsorgRettStegTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
 
-        var personInformasjon = scenario
-                .opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
-                .build();
+        var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
+            .medPersonas()
+            .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER)
+            .statsborgerskap(Landkoder.NOR)
+            .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
         var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         var now = LocalDate.now();
-        scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                .build()), true));
+        scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
+            OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FEDREKVOTE).medPeriode(now.plusWeeks(8), now.plusWeeks(12)).build()), true));
         return scenario;
     }
 
@@ -108,42 +106,34 @@ class KontrollerOmsorgRettStegTest {
 
         var bostedsadresse = PersonAdresse.builder().adresselinje1("Portveien 2").postnummer("7000").land(Landkoder.NOR);
 
-        var annenPrt = builderForRegisteropplysninger
-                .medPersonas()
-                .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
-                .bostedsadresse(bostedsadresse)
-                .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
-                .build();
+        var annenPrt = builderForRegisteropplysninger.medPersonas()
+            .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
+            .bostedsadresse(bostedsadresse)
+            .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
+            .build();
         scenario.medRegisterOpplysninger(annenPrt);
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
-                .bostedsadresse(bostedsadresse)
-                .statsborgerskap(Landkoder.NOR)
-                .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
+            .bostedsadresse(bostedsadresse)
+            .statsborgerskap(Landkoder.NOR)
+            .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
+            .build();
 
         scenario.medRegisterOpplysninger(søker);
 
-        scenario.medSøknadAnnenPart()
-                .medAktørId(AKTØR_ID_FAR);
+        scenario.medSøknadAnnenPart().medAktørId(AKTØR_ID_FAR);
 
         scenario.medSøknad();
         scenario.medOppgittRettighet(rettighet);
         var hendelseBuilder = scenario.medSøknadHendelse();
         var termindato = LocalDate.now().plusDays(35);
-        hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
-                .medNavnPå("asdf")
-                .medUtstedtDato(LocalDate.now())
-                .medTermindato(termindato));
+        hendelseBuilder.medTerminbekreftelse(
+            hendelseBuilder.getTerminbekreftelseBuilder().medNavnPå("asdf").medUtstedtDato(LocalDate.now()).medTermindato(termindato));
 
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
-                OppgittPeriodeBuilder.ny()
-                        .medPeriode(termindato, termindato.plusWeeks(6))
-                        .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                        .build()),
-                true));
+            OppgittPeriodeBuilder.ny().medPeriode(termindato, termindato.plusWeeks(6)).medPeriodeType(UttakPeriodeType.FORELDREPENGER).build()),
+            true));
 
         behandling = scenario.lagre(repositoryProvider);
         return behandling;

@@ -22,8 +22,7 @@ public class ØkonomiOppdragKøTjeneste {
     }
 
     @Inject
-    public ØkonomiOppdragKøTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
-                                    ØkonomioppdragJmsProducer økonomioppdragJmsProducer) {
+    public ØkonomiOppdragKøTjeneste(ØkonomioppdragRepository økonomioppdragRepository, ØkonomioppdragJmsProducer økonomioppdragJmsProducer) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.økonomioppdragJmsProducer = økonomioppdragJmsProducer;
     }

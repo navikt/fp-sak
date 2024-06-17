@@ -55,10 +55,13 @@ public class FastsettUttaksresultatTjeneste {
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
         var inngangsvilkår = inngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
         Map<Arbeidsforhold, List<Opphold>> oppholdListePerArbeidsforholdMap = new HashMap<>();
-        avklarteDatoer.getFørsteLovligeUttaksdato().ifPresent(dato -> oppholdListePerArbeidsforholdMap.putAll(oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(), input.getYtelsespesifiktGrunnlag())));
+        avklarteDatoer.getFørsteLovligeUttaksdato()
+            .ifPresent(dato -> oppholdListePerArbeidsforholdMap.putAll(
+                oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(), input.getYtelsespesifiktGrunnlag())));
 
 
-        var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer, inngangsvilkår, oppholdListePerArbeidsforholdMap);
+        var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer, inngangsvilkår,
+            oppholdListePerArbeidsforholdMap);
 
         var svangerskapspengerUttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandlingsresultat, uttaksperioder);
         svangerskapspengerUttakResultatRepository.lagre(behandlingId, svangerskapspengerUttakResultatEntitet);

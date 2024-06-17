@@ -95,7 +95,7 @@ class PleiepengerRepositoryTest extends EntityManagerAwareTest {
         var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
         var nyBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
 
-        var perioder =  lagInnleggelsePerioder(I_GÅR);
+        var perioder = lagInnleggelsePerioder(I_GÅR);
         repository.lagrePerioder(gammelBehandling.getId(), perioder);
         var hentet = repository.hentGrunnlag(gammelBehandling.getId()).orElseThrow();
 
@@ -114,8 +114,7 @@ class PleiepengerRepositoryTest extends EntityManagerAwareTest {
     private PleiepengerPerioderEntitet.Builder lagInnleggelsePerioder(LocalDate... datoer) {
         var builder = new PleiepengerPerioderEntitet.Builder();
         Arrays.stream(datoer)
-            .map(d -> new PleiepengerInnleggelseEntitet.Builder()
-                .medPleietrengendeAktørId(PLEIETRENGENDE)
+            .map(d -> new PleiepengerInnleggelseEntitet.Builder().medPleietrengendeAktørId(PLEIETRENGENDE)
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(d, d.plusWeeks(2).minusDays(1)))
                 .medPleiepengerSaksnummer(PSB_SAK))
             .forEach(builder::leggTil);

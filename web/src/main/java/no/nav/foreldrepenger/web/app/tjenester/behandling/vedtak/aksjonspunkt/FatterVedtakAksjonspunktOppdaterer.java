@@ -37,16 +37,14 @@ public class FatterVedtakAksjonspunktOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(FatterVedtakAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtoList = dto.getAksjonspunktGodkjenningDtos() != null ?
-            dto.getAksjonspunktGodkjenningDtos() : Collections.emptyList();
+        Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtoList =
+            dto.getAksjonspunktGodkjenningDtos() != null ? dto.getAksjonspunktGodkjenningDtos() : Collections.emptyList();
 
-        var aksjonspunkter = aksjonspunktGodkjenningDtoList.stream()
-                .map(a -> {
-                    // map til VedtakAksjonsonspunktData fra DTO
-                    var aksDef = AksjonspunktDefinisjon.fraKode(a.getAksjonspunktKode());
-                    return new VedtakAksjonspunktData(aksDef, a.isGodkjent(), a.getBegrunnelse(), fraDto(a.getArsaker()));
-                })
-                .collect(Collectors.toSet());
+        var aksjonspunkter = aksjonspunktGodkjenningDtoList.stream().map(a -> {
+            // map til VedtakAksjonsonspunktData fra DTO
+            var aksDef = AksjonspunktDefinisjon.fraKode(a.getAksjonspunktKode());
+            return new VedtakAksjonspunktData(aksDef, a.isGodkjent(), a.getBegrunnelse(), fraDto(a.getArsaker()));
+        }).collect(Collectors.toSet());
 
         fatterVedtakAksjonspunkt.oppdater(param.getRef(), aksjonspunkter);
 

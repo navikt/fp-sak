@@ -30,8 +30,7 @@ public class DekningsgradTjeneste {
         if (ref.fagsakYtelseType() != FagsakYtelseType.FORELDREPENGER) {
             return Optional.of(Dekningsgrad._100);
         }
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId())
-            .map(YtelseFordelingAggregat::getGjeldendeDekningsgrad);
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId()).map(YtelseFordelingAggregat::getGjeldendeDekningsgrad);
     }
 
     public Dekningsgrad finnGjeldendeDekningsgrad(BehandlingReferanse ref) {

@@ -50,53 +50,53 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class HistorikkInnslagTekstBuilder {
 
-    /** Kodeverdi mappinger støttet i historikk. */
+    /**
+     * Kodeverdi mappinger støttet i historikk.
+     */
     public static final Map<String, Map<String, ? extends Kodeverdi>> KODEVERK_KODEVERDI_MAP = Map.ofEntries(
-            new SimpleEntry<>(Venteårsak.KODEVERK, Venteårsak.kodeMap()),
-            new SimpleEntry<>(OppgaveÅrsak.KODEVERK, OppgaveÅrsak.kodeMap()),
+        new SimpleEntry<>(Venteårsak.KODEVERK, Venteårsak.kodeMap()), new SimpleEntry<>(OppgaveÅrsak.KODEVERK, OppgaveÅrsak.kodeMap()),
 
-            new SimpleEntry<>(BehandlingÅrsakType.KODEVERK, BehandlingÅrsakType.kodeMap()),
-            new SimpleEntry<>(BehandlingResultatType.KODEVERK, BehandlingResultatType.kodeMap()),
+        new SimpleEntry<>(BehandlingÅrsakType.KODEVERK, BehandlingÅrsakType.kodeMap()),
+        new SimpleEntry<>(BehandlingResultatType.KODEVERK, BehandlingResultatType.kodeMap()),
 
-            new SimpleEntry<>(HistorikkAvklartSoeknadsperiodeType.KODEVERK, HistorikkAvklartSoeknadsperiodeType.kodeMap()),
-            new SimpleEntry<>(HistorikkBegrunnelseType.KODEVERK, HistorikkBegrunnelseType.kodeMap()),
-            new SimpleEntry<>(HistorikkEndretFeltType.KODEVERK, HistorikkEndretFeltType.kodeMap()),
-            new SimpleEntry<>(HistorikkEndretFeltVerdiType.KODEVERK, HistorikkEndretFeltVerdiType.kodeMap()),
-            new SimpleEntry<>(HistorikkinnslagType.KODEVERK, HistorikkinnslagType.kodeMap()),
-            new SimpleEntry<>(HistorikkOpplysningType.KODEVERK, HistorikkOpplysningType.kodeMap()),
-            new SimpleEntry<>(HistorikkResultatType.KODEVERK, HistorikkResultatType.kodeMap()),
+        new SimpleEntry<>(HistorikkAvklartSoeknadsperiodeType.KODEVERK, HistorikkAvklartSoeknadsperiodeType.kodeMap()),
+        new SimpleEntry<>(HistorikkBegrunnelseType.KODEVERK, HistorikkBegrunnelseType.kodeMap()),
+        new SimpleEntry<>(HistorikkEndretFeltType.KODEVERK, HistorikkEndretFeltType.kodeMap()),
+        new SimpleEntry<>(HistorikkEndretFeltVerdiType.KODEVERK, HistorikkEndretFeltVerdiType.kodeMap()),
+        new SimpleEntry<>(HistorikkinnslagType.KODEVERK, HistorikkinnslagType.kodeMap()),
+        new SimpleEntry<>(HistorikkOpplysningType.KODEVERK, HistorikkOpplysningType.kodeMap()),
+        new SimpleEntry<>(HistorikkResultatType.KODEVERK, HistorikkResultatType.kodeMap()),
 
-            new SimpleEntry<>(SkjermlenkeType.KODEVERK, SkjermlenkeType.kodeMap()),
+        new SimpleEntry<>(SkjermlenkeType.KODEVERK, SkjermlenkeType.kodeMap()),
 
-            new SimpleEntry<>(VedtakResultatType.KODEVERK, VedtakResultatType.kodeMap()),
-            new SimpleEntry<>(VilkårUtfallType.KODEVERK, VilkårUtfallType.kodeMap()),
+        new SimpleEntry<>(VedtakResultatType.KODEVERK, VedtakResultatType.kodeMap()),
+        new SimpleEntry<>(VilkårUtfallType.KODEVERK, VilkårUtfallType.kodeMap()),
 
-            // ulike domenespesifikke kodeverk som tillates
+        // ulike domenespesifikke kodeverk som tillates
 
-            // Domene : Uttak
-            new SimpleEntry<>(PeriodeResultatType.KODEVERK, PeriodeResultatType.kodeMap()),
-            new SimpleEntry<>(PeriodeResultatÅrsak.KODEVERK, PeriodeResultatÅrsak.kodeMap()),
-            new SimpleEntry<>(StønadskontoType.KODEVERK, StønadskontoType.kodeMap()),
-            new SimpleEntry<>(GraderingAvslagÅrsak.KODEVERK, GraderingAvslagÅrsak.kodeMap()),
+        // Domene : Uttak
+        new SimpleEntry<>(PeriodeResultatType.KODEVERK, PeriodeResultatType.kodeMap()),
+        new SimpleEntry<>(PeriodeResultatÅrsak.KODEVERK, PeriodeResultatÅrsak.kodeMap()),
+        new SimpleEntry<>(StønadskontoType.KODEVERK, StønadskontoType.kodeMap()),
+        new SimpleEntry<>(GraderingAvslagÅrsak.KODEVERK, GraderingAvslagÅrsak.kodeMap()),
 
-            // Domene : personopplysninger
-            new SimpleEntry<>(VergeType.KODEVERK, VergeType.kodeMap()),
-            new SimpleEntry<>(PersonstatusType.KODEVERK, PersonstatusType.kodeMap()),
+        // Domene : personopplysninger
+        new SimpleEntry<>(VergeType.KODEVERK, VergeType.kodeMap()), new SimpleEntry<>(PersonstatusType.KODEVERK, PersonstatusType.kodeMap()),
 
-            // Domene : Medlemskap
-            new SimpleEntry<>(MedlemskapManuellVurderingType.KODEVERK, MedlemskapManuellVurderingType.kodeMap()),
+        // Domene : Medlemskap
+        new SimpleEntry<>(MedlemskapManuellVurderingType.KODEVERK, MedlemskapManuellVurderingType.kodeMap()),
 
-            // Domene : arbeid og beregningsgrunnlag
-            new SimpleEntry<>(Inntektskategori.KODEVERK, Inntektskategori.kodeMap()),
-            new SimpleEntry<>(VurderArbeidsforholdHistorikkinnslag.KODEVERK, VurderArbeidsforholdHistorikkinnslag.kodeMap()),
-            new SimpleEntry<>(ArbeidsforholdKomplettVurderingType.KODEVERK, ArbeidsforholdKomplettVurderingType.kodeMap()),
+        // Domene : arbeid og beregningsgrunnlag
+        new SimpleEntry<>(Inntektskategori.KODEVERK, Inntektskategori.kodeMap()),
+        new SimpleEntry<>(VurderArbeidsforholdHistorikkinnslag.KODEVERK, VurderArbeidsforholdHistorikkinnslag.kodeMap()),
+        new SimpleEntry<>(ArbeidsforholdKomplettVurderingType.KODEVERK, ArbeidsforholdKomplettVurderingType.kodeMap()),
 
-            // Domene : klage og anke
-            new SimpleEntry<>(KlageMedholdÅrsak.KODEVERK, KlageMedholdÅrsak.kodeMap()),
-            new SimpleEntry<>(KlageAvvistÅrsak.KODEVERK, KlageAvvistÅrsak.kodeMap()),
+        // Domene : klage og anke
+        new SimpleEntry<>(KlageMedholdÅrsak.KODEVERK, KlageMedholdÅrsak.kodeMap()),
+        new SimpleEntry<>(KlageAvvistÅrsak.KODEVERK, KlageAvvistÅrsak.kodeMap()),
 
-            // Domene : Tilbakekreving
-            new SimpleEntry<>(TilbakekrevingVidereBehandling.KODEVERK, TilbakekrevingVidereBehandling.kodeMap()));
+        // Domene : Tilbakekreving
+        new SimpleEntry<>(TilbakekrevingVidereBehandling.KODEVERK, TilbakekrevingVidereBehandling.kodeMap()));
 
     private boolean begrunnelseEndret = false;
     private boolean gjeldendeFraSatt = false;
@@ -116,22 +116,20 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public HistorikkInnslagTekstBuilder medHendelse(HistorikkinnslagType historikkinnslagType, Object verdi) {
-        if (!HistorikkinnslagType.FAKTA_ENDRET.equals(historikkinnslagType)
-                && !HistorikkinnslagType.OVERSTYRT.equals(historikkinnslagType)
-                && !HistorikkinnslagType.OPPTJENING.equals(historikkinnslagType)) { // PKMANTIS-753 FPFEIL-805
+        if (!HistorikkinnslagType.FAKTA_ENDRET.equals(historikkinnslagType) && !HistorikkinnslagType.OVERSTYRT.equals(historikkinnslagType)
+            && !HistorikkinnslagType.OPPTJENING.equals(historikkinnslagType)) { // PKMANTIS-753 FPFEIL-805
             var verdiStr = formatString(verdi);
             HistorikkinnslagFelt.builder()
-                    .medFeltType(HistorikkinnslagFeltType.HENDELSE)
-                    .medNavn(validerKodeverdi(historikkinnslagType))
-                    .medTilVerdi(verdiStr)
-                    .build(historikkinnslagDelBuilder);
+                .medFeltType(HistorikkinnslagFeltType.HENDELSE)
+                .medNavn(validerKodeverdi(historikkinnslagType))
+                .medTilVerdi(verdiStr)
+                .build(historikkinnslagDelBuilder);
         }
         return this;
     }
 
     public boolean erSkjermlenkeSatt() {
-        return getHistorikkinnslagDeler().stream()
-                .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+        return getHistorikkinnslagDeler().stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
     }
 
     public HistorikkInnslagTekstBuilder medSkjermlenke(SkjermlenkeType skjermlenkeType) {
@@ -140,9 +138,9 @@ public class HistorikkInnslagTekstBuilder {
         }
         validerKodeverdi(skjermlenkeType);
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.SKJERMLENKE)
-                .medTilVerdi(validerKodeverdi(skjermlenkeType))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.SKJERMLENKE)
+            .medTilVerdi(validerKodeverdi(skjermlenkeType))
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -163,11 +161,11 @@ public class HistorikkInnslagTekstBuilder {
             gjeldendeFraSatt = true;
         }
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.GJELDENDE_FRA)
-                .medNavn(validerKodeverdi(endretFelt))
-                .medNavnVerdi(navnVerdi)
-                .medTilVerdi(formatString(gjeldendeFraDato))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.GJELDENDE_FRA)
+            .medNavn(validerKodeverdi(endretFelt))
+            .medNavnVerdi(navnVerdi)
+            .medTilVerdi(formatString(gjeldendeFraDato))
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -181,34 +179,34 @@ public class HistorikkInnslagTekstBuilder {
 
     private <K extends Kodeverdi> HistorikkInnslagTekstBuilder medÅrsakIntern(K årsak) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.AARSAK)
-                .medTilVerdi(validerKodeverdi(årsak))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.AARSAK)
+            .medTilVerdi(validerKodeverdi(årsak))
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
     public HistorikkInnslagTekstBuilder medTema(HistorikkEndretFeltType endretFeltType, String verdi) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ANGÅR_TEMA)
-                .medNavn(validerKodeverdi(endretFeltType))
-                .medNavnVerdi(verdi)
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ANGÅR_TEMA)
+            .medNavn(validerKodeverdi(endretFeltType))
+            .medNavnVerdi(verdi)
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
     public HistorikkInnslagTekstBuilder medResultat(HistorikkResultatType resultat) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.RESULTAT)
-                .medTilVerdi(validerKodeverdi(resultat))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.RESULTAT)
+            .medTilVerdi(validerKodeverdi(resultat))
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
     public HistorikkInnslagTekstBuilder medResultat(VedtakResultatType resultat) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.RESULTAT)
-                .medTilVerdi(validerKodeverdi(resultat))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.RESULTAT)
+            .medTilVerdi(validerKodeverdi(resultat))
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -230,49 +228,52 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public HistorikkInnslagTekstBuilder medBegrunnelse(String begrunnelse, boolean erBegrunnelseEndret) {
-        HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.BEGRUNNELSE)
-                .medTilVerdi(begrunnelse)
-                .build(historikkinnslagDelBuilder);
+        HistorikkinnslagFelt.builder().medFeltType(HistorikkinnslagFeltType.BEGRUNNELSE).medTilVerdi(begrunnelse).build(historikkinnslagDelBuilder);
         this.begrunnelseEndret = erBegrunnelseEndret;
         return this;
     }
 
     public <K extends Kodeverdi> HistorikkInnslagTekstBuilder medBegrunnelse(K begrunnelse, boolean erBegrunnelseEndret) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.BEGRUNNELSE)
-                .medTilVerdi(validerKodeverdi(begrunnelse))
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.BEGRUNNELSE)
+            .medTilVerdi(validerKodeverdi(begrunnelse))
+            .build(historikkinnslagDelBuilder);
         this.begrunnelseEndret = erBegrunnelseEndret;
         return this;
     }
 
-    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String navnVerdi, Integer fraVerdi,
-            Integer tilVerdi) {
+    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType,
+                                                      String navnVerdi,
+                                                      Integer fraVerdi,
+                                                      Integer tilVerdi) {
         if (Objects.equals(fraVerdi, tilVerdi)) {
             return this;
         }
         return medEndretFelt(historikkEndretFeltType, navnVerdi, formatString(fraVerdi), formatString(tilVerdi));
     }
 
-    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String navnVerdi, Boolean fraVerdi,
-            Boolean tilVerdi) {
+    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType,
+                                                      String navnVerdi,
+                                                      Boolean fraVerdi,
+                                                      Boolean tilVerdi) {
         return medEndretFelt(historikkEndretFeltType, navnVerdi, formatString(fraVerdi), formatString(tilVerdi));
     }
 
-    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String navnVerdi, String fraVerdi,
-            String tilVerdi) {
+    public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType,
+                                                      String navnVerdi,
+                                                      String fraVerdi,
+                                                      String tilVerdi) {
         var fraVerdiStr = formatString(fraVerdi);
         var tilVerdiStr = formatString(tilVerdi);
 
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
-                .medNavn(validerKodeverdi(historikkEndretFeltType))
-                .medNavnVerdi(navnVerdi)
-                .medFraVerdi(fraVerdiStr)
-                .medTilVerdi(tilVerdiStr)
-                .medSekvensNr(getNesteEndredeFeltSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
+            .medNavn(validerKodeverdi(historikkEndretFeltType))
+            .medNavnVerdi(navnVerdi)
+            .medFraVerdi(fraVerdiStr)
+            .medTilVerdi(tilVerdiStr)
+            .medSekvensNr(getNesteEndredeFeltSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -281,29 +282,30 @@ public class HistorikkInnslagTekstBuilder {
             return this;
         }
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
-                .medNavn(validerKodeverdi(historikkEndretFeltType))
-                .medFraVerdi(fraVerdi)
-                .medTilVerdi(validerKodeverdi(tilVerdi))
-                .medSekvensNr(getNesteEndredeFeltSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
+            .medNavn(validerKodeverdi(historikkEndretFeltType))
+            .medFraVerdi(fraVerdi)
+            .medTilVerdi(validerKodeverdi(tilVerdi))
+            .medSekvensNr(getNesteEndredeFeltSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
-    public <K extends Kodeverdi> HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String navnVerdi,
-            K fraVerdi,
-            K tilVerdi) {
+    public <K extends Kodeverdi> HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType,
+                                                                            String navnVerdi,
+                                                                            K fraVerdi,
+                                                                            K tilVerdi) {
         if (Objects.equals(fraVerdi, tilVerdi)) {
             return this;
         }
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
-                .medNavn(validerKodeverdi(historikkEndretFeltType))
-                .medNavnVerdi(navnVerdi)
-                .medFraVerdi(fraVerdi)
-                .medTilVerdi(validerKodeverdi(tilVerdi))
-                .medSekvensNr(getNesteEndredeFeltSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
+            .medNavn(validerKodeverdi(historikkEndretFeltType))
+            .medNavnVerdi(navnVerdi)
+            .medFraVerdi(fraVerdi)
+            .medTilVerdi(validerKodeverdi(tilVerdi))
+            .medSekvensNr(getNesteEndredeFeltSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -332,23 +334,23 @@ public class HistorikkInnslagTekstBuilder {
             return this;
         }
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
-                .medNavn(validerKodeverdi(historikkEndretFeltType))
-                .medFraVerdi(fraVerdi)
-                .medTilVerdi(tilVerdi)
-                .medSekvensNr(getNesteEndredeFeltSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
+            .medNavn(validerKodeverdi(historikkEndretFeltType))
+            .medFraVerdi(fraVerdi)
+            .medTilVerdi(tilVerdi)
+            .medSekvensNr(getNesteEndredeFeltSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
     public <T> HistorikkInnslagTekstBuilder medOpplysning(HistorikkOpplysningType opplysningType, T verdi) {
         var tilVerdi = formatString(verdi);
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.OPPLYSNINGER)
-                .medNavn(validerKodeverdi(opplysningType))
-                .medTilVerdi(tilVerdi)
-                .medSekvensNr(hentNesteOpplysningSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.OPPLYSNINGER)
+            .medNavn(validerKodeverdi(opplysningType))
+            .medTilVerdi(tilVerdi)
+            .medSekvensNr(hentNesteOpplysningSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 
@@ -357,7 +359,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public HistorikkInnslagTekstBuilder medTotrinnsvurdering(Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering,
-            List<HistorikkinnslagTotrinnsvurdering> vurderingUtenVilkar) {
+                                                             List<HistorikkinnslagTotrinnsvurdering> vurderingUtenVilkar) {
         var første = true;
         for (var totrinnsVurdering : vurderingUtenVilkar) {
             if (første) {
@@ -368,8 +370,7 @@ public class HistorikkInnslagTekstBuilder {
             leggTilTotrinnsvurdering(totrinnsVurdering);
         }
 
-        var sortedList = vurdering.entrySet().stream()
-                .sorted(getHistorikkDelComparator()).toList();
+        var sortedList = vurdering.entrySet().stream().sorted(getHistorikkDelComparator()).toList();
 
         for (var lenkeVurdering : sortedList) {
             if (første) {
@@ -461,10 +462,10 @@ public class HistorikkInnslagTekstBuilder {
 
     private <T> void leggTilFelt(HistorikkinnslagFeltType feltType, T verdi, int sekvensNr) {
         HistorikkinnslagFelt.builder()
-                .medFeltType(feltType)
-                .medTilVerdi(verdi != null ? verdi.toString() : null)
-                .medSekvensNr(sekvensNr)
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(feltType)
+            .medTilVerdi(verdi != null ? verdi.toString() : null)
+            .medSekvensNr(sekvensNr)
+            .build(historikkinnslagDelBuilder);
     }
 
     private int getNesteAksjonspunktSekvensNr() {
@@ -506,18 +507,13 @@ public class HistorikkInnslagTekstBuilder {
             return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.HENDELSE);
         }
         if (HistorikkinnslagMal.MAL_TYPE_5.equals(type) || HistorikkinnslagMal.MAL_TYPE_7.equals(type) || HistorikkinnslagMal.MAL_TYPE_8.equals(type)
-                || HistorikkinnslagMal.MAL_TYPE_10.equals(type)) {
-            return checkAtLeastOnePresent(type, historikkinnslagDel, HistorikkinnslagFeltType.SKJERMLENKE,
-                    HistorikkinnslagFeltType.HENDELSE,
-                    HistorikkinnslagFeltType.ENDRET_FELT,
-                    HistorikkinnslagFeltType.BEGRUNNELSE);
+            || HistorikkinnslagMal.MAL_TYPE_10.equals(type)) {
+            return checkAtLeastOnePresent(type, historikkinnslagDel, HistorikkinnslagFeltType.SKJERMLENKE, HistorikkinnslagFeltType.HENDELSE,
+                HistorikkinnslagFeltType.ENDRET_FELT, HistorikkinnslagFeltType.BEGRUNNELSE);
         }
         if (HistorikkinnslagMal.MAL_TYPE_11.equals(type)) {
-            return checkFieldsPresent(type, historikkinnslagDel,
-                HistorikkinnslagFeltType.SKJERMLENKE,
-                HistorikkinnslagFeltType.ENDRET_FELT,
-                HistorikkinnslagFeltType.OPPLYSNINGER,
-                HistorikkinnslagFeltType.BEGRUNNELSE);
+            return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.SKJERMLENKE, HistorikkinnslagFeltType.ENDRET_FELT,
+                HistorikkinnslagFeltType.OPPLYSNINGER, HistorikkinnslagFeltType.BEGRUNNELSE);
         }
         if (HistorikkinnslagMal.MAL_TYPE_6.equals(type)) {
             return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.OPPLYSNINGER);
@@ -554,18 +550,20 @@ public class HistorikkInnslagTekstBuilder {
         return del.getHistorikkinnslagFelt().stream().map(HistorikkinnslagFelt::getFeltType).filter(fieldList::contains);
     }
 
-    /** Tar med felt selv om ikke verdi er endret. */
+    /**
+     * Tar med felt selv om ikke verdi er endret.
+     */
     public HistorikkInnslagTekstBuilder medEndretFeltBegrunnelse(HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
         if (!begrunnelseEndret && Objects.equals(fraVerdi, tilVerdi)) {
             return this;
         }
         HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
-                .medNavn(validerKodeverdi(historikkEndretFeltType))
-                .medFraVerdi(fraVerdi)
-                .medTilVerdi(tilVerdi)
-                .medSekvensNr(getNesteEndredeFeltSekvensNr())
-                .build(historikkinnslagDelBuilder);
+            .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
+            .medNavn(validerKodeverdi(historikkEndretFeltType))
+            .medFraVerdi(fraVerdi)
+            .medTilVerdi(tilVerdi)
+            .medSekvensNr(getNesteEndredeFeltSekvensNr())
+            .build(historikkinnslagDelBuilder);
         return this;
     }
 

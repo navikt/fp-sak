@@ -98,7 +98,8 @@ public class SvpDtoTjeneste {
             return null;
         }
         return switch (avslagsårsak) {
-            case ARBEIDSTAKER_KAN_OMPLASSERES, SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE -> SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
+            case ARBEIDSTAKER_KAN_OMPLASSERES, SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE ->
+                SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
             case SØKER_HAR_MOTTATT_SYKEPENGER -> SvpSak.Vedtak.AvslagÅrsak.SØKER_ER_INNVILGET_SYKEPENGER;
             case MANGLENDE_DOKUMENTASJON -> SvpSak.Vedtak.AvslagÅrsak.MANGLENDE_DOKUMENTASJON;
             default -> SvpSak.Vedtak.AvslagÅrsak.ANNET;
@@ -160,8 +161,7 @@ public class SvpDtoTjeneste {
                             SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode.ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
                     };
 
-                    var arbeidstidprosent =  matchendeTilretteleggingFOM
-                        .filter(mt -> TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mt.getType()))
+                    var arbeidstidprosent = matchendeTilretteleggingFOM.filter(mt -> TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mt.getType()))
                         .map(TilretteleggingFOM::getStillingsprosent)
                         .orElse(null);
                     return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent,
@@ -180,25 +180,21 @@ public class SvpDtoTjeneste {
     }
 
     private boolean bareFinnesInnvilgetPerioder(SvangerskapspengerUttakResultatEntitet uttak) {
-        var perioder = uttak.getUttaksResultatArbeidsforhold()
-            .stream()
-            .flatMap(ua -> ua.getPerioder().stream())
-            .toList();
+        var perioder = uttak.getUttaksResultatArbeidsforhold().stream().flatMap(ua -> ua.getPerioder().stream()).toList();
         if (perioder.isEmpty()) {
             return false;
         }
-        return perioder.stream()
-            .allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
+        return perioder.stream().allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
     }
 
     private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioderFraTlr(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
         var oppholdspFraSaksbehandler = oppholdsperioderRegAvSaksbehandler(tilrettelegging);
         Set<SvpSak.OppholdPeriode> alleOppholdForArbforhold = new HashSet<>(oppholdspFraSaksbehandler);
         //opphold fra inntektsmelding
-        tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
+        tilrettelegging.getArbeidsgiver().ifPresent(arbeidsgiver -> {
             var oppholdFraIM = oppholdsperioderFraIM(behandling, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(null));
             alleOppholdForArbforhold.addAll(oppholdFraIM);
-            });
+        });
 
         return alleOppholdForArbforhold;
     }
@@ -213,7 +209,9 @@ public class SvpDtoTjeneste {
             .collect(Collectors.toSet());
     }
 
-    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling,
+                                                             no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver,
+                                                             InternArbeidsforholdRef internArbeidsforholdRef) {
         Set<SvpSak.OppholdPeriode> oppholdFraImForArbeidsgiver = new HashSet<>();
         var inntektsmeldingForArbeidsforhold = finnIMForArbforhold(behandling, arbeidsgiver, internArbeidsforholdRef);
 
@@ -223,19 +221,23 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.OppholdPeriode> hentOppholdFraIm(Inntektsmelding inntektsmelding) {
-        return inntektsmelding.getUtsettelsePerioder().stream()
+        return inntektsmelding.getUtsettelsePerioder()
+            .stream()
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .map(utsettelse -> new SvpSak.OppholdPeriode(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(),
-                SvpSak.OppholdPeriode.Årsak.FERIE,
-                SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
+                SvpSak.OppholdPeriode.Årsak.FERIE, SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
             .collect(Collectors.toSet());
     }
 
-    private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+    private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling,
+                                                          no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver,
+                                                          InternArbeidsforholdRef internArbeidsforholdRef) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getSkjæringstidspunktOpptjening()).stream()
-            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getSkjæringstidspunktOpptjening())
+            .stream()
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null
+                || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
             .findFirst();
     }
 

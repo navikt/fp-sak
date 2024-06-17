@@ -85,7 +85,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
                     fagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
                 }
                 lagPersonoversiktTask(fagsak, mottattHendelse);
-            } else if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())){
+            } else if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())) {
                 fagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
             }
         }

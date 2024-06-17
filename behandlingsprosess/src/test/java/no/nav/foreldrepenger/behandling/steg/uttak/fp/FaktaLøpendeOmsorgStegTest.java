@@ -60,10 +60,10 @@ class FaktaLøpendeOmsorgStegTest {
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         scenario.medBekreftetHendelse().medFødselsDato(fødselsdato);
 
-        var personInformasjon = scenario
-            .opprettBuilderForRegisteropplysninger()
+        var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
-            .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
+            .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER)
+            .statsborgerskap(Landkoder.NOR)
             .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);

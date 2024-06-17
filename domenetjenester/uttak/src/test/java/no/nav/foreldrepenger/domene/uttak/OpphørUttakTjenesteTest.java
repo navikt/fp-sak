@@ -41,18 +41,15 @@ class OpphørUttakTjenesteTest {
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
         var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
 
-        var kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
-            getBehandlingsresultat(revurdering.getId()));
+        var kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
         assertThat(kallPåOpphørTjenesteForOpphørBehandling).isNotEmpty();
 
-        var kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
-            getBehandlingsresultat(originalBehandling.getId()));
+        var kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(originalBehandling.getId()));
         assertThat(kallPåOpphørTjenesteForInnvilgetBehandling).isEmpty();
     }
 
     private Behandling opprettOpphørtRevurdering(Behandling originalBehandling) {
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.OPPHØR);
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR);
         return opprettRevurdering(originalBehandling, behandlingsresultat);
     }
 
@@ -76,8 +73,7 @@ class OpphørUttakTjenesteTest {
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
         var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
-        new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(10))
-            .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
+        new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(10)).medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
             .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
             .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
@@ -98,9 +94,10 @@ class OpphørUttakTjenesteTest {
         var skjæringstidspunkt = lagreSkjæringstidspunkt(revurdering, LocalDate.now());
         var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
-        new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(7))
-            .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 61)
-            .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 62)
+        new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(7)).medAvslåttPeriode(opphørsÅrsaker.next(), 14)
+            .medAvslåttPeriode(opphørsÅrsaker.next(), 61)
+            .medAvslåttPeriode(opphørsÅrsaker.next(), 14)
+            .medAvslåttPeriode(opphørsÅrsaker.next(), 62)
             .buildFor(revurdering.getId());
         // act
         var opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
@@ -109,13 +106,10 @@ class OpphørUttakTjenesteTest {
     }
 
     private LocalDate lagreSkjæringstidspunkt(Behandling behandling, LocalDate skjæringstidspunkt) {
-        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(skjæringstidspunkt)
-            .build();
+        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(skjæringstidspunkt).build();
 
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medAvklarteDatoer(avklarteUttakDatoerEntitet);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medAvklarteDatoer(avklarteUttakDatoerEntitet);
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         return skjæringstidspunkt;
@@ -153,8 +147,7 @@ class OpphørUttakTjenesteTest {
         }
 
         private void leggTilPeriode(int varighetDager, PeriodeResultatType resultatType, PeriodeResultatÅrsak årsak) {
-            var periode = new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(varighetDager))
-                .medResultatType(resultatType, årsak).build();
+            var periode = new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(varighetDager)).medResultatType(resultatType, årsak).build();
             uttakResultatPerioder.leggTilPeriode(periode);
         }
     }

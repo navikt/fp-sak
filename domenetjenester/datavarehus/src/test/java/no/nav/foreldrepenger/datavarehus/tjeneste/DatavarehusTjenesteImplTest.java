@@ -104,8 +104,8 @@ class DatavarehusTjenesteImplTest {
 
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
-            mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
-            dvhVedtakTjenesteEngangsstønad, skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
+            mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository, dvhVedtakTjenesteEngangsstønad,
+            skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
     }
 
     @Test
@@ -202,7 +202,10 @@ class DatavarehusTjenesteImplTest {
         var scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
         var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(VURDERING_AV_FORMKRAV_KLAGE_NFP), "Begrunnelse");
-        var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
+        var klageResultat = KlageResultatEntitet.builder()
+            .medKlageBehandlingId(klageBehandling.getId())
+            .medPåKlagdBehandlingId(påklagdBehandling.getId())
+            .build();
 
         var captor = ArgumentCaptor.forClass(KlageFormkravDvh.class);
         var behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
@@ -242,11 +245,13 @@ class DatavarehusTjenesteImplTest {
         scenarioKlageEngangsstønad.medAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
         var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), "Blah");
-        var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
+        var klageResultat = KlageResultatEntitet.builder()
+            .medKlageBehandlingId(klageBehandling.getId())
+            .medPåKlagdBehandlingId(påklagdBehandling.getId())
+            .build();
 
         var klageVurderingResultatBuilder = KlageVurderingResultat.builder();
-        klageVurderingResultatBuilder
-            .medKlageResultat(klageResultat)
+        klageVurderingResultatBuilder.medKlageResultat(klageResultat)
             .medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
             .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
             .medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE)
@@ -274,7 +279,8 @@ class DatavarehusTjenesteImplTest {
     }
 
     private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario,
-                                                            KlageMedholdÅrsak klageMedholdÅrsak, KlageVurderingOmgjør klageVurderingOmgjør) {
+                                                            KlageMedholdÅrsak klageMedholdÅrsak,
+                                                            KlageVurderingOmgjør klageVurderingOmgjør) {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
         return scenario.medKlageMedholdÅrsak(klageMedholdÅrsak).medKlageVurderingOmgjør(klageVurderingOmgjør);
     }
@@ -300,13 +306,12 @@ class DatavarehusTjenesteImplTest {
     private ScenarioMorSøkerEngangsstønad opprettFørstegangssøknad() {
         var terminDato = LocalDate.now().plusDays(10);
 
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
-            .medSaksnummer(SAKSNUMMER);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE).medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
 
         scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("Lege Legesen")
                 .medTermindato(terminDato)
                 .medUtstedtDato(terminDato.minusDays(40)))

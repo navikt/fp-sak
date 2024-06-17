@@ -52,7 +52,8 @@ class FaktaUttakStegTest {
         var stegResultat = steg.utførSteg(
             new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), new BehandlingLås(behandling.getId())));
 
-        assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
+        assertThat(stegResultat.getAksjonspunktListe()).containsExactly(
+            AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
     }
 
 }

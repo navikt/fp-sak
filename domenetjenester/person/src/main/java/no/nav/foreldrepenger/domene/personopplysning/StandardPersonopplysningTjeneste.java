@@ -11,12 +11,14 @@ public interface StandardPersonopplysningTjeneste {
 
     /**
      * Gir personopplysningene på utledet skjæringstidspunktet
+     *
      * @return personopplysninger
      */
     PersonopplysningerAggregat hentPersonopplysninger(BehandlingReferanse ref);
 
     /**
      * Gir personopplysningene på utledet skjæringstidspunktet
+     *
      * @return personopplysninger hvis finnes
      */
     Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(BehandlingReferanse ref);
@@ -34,6 +36,7 @@ public interface StandardPersonopplysningTjeneste {
     /**
      * Filtrerer, og gir personopplysning-historikk som er gyldig for angitt intervall.
      */
-    Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref, DatoIntervallEntitet forPeriode);
+    Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref,
+                                                                                                DatoIntervallEntitet forPeriode);
 
 }

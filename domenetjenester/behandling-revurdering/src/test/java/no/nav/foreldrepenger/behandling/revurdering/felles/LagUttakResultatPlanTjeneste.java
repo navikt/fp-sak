@@ -35,14 +35,12 @@ public class LagUttakResultatPlanTjeneste {
                                                                                          List<PeriodeResultatType> periodeResultatTyper,
                                                                                          List<PeriodeIkkeOppfyltÅrsak> ikkeOppfyltÅrsak,
                                                                                          List<Integer> utbetalingsgrad) {
-        var uttakResultatArbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(behandling.getAktørId()), null)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID);
+        var uttakResultatArbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+            Arbeidsgiver.person(behandling.getAktørId()), null).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID);
         for (var i = 0; i < perioder.size(); i++) {
             var p = perioder.get(i);
             uttakResultatArbeidsforholdBuilder.medPeriode(
-                new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(p.getFomDato(), p.getTomDato()).medRegelInput(
-                    "{}")
+                new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(p.getFomDato(), p.getTomDato()).medRegelInput("{}")
                     .medRegelEvaluering("{}")
                     .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad.get(i)))
                     .medPeriodeIkkeOppfyltÅrsak(ikkeOppfyltÅrsak.get(i))
@@ -51,8 +49,8 @@ public class LagUttakResultatPlanTjeneste {
         }
 
         var uttakArbeidsforhold = uttakResultatArbeidsforholdBuilder.build();
-        return new SvangerskapspengerUttakResultatEntitet.Builder(
-            behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        return new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(
+            uttakArbeidsforhold).build();
     }
 
     public static UttakResultatEntitet lagUttakResultatPlanTjeneste(Behandling behandling,
@@ -65,8 +63,7 @@ public class LagUttakResultatPlanTjeneste {
                                                                     List<Integer> utbetalingsgrad,
                                                                     List<Trekkdager> trekkdager,
                                                                     List<UttakPeriodeType> stønadskontoTyper) {
-        var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
-            behandling.getBehandlingsresultat());
+        var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
@@ -74,9 +71,8 @@ public class LagUttakResultatPlanTjeneste {
         assertThat(perioder).hasSize(graderingInnvilget.size());
         var antallPerioder = perioder.size();
         for (var i = 0; i < antallPerioder; i++) {
-            lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i),
-                periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i), andelIArbeid,
-                utbetalingsgrad, trekkdager, stønadskontoTyper);
+            lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i), periodeResultatTyper.get(i),
+                periodeResultatÅrsak.get(i), graderingInnvilget.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
         }
         return uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
     }
@@ -91,13 +87,13 @@ public class LagUttakResultatPlanTjeneste {
                                                            List<Integer> utbetalingsgrad,
                                                            List<Trekkdager> trekkdager,
                                                            List<UttakPeriodeType> stønadskontoTyper) {
-        var uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
-            samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
+        var uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(), samtidigUttak, periodeResultatType, periodeResultatÅrsak,
+            graderingInnvilget);
 
         var antallAktiviteter = stønadskontoTyper.size();
         for (var i = 0; i < antallAktiviteter; i++) {
-            var periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
-                uttakResultatPeriode, trekkdager.get(i), andelIArbeid.get(i), utbetalingsgrad.get(i));
+            var periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i), uttakResultatPeriode, trekkdager.get(i), andelIArbeid.get(i),
+                utbetalingsgrad.get(i));
             uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         }
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
@@ -108,8 +104,7 @@ public class LagUttakResultatPlanTjeneste {
                                                                             Trekkdager trekkdager,
                                                                             int andelIArbeid,
                                                                             int utbetalingsgrad) {
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
-            Arbeidsgiver.virksomhet(KUNSTIG_ORG), ARBEIDSFORHOLD_ID)
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(Arbeidsgiver.virksomhet(KUNSTIG_ORG), ARBEIDSFORHOLD_ID)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
         return UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)

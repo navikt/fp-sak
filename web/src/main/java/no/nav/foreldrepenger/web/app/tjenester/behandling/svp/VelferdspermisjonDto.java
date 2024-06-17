@@ -23,7 +23,7 @@ public class VelferdspermisjonDto {
     @JsonProperty("erGyldig")
     private Boolean erGyldig;
 
-    public VelferdspermisjonDto(){
+    public VelferdspermisjonDto() {
         // Jackson
     }
 

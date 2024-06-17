@@ -15,7 +15,10 @@ public class VedtakAksjonspunktData {
     private Set<String> vurderÅrsakskoder = Collections.emptySet();
     private final AksjonspunktDefinisjon aksjonspunktDefinisjon;
 
-    public VedtakAksjonspunktData(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean godkjent, String begrunnelse, Collection<String> vurderÅrsakskoder) {
+    public VedtakAksjonspunktData(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                  boolean godkjent,
+                                  String begrunnelse,
+                                  Collection<String> vurderÅrsakskoder) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
         this.godkjent = godkjent;
         this.begrunnelse = begrunnelse;
@@ -43,10 +46,12 @@ public class VedtakAksjonspunktData {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         var that = (VedtakAksjonspunktData) o;
         return aksjonspunktDefinisjon == that.aksjonspunktDefinisjon;
     }

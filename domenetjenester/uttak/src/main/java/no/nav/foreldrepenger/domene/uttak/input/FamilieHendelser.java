@@ -39,9 +39,7 @@ public class FamilieHendelser {
     }
 
     public boolean erSøktTermin() {
-        return søknadFamilieHendelse != null
-            && søknadFamilieHendelse.getTermindato().isPresent()
-            && søknadFamilieHendelse.getFødselsdato().isEmpty();
+        return søknadFamilieHendelse != null && søknadFamilieHendelse.getTermindato().isPresent() && søknadFamilieHendelse.getFødselsdato().isEmpty();
     }
 
     public FamilieHendelse getSøknadFamilieHendelse() {
@@ -57,13 +55,10 @@ public class FamilieHendelser {
     }
 
     public FamilieHendelse getGjeldendeFamilieHendelse() {
-        return getOverstyrtFamilieHendelse()
-            .or(this::getBekreftetFamilieHendelse)
-            .orElseGet(() -> søknadFamilieHendelse);
+        return getOverstyrtFamilieHendelse().or(this::getBekreftetFamilieHendelse).orElseGet(() -> søknadFamilieHendelse);
     }
 
     public Optional<FamilieHendelse> getOverstyrtEllerBekreftet() {
-        return getOverstyrtFamilieHendelse()
-            .or(this::getBekreftetFamilieHendelse);
+        return getOverstyrtFamilieHendelse().or(this::getBekreftetFamilieHendelse);
     }
 }

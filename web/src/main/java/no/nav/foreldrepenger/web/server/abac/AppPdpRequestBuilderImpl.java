@@ -40,20 +40,18 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
-        var fagsakerSomIkkeErForventet = fagsakIder.stream()
-                .filter(f -> !fagsakId.equals(f))
-                .toList();
+        var fagsakerSomIkkeErForventet = fagsakIder.stream().filter(f -> !fagsakId.equals(f)).toList();
         if (!fagsakerSomIkkeErForventet.isEmpty()) {
-            throw new ManglerTilgangException("FP-280301", String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s", behandlingId, fagsakerSomIkkeErForventet));
+            throw new ManglerTilgangException("FP-280301",
+                String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s", behandlingId, fagsakerSomIkkeErForventet));
         }
     }
 
     @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
         var behandlingIder = utledBehandlingIder(dataAttributter);
-        Optional<PipBehandlingsData> behandlingData = behandlingIder.isPresent()
-            ? pipRepository.hentDataForBehandling(behandlingIder.get())
-            : Optional.empty();
+        Optional<PipBehandlingsData> behandlingData = behandlingIder.isPresent() ? pipRepository.hentDataForBehandling(
+            behandlingIder.get()) : Optional.empty();
         var fagsakIder = behandlingData.map(behandlingsData -> utledFagsakIder(dataAttributter, behandlingsData))
             .orElseGet(() -> utledFagsakIder(dataAttributter));
 
@@ -70,23 +68,21 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         });
 
         var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
-        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
+        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(
+            dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
 
         Set<String> aktører = aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
         Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
-        var builder = AppRessursData.builder()
-            .leggTilAktørIdSet(aktører)
-            .leggTilFødselsnumre(fnrs);
+        var builder = AppRessursData.builder().leggTilAktørIdSet(aktører).leggTilFødselsnumre(fnrs);
         if (aksjonspunktTypeOverstyring) {
             builder.medOverstyring(PipOverstyring.OVERSTYRING);
         }
-        behandlingData.map(PipBehandlingsData::getBehandligStatus).flatMap(AbacUtil::oversettBehandlingStatus)
+        behandlingData.map(PipBehandlingsData::getBehandligStatus)
+            .flatMap(AbacUtil::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
-        behandlingData.map(PipBehandlingsData::getFagsakStatus).flatMap(AbacUtil::oversettFagstatus)
-            .ifPresent(builder::medFagsakStatus);
-        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
-            .ifPresent(builder::medAnsvarligSaksbehandler);
+        behandlingData.map(PipBehandlingsData::getFagsakStatus).flatMap(AbacUtil::oversettFagstatus).ifPresent(builder::medFagsakStatus);
+        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler).ifPresent(builder::medAnsvarligSaksbehandler);
         return builder.build();
     }
 

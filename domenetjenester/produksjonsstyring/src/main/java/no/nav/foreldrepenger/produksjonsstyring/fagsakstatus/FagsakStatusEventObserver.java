@@ -27,8 +27,7 @@ public class FagsakStatusEventObserver {
     }
 
     @Inject
-    public FagsakStatusEventObserver(OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-                                     FagsakRepository fagsakRepository) {
+    public FagsakStatusEventObserver(OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste, FagsakRepository fagsakRepository) {
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.fagsakRepository = fagsakRepository;
     }
@@ -45,8 +44,9 @@ public class FagsakStatusEventObserver {
             var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
             oppdaterFagsakStatusTjeneste.lagBehandlingAvsluttetTask(fagsak, event.getBehandlingId());
         } else {
-            throw new IllegalStateException(String.format("Utviklerfeil: AvsluttetEvent for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                event.getBehandlingId(), event.getNyStatus()));
+            throw new IllegalStateException(
+                String.format("Utviklerfeil: AvsluttetEvent for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
+                    event.getBehandlingId(), event.getNyStatus()));
         }
     }
 }

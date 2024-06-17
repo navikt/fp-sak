@@ -23,7 +23,8 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
         List<EndringIBeregningsresultat> endringer = new ArrayList<>();
         var originaleAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(originaleAndeler);
         var revurderingAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
-        var tilbaketrekkOptional = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter, skjæringstidspunkt);
+        var tilbaketrekkOptional = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(revurderingAndelerSortertPåNøkkel,
+            originaleAndelerSortertPåNøkkel, yrkesaktiviteter, skjæringstidspunkt);
         tilbaketrekkOptional.ifPresent(tilbaketrekkForTilkommetArbeidEntry -> {
             var endringITilkommetArbeidsgiversAndel = initEndringerForTilkomneAndeler(tilbaketrekkForTilkommetArbeidEntry);
             for (var nøkkelForAvsluttetArbeid : tilbaketrekkForTilkommetArbeidEntry.getAndelerIRevurderingMedSluttFørDatoSortertPåDato()) {
@@ -36,14 +37,18 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
         return endringer;
     }
 
-    private static Optional<EndringIBeregningsresultat> flyttForManglendeReferanser(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel, BRNøkkelMedAndeler nøkkelForAvsluttetArbeid, BRNøkkelMedAndeler originalNøkkel) {
+    private static Optional<EndringIBeregningsresultat> flyttForManglendeReferanser(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel,
+                                                                                    BRNøkkelMedAndeler nøkkelForAvsluttetArbeid,
+                                                                                    BRNøkkelMedAndeler originalNøkkel) {
         var alleReferanserForDenneNøkkelen = nøkkelForAvsluttetArbeid.getAlleReferanserForDenneNøkkelen();
         var originaleAndelerUtenMatch = originalNøkkel.getAlleAndelerMedRefSomIkkeFinnesIListe(alleReferanserForDenneNøkkelen);
         var originalBrukersAndelUtenReferanse = originalNøkkel.getBrukersAndelUtenreferanse();
-        var totalDagsatsFraOriginaleAndelerUtenMatch = originaleAndelerUtenMatch.stream().map(BeregningsresultatAndel::getDagsats).reduce(Integer::sum).orElse(0) +
-            originalBrukersAndelUtenReferanse.map(BeregningsresultatAndel::getDagsats).orElse(0);
+        var totalDagsatsFraOriginaleAndelerUtenMatch =
+            originaleAndelerUtenMatch.stream().map(BeregningsresultatAndel::getDagsats).reduce(Integer::sum).orElse(0)
+                + originalBrukersAndelUtenReferanse.map(BeregningsresultatAndel::getDagsats).orElse(0);
         var endringForBrukersAndelUtenReferanseOpt = nøkkelForAvsluttetArbeid.getBrukersAndelUtenreferanse()
-            .map(brukersAndelUtenRef -> EndringIBeregningsresultat.forEndringMedOriginalDagsats(brukersAndelUtenRef, totalDagsatsFraOriginaleAndelerUtenMatch));
+            .map(brukersAndelUtenRef -> EndringIBeregningsresultat.forEndringMedOriginalDagsats(brukersAndelUtenRef,
+                totalDagsatsFraOriginaleAndelerUtenMatch));
         if (endringForBrukersAndelUtenReferanseOpt.isPresent()) {
             var endringIBeregningsresultat = endringForBrukersAndelUtenReferanseOpt.get();
             flyttDagsatsForAndel(endringITilkommetArbeidsgiversAndel, endringIBeregningsresultat);
@@ -64,7 +69,8 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
         return endringerForMatchMellomOriginalOgRevurdering;
     }
 
-    private static void flyttDagsatsForAndel(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel, EndringIBeregningsresultat endring) {
+    private static void flyttDagsatsForAndel(List<EndringIBeregningsresultat> endringITilkommetArbeidsgiversAndel,
+                                             EndringIBeregningsresultat endring) {
         var iterator = endringITilkommetArbeidsgiversAndel.iterator();
         while (endring.finnResterendeTilbaketrekk() > 0 && iterator.hasNext()) {
             var endringForTilkommet = iterator.next();
@@ -91,20 +97,25 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
         endringTilkommetArbeidsgiversAndel.setDagsats(endringTilkommetArbeidsgiversAndel.getDagsats() - måFlyttes);
     }
 
-    private static List<EndringIBeregningsresultat> initEndringerForMatchendeReferanser(BRNøkkelMedAndeler nøkkelForAvsluttetArbeid, BRNøkkelMedAndeler originalNøkkel) {
+    private static List<EndringIBeregningsresultat> initEndringerForMatchendeReferanser(BRNøkkelMedAndeler nøkkelForAvsluttetArbeid,
+                                                                                        BRNøkkelMedAndeler originalNøkkel) {
         return originalNøkkel.getBrukersAndelerTilknyttetNøkkel()
-            .stream().filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() && nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(a.getArbeidsforholdRef()).isPresent())
+            .stream()
+            .filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() && nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(
+                a.getArbeidsforholdRef()).isPresent())
             .map(a -> {
                 var revurderingBrukersAndelMedReferanse = nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(a.getArbeidsforholdRef()).get();
                 return new EndringIBeregningsresultat(revurderingBrukersAndelMedReferanse, a);
-            }).toList();
+            })
+            .toList();
     }
 
     private static List<EndringIBeregningsresultat> initEndringerForTilkomneAndeler(TilbaketrekkForTilkommetArbeidEntry tilbaketrekk) {
-        return tilbaketrekk.getTilkomneNøklerMedStartEtterDato().stream()
-                    .flatMap(n -> n.getArbeidsgiversAndelerTilknyttetNøkkel().stream())
-                    .map(EndringIBeregningsresultat::new)
-                    .toList();
+        return tilbaketrekk.getTilkomneNøklerMedStartEtterDato()
+            .stream()
+            .flatMap(n -> n.getArbeidsgiversAndelerTilknyttetNøkkel().stream())
+            .map(EndringIBeregningsresultat::new)
+            .toList();
     }
 
 }

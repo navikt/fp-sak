@@ -42,8 +42,9 @@ class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
     public void setUp() {
         var mockDefaultDatabaseOppePreconditionChecker = mock(DatabasePreconditionChecker.class);
         var jmsKonfig = mock(ØkonomioppdragJmsConsumerKonfig.class);
-        when(jmsKonfig.getJmsKonfig()).thenReturn(new JmsKonfig("test", 1234,"test", "test", "test", "test", "test", null ));
-        kvitteringAsyncJmsConsumer = new ØkonomiOppdragKvitteringAsyncJmsConsumer(behandleØkonomioppdragKvittering, mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);
+        when(jmsKonfig.getJmsKonfig()).thenReturn(new JmsKonfig("test", 1234, "test", "test", "test", "test", "test", null));
+        kvitteringAsyncJmsConsumer = new ØkonomiOppdragKvitteringAsyncJmsConsumer(behandleØkonomioppdragKvittering,
+            mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);
         captor = ArgumentCaptor.forClass(ØkonomiKvittering.class);
     }
 
@@ -98,7 +99,11 @@ class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
         return Files.readString(path);
     }
 
-    private void verifiserKvittering(ØkonomiKvittering kvittering, Alvorlighetsgrad alvorlighetsgrad, String meldingKode, Long behandlingId, String beskrMelding) {
+    private void verifiserKvittering(ØkonomiKvittering kvittering,
+                                     Alvorlighetsgrad alvorlighetsgrad,
+                                     String meldingKode,
+                                     Long behandlingId,
+                                     String beskrMelding) {
         assertThat(kvittering.getAlvorlighetsgrad()).isEqualTo(alvorlighetsgrad);
         assertThat(kvittering.getMeldingKode()).isEqualTo(meldingKode);
         assertThat(kvittering.getBehandlingId()).isEqualTo(behandlingId);

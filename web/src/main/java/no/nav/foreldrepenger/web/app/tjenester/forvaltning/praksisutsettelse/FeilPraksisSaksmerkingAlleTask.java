@@ -24,11 +24,13 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
     private final FeilPraksisUtsettelseRepository utvalgRepository;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
-    public enum Utvalg { MOR, FAR_BEGGE_RETT }
+    public enum Utvalg {
+        MOR,
+        FAR_BEGGE_RETT
+    }
 
     @Inject
-    public FeilPraksisSaksmerkingAlleTask(FeilPraksisUtsettelseRepository utvalgRepository,
-                                          ProsessTaskTjeneste prosessTaskTjeneste) {
+    public FeilPraksisSaksmerkingAlleTask(FeilPraksisUtsettelseRepository utvalgRepository, ProsessTaskTjeneste prosessTaskTjeneste) {
         this.utvalgRepository = utvalgRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
@@ -37,8 +39,7 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
         var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
-        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG))
-            .map(Utvalg::valueOf).orElseThrow();
+        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG)).map(Utvalg::valueOf).orElseThrow();
 
         var saker = switch (utvalg) {
             case MOR -> utvalgRepository.finnNesteHundreSakerForMerkingMor(fraFagsakId);
@@ -46,9 +47,7 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
         };
         saker.stream().map(FeilPraksisSaksmerkingAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
 
-        saker.stream().max(Comparator.naturalOrder())
-            .map(maxfid -> opprettTaskForNesteUtvalg(maxfid, utvalg))
-            .ifPresent(prosessTaskTjeneste::lagre);
+        saker.stream().max(Comparator.naturalOrder()).map(maxfid -> opprettTaskForNesteUtvalg(maxfid, utvalg)).ifPresent(prosessTaskTjeneste::lagre);
 
     }
 

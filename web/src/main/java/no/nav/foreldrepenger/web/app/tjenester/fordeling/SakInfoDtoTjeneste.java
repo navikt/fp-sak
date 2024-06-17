@@ -32,6 +32,7 @@ public class SakInfoDtoTjeneste {
         this.familieHendelseRepository = familieHendelseRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
+
     public SakInfoDtoTjeneste() {
         //CDI
     }
@@ -57,12 +58,8 @@ public class SakInfoDtoTjeneste {
     }
 
     private SakInfoV2Dto mapTilSakInfoV2Dto(Fagsak fagsak, SakInfoV2Dto.FamiliehendelseInfoDto familiehendelseInfoDto, LocalDate førsteUttaksdato) {
-        return new SakInfoV2Dto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()),
-            mapYtelseTypeV2Dto(fagsak.getYtelseType()),
-            mapFagsakStatusV2Dto(fagsak.getStatus()),
-            familiehendelseInfoDto,
-            fagsak.getOpprettetTidspunkt().toLocalDate(),
-            førsteUttaksdato);
+        return new SakInfoV2Dto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), mapYtelseTypeV2Dto(fagsak.getYtelseType()),
+            mapFagsakStatusV2Dto(fagsak.getStatus()), familiehendelseInfoDto, fagsak.getOpprettetTidspunkt().toLocalDate(), førsteUttaksdato);
     }
 
     public YtelseTypeDto mapYtelseTypeV2Dto(FagsakYtelseType fagsakYtelseType) {
@@ -83,7 +80,8 @@ public class SakInfoDtoTjeneste {
     }
 
     private SakInfoV2Dto.FamiliehendelseInfoDto mapFamiliehendelseInfoV2Dto(FamilieHendelseEntitet familiehendelse) {
-        return new SakInfoV2Dto.FamiliehendelseInfoDto(familiehendelse.getSkjæringstidspunkt(), mapFamilieHendelseTypeV2Dto(familiehendelse.getType()));
+        return new SakInfoV2Dto.FamiliehendelseInfoDto(familiehendelse.getSkjæringstidspunkt(),
+            mapFamilieHendelseTypeV2Dto(familiehendelse.getType()));
     }
 
     public SakInfoV2Dto.FamilieHendelseTypeDto mapFamilieHendelseTypeV2Dto(FamilieHendelseType familieHendelseType) {

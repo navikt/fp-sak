@@ -42,8 +42,8 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
     @Column(name = "regel_input")
     private String regelInput;
 
-    @Convert(converter= BeregningsgrunnlagPeriodeRegelType.KodeverdiConverter.class)
-    @Column(name="regel_type", nullable = false)
+    @Convert(converter = BeregningsgrunnlagPeriodeRegelType.KodeverdiConverter.class)
+    @Column(name = "regel_type", nullable = false)
     private BeregningsgrunnlagPeriodeRegelType regelType;
 
     public BeregningsgrunnlagPeriodeRegelSporing(BeregningsgrunnlagPeriodeRegelSporing beregningsgrunnlagPeriodeRegelSporing) {

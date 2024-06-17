@@ -34,7 +34,8 @@ public class BehandlingDvhMapper {
     private BehandlingDvhMapper() {
     }
 
-    public static BehandlingDvh map(Behandling behandling, // NOSONAR
+    public static BehandlingDvh map(Behandling behandling,
+                                    // NOSONAR
                                     Behandlingsresultat behandlingsresultat,
                                     List<MottattDokument> mottatteDokument,
                                     Optional<BehandlingVedtak> vedtak,
@@ -82,7 +83,8 @@ public class BehandlingDvhMapper {
     }
 
     private static String mapBehandlingStatus(Behandling behandling) {
-        return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
+        return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT)
+            .stream()
             .min(Comparator.comparing(Aksjonspunkt::getOpprettetTidspunkt))
             .map(VenteGruppe::getKategoriFor)
             .map(VenteGruppe.VenteKategori::name)
@@ -90,8 +92,8 @@ public class BehandlingDvhMapper {
     }
 
     private static String getUtlandstilsnitt(FagsakMarkering fagsakMarkering) {
-        return FagsakMarkering.BOSATT_UTLAND.equals(fagsakMarkering) || FagsakMarkering.EØS_BOSATT_NORGE.equals(fagsakMarkering) ?
-            fagsakMarkering.name() : FagsakMarkering.NASJONAL.name();
+        return FagsakMarkering.BOSATT_UTLAND.equals(fagsakMarkering) || FagsakMarkering.EØS_BOSATT_NORGE.equals(
+            fagsakMarkering) ? fagsakMarkering.name() : FagsakMarkering.NASJONAL.name();
     }
 
     private static LocalDateTime kanBehandlesTid(Behandling behandling) {
@@ -102,8 +104,8 @@ public class BehandlingDvhMapper {
     }
 
     private static LocalDateTime finnTidligste(Aksjonspunkt aksjonspunkt) {
-        if (!aksjonspunkt.erOpprettet() && aksjonspunkt.getEndretTidspunkt() != null
-            && aksjonspunkt.getEndretTidspunkt().isBefore(aksjonspunkt.getFristTid())) {
+        if (!aksjonspunkt.erOpprettet() && aksjonspunkt.getEndretTidspunkt() != null && aksjonspunkt.getEndretTidspunkt()
+            .isBefore(aksjonspunkt.getFristTid())) {
             return aksjonspunkt.getEndretTidspunkt();
         }
         return aksjonspunkt.getFristTid();
@@ -141,7 +143,8 @@ public class BehandlingDvhMapper {
     private static LocalDateTime finnMottattTidspunkt(List<MottattDokument> mottatteDokumenter) {
         return mottatteDokumenter.stream()
             .map(d -> d.getMottattTidspunkt().isBefore(d.getOpprettetTidspunkt()) ? d.getMottattTidspunkt() : d.getOpprettetTidspunkt())
-            .min(Comparator.naturalOrder()).orElse(null);
+            .min(Comparator.naturalOrder())
+            .orElse(null);
     }
 
     private static BehandlingMetode utledBehandlingMetode(Behandling behandling, Behandlingsresultat behandlingsresultat) {
@@ -154,10 +157,16 @@ public class BehandlingDvhMapper {
         if (behandling.getType().erKlageAnkeType() && !behandlingsresultat.isBehandlingHenlagt()) {
             return BehandlingMetode.TOTRINN;
         }
-        if (behandling.getAksjonspunkter().stream().filter(ap -> !ap.erAutopunkt()).anyMatch(BehandlingDvhMapper::harSaksbehandlerVurdertAksjonspunkt)) {
+        if (behandling.getAksjonspunkter()
+            .stream()
+            .filter(ap -> !ap.erAutopunkt())
+            .anyMatch(BehandlingDvhMapper::harSaksbehandlerVurdertAksjonspunkt)) {
             return BehandlingMetode.MANUELL;
         }
-        if (behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT::equals)) {
+        if (behandling.getAksjonspunkter()
+            .stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .anyMatch(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT::equals)) {
             return BehandlingMetode.INNHENTING;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
@@ -167,8 +176,8 @@ public class BehandlingDvhMapper {
     }
 
     private static boolean harSaksbehandlerVurdertAksjonspunkt(Aksjonspunkt aksjonspunkt) {
-        return aksjonspunkt.erUtført() || aksjonspunkt.getBegrunnelse() != null ||
-            CommonDvhMapper.erSaksbehandler(aksjonspunkt.getEndretAv()) || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getOpprettetAv());
+        return aksjonspunkt.erUtført() || aksjonspunkt.getBegrunnelse() != null || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getEndretAv())
+            || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getOpprettetAv());
     }
 
     private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, FagsakMarkering fagsakMarkering) {
@@ -176,7 +185,8 @@ public class BehandlingDvhMapper {
             return null;
         }
         // Midlertidig
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(
+            fagsakMarkering)) {
             return RevurderingÅrsak.PRAKSISUTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
@@ -226,10 +236,12 @@ public class BehandlingDvhMapper {
         if (KontekstHolder.harKontekst() && !KontekstHolder.getKontekst().getIdentType().erSystem()) {
             return KontekstHolder.getKontekst().getUid();
         }
-        return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
+        return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT)
+            .stream()
             .max(Comparator.comparing(ap -> Optional.ofNullable(ap.getEndretTidspunkt()).orElseGet(ap::getOpprettetTidspunkt)))
             .map(CommonDvhMapper::finnEndretAvEllerOpprettetAv)
-            .filter(CommonDvhMapper::erSaksbehandler).orElse(null);
+            .filter(CommonDvhMapper::erSaksbehandler)
+            .orElse(null);
     }
 
 }

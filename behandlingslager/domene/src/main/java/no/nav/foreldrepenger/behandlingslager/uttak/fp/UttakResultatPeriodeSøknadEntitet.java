@@ -98,17 +98,10 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "UttakResultatPeriodeSøknadEntitet{" +
-            "id=" + id +
-            ", uttakPeriodeType=" + uttakPeriodeType.getKode() +
-            ", graderingArbeidsprosent=" + graderingArbeidsprosent +
-            ", samtidigUttak=" + samtidigUttak +
-            ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-            ", mottattDato=" + mottattDato +
-            ", tidligstMottattDato=" + tidligstMottattDato +
-            ", morsAktivitet=" + morsAktivitet +
-            ", dokumentasjonVurdering=" + dokumentasjonVurdering +
-            '}';
+        return "UttakResultatPeriodeSøknadEntitet{" + "id=" + id + ", uttakPeriodeType=" + uttakPeriodeType.getKode() + ", graderingArbeidsprosent="
+            + graderingArbeidsprosent + ", samtidigUttak=" + samtidigUttak + ", samtidigUttaksprosent=" + samtidigUttaksprosent + ", mottattDato="
+            + mottattDato + ", tidligstMottattDato=" + tidligstMottattDato + ", morsAktivitet=" + morsAktivitet + ", dokumentasjonVurdering="
+            + dokumentasjonVurdering + '}';
     }
 
     public static class Builder {

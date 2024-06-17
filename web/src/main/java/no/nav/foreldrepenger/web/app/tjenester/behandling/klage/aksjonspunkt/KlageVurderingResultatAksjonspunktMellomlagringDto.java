@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class KlageVurderingResultatAksjonspunktMellomlagringDto {
 
     @Pattern(regexp = InputValideringRegex.KODEVERK)

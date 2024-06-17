@@ -14,8 +14,7 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
     private final BehandlingStegType behandlingStegType;
     private List<Aksjonspunkt> aksjonspunkter;
 
-    public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
-            BehandlingStegType behandlingStegType) {
+    public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, BehandlingStegType behandlingStegType) {
         super();
         this.kontekst = kontekst;
         this.behandlingStegType = behandlingStegType;
@@ -51,8 +50,8 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + aksjonspunkter + ", behandlingId="
-                + getKontekst().getBehandlingId() + ", steg=" + getBehandlingStegType() + ">";
+        return getClass().getSimpleName() + "<" + aksjonspunkter + ", behandlingId=" + getKontekst().getBehandlingId() + ", steg="
+            + getBehandlingStegType() + ">";
     }
 
 }

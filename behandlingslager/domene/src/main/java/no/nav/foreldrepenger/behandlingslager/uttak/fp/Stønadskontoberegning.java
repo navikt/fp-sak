@@ -73,9 +73,7 @@ public class Stønadskontoberegning extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "Stønadskontoberegning{" +
-            "stønadskontoer=" + stønadskontoer +
-            '}';
+        return "Stønadskontoberegning{" + "stønadskontoer=" + stønadskontoer + '}';
     }
 
     public static class Builder {

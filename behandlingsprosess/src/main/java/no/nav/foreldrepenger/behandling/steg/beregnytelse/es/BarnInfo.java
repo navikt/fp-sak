@@ -40,8 +40,7 @@ public class BarnInfo implements UidentifisertBarn {
         if (!(o instanceof BarnInfo barnInfo)) {
             return false;
         }
-        return Objects.equals(barnNummer, barnInfo.barnNummer) &&
-                Objects.equals(fødselsdato, barnInfo.fødselsdato);
+        return Objects.equals(barnNummer, barnInfo.barnNummer) && Objects.equals(fødselsdato, barnInfo.fødselsdato);
     }
 
     @Override

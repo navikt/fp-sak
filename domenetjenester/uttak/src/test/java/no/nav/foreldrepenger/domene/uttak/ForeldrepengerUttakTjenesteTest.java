@@ -27,28 +27,23 @@ class ForeldrepengerUttakTjenesteTest {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusMonths(6);
         var mottattDato = LocalDate.now().minusWeeks(2);
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medMottattDato(mottattDato)
             .medTidligstMottattDato(mottattDato.minusDays(1))
             .build();
         var periodeResultatType = PeriodeResultatType.INNVILGET;
         var innvilgetÅrsak = PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
-        var lagretUttaksperiode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(periodeResultatType, innvilgetÅrsak).medPeriodeSoknad(periodeSøknad)
+        var lagretUttaksperiode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(periodeResultatType, innvilgetÅrsak)
+            .medPeriodeSoknad(periodeSøknad)
             .build();
         var uttakArbeidType = UttakArbeidType.FRILANS;
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(uttakArbeidType)
-            .build();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(uttakArbeidType).build();
         var arbeidsprosent = BigDecimal.ZERO;
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(lagretUttaksperiode, uttakAktivitet)
-            .medArbeidsprosent(arbeidsprosent).build();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(lagretUttaksperiode, uttakAktivitet).medArbeidsprosent(arbeidsprosent)
+            .build();
         lagretUttaksperiode.leggTilAktivitet(periodeAktivitet);
         var lagretUttak = new UttakResultatPerioderEntitet().leggTilPeriode(lagretUttaksperiode);
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medUttak(lagretUttak)
-            .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medUttak(lagretUttak).lagre(repositoryProvider);
 
         var tjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
 

@@ -42,7 +42,7 @@ class AdopsjonsvilkårOversetterTest {
     @BeforeEach
     public void oppsett() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         adopsjonsoversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 
@@ -60,25 +60,24 @@ class AdopsjonsvilkårOversetterTest {
         map.put(1, fødselAdopsjonsdatoFraSøknad);
 
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknad()
-                .medSøknadsdato(søknadsdato)
-                .build();
+        scenario.medSøknad().medSøknadsdato(søknadsdato).build();
         scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
 
-        scenario.medBekreftetHendelse().medAdopsjon(
-                scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                        .medErEktefellesBarn(true)
-                        .medAdoptererAlene(true)
-                        .medOmsorgsovertakelseDato(fødselAdopsjonsdatoFraSøknad))
-                .leggTilBarn(fødselAdopsjonsdatoFraSøknad)
-                // Adosjon
-                .build();
+        scenario.medBekreftetHendelse()
+            .medAdopsjon(scenario.medBekreftetHendelse()
+                .getAdopsjonBuilder()
+                .medErEktefellesBarn(true)
+                .medAdoptererAlene(true)
+                .medOmsorgsovertakelseDato(fødselAdopsjonsdatoFraSøknad))
+            .leggTilBarn(fødselAdopsjonsdatoFraSøknad)
+            // Adosjon
+            .build();
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT)
-                .statsborgerskap(Landkoder.NOR)
-                .build();
+            .medPersonas()
+            .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT)
+            .statsborgerskap(Landkoder.NOR)
+            .build();
         scenario.medRegisterOpplysninger(søker);
 
         var behandling = lagre(scenario);

@@ -43,8 +43,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Inject
     public KompletthetsjekkerImpl(BehandlingRepositoryProvider repositoryProvider,
-                                DokumentArkivTjeneste dokumentArkivTjeneste,
-                                PersonopplysningTjeneste personopplysningTjeneste) {
+                                  DokumentArkivTjeneste dokumentArkivTjeneste,
+                                  PersonopplysningTjeneste personopplysningTjeneste) {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -87,7 +87,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
         var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), LocalDate.MIN);
 
-        return søknad.get().getSøknadVedlegg()
+        return søknad.get()
+            .getSøknadVedlegg()
             .stream()
             .filter(SøknadVedleggEntitet::isErPåkrevdISøknadsdialog)
             .map(SøknadVedleggEntitet::getSkjemanummer)

@@ -43,13 +43,13 @@ public class TilknytningTjeneste {
 
         var queryGT = new HentGeografiskTilknytningQueryRequest();
         queryGT.setIdent(aktørId.getId());
-        var projectionGT = new GeografiskTilknytningResponseProjection()
-                .gtType().gtBydel().gtKommune().gtLand();
+        var projectionGT = new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand();
 
         var geografiskTilknytning = pdlKlient.hentGT(ytelseType, queryGT, projectionGT);
 
-        if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null)
+        if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null) {
             return null;
+        }
         // Alle Utland + Udefinert til samme enhet.
         return switch (geografiskTilknytning.getGtType()) {
             case BYDEL -> geografiskTilknytning.getGtBydel();
@@ -61,12 +61,13 @@ public class TilknytningTjeneste {
     public boolean erIkkeBosattFreg(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-            .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus());
+        var projection = new PersonResponseProjection().folkeregisterpersonstatus(
+            new FolkeregisterpersonstatusResponseProjection().forenkletStatus());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var statusIkkeBosatt = person.getFolkeregisterpersonstatus().stream()
+        var statusIkkeBosatt = person.getFolkeregisterpersonstatus()
+            .stream()
             .map(Folkeregisterpersonstatus::getForenkletStatus)
             .anyMatch(IKKE_BOSATT::contains);
         return statusIkkeBosatt;
@@ -75,17 +76,19 @@ public class TilknytningTjeneste {
     public Diskresjonskode hentDiskresjonskode(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        var projection = new PersonResponseProjection().adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var kode = person.getAdressebeskyttelse().stream()
+        var kode = person.getAdressebeskyttelse()
+            .stream()
             .map(Adressebeskyttelse::getGradering)
             .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-            .findFirst().orElse(null);
-        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
+            .findFirst()
+            .orElse(null);
+        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode)) {
             return Diskresjonskode.KODE6;
+        }
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 

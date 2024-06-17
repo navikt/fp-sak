@@ -29,8 +29,8 @@ public class GjenopptaBehandlingTask extends BehandlingProsessTask {
 
     @Inject
     public GjenopptaBehandlingTask(BehandlingRepository behandlingRepository,
-            BehandlingLåsRepository låsRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                   BehandlingLåsRepository låsRepository,
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         super(låsRepository);
         this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;

@@ -68,17 +68,17 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         var førsteVersjonPersonopplysningerAggregat = tilAggregat(behandling, repository.hentFørsteVersjonAvPersonopplysninger(behandlingId));
 
         assertThat(personopplysningerAggregat).isNotEqualTo(førsteVersjonPersonopplysningerAggregat);
-        assertThat(personopplysningerAggregat.getSøker()).isEqualToComparingOnlyGivenFields(førsteVersjonPersonopplysningerAggregat.getSøker(), "aktørId", "navn", "fødselsdato", "sivilstand", "brukerKjønn");
+        assertThat(personopplysningerAggregat.getSøker()).isEqualToComparingOnlyGivenFields(førsteVersjonPersonopplysningerAggregat.getSøker(),
+            "aktørId", "navn", "fødselsdato", "sivilstand", "brukerKjønn");
         assertThat(personopplysningerAggregat.getSøker()).isNotEqualTo(førsteVersjonPersonopplysningerAggregat.getSøker());
     }
 
     private PersonopplysningerAggregat tilAggregat(Behandling behandling, PersonopplysningGrunnlagEntitet grunnlag) {
-        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(),LocalDate.now(), LocalDate.now());
+        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
     }
 
     private Personinfo lagPerson() {
-        return new Personinfo.Builder()
-            .medNavn("Navn navnesen")
+        return new Personinfo.Builder().medNavn("Navn navnesen")
             .medAktørId(AktørId.dummy())
             .medSivilstandType(SivilstandType.SAMBOER)
             .medFødselsdato(LocalDate.now().minusYears(20))

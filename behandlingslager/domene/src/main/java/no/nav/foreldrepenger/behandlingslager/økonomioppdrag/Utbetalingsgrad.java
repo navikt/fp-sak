@@ -60,8 +60,12 @@ public class Utbetalingsgrad {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var utbetalingsgrad1 = (Utbetalingsgrad) o;
         return Objects.equals(getVerdi(), utbetalingsgrad1.getVerdi());
     }
@@ -73,8 +77,6 @@ public class Utbetalingsgrad {
 
     @Override
     public String toString() {
-        return "Grad{" +
-            "utbetalingsgrad=" + utebetalingsgrad +
-            '}';
+        return "Grad{" + "utbetalingsgrad=" + utebetalingsgrad + '}';
     }
 }

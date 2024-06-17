@@ -61,8 +61,10 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         beregningsresultatRepository.deaktiverBeregningsresultat(behandling.getId(), kontekst.getSkriveLås());
     }

@@ -25,7 +25,7 @@ import jakarta.persistence.Entity;
 @Qualifier
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Documented
 public @interface GrunnlagRef {
 
@@ -38,7 +38,9 @@ public @interface GrunnlagRef {
      */
     String value();
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class GrunnlagRefLiteral extends AnnotationLiteral<GrunnlagRef> implements GrunnlagRef {
 
         private String navn;
@@ -69,7 +71,7 @@ public @interface GrunnlagRef {
         }
 
         private static String getName(Class<?> aggregat) {
-            return aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name()  : aggregat.getSimpleName();
+            return aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name() : aggregat.getSimpleName();
         }
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, Class<?> aggregatClass) {
@@ -101,9 +103,7 @@ public @interface GrunnlagRef {
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
-            return cls != null
-                ? instances.select(cls, anno)
-                : instances.select(anno);
+            return cls != null ? instances.select(cls, anno) : instances.select(anno);
         }
 
         private static <I> I getInstance(Instance<I> inst) {
@@ -128,7 +128,7 @@ public @interface GrunnlagRef {
      */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
+    @Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
     @Documented
     @interface ContainerOfGrunnlagRef {
         GrunnlagRef[] value();

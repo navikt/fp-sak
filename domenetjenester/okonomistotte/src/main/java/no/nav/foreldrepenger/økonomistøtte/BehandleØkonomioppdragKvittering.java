@@ -94,7 +94,9 @@ public class BehandleØkonomioppdragKvittering {
                             taskTjeneste.mottaHendelse(prosessTaskData, ØKONOMI_OPPDRAG_KVITTERING, new Properties());
                         }
                     } catch (Exception ex) {
-                        LOG.info("Feil ved oppdatering av prosesstask. Sjekke om task med id {} er i status FERDIG. Hvis ja - ignorer denne meldingen, hvis ikke - opprett en sak.", prosessTaskId);
+                        LOG.info(
+                            "Feil ved oppdatering av prosesstask. Sjekke om task med id {} er i status FERDIG. Hvis ja - ignorer denne meldingen, hvis ikke - opprett en sak.",
+                            prosessTaskId);
                     }
                 } else {
                     LOG.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);

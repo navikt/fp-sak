@@ -38,57 +38,37 @@ public class OppdragsKontrollDtoMapper {
     }
 
     private static List<Oppdrag110Dto> tilOppdragListe(List<Oppdrag110> oppdrag110Liste) {
-        return safeStream(oppdrag110Liste)
-            .map(OppdragsKontrollDtoMapper::tilOppdrag110Dto)
-            .toList();
+        return safeStream(oppdrag110Liste).map(OppdragsKontrollDtoMapper::tilOppdrag110Dto).toList();
     }
 
     private static Oppdrag110Dto tilOppdrag110Dto(Oppdrag110 oppdrag110s) {
-        return new Oppdrag110Dto(
-            KodeEndring.valueOf(oppdrag110s.getKodeEndring().name()),
-            KodeFagområde.valueOf(oppdrag110s.getKodeFagomrade().name()),
-            String.valueOf(oppdrag110s.getFagsystemId()),
-            oppdrag110s.getOppdragGjelderId(),
-            oppdrag110s.getSaksbehId(),
-            tilOmpostering116Dto(oppdrag110s.getOmpostering116()),
-            tilOppdragLinje150Dto(oppdrag110s.getOppdragslinje150Liste())
-        );
+        return new Oppdrag110Dto(KodeEndring.valueOf(oppdrag110s.getKodeEndring().name()),
+            KodeFagområde.valueOf(oppdrag110s.getKodeFagomrade().name()), String.valueOf(oppdrag110s.getFagsystemId()),
+            oppdrag110s.getOppdragGjelderId(), oppdrag110s.getSaksbehId(), tilOmpostering116Dto(oppdrag110s.getOmpostering116()),
+            tilOppdragLinje150Dto(oppdrag110s.getOppdragslinje150Liste()));
     }
 
     private static List<Oppdragslinje150Dto> tilOppdragLinje150Dto(List<Oppdragslinje150> oppdragslinje150Liste) {
-        return safeStream(oppdragslinje150Liste)
-            .map(OppdragsKontrollDtoMapper::tilOppdragLinje150Dto)
-            .toList();
+        return safeStream(oppdragslinje150Liste).map(OppdragsKontrollDtoMapper::tilOppdragLinje150Dto).toList();
     }
 
     private static Oppdragslinje150Dto tilOppdragLinje150Dto(Oppdragslinje150 oppdragslinje150) {
-        return new Oppdragslinje150Dto(
-            KodeEndringLinje.valueOf(oppdragslinje150.getKodeEndringLinje().name()),
-            oppdragslinje150.getVedtakId(),
-            oppdragslinje150.getDelytelseId().toString(),
-            KodeKlassifik.valueOf(oppdragslinje150.getKodeKlassifik().name()),
-            new LukketPeriode(oppdragslinje150.getDatoVedtakFom(), oppdragslinje150.getDatoVedtakTom()),
-            tilSatsDto(oppdragslinje150.getSats()),
-            TypeSats.valueOf(oppdragslinje150.getTypeSats().name()),
-            tilUtbetalingsgradDto(oppdragslinje150.getUtbetalingsgrad()),
+        return new Oppdragslinje150Dto(KodeEndringLinje.valueOf(oppdragslinje150.getKodeEndringLinje().name()), oppdragslinje150.getVedtakId(),
+            oppdragslinje150.getDelytelseId().toString(), KodeKlassifik.valueOf(oppdragslinje150.getKodeKlassifik().name()),
+            new LukketPeriode(oppdragslinje150.getDatoVedtakFom(), oppdragslinje150.getDatoVedtakTom()), tilSatsDto(oppdragslinje150.getSats()),
+            TypeSats.valueOf(oppdragslinje150.getTypeSats().name()), tilUtbetalingsgradDto(oppdragslinje150.getUtbetalingsgrad()),
             oppdragslinje150.getKodeStatusLinje() != null ? KodeStatusLinje.valueOf(oppdragslinje150.getKodeStatusLinje().name()) : null,
-            oppdragslinje150.getDatoStatusFom(),
-            oppdragslinje150.getUtbetalesTilId(),
+            oppdragslinje150.getDatoStatusFom(), oppdragslinje150.getUtbetalesTilId(),
             oppdragslinje150.getRefDelytelseId() != null ? oppdragslinje150.getRefDelytelseId().toString() : null,
-            oppdragslinje150.getRefFagsystemId() != null ? oppdragslinje150.getRefFagsystemId().toString() : null       ,
-            tilRefusjonsinfo156Dto(oppdragslinje150.getRefusjonsinfo156())
-        );
+            oppdragslinje150.getRefFagsystemId() != null ? oppdragslinje150.getRefFagsystemId().toString() : null,
+            tilRefusjonsinfo156Dto(oppdragslinje150.getRefusjonsinfo156()));
     }
 
     private static Refusjonsinfo156Dto tilRefusjonsinfo156Dto(Refusjonsinfo156 refusjonsinfo156) {
         if (refusjonsinfo156 == null) {
             return null;
         }
-        return new Refusjonsinfo156Dto(
-            refusjonsinfo156.getMaksDato(),
-            refusjonsinfo156.getRefunderesId(),
-            refusjonsinfo156.getDatoFom()
-        );
+        return new Refusjonsinfo156Dto(refusjonsinfo156.getMaksDato(), refusjonsinfo156.getRefunderesId(), refusjonsinfo156.getDatoFom());
     }
 
     private static UtbetalingsgradDto tilUtbetalingsgradDto(Utbetalingsgrad utbetalingsgrad) {
@@ -107,14 +87,10 @@ public class OppdragsKontrollDtoMapper {
             return null;
         }
         var ompostering116 = ompostering116Opt.get();
-        return new Ompostering116Dto(
-            ompostering116.getOmPostering(),
-            ompostering116.getDatoOmposterFom(),
-            ompostering116.getTidspktReg()
-        );
+        return new Ompostering116Dto(ompostering116.getOmPostering(), ompostering116.getDatoOmposterFom(), ompostering116.getTidspktReg());
     }
 
     public static <T> Stream<T> safeStream(List<T> list) {
-        return ((List)Optional.ofNullable(list).orElseGet(List::of)).stream();
+        return ((List) Optional.ofNullable(list).orElseGet(List::of)).stream();
     }
 }

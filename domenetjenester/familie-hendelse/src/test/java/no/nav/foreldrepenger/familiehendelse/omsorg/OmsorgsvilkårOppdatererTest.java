@@ -48,17 +48,17 @@ class OmsorgsvilkårOppdatererTest {
     void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsvilkår() {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagMocked();
 
         var behandling = scenario.getBehandling();
         // Act
         var dto = new OmsorgsvilkårAksjonspunktDto("begrunnelse", true, "-");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(mockHistory, scenario.mockBehandlingRepository());
-        var resultat = omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto,
-            aksjonspunkt));
+        var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(mockHistory,
+            scenario.mockBehandlingRepository());
+        var resultat = omsorgsvilkarOppdaterer.oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -140,7 +140,8 @@ class OmsorgsvilkårOppdatererTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil()).hasSize(1);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getAvslagsårsak()).isEqualTo(Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA);
+        assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getAvslagsårsak()).isEqualTo(
+            Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA);
         assertThat(historikkInnslag).hasSize(1);
 
         var del = historikkInnslag.get(0);

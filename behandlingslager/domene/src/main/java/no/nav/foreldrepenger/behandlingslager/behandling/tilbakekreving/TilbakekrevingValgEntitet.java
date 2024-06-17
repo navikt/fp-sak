@@ -46,7 +46,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
     private String varseltekst;
 
     @Convert(converter = TilbakekrevingVidereBehandling.KodeverdiConverter.class)
-    @Column(name="videre_behandling")
+    @Column(name = "videre_behandling")
     private TilbakekrevingVidereBehandling tilbakekrevningsVidereBehandling;
 
     TilbakekrevingValgEntitet() {
@@ -114,10 +114,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<id=" + id
-            + ", behandling=" + behandlingId
-            + ", aktiv=" + aktiv
-            + ">";
+        return getClass().getSimpleName() + "<id=" + id + ", behandling=" + behandlingId + ", aktiv=" + aktiv + ">";
 
     }
 

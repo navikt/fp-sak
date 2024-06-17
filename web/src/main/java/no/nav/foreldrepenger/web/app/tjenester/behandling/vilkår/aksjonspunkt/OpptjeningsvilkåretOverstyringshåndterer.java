@@ -33,9 +33,7 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     public OpptjeningsvilkåretOverstyringshåndterer(OpptjeningRepository opptjeningRepository,
                                                     HistorikkTjenesteAdapter historikkAdapter,
                                                     InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET,
-            VilkårType.OPPTJENINGSVILKÅRET,
-            inngangsvilkårTjeneste);
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET, VilkårType.OPPTJENINGSVILKÅRET, inngangsvilkårTjeneste);
         this.opptjeningRepository = opptjeningRepository;
     }
 
@@ -47,13 +45,16 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     @Override
     protected void precondition(Behandling behandling, OverstyringOpptjeningsvilkåretDto dto) {
         if (dto.getErVilkarOk()) {
-            var ant = opptjeningRepository.finnOpptjening(behandling.getId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+            var ant = opptjeningRepository.finnOpptjening(behandling.getId())
+                .map(Opptjening::getOpptjeningAktivitet)
+                .orElse(List.of())
+                .stream()
                 .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
                 .count();
             if (ant > 0) {
                 return;
             }
-            throw new FunksjonellException( "FP-093923",
+            throw new FunksjonellException("FP-093923",
                 "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.",
                 "Sett på vent til det er mulig og manuelt legge inn aktiviteter ved overstyring.");
         }

@@ -27,8 +27,7 @@ public class FagsakRelasjonTjeneste {
     private FagsakRepository fagsakRepository;
 
     @Inject
-    public FagsakRelasjonTjeneste(FagsakRepository fagsakRepository,
-                                  FagsakRelasjonRepository fagsakRelasjonRepository) {
+    public FagsakRelasjonTjeneste(FagsakRepository fagsakRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.fagsakRepository = fagsakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
     }
@@ -102,8 +101,11 @@ public class FagsakRelasjonTjeneste {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
 
-    public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
-                                           Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon,
+                                           LocalDate avsluttningsdato,
+                                           FagsakRelasjonLås lås,
+                                           Optional<FagsakLås> fagsak1Lås,
+                                           Optional<FagsakLås> fagsak2Lås) {
         fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås, fagsak2Lås);
     }
 

@@ -25,8 +25,7 @@ public class BeregningAktivitetAggregat {
 
     @Override
     public String toString() {
-        return "BeregningAktivitetAggregatEntitet{" +
-                '}';
+        return "BeregningAktivitetAggregatEntitet{" + '}';
     }
 
     public static Builder builder() {

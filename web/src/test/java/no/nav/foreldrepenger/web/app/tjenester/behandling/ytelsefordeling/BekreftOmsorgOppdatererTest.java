@@ -59,8 +59,8 @@ class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setOmsorg(oppdatertOmsorg);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {}
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {
+        }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);

@@ -71,7 +71,7 @@ class SendInformasjonsbrevBatchTjenesteTest {
         tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, taskTjenesteMock);
         taskData.setProperty(BatchTjeneste.FOM_KEY, fom.toString());
         taskData.setProperty(BatchTjeneste.TOM_KEY, tom.toString());
-   }
+    }
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
@@ -91,61 +91,53 @@ class SendInformasjonsbrevBatchTjenesteTest {
     private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status, LocalDate uttakFom, boolean medOpphold) {
         var terminDato = uttakFom.plusWeeks(3);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medSøknadDato(terminDato.minusDays(40));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(terminDato.minusDays(40));
         scenario.medSøknadAnnenPart().medAktørId(new AktørId("0000000000000")).medNavn("Ola Dunk").build();
 
-        scenario.medBekreftetHendelse()
-                .medFødselsDato(terminDato)
-                .medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(terminDato).medAntallBarn(1);
 
         // Uttak periode 1
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
 
-        var uttakFFF = new UttakResultatPeriodeEntitet.Builder(uttakFom, terminDato.minusDays(1))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
+        var uttakFFF = new UttakResultatPeriodeEntitet.Builder(uttakFom, terminDato.minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
 
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
-                .build();
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
+            .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFFF, arbeidsforhold1)
-                .medTrekkdager(new Trekkdager(21))
-                .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-                .medArbeidsprosent(BigDecimal.TEN).build();
+            .medTrekkdager(new Trekkdager(21))
+            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
 
         perioder.leggTilPeriode(uttakFFF);
 
         // Uttak periode 2
-        var uttakMødre = new UttakResultatPeriodeEntitet.Builder(terminDato, terminDato.plusWeeks(6).minusDays(1))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
+        var uttakMødre = new UttakResultatPeriodeEntitet.Builder(terminDato, terminDato.plusWeeks(6).minusDays(1)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødre, arbeidsforhold1)
-                .medTrekkdager(new Trekkdager(42))
-                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
-                .medArbeidsprosent(BigDecimal.TEN).build();
+            .medTrekkdager(new Trekkdager(42))
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
         perioder.leggTilPeriode(uttakMødre);
 
         if (medOpphold) {
-            var uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6),
-                    terminDato.plusWeeks(6).plusDays(8))
-                            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                            .medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
-                            .build();
+            var uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8)).medResultatType(
+                PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER).build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         } else {
-            var uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6),
-                    terminDato.plusWeeks(6).plusDays(8))
-                            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                            .build();
+            var uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8)).medResultatType(
+                PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
             UttakResultatPeriodeAktivitetEntitet.builder(uttakFelles, arbeidsforhold1)
-                    .medTrekkdager(new Trekkdager(7))
-                    .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-                    .medArbeidsprosent(BigDecimal.TEN).build();
+                .medTrekkdager(new Trekkdager(7))
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+                .medArbeidsprosent(BigDecimal.TEN)
+                .build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         }
@@ -165,8 +157,9 @@ class SendInformasjonsbrevBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         var konto = Stønadskontoberegning.builder()
-                .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
-                .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
+            .medRegelInput("{ blablabla }")
+            .medRegelEvaluering("{ blablabla }");
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), konto.build());

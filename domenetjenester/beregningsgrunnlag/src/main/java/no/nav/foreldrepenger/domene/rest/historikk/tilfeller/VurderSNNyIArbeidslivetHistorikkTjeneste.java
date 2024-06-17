@@ -21,15 +21,19 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var nyIArbeidslivetDto = dto.getVurderNyIArbeidslivet();
         var opprinneligNyIArbeidslivetVerdi = getOpprinneligNyIArbeidslivetVerdi(forrigeGrunnlag);
         lagHistorikkInnslag(nyIArbeidslivetDto, opprinneligNyIArbeidslivetVerdi, tekstBuilder);
     }
 
     private Boolean getOpprinneligNyIArbeidslivetVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
-        return forrigeGrunnlag
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
+        return forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0))
             .stream()
             .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
@@ -39,7 +43,8 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
             .orElse(null);
     }
 
-    private void lagHistorikkInnslag(VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto, Boolean opprinneligNyIArbeidslivetVerdi,
+    private void lagHistorikkInnslag(VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
+                                     Boolean opprinneligNyIArbeidslivetVerdi,
                                      HistorikkInnslagTekstBuilder tekstBuilder) {
         oppdaterVedEndretVerdi(HistorikkEndretFeltType.SELVSTENDIG_NÆRINGSDRIVENDE, dto, opprinneligNyIArbeidslivetVerdi, tekstBuilder);
     }
@@ -51,11 +56,13 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
         return erNyIArbeidslivet ? HistorikkEndretFeltVerdiType.NY_I_ARBEIDSLIVET : HistorikkEndretFeltVerdiType.IKKE_NY_I_ARBEIDSLIVET;
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
-                                        Boolean opprinneligNyIArbeidslivetVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                        VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
+                                        Boolean opprinneligNyIArbeidslivetVerdi,
+                                        HistorikkInnslagTekstBuilder tekstBuilder) {
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyIArbeidslivetVerdi);
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erNyIArbeidslivet());
-        if(opprinneligVerdi != nyVerdi) {
+        if (opprinneligVerdi != nyVerdi) {
             tekstBuilder.medEndretFelt(historikkEndretFeltType, opprinneligVerdi, nyVerdi);
         }
     }

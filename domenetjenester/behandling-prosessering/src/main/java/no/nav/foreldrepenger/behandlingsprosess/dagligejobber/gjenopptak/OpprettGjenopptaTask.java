@@ -24,8 +24,7 @@ public class OpprettGjenopptaTask extends GenerellProsessTask {
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
-    public OpprettGjenopptaTask(BehandlingRepository behandlingRepository,
-                                BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+    public OpprettGjenopptaTask(BehandlingRepository behandlingRepository, BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         super();
         this.behandlingRepository = behandlingRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;

@@ -23,8 +23,8 @@ public class BeregningsresultatXmlTjenesteImpl extends BeregningsresultatXmlTjen
 
     @Inject
     public BeregningsresultatXmlTjenesteImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste,
-                                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) YtelseXmlTjeneste ytelseXmlTjeneste,
-                                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) UttakXmlTjeneste uttakXmlTjeneste) {
+                                             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) YtelseXmlTjeneste ytelseXmlTjeneste,
+                                             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) UttakXmlTjeneste uttakXmlTjeneste) {
         super(beregningsgrunnlagXmlTjeneste, ytelseXmlTjeneste);
         this.uttakXmlTjeneste = uttakXmlTjeneste;
     }

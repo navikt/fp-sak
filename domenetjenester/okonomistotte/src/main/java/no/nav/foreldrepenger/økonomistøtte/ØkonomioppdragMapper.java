@@ -63,21 +63,20 @@ public class ØkonomioppdragMapper {
     }
 
     public List<String> generateOppdragXML(Oppdragskontroll oppdragskontroll) {
-        var oppdrag110UtenKvittering = oppdragskontroll.getOppdrag110Liste().stream()
-            .filter(Oppdrag110::venterKvittering)
-            .toList();
+        var oppdrag110UtenKvittering = oppdragskontroll.getOppdrag110Liste().stream().filter(Oppdrag110::venterKvittering).toList();
 
         List<String> oppdragXmlListe = new ArrayList<>();
         for (var okoOppdrag110 : oppdrag110UtenKvittering) {
             var oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110, oppdragskontroll.getBehandlingId());
-            LOG.debug("Oppretter oppdrag XML for behandling: {} og fagsystem: {}", oppdragskontroll.getBehandlingId(), okoOppdrag110.getFagsystemId());
+            LOG.debug("Oppretter oppdrag XML for behandling: {} og fagsystem: {}", oppdragskontroll.getBehandlingId(),
+                okoOppdrag110.getFagsystemId());
             try {
                 var oppdragXml = JaxbHelper.marshalAndValidateJaxb(OppdragSkjemaConstants.JAXB_CLASS, oppdrag, OppdragSkjemaConstants.XSD_LOCATION);
                 oppdragXmlListe.add(oppdragXml);
             } catch (JAXBException | SAXException e) {
                 throw new TekniskException("FP-536167",
-                    String.format("Kan ikke konvertere oppdrag med id %s. Problemer ved generering av xml",
-                        oppdrag.getOppdrag110().getOppdragsId()), e);
+                    String.format("Kan ikke konvertere oppdrag med id %s. Problemer ved generering av xml", oppdrag.getOppdrag110().getOppdragsId()),
+                    e);
             }
         }
         return oppdragXmlListe;
@@ -97,7 +96,8 @@ public class ØkonomioppdragMapper {
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
-        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
+        oppdrag110.getOppdragsLinje150()
+            .addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(DATO_OPPDRAG_GJELDER_FOM));
 
         var optOmpostering116 = okoOppdrag110.getOmpostering116();
@@ -106,7 +106,8 @@ public class ØkonomioppdragMapper {
     }
 
 
-    private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116, String saksbehandlerId) {
+    private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116,
+                                             String saksbehandlerId) {
         var ompostering116 = objectFactory.createOmpostering116();
         ompostering116.setOmPostering(Boolean.TRUE.equals(okoOmpostering116.getOmPostering()) ? "J" : "N");
         ompostering116.setDatoOmposterFom(toXmlGregCal(okoOmpostering116.getDatoOmposterFom()));
@@ -135,7 +136,10 @@ public class ØkonomioppdragMapper {
         return oppdragsEnhet120;
     }
 
-    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, KodeFagområde kodeFagområde, String saksbehId, Long behandlingId) {
+    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste,
+                                                       KodeFagområde kodeFagområde,
+                                                       String saksbehId,
+                                                       Long behandlingId) {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (var okoOppdrlinje150 : okoOppdrlinje150Liste) {
             var oppdragsLinje150 = objectFactory.createOppdragsLinje150();
@@ -177,9 +181,7 @@ public class ØkonomioppdragMapper {
 
             oppdragsLinje150Liste.add(oppdragsLinje150);
         }
-        return oppdragsLinje150Liste.stream()
-            .sorted(Comparator.comparing(opp150 -> Long.parseLong(opp150.getDelytelseId())))
-            .toList();
+        return oppdragsLinje150Liste.stream().sorted(Comparator.comparing(opp150 -> Long.parseLong(opp150.getDelytelseId()))).toList();
     }
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 mapRefusjonInfo156(Refusjonsinfo156 okoRefusjonsInfo156) {

@@ -38,8 +38,7 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.flush();
 
         var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        var builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
-            .medBegrunnelse("Begrunnelse1");
+        var builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK).medBegrunnelse("Begrunnelse1");
 
         // Act
         klageRepository.lagreFormkrav(behandling, builder1);
@@ -52,8 +51,7 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
         assertThat(klageFormkrav.get().hentBegrunnelse()).isEqualTo("Begrunnelse1");
 
         // Arrange
-        var builder2 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
-            .medBegrunnelse("Begrunnelse2");
+        var builder2 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK).medBegrunnelse("Begrunnelse2");
 
         // Act 2
         klageRepository.lagreFormkrav(behandling, builder2);
@@ -76,8 +74,7 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.flush();
 
         var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        var builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
-            .medBegrunnelse("Begrunnelse1");
+        var builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP).medBegrunnelse("Begrunnelse1");
 
         // Act
         klageRepository.lagreVurderingsResultat(behandling, builder1);
@@ -91,8 +88,7 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
         assertThat(klageVurderingResultat.get().getBegrunnelse()).isEqualTo("Begrunnelse1");
 
         // Arrange
-        var builder2 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
-            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
+        var builder2 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP).medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
             .medBegrunnelse("Begrunnelse2");
 
         // Act
@@ -116,11 +112,10 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Arrange
         var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        var builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP)
-            .medBegrunnelse("Begrunnelse1");
+        var builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP).medBegrunnelse("Begrunnelse1");
 
         // Act
-        klageRepository.lagreFormkrav(behandling,builderNfp);
+        klageRepository.lagreFormkrav(behandling, builderNfp);
         entityManager.flush();
         entityManager.clear();
 
@@ -130,11 +125,10 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
         assertThat(klageFormkravNfp.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NFP);
 
         // Arrange
-        var builderKa = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
-            .medBegrunnelse("Begrunnelse2");
+        var builderKa = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK).medBegrunnelse("Begrunnelse2");
 
         // Act
-        klageRepository.lagreFormkrav(behandling,builderKa);
+        klageRepository.lagreFormkrav(behandling, builderKa);
         entityManager.flush();
         entityManager.clear();
 

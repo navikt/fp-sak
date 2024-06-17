@@ -14,10 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.MapBehandlingRef;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -52,7 +48,9 @@ public abstract class BeregningsgrunnlagInputFelles {
 
     public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
 
-    /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
+    /**
+     * Returnerer input hvis data er på tilgjengelig for det, ellers Exception.
+     */
     public BeregningsgrunnlagInput lagInput(Long behandlingId) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -80,23 +78,24 @@ public abstract class BeregningsgrunnlagInputFelles {
         return lagInput(ref, iayGrunnlag);
     }
 
-    /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
+    /**
+     * Returnerer input hvis data er på tilgjengelig for det, ellers Exception.
+     */
     private BeregningsgrunnlagInput lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
         if (opptjeningAktiviteter.isEmpty()) {
-            throw new IllegalStateException(String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(), ref.saksnummer()));
+            throw new IllegalStateException(
+                String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(),
+                    ref.saksnummer()));
         }
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
 
         var kravperioder = mapKravperioder(ref, iayGrunnlag);
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
-                MapBehandlingRef.mapRef(ref),
-                iayGrunnlagDto,
-                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow(), iayGrunnlag, ref),
-                kravperioder,
-                ytelseGrunnlag);
+        var beregningsgrunnlagInput = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), iayGrunnlagDto,
+            OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow(), iayGrunnlag, ref), kravperioder,
+            ytelseGrunnlag);
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
         return beregningsgrunnlagInput;
     }

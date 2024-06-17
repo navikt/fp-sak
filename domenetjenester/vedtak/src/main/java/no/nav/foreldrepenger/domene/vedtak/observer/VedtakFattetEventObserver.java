@@ -36,22 +36,19 @@ public class VedtakFattetEventObserver {
     }
 
     public void observerStegOvergang(@Observes BehandlingVedtakEvent event) {
-        if (event.iverksattYtelsesVedtak()
-            && erBehandlingAvRettType(event.behandling(), event.vedtak())) {
+        if (event.iverksattYtelsesVedtak() && erBehandlingAvRettType(event.behandling(), event.vedtak())) {
             opprettTaskForPubliseringAvVedtak(event.getBehandlingId());
         }
     }
 
     private boolean erBehandlingAvRettType(Behandling behandling, BehandlingVedtak vedtak) {
         var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.UDEFINERT;
-        return SKAL_SENDE_HENDELSE.contains(resultatType) ||
-            tilbakekrevingRepository.hent(behandling.getId()).isPresent() ||
-            revurderingAvslåttMedForrigeInnvilget(behandling, resultatType);
+        return SKAL_SENDE_HENDELSE.contains(resultatType) || tilbakekrevingRepository.hent(behandling.getId()).isPresent()
+            || revurderingAvslåttMedForrigeInnvilget(behandling, resultatType);
     }
 
     private boolean revurderingAvslåttMedForrigeInnvilget(Behandling behandling, VedtakResultatType vedtakResultatType) {
-        return VedtakResultatType.AVSLAG.equals(vedtakResultatType) && behandling.erRevurdering() &&
-            behandling.getOriginalBehandlingId()
+        return VedtakResultatType.AVSLAG.equals(vedtakResultatType) && behandling.erRevurdering() && behandling.getOriginalBehandlingId()
             .flatMap(b -> vedtakRepository.hentForBehandlingHvisEksisterer(b))
             .filter(v -> SKAL_SENDE_HENDELSE.contains(v.getVedtakResultatType()))
             .isPresent();

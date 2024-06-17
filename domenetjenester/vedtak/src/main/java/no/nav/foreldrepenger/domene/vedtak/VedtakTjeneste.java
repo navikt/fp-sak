@@ -46,7 +46,8 @@ public class VedtakTjeneste {
 
     @Inject
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
-                          BehandlingRepositoryProvider repositoryProvider, TotrinnTjeneste totrinnTjeneste) {
+                          BehandlingRepositoryProvider repositoryProvider,
+                          TotrinnTjeneste totrinnTjeneste) {
         this(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(),
             repositoryProvider.getHistorikkRepository(), lagretVedtakRepository, totrinnTjeneste);
 

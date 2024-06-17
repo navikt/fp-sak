@@ -27,34 +27,31 @@ class BehandlingModellTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(
-        BehandlingTypeYtelseType tuple) {
+    public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(BehandlingTypeYtelseType tuple) {
         var behandlingType = tuple.behandlingType();
         var ytelseType = tuple.ytelseType();
         var behandlingModellRepository = new BehandlingModellRepository();
         var modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
         for (var stegType : modell.getAlleBehandlingStegTyper()) {
             var steg = modell.finnSteg(stegType);
-            var description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),
-                    stegType.getKode());
+            var description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(), stegType.getKode());
             assertThat(steg).as(description).isNotNull();
             var behandlingSteg = steg.getSteg();
             assertThat(behandlingSteg).as(description).isNotNull();
 
-            @SuppressWarnings("rawtypes") var targetClass = ((TargetInstanceProxy) behandlingSteg)
-                    .weld_getTargetClass();
+            @SuppressWarnings("rawtypes") var targetClass = ((TargetInstanceProxy) behandlingSteg).weld_getTargetClass();
             assertThat(targetClass).as(description).hasAnnotation(ApplicationScoped.class);
         }
     }
 
-    private record BehandlingTypeYtelseType(BehandlingType behandlingType, FagsakYtelseType ytelseType) {}
+    private record BehandlingTypeYtelseType(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
+    }
 
     public static Collection<BehandlingTypeYtelseType> parameters() {
         List<BehandlingTypeYtelseType> params = new ArrayList<>();
-        var ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER,
-                FagsakYtelseType.SVANGERSKAPSPENGER);
-        var behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
-                BehandlingType.KLAGE, BehandlingType.INNSYN, BehandlingType.ANKE);
+        var ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
+        var behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING, BehandlingType.KLAGE, BehandlingType.INNSYN,
+            BehandlingType.ANKE);
         for (var a : ytelseTyper) {
             for (var b : behandlingTyper) {
                 params.add(new BehandlingTypeYtelseType(b, a));

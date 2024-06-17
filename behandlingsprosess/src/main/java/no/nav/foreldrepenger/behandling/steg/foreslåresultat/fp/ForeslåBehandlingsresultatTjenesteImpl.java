@@ -41,9 +41,9 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
 
     @Inject
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-            ForeldrepengerUttakTjeneste uttakTjeneste,
-            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
+                                           ForeldrepengerUttakTjeneste uttakTjeneste,
+                                           DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                                           @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
         this.uttakTjeneste = uttakTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;
@@ -67,7 +67,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
                 // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
                 // hvor avslagårsak kopieres fra et vilkår)
                 Optional.ofNullable(behandlingsresultat.get().getAvslagsårsak())
-                        .ifPresent(ufjernetÅrsak -> behandlingsresultat.get().setAvslagsårsak(Avslagsårsak.UDEFINERT));
+                    .ifPresent(ufjernetÅrsak -> behandlingsresultat.get().setAvslagsårsak(Avslagsårsak.UDEFINERT));
                 if (ref.erRevurdering()) {
                     var erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
                     return revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
@@ -82,7 +82,8 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     }
 
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
-        behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår()
+        behandlingsresultat.getVilkårResultat()
+            .hentIkkeOppfyltVilkår()
             .map(AvslagsårsakMapper::finnAvslagsårsak)
             .ifPresent(behandlingsresultat::setAvslagsårsak);
         if (ref.erRevurdering()) {
@@ -90,7 +91,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
             revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
         } else {
             var resultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                    .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
             if (sakErStengt(ref)) {
                 resultatBuilder.medVedtaksbrev(Vedtaksbrev.INGEN);
             }

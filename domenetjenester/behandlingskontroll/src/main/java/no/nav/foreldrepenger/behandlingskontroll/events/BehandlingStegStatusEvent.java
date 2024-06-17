@@ -23,8 +23,10 @@ public class BehandlingStegStatusEvent implements BehandlingEvent {
 
     private BehandlingStegStatus forrigeStatus;
 
-    public BehandlingStegStatusEvent(BehandlingskontrollKontekst kontekst, BehandlingStegType stegType, BehandlingStegStatus forrigeStatus,
-            BehandlingStegStatus nyStatus) {
+    public BehandlingStegStatusEvent(BehandlingskontrollKontekst kontekst,
+                                     BehandlingStegType stegType,
+                                     BehandlingStegStatus forrigeStatus,
+                                     BehandlingStegStatus nyStatus) {
         super();
         this.kontekst = kontekst;
         this.stegType = stegType;
@@ -65,10 +67,7 @@ public class BehandlingStegStatusEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst +
-                ", steg=" + stegType +
-                ", forrigeStatus=" + forrigeStatus +
-                ", nyStatus=" + nyStatus +
-                ">";
+        return getClass().getSimpleName() + "<" + kontekst + ", steg=" + stegType + ", forrigeStatus=" + forrigeStatus + ", nyStatus=" + nyStatus
+            + ">";
     }
 }

@@ -68,7 +68,7 @@ class DokumentRestTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository,
-                virksomhetTjeneste, behandlingRepository);
+            virksomhetTjeneste, behandlingRepository);
     }
 
     @Test
@@ -84,10 +84,7 @@ class DokumentRestTjenesteTest {
         Long behandlingId = 150L;
         var aktørId = AktørId.dummy();
         var navBruker = new NavBrukerBuilder().medAktørId(aktørId).build();
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
-                .medBruker(navBruker)
-                .medSaksnummer(new Saksnummer("123456"))
-                .build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(navBruker).medSaksnummer(new Saksnummer("123456")).build();
         fagsak.setId(fagsakId);
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(mock(Behandling.class));
@@ -110,10 +107,7 @@ class DokumentRestTjenesteTest {
             .medDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)
             .medAlleDokumenttyper(Set.of(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL))
             .build();
-        var søknadV = ArkivJournalPost.Builder.ny()
-            .medJournalpostId(new JournalpostId("125"))
-            .medHoveddokument(vedlegg)
-            .build();
+        var søknadV = ArkivJournalPost.Builder.ny().medJournalpostId(new JournalpostId("125")).medHoveddokument(vedlegg).build();
 
         var im = ArkivDokument.Builder.ny()
             .medTittel("Inntektsmelding")
@@ -129,16 +123,27 @@ class DokumentRestTjenesteTest {
 
         when(dokumentArkivTjeneste.hentAlleDokumenterCached(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
 
-        var mds = new MottattDokument.Builder().medId(1001L).medJournalPostId(new JournalpostId("123"))
-                .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
-        var mdim = new MottattDokument.Builder().medId(1002L).medJournalPostId(new JournalpostId("124"))
-                .medDokumentType(DokumentTypeId.INNTEKTSMELDING).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
+        var mds = new MottattDokument.Builder().medId(1001L)
+            .medJournalPostId(new JournalpostId("123"))
+            .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .build();
+        var mdim = new MottattDokument.Builder().medId(1002L)
+            .medJournalPostId(new JournalpostId("124"))
+            .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .build();
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)).thenReturn(List.of(mdim, mds));
 
         var vnavn = "Sinsen Septik og Snarmat";
         var sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
-        var imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medJournalpostId(mdim.getJournalpostId()).medInnsendingstidspunkt(LocalDateTime.now()).build();
+        var imelda = InntektsmeldingBuilder.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medJournalpostId(mdim.getJournalpostId())
+            .medInnsendingstidspunkt(LocalDateTime.now())
+            .build();
 
         when(inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(any())).thenReturn(Collections.singletonList(imelda));
 
@@ -156,7 +161,7 @@ class DokumentRestTjenesteTest {
 
     @Test
     void verifisererKorrektMappingFraDokumentResponsTilResponsObjekt() {
-        final byte[] bytesExpected = { 1, 2, 7 };
+        final byte[] bytesExpected = {1, 2, 7};
         var contentType = "application/pdf";
         var contentDisp = "filename=test.pdf";
         var dokumentRespons = new DokumentRespons(bytesExpected, contentType, contentDisp);

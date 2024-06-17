@@ -37,12 +37,15 @@ public class ForeldrepengerUttakAktivitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ForeldrepengerUttakAktivitet) o;
-        return Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) &&
-            uttakArbeidType == that.uttakArbeidType &&
-            Objects.equals(arbeidsgiver, that.arbeidsgiver);
+        return Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) && uttakArbeidType == that.uttakArbeidType && Objects.equals(arbeidsgiver,
+            that.arbeidsgiver);
     }
 
     @Override
@@ -52,10 +55,7 @@ public class ForeldrepengerUttakAktivitet {
 
     @Override
     public String toString() {
-        return "ForeldrepengerUttakAktivitet{" +
-            "arbeidsforholdRef=" + arbeidsforholdRef +
-            ", uttakArbeidType=" + uttakArbeidType +
-            ", arbeidsgiver=" + arbeidsgiver +
-            '}';
+        return "ForeldrepengerUttakAktivitet{" + "arbeidsforholdRef=" + arbeidsforholdRef + ", uttakArbeidType=" + uttakArbeidType + ", arbeidsgiver="
+            + arbeidsgiver + '}';
     }
 }

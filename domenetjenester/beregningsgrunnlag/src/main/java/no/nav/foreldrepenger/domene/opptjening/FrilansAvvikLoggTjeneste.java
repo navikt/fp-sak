@@ -45,8 +45,7 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     @Inject
-    public FrilansAvvikLoggTjeneste(BeregningTjeneste beregningTjeneste,
-                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+    public FrilansAvvikLoggTjeneste(BeregningTjeneste beregningTjeneste, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
@@ -70,44 +69,41 @@ public class FrilansAvvikLoggTjeneste {
             .toList();
 
         if (relevantOppgittFrilans.isEmpty()) {
-            frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(fl -> LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
-                ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString()));
-        }
-        else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()){
-            LOG.info("FP-654896: Saksnr {}. Oppgitt frilans i søknad, men ingen utbetalinger som frilans siste 3 mnd",
-                ref.saksnummer().getVerdi());
+            frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(
+                fl -> LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
+                    ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString()));
+        } else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()) {
+            LOG.info("FP-654896: Saksnr {}. Oppgitt frilans i søknad, men ingen utbetalinger som frilans siste 3 mnd", ref.saksnummer().getVerdi());
 
             // Ingen aktiv inntekt på stp, logg alder på frilansforholdene som er åpne på stp
             frilansPåSTP.forEach(fl -> {
                 var startdato = finnStartdato(fl, stpBG);
-                startdato.ifPresent(dato -> LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
-                        "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
-                    ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato));
+                startdato.ifPresent(dato -> LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. "
+                        + "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})", ref.saksnummer().getVerdi(),
+                    fl.getArbeidsgiver().toString(), alderIMnd(dato), dato));
             });
         }
     }
 
     private long alderIMnd(LocalDate dato) {
-        return ChronoUnit.MONTHS.between(
-            YearMonth.from(dato),
-            YearMonth.from(LocalDate.now()));
+        return ChronoUnit.MONTHS.between(YearMonth.from(dato), YearMonth.from(LocalDate.now()));
     }
 
     private Optional<LocalDate> finnStartdato(Yrkesaktivitet fl, LocalDate stpBG) {
-        return fl.getAlleAktivitetsAvtaler().stream()
+        return fl.getAlleAktivitetsAvtaler()
+            .stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-            .filter(aa -> aa.getPeriode().inkluderer(stpBG)).map(aa -> aa.getPeriode().getFomDato())
+            .filter(aa -> aa.getPeriode().inkluderer(stpBG))
+            .map(aa -> aa.getPeriode().getFomDato())
             .min(Comparator.naturalOrder());
     }
 
-    private List<Arbeidsgiver> finnArbeidsgivereMedInntekterSiste3Mnd(LocalDate stpBG,
-                                                                      InntektArbeidYtelseGrunnlag grunnlag,
-                                                                      AktørId aktørId) {
-        var datoViSjekkerInntektFra = LocalDate.now().isBefore(stpBG.minusWeeks(2))
-            ? stpBG.minusMonths(4).withDayOfMonth(1)
-            : stpBG.minusMonths(3).withDayOfMonth(1);
+    private List<Arbeidsgiver> finnArbeidsgivereMedInntekterSiste3Mnd(LocalDate stpBG, InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        var datoViSjekkerInntektFra = LocalDate.now().isBefore(stpBG.minusWeeks(2)) ? stpBG.minusMonths(4).withDayOfMonth(1) : stpBG.minusMonths(3)
+            .withDayOfMonth(1);
         var inntektfilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
-        return inntektfilter.getAlleInntekter(InntektsKilde.INNTEKT_BEREGNING).stream()
+        return inntektfilter.getAlleInntekter(InntektsKilde.INNTEKT_BEREGNING)
+            .stream()
             .filter(innt -> innt.getArbeidsgiver() != null)
             .filter(innt -> finnesInntektEtterDato(innt.getAlleInntektsposter(), datoViSjekkerInntektFra))
             .map(Inntekt::getArbeidsgiver)
@@ -122,19 +118,12 @@ public class FrilansAvvikLoggTjeneste {
         return iayGrunnlag.getGjeldendeOppgittOpptjening().flatMap(OppgittOpptjening::getFrilans);
     }
 
-    private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG,
-                                                                   InntektArbeidYtelseGrunnlag grunnlag,
-                                                                   AktørId aktørId) {
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
-        return filter.getFrilansOppdrag().stream()
-            .filter(ya -> erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG))
-            .toList();
+    private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG, InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
+        return filter.getFrilansOppdrag().stream().filter(ya -> erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG)).toList();
     }
 
     private boolean erAnsattPåDato(Collection<AktivitetsAvtale> alleAktivitetsAvtaler, LocalDate stpBG) {
-        return alleAktivitetsAvtaler.stream()
-            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-            .anyMatch(aa -> aa.getPeriode().inkluderer(stpBG));
+        return alleAktivitetsAvtaler.stream().filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(aa -> aa.getPeriode().inkluderer(stpBG));
     }
 }

@@ -71,12 +71,10 @@ class SimuleringIntegrasjonTjenesteTest {
 
     @Test
     void test_skalFeileNårOppdragsystemKasterExsception() {
-        doThrow(new OppdragForventetNedetidException())
-            .when(restKlientMock).startSimulering(any());
+        doThrow(new OppdragForventetNedetidException()).when(restKlientMock).startSimulering(any());
         var oppdragskontroll = oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
         var oppdragskontrollOpt = Optional.of(oppdragskontroll);
-        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt))
-            .isInstanceOf(IntegrasjonException.class)
+        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt)).isInstanceOf(IntegrasjonException.class)
             .hasMessageContaining(OppdragForventetNedetidException.MELDING);
         verify(restKlientMock, atLeastOnce()).startSimulering(any());
     }

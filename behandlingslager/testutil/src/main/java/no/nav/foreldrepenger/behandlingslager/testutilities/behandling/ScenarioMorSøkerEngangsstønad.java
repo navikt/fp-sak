@@ -22,9 +22,7 @@ public class ScenarioMorSøkerEngangsstønad extends AbstractTestScenario<Scenar
 
     private ScenarioMorSøkerEngangsstønad() {
         super(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
-        medSøknad()
-            .medRelasjonsRolleType(RelasjonsRolleType.MORA)
-            .medSøknadsdato(LocalDate.now());
+        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.MORA).medSøknadsdato(LocalDate.now());
     }
 
     public static ScenarioMorSøkerEngangsstønad forFødselUtenSøknad() {

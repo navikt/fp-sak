@@ -34,23 +34,20 @@ public class ApiConfig extends Application {
 
     public ApiConfig() {
         var oas = new OpenAPI();
-        var info = new Info()
-            .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
+        var info = new Info().title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FPSAK.");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpsak")));
-        var oasConfig = new SwaggerConfiguration()
-            .openAPI(oas)
+        var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
-                .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
+                .flatMap(Collection::stream)
+                .map(Class::getName)
+                .collect(Collectors.toSet()));
 
         try {
-            new GenericOpenApiContextBuilder<>()
-                .openApiConfiguration(oasConfig)
-                .buildContext(true)
-                .read();
+            new GenericOpenApiContextBuilder<>().openApiConfiguration(oasConfig).buildContext(true).read();
         } catch (OpenApiConfigurationException e) {
             throw new TekniskException("OPEN-API", e.getMessage(), e);
         }

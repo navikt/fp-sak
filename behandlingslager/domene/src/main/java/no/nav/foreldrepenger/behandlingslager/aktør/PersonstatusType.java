@@ -28,17 +28,10 @@ public enum PersonstatusType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert", false),
     ;
 
-    private static final Map<String, PersonstatusType> FRA_FREG = Map.ofEntries(
-        Map.entry("inaktiv", ADNR),
-        Map.entry("midlertidig", ADNR),
-        Map.entry("bosatt", PersonstatusType.BOSA),
-        Map.entry("doed", PersonstatusType.DØD),
-        Map.entry("forsvunnet", PersonstatusType.FOSV),
-        Map.entry("foedselsregistrert", PersonstatusType.FØDR),
-        Map.entry("opphoert", PersonstatusType.UTPE),
-        Map.entry("utflyttet", UTVA),
-        Map.entry("ikkeBosatt", UREG)
-    );
+    private static final Map<String, PersonstatusType> FRA_FREG = Map.ofEntries(Map.entry("inaktiv", ADNR), Map.entry("midlertidig", ADNR),
+        Map.entry("bosatt", PersonstatusType.BOSA), Map.entry("doed", PersonstatusType.DØD), Map.entry("forsvunnet", PersonstatusType.FOSV),
+        Map.entry("foedselsregistrert", PersonstatusType.FØDR), Map.entry("opphoert", PersonstatusType.UTPE), Map.entry("utflyttet", UTVA),
+        Map.entry("ikkeBosatt", UREG));
 
     private static final Map<String, PersonstatusType> KODER = new LinkedHashMap<>();
 

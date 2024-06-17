@@ -67,8 +67,7 @@ public class EndreDekningsgradVedDødTjeneste {
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.ENDRET_DEKNINGSGRAD);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.ENDRET_DEKNINGSGRAD)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.ENDRET_DEKNINGSGRAD)
             .medBegrunnelse("Dekningsgraden er endret fra 80% til 100% grunnet opplysninger om død");
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);

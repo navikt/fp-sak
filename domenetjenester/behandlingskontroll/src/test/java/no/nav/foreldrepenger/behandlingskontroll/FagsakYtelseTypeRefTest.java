@@ -19,9 +19,8 @@ class FagsakYtelseTypeRefTest {
 
     @Test
     void skal_få_duplikat_instans_av_cdi_bean() {
-        assertThatThrownBy(
-                () -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER)).isInstanceOf(
-                        IllegalStateException.class).hasMessageContaining("Har flere matchende instanser");
+        assertThatThrownBy(() -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER)).isInstanceOf(
+            IllegalStateException.class).hasMessageContaining("Har flere matchende instanser");
     }
 
     @Test

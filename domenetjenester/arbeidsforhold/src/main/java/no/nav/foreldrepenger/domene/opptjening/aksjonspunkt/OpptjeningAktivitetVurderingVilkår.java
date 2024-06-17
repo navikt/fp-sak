@@ -17,7 +17,7 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
     private final AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening;
 
     public OpptjeningAktivitetVurderingVilkår(AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
-            AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
+                                              AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
         this.vurderOppgittOpptjening = vurderOppgittOpptjening;
         this.vurderBekreftetOpptjening = vurderBekreftetOpptjening;
     }
@@ -29,10 +29,10 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse,
-            Yrkesaktivitet overstyrtAktivitet,
-            InntektArbeidYtelseGrunnlag iayGrunnlag,
-            boolean harVærtSaksbehandlet) {
+                                         BehandlingReferanse behandlingReferanse,
+                                         Yrkesaktivitet overstyrtAktivitet,
+                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                         boolean harVærtSaksbehandlet) {
         return vurderStatus(type, behandlingReferanse, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet, null, null);
     }
 
@@ -59,9 +59,13 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
         return VurderingsStatus.TIL_VURDERING;
     }
 
-    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet,
-                                          Long behandlingId, AktivitetsAvtale ansettelsesPeriode) {
-        if (vurderBekreftetOpptjening.girAksjonspunktForAnsettelsesperiode(filter, behandlingId, registerAktivitet, overstyrtAktivitet, ansettelsesPeriode)) {
+    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter,
+                                          Yrkesaktivitet registerAktivitet,
+                                          Yrkesaktivitet overstyrtAktivitet,
+                                          Long behandlingId,
+                                          AktivitetsAvtale ansettelsesPeriode) {
+        if (vurderBekreftetOpptjening.girAksjonspunktForAnsettelsesperiode(filter, behandlingId, registerAktivitet, overstyrtAktivitet,
+            ansettelsesPeriode)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.FERDIG_VURDERT_GODKJENT;
             }
@@ -77,8 +81,11 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
         return VurderingsStatus.FERDIG_VURDERT_UNDERKJENT;
     }
 
-    private VurderingsStatus vurderNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg, Yrkesaktivitet overstyrtAktivitet,
-            Skjæringstidspunkt skjæringstidspunkt) {
+    private VurderingsStatus vurderNæring(Long behandlingId,
+                                          AktørId aktørId,
+                                          InntektArbeidYtelseGrunnlag iayg,
+                                          Yrkesaktivitet overstyrtAktivitet,
+                                          Skjæringstidspunkt skjæringstidspunkt) {
         if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingId, aktørId, iayg, skjæringstidspunkt)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.FERDIG_VURDERT_GODKJENT;

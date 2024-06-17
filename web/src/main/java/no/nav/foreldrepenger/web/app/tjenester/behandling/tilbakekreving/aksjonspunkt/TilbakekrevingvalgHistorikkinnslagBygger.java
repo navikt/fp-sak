@@ -29,7 +29,10 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
     }
 
-    public void byggHistorikkinnslag(Long behandlingId, Optional<TilbakekrevingValg> forrigeValg, TilbakekrevingValg tilbakekrevingValg, String begrunnelse) {
+    public void byggHistorikkinnslag(Long behandlingId,
+                                     Optional<TilbakekrevingValg> forrigeValg,
+                                     TilbakekrevingValg tilbakekrevingValg,
+                                     String begrunnelse) {
         var innslag = new Historikkinnslag();
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandlingId);
@@ -54,9 +57,11 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
         }
 
         if (tilbakekrevingValg.getGrunnerTilReduksjon() != null) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON, forrigeGrunnerTilReduksjon, tilbakekrevingValg.getGrunnerTilReduksjon());
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON, forrigeGrunnerTilReduksjon,
+                tilbakekrevingValg.getGrunnerTilReduksjon());
         }
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_VIDERE_BEHANDLING, forrigeTilbakekrevingVidereBehandling, tilbakekrevingValg.getVidereBehandling());
+        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_VIDERE_BEHANDLING, forrigeTilbakekrevingVidereBehandling,
+            tilbakekrevingValg.getVidereBehandling());
 
         tekstBuilder.build(innslag);
         historikkTjenesteAdapter.lagInnslag(innslag);

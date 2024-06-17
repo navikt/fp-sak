@@ -37,7 +37,7 @@ public class OppgittOpptjeningBuilder {
 
     public static OppgittOpptjeningBuilder ny(UUID eksternReferanse, OffsetDateTime opprettetTidspunktOriginalt) {
         return new OppgittOpptjeningBuilder(
-                new OppgittOpptjening(eksternReferanse, opprettetTidspunktOriginalt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()));
+            new OppgittOpptjening(eksternReferanse, opprettetTidspunktOriginalt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()));
     }
 
     public OppgittOpptjeningBuilder leggTilAnnenAktivitet(OppgittAnnenAktivitet annenAktivitet) {
@@ -63,6 +63,7 @@ public class OppgittOpptjeningBuilder {
     /**
      * Hvis det allerede finnes et objekt i liste egenNæring med matchende orgnr som nyEgenNæring, blir dette erastattet av nyEgenNæring.
      * Ellers blir nyEgenNæring lagt til
+     *
      * @param nyEgenNæring
      */
     public OppgittOpptjeningBuilder leggTilEllerErstattEgenNæring(OppgittEgenNæring nyEgenNæring) {

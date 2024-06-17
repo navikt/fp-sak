@@ -82,11 +82,13 @@ class DekningsgradMigreringTask implements ProsessTaskHandler {
             LOG.info("Migrerer dekningsgrad, behandling {} ikke kommet langt nok for å oppdatere sakskompleksDG ", behandling.getId());
             return;
         }
-        var aktivPåTidspunkt = alleSteg.isEmpty() ? behandling.getOpprettetTidspunkt() : behandling.getSisteBehandlingStegTilstand().orElseThrow().getOpprettetTidspunkt();
+        var aktivPåTidspunkt = alleSteg.isEmpty() ? behandling.getOpprettetTidspunkt() : behandling.getSisteBehandlingStegTilstand()
+            .orElseThrow()
+            .getOpprettetTidspunkt();
         LOG.info("Migrerer dekningsgrad, fant aktivtidspunkt {} for behanding {}", aktivPåTidspunkt, behandling.getId());
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsakId(), aktivPåTidspunkt);
-        fagsakRelasjon.ifPresentOrElse(fr -> oppdaterSakskompleksDG(fr, behandling.getId()), () -> LOG.info("Migrerer dekningsgrad, finner ikke fagsakrel for {}",
-            behandling.getId()));
+        fagsakRelasjon.ifPresentOrElse(fr -> oppdaterSakskompleksDG(fr, behandling.getId()),
+            () -> LOG.info("Migrerer dekningsgrad, finner ikke fagsakrel for {}", behandling.getId()));
     }
 
     private void oppdaterSakskompleksDG(FagsakRelasjon fagsakRelasjon, Long behandlingId) {
@@ -94,8 +96,7 @@ class DekningsgradMigreringTask implements ProsessTaskHandler {
 
         var sakskompleksDekningsgrad = fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi();
         LOG.info("Migrerer dekningsgrad, setter sakskompleksDG {} på gryf {} for behandling {}", sakskompleksDekningsgrad, grunnlagId, behandlingId);
-        entityManager.createNativeQuery(
-                "UPDATE GR_YTELSES_FORDELING SET SAKSKOMPLEKS_DEKNINGSGRAD = :dekningsgrad WHERE id = :gryfId")
+        entityManager.createNativeQuery("UPDATE GR_YTELSES_FORDELING SET SAKSKOMPLEKS_DEKNINGSGRAD = :dekningsgrad WHERE id = :gryfId")
             .setParameter("dekningsgrad", sakskompleksDekningsgrad)
             .setParameter("gryfId", grunnlagId)
             .executeUpdate();

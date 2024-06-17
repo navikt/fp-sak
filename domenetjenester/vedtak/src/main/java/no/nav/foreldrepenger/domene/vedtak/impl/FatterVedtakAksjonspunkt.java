@@ -77,7 +77,9 @@ public class FatterVedtakAksjonspunkt {
         if (!skalReåpnes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, skalReåpnes, false, true);
             // Litt spesialbehandling siden dette aksjonspunktet er ekstra sticky pga mange tilbakehopp - nå kan det løses på nytt
-            if (skalReåpnes.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING::equals)) {
+            if (skalReåpnes.stream()
+                .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+                .anyMatch(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING::equals)) {
                 inntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandling.getId());
             }
         }

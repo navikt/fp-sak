@@ -28,10 +28,11 @@ class IAYRequestCache {
 
     UUID getSisteAktiveGrunnlagReferanse(UUID behandlingUuid) {
         return this.cacheGrunnlag.stream()
-                .filter(it -> behandlingUuid.equals(it.getKoblingReferanse().orElse(null)))
-                .filter(InntektArbeidYtelseGrunnlag::isAktiv).max(Comparator.comparing(InntektArbeidYtelseGrunnlag::getOpprettetTidspunkt))
-                .map(InntektArbeidYtelseGrunnlag::getEksternReferanse)
-                .orElse(null);
+            .filter(it -> behandlingUuid.equals(it.getKoblingReferanse().orElse(null)))
+            .filter(InntektArbeidYtelseGrunnlag::isAktiv)
+            .max(Comparator.comparing(InntektArbeidYtelseGrunnlag::getOpprettetTidspunkt))
+            .map(InntektArbeidYtelseGrunnlag::getEksternReferanse)
+            .orElse(null);
     }
 
 }

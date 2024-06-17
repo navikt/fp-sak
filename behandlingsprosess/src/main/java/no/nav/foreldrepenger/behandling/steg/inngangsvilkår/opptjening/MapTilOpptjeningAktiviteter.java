@@ -17,7 +17,7 @@ public class MapTilOpptjeningAktiviteter {
     }
 
     public static List<OpptjeningAktivitet> map(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder,
-            OpptjeningAktivitetKlassifisering klassifisering) {
+                                                OpptjeningAktivitetKlassifisering klassifisering) {
 
         List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
         for (var entry : perioder.entrySet()) {
@@ -27,8 +27,7 @@ public class MapTilOpptjeningAktiviteter {
                 var aktivitetReferanse = key.getAktivitetReferanse();
                 var refType = getAktivitetReferanseType(aktivitetReferanse, key);
 
-                var oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering,
-                        aktivitetReferanse, refType);
+                var oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering, aktivitetReferanse, refType);
                 opptjeningAktivitet.add(oppAkt);
             }
         }
@@ -44,10 +43,7 @@ public class MapTilOpptjeningAktiviteter {
                 return ReferanseType.AKTØR_ID;
             }
             throw new IllegalArgumentException(
-                    "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse["
-                            + key.getReferanseType()
-                            + "]: "
-                            + aktivitetReferanse);
+                "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse[" + key.getReferanseType() + "]: " + aktivitetReferanse);
 
         }
 

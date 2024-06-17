@@ -100,9 +100,8 @@ public class BehandlingVedtak extends BaseEntitet {
         if (!(object instanceof BehandlingVedtak vedtak)) {
             return false;
         }
-        return Objects.equals(vedtakstidspunkt, vedtak.getVedtakstidspunkt())
-                && Objects.equals(ansvarligSaksbehandler, vedtak.getAnsvarligSaksbehandler())
-                && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());
+        return Objects.equals(vedtakstidspunkt, vedtak.getVedtakstidspunkt()) && Objects.equals(ansvarligSaksbehandler,
+            vedtak.getAnsvarligSaksbehandler()) && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());
     }
 
     @Override

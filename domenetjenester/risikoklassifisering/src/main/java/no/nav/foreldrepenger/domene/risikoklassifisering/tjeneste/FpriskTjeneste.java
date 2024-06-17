@@ -42,6 +42,7 @@ public class FpriskTjeneste {
 
     /**
      * Henter resultat av risikoklassifisering og evt vurdering og faresignaler fra fprisk
+     *
      * @param request
      * @return RisikovurderingResultatDto som inneholder både risikoklasse, vurdering og faresignaler
      */
@@ -58,6 +59,7 @@ public class FpriskTjeneste {
 
     /**
      * Sender risikovurdering til fprisk
+     *
      * @param request
      */
     protected void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
@@ -73,6 +75,7 @@ public class FpriskTjeneste {
 
     /**
      * Sender oppdrag om risikoklassifisering til fprisk
+     *
      * @param request
      */
     protected void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {

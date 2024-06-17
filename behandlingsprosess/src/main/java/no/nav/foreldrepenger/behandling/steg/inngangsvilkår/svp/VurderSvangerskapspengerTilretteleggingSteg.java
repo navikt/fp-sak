@@ -43,6 +43,7 @@ public class VurderSvangerskapspengerTilretteleggingSteg implements BehandlingSt
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         tilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkter);
 
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING)));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(
+            List.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING)));
     }
 }

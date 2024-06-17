@@ -71,7 +71,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
         var foreldrepenger = new ObjectFactory().createForeldrepenger();
 
-        var dto = (ManuellRegistreringForeldrepengerDto)registreringDto;
+        var dto = (ManuellRegistreringForeldrepengerDto) registreringDto;
         var søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto); // Fødsel, termin, adopsjon eller omsorg
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         foreldrepenger.setRettigheter(mapRettigheter(dto));
@@ -226,8 +226,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
-                Optional.ofNullable(annenForelder.getAnnenForelderRettEØS())
-                    .ifPresent(rettighet::setHarAnnenForelderTilsvarendeRettEOS);
+                Optional.ofNullable(annenForelder.getAnnenForelderRettEØS()).ifPresent(rettighet::setHarAnnenForelderTilsvarendeRettEOS);
             }
             rettighet.setHarOmsorgForBarnetIPeriodene(true);
             return rettighet;

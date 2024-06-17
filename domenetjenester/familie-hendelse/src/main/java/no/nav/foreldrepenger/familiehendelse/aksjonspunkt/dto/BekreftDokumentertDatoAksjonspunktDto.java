@@ -27,8 +27,7 @@ public class BekreftDokumentertDatoAksjonspunktDto extends BekreftetAksjonspunkt
         // For Jackson
     }
 
-    public BekreftDokumentertDatoAksjonspunktDto(String begrunnelse, LocalDate omsorgsovertakelseDato,
-                                                 Map<Integer, LocalDate> fodselsdatoer) {
+    public BekreftDokumentertDatoAksjonspunktDto(String begrunnelse, LocalDate omsorgsovertakelseDato, Map<Integer, LocalDate> fodselsdatoer) {
 
         super(begrunnelse);
         this.omsorgsovertakelseDato = omsorgsovertakelseDato;

@@ -7,5 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 public interface StartpunktTjeneste {
 
     StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering);
+
     StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse);
 }

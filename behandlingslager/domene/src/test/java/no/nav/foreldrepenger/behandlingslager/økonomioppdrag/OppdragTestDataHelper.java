@@ -16,8 +16,7 @@ public class OppdragTestDataHelper {
     static Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
         var oppdrLinje150Builder = Oppdragslinje150.builder();
 
-        return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+        return oppdrLinje150Builder.medKodeEndringLinje(KodeEndringLinje.ENDR)
             .medKodeStatusLinje(KodeStatusLinje.OPPH)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")
@@ -40,23 +39,20 @@ public class OppdragTestDataHelper {
     private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde økonomiKodeFagområde) {
         var oppdr110Builder = Oppdrag110.builder();
 
-        var oppdrag110Builder = oppdr110Builder
-            .medKodeEndring(KodeEndring.NY)
+        var oppdrag110Builder = oppdr110Builder.medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(økonomiKodeFagområde)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("12345678901")
             .medSaksbehId("J5624215")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll);
-        return oppdrag110Builder
-            .build();
+        return oppdrag110Builder.build();
     }
 
     static void buildRefusjonsinfo156(Oppdragslinje150 oppdragslinje150) {
         var refusjonsinfo156Builder = Refusjonsinfo156.builder();
 
-        refusjonsinfo156Builder
-            .medMaksDato(LocalDate.now())
+        refusjonsinfo156Builder.medMaksDato(LocalDate.now())
             .medDatoFom(LocalDate.now())
             .medRefunderesId("123456789")
             .medOppdragslinje150(oppdragslinje150)
@@ -74,8 +70,7 @@ public class OppdragTestDataHelper {
     static Oppdragskontroll buildOppdragskontroll(Saksnummer saksnummer, long behandlingId, long prosessTaskId) {
         var oppdrkontrollBuilder = Oppdragskontroll.builder();
 
-        return oppdrkontrollBuilder
-            .medBehandlingId(behandlingId)
+        return oppdrkontrollBuilder.medBehandlingId(behandlingId)
             .medSaksnummer(saksnummer)
             .medVenterKvittering(Boolean.TRUE)
             .medProsessTaskId(prosessTaskId)

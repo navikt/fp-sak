@@ -21,11 +21,11 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_teste_når_ingen_etterbetaling() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagOriginalPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 200, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagNyPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 200, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
@@ -34,9 +34,9 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_ikke_etterbetaling() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 31), 500, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 500, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 5, 31), 500, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
@@ -45,9 +45,9 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_etterbetaling() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 31), 500, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 1500, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 5, 31), 1500, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isTrue();
@@ -56,10 +56,10 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_etterbetaling_hull_i_original() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
-        lagOriginalPeriode(LocalDate.of(2023,8,1), LocalDate.of(2023,9,30), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 31), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 8, 1), LocalDate.of(2023, 9, 30), 500, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,9,30), 770, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 9, 30), 770, true);
 
         // 109 virkedager * 270 økt dagsats
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
@@ -69,11 +69,11 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_kun_telle_direkteutbetaling() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagOriginalPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, false);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 200, false);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 300, false);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagNyPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 300, false);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
@@ -82,71 +82,71 @@ class EtterbetalingtjenesteTest {
 
     @Test
     void skal_teste_når_etterbetaling_ikke_over_grense() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagOriginalPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 200, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
-        lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 250, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 500, true);
+        lagNyPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 250, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
 
         var virkedager = Virkedager.beregnAntallVirkedager(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31));
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
-        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(50L*virkedager));
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(50L * virkedager));
     }
 
     @Test
     void skal_teste_når_etterbetaling_over_grense() {
-        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 2350, false);
-        lagOriginalPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,9,30), 2350, false);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 2350, false);
+        lagOriginalPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 9, 30), 2350, false);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 2350, true);
-        lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 2350, true);
-        lagNyPeriode(LocalDate.of(2023,6,1), LocalDate.of(2023,9,30), 2350, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 3, 1), 2350, true);
+        lagNyPeriode(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31), 2350, true);
+        lagNyPeriode(LocalDate.of(2023, 6, 1), LocalDate.of(2023, 9, 30), 2350, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
 
         var virkedager = Virkedager.beregnAntallVirkedager(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 9, 30));
         assertThat(etterbetalingsKontroll.overstigerGrense()).isTrue();
-        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(2350L*virkedager));
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(2350L * virkedager));
     }
 
     @Test
     void flere_overlappende_perioder() {
-        lagOriginalPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 785, false);
-        lagOriginalPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 8, 14), LocalDate.of(2023, 11, 7), 785, false);
+        lagOriginalPeriode(LocalDate.of(2023, 8, 14), LocalDate.of(2023, 11, 7), 0, true);
 
-        lagOriginalPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 0, true);
-        lagOriginalPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023, 6, 5), LocalDate.of(2023, 6, 18), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 6, 5), LocalDate.of(2023, 6, 18), 1963, false);
 
-        lagOriginalPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 1963, false);
-        lagOriginalPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 6, 2), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 6, 2), 0, true);
 
-        lagOriginalPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 0, true);
-        lagOriginalPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023, 2, 20), LocalDate.of(2023, 3, 31), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 2, 20), LocalDate.of(2023, 3, 31), 1963, false);
 
-        lagOriginalPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 0, true);
-        lagOriginalPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 17), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 17), 1963, false);
 
-        lagOriginalPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 1963, false);
-        lagOriginalPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 18), LocalDate.of(2023, 1, 27), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023, 1, 18), LocalDate.of(2023, 1, 27), 0, true);
 
-        lagNyPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 785, true);
+        lagNyPeriode(LocalDate.of(2023, 8, 14), LocalDate.of(2023, 11, 7), 785, true);
 
-        lagNyPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 0, true);
-        lagNyPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 1963, false);
+        lagNyPeriode(LocalDate.of(2023, 6, 5), LocalDate.of(2023, 6, 18), 0, true);
+        lagNyPeriode(LocalDate.of(2023, 6, 5), LocalDate.of(2023, 6, 18), 1963, false);
 
-        lagNyPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 1963, false);
-        lagNyPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 0, true);
+        lagNyPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 6, 2), 1963, false);
+        lagNyPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 6, 2), 0, true);
 
-        lagNyPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 0, true);
-        lagNyPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 1963, false);
+        lagNyPeriode(LocalDate.of(2023, 2, 20), LocalDate.of(2023, 3, 31), 0, true);
+        lagNyPeriode(LocalDate.of(2023, 2, 20), LocalDate.of(2023, 3, 31), 1963, false);
 
-        lagNyPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 0, true);
-        lagNyPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 1963, false);
+        lagNyPeriode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 17), 0, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 17), 1963, false);
 
-        lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 1963, false);
-        lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 0, true);
+        lagNyPeriode(LocalDate.of(2023, 1, 18), LocalDate.of(2023, 1, 27), 1963, false);
+        lagNyPeriode(LocalDate.of(2023, 1, 18), LocalDate.of(2023, 1, 27), 0, true);
 
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 9, 11), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();

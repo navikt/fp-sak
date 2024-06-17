@@ -47,7 +47,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class ArenaReguleringSaksutvalgTest {
 
     private long gammelSats;
-    private final LocalDate arenaDato = LocalDate.of(LocalDate.now().getYear(), 5, 1);;
+    private final LocalDate arenaDato = LocalDate.of(LocalDate.now().getYear(), 5, 1);
+    ;
     private LocalDate cutoff;
     private LocalDate arenaFerdigRegulertDato;
     private GrunnbeløpFinnSakerTask task;

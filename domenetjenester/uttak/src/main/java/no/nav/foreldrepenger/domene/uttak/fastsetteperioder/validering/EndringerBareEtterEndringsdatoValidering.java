@@ -26,7 +26,6 @@ class EndringerBareEtterEndringsdatoValidering implements OverstyrUttakPerioderV
     }
 
     private boolean harEndring(ForeldrepengerUttakPeriode nyPeriode) {
-        return opprinnelige.stream()
-            .noneMatch(opprinneligPeriode -> opprinneligPeriode.erLikBortsettFraTrekkdager(nyPeriode));
+        return opprinnelige.stream().noneMatch(opprinneligPeriode -> opprinneligPeriode.erLikBortsettFraTrekkdager(nyPeriode));
     }
 }

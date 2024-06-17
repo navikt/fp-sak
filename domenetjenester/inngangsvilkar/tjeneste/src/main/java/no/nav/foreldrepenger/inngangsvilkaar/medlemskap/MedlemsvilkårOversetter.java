@@ -29,12 +29,9 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonS
 @ApplicationScoped
 public class MedlemsvilkårOversetter {
 
-    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(
-        PersonstatusType.BOSA, RegelPersonStatusType.BOSA,
-        PersonstatusType.ADNR, RegelPersonStatusType.BOSA,
-        PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
-        PersonstatusType.DØD, RegelPersonStatusType.DØD
-    );
+    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(PersonstatusType.BOSA,
+        RegelPersonStatusType.BOSA, PersonstatusType.ADNR, RegelPersonStatusType.BOSA, PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
+        PersonstatusType.DØD, RegelPersonStatusType.DØD);
 
     private MedlemskapRepository medlemskapRepository;
     private MedlemskapPerioderTjeneste medlemskapPerioderTjeneste;
@@ -79,16 +76,10 @@ public class MedlemsvilkårOversetter {
         var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall());
         var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.aktørId());
 
-        return new MedlemskapsvilkårGrunnlag(
-            tilPersonStatusType(personopplysninger), // FP VK 2.1
+        return new MedlemskapsvilkårGrunnlag(tilPersonStatusType(personopplysninger), // FP VK 2.1
             brukerNorskNordisk(personopplysninger), // FP VK 2.11
             brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger), // FP VIK 2.12
-            harOppholdstillatelse,
-            harArbeidInntekt,
-            vurdertErMedlem,
-            avklartPliktigEllerFrivillig,
-            vurdertBosatt,
-            vurdertLovligOpphold,
+            harOppholdstillatelse, harArbeidInntekt, vurdertErMedlem, avklartPliktigEllerFrivillig, vurdertBosatt, vurdertLovligOpphold,
             vurdertOppholdsrett);
     }
 
@@ -100,12 +91,12 @@ public class MedlemsvilkårOversetter {
             var vurdertMedlemskapOpt = medlemskap.get().getVurdertMedlemskap();
             if (vurdertMedlemskapOpt.isPresent()) {
                 var vurdertMedlemskap = vurdertMedlemskapOpt.get();
-                if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null &&
-                    MedlemskapManuellVurderingType.MEDLEM.equals(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
+                if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.MEDLEM.equals(
+                    vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
                     return true;
                 }
-                if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null &&
-                    MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
+                if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(
+                    vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
                     return false;
                 }
             }
@@ -120,22 +111,23 @@ public class MedlemsvilkårOversetter {
      * True dersom saksbehandler har vurdert til ikke å være medlem i relevant periode
      */
     private static boolean erAvklartSomIkkeMedlem(Optional<VurdertMedlemskap> medlemskap) {
-        return medlemskap.isPresent() && medlemskap.get().getMedlemsperiodeManuellVurdering() != null
-            && MedlemskapManuellVurderingType.UNNTAK.equals(medlemskap.get().getMedlemsperiodeManuellVurdering());
+        return medlemskap.isPresent() && medlemskap.get().getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.UNNTAK.equals(
+            medlemskap.get().getMedlemsperiodeManuellVurdering());
     }
 
-    private boolean brukerErMedlemEllerIkkeRelevantPeriode(Optional<MedlemskapAggregat> medlemskap, PersonopplysningerAggregat søker,
+    private boolean brukerErMedlemEllerIkkeRelevantPeriode(Optional<MedlemskapAggregat> medlemskap,
+                                                           PersonopplysningerAggregat søker,
                                                            Skjæringstidspunkt skjæringstidspunkter) {
         var vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
-        if (vurdertMedlemskap.isPresent()
-            && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(vurdertMedlemskap.get().getMedlemsperiodeManuellVurdering())) {
+        if (vurdertMedlemskap.isPresent() && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(
+            vurdertMedlemskap.get().getMedlemsperiodeManuellVurdering())) {
             return true;
         }
 
-        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent() ? medlemskap.get().getRegistrertMedlemskapPerioder()
-            : Collections.emptySet();
-        var erAvklartMaskineltSomIkkeMedlem = medlemskapPerioderTjeneste.brukerMaskineltAvklartSomIkkeMedlem(søker,
-            medlemskapPerioder, skjæringstidspunkter.getUtledetSkjæringstidspunkt());
+        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent() ? medlemskap.get()
+            .getRegistrertMedlemskapPerioder() : Collections.emptySet();
+        var erAvklartMaskineltSomIkkeMedlem = medlemskapPerioderTjeneste.brukerMaskineltAvklartSomIkkeMedlem(søker, medlemskapPerioder,
+            skjæringstidspunkter.getUtledetSkjæringstidspunkt());
         var erAvklartManueltSomIkkeMedlem = erAvklartSomIkkeMedlem(vurdertMedlemskap);
 
         return !(erAvklartMaskineltSomIkkeMedlem || erAvklartManueltSomIkkeMedlem);
@@ -144,9 +136,7 @@ public class MedlemsvilkårOversetter {
     private static boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
         // Tar det første for det er det som er prioritert høyest rangert på region
         var eosBorger = aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.EOS);
-        return medlemskap
-            .map(VurdertMedlemskap::getErEøsBorger)
-            .orElse(eosBorger);
+        return medlemskap.map(VurdertMedlemskap::getErEøsBorger).orElse(eosBorger);
     }
 
     private static boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {

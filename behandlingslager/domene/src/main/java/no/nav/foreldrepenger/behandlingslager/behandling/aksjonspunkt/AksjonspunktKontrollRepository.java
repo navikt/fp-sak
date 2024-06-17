@@ -24,11 +24,14 @@ public class AksjonspunktKontrollRepository {
         // CDI
     }
 
-    public Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
+    public Aksjonspunkt settBehandlingPåVent(Behandling behandling,
+                                             AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              BehandlingStegType stegType,
-                                             LocalDateTime fristTid, Venteårsak venteårsak) {
+                                             LocalDateTime fristTid,
+                                             Venteårsak venteårsak) {
 
-        LOG.info("Setter behandling på vent for steg={}, aksjonspunkt={}, fristTid={}, venteÅrsak={}", stegType, aksjonspunktDefinisjon, fristTid, venteårsak);
+        LOG.info("Setter behandling på vent for steg={}, aksjonspunkt={}, fristTid={}, venteÅrsak={}", stegType, aksjonspunktDefinisjon, fristTid,
+            venteårsak);
 
         Aksjonspunkt aksjonspunkt;
         var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon);
@@ -47,8 +50,11 @@ public class AksjonspunktKontrollRepository {
         return aksjonspunkt;
     }
 
-    private Aksjonspunkt leggTilAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                             BehandlingStegType behandlingStegType, LocalDateTime frist, Venteårsak venteÅrsak) {
+    private Aksjonspunkt leggTilAksjonspunkt(Behandling behandling,
+                                             AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                             BehandlingStegType behandlingStegType,
+                                             LocalDateTime frist,
+                                             Venteårsak venteÅrsak) {
         // sjekk at alle parametere er spesifisert
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(aksjonspunktDefinisjon, "aksjonspunktDefinisjon");
@@ -72,7 +78,8 @@ public class AksjonspunktKontrollRepository {
         return aksjonspunkt;
     }
 
-    public Aksjonspunkt leggTilAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
+    public Aksjonspunkt leggTilAksjonspunkt(Behandling behandling,
+                                            AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                             BehandlingStegType behandlingStegType) {
         Objects.requireNonNull(behandlingStegType, "behandlingStegType");
         return leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, behandlingStegType, null, null);

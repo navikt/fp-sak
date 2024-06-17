@@ -44,27 +44,12 @@ public class ManglendeOpplysningerVurderingDto {
     public ManglendeOpplysningerVurderingDto() {
     }
 
-    public ManglendeOpplysningerVurderingDto(@Valid
-                                             @NotNull
-                                             @JsonProperty("behandlingUuid")
-                                             UUID behandlingUuid,
-                                             @ValidKodeverk
-                                             @JsonProperty("vurdering")
-                                             ArbeidsforholdKomplettVurderingType vurdering,
-                                             @Size(max = 100000)
-                                             @Pattern(regexp = InputValideringRegex.FRITEKST)
-                                             @JsonProperty("begrunnelse")
-                                             String begrunnelse,
-                                             @NotNull
-                                             @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
-                                             @JsonProperty("arbeidsgiverIdent")
-                                             String arbeidsgiverIdent,
-                                             @Size(max = 100)
-                                             @Pattern(regexp = InputValideringRegex.FRITEKST)
-                                             @JsonProperty("internArbeidsforholdRef")
-                                             String internArbeidsforholdRef,
-                                             @NotNull @JsonProperty("behandlingVersjon")
-                                             Long behandlingVersjon) {
+    public ManglendeOpplysningerVurderingDto(@Valid @NotNull @JsonProperty("behandlingUuid") UUID behandlingUuid,
+                                             @ValidKodeverk @JsonProperty("vurdering") ArbeidsforholdKomplettVurderingType vurdering,
+                                             @Size(max = 100000) @Pattern(regexp = InputValideringRegex.FRITEKST) @JsonProperty("begrunnelse") String begrunnelse,
+                                             @NotNull @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) @JsonProperty("arbeidsgiverIdent") String arbeidsgiverIdent,
+                                             @Size(max = 100) @Pattern(regexp = InputValideringRegex.FRITEKST) @JsonProperty("internArbeidsforholdRef") String internArbeidsforholdRef,
+                                             @NotNull @JsonProperty("behandlingVersjon") Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.vurdering = vurdering;
         this.begrunnelse = begrunnelse;

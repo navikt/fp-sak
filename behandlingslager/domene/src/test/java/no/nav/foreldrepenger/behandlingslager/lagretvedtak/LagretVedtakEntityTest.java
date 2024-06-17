@@ -33,21 +33,15 @@ class LagretVedtakEntityTest {
     @Test
     void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
         // mangler fagsakId
-        assertThatThrownBy(() -> lagretVedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("fagsakId");
+        assertThatThrownBy(() -> lagretVedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("fagsakId");
 
         // mangler behandlingId
         lagretVedtakBuilder.medFagsakId(FAGSAK_ID);
-        assertThatThrownBy(() -> lagretVedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("behandlingId");
+        assertThatThrownBy(() -> lagretVedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("behandlingId");
 
         // mangler behandlingId
         lagretVedtakBuilder.medFagsakId(FAGSAK_ID).medBehandlingId(BEHANDLING_ID);
-        assertThatThrownBy(() -> lagretVedtakBuilder.build())
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("xmlClob");
+        assertThatThrownBy(() -> lagretVedtakBuilder.build()).isInstanceOf(NullPointerException.class).hasMessageContaining("xmlClob");
     }
 
     @Test
@@ -108,10 +102,7 @@ class LagretVedtakEntityTest {
     // ----------------------------------------------------------
 
     private LagretVedtak.Builder lagBuilderMedPaakrevdeFelter() {
-        return LagretVedtak.builder()
-                .medFagsakId(FAGSAK_ID)
-                .medBehandlingId(BEHANDLING_ID)
-                .medXmlClob(STRING_XML);
+        return LagretVedtak.builder().medFagsakId(FAGSAK_ID).medBehandlingId(BEHANDLING_ID).medXmlClob(STRING_XML);
     }
 
 }

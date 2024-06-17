@@ -8,9 +8,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 public record VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType, VilkårUtfallMerknad vilkårUtfallMerknad,
-            List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner, String regelEvaluering, String regelInput, Object ekstraVilkårresultat) {
+                         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner, String regelEvaluering, String regelInput,
+                         Object ekstraVilkårresultat) {
 
-    /** Ctor som tar minimum av parametere, og ingen regel evaluering og input data.  Vil heller aldri være overstyrt. */
+    /**
+     * Ctor som tar minimum av parametere, og ingen regel evaluering og input data.  Vil heller aldri være overstyrt.
+     */
     public VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType, List<AksjonspunktDefinisjon> apDefinisjoner) {
         this(vilkårType, utfallType, VilkårUtfallMerknad.UDEFINERT, apDefinisjoner, null, null, null);
     }

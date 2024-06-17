@@ -134,21 +134,21 @@ public class TilkjentYtelseMapper {
 
     private KjedeNøkkel tilNøkkel(BeregningsresultatAndel andel) {
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER) :
-            KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
+        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER) : KjedeNøkkel.lag(
+            KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
     }
 
     private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
         var brukferiepengerMaksdato = beregnFeriepengePeriode(opptjeningsår, tilBruker).getTom();
-        var klasseKode = tilBruker ? KlassekodeUtleder.utledForFeriepenger(ytelseType, opptjeningsår, feriepengerDødsdato) :
-            KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType);
-        return tilBruker ? KjedeNøkkel.lag(klasseKode, Betalingsmottaker.BRUKER, brukferiepengerMaksdato) :
-            KjedeNøkkel.lag(klasseKode, Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
+        var klasseKode = tilBruker ? KlassekodeUtleder.utledForFeriepenger(ytelseType, opptjeningsår,
+            feriepengerDødsdato) : KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType);
+        return tilBruker ? KjedeNøkkel.lag(klasseKode, Betalingsmottaker.BRUKER, brukferiepengerMaksdato) : KjedeNøkkel.lag(klasseKode,
+            Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
     }
 
     private Periode beregnFeriepengePeriode(int opptjeningsår, boolean tilBruker) {
-        var feriepengerMaksdato = LocalDate.ofYearDay(opptjeningsår + 1 ,1 ).with(KjedeNøkkel.SLUTT_FERIEPENGER);
+        var feriepengerMaksdato = LocalDate.ofYearDay(opptjeningsår + 1, 1).with(KjedeNøkkel.SLUTT_FERIEPENGER);
         // Midlertidig disable logikk for privatpersoner inntil avklart klassekode for tilfelle dødsfall
         // Når enables - så fjerne Ignore på 3 tester i NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest
         if (!tilBruker && feriepengerDødsdato != null && !feriepengerDødsdato.isAfter(feriepengerMaksdato)) {
@@ -163,7 +163,10 @@ public class TilkjentYtelseMapper {
         Map<KjedeNøkkel, Ytelse> kjeder = new HashMap<>();
         for (var entry : buildere.entrySet()) {
             var komprimertYtelse = Ytelse.builder();
-            entry.getValue().build().getPerioder().stream()
+            entry.getValue()
+                .build()
+                .getPerioder()
+                .stream()
                 .map(p -> new LocalDateSegment<>(p.getPeriode().fom(), p.getPeriode().tom(), p.getVerdi()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), TilkjentYtelseMapper::komprimerPerioder)) // Samle og komprimer og strøm
                 .map(s -> new YtelsePeriode(new Periode(s.getFom(), s.getTom()), s.getValue()))
@@ -174,7 +177,8 @@ public class TilkjentYtelseMapper {
     }
 
     private static Stream<LocalDateSegment<YtelseVerdi>> komprimerPerioder(List<LocalDateSegment<YtelseVerdi>> segmenter) {
-        return new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, YtelseVerdi::equals, StandardCombinators::leftOnly).stream();
+        return new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, YtelseVerdi::equals, StandardCombinators::leftOnly)
+            .stream();
     }
 
     private static List<BeregningsresultatPeriode> sortert(Collection<BeregningsresultatPeriode> usortert) {

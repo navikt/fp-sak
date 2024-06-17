@@ -25,8 +25,10 @@ public class PleipengerOversetter {
     }
 
 
-    public record PleiepengerOpplysninger(AktørId pleietrengende, List<PleiepengerInnlagtPeriode> innleggelsesPerioder) {}
+    public record PleiepengerOpplysninger(AktørId pleietrengende, List<PleiepengerInnlagtPeriode> innleggelsesPerioder) {
+    }
 
-    public record PleiepengerInnlagtPeriode(LocalDate fom, LocalDate tom) {}
+    public record PleiepengerInnlagtPeriode(LocalDate fom, LocalDate tom) {
+    }
 
 }

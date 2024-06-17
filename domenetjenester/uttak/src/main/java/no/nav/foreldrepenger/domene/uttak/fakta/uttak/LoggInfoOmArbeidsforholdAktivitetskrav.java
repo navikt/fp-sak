@@ -69,15 +69,17 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
         loggInfoOmArbeidsforhold(fraDato, tilDato, behandlingReferanse.saksnummer(), harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo);
     }
 
-    static void loggInfoOmArbeidsforhold(LocalDate fraDato, LocalDate tilDato,
-                                         Saksnummer saksnummer, boolean harAnnenForelderRett,
+    static void loggInfoOmArbeidsforhold(LocalDate fraDato,
+                                         LocalDate tilDato,
+                                         Saksnummer saksnummer,
+                                         boolean harAnnenForelderRett,
                                          List<OppgittPeriodeEntitet> aktuellePerioder,
                                          List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
 
         var stillingsprosentTidslinje = stillingsprosentTidslinje(arbeidsforholdInfo);
         var permisjonProsentTidslinje = permisjonTidslinje(arbeidsforholdInfo);
-        var grunnlagTidslinje = stillingsprosentTidslinje
-            .crossJoin(permisjonProsentTidslinje, bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
+        var grunnlagTidslinje = stillingsprosentTidslinje.crossJoin(permisjonProsentTidslinje,
+                bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
             .crossJoin(lagTidslinjeMed0(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide)
             .compress();
 
@@ -88,21 +90,18 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
 
     private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, AktivitetskravVurderingGrunnlag> bigDecimalTilAktivitetskravVurderingGrunnlagCombinator() {
         return (localDateInterval, stillingsprosent, permisjonsprosent) -> new LocalDateSegment<>(localDateInterval,
-            new AktivitetskravVurderingGrunnlag(
-                stillingsprosent != null ? stillingsprosent.getValue() : BigDecimal.ZERO,
-                permisjonsprosent != null ? permisjonsprosent.getValue() : BigDecimal.ZERO)
-        );
+            new AktivitetskravVurderingGrunnlag(stillingsprosent != null ? stillingsprosent.getValue() : BigDecimal.ZERO,
+                permisjonsprosent != null ? permisjonsprosent.getValue() : BigDecimal.ZERO));
     }
 
-    private static void vurderOgLogg(OppgittPeriodeEntitet periode, LocalDateTimeline<AktivitetskravVurderingGrunnlag> grunnlagTidslinje, String loggPrefiks) {
+    private static void vurderOgLogg(OppgittPeriodeEntitet periode,
+                                     LocalDateTimeline<AktivitetskravVurderingGrunnlag> grunnlagTidslinje,
+                                     String loggPrefiks) {
         var vurderinger = grunnlagTidslinje.intersection(new LocalDateInterval(periode.getFom(), periode.getTom()))
             .stream()
             .map(segment -> vurderPeriode(segment.getValue()))
             .toList();
-        loggPrefiks = String.format("%s for periode: [%s-%s] %s av saksbehandler",
-            loggPrefiks,
-            periode.getFom(),
-            periode.getTom(),
+        loggPrefiks = String.format("%s for periode: [%s-%s] %s av saksbehandler", loggPrefiks, periode.getFom(), periode.getTom(),
             periode.getDokumentasjonVurdering().erGodkjent() ? "GODKJENT" : "IKKE GODKJENT");
         if (vurderinger.size() == 1) {
             LOG.info("{}, vurderingen: {}", loggPrefiks, vurderinger.getFirst());
@@ -163,15 +162,18 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
         var arbeidsprosent = sumStillingsprosent.subtract(sumPermisjonsprosent);
 
         if (sumStillingsprosent.compareTo(BigDecimal.valueOf(75)) >= 0 && sumPermisjonsprosent.compareTo(BigDecimal.ZERO) > 0) {
-            return new AktivitetskravVurdering(VurderingForklaring.OK_OVER_75_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
+            return new AktivitetskravVurdering(VurderingForklaring.OK_OVER_75_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent,
+                arbeidsprosent);
         } else if (sumStillingsprosent.compareTo(BigDecimal.valueOf(75)) >= 0) {
             return new AktivitetskravVurdering(VurderingForklaring.OK_OVER_75_PROSENT, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
         } else if (sumStillingsprosent.compareTo(BigDecimal.ZERO) <= 0 && sumPermisjonsprosent.compareTo(BigDecimal.ZERO) > 0) {
-            return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_0_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
+            return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_0_PROSENT_MED_PERMISJON, sumStillingsprosent, sumPermisjonsprosent,
+                arbeidsprosent);
         } else if (sumStillingsprosent.compareTo(BigDecimal.ZERO) <= 0) {
             return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_0_PROSENT, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
         } else {
-            return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_UNDER_75_PROSENT, sumStillingsprosent, sumPermisjonsprosent, arbeidsprosent);
+            return new AktivitetskravVurdering(VurderingForklaring.IKKE_OK_UNDER_75_PROSENT, sumStillingsprosent, sumPermisjonsprosent,
+                arbeidsprosent);
         }
     }
 
@@ -191,7 +193,8 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
                                            BigDecimal arbeidsprosent) {
         @Override
         public String toString() {
-            return forklaring + " stillingsprosent=" + sumStillingsprosent + " permisjonsprosent=" + sumPermisjonsprosent + " arbeidsprosent=" + arbeidsprosent;
+            return forklaring + " stillingsprosent=" + sumStillingsprosent + " permisjonsprosent=" + sumPermisjonsprosent + " arbeidsprosent="
+                + arbeidsprosent;
         }
     }
 }

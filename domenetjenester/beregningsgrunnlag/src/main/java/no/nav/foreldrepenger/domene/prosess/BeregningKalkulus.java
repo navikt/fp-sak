@@ -50,8 +50,7 @@ public class BeregningKalkulus implements BeregningAPI {
     }
 
     private EnkelFpkalkulusRequestDto lagEnkelKalkulusRequest(BehandlingReferanse referanse) {
-        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(),
-            new Saksnummer(referanse.saksnummer().getVerdi()));
+        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()));
     }
 
 }

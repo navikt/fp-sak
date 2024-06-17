@@ -43,12 +43,10 @@ public class BestillDokumentTask implements ProsessTaskHandler {
     }
 
     private DokumentBestillingDto mapTilDto(ProsessTaskData prosessTaskData) {
-        return new DokumentBestillingDto(prosessTaskData.getBehandlingUuid(),
-            UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
-            mapDokumentMal(DokumentMalType.valueOf(prosessTaskData.getPropertyValue(DOKUMENT_MAL))),
-            mapRevurderignÅrsak(Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_ÅRSAK)).map(RevurderingVarslingÅrsak::valueOf).orElse(null)),
-            prosessTaskData.getPayloadAsString(),
-            mapDokumentMal(Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALFOER_SOM_DOKUMENT)).map(DokumentMalType::valueOf).orElse(null))
-        );
+        return new DokumentBestillingDto(prosessTaskData.getBehandlingUuid(), UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
+            mapDokumentMal(DokumentMalType.valueOf(prosessTaskData.getPropertyValue(DOKUMENT_MAL))), mapRevurderignÅrsak(
+            Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_ÅRSAK)).map(RevurderingVarslingÅrsak::valueOf).orElse(null)),
+            prosessTaskData.getPayloadAsString(), mapDokumentMal(
+            Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALFOER_SOM_DOKUMENT)).map(DokumentMalType::valueOf).orElse(null)));
     }
 }

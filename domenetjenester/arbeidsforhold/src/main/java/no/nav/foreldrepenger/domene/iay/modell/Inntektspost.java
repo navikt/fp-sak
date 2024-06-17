@@ -125,29 +125,23 @@ public class Inntektspost implements IndexKey {
         if (!(obj instanceof Inntektspost other)) {
             return false;
         }
-        return Objects.equals(this.getInntektspostType(), other.getInntektspostType())
-                && Objects.equals(this.getInntektYtelseType(), other.getInntektYtelseType())
-                && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())
-                && Objects.equals(this.getPeriode().getFomDato(), other.getPeriode().getFomDato())
-                && Objects.equals(this.getPeriode().getTomDato(), other.getPeriode().getTomDato());
+        return Objects.equals(this.getInntektspostType(), other.getInntektspostType()) && Objects.equals(this.getInntektYtelseType(),
+            other.getInntektYtelseType()) && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())
+            && Objects.equals(this.getPeriode().getFomDato(), other.getPeriode().getFomDato()) && Objects.equals(this.getPeriode().getTomDato(),
+            other.getPeriode().getTomDato());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getInntektspostType(), getInntektYtelseType(), getSkatteOgAvgiftsregelType(), getPeriode().getFomDato(),
-                getPeriode().getTomDato());
+            getPeriode().getTomDato());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "inntektYtelseType=" + inntektYtelseType +
-                "inntektspostType=" + inntektspostType +
-                "skatteOgAvgiftsregelType=" + skatteOgAvgiftsregelType +
-                ", fraOgMed=" + periode.getFomDato() +
-                ", tilOgMed=" + periode.getTomDato() +
-                ", beløp=" + beløp +
-                '>';
+        return getClass().getSimpleName() + "<" + "inntektYtelseType=" + inntektYtelseType + "inntektspostType=" + inntektspostType
+            + "skatteOgAvgiftsregelType=" + skatteOgAvgiftsregelType + ", fraOgMed=" + periode.getFomDato() + ", tilOgMed=" + periode.getTomDato()
+            + ", beløp=" + beløp + '>';
     }
 
     public boolean hasValues() {

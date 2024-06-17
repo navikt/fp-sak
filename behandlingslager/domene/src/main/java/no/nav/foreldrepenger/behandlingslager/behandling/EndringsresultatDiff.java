@@ -31,7 +31,12 @@ public class EndringsresultatDiff {
     }
 
     // Brukes som Composite-løvnode
-    private EndringsresultatDiff(Class<?> grunnlagKlasse, Object grunnlagId1, Object grunnlagId2, boolean støtterSporingsendringer, boolean erSporedeFeltEndret, DiffResult diffResultat) {
+    private EndringsresultatDiff(Class<?> grunnlagKlasse,
+                                 Object grunnlagId1,
+                                 Object grunnlagId2,
+                                 boolean støtterSporingsendringer,
+                                 boolean erSporedeFeltEndret,
+                                 DiffResult diffResultat) {
         this.grunnlagKlasse = grunnlagKlasse;
         this.grunnlagId1 = grunnlagId1;
         this.grunnlagId2 = grunnlagId2;
@@ -59,14 +64,15 @@ public class EndringsresultatDiff {
 
     public static EndringsresultatDiff medDiffPåSporedeFelt(EndringsresultatDiff diff, boolean erSporedeFeltEndret, DiffResult diffResultat) {
         var støtterSporingsendringer = true;
-        return new EndringsresultatDiff(diff.grunnlagKlasse, diff.grunnlagId1, diff.grunnlagId2, støtterSporingsendringer, erSporedeFeltEndret, diffResultat);
+        return new EndringsresultatDiff(diff.grunnlagKlasse, diff.grunnlagId1, diff.grunnlagId2, støtterSporingsendringer, erSporedeFeltEndret,
+            diffResultat);
     }
 
     public boolean erSporedeFeltEndret() {
-        if(!støtterSporingsendringer) {
+        if (!støtterSporingsendringer) {
             throw new IllegalArgumentException("Utviklerfeil: ikke satt opp til å støtte sporing på felter");
         }
-        return erSporedeFeltEndret  || getChildren().stream().anyMatch(EndringsresultatDiff::erSporedeFeltEndret);
+        return erSporedeFeltEndret || getChildren().stream().anyMatch(EndringsresultatDiff::erSporedeFeltEndret);
     }
 
     private List<EndringsresultatDiff> getChildren() {
@@ -82,9 +88,7 @@ public class EndringsresultatDiff {
     }
 
     public Optional<EndringsresultatDiff> hentDelresultat(Class<?> grunnlagKlasse) {
-        return getChildren().stream()
-            .filter(it -> it.getGrunnlag().equals(grunnlagKlasse))
-            .findFirst();
+        return getChildren().stream().filter(it -> it.getGrunnlag().equals(grunnlagKlasse)).findFirst();
     }
 
     @SuppressWarnings("unchecked")
@@ -131,13 +135,15 @@ public class EndringsresultatDiff {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EndringsresultatDiff that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EndringsresultatDiff that)) {
+            return false;
+        }
 
-        return Objects.equals(grunnlagKlasse, that.grunnlagKlasse)
-            && Objects.equals(grunnlagId1, that.grunnlagId1)
-            && Objects.equals(grunnlagId2, that.grunnlagId2)
-            && Objects.equals(erSporedeFeltEndret, that.erSporedeFeltEndret);
+        return Objects.equals(grunnlagKlasse, that.grunnlagKlasse) && Objects.equals(grunnlagId1, that.grunnlagId1) && Objects.equals(grunnlagId2,
+            that.grunnlagId2) && Objects.equals(erSporedeFeltEndret, that.erSporedeFeltEndret);
     }
 
     @Override
@@ -145,7 +151,8 @@ public class EndringsresultatDiff {
         return Objects.hash(grunnlagKlasse, grunnlagId1, grunnlagId2, erSporedeFeltEndret);
     }
 
-    public Object getGrunnlagId1() { return grunnlagId1;
+    public Object getGrunnlagId1() {
+        return grunnlagId1;
     }
 
     public Object getGrunnlagId2() {

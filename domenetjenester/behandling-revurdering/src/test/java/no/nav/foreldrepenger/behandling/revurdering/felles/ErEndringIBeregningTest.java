@@ -142,27 +142,24 @@ class ErEndringIBeregningTest {
             .medBruttoPrÅr(BigDecimal.valueOf(240000))
             .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(dagsatsBruker * 260L));
         if (aktivitetStatus.erArbeidstaker()) {
-            var bga = BGAndelArbeidsforhold
-                .builder()
+            var bga = BGAndelArbeidsforhold.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
                 .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-            andelBuilder
-                .medBGAndelArbeidsforhold(bga)
+            andelBuilder.medBGAndelArbeidsforhold(bga)
                 .medRedusertRefusjonPrÅr(BigDecimal.valueOf(dagsatsAG * 260L))
                 .medDagsatsArbeidsgiver((long) dagsatsAG);
         }
         return andelBuilder.build();
     }
 
-    public static Beregningsgrunnlag byggBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning, List<BeregningsgrunnlagPeriode> perioder, AktivitetStatus... statuser) {
-        var bgBuilder = Beregningsgrunnlag.builder()
-            .medSkjæringstidspunkt(skjæringstidspunktBeregning)
-            .medGrunnbeløp(BigDecimal.valueOf(91425L));
-        Arrays.asList(statuser).forEach(status -> bgBuilder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(status)
-            .build()));
+    public static Beregningsgrunnlag byggBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning,
+                                                            List<BeregningsgrunnlagPeriode> perioder,
+                                                            AktivitetStatus... statuser) {
+        var bgBuilder = Beregningsgrunnlag.builder().medSkjæringstidspunkt(skjæringstidspunktBeregning).medGrunnbeløp(BigDecimal.valueOf(91425L));
+        Arrays.asList(statuser)
+            .forEach(status -> bgBuilder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(status).build()));
         perioder.forEach(bgBuilder::leggTilBeregningsgrunnlagPeriode);
         return bgBuilder.build();
     }

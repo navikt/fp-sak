@@ -49,13 +49,10 @@ public class OppdragRestTjeneste {
     @Operation(description = "Hent oppdrags-info for behandlingen", tags = "oppdrag")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
-    public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        return oppdragskontroll
-                .map(OppdragDto::fraDomene)
-                .orElse(null);
+        return oppdragskontroll.map(OppdragDto::fraDomene).orElse(null);
     }
 
 }

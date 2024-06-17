@@ -18,7 +18,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.oppdragTilØkonomi", prioritet = 2, maxFailedRuns = 1) // TODO BehandleNegativeKvitteringTjenesteTest deps on name
+@ProsessTask(value = "iverksetteVedtak.oppdragTilØkonomi", prioritet = 2, maxFailedRuns = 1)
+// TODO BehandleNegativeKvitteringTjenesteTest deps on name
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
@@ -87,9 +88,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            behandlingId,
-            hovedProsessTask.getAktørId());
+        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(), behandlingId, hovedProsessTask.getAktørId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 

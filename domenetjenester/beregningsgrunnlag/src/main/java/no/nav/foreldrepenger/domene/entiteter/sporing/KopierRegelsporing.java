@@ -33,20 +33,17 @@ public class KopierRegelsporing {
                                                        Optional<BeregningsgrunnlagGrunnlagEntitet> tidligereAggregat) {
         var grunnlagBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag);
         var nyttBG = nyttGrunnlag.getBeregningsgrunnlag();
-        if (nyttBG.isPresent() && tidligereAggregat.flatMap(
-            BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).isPresent()) {
+        if (nyttBG.isPresent() && tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).isPresent()) {
             var bgBuilder = grunnlagBuilder.getBeregningsgrunnlagBuilder();
             var sporingerSomKopieres = finnRegelsporingerSomSkalKopieres(nyttBG.get(),
                 tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
-            sporingerSomKopieres.forEach(
-                rs -> bgBuilder.medRegelSporing(rs.getRegelInput(), rs.getRegelEvaluering(), rs.getRegelType()));
-            var sporingerPeriodeSomKopieres = finnRegelsporingerSomSkalKopieresFraPeriode(
-                nyttBG.get(),
+            sporingerSomKopieres.forEach(rs -> bgBuilder.medRegelSporing(rs.getRegelInput(), rs.getRegelEvaluering(), rs.getRegelType()));
+            var sporingerPeriodeSomKopieres = finnRegelsporingerSomSkalKopieresFraPeriode(nyttBG.get(),
                 tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
             sporingerPeriodeSomKopieres.forEach((periode, regelsporing) -> {
                 var periodeBuilders = bgBuilder.getPeriodeBuilders(periode);
-                periodeBuilders.forEach(b -> regelsporing.forEach(
-                    sp -> b.medRegelEvaluering(sp.getRegelInput(), sp.getRegelEvaluering(), sp.getRegelType())));
+                periodeBuilders.forEach(
+                    b -> regelsporing.forEach(sp -> b.medRegelEvaluering(sp.getRegelInput(), sp.getRegelEvaluering(), sp.getRegelType())));
             });
         }
     }
@@ -72,7 +69,9 @@ public class KopierRegelsporing {
             var tidligerePeriode = finnTidligerePeriode(tidligereBgPerioder, periode);
             var regelSporinger = periode.getRegelSporinger();
             var tidligerePeriodeSporinger = tidligerePeriode.getRegelSporinger();
-            var sporinger = tidligerePeriodeSporinger.entrySet().stream().filter(e -> !regelSporinger.containsKey(e.getKey()))
+            var sporinger = tidligerePeriodeSporinger.entrySet()
+                .stream()
+                .filter(e -> !regelSporinger.containsKey(e.getKey()))
                 .map(Map.Entry::getValue)
                 .map(BeregningsgrunnlagPeriodeRegelSporing::new)
                 .toList();
@@ -89,8 +88,7 @@ public class KopierRegelsporing {
             .orElseThrow(() -> new IllegalStateException("Forventer overlappende periode i tidligere grunnlag"));
     }
 
-    private static Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> finnGrunnlagsporinger(
-        BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+    private static Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> finnGrunnlagsporinger(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
         return beregningsgrunnlagEntitet.getRegelSporinger();
     }
 

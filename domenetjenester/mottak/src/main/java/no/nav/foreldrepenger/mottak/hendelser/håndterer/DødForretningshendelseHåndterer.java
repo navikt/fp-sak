@@ -46,7 +46,9 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
     }
 
     @Override
-    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                           ForretningshendelseType forretningshendelseType,
+                                           BehandlingÅrsakType behandlingÅrsakType) {
         // Vi vet nå at denne behandlingen er avsluttet og innvilget, og at dersom det finnes en åpen behandling på medforelder, så er den køet
         // Hvis det er barnet som har dødd må begge foreldrenes saker revurderes.
         // Revurderer forelderen med nærmest uttak først. Velges v.h.a ToForeldreBarnDødTjeneste
@@ -55,12 +57,10 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
                 return;
             }
             var fagsakPåMedforelder = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
-            Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent()?
-                behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakPåMedforelder.get().getId())
-                : Optional.empty();
-            if (behandlingPåMedforelder.isPresent()
-                && !behandlingPåMedforelder.get().erKøet()
-                && skalOppretteRevurderingPåMedForelderFørst(avsluttetBehandling, behandlingPåMedforelder.get())) {
+            Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent() ? behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(
+                fagsakPåMedforelder.get().getId()) : Optional.empty();
+            if (behandlingPåMedforelder.isPresent() && !behandlingPåMedforelder.get().erKøet() && skalOppretteRevurderingPåMedForelderFørst(
+                avsluttetBehandling, behandlingPåMedforelder.get())) {
                 // Dette er annen parts fagsak, og mor har en fagsak
                 håndterKøetBehandling(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
                 return;
@@ -73,8 +73,8 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
-        if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)
-            && køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
+        if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType) && køetBehandlingOpt.filter(
+            forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
             return;
         }
         forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);

@@ -28,8 +28,7 @@ public class InnhentPersonopplysningerTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public InnhentPersonopplysningerTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                         RegisterdataInnhenter registerdataInnhenter) {
+    public InnhentPersonopplysningerTask(BehandlingRepositoryProvider behandlingRepositoryProvider, RegisterdataInnhenter registerdataInnhenter) {
         super(behandlingRepositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.registerdataInnhenter = registerdataInnhenter;

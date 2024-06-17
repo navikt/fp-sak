@@ -23,7 +23,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DVH")
-    @Column(name="TRANS_ID")
+    @Column(name = "TRANS_ID")
     private Long id;
 
     @Column(name = "BEHANDLING_ID", nullable = false)
@@ -124,7 +124,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return behandlingId;
     }
 
-    public UUID getBehandlingUuid() { return uuid; }
+    public UUID getBehandlingUuid() {
+        return uuid;
+    }
 
     public Long getFagsakId() {
         return fagsakId;
@@ -245,43 +247,27 @@ public class BehandlingDvh extends DvhBaseEntitet {
         if (!super.equals(obj)) {
             return false;
         }
-        return Objects.equals(behandlingId, other.behandlingId)
-                && Objects.equals(fagsakId, other.fagsakId)
-                && Objects.equals(saksnummer, other.saksnummer)
-                && Objects.equals(aktørId, other.aktørId)
-                && Objects.equals(ytelseType, other.ytelseType)
-                && Objects.equals(behandlingResultatType, other.behandlingResultatType)
-                && Objects.equals(behandlingType, other.behandlingType)
-                && Objects.equals(behandlingStatus, other.behandlingStatus)
-                && Objects.equals(behandlendeEnhet, other.behandlendeEnhet)
-                && Objects.equals(utlandstilsnitt, other.utlandstilsnitt)
-                && Objects.equals(ansvarligSaksbehandler, other.ansvarligSaksbehandler)
-                && Objects.equals(ansvarligBeslutter, other.ansvarligBeslutter)
-                && Objects.equals(relatertBehandling, other.relatertBehandling)
-                && Objects.equals(familieHendelseType, other.familieHendelseType)
-                && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
-                && Objects.equals(uuid, other.uuid)
-                && Objects.equals(papirSøknad, other.papirSøknad)
-                && Objects.equals(behandlingMetode, other.behandlingMetode)
-                && Objects.equals(revurderingÅrsak, other.revurderingÅrsak)
-                && Objects.equals(mottattTid, other.mottattTid)
-                && Objects.equals(registrertTid, other.registrertTid)
-                && Objects.equals(kanBehandlesTid, other.kanBehandlesTid)
-                && Objects.equals(ferdigBehandletTid, other.ferdigBehandletTid)
-                && Objects.equals(forventetOppstartTid, other.forventetOppstartTid)
-                && Objects.equals(vedtakTid, other.vedtakTid)
-                && Objects.equals(utbetaltTid, other.utbetaltTid)
-                && Objects.equals(vedtakResultatType, other.vedtakResultatType)
-                && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt);
+        return Objects.equals(behandlingId, other.behandlingId) && Objects.equals(fagsakId, other.fagsakId) && Objects.equals(saksnummer,
+            other.saksnummer) && Objects.equals(aktørId, other.aktørId) && Objects.equals(ytelseType, other.ytelseType) && Objects.equals(
+            behandlingResultatType, other.behandlingResultatType) && Objects.equals(behandlingType, other.behandlingType) && Objects.equals(
+            behandlingStatus, other.behandlingStatus) && Objects.equals(behandlendeEnhet, other.behandlendeEnhet) && Objects.equals(utlandstilsnitt,
+            other.utlandstilsnitt) && Objects.equals(ansvarligSaksbehandler, other.ansvarligSaksbehandler) && Objects.equals(ansvarligBeslutter,
+            other.ansvarligBeslutter) && Objects.equals(relatertBehandling, other.relatertBehandling) && Objects.equals(familieHendelseType,
+            other.familieHendelseType) && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag) && Objects.equals(uuid, other.uuid)
+            && Objects.equals(papirSøknad, other.papirSøknad) && Objects.equals(behandlingMetode, other.behandlingMetode) && Objects.equals(
+            revurderingÅrsak, other.revurderingÅrsak) && Objects.equals(mottattTid, other.mottattTid) && Objects.equals(registrertTid,
+            other.registrertTid) && Objects.equals(kanBehandlesTid, other.kanBehandlesTid) && Objects.equals(ferdigBehandletTid,
+            other.ferdigBehandletTid) && Objects.equals(forventetOppstartTid, other.forventetOppstartTid) && Objects.equals(vedtakTid,
+            other.vedtakTid) && Objects.equals(utbetaltTid, other.utbetaltTid) && Objects.equals(vedtakResultatType, other.vedtakResultatType)
+            && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), behandlingId, fagsakId, behandlingResultatType, behandlingType,
-            behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
-            familieHendelseType, foersteStoenadsdag,papirSøknad,
-            behandlingMetode, revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
-            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
+        return Objects.hash(super.hashCode(), behandlingId, fagsakId, behandlingResultatType, behandlingType, behandlingStatus, behandlendeEnhet,
+            utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, familieHendelseType, foersteStoenadsdag, papirSøknad, behandlingMetode,
+            revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid, vedtakTid, utbetaltTid,
+            vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
     }
 
     public static Builder builder() {

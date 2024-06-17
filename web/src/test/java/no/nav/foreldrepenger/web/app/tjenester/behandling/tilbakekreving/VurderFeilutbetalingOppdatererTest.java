@@ -28,9 +28,11 @@ class VurderFeilutbetalingOppdatererTest {
 
     private final TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
     private final HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
-    private final TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkTjenesteAdapter);
+    private final TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(
+        historikkTjenesteAdapter);
     private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
-    private final VurderFeilutbetalingOppdaterer oppdaterer = new VurderFeilutbetalingOppdaterer(repository, historikkInnslagBygger, behandlingRepository);
+    private final VurderFeilutbetalingOppdaterer oppdaterer = new VurderFeilutbetalingOppdaterer(repository, historikkInnslagBygger,
+        behandlingRepository);
 
     private final ArgumentCaptor<TilbakekrevingValg> captor = ArgumentCaptor.forClass(TilbakekrevingValg.class);
 

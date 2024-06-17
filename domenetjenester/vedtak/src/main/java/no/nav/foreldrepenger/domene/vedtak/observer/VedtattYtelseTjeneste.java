@@ -77,8 +77,9 @@ public class VedtattYtelseTjeneste {
             return List.of();
         }
         var arbeidsforholdReferanser = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
-                .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
-                .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser).orElse(List.of());
+            .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
+            .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
+            .orElse(List.of());
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -92,10 +93,12 @@ public class VedtattYtelseTjeneste {
     private Periode utledPeriode(Behandling behandling, BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
         var periode = new Periode();
         if (beregningsresultat != null) {
-            var minFom = beregningsresultat.getBeregningsresultatPerioder().stream()
+            var minFom = beregningsresultat.getBeregningsresultatPerioder()
+                .stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
                 .min(Comparator.naturalOrder());
-            var maxTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+            var maxTom = beregningsresultat.getBeregningsresultatPerioder()
+                .stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
                 .max(Comparator.naturalOrder());
             if (minFom.isEmpty()) {

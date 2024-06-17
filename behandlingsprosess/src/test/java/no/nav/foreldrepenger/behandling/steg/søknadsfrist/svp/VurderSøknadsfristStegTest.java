@@ -55,8 +55,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
 
-        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new VurderSøknadsfristSteg(uttaksperiodegrenseRepository,
-                førsteLovligeUttaksdatoTjeneste);
+        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new VurderSøknadsfristSteg(uttaksperiodegrenseRepository, førsteLovligeUttaksdatoTjeneste);
     }
 
     @Test
@@ -72,8 +71,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
@@ -81,8 +79,7 @@ class VurderSøknadsfristStegTest {
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
-        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
             assertThat(upg.getMottattDato()).isEqualTo(behovFraDato);
@@ -94,7 +91,8 @@ class VurderSøknadsfristStegTest {
     void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
         var søknadMotattt = LocalDate.of(2019, Month.NOVEMBER, 3);
-        var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);;
+        var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);
+        ;
         var termindato = LocalDate.of(2019, Month.JULY, 1);
         svpHelper.lagreTerminbekreftelse(termindato, behandling.getId());
         svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottatt);
@@ -105,8 +103,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
@@ -116,8 +113,7 @@ class VurderSøknadsfristStegTest {
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(behandleStegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
 
-        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
             assertThat(upg.getMottattDato()).isEqualTo(tidligstMottatt);
@@ -138,8 +134,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-            behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
@@ -147,8 +142,7 @@ class VurderSøknadsfristStegTest {
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
-        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
             assertThat(upg.getMottattDato()).isEqualTo(jordsmorsdato);
@@ -164,8 +158,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Act
-        var rkontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-            behandlingRepository.taSkriveLås(revurdering));
+        var rkontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(revurdering));
         var rbehandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(rkontekst);
         em.flush();
         em.clear();
@@ -173,8 +166,7 @@ class VurderSøknadsfristStegTest {
         assertThat(rbehandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(rbehandleStegResultat.getAksjonspunktListe()).isEmpty();
 
-        gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(revurdering.getId());
+        gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(revurdering.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
             assertThat(upg.getMottattDato()).isEqualTo(jordsmorsdato);
@@ -190,11 +182,7 @@ class VurderSøknadsfristStegTest {
             .medFødselsDato(termindato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
 
-        return new SøknadEntitet.Builder()
-                .medSøknadsdato(LocalDate.now())
-                .medMottattDato(mottattDato)
-                .medElektroniskRegistrert(true)
-                .build();
+        return new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).medMottattDato(mottattDato).medElektroniskRegistrert(true).build();
     }
 
 }

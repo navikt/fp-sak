@@ -59,6 +59,7 @@ class SjekkOverlappTest {
 
         assertThat(SjekkOverlapp.erOverlappOgMerEnn100Prosent(Optional.of(beregningsresultatEnitet), List.of(ytelse))).isFalse();
     }
+
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int dagsats, BigDecimal utbetalingsgrad) {
         int dagSatsRedusertMedUtbetalingsgrad;
 

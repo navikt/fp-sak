@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class AnkeVurderingResultatDto {
 
     @JsonProperty("ankeVurdering")

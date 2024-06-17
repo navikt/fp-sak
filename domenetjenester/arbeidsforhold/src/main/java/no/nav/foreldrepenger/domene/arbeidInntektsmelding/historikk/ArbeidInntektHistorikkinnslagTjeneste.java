@@ -37,8 +37,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
     }
 
     @Inject
-    ArbeidInntektHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                          ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+    ArbeidInntektHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkAdapter, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
@@ -51,7 +50,8 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         var eksternRef = finnEksternRef(internRef, ag, iayGrunnlag);
         var opplysninger = arbeidsgiverTjeneste.hent(ag);
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        opprettHistorikkinnslagDel(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(),
+            arbeidsforholdNavn);
     }
 
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
@@ -68,13 +68,12 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         }
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(), arbeidsforholdFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        opprettHistorikkinnslagDel(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(),
+            arbeidsforholdFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
     }
 
     private InternArbeidsforholdRef lagInternRef(String internReferanse) {
-        return internReferanse == null
-            ? InternArbeidsforholdRef.nullRef()
-            : InternArbeidsforholdRef.ref(internReferanse);
+        return internReferanse == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(internReferanse);
     }
 
     private Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
@@ -84,7 +83,9 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
     }
 
-    private Optional<EksternArbeidsforholdRef> finnEksternRef(InternArbeidsforholdRef internRef, Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private Optional<EksternArbeidsforholdRef> finnEksternRef(InternArbeidsforholdRef internRef,
+                                                              Arbeidsgiver arbeidsgiver,
+                                                              InntektArbeidYtelseGrunnlag iayGrunnlag) {
         if (iayGrunnlag == null) {
             return Optional.empty();
         }

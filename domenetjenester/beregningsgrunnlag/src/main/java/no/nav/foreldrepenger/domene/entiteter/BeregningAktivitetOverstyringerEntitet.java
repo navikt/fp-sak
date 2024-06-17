@@ -31,7 +31,10 @@ public class BeregningAktivitetOverstyringerEntitet extends BaseEntitet {
     private List<BeregningAktivitetOverstyringEntitet> overstyringer = new ArrayList<>();
 
     public BeregningAktivitetOverstyringerEntitet(BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringerEntitet) {
-        beregningAktivitetOverstyringerEntitet.getOverstyringer().stream().map(BeregningAktivitetOverstyringEntitet::new).forEach(this::leggTilOverstyring);
+        beregningAktivitetOverstyringerEntitet.getOverstyringer()
+            .stream()
+            .map(BeregningAktivitetOverstyringEntitet::new)
+            .forEach(this::leggTilOverstyring);
     }
 
     public BeregningAktivitetOverstyringerEntitet() {

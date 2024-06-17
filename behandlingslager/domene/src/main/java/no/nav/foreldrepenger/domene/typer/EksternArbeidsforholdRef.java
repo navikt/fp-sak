@@ -12,14 +12,16 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 /**
  * Ekstern arbeidsforhold referanse.
  * Mottatt fra inntektsmelding eller AARegisteret.
- *
+ * <p>
  * Hvis null gjelder det flere arbeidsforhold, ellers for et spesifikt forhold
  */
 
 @Embeddable
 public class EksternArbeidsforholdRef implements IndexKey, TraverseValue, Serializable {
 
-    /** Representerer alle arbeidsforhold for en arbeidsgiver. */
+    /**
+     * Representerer alle arbeidsforhold for en arbeidsgiver.
+     */
     private static final EksternArbeidsforholdRef NULL_OBJECT = new EksternArbeidsforholdRef(null);
 
     @Column(name = "arbeidsforhold_id")
@@ -39,6 +41,7 @@ public class EksternArbeidsforholdRef implements IndexKey, TraverseValue, Serial
     public static EksternArbeidsforholdRef nullRef() {
         return NULL_OBJECT;
     }
+
     public String getReferanse() {
         return referanse;
     }
@@ -62,11 +65,15 @@ public class EksternArbeidsforholdRef implements IndexKey, TraverseValue, Serial
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null && this.referanse == null) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (EksternArbeidsforholdRef) o;
         return Objects.equals(referanse, that.referanse);
     }

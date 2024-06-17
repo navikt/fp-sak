@@ -27,10 +27,7 @@ class SatsTest {
 
     @Test
     void skal_feile_hvis_sats_er_null() {
-        Exception thrown = assertThrows(
-            NullPointerException.class,
-            () -> Sats.på(null)
-        );
+        Exception thrown = assertThrows(NullPointerException.class, () -> Sats.på(null));
 
         assertTrue(thrown.getMessage().contains("sats"));
     }
@@ -50,7 +47,7 @@ class SatsTest {
 
     @Test
     void skal_være_lik_hvis_samme_sats_valgt() {
-        var testSats = 2342 ;
+        var testSats = 2342;
         var sats = Sats.på(testSats);
         var sats2 = Sats.på(testSats);
 

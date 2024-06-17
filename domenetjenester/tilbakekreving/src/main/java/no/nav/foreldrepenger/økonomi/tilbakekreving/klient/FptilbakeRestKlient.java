@@ -43,25 +43,23 @@ public class FptilbakeRestKlient {
         return restClient.send(uriHentÅpenTilbakekreving, Boolean.class);
     }
 
-    public TilbakekrevingVedtakDto hentTilbakekrevingsVedtakInfo(UUID uuid){
+    public TilbakekrevingVedtakDto hentTilbakekrevingsVedtakInfo(UUID uuid) {
         var uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO);
         return restClient.send(uriHentTilbakekrevingVedtaksInfo, TilbakekrevingVedtakDto.class);
     }
 
-    public TilbakeBehandlingDto hentBehandlingInfo(UUID uuid){
+    public TilbakeBehandlingDto hentBehandlingInfo(UUID uuid) {
         var uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO);
         return restClient.send(uriHentTilbakekrevingVedtaksInfo, TilbakeBehandlingDto.class);
     }
 
     private RestRequest lagRequestUri(Saksnummer saksnummer, String path) {
-        var target =  UriBuilder.fromUri(restConfig.fpContextPath()).path(path)
-            .queryParam("saksnummer", saksnummer.getVerdi()).build();
+        var target = UriBuilder.fromUri(restConfig.fpContextPath()).path(path).queryParam("saksnummer", saksnummer.getVerdi()).build();
         return RestRequest.newGET(target, restConfig);
     }
 
     private RestRequest lagRequestUri(UUID uuid, String endpoint) {
-        var target = UriBuilder.fromUri(restConfig.fpContextPath()).path(endpoint)
-            .queryParam("uuid", uuid.toString()).build();
+        var target = UriBuilder.fromUri(restConfig.fpContextPath()).path(endpoint).queryParam("uuid", uuid.toString()).build();
         return RestRequest.newGET(target, restConfig);
     }
 

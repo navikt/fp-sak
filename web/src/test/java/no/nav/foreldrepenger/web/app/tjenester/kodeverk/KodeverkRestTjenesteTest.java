@@ -39,25 +39,23 @@ class KodeverkRestTjenesteTest {
 
         Map<String, Object> gruppertKodeliste = new JacksonJsonConfig().getObjectMapper().readValue(rawJson, Map.class);
 
-        assertThat(gruppertKodeliste)
-                .containsKeys(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
+        assertThat(gruppertKodeliste).containsKeys(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(),
+            Landkoder.class.getSimpleName());
 
-        assertThat(gruppertKodeliste.keySet())
-                .containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
+        assertThat(gruppertKodeliste.keySet()).containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
 
         assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
 
         var fagsakStatuser = (List<Map<String, String>>) gruppertKodeliste.get(FagsakStatus.class.getSimpleName());
         assertThat(fagsakStatuser.stream().map(k -> k.get("kode")).toList()).contains(FagsakStatus.AVSLUTTET.getKode(),
-                FagsakStatus.OPPRETTET.getKode());
+            FagsakStatus.OPPRETTET.getKode());
 
         var map = (Map<String, List<?>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
         assertThat(map).containsKeys(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode(), VilkårType.MEDLEMSKAPSVILKÅRET.getKode());
 
         var avslagsårsaker = (List<Map<String, String>>) map.get(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode());
-        assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
-                .contains(Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR.getKode(),
-                        Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR.getKode());
+        assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList()).contains(
+            Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR.getKode(), Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR.getKode());
     }
 
     @Test
@@ -92,10 +90,10 @@ class KodeverkRestTjenesteTest {
 
         var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
 
-        assertThat(json).contains("\"kode\" : \"4104\"")
-            .contains("\"utfallType\" : \"AVSLÅTT\"");
+        assertThat(json).contains("\"kode\" : \"4104\"").contains("\"utfallType\" : \"AVSLÅTT\"");
     }
 
-    private record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
+    private record X(PeriodeResultatÅrsak periodeResultatÅrsak) {
+    }
 
 }

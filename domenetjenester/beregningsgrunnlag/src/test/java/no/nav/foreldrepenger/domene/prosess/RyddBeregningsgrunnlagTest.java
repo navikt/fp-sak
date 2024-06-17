@@ -64,9 +64,6 @@ class RyddBeregningsgrunnlagTest {
     }
 
     private BeregningsgrunnlagEntitet opprettBeregningsgrunnlag() {
-        return BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(BigDecimal.ZERO)
-            .build();
+        return BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).medGrunnbeløp(BigDecimal.ZERO).build();
     }
 }

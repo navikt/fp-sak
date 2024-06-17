@@ -53,8 +53,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider,
-            fagsakRelasjonTjeneste);
+        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
     }
@@ -213,9 +212,11 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
-        scenario.medSøknadHendelse().medFødselsDato(skjæringstidspunkt, 1)
+        scenario.medSøknadHendelse()
+            .medFødselsDato(skjæringstidspunkt, 1)
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringstidspunkt));
-        scenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunkt, 1)
+        scenario.medBekreftetHendelse()
+            .medFødselsDato(skjæringstidspunkt, 1)
             .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringstidspunkt));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -235,9 +236,9 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true, true));
-        scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
-        scenario.medBekreftetHendelse().medFødselsDato(termindato.plusDays(1), 1)
+        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
+        scenario.medBekreftetHendelse()
+            .medFødselsDato(termindato.plusDays(1), 1)
             .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -258,9 +259,11 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
-        scenario.medSøknadHendelse().medFødselsDato(skjæringstidspunkt, 1)
+        scenario.medSøknadHendelse()
+            .medFødselsDato(skjæringstidspunkt, 1)
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringstidspunkt));
-        scenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunkt, 1)
+        scenario.medBekreftetHendelse()
+            .medFødselsDato(skjæringstidspunkt, 1)
             .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(skjæringstidspunkt));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -282,23 +285,21 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
         var uttakFar = new UttakResultatPeriodeEntitet.Builder(skjæringstidspunktOriginal,
-            VirkedagUtil.tomVirkedag(skjæringstidspunktOriginal.plusWeeks(6).minusDays(1)))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+            VirkedagUtil.tomVirkedag(skjæringstidspunktOriginal.plusWeeks(6).minusDays(1))).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFar, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
             .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
-            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
+            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN))
+            .build();
         perioder.leggTilPeriode(uttakFar);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.medUttak(perioder);
         scenario.medSøknadHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
         scenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);

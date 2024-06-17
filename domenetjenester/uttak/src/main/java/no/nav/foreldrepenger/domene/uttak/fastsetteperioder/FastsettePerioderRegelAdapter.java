@@ -52,8 +52,7 @@ public class FastsettePerioderRegelAdapter {
 
     private void log(RegelGrunnlag grunnlag) {
         try {
-            LOG.info("Fastsette uttaksperioder feilet med grunnlag {}", JsonOutput.asJson(grunnlag)
-                .replaceAll("\\d{13}|\\d{11}|\\d{9}", "*"));
+            LOG.info("Fastsette uttaksperioder feilet med grunnlag {}", JsonOutput.asJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*"));
         } catch (NareJsonException jsonProcessingException) {
             LOG.warn("Feil ved logging av regelgrunnlaget", jsonProcessingException);
         }

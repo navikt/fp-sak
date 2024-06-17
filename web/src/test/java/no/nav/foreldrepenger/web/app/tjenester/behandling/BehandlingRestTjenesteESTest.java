@@ -69,19 +69,18 @@ class BehandlingRestTjenesteESTest {
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(),
-            repositoryProvider.getSøknadRepository());
+        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository());
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste,
-            tilbakekrevingRepository, skjæringstidspunktTjeneste, behandlingDokumentRepository,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), mock(TotrinnTjeneste.class), null, null,
-            fagsakRelasjonTjeneste, new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)));
+        var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository,
+            skjæringstidspunktTjeneste, behandlingDokumentRepository, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
+            mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)));
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
-        behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,
-            behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste);
+        behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste, behandlingOpprettingTjeneste,
+            behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste);
     }
 
     @Test
@@ -102,8 +101,7 @@ class BehandlingRestTjenesteESTest {
         var behandling = scenario.lagre(repositoryProvider);
         var saksnummer = behandling.getFagsak().getSaksnummer();
 
-        when(behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(
-            singletonList(behandling));
+        when(behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(singletonList(behandling));
 
         var dto = behandlingRestTjeneste.hentBehandlinger(new SaksnummerDto(saksnummer.getVerdi()));
 

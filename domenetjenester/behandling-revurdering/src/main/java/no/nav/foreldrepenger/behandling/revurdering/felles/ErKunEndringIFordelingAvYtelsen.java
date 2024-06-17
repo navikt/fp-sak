@@ -74,7 +74,7 @@ class ErKunEndringIFordelingAvYtelsen {
         var førsteKronologiskePeriode = sammenlignPerioder.stream()
             .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.isPresent() && fom.isBefore(førsteKronologiskePeriode.get().getBeregningsgrunnlagPeriodeFom())) {
-                return harPerioderUlikeAndeler(periodeÅSammenligne, førsteKronologiskePeriode.get());
+            return harPerioderUlikeAndeler(periodeÅSammenligne, førsteKronologiskePeriode.get());
         }
 
         var korresponderendePeriode = sammenlignPerioder.stream()

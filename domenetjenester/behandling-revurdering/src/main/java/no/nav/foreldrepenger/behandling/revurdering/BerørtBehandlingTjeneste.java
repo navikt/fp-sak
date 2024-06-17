@@ -45,20 +45,25 @@ public class BerørtBehandlingTjeneste {
         // CDI
     }
 
-    public enum BerørtÅrsak { ORDINÆR, KONTO_REDUSERT, OPPHØR, FERIEPENGER }
+    public enum BerørtÅrsak {
+        ORDINÆR,
+        KONTO_REDUSERT,
+        OPPHØR,
+        FERIEPENGER
+    }
 
     /**
      * Finner ut om det skal opprettes en berørt behandling på med forelders sak.
      *
-     * @param vedtattBehandlingsresultat brukers behandlingsresultat
-     * @param vedtattBehandling                          brukers siste vedtatte behandling
-     * @param sistVedtattBehandlingIdAnnenPart               medforelders siste vedtatte
-     *                                            behandling.
+     * @param vedtattBehandlingsresultat       brukers behandlingsresultat
+     * @param vedtattBehandling                brukers siste vedtatte behandling
+     * @param sistVedtattBehandlingIdAnnenPart medforelders siste vedtatte
+     *                                         behandling.
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public Optional<BerørtÅrsak> skalBerørtBehandlingOpprettes(Behandlingsresultat vedtattBehandlingsresultat,
-                                                 Behandling vedtattBehandling,
-                                                 Long sistVedtattBehandlingIdAnnenPart) {
+                                                               Behandling vedtattBehandling,
+                                                               Long sistVedtattBehandlingIdAnnenPart) {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
         if (ikkeAktuellForVurderBerørt(vedtattBehandling, vedtattBehandlingsresultat)) {
             return Optional.empty();
@@ -67,21 +72,20 @@ public class BerørtBehandlingTjeneste {
 
         var vedtattUttak = hentUttak(vedtattBehandling.getId()).orElse(tomtUttak());
         var annenpartsSistVedtatteUttak = hentUttak(sistVedtattBehandlingIdAnnenPart);
-        if (annenpartsSistVedtatteUttak.isEmpty() || finnMinAktivDato(annenpartsSistVedtatteUttak.get()).isEmpty() || finnMinAktivDato(vedtattUttak, annenpartsSistVedtatteUttak.get()).isEmpty()) {
+        if (annenpartsSistVedtatteUttak.isEmpty() || finnMinAktivDato(annenpartsSistVedtatteUttak.get()).isEmpty() || finnMinAktivDato(vedtattUttak,
+            annenpartsSistVedtatteUttak.get()).isEmpty()) {
             return Optional.empty();
         }
 
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(vedtattUttak,
-            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(vedtattBehandling.getId()),
-            stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput),
-            annenpartsSistVedtatteUttak,
-            uttakInput,
-            "Skal opprette berørt").isPresent() ? Optional.of(utledÅrsak(vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
+                ytelseFordelingTjeneste.hentAggregatHvisEksisterer(vedtattBehandling.getId()),
+                stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput), annenpartsSistVedtatteUttak, uttakInput, "Skal opprette berørt")
+            .isPresent() ? Optional.of(utledÅrsak(vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
     }
 
     private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
-        var harEndretStrukturEllerRedusertAntallStønadsdager = UtregnetStønadskontoTjeneste
-            .harEndretStrukturEllerRedusertAntallStønadsdager(annenpartsUttak.getStønadskontoBeregning(), brukersUttak.getStønadskontoBeregning());
+        var harEndretStrukturEllerRedusertAntallStønadsdager = UtregnetStønadskontoTjeneste.harEndretStrukturEllerRedusertAntallStønadsdager(
+            annenpartsUttak.getStønadskontoBeregning(), brukersUttak.getStønadskontoBeregning());
         return harEndretStrukturEllerRedusertAntallStønadsdager ? BerørtÅrsak.KONTO_REDUSERT : BerørtÅrsak.ORDINÆR;
     }
 
@@ -98,15 +102,15 @@ public class BerørtBehandlingTjeneste {
 
 
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak uttak) {
-        return uttak.getGjeldendePerioder().stream()
+        return uttak.getGjeldendePerioder()
+            .stream()
             .filter(this::isAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
-            .min(Comparator.naturalOrder());
+        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream()).min(Comparator.naturalOrder());
     }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {

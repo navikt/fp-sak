@@ -32,11 +32,10 @@ public class InngangsvilkårGrunnlagBygger {
         var ref = uttakInput.getBehandlingReferanse();
         var vilkårResultat = finnVilkårResultat(ref);
 
-        return new Inngangsvilkår.Builder()
-                .opptjeningOppfylt(opptjeningsvilkåretOppfylt(vilkårResultat))
-                .foreldreansvarnOppfylt(foreldreansvarsvilkåretOppfylt(vilkårResultat))
-                .adopsjonOppfylt(adopsjonsvilkåretOppfylt(vilkårResultat))
-                .fødselOppfylt(fødselsvilkårOppfylt(vilkårResultat, ref));
+        return new Inngangsvilkår.Builder().opptjeningOppfylt(opptjeningsvilkåretOppfylt(vilkårResultat))
+            .foreldreansvarnOppfylt(foreldreansvarsvilkåretOppfylt(vilkårResultat))
+            .adopsjonOppfylt(adopsjonsvilkåretOppfylt(vilkårResultat))
+            .fødselOppfylt(fødselsvilkårOppfylt(vilkårResultat, ref));
     }
 
     private VilkårResultat finnVilkårResultat(BehandlingReferanse behandlingReferanse) {
@@ -68,10 +67,7 @@ public class InngangsvilkårGrunnlagBygger {
     }
 
     private static boolean vilkårAvTypeErOppfylt(VilkårResultat vilkårResultat, VilkårType type) {
-        var vilkår = vilkårResultat.getVilkårene()
-            .stream()
-            .filter(v -> Objects.equals(v.getVilkårType(), type))
-            .findFirst();
+        var vilkår = vilkårResultat.getVilkårene().stream().filter(v -> Objects.equals(v.getVilkårType(), type)).findFirst();
         return vilkår.map(v -> !v.erIkkeOppfylt()).orElse(true);
     }
 }

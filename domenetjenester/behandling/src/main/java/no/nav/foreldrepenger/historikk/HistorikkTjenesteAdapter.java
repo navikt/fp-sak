@@ -46,13 +46,14 @@ public class HistorikkTjenesteAdapter {
 
     public List<HistorikkinnslagDto> hentAlleHistorikkInnslagForSak(Saksnummer saksnummer, URI dokumentPath) {
         var historikkinnslagList = Optional.ofNullable(historikkRepository.hentHistorikkForSaksnummer(saksnummer)).orElse(List.of());
-        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer).stream()
-                .map(ArkivJournalPost::getJournalpostId)
-                .toList();
+        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer)
+            .stream()
+            .map(ArkivJournalPost::getJournalpostId)
+            .toList();
         return historikkinnslagList.stream()
-                .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak, behandlingRepository, dokumentPath))
-                .sorted()
-                .toList();
+            .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak, behandlingRepository, dokumentPath))
+            .sorted()
+            .toList();
     }
 
     /**

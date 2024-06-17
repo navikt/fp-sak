@@ -25,7 +25,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_eksakt_fagsak_gitt_id() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
         var resultat = fagsakRepository.finnEksaktFagsak(fagsak.getId());
@@ -36,7 +36,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_unik_fagsak_gitt_id() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
         var resultat = fagsakRepository.finnUnikFagsak(fagsak.getId());
@@ -47,7 +47,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fagsak_gitt_saksnummer() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
 
         opprettFagsak(saksnummer, aktørId);
         var optional = fagsakRepository.hentSakGittSaksnummer(saksnummer);
@@ -58,7 +58,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fagsak_gitt_aktør_id() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
 
         opprettFagsak(saksnummer, aktørId);
         var list = fagsakRepository.hentForBruker(aktørId);
@@ -70,8 +70,8 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     void skal_finne_fagsaker_uten_behandling() {
         var aktørId = AktørId.dummy();
         var aktørId1 = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
-        var saksnummer1  = new Saksnummer("100000");
+        var saksnummer = new Saksnummer("9999");
+        var saksnummer1 = new Saksnummer("100000");
 
         opprettFagsak(saksnummer, aktørId);
         opprettFagsak(saksnummer1, aktørId1);
@@ -83,7 +83,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_journalpost_gitt_journalpost_id() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var journalpostId = new JournalpostId("30000");
 
         opprettFagsakMedJournalpost(journalpostId, saksnummer, aktørId);

@@ -27,27 +27,23 @@ public class HentOppdragMedPositivKvittering {
 
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Behandling behandling) {
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
-            .orElse(Collections.emptyList());
-        return oppdrag110List.stream()
-            .filter(OppdragKvitteringTjeneste::harPositivKvittering)
-            .toList();
+        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste).orElse(Collections.emptyList());
+        return oppdrag110List.stream().filter(OppdragKvitteringTjeneste::harPositivKvittering).toList();
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvitteringFeilHvisVenter(Behandling behandling) {
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
-            .orElse(Collections.emptyList());
-        if (oppdrag110List.stream().anyMatch(Oppdrag110::venterKvittering))
+        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste).orElse(Collections.emptyList());
+        if (oppdrag110List.stream().anyMatch(Oppdrag110::venterKvittering)) {
             throw new IllegalStateException("Utviklerfeil har ikke ventet på at oppdrag er kvittert");
-        return oppdrag110List.stream()
-            .filter(OppdragKvitteringTjeneste::harPositivKvittering)
-            .toList();
+        }
+        return oppdrag110List.stream().filter(OppdragKvitteringTjeneste::harPositivKvittering).toList();
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Saksnummer saksnummer) {
         var oppdragskontrollList = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
-        return oppdragskontrollList.stream().map(Oppdragskontroll::getOppdrag110Liste)
+        return oppdragskontrollList.stream()
+            .map(Oppdragskontroll::getOppdrag110Liste)
             .flatMap(List::stream)
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
             .toList();

@@ -90,8 +90,12 @@ public class KlageResultatEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (KlageResultatEntitet) o;
         return Objects.equals(klageBehandlingId, that.klageBehandlingId);
     }
@@ -103,10 +107,7 @@ public class KlageResultatEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "klageBehandlingId=" + getKlageBehandlingId() + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "klageBehandlingId=" + getKlageBehandlingId() + ", " + ">";
     }
 
     public static class Builder {

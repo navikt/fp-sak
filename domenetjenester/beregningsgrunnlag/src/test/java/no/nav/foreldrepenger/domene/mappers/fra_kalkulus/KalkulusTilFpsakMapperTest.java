@@ -9,23 +9,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Test;
+
 import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-
-import org.junit.jupiter.api.Test;
-
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 class KalkulusTilFpsakMapperTest {
 
@@ -39,16 +38,22 @@ class KalkulusTilFpsakMapperTest {
         var kontraktbg = kontraktBgg.getBeregningsgrunnlag();
         assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
         assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
-        assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
-            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).collect(Collectors.toList()));
+        assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)).containsAll(
+            kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).collect(Collectors.toList()));
         assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
-        assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).collect(Collectors.toList()), kontraktbg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).collect(Collectors.toList()));
+        assertPerioder(domenebg.getBeregningsgrunnlagPerioder()
+            .stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato()))
+            .collect(Collectors.toList()), kontraktbg.getBeregningsgrunnlagPerioder()
+            .stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom()))
+            .collect(Collectors.toList()));
         if (kontraktBgg.getRegisterAktiviteter() != null) {
             assertThat(domeneBgg.getRegisterAktiviteter()).isNotNull();
-            assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());
-            assertLikeAktiviteter(kontraktBgg.getRegisterAktiviteter().getAktiviteter(), domeneBgg.getRegisterAktiviteter().getBeregningAktiviteter());
+            assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(
+                kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());
+            assertLikeAktiviteter(kontraktBgg.getRegisterAktiviteter().getAktiviteter(),
+                domeneBgg.getRegisterAktiviteter().getBeregningAktiviteter());
         }
     }
 
@@ -72,8 +77,7 @@ class KalkulusTilFpsakMapperTest {
         return kontraktAG.getArbeidsgiverOrgnr().equals(domeneAG.getIdentifikator());
     }
 
-    private void assertPerioder(List<BeregningsgrunnlagPeriode> domenePerioder,
-                                List<BeregningsgrunnlagPeriodeDto> kontraktPerioder) {
+    private void assertPerioder(List<BeregningsgrunnlagPeriode> domenePerioder, List<BeregningsgrunnlagPeriodeDto> kontraktPerioder) {
         for (var i = 0; i < domenePerioder.size(); i++) {
             var kontraktperiode = kontraktPerioder.get(i);
             var domeneperiode = domenePerioder.get(i);
@@ -83,21 +87,18 @@ class KalkulusTilFpsakMapperTest {
             assertThat(kontraktperiode.getRedusertPrÅr().verdi()).isEqualTo(domeneperiode.getRedusertPrÅr());
             assertThat(kontraktperiode.getBruttoPrÅr().verdi()).isEqualTo(domeneperiode.getBruttoPrÅr());
             assertThat(kontraktperiode.getDagsats()).isEqualTo(domeneperiode.getDagsats());
-            assertThat(domeneperiode.getPeriodeÅrsaker()).containsAll(kontraktperiode.getPeriodeÅrsaker()
-                .stream().map(KodeverkFraKalkulusMapper::mapPeriodeÅrsak).toList());
-            assertThat(kontraktperiode.getBeregningsgrunnlagPrStatusOgAndelList()).hasSameSizeAs(domeneperiode.getBeregningsgrunnlagPrStatusOgAndelList());
+            assertThat(domeneperiode.getPeriodeÅrsaker()).containsAll(
+                kontraktperiode.getPeriodeÅrsaker().stream().map(KodeverkFraKalkulusMapper::mapPeriodeÅrsak).toList());
+            assertThat(kontraktperiode.getBeregningsgrunnlagPrStatusOgAndelList()).hasSameSizeAs(
+                domeneperiode.getBeregningsgrunnlagPrStatusOgAndelList());
             assertAndeler(domeneperiode.getBeregningsgrunnlagPrStatusOgAndelList(), kontraktperiode.getBeregningsgrunnlagPrStatusOgAndelList());
         }
 
     }
 
-    private void assertAndeler(List<BeregningsgrunnlagPrStatusOgAndel> domeneAndeler,
-                               List<BeregningsgrunnlagPrStatusOgAndelDto> kontraktAndeler) {
-        domeneAndeler.forEach(domeneAndel ->{
-            var kontraktAndel = kontraktAndeler.stream()
-                .filter(a -> a.getAndelsnr().equals(domeneAndel.getAndelsnr()))
-                .findFirst()
-                .orElseThrow();
+    private void assertAndeler(List<BeregningsgrunnlagPrStatusOgAndel> domeneAndeler, List<BeregningsgrunnlagPrStatusOgAndelDto> kontraktAndeler) {
+        domeneAndeler.forEach(domeneAndel -> {
+            var kontraktAndel = kontraktAndeler.stream().filter(a -> a.getAndelsnr().equals(domeneAndel.getAndelsnr())).findFirst().orElseThrow();
             assertThat(KodeverkFraKalkulusMapper.mapAktivitetstatus(kontraktAndel.getAktivitetStatus())).isEqualTo(domeneAndel.getAktivitetStatus());
             assertBeløp(kontraktAndel.getBeregnetPrÅr(), domeneAndel.getBeregnetPrÅr());
             assertBeløp(kontraktAndel.getFordeltPrÅr(), domeneAndel.getFordeltPrÅr());

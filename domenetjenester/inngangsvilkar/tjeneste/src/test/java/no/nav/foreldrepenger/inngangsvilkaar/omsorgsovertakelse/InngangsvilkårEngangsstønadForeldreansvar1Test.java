@@ -15,7 +15,8 @@ class InngangsvilkårEngangsstønadForeldreansvar1Test {
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
         assertThat(vilkårData.aksjonspunktDefinisjoner()).hasSize(1);
-        assertThat(vilkårData.aksjonspunktDefinisjoner().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD);
+        assertThat(vilkårData.aksjonspunktDefinisjoner().get(0)).isEqualTo(
+            AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD);
     }
 
 }

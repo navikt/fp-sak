@@ -52,8 +52,7 @@ public class PersonBasisTjeneste {
     public PersoninfoVisning hentVisningsPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+        var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
@@ -64,46 +63,53 @@ public class PersonBasisTjeneste {
     public PersoninfoBasis hentBasisPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
-                .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                .kjoenn(new KjoennResponseProjection().kjoenn())
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
+            .doedsfall(new DoedsfallResponseProjection().doedsdato())
+            .kjoenn(new KjoennResponseProjection().kjoenn())
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = person.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
-                .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
-        var dødsdato = person.getDoedsfall().stream()
-                .map(Doedsfall::getDoedsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        return new PersoninfoBasis(aktørId, personIdent, mapNavn(person), fødselsdato, dødsdato,
-            mapKjønn(person), getDiskresjonskode(person).getKode());
+        var fødselsdato = person.getFoedselsdato()
+            .stream()
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
+        var dødsdato = person.getDoedsfall()
+            .stream()
+            .map(Doedsfall::getDoedsdato)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElse(null);
+        return new PersoninfoBasis(aktørId, personIdent, mapNavn(person), fødselsdato, dødsdato, mapKjønn(person),
+            getDiskresjonskode(person).getKode());
     }
 
     public Optional<PersoninfoArbeidsgiver> hentArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+        var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = person.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        var fødselsdato = person.getFoedselsdato()
+            .stream()
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElse(null);
 
-        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
-                .medFødselsdato(fødselsdato)
-                .build();
+        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId)
+            .medPersonIdent(personIdent)
+            .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medFødselsdato(fødselsdato)
+            .build();
 
         return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
@@ -111,41 +117,41 @@ public class PersonBasisTjeneste {
     public Optional<PersoninfoKjønn> hentKjønnPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-                .kjoenn(new KjoennResponseProjection().kjoenn());
+        var projection = new PersonResponseProjection().kjoenn(new KjoennResponseProjection().kjoenn());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
-                .medNavBrukerKjønn(mapKjønn(person))
-                .build();
+        var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId).medNavBrukerKjønn(mapKjønn(person)).build();
         return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
 
     private Diskresjonskode getDiskresjonskode(Person person) {
-        var kode = person.getAdressebeskyttelse().stream()
+        var kode = person.getAdressebeskyttelse()
+            .stream()
             .map(Adressebeskyttelse::getGradering)
             .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-            .findFirst().orElse(null);
-        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
+            .findFirst()
+            .orElse(null);
+        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode)) {
             return Diskresjonskode.KODE6;
+        }
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 
     private String mapNavn(Person person) {
-        return person.getNavn().stream()
+        return person.getNavn()
+            .stream()
             .map(PersoninfoTjeneste::mapNavn)
             .filter(Objects::nonNull)
-            .findFirst().orElseGet(() -> IS_PROD ? null : "Navnløs i Folkeregister");
+            .findFirst()
+            .orElseGet(() -> IS_PROD ? null : "Navnløs i Folkeregister");
     }
 
     private static NavBrukerKjønn mapKjønn(Person person) {
-        var kode = person.getKjoenn().stream()
-                .map(Kjoenn::getKjoenn)
-                .filter(Objects::nonNull)
-                .findFirst().orElse(KjoennType.UKJENT);
-        if (KjoennType.MANN.equals(kode))
+        var kode = person.getKjoenn().stream().map(Kjoenn::getKjoenn).filter(Objects::nonNull).findFirst().orElse(KjoennType.UKJENT);
+        if (KjoennType.MANN.equals(kode)) {
             return NavBrukerKjønn.MANN;
+        }
         return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
     }
 

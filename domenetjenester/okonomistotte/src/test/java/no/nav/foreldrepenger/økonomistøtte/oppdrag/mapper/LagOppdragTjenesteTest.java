@@ -49,11 +49,17 @@ class LagOppdragTjenesteTest {
     @Test
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
-        var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
-        BeregningsresultatAndel.builder().medBrukerErMottaker(true)
+        var tyPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom())
+            .build(tilkjentYtelse);
+        BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
             .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(1000)
+            .medDagsats(1000)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
             .build(tyPeriode);
 
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
@@ -74,15 +80,35 @@ class LagOppdragTjenesteTest {
 
         var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medDelytelseId(delytelseId("100-100"))
+            .medPeriode(periode)
+            .medSats(Satsen.dagsats(1000))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build());
     }
 
     @Test
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
-        var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
-        var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
-        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
+        var tyPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom())
+            .build(tilkjentYtelse);
+        var andel = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsatsFraBg(1000)
+            .medDagsats(1000)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(tyPeriode);
+        var feriepenger = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerRegelInput("foo")
+            .medFeriepengerRegelSporing("bar")
+            .medFeriepengerPeriodeFom(nesteMai.getFom())
+            .medFeriepengerPeriodeTom(nesteMai.getTom())
+            .build(tilkjentYtelse);
         BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger, andel);
 
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
@@ -101,11 +127,17 @@ class LagOppdragTjenesteTest {
 
         var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder()
+            .medDelytelseId(delytelseId("100-100"))
+            .medPeriode(periode)
+            .medSats(Satsen.dagsats(1000))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build());
 
         var feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
-        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
+        assertLik(feriepengeKjede.getOppdragslinjer().get(0),
+            OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
     }
 
     private DelytelseId delytelseId(String suffix) {

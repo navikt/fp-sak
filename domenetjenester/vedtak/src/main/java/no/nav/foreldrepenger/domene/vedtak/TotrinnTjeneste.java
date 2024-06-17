@@ -11,7 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
 
-/** Totrinn tjeneste som eksponeres ut av modulen.*/
+/**
+ * Totrinn tjeneste som eksponeres ut av modulen.
+ */
 @ApplicationScoped
 public class TotrinnTjeneste {
 

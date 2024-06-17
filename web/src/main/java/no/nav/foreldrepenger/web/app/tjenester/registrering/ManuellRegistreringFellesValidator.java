@@ -34,22 +34,12 @@ public class ManuellRegistreringFellesValidator {
     }
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringDto registreringDto) {
-        return Stream.of(validerTidligereUtenlandsopphold(registreringDto),
-                validerFremtidigUtenlandsopphold(registreringDto),
-                validerTerminEllerFødselsdato(registreringDto),
-                validerTermindato(registreringDto),
-                validerTerminBekreftelsesdato(registreringDto),
-                validerTerminBekreftelseAntallBarn(registreringDto),
-                validerAntallBarn(registreringDto),
-                validerFødselsdato(registreringDto),
-                validerOmsorgsovertakelsesdato(registreringDto),
-                validerKanIkkeOppgiAnnenForelder(registreringDto),
-                validerAnnenForelderUtenlandskFoedselsnummer(registreringDto),
-                validerAnnenForelderFødselsnummer(registreringDto),
-                validerMottattDato(registreringDto))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        return Stream.of(validerTidligereUtenlandsopphold(registreringDto), validerFremtidigUtenlandsopphold(registreringDto),
+            validerTerminEllerFødselsdato(registreringDto), validerTermindato(registreringDto), validerTerminBekreftelsesdato(registreringDto),
+            validerTerminBekreftelseAntallBarn(registreringDto), validerAntallBarn(registreringDto), validerFødselsdato(registreringDto),
+            validerOmsorgsovertakelsesdato(registreringDto), validerKanIkkeOppgiAnnenForelder(registreringDto),
+            validerAnnenForelderUtenlandskFoedselsnummer(registreringDto), validerAnnenForelderFødselsnummer(registreringDto),
+            validerMottattDato(registreringDto)).filter(Optional::isPresent).map(Optional::get).toList();
     }
 
     static Optional<FeltFeilDto> validerTidligereUtenlandsopphold(ManuellRegistreringDto registreringDto) {
@@ -63,7 +53,8 @@ public class ManuellRegistreringFellesValidator {
         return Optional.empty();
     }
 
-    private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands, String feltnavn) {
+    private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands,
+                                                                                String feltnavn) {
         var feil = new ArrayList<String>();
         var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
@@ -83,12 +74,15 @@ public class ManuellRegistreringFellesValidator {
             if (erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
                 return Optional.of(new FeltFeilDto(feltnavn, OPPHOLDSSKJEMA_TOMT));
             }
-            return validerFremtidigOppholdUtenlandsDatoer(registreringDto.getFremtidigeOppholdUtenlands(), registreringDto.getMottattDato(), feltnavn);
+            return validerFremtidigOppholdUtenlandsDatoer(registreringDto.getFremtidigeOppholdUtenlands(), registreringDto.getMottattDato(),
+                feltnavn);
         }
         return Optional.empty();
     }
 
-    private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands, LocalDate mottattDato, String feltnavn) {
+    private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands,
+                                                                                LocalDate mottattDato,
+                                                                                String feltnavn) {
         var feil = new ArrayList<String>();
         var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
@@ -142,7 +136,11 @@ public class ManuellRegistreringFellesValidator {
         return Optional.empty();
     }
 
-    private static Optional<FeltFeilDto> validerTerminBekreftelsesdato(LocalDate terminbekreftelseDato, LocalDate termindato, boolean harFødselsdato, boolean harTermindato, String feltnavn) {
+    private static Optional<FeltFeilDto> validerTerminBekreftelsesdato(LocalDate terminbekreftelseDato,
+                                                                       LocalDate termindato,
+                                                                       boolean harFødselsdato,
+                                                                       boolean harTermindato,
+                                                                       String feltnavn) {
         if (harFødselsdato) {
             return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_OG_FØDSELSDATO));
         }
@@ -224,9 +222,7 @@ public class ManuellRegistreringFellesValidator {
         } else {
             fødselsdatoer = Optional.ofNullable(registreringDto.getFoedselsDato()).map(List::of).orElse(List.of());
         }
-        return fødselsdatoer.stream()
-            .filter(Objects::nonNull)
-            .toList();
+        return fødselsdatoer.stream().filter(Objects::nonNull).toList();
     }
 
     static Optional<FeltFeilDto> validerKanIkkeOppgiAnnenForelder(ManuellRegistreringDto registreringDto) {
@@ -292,8 +288,8 @@ public class ManuellRegistreringFellesValidator {
     }
 
     private static boolean erAdopsjonEllerOmsorg(ManuellRegistreringDto manuellRegistreringDto) {
-        return FamilieHendelseType.ADOPSJON.equals(manuellRegistreringDto.getTema()) ||
-            FamilieHendelseType.OMSORG.equals(manuellRegistreringDto.getTema());
+        return FamilieHendelseType.ADOPSJON.equals(manuellRegistreringDto.getTema()) || FamilieHendelseType.OMSORG.equals(
+            manuellRegistreringDto.getTema());
     }
 
     private static boolean erTomListe(List<?> list) {

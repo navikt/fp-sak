@@ -65,19 +65,20 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultat.get(0).getDokRegel()).isNotNull();
         assertThat(resultat.get(0).getPeriodeSøknad()).isNotEmpty();
         assertThat(resultat.get(0).getAktiviteter().get(0).getUttakAktivitet()).isNotNull();
-        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT);
+        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(
+            DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT);
     }
 
     @Test
     void skal_kunne_endre_opprinnelig_flere_ganger_uten_å_feile_pga_unikhetssjekk_for_aktiv() {
-        var uttakResultat1 = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
-        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
-        var uttakResultat2 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
-        var uttakResultat3 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
+        var uttakResultat1 = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
+        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
+        var uttakResultat2 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
+        var uttakResultat3 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
 
         //Act
         var behandlingId = lagBehandling();
@@ -95,8 +96,8 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void hentOverstyrtUttakResultat() {
         //Arrange
-        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
-            LocalDate.now(), LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
+        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
         var behandlingId = lagBehandling();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, lagKontoberegning(), opprinnelig);
 
@@ -104,11 +105,7 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
         var overstyrtTom = LocalDate.now().plusMonths(4);
         var overstyrtResultatType = PeriodeResultatType.AVSLÅTT;
         var overstyrtKonto = UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
-        var overstyrt = opprettUttakResultatPeriode(
-            overstyrtResultatType,
-            overstyrtFom,
-            overstyrtTom,
-            overstyrtKonto);
+        var overstyrt = opprettUttakResultatPeriode(overstyrtResultatType, overstyrtFom, overstyrtTom, overstyrtKonto);
 
         //Act
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrt);
@@ -130,12 +127,12 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void endringAvOverstyrtSkalResultereINyttUttakResultatMedSammeOpprinnelig() {
-        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
-        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
-        var overstyrt2 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
-            LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER);
+        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
+        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
+        var overstyrt2 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER);
         var behandlingId = lagBehandling();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, lagKontoberegning(), opprinnelig);
 
@@ -151,16 +148,16 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
     @Test
     void utbetalingsgradOgArbeidstidsprosentSkalHa2Desimaler() {
         //Arrange
-        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
-            LocalDate.now(), LocalDate.now().plusMonths(3), UttakPeriodeType.FORELDREPENGER,
-            new BigDecimal("10.55"), new Utbetalingsgrad(20.57));
+        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3),
+            UttakPeriodeType.FORELDREPENGER, new BigDecimal("10.55"), new Utbetalingsgrad(20.57));
         var behandlingId = lagBehandling();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, lagKontoberegning(), opprinnelig);
 
         //Assert
         var hentetUttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
 
-        assertThat(hentetUttakResultatOpt.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).isEqualTo(Map.of(StønadskontoType.FORELDREPENGER, 200));
+        assertThat(hentetUttakResultatOpt.orElseThrow().getStønadskontoberegning().getStønadskontoutregning()).isEqualTo(
+            Map.of(StønadskontoType.FORELDREPENGER, 200));
 
         var aktivitet = hentetUttakResultatOpt.orElseThrow().getGjeldendePerioder().getPerioder().get(0).getAktiviteter().get(0);
         assertThat(aktivitet.getUtbetalingsgrad().decimalValue()).isEqualTo(new BigDecimal("20.57"));
@@ -207,30 +204,23 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
                                                                      BigDecimal graderingArbeidsprosent,
                                                                      Utbetalingsgrad utbetalingsgrad) {
 
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.nyRef())
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medMottattDato(LocalDate.now())
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT)
             .build();
-        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
-            .medRegelInput(" ")
-            .medRegelEvaluering(" ")
-            .build();
-        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medDokRegel(dokRegel)
+        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling().medRegelInput(" ").medRegelEvaluering(" ").build();
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medDokRegel(dokRegel)
             .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
-        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
-            uttakAktivitet)
+        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)
             .medTrekkonto(trekkonto)
             .medTrekkdager(new Trekkdager(BigDecimal.TEN))
             .medArbeidsprosent(graderingArbeidsprosent)
@@ -247,22 +237,16 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
     private Long lagBehandling() {
         var entityManager = getEntityManager();
-        var behandling = new BasicBehandlingBuilder(entityManager)
-            .opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        var behandling = new BasicBehandlingBuilder(entityManager).opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         new BehandlingsresultatRepository(entityManager).lagre(behandling.getId(), behandlingsresultat);
         return behandling.getId();
     }
 
     private Stønadskontoberegning lagKontoberegning() {
-        var stønadskontoberegningBuilder = Stønadskontoberegning.builder()
-            .medRegelEvaluering("inn")
-            .medRegelInput("ut");
+        var stønadskontoberegningBuilder = Stønadskontoberegning.builder().medRegelEvaluering("inn").medRegelInput("ut");
 
-        var stønadskonto = Stønadskonto.builder()
-            .medMaxDager(200)
-            .medStønadskontoType(StønadskontoType.FORELDREPENGER)
-            .build();
+        var stønadskonto = Stønadskonto.builder().medMaxDager(200).medStønadskontoType(StønadskontoType.FORELDREPENGER).build();
         stønadskontoberegningBuilder.medStønadskonto(stønadskonto);
         return stønadskontoberegningBuilder.build();
     }

@@ -31,7 +31,8 @@ class StønadsstatistikkBeregningMapper {
     }
 
     static StønadsstatistikkVedtak.Beregning mapBeregning(Behandling behandling,
-                                                          BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
+                                                          BeregningsgrunnlagEntitet beregningsgrunnlag,
+                                                          InntektArbeidYtelseGrunnlag iaygrunnlag) {
         if (beregningsgrunnlag == null) {
             return null;
         }
@@ -43,17 +44,21 @@ class StønadsstatistikkBeregningMapper {
             .findFirst()
             .orElseThrow();
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
-        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getAvkortetPrÅr() :
-            utledAvkortetÅrsbeløp(periodePåStp, grunnbeløp);
+        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(
+            behandling.getFagsakYtelseType()) ? periodePåStp.getAvkortetPrÅr() : utledAvkortetÅrsbeløp(periodePåStp, grunnbeløp);
         var redusert = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getRedusertPrÅr() : avkortet;
         var dagsats = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
 
         var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), avkortet, redusert, dagsats);
 
-        var andeler = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var andeler = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .collect(Collectors.groupingBy(Gruppering::new))
-            .entrySet().stream()
-            .filter(e -> e.getValue().stream().anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue()
+                .stream()
+                .anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
             .map(e -> mapAndeler(e.getKey(), e.getValue(), behandling.getFagsakYtelseType()))
             .toList();
 
@@ -65,7 +70,8 @@ class StønadsstatistikkBeregningMapper {
             .map(OppgittEgenNæring::getOrgnr)
             .collect(Collectors.toSet());
 
-        var avviksvudert = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var avviksvudert = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .anyMatch(a -> a.getOverstyrtPrÅr() != null && a.getOverstyrtPrÅr().compareTo(BigDecimal.ZERO) > 0);
         var fastsatt = avviksvudert ? StønadsstatistikkVedtak.BeregningFastsatt.SKJØNN : StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK;
 
@@ -82,7 +88,8 @@ class StønadsstatistikkBeregningMapper {
     }
 
     private static BigDecimal utledAvkortetÅrsbeløp(BeregningsgrunnlagPeriode periodePåStp, BigDecimal grunnbeløp) {
-        var bruttoInkludertBortfaltNaturalytelsePrAar = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var bruttoInkludertBortfaltNaturalytelsePrAar = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
             .filter(Objects::nonNull)
             .reduce(BigDecimal::add)
@@ -101,7 +108,8 @@ class StønadsstatistikkBeregningMapper {
 
     }
 
-    private static StønadsstatistikkVedtak.BeregningAndel mapAndeler(Gruppering gruppering, List<BeregningsgrunnlagPrStatusOgAndel> andeler,
+    private static StønadsstatistikkVedtak.BeregningAndel mapAndeler(Gruppering gruppering,
+                                                                     List<BeregningsgrunnlagPrStatusOgAndel> andeler,
                                                                      FagsakYtelseType ytelseType) {
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             var bruttoÅr = andeler.stream()
@@ -143,14 +151,22 @@ class StønadsstatistikkBeregningMapper {
         };
     }
 
-    private static StønadsstatistikkVedtak.BeregningHjemmel mapBeregningshjemmel(FagsakYtelseType ytelseType, BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    private static StønadsstatistikkVedtak.BeregningHjemmel mapBeregningshjemmel(FagsakYtelseType ytelseType,
+                                                                                 BeregningsgrunnlagEntitet beregningsgrunnlag) {
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-            var hjemler = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getHjemmel).collect(Collectors.toSet());
-            var statuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toSet());
+            var hjemler = beregningsgrunnlag.getAktivitetStatuser()
+                .stream()
+                .map(BeregningsgrunnlagAktivitetStatus::getHjemmel)
+                .collect(Collectors.toSet());
+            var statuser = beregningsgrunnlag.getAktivitetStatuser()
+                .stream()
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+                .collect(Collectors.toSet());
 
             if (hjemler.contains(Hjemmel.F_14_7_8_49) || statuser.contains(AktivitetStatus.DAGPENGER)) {
-                var besteberegnet = beregningsgrunnlag.getBesteberegninggrunnlag().isPresent() ||
-                    beregningsgrunnlag.getFaktaOmBeregningTilfeller().stream().anyMatch(BESTEBEREGNING_FAKTA::contains);
+                var besteberegnet = beregningsgrunnlag.getBesteberegninggrunnlag().isPresent() || beregningsgrunnlag.getFaktaOmBeregningTilfeller()
+                    .stream()
+                    .anyMatch(BESTEBEREGNING_FAKTA::contains);
                 return besteberegnet ? StønadsstatistikkVedtak.BeregningHjemmel.BESTEBEREGNING : StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
             }
             if (statuser.contains(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {

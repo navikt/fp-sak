@@ -43,17 +43,20 @@ class StønadsstatistikkUttakPeriodeMapper {
 
     static List<StønadsstatistikkUttakPeriode> mapUttak(RelasjonsRolleType rolleType,
                                                         StønadsstatistikkVedtak.RettighetType rettighetType,
-                                                        List<ForeldrepengerUttakPeriode> perioder, String logContext) {
+                                                        List<ForeldrepengerUttakPeriode> perioder,
+                                                        String logContext) {
         var statistikkPerioder = perioder.stream()
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .filter(p -> p.harTrekkdager() || p.harUtbetaling() || p.isInnvilgetUtsettelse())
-            .map(p -> mapUttakPeriode(rolleType, rettighetType, p, logContext)).toList();
+            .map(p -> mapUttakPeriode(rolleType, rettighetType, p, logContext))
+            .toList();
         return komprimerTidslinje(statistikkPerioder);
     }
 
     static StønadsstatistikkUttakPeriode mapUttakPeriode(RelasjonsRolleType rolleType,
                                                          StønadsstatistikkVedtak.RettighetType rettighetType,
-                                                         ForeldrepengerUttakPeriode periode, String logContext) {
+                                                         ForeldrepengerUttakPeriode periode,
+                                                         String logContext) {
         // Ser ikke på innvilget avslått men på kombinasjoner av harTrekkdager og erUtbetaling.
         // Søknad og PeriodeResultatÅrsak er supplerende informasjon men ikke endelig avgjørende
         // Ønsker ta med disse tilfellene:
@@ -71,74 +74,49 @@ class StønadsstatistikkUttakPeriodeMapper {
         var rettighet = utledRettighet(rolleType, rettighetType, foretrukketAktivitet.getTrekkonto(), periode);
 
         var periodeType = utledPeriodeType(periode);
-        var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode, logContext)
-            : utledForklaring(periode, foretrukketAktivitet.getTrekkonto(), rolleType);
+        var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode, logContext) : utledForklaring(periode,
+            foretrukketAktivitet.getTrekkonto(), rolleType);
 
         var mottattDato = Optional.ofNullable(periode.getTidligstMottatttDato()).orElseGet(periode::getMottattDato);
 
         var samtidigUttakProsent = periode.getSamtidigUttaksprosent() != null ? periode.getSamtidigUttaksprosent().decimalValue() : null;
         var stønadskontoType = !trekkdager.merEnn0() ? null : mapStønadskonto(foretrukketAktivitet.getTrekkonto());
-        return new StønadsstatistikkUttakPeriode(periode.getFom(), periode.getTom(), periodeType, stønadskontoType, rettighet,
-            forklaring, mottattDato, erUtbetaling, virkedager, new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager.decimalValue()),
+        return new StønadsstatistikkUttakPeriode(periode.getFom(), periode.getTom(), periodeType, stønadskontoType, rettighet, forklaring,
+            mottattDato, erUtbetaling, virkedager, new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager.decimalValue()),
             gradering, samtidigUttakProsent);
     }
 
     private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode, String logContext) {
         if (periode.getResultatÅrsak().getUtfallType() != PeriodeResultatÅrsak.UtfallType.AVSLÅTT) {
-            LOG.info("Stønadsstatistikk forventer periode med avslågsårsak {}. Fikk {} for periode {}", logContext, periode.getResultatÅrsak(), periode.getTidsperiode());
+            LOG.info("Stønadsstatistikk forventer periode med avslågsårsak {}. Fikk {} for periode {}", logContext, periode.getResultatÅrsak(),
+                periode.getTidsperiode());
             return Forklaring.AVSLAG_ANNET;
         }
 
         return switch (periode.getResultatÅrsak()) {
-            case AKTIVITETSKRAVET_ARBEID_I_KOMB_UTDANNING_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_ARBEID_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_ARBEID_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_INNLEGGELSE_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_INTROPROGRAM_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_KVP_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT,
-                AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_INTRODUKSJONSPROGRAM_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_KVALIFISERINGSPROGRAM_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_MORS_INNLEGGELSE_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_MORS_SYKDOM_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_I_KOMBINASJON_MED_ARBEID_IKKE_OPPFYLT,
-                AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_IKKE_OPPFYLT,
-                MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT,
-                BARE_FAR_RETT_MOR_FYLLES_IKKE_AKTIVITETSKRAVET,
-                BARE_FAR_RETT_MANGLER_MORS_AKTIVITET -> Forklaring.AVSLAG_AKTIVITETSKRAV;
+            case AKTIVITETSKRAVET_ARBEID_I_KOMB_UTDANNING_IKKE_DOKUMENTERT, AKTIVITETSKRAVET_ARBEID_IKKE_DOKUMENTERT,
+                 AKTIVITETSKRAVET_ARBEID_IKKE_OPPFYLT, AKTIVITETSKRAVET_INNLEGGELSE_IKKE_DOKUMENTERT, AKTIVITETSKRAVET_INTROPROGRAM_IKKE_DOKUMENTERT,
+                 AKTIVITETSKRAVET_KVP_IKKE_DOKUMENTERT, AKTIVITETSKRAVET_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT,
+                 AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT, AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_INTRODUKSJONSPROGRAM_IKKE_OPPFYLT,
+                 AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_KVALIFISERINGSPROGRAM_IKKE_OPPFYLT, AKTIVITETSKRAVET_MORS_INNLEGGELSE_IKKE_OPPFYLT,
+                 AKTIVITETSKRAVET_MORS_SYKDOM_IKKE_OPPFYLT, AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_I_KOMBINASJON_MED_ARBEID_IKKE_OPPFYLT,
+                 AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_IKKE_OPPFYLT, MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT,
+                 BARE_FAR_RETT_MOR_FYLLES_IKKE_AKTIVITETSKRAVET, BARE_FAR_RETT_MANGLER_MORS_AKTIVITET -> Forklaring.AVSLAG_AKTIVITETSKRAV;
             case SØKNADSFRIST -> Forklaring.AVSLAG_SØKNADSFRIST;
-            case HULL_MELLOM_FORELDRENES_PERIODER,
-                MOR_TAR_IKKE_ALLE_UKENE,
-                BARE_FAR_RETT_IKKE_SØKT,
-                MOR_FØRSTE_SEKS_UKER_IKKE_SØKT -> Forklaring.AVSLAG_IKKE_SØKT;
-            case UTSETTELSE_ARBEID_IKKE_DOKUMENTERT,
-                UTSETTELSE_FERIE_IKKE_DOKUMENTERT,
-                UTSETTELSE_BARNETS_INNLEGGELSE_IKKE_DOKUMENTERT,
-                UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT,
-                UTSETTELSE_SØKERS_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT,
-                IKKE_HELTIDSARBEID,
-                IKKE_LOVBESTEMT_FERIE,
-                UTSETTELSE_FERIE_PÅ_BEVEGELIG_HELLIGDAG,
-                FERIE_SELVSTENDIG_NÆRINGSDRIVENDSE_FRILANSER,
-                SØKERS_SYKDOM_SKADE_IKKE_OPPFYLT,
-                SØKERS_INNLEGGELSE_IKKE_OPPFYLT,
-                BARNETS_INNLEGGELSE_IKKE_OPPFYLT,
-                SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT,
-                SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT,
-                BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT,
-                SØKERS_SYKDOM_ELLER_SKADE_SEKS_UKER_IKKE_DOKUMENTERT,
-                SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT,
-                BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT -> Forklaring.AVSLAG_UTSETTELSE;
-            case AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID,
-                AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID -> Forklaring.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
+            case HULL_MELLOM_FORELDRENES_PERIODER, MOR_TAR_IKKE_ALLE_UKENE, BARE_FAR_RETT_IKKE_SØKT, MOR_FØRSTE_SEKS_UKER_IKKE_SØKT ->
+                Forklaring.AVSLAG_IKKE_SØKT;
+            case UTSETTELSE_ARBEID_IKKE_DOKUMENTERT, UTSETTELSE_FERIE_IKKE_DOKUMENTERT, UTSETTELSE_BARNETS_INNLEGGELSE_IKKE_DOKUMENTERT,
+                 UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT, UTSETTELSE_SØKERS_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT, IKKE_HELTIDSARBEID,
+                 IKKE_LOVBESTEMT_FERIE, UTSETTELSE_FERIE_PÅ_BEVEGELIG_HELLIGDAG, FERIE_SELVSTENDIG_NÆRINGSDRIVENDSE_FRILANSER,
+                 SØKERS_SYKDOM_SKADE_IKKE_OPPFYLT, SØKERS_INNLEGGELSE_IKKE_OPPFYLT, BARNETS_INNLEGGELSE_IKKE_OPPFYLT,
+                 SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT, SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT, BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT,
+                 SØKERS_SYKDOM_ELLER_SKADE_SEKS_UKER_IKKE_DOKUMENTERT, SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT,
+                 BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT -> Forklaring.AVSLAG_UTSETTELSE;
+            case AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID, AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID -> Forklaring.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
             case FRATREKK_PLEIEPENGER -> Forklaring.AVSLAG_PLEIEPENGER;
             case BARN_OVER_3_ÅR, STØNADSPERIODE_NYTT_BARN -> Forklaring.AVSLAG_STØNADSPERIODE_UTLØPT;
-            case OPPHØR_MEDLEMSKAP,
-                OPPTJENINGSVILKÅRET_IKKE_OPPFYLT,
-                ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
-                FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
-                FØDSELSVILKÅRET_IKKE_OPPFYLT -> Forklaring.AVSLAG_VILKÅR;
+            case OPPHØR_MEDLEMSKAP, OPPTJENINGSVILKÅRET_IKKE_OPPFYLT, ADOPSJONSVILKÅRET_IKKE_OPPFYLT, FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
+                 FØDSELSVILKÅRET_IKKE_OPPFYLT -> Forklaring.AVSLAG_VILKÅR;
             default -> Forklaring.AVSLAG_ANNET;
         };
     }
@@ -176,25 +154,23 @@ class StønadsstatistikkUttakPeriodeMapper {
      * - Utsettelse - Fritt uttak: utsettelser første 6 uker etter fødsel
      * - Utsettelse - Sammenhengende: alle utsettelser
      **/
-    private static Forklaring utledForklaring(ForeldrepengerUttakPeriode periode,
-                                              UttakPeriodeType stønadskontoType,
-                                              RelasjonsRolleType rolleType) {
+    private static Forklaring utledForklaring(ForeldrepengerUttakPeriode periode, UttakPeriodeType stønadskontoType, RelasjonsRolleType rolleType) {
         var forklaringForMorsAktivitet = utledForklaringAktivitetskrav(rolleType, periode.getMorsAktivitet(), stønadskontoType);
         if (periode.isInnvilgetUtsettelse()) { //Se bort i fra innvilget, se på trekk og utbetaling
             return utledForklaringVedUtsettelse(periode, forklaringForMorsAktivitet);
         }
 
         if (overførerAnnenPartsKvote(rolleType, stønadskontoType)) {
-            if (OVERFØRING_ANNEN_PART_INNLAGT.equals(periode.getResultatÅrsak())
-                || OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(periode.getOverføringÅrsak())) {
+            if (OVERFØRING_ANNEN_PART_INNLAGT.equals(periode.getResultatÅrsak()) || OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(
+                periode.getOverføringÅrsak())) {
                 return Forklaring.OVERFØRING_ANNEN_PART_INNLAGT;
             }
-            if (OVERFØRING_ANNEN_PART_SYKDOM_SKADE.equals(periode.getResultatÅrsak())
-                || OverføringÅrsak.SYKDOM_ANNEN_FORELDER.equals(periode.getOverføringÅrsak())) {
+            if (OVERFØRING_ANNEN_PART_SYKDOM_SKADE.equals(periode.getResultatÅrsak()) || OverføringÅrsak.SYKDOM_ANNEN_FORELDER.equals(
+                periode.getOverføringÅrsak())) {
                 return Forklaring.OVERFØRING_ANNEN_PART_SYKDOM;
             }
-            if (OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET.equals(periode.getResultatÅrsak())
-                || OverføringÅrsak.ALENEOMSORG.equals(periode.getOverføringÅrsak())) {
+            if (OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET.equals(periode.getResultatÅrsak()) || OverføringÅrsak.ALENEOMSORG.equals(
+                periode.getOverføringÅrsak())) {
                 return Forklaring.OVERFØRING_ALENEOMSORG;
             }
             if (OVERFØRING_ANNEN_PART_HAR_IKKE_RETT_TIL_FORELDREPENGER.equals(periode.getResultatÅrsak())
@@ -210,9 +186,7 @@ class StønadsstatistikkUttakPeriodeMapper {
             if (periode.isFlerbarnsdager()) {
                 return Forklaring.FLERBARNSDAGER;
             }
-            if (forklaringForMorsAktivitet == null
-                && UttakPeriodeType.FELLESPERIODE.equals(stønadskontoType)
-                && periode.isSamtidigUttak()
+            if (forklaringForMorsAktivitet == null && UttakPeriodeType.FELLESPERIODE.equals(stønadskontoType) && periode.isSamtidigUttak()
                 && periode.getSamtidigUttaksprosent().mindreEnnEllerLik50()) {
                 return Forklaring.SAMTIDIG_MØDREKVOTE;
             }
@@ -221,8 +195,7 @@ class StønadsstatistikkUttakPeriodeMapper {
         return null;
     }
 
-    private static Forklaring utledForklaringVedUtsettelse(ForeldrepengerUttakPeriode periode,
-                                                                          Forklaring forklaringForMorsAktivitet) {
+    private static Forklaring utledForklaringVedUtsettelse(ForeldrepengerUttakPeriode periode, Forklaring forklaringForMorsAktivitet) {
         return switch (periode.getUtsettelseType()) { //Se på årsak??
             case ARBEID -> Forklaring.AKTIVITETSKRAV_ARBEID;
             case FERIE -> Forklaring.UTSETTELSE_FERIE;
@@ -255,8 +228,8 @@ class StønadsstatistikkUttakPeriodeMapper {
     }
 
     private static Optional<ForeldrepengerUttakPeriodeAktivitet> velgAktivitet(ForeldrepengerUttakPeriode periode) {
-        Predicate<ForeldrepengerUttakPeriodeAktivitet> kompatibelKonto = a -> periode.getSøktKonto() == null ||
-            a.getTrekkonto().equals(periode.getSøktKonto());
+        Predicate<ForeldrepengerUttakPeriodeAktivitet> kompatibelKonto = a -> periode.getSøktKonto() == null || a.getTrekkonto()
+            .equals(periode.getSøktKonto());
         if (periode.harTrekkdager()) {
             return periode.getAktiviteter()
                 .stream()
@@ -337,21 +310,16 @@ class StønadsstatistikkUttakPeriodeMapper {
     }
 
     private static List<StønadsstatistikkUttakPeriode> komprimerTidslinje(List<StønadsstatistikkUttakPeriode> perioder) {
-        var segmenter = perioder.stream()
-            .map(p -> new LocalDateSegment<>(p.fom(), p.tom(), p))
-            .toList();
-        return new LocalDateTimeline<>(segmenter)
-            .compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUttakPeriodeMapper::likeNaboer, StønadsstatistikkUttakPeriodeMapper::slåSammen)
-            .stream().map(LocalDateSegment::getValue).toList();
+        var segmenter = perioder.stream().map(p -> new LocalDateSegment<>(p.fom(), p.tom(), p)).toList();
+        return new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUttakPeriodeMapper::likeNaboer,
+            StønadsstatistikkUttakPeriodeMapper::slåSammen).stream().map(LocalDateSegment::getValue).toList();
     }
 
     // For å få til compress - må ha equals som gjør BigDecimal.compareTo
     private static boolean likeNaboer(StønadsstatistikkUttakPeriode u1, StønadsstatistikkUttakPeriode u2) {
-        return u1.erUtbetaling() == u2.erUtbetaling() && Objects.equals(u1.type(), u2.type())
-            && Objects.equals(u1.stønadskontoType(), u2.stønadskontoType())
-            && Objects.equals(u1.rettighetType(), u2.rettighetType()) && Objects.equals(u1.forklaring(), u2.forklaring())
-            && likGradering(u1.gradering(), u2.gradering())
-            && likeBD(u1.samtidigUttakProsent(), u2.samtidigUttakProsent());
+        return u1.erUtbetaling() == u2.erUtbetaling() && Objects.equals(u1.type(), u2.type()) && Objects.equals(u1.stønadskontoType(),
+            u2.stønadskontoType()) && Objects.equals(u1.rettighetType(), u2.rettighetType()) && Objects.equals(u1.forklaring(), u2.forklaring())
+            && likGradering(u1.gradering(), u2.gradering()) && likeBD(u1.samtidigUttakProsent(), u2.samtidigUttakProsent());
     }
 
     private static LocalDateSegment<StønadsstatistikkUttakPeriode> slåSammen(LocalDateInterval i,
@@ -361,17 +329,18 @@ class StønadsstatistikkUttakPeriodeMapper {
         var u2 = rhs.getValue();
         var virkedager = u1.virkedager() + u2.virkedager();
         var trekkdager = u1.trekkdager().add(u2.trekkdager());
-        var mottatt = u1.søknadsdato() != null && u2.søknadsdato() != null && u2.søknadsdato().isBefore(u1.søknadsdato()) ?
-            u2.søknadsdato() : Optional.ofNullable(u1.søknadsdato()).orElseGet(u2::søknadsdato);
-        var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(),
-            u1.rettighetType(), u1.forklaring(), mottatt, u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
+        var mottatt = u1.søknadsdato() != null && u2.søknadsdato() != null && u2.søknadsdato()
+            .isBefore(u1.søknadsdato()) ? u2.søknadsdato() : Optional.ofNullable(u1.søknadsdato()).orElseGet(u2::søknadsdato);
+        var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(), u1.rettighetType(),
+            u1.forklaring(), mottatt, u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
         return new LocalDateSegment<>(i, ny);
     }
 
     private static boolean likGradering(Gradering g1, Gradering g2) {
-        return Objects.equals(g1, g2)
-            || (g1 != null && g2 != null && Objects.equals(g1.aktivitetType(), g2.aktivitetType()) && likeBD(g1.arbeidsprosent(), g2.arbeidsprosent()));
+        return Objects.equals(g1, g2) || (g1 != null && g2 != null && Objects.equals(g1.aktivitetType(), g2.aktivitetType()) && likeBD(
+            g1.arbeidsprosent(), g2.arbeidsprosent()));
     }
+
     private static boolean likeBD(BigDecimal d1, BigDecimal d2) {
         return Objects.equals(d1, d2) || (d1 != null && d2 != null && d1.compareTo(d2) == 0);
     }

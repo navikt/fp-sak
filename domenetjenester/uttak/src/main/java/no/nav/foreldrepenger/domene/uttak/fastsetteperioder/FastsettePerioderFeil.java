@@ -17,9 +17,8 @@ final class FastsettePerioderFeil {
     }
 
     static TekniskException manglendeOpprinneligAktivitet(ForeldrepengerUttakAktivitet nyAktivitet,
-                                                   List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
-        var msg = String.format("Finner ingen aktivitet i opprinnelig for ny aktivitet %s %s", nyAktivitet,
-            aktiviteter);
+                                                          List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
+        var msg = String.format("Finner ingen aktivitet i opprinnelig for ny aktivitet %s %s", nyAktivitet, aktiviteter);
         return new TekniskException("FP-299466", msg);
     }
 }

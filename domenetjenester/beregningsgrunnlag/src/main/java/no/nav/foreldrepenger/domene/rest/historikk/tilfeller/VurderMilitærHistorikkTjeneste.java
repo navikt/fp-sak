@@ -19,7 +19,12 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderMilitærHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var militærDto = dto.getVurderMilitaer();
         var haddeMilitærIForrigeGrunnlag = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         lagHistorikkInnslag(militærDto.getHarMilitaer(), haddeMilitærIForrigeGrunnlag, tekstBuilder);
@@ -34,7 +39,8 @@ public class VurderMilitærHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
     }
 
     private boolean harMilitærstatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return beregningsgrunnlag.getAktivitetStatuser().stream()
+        return beregningsgrunnlag.getAktivitetStatuser()
+            .stream()
             .anyMatch(status -> AktivitetStatus.MILITÆR_ELLER_SIVIL.equals(AktivitetStatus.fraKode(status.getAktivitetStatus().getKode())));
     }
 

@@ -46,8 +46,10 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     }
 
     private void lagreUttak(Long id) {
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(id, new UttakResultatPerioderEntitet().leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(
-            LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build()));
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(id, new UttakResultatPerioderEntitet().leggTilPeriode(
+                new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET,
+                    PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build()));
     }
 
     private UttakInput lagInput(Behandling behandling) {
@@ -55,8 +57,8 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling, boolean dødsfall) {
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medDødsfall(dødsfall).medFamilieHendelser(
-            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 1)));
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medDødsfall(dødsfall)
+            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 1)));
         return new UttakInput(BehandlingReferanse.fra(behandling), iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag);
     }
 
@@ -64,8 +66,7 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     void skal_utlede_aksjonspunkt_for_død_når_behandling_er_manuelt_opprettet_med_dødsårsak() {
         var revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         lagreUttak(revurdering.getId());
-        var input = lagInput(revurdering, true)
-            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
+        var input = lagInput(revurdering, true).medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
             .medBehandlingManueltOpprettet(true);
 
         var aksjonspunkter = utleder.utledAksjonspunkterFor(input);

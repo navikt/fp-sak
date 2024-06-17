@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public class VurderteArbeidsforholdDto  {
+public class VurderteArbeidsforholdDto {
 
     @NotNull
     @Min(0)
@@ -18,9 +18,7 @@ public class VurderteArbeidsforholdDto  {
         // Jackson
     }
 
-    public VurderteArbeidsforholdDto(Long andelsnr,
-                                     boolean tidsbegrensetArbeidsforhold,
-                                     Boolean opprinneligVerdi) {
+    public VurderteArbeidsforholdDto(Long andelsnr, boolean tidsbegrensetArbeidsforhold, Boolean opprinneligVerdi) {
         this.andelsnr = andelsnr;
         this.tidsbegrensetArbeidsforhold = tidsbegrensetArbeidsforhold;
         this.opprinneligVerdi = opprinneligVerdi;

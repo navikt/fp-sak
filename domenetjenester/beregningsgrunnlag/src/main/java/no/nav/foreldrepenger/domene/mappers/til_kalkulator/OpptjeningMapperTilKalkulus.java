@@ -18,10 +18,10 @@ public class OpptjeningMapperTilKalkulus {
     }
 
     public static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(OpptjeningAktiviteter opptjeningAktiviteter,
-                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse ref) {
+                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                                    BehandlingReferanse ref) {
         var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref);
-        var opptjeningInput = new OpptjeningAktiviteterDto(relevanteAktiviteter
-            .stream()
+        var opptjeningInput = new OpptjeningAktiviteterDto(relevanteAktiviteter.stream()
             .map(opptjeningPeriode -> OpptjeningAktiviteterDto.nyPeriode(
                 KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(opptjeningPeriode.opptjeningAktivitetType()), mapPeriode(opptjeningPeriode),
                 opptjeningPeriode.arbeidsgiverOrgNummer(), opptjeningPeriode.arbeidsgiverAktørId(),

@@ -43,9 +43,12 @@ class OppdaterFagsakStatusTjenesteTest {
 
     private Behandling behandling;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
-    private final Behandlingsresultat behandlingsresultatInnvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).build();
-    private final Behandlingsresultat behandlingsresultatAvslått = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).build();
-    private final Behandlingsresultat behandlingsresultatOpphørt = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR).build();
+    private final Behandlingsresultat behandlingsresultatInnvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        BehandlingResultatType.INNVILGET).build();
+    private final Behandlingsresultat behandlingsresultatAvslått = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        BehandlingResultatType.AVSLÅTT).build();
+    private final Behandlingsresultat behandlingsresultatOpphørt = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        BehandlingResultatType.OPPHØR).build();
 
 
     @BeforeEach
@@ -58,20 +61,23 @@ class OppdaterFagsakStatusTjenesteTest {
         behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
 
         oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(),
-            behandlingsresultatRepository, behandlingRepository, fagsakRelasjonTjeneste, mock(ProsessTaskTjeneste.class), mock(FptilbakeRestKlient.class));
+            behandlingsresultatRepository, behandlingRepository, fagsakRelasjonTjeneste, mock(ProsessTaskTjeneste.class),
+            mock(FptilbakeRestKlient.class));
     }
 
     @Test
     void oppdater_fasakstatus_når_engangsstønad() {
         var behandlingES = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBehandlingsresultat(Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
             .lagMocked();
 
-        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandlingES.getFagsakId())).thenReturn(Collections.emptyList());
-        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingES.getFagsakId())).thenReturn(Optional.of(behandlingES));
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandlingES.getFagsakId()))
+            .thenReturn(Collections.emptyList());
+        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingES.getFagsakId()))
+            .thenReturn(Optional.of(behandlingES));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandlingES.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandlingES.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
@@ -79,14 +85,15 @@ class OppdaterFagsakStatusTjenesteTest {
     @Test
     void ikke_oppdater_fasakstatus_når_andre_behandligner_er_åpne() {
         var åpenBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingsresultat(Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
             .lagMocked();
 
-        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandling.getFagsakId())).thenReturn(List.of(åpenBehandling));
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandling.getFagsakId()))
+            .thenReturn(List.of(åpenBehandling));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.INGEN_OPPDATERING);
     }
 
@@ -106,7 +113,8 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
             .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
     }
 
@@ -117,9 +125,11 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
-        Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
+        Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
@@ -131,7 +141,8 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatAvslått));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
@@ -145,7 +156,8 @@ class OppdaterFagsakStatusTjenesteTest {
         Mockito.when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
             .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.now().plusMonths(2))));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(), false);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling.getId(),
+            false);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
     }
 }

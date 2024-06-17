@@ -56,9 +56,8 @@ public class OpptjeningAktivitetPeriode {
             return false;
         }
         var other = (OpptjeningAktivitetPeriode) o;
-        return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
-                Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
-                Objects.equals(begrunnelse, other.begrunnelse);
+        return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) && Objects.equals(grupperingNøkkel, other.grupperingNøkkel)
+            && Objects.equals(begrunnelse, other.begrunnelse);
     }
 
     @Override
@@ -68,13 +67,9 @@ public class OpptjeningAktivitetPeriode {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "opptjeningAktivitetType=" + opptjeningAktivitetType
-                + ", periode=" + periode
-                + (orgnr == null ? "" : ", orgnr=" + orgnr)
-                + (grupperingNøkkel == null ? "" : ", grupperingNøkkel=" + grupperingNøkkel)
-                + (vurderingsStatus == null ? "" : ", vurderingsStatus=" + vurderingsStatus)
-                + ">";
+        return getClass().getSimpleName() + "<" + "opptjeningAktivitetType=" + opptjeningAktivitetType + ", periode=" + periode + (
+            orgnr == null ? "" : ", orgnr=" + orgnr) + (grupperingNøkkel == null ? "" : ", grupperingNøkkel=" + grupperingNøkkel) + (
+            vurderingsStatus == null ? "" : ", vurderingsStatus=" + vurderingsStatus) + ">";
     }
 
     public static class Builder {
@@ -89,15 +84,14 @@ public class OpptjeningAktivitetPeriode {
         }
 
         public static Builder lagNyBasertPå(OpptjeningAktivitetPeriode kladd) {
-            var periode = ny()
-                    .medPeriode(kladd.getPeriode())
-                    .medOpptjeningAktivitetType(kladd.getOpptjeningAktivitetType())
-                    .medVurderingsStatus(kladd.getVurderingsStatus())
-                    .medOpptjeningsnøkkel(kladd.getOpptjeningsnøkkel())
-                    .medBegrunnelse(kladd.getBegrunnelse())
-                    .medOrgnr(kladd.getOrgnr())
-                    .medStillingsandel(kladd.getStillingsprosent())
-                    .build();
+            var periode = ny().medPeriode(kladd.getPeriode())
+                .medOpptjeningAktivitetType(kladd.getOpptjeningAktivitetType())
+                .medVurderingsStatus(kladd.getVurderingsStatus())
+                .medOpptjeningsnøkkel(kladd.getOpptjeningsnøkkel())
+                .medBegrunnelse(kladd.getBegrunnelse())
+                .medOrgnr(kladd.getOrgnr())
+                .medStillingsandel(kladd.getStillingsprosent())
+                .build();
             return new Builder(periode);
         }
 

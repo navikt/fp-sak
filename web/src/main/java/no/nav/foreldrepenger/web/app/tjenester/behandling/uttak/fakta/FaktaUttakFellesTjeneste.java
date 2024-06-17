@@ -87,8 +87,7 @@ class FaktaUttakFellesTjeneste {
         var relevanteOppgittPerioder = dtoTjeneste.hentRelevanteOppgittPerioder(behandlingId).toList();
         var førsteGjeldendeDag = førsteUttaksdagIBehandling(behandlingId);
 
-        var overstyrtePerioder = finnPerioderFraFørsteEndring(gjeldendeDtos, perioder, førsteGjeldendeDag)
-            .stream()
+        var overstyrtePerioder = finnPerioderFraFørsteEndring(gjeldendeDtos, perioder, førsteGjeldendeDag).stream()
             .map(p -> map(p, relevanteOppgittPerioder))
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .toList();
@@ -105,11 +104,7 @@ class FaktaUttakFellesTjeneste {
     }
 
     private LocalDate førsteUttaksdagIBehandling(Long behandlingId) {
-        return hentGjeldendeFordeling(behandlingId)
-            .stream()
-            .map(OppgittPeriodeEntitet::getFom)
-            .min(LocalDate::compareTo)
-            .orElse(LocalDate.MIN);
+        return hentGjeldendeFordeling(behandlingId).stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo).orElse(LocalDate.MIN);
     }
 
     private List<OppgittPeriodeEntitet> hentGjeldendeFordeling(Long behandlingId) {
@@ -148,7 +143,10 @@ class FaktaUttakFellesTjeneste {
 
     private void validerFørsteUttaksdag(List<OppgittPeriodeEntitet> overstyrtePerioder, Behandling behandling) {
         //Burde overstyre første uttaksdag i Fakta om saken
-        var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
+        var førsteOverstyrt = overstyrtePerioder.stream()
+            .filter(p -> !p.isUtsettelse())
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
         if (førsteOverstyrt.isPresent()) {
             var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling);
             if (førsteOverstyrt.get().isBefore(førsteUttaksdato)) {
@@ -160,11 +158,13 @@ class FaktaUttakFellesTjeneste {
 
     private List<OppgittPeriodeEntitet> oppdaterMedMottattdato(Behandling behandling, List<OppgittPeriodeEntitet> overstyrt) {
         var gjeldendeFordelingAsList = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-            .map(YtelseFordelingAggregat::getGjeldendeFordeling).stream().toList();
-        var forrigeUttak = behandling.getOriginalBehandlingId()
-            .flatMap(ob -> fpUttakRepository.hentUttakResultatHvisEksisterer(ob));
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .stream()
+            .toList();
+        var forrigeUttak = behandling.getOriginalBehandlingId().flatMap(ob -> fpUttakRepository.hentUttakResultatHvisEksisterer(ob));
         var ansesMottattDato = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId())
-            .map(Uttaksperiodegrense::getMottattDato).orElseGet(LocalDate::now);
+            .map(Uttaksperiodegrense::getMottattDato)
+            .orElseGet(LocalDate::now);
         return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(overstyrt, ansesMottattDato, gjeldendeFordelingAsList, forrigeUttak);
     }
 
@@ -176,9 +176,11 @@ class FaktaUttakFellesTjeneste {
         var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
             .getBegrunnelse()
             .orElse(null);
-        var dokumentasjonVurdering = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : gjeldendeSomOmslutter.map(
-            OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
-        var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
+        var dokumentasjonVurdering =
+            periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
+                .orElse(null);
+        var builder = OppgittPeriodeBuilder.ny()
+            .medPeriode(dto.fom(), dto.tom())
             .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
             .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
@@ -191,8 +193,7 @@ class FaktaUttakFellesTjeneste {
             .medSamtidigUttak(dto.samtidigUttaksprosent() != null);
 
         if (dto.utsettelseÅrsak() != null) {
-            builder = builder.medÅrsak(dto.utsettelseÅrsak())
-                .medPeriodeType(null);
+            builder = builder.medÅrsak(dto.utsettelseÅrsak()).medPeriodeType(null);
         } else if (dto.overføringÅrsak() != null) {
             builder = builder.medÅrsak(dto.overføringÅrsak());
         } else if (dto.oppholdÅrsak() != null) {
@@ -238,17 +239,14 @@ class FaktaUttakFellesTjeneste {
             var førsteDag = perioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
             if (førsteDag.isBefore(avklarteDatoer.get().getGjeldendeEndringsdato())) {
                 var nyeAvklarteDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medJustertEndringsdato(førsteDag).build();
-                var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-                    .medAvklarteDatoer(nyeAvklarteDatoer).build();
+                var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId).medAvklarteDatoer(nyeAvklarteDatoer).build();
                 ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
             }
         }
     }
 
     private static Optional<OppgittPeriodeEntitet> gjeldendeSomOmslutter(DatoIntervallEntitet intervall, List<OppgittPeriodeEntitet> gjeldende) {
-        return gjeldende.stream()
-            .filter(p -> intervall.erOmsluttetAv(p.getTidsperiode()))
-            .findFirst();
+        return gjeldende.stream().filter(p -> intervall.erOmsluttetAv(p.getTidsperiode())).findFirst();
     }
 
 

@@ -78,22 +78,26 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         var that = (KlageVurderingResultatDvh) o;
-        return Objects.equals(klageBehandlingId, that.klageBehandlingId) &&
-            Objects.equals(klageVurdertAv, that.klageVurdertAv) &&
-            Objects.equals(klageVurdering, that.klageVurdering) &&
-            Objects.equals(klageMedholdÅrsak, that.klageMedholdÅrsak) &&
-            Objects.equals(klageVurderingOmgjør, that.klageVurderingOmgjør) &&
-            Objects.equals(klageHjemmel, that.klageHjemmel) &&
-            Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
+        return Objects.equals(klageBehandlingId, that.klageBehandlingId) && Objects.equals(klageVurdertAv, that.klageVurdertAv) && Objects.equals(
+            klageVurdering, that.klageVurdering) && Objects.equals(klageMedholdÅrsak, that.klageMedholdÅrsak) && Objects.equals(klageVurderingOmgjør,
+            that.klageVurderingOmgjør) && Objects.equals(klageHjemmel, that.klageHjemmel) && Objects.equals(opprettetTidspunkt,
+            that.opprettetTidspunkt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel, opprettetTidspunkt);
+        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør,
+            klageHjemmel, opprettetTidspunkt);
     }
 
     public static Builder builder() {

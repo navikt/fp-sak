@@ -53,7 +53,10 @@ public class OppdragPostConditionTjeneste {
     }
 
     @Inject
-    public OppdragPostConditionTjeneste(BehandlingRepository behandlingRepository, BeregningsresultatRepository beregningsresultatRepository, ØkonomioppdragRepository økonomioppdragRepository, FamilieHendelseRepository familieHendelseRepository) {
+    public OppdragPostConditionTjeneste(BehandlingRepository behandlingRepository,
+                                        BeregningsresultatRepository beregningsresultatRepository,
+                                        ØkonomioppdragRepository økonomioppdragRepository,
+                                        FamilieHendelseRepository familieHendelseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.økonomioppdragRepository = økonomioppdragRepository;
@@ -93,7 +96,8 @@ public class OppdragPostConditionTjeneste {
         return altOk;
     }
 
-    private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling,
+                                                                                                        BeregningsresultatEntitet beregningsresultat) {
         var saksnummer = behandling.getFagsak().getSaksnummer();
         var oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         var oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
@@ -115,13 +119,17 @@ public class OppdragPostConditionTjeneste {
             var førsteDatoForDifferanseSats = finnLaveste(differanser, TilkjentYtelseDifferanse::førsteDatoForDifferanseSats);
             var førsteDatoForDifferanseUtbetalingsgrad = finnLaveste(differanser, TilkjentYtelseDifferanse::førsteDatoForDifferanseUtbetalingsgrad);
             var sumForskjell = differanser.stream().mapToLong(TilkjentYtelseDifferanse::differanseYtelse).sum();
-            resultat.put(betalingsmottaker, new TilkjentYtelseDifferanse(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, sumForskjell));
+            resultat.put(betalingsmottaker,
+                new TilkjentYtelseDifferanse(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, sumForskjell));
         }
         return resultat;
     }
 
 
-    private TekniskException konverterTilFeil(Saksnummer saksnummer, String behandlingId, Betalingsmottaker betalingsmottaker, TilkjentYtelseDifferanse differanse) {
+    private TekniskException konverterTilFeil(Saksnummer saksnummer,
+                                              String behandlingId,
+                                              Betalingsmottaker betalingsmottaker,
+                                              TilkjentYtelseDifferanse differanse) {
         if (!differanse.harAvvik()) {
             return null;
         }
@@ -129,7 +137,9 @@ public class OppdragPostConditionTjeneste {
         var datoEndringUtbetalingsgrad = differanse.førsteDatoForDifferanseUtbetalingsgrad();
         var sumForskjell = differanse.differanseYtelse();
 
-        var message = "Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandlingId + " til " + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
+        var message =
+            "Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandlingId + " til "
+                + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
         if (Objects.equals(datoEndringYtelse, datoEndringUtbetalingsgrad)) {
             message += "forskjell i sats og utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
         } else {
@@ -165,11 +175,7 @@ public class OppdragPostConditionTjeneste {
     }
 
     private static <T> LocalDate finnLaveste(List<T> liste, Function<T, LocalDate> datofunksjon) {
-        return liste.stream()
-            .map(datofunksjon)
-            .filter(Objects::nonNull)
-            .min(Comparator.naturalOrder())
-            .orElse(null);
+        return liste.stream().map(datofunksjon).filter(Objects::nonNull).min(Comparator.naturalOrder()).orElse(null);
     }
 
     record TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
@@ -181,9 +187,8 @@ public class OppdragPostConditionTjeneste {
 
     static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede, Betalingsmottaker betalingsmottaker) {
         var datoEndringYtelse = EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
-        var datoEndringUtbetalingsgrad = betalingsmottaker == Betalingsmottaker.BRUKER
-            ? EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
-            : null; //utbetalingsgrad er ikke relevant for refusjon
+        var datoEndringUtbetalingsgrad = betalingsmottaker == Betalingsmottaker.BRUKER ? EndringsdatoTjeneste.ignorerDagsatsIHelg()
+            .finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede) : null; //utbetalingsgrad er ikke relevant for refusjon
         var differanseYtelse = effektAvOppdragskjede.summerYtelse() - ytelse.summerYtelse();
 
         if (datoEndringYtelse == null && datoEndringUtbetalingsgrad == null && differanseYtelse == 0) {
@@ -207,6 +212,7 @@ public class OppdragPostConditionTjeneste {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .filter(FamilieHendelseEntitet::getGjelderAdopsjon)
-            .map(fh -> FamilieYtelseType.ADOPSJON).orElse(FamilieYtelseType.FØDSEL);
+            .map(fh -> FamilieYtelseType.ADOPSJON)
+            .orElse(FamilieYtelseType.FØDSEL);
     }
 }

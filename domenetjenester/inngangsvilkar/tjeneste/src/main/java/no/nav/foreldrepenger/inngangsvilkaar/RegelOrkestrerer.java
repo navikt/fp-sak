@@ -42,7 +42,8 @@ public class RegelOrkestrerer {
 
     public RegelResultat vurderInngangsvilkår(Set<VilkårType> vilkårHåndtertAvSteg, Behandling behandling, BehandlingReferanse ref) {
         var vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.behandlingId()).getVilkårResultat();
-        var matchendeVilkårPåBehandling = vilkårResultat.getVilkårene().stream()
+        var matchendeVilkårPåBehandling = vilkårResultat.getVilkårene()
+            .stream()
             .filter(v -> vilkårHåndtertAvSteg.contains(v.getVilkårType()))
             .collect(toList());
         validerMaksEttVilkår(matchendeVilkårPåBehandling);
@@ -60,8 +61,9 @@ public class RegelOrkestrerer {
         var vilkårDataResultat = kjørRegelmotor(ref, vilkår);
 
         // Ekstraresultat
-        Map<VilkårType, Object> ekstraResultater = vilkårDataResultat.ekstraVilkårresultat() == null ? Map.of() :
-            Map.of(vilkårDataResultat.vilkårType(), vilkårDataResultat.ekstraVilkårresultat());
+        Map<VilkårType, Object> ekstraResultater =
+            vilkårDataResultat.ekstraVilkårresultat() == null ? Map.of() : Map.of(vilkårDataResultat.vilkårType(),
+                vilkårDataResultat.ekstraVilkårresultat());
 
         // Inngangsvilkårutfall utledet fra alle vilkårsutfallene
         var alleUtfall = sammenslåVilkårUtfall(vilkårResultat, vilkårDataResultat);
@@ -80,8 +82,9 @@ public class RegelOrkestrerer {
 
     private void validerMaksEttVilkår(List<Vilkår> vilkårSomSkalBehandle) {
         if (vilkårSomSkalBehandle.size() > 1) {
-            throw new IllegalArgumentException("Kun ett vilkår skal evalueres per regelkall. " +
-                "Her angis vilkår: " + vilkårSomSkalBehandle.stream().map(v -> v.getVilkårType().getKode()).collect(Collectors.joining(",")));
+            throw new IllegalArgumentException("Kun ett vilkår skal evalueres per regelkall. " + "Her angis vilkår: " + vilkårSomSkalBehandle.stream()
+                .map(v -> v.getVilkårType().getKode())
+                .collect(Collectors.joining(",")));
         }
     }
 
@@ -90,12 +93,9 @@ public class RegelOrkestrerer {
         return inngangsvilkår.vurderVilkår(ref);
     }
 
-    private Set<VilkårUtfallType> sammenslåVilkårUtfall(VilkårResultat vilkårResultat,
-                                                        VilkårData vdRegelmotor) {
-        var vilkårTyper = vilkårResultat.getVilkårene().stream()
-            .collect(toMap(Vilkår::getVilkårType, v -> v));
-        var vilkårUtfall = vilkårResultat.getVilkårene().stream()
-            .collect(toMap(Vilkår::getVilkårType, Vilkår::getGjeldendeVilkårUtfall));
+    private Set<VilkårUtfallType> sammenslåVilkårUtfall(VilkårResultat vilkårResultat, VilkårData vdRegelmotor) {
+        var vilkårTyper = vilkårResultat.getVilkårene().stream().collect(toMap(Vilkår::getVilkårType, v -> v));
+        var vilkårUtfall = vilkårResultat.getVilkårene().stream().collect(toMap(Vilkår::getVilkårType, Vilkår::getGjeldendeVilkårUtfall));
 
         var matchendeVilkår = vilkårTyper.get(vdRegelmotor.vilkårType());
         Objects.requireNonNull(matchendeVilkår, "skal finnes match");
@@ -112,17 +112,13 @@ public class RegelOrkestrerer {
     }
 
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling, VilkårResultatType inngangsvilkårUtfall) {
-        var builder = VilkårResultat
-            .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
+        var builder = VilkårResultat.builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
         builder.buildFor(behandling);
     }
 
-    private void oppdaterBehandlingMedVilkårresultat(Behandling behandling,
-                                                     VilkårData vilkårData,
-                                                     VilkårResultatType inngangsvilkårUtfall) {
-        var builder = VilkårResultat
-            .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
+    private void oppdaterBehandlingMedVilkårresultat(Behandling behandling, VilkårData vilkårData, VilkårResultatType inngangsvilkårUtfall) {
+        var builder = VilkårResultat.builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
         var vilkårBuilder = builder.getVilkårBuilderFor(vilkårData.vilkårType())
             .medVilkårUtfall(vilkårData.utfallType(), vilkårData.vilkårUtfallMerknad())

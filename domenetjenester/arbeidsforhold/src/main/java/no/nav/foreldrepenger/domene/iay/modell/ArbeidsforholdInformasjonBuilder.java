@@ -33,8 +33,7 @@ public class ArbeidsforholdInformasjonBuilder {
         return kladd;
     }
 
-    public ArbeidsforholdInformasjonBuilder fjernOverstyringVedrørende(Arbeidsgiver arbeidsgiver,
-            InternArbeidsforholdRef arbeidsforholdRef) {
+    public ArbeidsforholdInformasjonBuilder fjernOverstyringVedrørende(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         kladd.fjernOverstyringVedrørende(arbeidsgiver, arbeidsforholdRef);
         return this;
     }

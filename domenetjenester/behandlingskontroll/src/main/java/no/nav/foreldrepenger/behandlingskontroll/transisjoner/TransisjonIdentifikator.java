@@ -20,9 +20,7 @@ public final class TransisjonIdentifikator {
 
     @Override
     public String toString() {
-        return "TransisjonIdentifikator{" +
-                "id='" + id + '\'' +
-                '}';
+        return "TransisjonIdentifikator{" + "id='" + id + '\'' + '}';
     }
 
     @Override

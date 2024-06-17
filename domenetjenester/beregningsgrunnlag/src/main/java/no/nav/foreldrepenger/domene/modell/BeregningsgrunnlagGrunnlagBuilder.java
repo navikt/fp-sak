@@ -44,7 +44,7 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return this;
     }
 
-    public BeregningsgrunnlagGrunnlagBuilder medRefusjonOverstyring(BeregningRefusjonOverstyringer beregningRefusjonOverstyringer){
+    public BeregningsgrunnlagGrunnlagBuilder medRefusjonOverstyring(BeregningRefusjonOverstyringer beregningRefusjonOverstyringer) {
         verifiserKanModifisere();
         kladd.setRefusjonOverstyringer(beregningRefusjonOverstyringer);
         return this;
@@ -57,7 +57,7 @@ public class BeregningsgrunnlagGrunnlagBuilder {
     }
 
     public BeregningsgrunnlagGrunnlag build(BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        if(built) {
+        if (built) {
             return kladd;
         }
         Objects.requireNonNull(beregningsgrunnlagTilstand);
@@ -73,7 +73,7 @@ public class BeregningsgrunnlagGrunnlagBuilder {
     }
 
     private void verifiserKanModifisere() {
-        if(built) {
+        if (built) {
             throw new IllegalStateException("Er allerede bygd, kan ikke oppdatere videre: " + this.kladd);
         }
     }

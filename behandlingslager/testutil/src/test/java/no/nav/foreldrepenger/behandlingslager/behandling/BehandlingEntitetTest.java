@@ -115,16 +115,15 @@ class BehandlingEntitetTest extends EntityManagerAwareTest {
         lagreBehandling(behandling2);
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
         var oppdatere = grunnlagRepository.opprettBuilderFor(behandling.getId());
-        oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
-                .medTermindato(nyTerminDato)
-                .medUtstedtDato(terminDato).medNavnPå("Lege navn"));
+        oppdatere.medTerminbekreftelse(
+            oppdatere.getTerminbekreftelseBuilder().medTermindato(nyTerminDato).medUtstedtDato(terminDato).medNavnPå("Lege navn"));
         grunnlagRepository.lagre(behandling2.getId(), oppdatere);
 
         var oppdatertGrunnlag = grunnlagRepository.hentAggregat(behandling2.getId());
         assertThat(oppdatertGrunnlag).isNotSameAs(grunnlag);
 
         assertThat(grunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)).hasValue(terminDato);
-        assertThat(oppdatertGrunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato))
-                .hasValue(nyTerminDato);
+        assertThat(oppdatertGrunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)).hasValue(
+            nyTerminDato);
     }
 }

@@ -55,7 +55,8 @@ public class FaktaBeregningLagreDto {
         this.kunYtelseFordeling = kunYtelseFordeling;
     }
 
-    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, VurderTidsbegrensetArbeidsforholdDto vurderTidsbegrensetArbeidsforhold) {
+    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
+                                  VurderTidsbegrensetArbeidsforholdDto vurderTidsbegrensetArbeidsforhold) {
         this.faktaOmBeregningTilfeller = faktaOmBeregningTilfeller;
         this.vurderTidsbegrensetArbeidsforhold = vurderTidsbegrensetArbeidsforhold;
     }

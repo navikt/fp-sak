@@ -24,7 +24,8 @@ public class AksjonspunktUtlederForEngangsstønadFødsel extends AksjonspunktUtl
     }
 
     @Inject
-    public AksjonspunktUtlederForEngangsstønadFødsel(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public AksjonspunktUtlederForEngangsstønadFødsel(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                                     FamilieHendelseTjeneste familieHendelseTjeneste) {
         super(inntektArbeidYtelseTjeneste, familieHendelseTjeneste);
     }
 

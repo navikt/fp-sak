@@ -44,22 +44,20 @@ public class InntektHistorikkTjeneste {
         var gammelArbeidsinntekt = lønnsendring.getGammelArbeidsinntekt();
         if (nyArbeidsinntekt != null && !nyArbeidsinntekt.equals(gammelArbeidsinntekt)) {
             if (AktivitetStatus.FRILANSER.equals(lønnsendring.getAktivitetStatus())) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT, gammelArbeidsinntekt,
-                    nyArbeidsinntekt);
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT, gammelArbeidsinntekt, nyArbeidsinntekt);
                 settSkjermlenkeOgFerdigstill(tekstBuilder);
             } else {
                 var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-                    lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(),
-                    lønnsendring.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, arbeidsforholdInfo,
-                    gammelArbeidsinntekt, nyArbeidsinntekt);
+                    lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(), lønnsendring.getArbeidsforholdRef(),
+                    arbeidsforholdOverstyringer);
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, arbeidsforholdInfo, gammelArbeidsinntekt,
+                    nyArbeidsinntekt);
                 settSkjermlenkeOgFerdigstill(tekstBuilder);
             }
         }
     }
 
-    private void lagInntektskategoriInnslagHvisEndret(HistorikkInnslagTekstBuilder historikkBuilder,
-                                                      Lønnsendring endring) {
+    private void lagInntektskategoriInnslagHvisEndret(HistorikkInnslagTekstBuilder historikkBuilder, Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null && !nyInntektskategori.equals(endring.getGammelInntektskategori())) {
             historikkBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKTSKATEGORI, null, nyInntektskategori);
@@ -68,9 +66,7 @@ public class InntektHistorikkTjeneste {
     }
 
     private void settSkjermlenkeOgFerdigstill(HistorikkInnslagTekstBuilder tekstBuilder) {
-        var erSkjermlenkeSatt = tekstBuilder.getHistorikkinnslagDeler()
-            .stream()
-            .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+        var erSkjermlenkeSatt = tekstBuilder.getHistorikkinnslagDeler().stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt) {
             tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
         }

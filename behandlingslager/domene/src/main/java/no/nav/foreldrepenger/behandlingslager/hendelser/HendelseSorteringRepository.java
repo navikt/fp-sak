@@ -28,15 +28,13 @@ public class HendelseSorteringRepository {
     }
 
     @Inject
-    public HendelseSorteringRepository( EntityManager entityManager) {
+    public HendelseSorteringRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
     public List<AktørId> hentEksisterendeAktørIderMedSak(List<AktørId> aktørIdListe) {
-        Set<AktørId> aktørIdSet = aktørIdListe.stream()
-            .filter(Objects::nonNull)
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<AktørId> aktørIdSet = aktørIdListe.stream().filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (aktørIdSet.isEmpty()) {
             return Collections.emptyList();
@@ -46,21 +44,13 @@ public class HendelseSorteringRepository {
         var resultat2 = getAktørIderSomErBarnIRelevantForeldrepengesak(aktørIdSet).getResultList();
         var resultater = Stream.concat(resultat1.stream(), resultat2.stream());
 
-        return resultater
-            .sorted()
-            .distinct()
-            .toList();
+        return resultater.sorted().distinct().toList();
     }
 
     private TypedQuery<AktørId> getAktørIderMedRelevantSak(Set<AktørId> aktørIdListe) {
         var query = entityManager.createQuery(
-            "select b.aktørId from Bruker b " +
-                "inner join Fagsak f on b = f.navBruker " +
-                "where b.aktørId in (:aktørIder) " +
-                "and ((f.fagsakStatus != :fagsakStatus " +
-                "and f.ytelseType != :ytelseType) " +
-                "or f.ytelseType = :ytelseType) ",
-            AktørId.class);
+            "select b.aktørId from Bruker b " + "inner join Fagsak f on b = f.navBruker " + "where b.aktørId in (:aktørIder) "
+                + "and ((f.fagsakStatus != :fagsakStatus " + "and f.ytelseType != :ytelseType) " + "or f.ytelseType = :ytelseType) ", AktørId.class);
         query.setParameter("aktørIder", aktørIdListe);
         query.setParameter("fagsakStatus", FagsakStatus.AVSLUTTET);
         query.setParameter("ytelseType", FagsakYtelseType.ENGANGSTØNAD);
@@ -68,18 +58,12 @@ public class HendelseSorteringRepository {
     }
 
     private TypedQuery<AktørId> getAktørIderSomErBarnIRelevantForeldrepengesak(Set<AktørId> aktørIdListe) {
-        var query = entityManager.createQuery(
-            "select distinct por.tilAktørId from PersonopplysningGrunnlagEntitet gr " +
-                "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi " +
-                "inner join PersonopplysningRelasjon por on por.personopplysningInformasjon = poi " +
-                "inner join Behandling b on gr.behandlingId = b.id " +
-                "inner join Fagsak f on b.fagsak = f " +
-                "where por.relasjonsrolle = :relasjonsRolle " +
-                "and por.tilAktørId in (:aktørIder) " +
-                "and gr.aktiv = :aktiv " +
-                "and f.fagsakStatus != :fagsakStatus " +
-                "and f.ytelseType = :ytelseType ",
-            AktørId.class);
+        var query = entityManager.createQuery("select distinct por.tilAktørId from PersonopplysningGrunnlagEntitet gr "
+            + "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi "
+            + "inner join PersonopplysningRelasjon por on por.personopplysningInformasjon = poi "
+            + "inner join Behandling b on gr.behandlingId = b.id " + "inner join Fagsak f on b.fagsak = f "
+            + "where por.relasjonsrolle = :relasjonsRolle " + "and por.tilAktørId in (:aktørIder) " + "and gr.aktiv = :aktiv "
+            + "and f.fagsakStatus != :fagsakStatus " + "and f.ytelseType = :ytelseType ", AktørId.class);
         query.setParameter("relasjonsRolle", RelasjonsRolleType.BARN);
         query.setParameter("aktørIder", aktørIdListe);
         query.setParameter("aktiv", true);

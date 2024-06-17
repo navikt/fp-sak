@@ -21,13 +21,12 @@ public class GruppertYtelse {
     }
 
     public Set<Betalingsmottaker> getBetalingsmottakere() {
-        return ytelsePrNøkkel.keySet().stream()
-            .map(KjedeNøkkel::getBetalingsmottaker)
-            .collect(Collectors.toSet());
+        return ytelsePrNøkkel.keySet().stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
     }
 
     public Map<KjedeNøkkel, Ytelse> finnYtelse(Betalingsmottaker betalingsmottaker) {
-        return ytelsePrNøkkel.entrySet().stream()
+        return ytelsePrNøkkel.entrySet()
+            .stream()
             .filter(e -> e.getKey().getBetalingsmottaker().equals(betalingsmottaker))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

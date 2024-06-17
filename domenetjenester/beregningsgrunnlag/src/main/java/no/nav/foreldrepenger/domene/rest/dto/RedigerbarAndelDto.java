@@ -36,7 +36,8 @@ public class RedigerbarAndelDto {
     }
 
     public RedigerbarAndelDto(Boolean nyAndel,
-                              String arbeidsgiverId, String internArbeidsforholdId,
+                              String arbeidsgiverId,
+                              String internArbeidsforholdId,
                               Long andelsnr,
                               Boolean lagtTilAvSaksbehandler,
                               AktivitetStatus aktivitetStatus,
@@ -53,10 +54,12 @@ public class RedigerbarAndelDto {
     }
 
     public RedigerbarAndelDto(Boolean nyAndel,
-                              String arbeidsgiverId, InternArbeidsforholdRef arbeidsforholdId,
+                              String arbeidsgiverId,
+                              InternArbeidsforholdRef arbeidsforholdId,
                               Long andelsnr,
                               Boolean lagtTilAvSaksbehandler,
-                              AktivitetStatus aktivitetStatus, OpptjeningAktivitetType arbeidsforholdType) {
+                              AktivitetStatus aktivitetStatus,
+                              OpptjeningAktivitetType arbeidsforholdType) {
         Objects.requireNonNull(aktivitetStatus, "aktivitetStatus");
         Objects.requireNonNull(arbeidsforholdType, "arbeidsforholdType");
         this.nyAndel = nyAndel;
@@ -72,7 +75,8 @@ public class RedigerbarAndelDto {
     public RedigerbarAndelDto(Boolean nyAndel,
                               Long andelsnr,
                               Boolean lagtTilAvSaksbehandler,
-                              AktivitetStatus aktivitetStatus, OpptjeningAktivitetType arbeidsforholdType) {
+                              AktivitetStatus aktivitetStatus,
+                              OpptjeningAktivitetType arbeidsforholdType) {
         this(nyAndel, null, (InternArbeidsforholdRef) null, andelsnr, lagtTilAvSaksbehandler, aktivitetStatus, arbeidsforholdType);
     }
 

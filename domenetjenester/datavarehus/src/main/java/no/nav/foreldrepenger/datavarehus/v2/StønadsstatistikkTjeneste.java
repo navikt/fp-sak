@@ -93,7 +93,7 @@ public class StønadsstatistikkTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkTjeneste.class);
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
-    private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45,0);
+    private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45, 0);
     private static final LocalDateTime SVP_ALLTID_100_PROSENT = LocalDate.of(2023, 3, 24).atStartOfDay();
 
     private BehandlingRepository behandlingRepository;
@@ -168,8 +168,10 @@ public class StønadsstatistikkTjeneste {
         var forrigeBehandlingUuid = behandling.getOriginalBehandlingId().map(id -> behandlingRepository.hentBehandling(id)).map(Behandling::getUuid);
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
-        var vedtakstidspunkt = vedtak.getVedtakstidspunkt().isBefore(VEDTAK_MED_TIDSPUNKT) ? vedtak.getOpprettetTidspunkt() : vedtak.getVedtakstidspunkt();
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .orElse(null);
+        var vedtakstidspunkt = vedtak.getVedtakstidspunkt()
+            .isBefore(VEDTAK_MED_TIDSPUNKT) ? vedtak.getOpprettetTidspunkt() : vedtak.getVedtakstidspunkt();
 
         var fagsak = behandling.getFagsak();
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
@@ -179,8 +181,7 @@ public class StønadsstatistikkTjeneste {
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
         var søknadsdato = finnSøknadsdato(behandlingReferanse).orElse(behandling.getOpprettetDato().toLocalDate());
 
-        var builder = new Builder()
-            .medLovVersjon(lovVersjon)
+        var builder = new Builder().medLovVersjon(lovVersjon)
             .medSak(saksnummer, fagsak.getId())
             .medSøker(søker)
             .medSøkersRolle(søkersRolle)
@@ -218,12 +219,14 @@ public class StønadsstatistikkTjeneste {
     private Optional<LocalDate> finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
         return Optional.ofNullable(søknadRepository.hentSøknad(behandlingReferanse.behandlingId()))
             .map(SøknadEntitet::getSøknadsdato)
-            .or(() -> mottatteDokumentRepository.hentMottatteDokument(behandlingReferanse.behandlingId()).stream()
+            .or(() -> mottatteDokumentRepository.hentMottatteDokument(behandlingReferanse.behandlingId())
+                .stream()
                 .filter(MottattDokument::erSøknadsDokument)
                 .map(MottattDokument::getMottattTidspunkt)
                 .map(LocalDateTime::toLocalDate)
                 .min(Comparator.naturalOrder()))
-            .or(() -> mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
+            .or(() -> mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId())
+                .stream()
                 .filter(MottattDokument::erSøknadsDokument)
                 .map(MottattDokument::getMottattTidspunkt)
                 .map(LocalDateTime::toLocalDate)
@@ -236,7 +239,8 @@ public class StønadsstatistikkTjeneste {
             case MORA -> StønadsstatistikkVedtak.Saksrolle.MOR;
             case MEDMOR -> StønadsstatistikkVedtak.Saksrolle.MEDMOR;
             case UDEFINERT -> StønadsstatistikkVedtak.Saksrolle.UKJENT;
-            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD -> throw new IllegalStateException("Unexpected value: " + relasjonsRolleType.getKode());
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD ->
+                throw new IllegalStateException("Unexpected value: " + relasjonsRolleType.getKode());
         };
     }
 
@@ -262,8 +266,7 @@ public class StønadsstatistikkTjeneste {
             .orElse(List.of());
 
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && trengerSvpLegacyUtregning(perioder)) {
-            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId())
-                .orElseThrow();
+            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId()).orElseThrow();
             return StønadsstatistikkUtbetalingSVPLegacyMapper.mapTilkjent(perioder, uttak);
         }
         return StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(perioder);
@@ -274,9 +277,11 @@ public class StønadsstatistikkTjeneste {
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {
-        var logContext = String.format("saksnummer %s behandling %s", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid().toString());
+        var logContext = String.format("saksnummer %s behandling %s", behandling.getFagsak().getSaksnummer().getVerdi(),
+            behandling.getUuid().toString());
         return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId(), true)
-            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(), logContext))
+            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(),
+                logContext))
             .orElse(List.of());
     }
 
@@ -402,7 +407,8 @@ public class StønadsstatistikkTjeneste {
             return Arrays.stream(LovVersjon.values())
                 .filter(v -> YtelseType.FORELDREPENGER.equals(v.getYtelseType()))
                 .filter(v -> vedtaksdatoPlus1.isAfter(v.getDatoFom()))
-                .max(Comparator.comparing(LovVersjon::getDatoFom)).orElseThrow();
+                .max(Comparator.comparing(LovVersjon::getDatoFom))
+                .orElseThrow();
         }
         if (stp.utenMinsterett()) {
             return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
@@ -412,7 +418,8 @@ public class StønadsstatistikkTjeneste {
             return FORELDREPENGER_MINSTERETT_2022_08_02;
         } else if (familieHendelseDato != null && familieHendelseDato.isBefore(FORELDREPENGER_UTJEVNE80_2024_07_01.getDatoFom())) {
             return FORELDREPENGER_MINSTERETT_2022_08_02;
-        } if (LocalDate.now().isBefore(FORELDREPENGER_MINSTERETT_2024_08_02.getDatoFom())) {
+        }
+        if (LocalDate.now().isBefore(FORELDREPENGER_MINSTERETT_2024_08_02.getDatoFom())) {
             return FORELDREPENGER_UTJEVNE80_2024_07_01;
         } else if (familieHendelseDato != null && familieHendelseDato.isBefore(FORELDREPENGER_MINSTERETT_2024_08_02.getDatoFom())) {
             return FORELDREPENGER_UTJEVNE80_2024_07_01;
@@ -433,7 +440,8 @@ public class StønadsstatistikkTjeneste {
             var gjeldendeStønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(behandling.getId(), fagsakRelasjon);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-            var konti = gjeldendeStønadskontoberegning.entrySet().stream()
+            var konti = gjeldendeStønadskontoberegning.entrySet()
+                .stream()
                 .filter(sk -> sk.getKey().erStønadsdager())
                 .map(k -> map(k.getKey(), k.getValue(), saldoUtregning))
                 .collect(Collectors.toSet());
@@ -444,18 +452,22 @@ public class StønadsstatistikkTjeneste {
             var ekstradager = new HashSet<ForeldrepengerRettigheter.Stønadsutvidelse>();
             var flerbarnsdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
             if (flerbarnsdager > 0) {
-                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER, new ForeldrepengerRettigheter.Trekkdager(flerbarnsdager)));
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.FLERBARNSDAGER,
+                    new ForeldrepengerRettigheter.Trekkdager(flerbarnsdager)));
             }
             var prematurdager = gjeldendeStønadskontoberegning.getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
             if (prematurdager > 0) {
-                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER, new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
+                ekstradager.add(new ForeldrepengerRettigheter.Stønadsutvidelse(StønadsstatistikkVedtak.StønadUtvidetType.PREMATURDAGER,
+                    new ForeldrepengerRettigheter.Trekkdager(prematurdager)));
             }
 
             return new ForeldrepengerRettigheter(yfa.getGjeldendeDekningsgrad().getVerdi(), rettighetType, konti, ekstradager);
         });
     }
 
-    private static RettighetType utledRettighetType(RelasjonsRolleType relasjonsRolleType, YtelseFordelingAggregat yfa, Set<ForeldrepengerRettigheter.Stønadskonto> konti) {
+    private static RettighetType utledRettighetType(RelasjonsRolleType relasjonsRolleType,
+                                                    YtelseFordelingAggregat yfa,
+                                                    Set<ForeldrepengerRettigheter.Stønadskonto> konti) {
         if (konti.stream().anyMatch(k -> k.type().equals(StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER))) {
             return yfa.robustHarAleneomsorg(relasjonsRolleType) ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
         }
@@ -519,7 +531,8 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         // MIdlertidig
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(
+            fagsakMarkering)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

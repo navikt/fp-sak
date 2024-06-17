@@ -13,7 +13,10 @@ public class Oppdrag {
     private final Betalingsmottaker betalingsmottaker;
     private final Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder;
 
-    private Oppdrag(KodeFagområde kodeFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder) {
+    private Oppdrag(KodeFagområde kodeFagområde,
+                    FagsystemId fagsystemId,
+                    Betalingsmottaker betalingsmottaker,
+                    Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder) {
         this.kodeFagområde = kodeFagområde;
         this.fagsystemId = fagsystemId;
         this.betalingsmottaker = betalingsmottaker;

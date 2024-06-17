@@ -60,8 +60,7 @@ public class BeregningsgrunnlagRestTjeneste {
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling", summary = "Returnerer beregningsgrunnlag for behandling.", tags = "beregningsgrunnlag")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    public BeregningsgrunnlagDto hentBeregningsgrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public BeregningsgrunnlagDto hentBeregningsgrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {

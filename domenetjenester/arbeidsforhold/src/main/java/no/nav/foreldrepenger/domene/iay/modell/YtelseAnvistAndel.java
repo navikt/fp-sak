@@ -88,14 +88,15 @@ public class YtelseAnvistAndel implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (YtelseAnvistAndel) o;
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            dagsats.equals(that.dagsats) &&
-            inntektskategori == that.inntektskategori &&
-            utbetalingsgradProsent.equals(that.utbetalingsgradProsent) &&
-            refusjonsgradProsent.equals(that.refusjonsgradProsent);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && dagsats.equals(that.dagsats) && inntektskategori == that.inntektskategori
+            && utbetalingsgradProsent.equals(that.utbetalingsgradProsent) && refusjonsgradProsent.equals(that.refusjonsgradProsent);
     }
 
     @Override
@@ -105,14 +106,9 @@ public class YtelseAnvistAndel implements IndexKey {
 
     @Override
     public String toString() {
-        return "YtelseAnvistAndel{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", dagsats=" + dagsats +
-            ", utbetalingsgradProsent=" + utbetalingsgradProsent +
-            ", refusjonsgradProsent=" + refusjonsgradProsent +
-            ", inntektskategori=" + inntektskategori +
-            '}';
+        return "YtelseAnvistAndel{" + "arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef + ", dagsats=" + dagsats
+            + ", utbetalingsgradProsent=" + utbetalingsgradProsent + ", refusjonsgradProsent=" + refusjonsgradProsent + ", inntektskategori="
+            + inntektskategori + '}';
     }
 
     @Override

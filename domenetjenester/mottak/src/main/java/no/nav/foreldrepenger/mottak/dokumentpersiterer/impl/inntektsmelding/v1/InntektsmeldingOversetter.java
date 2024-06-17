@@ -58,8 +58,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     }
 
     @Inject
-    public InntektsmeldingOversetter(InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                     VirksomhetTjeneste virksomhetTjeneste) {
+    public InntektsmeldingOversetter(InntektsmeldingTjeneste inntektsmeldingTjeneste, VirksomhetTjeneste virksomhetTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
@@ -70,8 +69,8 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
                                        Behandling behandling,
                                        Optional<LocalDate> gjelderFra) {
         var aarsakTilInnsending = wrapper.getSkjema().getSkjemainnhold().getAarsakTilInnsending();
-        var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP
-            .get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
+        var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP.get(
+            ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
 
         var builder = InntektsmeldingBuilder.builder();
 
@@ -94,12 +93,10 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         mapUtsettelse(wrapper, builder);
         mapRefusjon(wrapper, builder);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(),
-            builder);
+        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), builder);
     }
 
-    private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
-                                          InntektsmeldingBuilder builder) {
+    private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         var arbeidsforhold = wrapper.getArbeidsforhold();
         if (arbeidsforhold.isPresent()) {
             var arbeidsforholdet = arbeidsforhold.get();
@@ -121,9 +118,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
     }
 
-    private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper,
-                                         MottattDokument mottattDokument,
-                                         InntektsmeldingBuilder builder) {
+    private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper, MottattDokument mottattDokument, InntektsmeldingBuilder builder) {
         var innsendingstidspunkt = wrapper.getInnsendingstidspunkt();
         if (innsendingstidspunkt.isPresent()) { // LPS
             builder.medInnsendingstidspunkt(innsendingstidspunkt.get());
@@ -139,8 +134,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         if (optionalRefusjon.isPresent()) {
             var refusjon = optionalRefusjon.get();
             if (refusjon.getRefusjonsopphoersdato() != null) {
-                builder.medRefusjon(refusjon.getRefusjonsbeloepPrMnd().getValue(),
-                    refusjon.getRefusjonsopphoersdato().getValue());
+                builder.medRefusjon(refusjon.getRefusjonsbeloepPrMnd().getValue(), refusjon.getRefusjonsopphoersdato().getValue());
             } else if (refusjon.getRefusjonsbeloepPrMnd() != null) {
                 builder.medRefusjon(refusjon.getRefusjonsbeloepPrMnd().getValue());
             }
@@ -150,8 +144,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
                 .map(JAXBElement::getValue)
                 .map(EndringIRefusjonsListe::getEndringIRefusjon)
                 .orElse(Collections.emptyList())
-                .forEach(eir -> builder.leggTil(
-                    new Refusjon(eir.getRefusjonsbeloepPrMnd().getValue(), eir.getEndringsdato().getValue())));
+                .forEach(eir -> builder.leggTil(new Refusjon(eir.getRefusjonsbeloepPrMnd().getValue(), eir.getEndringsdato().getValue())));
 
         }
     }
@@ -186,15 +179,13 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         for (var detaljer : wrapper.getGjenopptakelserAvNaturalytelse()) {
             var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
             var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
-            builder.leggTil(
-                new NaturalYtelse(detaljer.getFom().getValue(), Tid.TIDENES_ENDE, beløp.get(ytelseType), ytelseType));
+            builder.leggTil(new NaturalYtelse(detaljer.getFom().getValue(), Tid.TIDENES_ENDE, beløp.get(ytelseType), ytelseType));
         }
     }
 
     private void mapGradering(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         for (var detaljer : wrapper.getGradering()) {
-            builder.leggTil(new Gradering(detaljer.getPeriode().getValue().getFom().getValue(),
-                detaljer.getPeriode().getValue().getTom().getValue(),
+            builder.leggTil(new Gradering(detaljer.getPeriode().getValue().getFom().getValue(), detaljer.getPeriode().getValue().getTom().getValue(),
                 new BigDecimal(detaljer.getArbeidstidprosent().getValue())));
         }
     }

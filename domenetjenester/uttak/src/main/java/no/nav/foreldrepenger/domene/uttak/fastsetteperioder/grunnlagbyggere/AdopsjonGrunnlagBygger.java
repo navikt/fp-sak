@@ -16,8 +16,7 @@ public class AdopsjonGrunnlagBygger {
             return Optional.empty();
         }
         var gjeldendeFamilieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
-        return Optional.ofNullable(new Adopsjon.Builder()
-            .ankomstNorge(gjeldendeFamilieHendelse.getAnkomstNorge().orElse(null))
+        return Optional.ofNullable(new Adopsjon.Builder().ankomstNorge(gjeldendeFamilieHendelse.getAnkomstNorge().orElse(null))
             .stebarnsadopsjon(gjeldendeFamilieHendelse.erStebarnsadopsjon()));
     }
 }

@@ -35,24 +35,25 @@ public class ArbeidPermHistorikkInnslagTjeneste {
     }
 
     public void opprettHistorikkinnslag(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold, String begrunnelse) {
-        avklarteArbForhold.forEach( avklartArbForhold -> {
+        avklarteArbForhold.forEach(avklartArbForhold -> {
             var arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
-                var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-                var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
-                var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
+            var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+            var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
+            var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
 
-                opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn);
-            }
-        );
+            opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn);
+        });
         historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse).ferdigstillHistorikkinnslagDel();
     }
 
     private VurderArbeidsforholdHistorikkinnslag utledHistorikkInnslagValg(BekreftetPermisjonStatus permisjonStatus) {
         if (BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON.equals(permisjonStatus)) {
-           return  VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON;
+            return VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON;
         } else if (BekreftetPermisjonStatus.BRUK_PERMISJON.equals(permisjonStatus)) {
             return VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON;
-        } else return null;
+        } else {
+            return null;
+        }
     }
 
     private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String arbeidsforholdNavn) {

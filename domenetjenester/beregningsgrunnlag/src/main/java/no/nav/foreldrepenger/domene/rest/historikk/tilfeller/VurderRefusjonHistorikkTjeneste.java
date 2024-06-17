@@ -38,20 +38,24 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         for (var vurderingDto : dto.getRefusjonskravGyldighet()) {
             var arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
             var frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
             var forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
-            lagHistorikkInnslag(
-                Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()),
-                forrige,
-                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer()),
-                tekstBuilder);
+            lagHistorikkInnslag(Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()), forrige,
+                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer()), tekstBuilder);
         }
     }
 
-    private Boolean finnForrigeVerdi(Optional<BeregningRefusjonOverstyringerEntitet> forrigeBeregningRefusjonOverstyringer, Arbeidsgiver arbeidsgiver, LocalDate frist) {
+    private Boolean finnForrigeVerdi(Optional<BeregningRefusjonOverstyringerEntitet> forrigeBeregningRefusjonOverstyringer,
+                                     Arbeidsgiver arbeidsgiver,
+                                     LocalDate frist) {
         return forrigeBeregningRefusjonOverstyringer.map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)
             .orElse(Collections.emptyList())
             .stream()

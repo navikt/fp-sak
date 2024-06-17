@@ -28,7 +28,8 @@ public class BehandlingHendelseProducer {
     public void sendJsonMedNøkkel(String nøkkel, String json) {
         LOG.info("Sender melding om behandlinghendelse med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
-        LOG.info("Sendte melding om behandlinghendelse til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
+        LOG.info("Sendte melding om behandlinghendelse til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(),
+            recordMetadata.offset());
     }
 
 

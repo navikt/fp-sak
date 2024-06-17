@@ -84,6 +84,7 @@ import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 public class HentKodeverkTjeneste {
 
     public static final Map<String, Collection<? extends Kodeverdi>> KODEVERDIER_SOM_BRUKES_PÅ_KLIENT;
+
     static {
         Map<String, Collection<? extends Kodeverdi>> map = new LinkedHashMap<>();
 
@@ -98,7 +99,8 @@ public class HentKodeverkTjeneste {
         map.put(HistorikkBegrunnelseType.class.getSimpleName(), HistorikkBegrunnelseType.kodeMap().values());
         map.put(OppgaveÅrsak.class.getSimpleName(), OppgaveÅrsak.kodeMap().values());
         map.put(DokumentTypeId.class.getSimpleName(), DokumentTypeId.kodeMap().values());
-        map.put(MedlemskapManuellVurderingType.class.getSimpleName(), filtrerMedlemskapManuellVurderingType(MedlemskapManuellVurderingType.kodeMap().values()));
+        map.put(MedlemskapManuellVurderingType.class.getSimpleName(),
+            filtrerMedlemskapManuellVurderingType(MedlemskapManuellVurderingType.kodeMap().values()));
         map.put(BehandlingResultatType.class.getSimpleName(), BehandlingResultatType.kodeMap().values());
         map.put(VergeType.class.getSimpleName(), VergeType.kodeMap().values());
         map.put(VirksomhetType.class.getSimpleName(), VirksomhetType.kodeMap().values());
@@ -160,8 +162,7 @@ public class HentKodeverkTjeneste {
 
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 
-        map.forEach((key, value) -> mapFiltered.put(key,
-            value.stream().filter(f -> !"-".equals(f.getKode())).collect(Collectors.toSet())));
+        map.forEach((key, value) -> mapFiltered.put(key, value.stream().filter(f -> !"-".equals(f.getKode())).collect(Collectors.toSet())));
 
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 

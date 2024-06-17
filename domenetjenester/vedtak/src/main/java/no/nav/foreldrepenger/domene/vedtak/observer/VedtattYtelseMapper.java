@@ -36,7 +36,8 @@ class VedtattYtelseMapper {
     }
 
     List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
-        return tilkjent.getBeregningsresultatPerioder().stream()
+        return tilkjent.getBeregningsresultatPerioder()
+            .stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(this::mapForeldrepengerPeriode)
             .toList();
@@ -47,19 +48,23 @@ class VedtattYtelseMapper {
     }
 
     List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent) {
-        return tilkjent.getBeregningsresultatPerioder().stream()
+        return tilkjent.getBeregningsresultatPerioder()
+            .stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(this::mapSvangerskapspengerPeriode)
             .toList();
     }
 
     private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode) {
-        var stipulertBruttoDagsats = periode.getBeregningsresultatAndelList().stream()
+        var stipulertBruttoDagsats = periode.getBeregningsresultatAndelList()
+            .stream()
             .filter(a -> a.getDagsats() > 0 && a.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0)
             .map(a -> BigDecimal.valueOf(a.getDagsats()).multiply(BigDecimal.valueOf(100)).divide(a.getUtbetalingsgrad(), 10, RoundingMode.HALF_EVEN))
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO);
-        var stipulertUtbetalingsgrad = BigDecimal.valueOf(100).multiply(BigDecimal.valueOf(periode.getDagsats())).divide(stipulertBruttoDagsats, 10, RoundingMode.HALF_EVEN);
+        var stipulertUtbetalingsgrad = BigDecimal.valueOf(100)
+            .multiply(BigDecimal.valueOf(periode.getDagsats()))
+            .divide(stipulertBruttoDagsats, 10, RoundingMode.HALF_EVEN);
         return mapPeriode(periode, stipulertUtbetalingsgrad.setScale(2, RoundingMode.HALF_EVEN));
     }
 
@@ -77,26 +82,19 @@ class VedtattYtelseMapper {
 
     private List<AnvistAndel> mapAndeler(List<BeregningsresultatAndel> beregningsresultatAndelList) {
         var resultatPrNøkkkel = beregningsresultatAndelList.stream()
-            .collect(Collectors.groupingBy(a -> new AnvistAndelNøkkel(a.getArbeidsgiver().orElse(null), a.getArbeidsforholdRef(), a.getInntektskategori())));
-        return resultatPrNøkkkel.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .map(this::mapTilAnvistAndel)
-            .toList();
+            .collect(Collectors.groupingBy(
+                a -> new AnvistAndelNøkkel(a.getArbeidsgiver().orElse(null), a.getArbeidsforholdRef(), a.getInntektskategori())));
+        return resultatPrNøkkkel.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(this::mapTilAnvistAndel).toList();
     }
 
     private AnvistAndel mapTilAnvistAndel(Map.Entry<AnvistAndelNøkkel, List<BeregningsresultatAndel>> e) {
-        return new AnvistAndel(
-            mapAktør(e.getKey().arbeidsgiver()),
-            finnEksternReferanse(e.getKey().arbeidsforholdRef()),
-            new Desimaltall(finnTotalBeløp(e.getValue())),
-            finnUtbetalingsgrad(e.getValue()),
-            new Desimaltall(finnRefusjonsgrad(e.getValue())),
-            mapInntektklasse(e.getKey().inntektskategori())
-        );
+        return new AnvistAndel(mapAktør(e.getKey().arbeidsgiver()), finnEksternReferanse(e.getKey().arbeidsforholdRef()),
+            new Desimaltall(finnTotalBeløp(e.getValue())), finnUtbetalingsgrad(e.getValue()), new Desimaltall(finnRefusjonsgrad(e.getValue())),
+            mapInntektklasse(e.getKey().inntektskategori()));
     }
 
     private static Inntektklasse mapInntektklasse(Inntektskategori inntektskategori) {
-        return switch(inntektskategori) {
+        return switch (inntektskategori) {
             case ARBEIDSTAKER -> Inntektklasse.ARBEIDSTAKER;
             case ARBEIDSTAKER_UTEN_FERIEPENGER -> Inntektklasse.ARBEIDSTAKER_UTEN_FERIEPENGER;
             case FRILANSER -> Inntektklasse.FRILANSER;
@@ -121,13 +119,13 @@ class VedtattYtelseMapper {
 
         var total = finnTotalBeløp(resultatAndeler);
 
-        return total.compareTo(BigDecimal.ZERO) > 0 ?
-            refusjon.multiply(BigDecimal.valueOf(100)).divide(total, 10, RoundingMode.HALF_UP) :
-            BigDecimal.ZERO;
+        return total.compareTo(BigDecimal.ZERO) > 0 ? refusjon.multiply(BigDecimal.valueOf(100))
+            .divide(total, 10, RoundingMode.HALF_UP) : BigDecimal.ZERO;
     }
 
     private static Desimaltall finnUtbetalingsgrad(List<BeregningsresultatAndel> resultatAndeler) {
-        var utbetalingsgrad = resultatAndeler.stream().map(BeregningsresultatAndel::getUtbetalingsgrad)
+        var utbetalingsgrad = resultatAndeler.stream()
+            .map(BeregningsresultatAndel::getUtbetalingsgrad)
             .map(grad -> grad == null ? BigDecimal.valueOf(100) : grad)
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO)
@@ -136,7 +134,8 @@ class VedtattYtelseMapper {
     }
 
     private static BigDecimal finnTotalBeløp(List<BeregningsresultatAndel> resultatAndeler) {
-        return resultatAndeler.stream().map(BeregningsresultatAndel::getDagsats)
+        return resultatAndeler.stream()
+            .map(BeregningsresultatAndel::getDagsats)
             .reduce(Integer::sum)
             .map(BigDecimal::valueOf)
             .orElse(BigDecimal.ZERO);
@@ -148,7 +147,8 @@ class VedtattYtelseMapper {
         }
         return this.arbeidsforholdReferanser.stream()
             .filter(r -> r.getInternReferanse().gjelderFor(internArbeidsforholdRef))
-            .findFirst().map(ArbeidsforholdReferanse::getEksternReferanse)
+            .findFirst()
+            .map(ArbeidsforholdReferanse::getEksternReferanse)
             .map(EksternArbeidsforholdRef::getReferanse)
             .orElse(null);
     }
@@ -157,8 +157,7 @@ class VedtattYtelseMapper {
         return arbeidsgiver != null ? new ArbeidsgiverIdent(arbeidsgiver.getIdentifikator()) : null;
     }
 
-    private record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver,
-                                     InternArbeidsforholdRef arbeidsforholdRef,
+    private record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
                                      Inntektskategori inntektskategori) implements Comparable<AnvistAndelNøkkel> {
         @Override
         public int compareTo(AnvistAndelNøkkel o) {

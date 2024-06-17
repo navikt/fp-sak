@@ -64,6 +64,7 @@ public class KobleSakerTjeneste {
         this.behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
+
     /*
      * Hva: Koble innkommende sak med annen sak som angår samme barnekull
      * Utfordring: Kjøres før registerinnhenting - mangler registerversjon av FH og PO
@@ -91,7 +92,8 @@ public class KobleSakerTjeneste {
 
         // Finner saker å koble med ut fra oppgitt annen part og fra FREG-data om registrerte foreldre
         var annenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
-            .map(OppgittAnnenPartEntitet::getAktørId).orElse(null);
+            .map(OppgittAnnenPartEntitet::getAktørId)
+            .orElse(null);
         var fødselsIntervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
         var andreForeldreForBarn = finnAndreRegistrerteForeldreForBarnekull(fagsak.getYtelseType(), fagsak.getAktørId(), fødselsIntervaller);
         var aktuelleFagsaker = finnMuligeFagsakerForKobling(behandling, grunnlag, annenPart, andreForeldreForBarn);
@@ -106,7 +108,8 @@ public class KobleSakerTjeneste {
         }
         if (aktuelleFagsaker.size() > 1) {
             var kandidater = aktuelleFagsaker.stream().map(f -> f.getSaksnummer().getVerdi()).collect(Collectors.joining(", "));
-            LOG.warn("FP-059216 OBS varsle produkteier: Flere mulige fagsaker å koble til for saksnummer: {} kandidater: {}", fagsak.getSaksnummer(), kandidater);
+            LOG.warn("FP-059216 OBS varsle produkteier: Flere mulige fagsaker å koble til for saksnummer: {} kandidater: {}", fagsak.getSaksnummer(),
+                kandidater);
             return Optional.empty();
         }
         return Optional.of(aktuelleFagsaker.get(0));
@@ -132,14 +135,18 @@ public class KobleSakerTjeneste {
 
     private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {
         // Hent fødsler i intervall og deretter kjerneinfo m/familierelasjoner for disse
-        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, aktørId, intervaller).stream()
+        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, aktørId, intervaller)
+            .stream()
             .filter(b -> b.ident() != null) // Dødfødsel
             .flatMap(b -> personinfoAdapter.finnAktørIdForForeldreTil(ytelseType, b.ident()).stream())
             .filter(a -> !aktørId.equals(a))
             .collect(Collectors.toSet());
     }
 
-    private List<Fagsak> finnMuligeFagsakerForKobling(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, AktørId annenPart, Set<AktørId> andreForeldreForBarn) {
+    private List<Fagsak> finnMuligeFagsakerForKobling(Behandling behandling,
+                                                      FamilieHendelseGrunnlagEntitet grunnlag,
+                                                      AktørId annenPart,
+                                                      Set<AktørId> andreForeldreForBarn) {
         // Finner saker der bruker fra behandling er oppgitt som annen part
         List<Fagsak> fagsakerSomRefererer = new ArrayList<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
         // Henter fagsaker for oppgitt annen part og for foreldre til brukers barn i aktuelt kull
@@ -148,9 +155,7 @@ public class KobleSakerTjeneste {
             aktuelleFagsaker.addAll(fagsakRepository.hentForBruker(annenPart));
         }
         var fagsakerAndreForeldre = aktuelleFagsaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
-        fagsakerSomRefererer.stream()
-            .filter(fid -> !fagsakerAndreForeldre.contains(fid.getId()))
-            .forEach(aktuelleFagsaker::add);
+        fagsakerSomRefererer.stream().filter(fid -> !fagsakerAndreForeldre.contains(fid.getId())).forEach(aktuelleFagsaker::add);
         // Finner ukoblete saker, siste behandling og filtrerer på innkommende sak sitt FH-grunnlag
         var ytelseType = behandling.getFagsakYtelseType();
         var filtrertGrunnlag = aktuelleFagsaker.stream()
@@ -178,7 +183,8 @@ public class KobleSakerTjeneste {
     private boolean ekskluderAvslåtte(Behandling behandling) {
         var sisteVedtakAvslag = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())
             .flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()))
-            .map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(Boolean.FALSE);
+            .map(Behandlingsresultat::isBehandlingsresultatAvslått)
+            .orElse(Boolean.FALSE);
         return !sisteVedtakAvslag;
     }
 

@@ -60,10 +60,10 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
         var tilstand = behandling.getBehandlingStegTilstand();
         if (tilstand.isEmpty()) {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
-        } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg())
-                && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+        } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg()) && BehandlingStegStatus.VENTER.equals(
+            tilstand.get().getBehandlingStegStatus())) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingResumeStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(),
-                    LocalDateTime.now());
+                LocalDateTime.now());
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }

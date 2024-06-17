@@ -24,22 +24,16 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi {
     PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste"),
     ;
 
-    public static final Set<PermisjonsbeskrivelseType> VELFERDSPERMISJONER = Set.of(
-        PermisjonsbeskrivelseType.VELFERDSPERMISJON,
-        PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET,
-        PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET
-    );
+    public static final Set<PermisjonsbeskrivelseType> VELFERDSPERMISJONER = Set.of(PermisjonsbeskrivelseType.VELFERDSPERMISJON,
+        PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET);
 
     private static final Map<String, PermisjonsbeskrivelseType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "PERMISJONSBESKRIVELSE_TYPE";
 
     private static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING = Set.of(
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
-        PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
-
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON, PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET, PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
 
 
     static {

@@ -77,8 +77,7 @@ class BeregnFeriepengerTjenesteTest {
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
-        var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
-                Inntektskategori.ARBEIDSTAKER);
+        var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR, Inntektskategori.ARBEIDSTAKER);
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
@@ -96,8 +95,7 @@ class BeregnFeriepengerTjenesteTest {
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
-        var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
-            Inntektskategori.ARBEIDSTAKER);
+        var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR, Inntektskategori.ARBEIDSTAKER);
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
@@ -131,7 +129,7 @@ class BeregnFeriepengerTjenesteTest {
         var morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         var morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
-                Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
+            Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
         var ref = BehandlingReferanse.fra(morsBehandling);
@@ -167,11 +165,8 @@ class BeregnFeriepengerTjenesteTest {
     }
 
     private Behandling lagBehandlingFar() {
-        var scenarioAnnenPart = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioAnnenPart.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        var scenarioAnnenPart = ScenarioFarSøkerForeldrepenger.forFødsel().medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenarioAnnenPart.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
         var farsBehandling = scenarioAnnenPart.lagre(repositoryProvider);
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(farsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
@@ -179,8 +174,7 @@ class BeregnFeriepengerTjenesteTest {
         farsBehandling.avsluttBehandling();
         entityManager.persist(farsBehandling);
 
-        var farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR,
-                Inntektskategori.ARBEIDSTAKER);
+        var farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR, Inntektskategori.ARBEIDSTAKER);
 
         beregningsresultatRepository.lagre(farsBehandling, farsBeregningsresultatFP);
         return farsBehandling;
@@ -189,17 +183,17 @@ class BeregnFeriepengerTjenesteTest {
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
-                .build(beregningsresultat);
+            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+            .build(beregningsresultat);
         BeregningsresultatAndel.builder()
-                .medInntektskategori(inntektskategori)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(DAGSATS)
-                .medDagsatsFraBg(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .build(beregningsresultatPeriode);
+            .medInntektskategori(inntektskategori)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(DAGSATS)
+            .medDagsatsFraBg(DAGSATS)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(beregningsresultatPeriode);
         return beregningsresultat;
     }
 }

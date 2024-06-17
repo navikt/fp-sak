@@ -28,7 +28,8 @@ public class FpoversiktHendelseProducer {
     public void sendJsonMedNøkkel(String nøkkel, String json) {
         LOG.info("Sender melding om oversikt-migrering med nøkkel {} på topic='{}'", nøkkel, producer.getTopicName());
         var recordMetadata = producer.send(nøkkel, json);
-        LOG.info("Sendte melding om oversikt-migrering til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
+        LOG.info("Sendte melding om oversikt-migrering til {}, partition {}, offset {}", recordMetadata.topic(), recordMetadata.partition(),
+            recordMetadata.offset());
     }
 
 }

@@ -24,8 +24,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/person",
-    scopesProperty = "krr.rs.scopes", scopesDefault = "api://prod-gcp.team-rocket.digdir-krr-proxy/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/person", scopesProperty = "krr.rs.scopes", scopesDefault = "api://prod-gcp.team-rocket.digdir-krr-proxy/.default")
 public class KrrSpråkKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KrrSpråkKlient.class);
@@ -40,9 +39,7 @@ public class KrrSpråkKlient {
     public KrrSpråkKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(KrrSpråkKlient.class);
-        this.endpoint = UriBuilder.fromUri(restConfig.endpoint())
-            .queryParam("inkluderSikkerDigitalPost", "false")
-            .build();
+        this.endpoint = UriBuilder.fromUri(restConfig.endpoint()).queryParam("inkluderSikkerDigitalPost", "false").build();
     }
 
     public Språkkode finnSpråkkodeForBruker(String fnr) {
@@ -52,10 +49,7 @@ public class KrrSpråkKlient {
                 .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
                 .timeout(Duration.ofSeconds(3)); // Kall langt avgårde - blokkerer ofte til 3*timeout. Request inn til fpsak har timeout 20s.
             var respons = restClient.sendReturnOptional(request, KrrRespons.class);
-            return respons
-                .map(KrrRespons::språk)
-                .map(Språkkode::defaultNorsk)
-                .orElse(Språkkode.NB);
+            return respons.map(KrrRespons::språk).map(Språkkode::defaultNorsk).orElse(Språkkode.NB);
         } catch (ManglerTilgangException manglerTilgangException) {
             LOG.info("KrrSpråkKlient: Mangler tilgang, returnerer default.");
             return Språkkode.NB;
@@ -67,11 +61,12 @@ public class KrrSpråkKlient {
                 return Språkkode.NB;
             }
             throw e;
-        } catch (UriBuilderException|IllegalArgumentException e) {
+        } catch (UriBuilderException | IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for KrrSpråkKlient.finnSpråkkodeForBruker");
         }
     }
 
-    record KrrRespons(@JsonProperty("spraak") String språk) { }
+    record KrrRespons(@JsonProperty("spraak") String språk) {
+    }
 
 }

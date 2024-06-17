@@ -30,7 +30,7 @@ public class LagretKodeverdiRepository {
         return query.getResultList().stream().collect(Collectors.toMap(LagretKodeverdiNavn::getKode, a -> a));
     }
 
-    public void lagre( LagretKodeverdiNavn lagretKodeverdiNavn ) {
+    public void lagre(LagretKodeverdiNavn lagretKodeverdiNavn) {
         entityManager.persist(lagretKodeverdiNavn);
         entityManager.flush();
     }

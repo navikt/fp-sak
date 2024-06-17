@@ -45,15 +45,16 @@ class RegelFastsettBeregningsresultatSVPTest {
     private static final BigDecimal SEKSTI = BigDecimal.valueOf(60);
     private static final BigDecimal ÅTTI = BigDecimal.valueOf(60);
 
-    private record Tilrettelegging(Arbeidsforhold arbeidsforhold, BigDecimal utbetalingsgrad) {}
+    private record Tilrettelegging(Arbeidsforhold arbeidsforhold, BigDecimal utbetalingsgrad) {
+    }
 
     @Test
     void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
         // Arrange
-        var periodeMap = Map.of(
-                PERIODE_1, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE)),
-                PERIODE_2, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, HUNDRE)),
-                PERIODE_3, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_3, HUNDRE)));
+        var periodeMap = Map.of(PERIODE_1, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE)), PERIODE_2,
+            List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, HUNDRE)), PERIODE_3,
+            List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, HUNDRE),
+                new Tilrettelegging(ARBEIDSFORHOLD_3, HUNDRE)));
         var modell = opprettRegelmodell(periodeMap);
         var output = Beregningsresultat.opprett();
 
@@ -91,10 +92,9 @@ class RegelFastsettBeregningsresultatSVPTest {
     @Test
     void skalTesteSVPUttaksperioderMeSynkendeTilrettelegging() {
         // Arrange
-        var periodeMap = Map.of(
-            PERIODE_1, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, FØRTI)),
-            PERIODE_2, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, ÅTTI)),
-            PERIODE_3, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, SEKSTI)));
+        var periodeMap = Map.of(PERIODE_1, List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, FØRTI)), PERIODE_2,
+            List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, ÅTTI)), PERIODE_3,
+            List.of(new Tilrettelegging(ARBEIDSFORHOLD_1, HUNDRE), new Tilrettelegging(ARBEIDSFORHOLD_2, SEKSTI)));
         var modell = opprettRegelmodell(periodeMap);
         var output = Beregningsresultat.opprett();
 
@@ -111,17 +111,22 @@ class RegelFastsettBeregningsresultatSVPTest {
         assertThat(perioder.get(1).getBeregningsresultatAndelList()).allMatch(p -> ÅTTI.compareTo(p.getUtbetalingsgrad()) == 0);
         assertThat(perioder.get(1).getBeregningsresultatAndelList()).allMatch(p -> Objects.equals(p.getDagsats(), p.getDagsatsFraBg()));
         assertThat(perioder.get(2).getBeregningsresultatAndelList()).hasSize(4);
-        assertThat(perioder.get(2).getBeregningsresultatAndelList().stream().filter(p -> ARBEIDSFORHOLD_1.equals(p.getArbeidsforhold())).toList()).allMatch(p -> HUNDRE.compareTo(p.getUtbetalingsgrad()) == 0);
-        assertThat(perioder.get(2).getBeregningsresultatAndelList().stream().filter(p -> ARBEIDSFORHOLD_2.equals(p.getArbeidsforhold())).toList()).allMatch(p -> SEKSTI.compareTo(p.getUtbetalingsgrad()) == 0);
+        assertThat(
+            perioder.get(2).getBeregningsresultatAndelList().stream().filter(p -> ARBEIDSFORHOLD_1.equals(p.getArbeidsforhold())).toList()).allMatch(
+            p -> HUNDRE.compareTo(p.getUtbetalingsgrad()) == 0);
+        assertThat(
+            perioder.get(2).getBeregningsresultatAndelList().stream().filter(p -> ARBEIDSFORHOLD_2.equals(p.getArbeidsforhold())).toList()).allMatch(
+            p -> SEKSTI.compareTo(p.getUtbetalingsgrad()) == 0);
         assertThat(perioder.get(2).getBeregningsresultatAndelList()).allMatch(p -> Objects.equals(p.getDagsats(), p.getDagsatsFraBg()));
     }
 
     private BeregningsresultatGrunnlag opprettRegelmodell(Map<LocalDateInterval, List<Tilrettelegging>> periodeMap) {
-        var arbeidsforhold = periodeMap.entrySet().stream()
-                .flatMap(entry -> entry.getValue().stream())
-                .distinct()
-                .map(arb -> lagPrArbeidsforhold(1000, 500, arb.arbeidsforhold()))
-                .collect(Collectors.toSet());
+        var arbeidsforhold = periodeMap.entrySet()
+            .stream()
+            .flatMap(entry -> entry.getValue().stream())
+            .distinct()
+            .map(arb -> lagPrArbeidsforhold(1000, 500, arb.arbeidsforhold()))
+            .collect(Collectors.toSet());
         var beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
         var uttakResultat = opprettUttak(periodeMap);
         return new BeregningsresultatGrunnlag(beregningsgrunnlag, uttakResultat);
@@ -152,7 +157,8 @@ class RegelFastsettBeregningsresultatSVPTest {
 
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, List<Tilrettelegging> arbeidsforholdList) {
         return arbeidsforholdList.stream()
-                .map(arb -> new UttakAktivitet(stillingsgrad, null, arb.utbetalingsgrad(), false, arb.arbeidsforhold(), AktivitetStatus.ATFL, false, stillingsgrad))
-                .toList();
+            .map(arb -> new UttakAktivitet(stillingsgrad, null, arb.utbetalingsgrad(), false, arb.arbeidsforhold(), AktivitetStatus.ATFL, false,
+                stillingsgrad))
+            .toList();
     }
 }

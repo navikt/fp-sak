@@ -7,7 +7,10 @@ public class TilbakekrevingValg {
     private final TilbakekrevingVidereBehandling videreBehandling;
     private final String varseltekst;
 
-    public TilbakekrevingValg(Boolean erTilbakekrevingVilkårOppfylt, Boolean grunnerTilReduksjon, TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {
+    public TilbakekrevingValg(Boolean erTilbakekrevingVilkårOppfylt,
+                              Boolean grunnerTilReduksjon,
+                              TilbakekrevingVidereBehandling videreBehandling,
+                              String varseltekst) {
         this.erTilbakekrevingVilkårOppfylt = erTilbakekrevingVilkårOppfylt;
         this.grunnerTilReduksjon = grunnerTilReduksjon;
         this.videreBehandling = videreBehandling;
@@ -18,7 +21,9 @@ public class TilbakekrevingValg {
         return new TilbakekrevingValg(null, null, videreBehandling, varseltekst);
     }
 
-    public static TilbakekrevingValg medMulighetForInntrekk(Boolean erTilbakekrevingVilkårOppfylt, Boolean grunnerTilReduksjon, TilbakekrevingVidereBehandling videreBehandling) {
+    public static TilbakekrevingValg medMulighetForInntrekk(Boolean erTilbakekrevingVilkårOppfylt,
+                                                            Boolean grunnerTilReduksjon,
+                                                            TilbakekrevingVidereBehandling videreBehandling) {
         return new TilbakekrevingValg(erTilbakekrevingVilkårOppfylt, grunnerTilReduksjon, videreBehandling, null);
     }
 

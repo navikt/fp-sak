@@ -5,13 +5,9 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
 
-record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom,
-                                          @NotNull LocalDate tom,
-                                          @NotNull Inntektskategori inntektskategori,
+record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull Inntektskategori inntektskategori,
                                           String arbeidsgiver,  // Orgnummer eller aktørId
-                                          @NotNull Mottaker mottaker,
-                                          @NotNull Integer dagsats,
-                                          @NotNull BigDecimal utbetalingsgrad) {
+                                          @NotNull Mottaker mottaker, @NotNull Integer dagsats, @NotNull BigDecimal utbetalingsgrad) {
 
     //Feriepenger ikke interessant - sier konsumenten
     enum Mottaker {

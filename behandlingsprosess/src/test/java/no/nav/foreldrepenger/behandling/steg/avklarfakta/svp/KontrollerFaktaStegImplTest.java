@@ -76,8 +76,8 @@ class KontrollerFaktaStegImplTest {
         scenario.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().plusDays(2))
-                .medDekningType(MedlemskapDekningType.UNNTATT)
-                .medKildeType(MedlemskapKildeType.TPS);
+            .medDekningType(MedlemskapDekningType.UNNTATT)
+            .medKildeType(MedlemskapKildeType.TPS);
 
         scenario.leggTilMedlemskapPeriode(builder.build());
         behandling = lagre(scenario);
@@ -100,14 +100,16 @@ class KontrollerFaktaStegImplTest {
         behandlingRepository.lagre(behandling, lås);
 
         // Assert
-        var resulat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat().getVilkårene()
-                .stream()
-                .map(Vilkår::getVilkårType)
-                .toList();
+        var resulat = repositoryProvider.getBehandlingsresultatRepository()
+            .hent(behandling.getId())
+            .getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .map(Vilkår::getVilkårType)
+            .toList();
 
-        assertThat(resulat)
-                .containsExactlyInAnyOrder(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET,
-                        BEREGNINGSGRUNNLAGVILKÅR, SVANGERSKAPSPENGERVILKÅR);
+        assertThat(resulat).containsExactlyInAnyOrder(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET,
+            BEREGNINGSGRUNNLAGVILKÅR, SVANGERSKAPSPENGERVILKÅR);
     }
 
     private ScenarioMorSøkerSvangerskapspenger byggBehandlingMedMorSøkerSVP() {
@@ -121,26 +123,21 @@ class KontrollerFaktaStegImplTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas().voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE).build();
         scenario.medRegisterOpplysninger(søker);
     }
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato, jordmorsdato, SvpTilretteleggingFomKilde.SØKNAD)
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-                .medMottattTidspunkt(LocalDateTime.now())
-                .medKopiertFraTidligereBehandling(false)
-                .build();
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-                .medBehandlingId(behandling.getId())
-                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-                .build();
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medIngenTilrettelegging(jordmorsdato, jordmorsdato, SvpTilretteleggingFomKilde.SØKNAD)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medKopiertFraTidligereBehandling(false)
+            .build();
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
+            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+            .build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 }

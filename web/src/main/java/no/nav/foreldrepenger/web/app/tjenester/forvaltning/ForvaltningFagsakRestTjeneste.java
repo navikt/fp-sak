@@ -74,12 +74,12 @@ public class ForvaltningFagsakRestTjeneste {
 
     @Inject
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-            OpprettSakTjeneste opprettSakTjeneste,
+                                         OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
+                                         OpprettSakTjeneste opprettSakTjeneste,
                                          AktørTjeneste aktørTjeneste,
-            NavBrukerTjeneste brukerTjeneste,
-            OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste,
-            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                         NavBrukerTjeneste brukerTjeneste,
+                                         OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste,
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -95,14 +95,9 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/avsluttFagsakUtenBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Avslutt fagsak uten noen behandlinger", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Avslutt fagsak uten noen behandlinger", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response avsluttFagsakUtenBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                                    @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response avsluttFagsakUtenBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
@@ -118,14 +113,9 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/stengFagsakForVidereBruk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Stenger fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Stenger fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response stengFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response stengFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
@@ -142,14 +132,9 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/gjenAapneFagsakForVidereBruk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Gjenåpner fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Gjenåpner fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response gjenaapneFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response gjenaapneFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !fagsak.erStengt()) {
@@ -166,11 +151,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/kobleSammenFagsaker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kobler sammen angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsaker koblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Kobler sammen angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Fagsaker koblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response kobleSammenFagsaker(@BeanParam @Valid KobleFagsakerDto dto) {
         var saksnummer1 = new Saksnummer(dto.getSaksnummer1());
@@ -180,12 +161,11 @@ public class ForvaltningFagsakRestTjeneste {
         var fagsakRelasjon1 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
         var fagsakRelasjon2 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak2).orElse(null);
         if (fagsak1 == null || fagsak2 == null || erFagsakRelasjonKoblet(fagsakRelasjon1) || erFagsakRelasjonKoblet(fagsakRelasjon2)
-                || FagsakStatus.AVSLUTTET.equals(fagsak1.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak2.getStatus())) {
+            || FagsakStatus.AVSLUTTET.equals(fagsak1.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak2.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi());
-        var behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
-                .orElse(null);
+        var behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId()).orElse(null);
         fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
         return Response.ok().build();
     }
@@ -194,11 +174,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/kobleFraFagsaker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kobler fra hverandre angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsaker frakoblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Kobler fra hverandre angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Fagsaker frakoblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response kobleFraFagsaker(@BeanParam @Valid KobleFagsakerDto dto) {
         var saksnummer1 = new Saksnummer(dto.getSaksnummer1());
@@ -224,13 +200,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/overstyrDekningsgrad")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Overstyr dekningsgrad. NB: Dersom det finnes en åpen revurdering som har passert beregning. Bruk Overstyr dekningsgrad først og så hoppTilbakeTil FASTSETT_STP_BER.", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Dekningsgrad overstyrt."),
-            @ApiResponse(responseCode = "204", description = "Dekningsgrad er ikke endret."),
-            @ApiResponse(responseCode = "400", description = "Dekningsgrad er ugyldig."),
-            @ApiResponse(responseCode = "404", description = "Fagsak finnes ikke."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Overstyr dekningsgrad. NB: Dersom det finnes en åpen revurdering som har passert beregning. Bruk Overstyr dekningsgrad først og så hoppTilbakeTil FASTSETT_STP_BER.", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Dekningsgrad overstyrt."), @ApiResponse(responseCode = "204", description = "Dekningsgrad er ikke endret."), @ApiResponse(responseCode = "400", description = "Dekningsgrad er ugyldig."), @ApiResponse(responseCode = "404", description = "Fagsak finnes ikke."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response overstyrDekningsgrad(@BeanParam @Valid OverstyrDekningsgradDto dto) {
         return overstyrDekningsgradTjeneste.overstyr(dto.getSaksnummer(), Integer.parseInt(dto.getDekningsgrad()));
@@ -240,10 +210,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/fagsak/flyttJournalpostFagsak")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Knytt journalpost til fagsak. Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten.", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Knytt journalpost til fagsak. Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten.", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Task satt til ferdig."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response flyttJournalpostTilFagsak(@BeanParam @Valid SaksnummerJournalpostDto dto) {
         var journalpostId = new JournalpostId(dto.getJournalpostId());
@@ -256,15 +223,9 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/fagsak/oppdaterAktoerIdFraPdl")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Henter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
-            @ApiResponse(responseCode = "400", description = "AktørId er uendret."),
-            @ApiResponse(responseCode = "400", description = "Saksnummer er ugyldig."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Henter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Task satt til ferdig."), @ApiResponse(responseCode = "400", description = "AktørId er uendret."), @ApiResponse(responseCode = "400", description = "Saksnummer er ugyldig."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response oppdaterAktoerIdFraPdl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response oppdaterAktoerIdFraPdl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || fagsak.erStengt()) {
@@ -291,14 +252,9 @@ public class ForvaltningFagsakRestTjeneste {
     @Path("/fagsak/oppdaterAktoerId")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Task satt til ferdig."),
-        @ApiResponse(responseCode = "400", description = "AktørId er uendret."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Setter ny aktørid for bruker og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Task satt til ferdig."), @ApiResponse(responseCode = "400", description = "AktørId er uendret."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = ByttAktørRequestAbacDataSupplier.class)
-                                         @NotNull @Valid ByttAktørRequestDto dto) {
+    public Response oppdaterAktoerId(@TilpassetAbacAttributt(supplierClass = ByttAktørRequestAbacDataSupplier.class) @NotNull @Valid ByttAktørRequestDto dto) {
         if (dto.gyldigAktørId().equals(dto.utgåttAktørId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -310,8 +266,8 @@ public class ForvaltningFagsakRestTjeneste {
     /**
      * Input request for å bytte en utgått aktørid med en aktiv
      */
-    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktørId,
-                                      @NotNull @Valid AktørId gyldigAktørId) { }
+    public record ByttAktørRequestDto(@NotNull @Valid AktørId utgåttAktørId, @NotNull @Valid AktørId gyldigAktørId) {
+    }
 
     public static class ByttAktørRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 

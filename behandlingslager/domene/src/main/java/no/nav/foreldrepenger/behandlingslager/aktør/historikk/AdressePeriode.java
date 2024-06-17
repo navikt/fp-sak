@@ -44,11 +44,14 @@ public class AdressePeriode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (AdressePeriode) o;
-        return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) &&
-            Objects.equals(adresse, that.adresse);
+        return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) && Objects.equals(adresse, that.adresse);
     }
 
     @Override
@@ -58,13 +61,11 @@ public class AdressePeriode {
 
     @Override
     public String toString() {
-        return "AdressePeriode{" + "gyldighetsperiode=" + gyldighetsperiode +
-            ", adresse=" + adresse +
-            '}';
+        return "AdressePeriode{" + "gyldighetsperiode=" + gyldighetsperiode + ", adresse=" + adresse + '}';
     }
 
-    public record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land,
-                                     LocalDate flyttedato, LocalDate gyldigFom, boolean historisk) {
+    public record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land, LocalDate flyttedato,
+                                     LocalDate gyldigFom, boolean historisk) {
         public AdresseTypePeriode(AdressePeriode adressePeriode) {
             this(adressePeriode.getGyldighetsperiode(), adressePeriode.getAdresse().getAdresseType(), adressePeriode.getAdresse().getLand(),
                 adressePeriode.flyttedato, adressePeriode.gyldigFomDato, adressePeriode.historisk);
@@ -123,33 +124,24 @@ public class AdressePeriode {
 
         @Override
         public String toString() {
-            return "Adresse{" +
-                "adresseType=" + adresseType +
-                ", matrikkelId='" + matrikkelId + '\'' +
-                ", adresselinje1='" + adresselinje1 + '\'' +
-                ", adresselinje2='" + adresselinje2 + '\'' +
-                ", adresselinje3='" + adresselinje3 + '\'' +
-                ", adresselinje4='" + adresselinje4 + '\'' +
-                ", postnummer='" + postnummer + '\'' +
-                ", poststed='" + poststed + '\'' +
-                ", land='" + land + '\'' +
-                '}';
+            return "Adresse{" + "adresseType=" + adresseType + ", matrikkelId='" + matrikkelId + '\'' + ", adresselinje1='" + adresselinje1 + '\''
+                + ", adresselinje2='" + adresselinje2 + '\'' + ", adresselinje3='" + adresselinje3 + '\'' + ", adresselinje4='" + adresselinje4 + '\''
+                + ", postnummer='" + postnummer + '\'' + ", poststed='" + poststed + '\'' + ", land='" + land + '\'' + '}';
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             var adresse = (Adresse) o;
-            return Objects.equals(adresseType, adresse.adresseType) &&
-                Objects.equals(matrikkelId, adresse.matrikkelId) &&
-                Objects.equals(adresselinje1, adresse.adresselinje1) &&
-                Objects.equals(adresselinje2, adresse.adresselinje2) &&
-                Objects.equals(adresselinje3, adresse.adresselinje3) &&
-                Objects.equals(adresselinje4, adresse.adresselinje4) &&
-                Objects.equals(postnummer, adresse.postnummer) &&
-                Objects.equals(poststed, adresse.poststed) &&
-                Objects.equals(land, adresse.land);
+            return Objects.equals(adresseType, adresse.adresseType) && Objects.equals(matrikkelId, adresse.matrikkelId) && Objects.equals(
+                adresselinje1, adresse.adresselinje1) && Objects.equals(adresselinje2, adresse.adresselinje2) && Objects.equals(adresselinje3,
+                adresse.adresselinje3) && Objects.equals(adresselinje4, adresse.adresselinje4) && Objects.equals(postnummer, adresse.postnummer)
+                && Objects.equals(poststed, adresse.poststed) && Objects.equals(land, adresse.land);
         }
 
         @Override

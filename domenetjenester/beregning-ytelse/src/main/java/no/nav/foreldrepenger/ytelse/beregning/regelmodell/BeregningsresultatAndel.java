@@ -74,12 +74,9 @@ public class BeregningsresultatAndel {
 
     @Override
     public String toString() {
-        return "BeregningsresultatAndel{" +
-            "aktivitetStatus='" + aktivitetStatus.name() + '\'' +
-            ", arbeidsgiverId=" + (arbeidsforhold != null ? arbeidsforhold.identifikator() : null) +
-            ", arbeidsforholdId=" + (arbeidsforhold != null ? arbeidsforhold.arbeidsforholdId() : null) +
-            ", erBrukerMottaker=" + erBrukerMottaker() +
-            '}';
+        return "BeregningsresultatAndel{" + "aktivitetStatus='" + aktivitetStatus.name() + '\'' + ", arbeidsgiverId=" + (
+            arbeidsforhold != null ? arbeidsforhold.identifikator() : null) + ", arbeidsforholdId=" + (
+            arbeidsforhold != null ? arbeidsforhold.arbeidsforholdId() : null) + ", erBrukerMottaker=" + erBrukerMottaker() + '}';
     }
 
     public static BeregningsresultatAndel copyUtenFeriepenger(BeregningsresultatAndel andel) {

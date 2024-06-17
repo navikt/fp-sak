@@ -51,9 +51,11 @@ public final class KalkulusTilFpsakMapper {
         return BeregningsgrunnlagGrunnlagBuilder.nytt()
             .medBeregningsgrunnlag(grunnlagDto.getBeregningsgrunnlag() == null ? null : mapGrunnlag(grunnlagDto.getBeregningsgrunnlag()))
             .medRegisterAktiviteter(grunnlagDto.getRegisterAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getRegisterAktiviteter()))
-            .medSaksbehandletAktiviteter(grunnlagDto.getSaksbehandletAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getSaksbehandletAktiviteter()))
+            .medSaksbehandletAktiviteter(
+                grunnlagDto.getSaksbehandletAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getSaksbehandletAktiviteter()))
             .medOverstyring(grunnlagDto.getOverstyringer() == null ? null : mapAktivitetOverstyringer(grunnlagDto.getOverstyringer()))
-            .medRefusjonOverstyring(grunnlagDto.getRefusjonOverstyringer() == null ? null : mapRefusjonoverstyringer(grunnlagDto.getRefusjonOverstyringer()))
+            .medRefusjonOverstyring(
+                grunnlagDto.getRefusjonOverstyringer() == null ? null : mapRefusjonoverstyringer(grunnlagDto.getRefusjonOverstyringer()))
             .build(KodeverkFraKalkulusMapper.mapTilstand(grunnlagDto.getBeregningsgrunnlagTilstand()));
     }
 
@@ -77,7 +79,8 @@ public final class KalkulusTilFpsakMapper {
         return BeregningAktivitetOverstyring.builder()
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(aktivitetDto.getPeriode().getFom(), aktivitetDto.getPeriode().getTom()))
             .medArbeidsgiver(mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
-            .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
+            .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+                aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
             .medOpptjeningAktivitetType(KodeverkFraKalkulusMapper.mapOpptjeningtype(aktivitetDto.getOpptjeningAktivitetType()))
             .medHandling(KodeverkFraKalkulusMapper.mapHandling(aktivitetDto.getHandlingType()))
             .build();
@@ -92,7 +95,8 @@ public final class KalkulusTilFpsakMapper {
     private static BeregningAktivitet mapAktivitet(BeregningAktivitetDto aktivitetDto) {
         return BeregningAktivitet.builder()
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(aktivitetDto.getPeriode().getFom(), aktivitetDto.getPeriode().getTom()))
-            .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
+            .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+                aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
             .medArbeidsgiver(mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
             .medOpptjeningAktivitetType(KodeverkFraKalkulusMapper.mapOpptjeningtype(aktivitetDto.getOpptjeningAktivitetType()))
             .build();
@@ -105,22 +109,26 @@ public final class KalkulusTilFpsakMapper {
             .medOverstyring(beregningsgrunnlagDto.isOverstyrt());
 
         // Aktivitetstatuser
-        beregningsgrunnlagDto.getAktivitetStatuser().stream()
+        beregningsgrunnlagDto.getAktivitetStatuser()
+            .stream()
             .map(KalkulusTilFpsakMapper::mapAktivitetstatus)
             .forEach(builder::leggTilAktivitetStatus);
 
         // Fakta tilfeller
-        beregningsgrunnlagDto.getFaktaOmBeregningTilfeller().stream()
+        beregningsgrunnlagDto.getFaktaOmBeregningTilfeller()
+            .stream()
             .map(KodeverkFraKalkulusMapper::mapFaktaTilfelle)
             .forEach(builder::leggTilFaktaOmBeregningTilfelle);
 
         // Beregningsgrunnlagperioder
-        beregningsgrunnlagDto.getBeregningsgrunnlagPerioder().stream()
+        beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()
+            .stream()
             .map(KalkulusTilFpsakMapper::mapBeregningsgrunnlagperiodePeriode)
             .forEach(builder::leggTilBeregningsgrunnlagPeriode);
 
         // Sammenligningsgrunnlag
-        beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
+        beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe()
+            .stream()
             .map(KalkulusTilFpsakMapper::mapSammenligningsgrunnlag)
             .forEach(builder::leggTilSammenligningsgrunnlagPrStatus);
 
@@ -148,7 +156,8 @@ public final class KalkulusTilFpsakMapper {
         bgPeriodeDto.getPeriodeÅrsaker().stream().map(KodeverkFraKalkulusMapper::mapPeriodeÅrsak).forEach(builder::leggTilPeriodeÅrsak);
 
         // Beregningsgrunnlagandeler
-        bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()
+            .stream()
             .map(KalkulusTilFpsakMapper::mapAndel)
             .forEach(builder::leggTilBeregningsgrunnlagPrStatusOgAndel);
 
@@ -164,7 +173,8 @@ public final class KalkulusTilFpsakMapper {
             .medAvkortetPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getAvkortetPrÅr()))
             .medAvkortetRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getAvkortetRefusjonPrÅr()))
             .medBeregnetPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getBeregnetPrÅr()))
-            .medBeregningsperiode(beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeFom(), beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeTom())
+            .medBeregningsperiode(beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeFom(),
+                beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeTom())
             .medFastsattAvSaksbehandler(beregningsgrunnlagPrStatusOgAndelDto.getFastsattAvSaksbehandler())
             .medFordeltPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getFordeltPrÅr()))
             .medBruttoPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getBruttoPrÅr()))
@@ -200,8 +210,10 @@ public final class KalkulusTilFpsakMapper {
             .medArbeidsperiodeFom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
             .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeTom())
             .medRefusjonskravPrÅr(mapTilBigDecimal(bgAndelArbeidsforhold.getRefusjonskravPrÅr()))
-            .medNaturalytelseBortfaltPrÅr(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr()))
-            .medNaturalytelseTilkommetPrÅr(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr()))
+            .medNaturalytelseBortfaltPrÅr(
+                no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr()))
+            .medNaturalytelseTilkommetPrÅr(
+                no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr()))
             .build();
     }
 

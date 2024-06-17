@@ -50,8 +50,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Arrays.asList(p1Rev, p2Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev),
-                Optional.of(bgOrg), false);
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endring).isTrue();
@@ -68,11 +67,10 @@ class ErKunEndringIFordelingAvYtelsenTest {
         // Revurderingsgrunnlag
         var p1Rev = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 0));
         var p2Rev = byggBGPeriode(etterSTP(51), Tid.TIDENES_ENDE, byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 0));
-        var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING,Arrays.asList(p1Rev, p2Rev), AktivitetStatus.ARBEIDSTAKER);
+        var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Arrays.asList(p1Rev, p2Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev),
-                Optional.of(bgOrg), false);
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endring).isFalse();
@@ -96,8 +94,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Arrays.asList(p1Rev, p2Rev, p3Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.of(bgOrg), false);
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endring).isTrue();
@@ -119,8 +116,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Arrays.asList(p1Rev, p2Rev, p3Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.of(bgOrg), false);
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endring).isFalse();
@@ -142,8 +138,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Arrays.asList(p1Rev, p2Rev, p3Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.of(bgOrg), false);
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endring).isTrue();
@@ -152,40 +147,33 @@ class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt() {
         // Act
-        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(),
-            Behandlingsresultat.builder().build(), true);
+        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(), Behandlingsresultat.builder().build(), true);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(
-                KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
         assertThat(behandlingsresultat.getRettenTil()).isEqualTo(RettenTil.HAR_RETT_TIL_FP);
-        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(
-                BehandlingResultatType.FORELDREPENGER_ENDRET);
+        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.FORELDREPENGER_ENDRET);
     }
 
     @Test
     void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt() {
         // Act
-        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(),
-            Behandlingsresultat.builder().build(), false);
+        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(), Behandlingsresultat.builder().build(), false);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.INGEN);
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(
-                KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
         assertThat(behandlingsresultat.getRettenTil()).isEqualTo(RettenTil.HAR_RETT_TIL_FP);
-        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(
-                BehandlingResultatType.FORELDREPENGER_ENDRET);
+        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.FORELDREPENGER_ENDRET);
     }
 
     @Test
     void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler() {
         // Act
-        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.empty(), Optional.empty(), false);
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.empty(), Optional.empty(), false);
 
         // Assert
         assertThat(endringIBeregning).isFalse();
@@ -198,8 +186,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Collections.singletonList(p1Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.empty(), false);
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.empty(), false);
 
         // Assert
         assertThat(endringIBeregning).isTrue();
@@ -216,8 +203,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Collections.singletonList(p1Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.of(bgOrg), false);
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), false);
 
         // Assert
         assertThat(endringIBeregning).isFalse();
@@ -234,8 +220,7 @@ class ErKunEndringIFordelingAvYtelsenTest {
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Collections.singletonList(p1Rev), AktivitetStatus.ARBEIDSTAKER);
 
         // Act
-        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
-                Optional.of(bgRev), Optional.of(bgOrg), true);
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(bgRev), Optional.of(bgOrg), true);
 
         // Assert
         assertThat(endringIBeregning).isTrue();
@@ -279,27 +264,24 @@ class ErKunEndringIFordelingAvYtelsenTest {
             .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(dagsatsBruker * 260L))
             .medDagsatsBruker((long) dagsatsBruker);
         if (aktivitetStatus.erArbeidstaker()) {
-            var bga = BGAndelArbeidsforhold
-                .builder()
+            var bga = BGAndelArbeidsforhold.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(REF)
                 .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-            andelBuilder
-                .medBGAndelArbeidsforhold(bga)
+            andelBuilder.medBGAndelArbeidsforhold(bga)
                 .medRedusertRefusjonPrÅr(BigDecimal.valueOf(dagsatsAG * 260L))
                 .medDagsatsArbeidsgiver((long) dagsatsAG);
         }
         return andelBuilder.build();
     }
 
-    public static Beregningsgrunnlag byggBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning, List<BeregningsgrunnlagPeriode> perioder,  AktivitetStatus... statuser) {
-        var bgBuilder = Beregningsgrunnlag.builder()
-            .medSkjæringstidspunkt(skjæringstidspunktBeregning)
-            .medGrunnbeløp(BigDecimal.valueOf(91425L));
-        Arrays.asList(statuser).forEach(status -> bgBuilder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(status)
-            .build()));
+    public static Beregningsgrunnlag byggBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning,
+                                                            List<BeregningsgrunnlagPeriode> perioder,
+                                                            AktivitetStatus... statuser) {
+        var bgBuilder = Beregningsgrunnlag.builder().medSkjæringstidspunkt(skjæringstidspunktBeregning).medGrunnbeløp(BigDecimal.valueOf(91425L));
+        Arrays.asList(statuser)
+            .forEach(status -> bgBuilder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(status).build()));
         perioder.forEach(bgBuilder::leggTilBeregningsgrunnlagPeriode);
         return bgBuilder.build();
     }

@@ -17,8 +17,12 @@ public class TestStegKonfig {
     private final List<AksjonspunktDefinisjon> inngangAksjonspunkter;
     private final List<AksjonspunktDefinisjon> utgangAksjonspunkter;
 
-    public TestStegKonfig(BehandlingStegType behandlingStegType, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType,
-            BehandlingSteg steg, List<AksjonspunktDefinisjon> inngangAksjonspunkter, List<AksjonspunktDefinisjon> utgangAksjonspunkter) {
+    public TestStegKonfig(BehandlingStegType behandlingStegType,
+                          BehandlingType behandlingType,
+                          FagsakYtelseType fagsakYtelseType,
+                          BehandlingSteg steg,
+                          List<AksjonspunktDefinisjon> inngangAksjonspunkter,
+                          List<AksjonspunktDefinisjon> utgangAksjonspunkter) {
         this.behandlingStegType = behandlingStegType;
         this.behandlingType = behandlingType;
         this.fagsakYtelseType = fagsakYtelseType;
@@ -27,8 +31,10 @@ public class TestStegKonfig {
         this.utgangAksjonspunkter = utgangAksjonspunkter;
     }
 
-    public TestStegKonfig(BehandlingStegType behandlingStegType, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType,
-            BehandlingSteg steg) {
+    public TestStegKonfig(BehandlingStegType behandlingStegType,
+                          BehandlingType behandlingType,
+                          FagsakYtelseType fagsakYtelseType,
+                          BehandlingSteg steg) {
         this(behandlingStegType, behandlingType, fagsakYtelseType, steg, Collections.emptyList(), Collections.emptyList());
     }
 

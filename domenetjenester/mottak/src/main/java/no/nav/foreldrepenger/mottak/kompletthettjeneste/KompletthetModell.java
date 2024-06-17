@@ -34,11 +34,13 @@ public class KompletthetModell {
     private static Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat>> KOMPLETTHETSFUNKSJONER;
 
     static {
-        Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat>> map = new EnumMap<>(AksjonspunktDefinisjon.class);
+        Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat>> map = new EnumMap<>(
+            AksjonspunktDefinisjon.class);
         map.put(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderForsendelseKomplett(ref));
         map.put(VENT_PGA_FOR_TIDLIG_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottattForTidlig(ref));
         map.put(VENT_PÅ_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottatt(ref));
-        map.put(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderEtterlysningInntektsmelding(ref));
+        map.put(AUTO_VENT_ETTERLYST_INNTEKTSMELDING,
+            (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderEtterlysningInntektsmelding(ref));
 
         // Køet behandling kan inntreffe FØR kompletthetssteget er passert - men er ikke tilknyttet til noen kompletthetssjekk
         map.put(AUTO_KØET_BEHANDLING, (kontroller, behandling) -> KompletthetResultat.oppfylt());
@@ -54,8 +56,7 @@ public class KompletthetModell {
     }
 
     @Inject
-    public KompletthetModell(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                             KompletthetsjekkerProvider kompletthetsjekkerProvider) {
+    public KompletthetModell(BehandlingskontrollTjeneste behandlingskontrollTjeneste, KompletthetsjekkerProvider kompletthetsjekkerProvider) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
     }
@@ -71,17 +72,17 @@ public class KompletthetModell {
      **/
     // Rangering 1: Tidligste steg (dvs. autopunkt ville blitt eksekvert tidligst i behandlingsstegene)
     public List<AksjonspunktDefinisjon> rangerKompletthetsfunksjonerKnyttetTilAutopunkt(FagsakYtelseType ytelseType, BehandlingType behandlingType) {
-        Comparator<AksjonspunktDefinisjon> stegRekkefølge = (apDef1, apDef2) ->
-            behandlingskontrollTjeneste.sammenlignRekkefølge(ytelseType, behandlingType, apDef1.getBehandlingSteg(), apDef2.getBehandlingSteg());
+        Comparator<AksjonspunktDefinisjon> stegRekkefølge = (apDef1, apDef2) -> behandlingskontrollTjeneste.sammenlignRekkefølge(ytelseType,
+            behandlingType, apDef1.getBehandlingSteg(), apDef2.getBehandlingSteg());
         // Rangering 2: Autopunkt som kjøres igjen ved gjenopptakelse blir eksekvert FØR ikke-gjenopptagende i samme behandlingssteg
         //      Det er bare en implisitt antakelse at kodes riktig i stegene der Autopunkt brukes; bør forbedre dette.
-        Comparator<AksjonspunktDefinisjon> tilbakehoppRekkefølge = (apDef1, apDef2) ->
-            Boolean.compare(apDef1.tilbakehoppVedGjenopptakelse(), apDef2.tilbakehoppVedGjenopptakelse());
+        Comparator<AksjonspunktDefinisjon> tilbakehoppRekkefølge = (apDef1, apDef2) -> Boolean.compare(apDef1.tilbakehoppVedGjenopptakelse(),
+            apDef2.tilbakehoppVedGjenopptakelse());
 
-        return KOMPLETTHETSFUNKSJONER.keySet().stream()
+        return KOMPLETTHETSFUNKSJONER.keySet()
+            .stream()
             .filter(apdef -> apdef.getYtelseTyper().contains(ytelseType))
-            .sorted(stegRekkefølge
-                .thenComparing(tilbakehoppRekkefølge.reversed()))
+            .sorted(stegRekkefølge.thenComparing(tilbakehoppRekkefølge.reversed()))
             .collect(toList());
     }
 
@@ -94,8 +95,7 @@ public class KompletthetModell {
     }
 
     public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, List<AksjonspunktDefinisjon> åpneAksjonspunkter) {
-        var åpentAutopunkt = åpneAksjonspunkter.stream()
-            .findFirst();
+        var åpentAutopunkt = åpneAksjonspunkter.stream().findFirst();
         if (åpentAutopunkt.isPresent() && erAutopunktTilknyttetKompletthetssjekk(åpentAutopunkt)) {
             return vurderKompletthet(ref, åpentAutopunkt.get());
         }

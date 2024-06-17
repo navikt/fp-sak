@@ -55,8 +55,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         Map<String, Object> configuration = new HashMap<>();
 
         configuration.put("hibernate.integrator_provider",
-                (IntegratorProvider) () -> Collections.singletonList(
-                        MetadataExtractorIntegrator.INSTANCE));
+            (IntegratorProvider) () -> Collections.singletonList(MetadataExtractorIntegrator.INSTANCE));
 
         entityManagerFactory = Persistence.createEntityManagerFactory("pu-default", configuration);
     }
@@ -69,23 +68,21 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     @SuppressWarnings("unchecked")
     private NavigableMap<String, Set<String>> getColumns(String namespace) {
         var groupingBy = Collectors.groupingBy((Object[] cols) -> ((String) cols[0]).toUpperCase(), TreeMap::new,
-                Collectors.mapping((Object[] cols) -> ((String) cols[1]).toUpperCase(), Collectors.toCollection(TreeSet::new)));
+            Collectors.mapping((Object[] cols) -> ((String) cols[1]).toUpperCase(), Collectors.toCollection(TreeSet::new)));
 
         var em = entityManagerFactory.createEntityManager();
         try {
             if (namespace == null) {
-                return (NavigableMap<String, Set<String>>) em
-                        .createNativeQuery(
-                                "select table_name, column_name from all_tab_cols where owner=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AND virtual_column='NO' AND hidden_column='NO'")
-                        .getResultStream()
-                        .collect(groupingBy);
-            }
-            return (NavigableMap<String, Set<String>>) em
-                    .createNativeQuery(
-                            "select table_name, column_name from all_tab_cols where owner=:ns AND virtual_column='NO' AND hidden_column='NO'")
-                    .setParameter("ns", namespace)
+                return (NavigableMap<String, Set<String>>) em.createNativeQuery(
+                        "select table_name, column_name from all_tab_cols where owner=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AND virtual_column='NO' AND hidden_column='NO'")
                     .getResultStream()
                     .collect(groupingBy);
+            }
+            return (NavigableMap<String, Set<String>>) em.createNativeQuery(
+                    "select table_name, column_name from all_tab_cols where owner=:ns AND virtual_column='NO' AND hidden_column='NO'")
+                .setParameter("ns", namespace)
+                .getResultStream()
+                .collect(groupingBy);
         } finally {
             em.close();
         }
@@ -99,9 +96,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
 
     @SuppressWarnings("unchecked")
     private void sjekk_alle_kolonner_mappet() {
-        for (var namespace : MetadataExtractorIntegrator.INSTANCE
-                .getDatabase()
-                .getNamespaces()) {
+        for (var namespace : MetadataExtractorIntegrator.INSTANCE.getDatabase().getNamespaces()) {
             var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             for (var table : namespace.getTables()) {
@@ -122,9 +117,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     private void sjekk_alle_tabeller_mappet() {
-        for (var namespace : MetadataExtractorIntegrator.INSTANCE
-                .getDatabase()
-                .getNamespaces()) {
+        for (var namespace : MetadataExtractorIntegrator.INSTANCE.getDatabase().getNamespaces()) {
             var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             var dbTables = dbColumns.keySet();
@@ -142,8 +135,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         return schema == null ? null : schema.getCanonicalName().toUpperCase();
     }
 
-    public static class MetadataExtractorIntegrator
-            implements Integrator {
+    public static class MetadataExtractorIntegrator implements Integrator {
 
         public static final MetadataExtractorIntegrator INSTANCE = new MetadataExtractorIntegrator();
 
@@ -154,18 +146,13 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         }
 
         @Override
-        public void integrate(
-                Metadata metadata,
-                SessionFactoryImplementor sessionFactory,
-                SessionFactoryServiceRegistry serviceRegistry) {
+        public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
 
             database = metadata.getDatabase();
         }
 
         @Override
-        public void disintegrate(
-                SessionFactoryImplementor sessionFactory,
-                SessionFactoryServiceRegistry serviceRegistry) {
+        public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
         }
     }
 

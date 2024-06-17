@@ -46,8 +46,7 @@ public class FastsettePerioderTjeneste {
 
     public void fastsettePerioder(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
         var resultat = regelAdapter.fastsettePerioder(input, stønadskontoberegning);
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().behandlingId(),
-            stønadskontoberegning, resultat);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().behandlingId(), stønadskontoberegning, resultat);
     }
 
     public void manueltFastsettePerioder(UttakInput uttakInput, List<ForeldrepengerUttakPeriode> perioder) {
@@ -59,8 +58,7 @@ public class FastsettePerioderTjeneste {
         var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         var opprinnelig = hentOpprinnelig(behandlingId);
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        uttakResultatValidator.valider(uttakInput, opprinnelig, perioder,
-            ytelseFordelingAggregat.getGjeldendeEndringsdato());
+        uttakResultatValidator.valider(uttakInput, opprinnelig, perioder, ytelseFordelingAggregat.getGjeldendeEndringsdato());
     }
 
     private List<ForeldrepengerUttakPeriode> hentOpprinnelig(Long behandlingId) {
@@ -73,8 +71,7 @@ public class FastsettePerioderTjeneste {
         var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         var opprinnelig = fpUttakRepository.hentUttakResultat(behandlingId);
         for (var periode : perioder) {
-            var matchendeOpprinneligPeriode = matchendeOpprinneligPeriode(periode,
-                opprinnelig.getOpprinneligPerioder());
+            var matchendeOpprinneligPeriode = matchendeOpprinneligPeriode(periode, opprinnelig.getOpprinneligPerioder());
             var periodeEntitet = map(matchendeOpprinneligPeriode, periode);
             overstyrtEntitet.leggTilPeriode(periodeEntitet);
         }
@@ -82,21 +79,17 @@ public class FastsettePerioderTjeneste {
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrtEntitet);
     }
 
-    private UttakResultatPeriodeEntitet matchendeOpprinneligPeriode(ForeldrepengerUttakPeriode periode,
-                                                                    UttakResultatPerioderEntitet opprinnelig) {
+    private UttakResultatPeriodeEntitet matchendeOpprinneligPeriode(ForeldrepengerUttakPeriode periode, UttakResultatPerioderEntitet opprinnelig) {
         return opprinnelig.getPerioder().stream().filter(oPeriode -> {
             var tidsperiode = periode.getTidsperiode();
-            return (tidsperiode.getFomDato().isEqual(oPeriode.getFom()) || tidsperiode.getFomDato()
-                .isAfter(oPeriode.getFom())) && (tidsperiode.getTomDato().isEqual(oPeriode.getTom())
-                || tidsperiode.getTomDato().isBefore(oPeriode.getTom()));
+            return (tidsperiode.getFomDato().isEqual(oPeriode.getFom()) || tidsperiode.getFomDato().isAfter(oPeriode.getFom())) && (
+                tidsperiode.getTomDato().isEqual(oPeriode.getTom()) || tidsperiode.getTomDato().isBefore(oPeriode.getTom()));
         }).findFirst().orElseThrow(() -> FastsettePerioderFeil.manglendeOpprinneligPeriode(periode));
     }
 
-    private UttakResultatPeriodeEntitet map(UttakResultatPeriodeEntitet opprinneligPeriode,
-                                            ForeldrepengerUttakPeriode nyPeriode) {
+    private UttakResultatPeriodeEntitet map(UttakResultatPeriodeEntitet opprinneligPeriode, ForeldrepengerUttakPeriode nyPeriode) {
         var builder = new UttakResultatPeriodeEntitet.Builder(nyPeriode.getTidsperiode().getFomDato(),
-            nyPeriode.getTidsperiode().getTomDato())
-            .medPeriodeSoknad(opprinneligPeriode.getPeriodeSøknad().orElse(null))
+            nyPeriode.getTidsperiode().getTomDato()).medPeriodeSoknad(opprinneligPeriode.getPeriodeSøknad().orElse(null))
             .medResultatType(nyPeriode.getResultatType(), nyPeriode.getResultatÅrsak())
             .medBegrunnelse(nyPeriode.getBegrunnelse())
             .medGraderingInnvilget(nyPeriode.isGraderingInnvilget())
@@ -111,8 +104,7 @@ public class FastsettePerioderTjeneste {
         var periodeEntitet = builder.build();
 
         for (var nyAktivitet : nyPeriode.getAktiviteter()) {
-            var matchendeOpprinneligAktivitet = matchendeOpprinneligAktivitet(opprinneligPeriode,
-                nyAktivitet.getUttakAktivitet());
+            var matchendeOpprinneligAktivitet = matchendeOpprinneligAktivitet(opprinneligPeriode, nyAktivitet.getUttakAktivitet());
             var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periodeEntitet,
                 matchendeOpprinneligAktivitet.getUttakAktivitet()).medTrekkonto(nyAktivitet.getTrekkonto())
                 .medTrekkdager(nyAktivitet.getTrekkdager())
@@ -131,15 +123,12 @@ public class FastsettePerioderTjeneste {
             .stream()
             .filter(opprinneligAktivitet -> gjelderSammeAktivitet(uttakAktivitet, opprinneligAktivitet))
             .findFirst()
-            .orElseThrow(() -> FastsettePerioderFeil.manglendeOpprinneligAktivitet(uttakAktivitet,
-                opprinneligPeriode.getAktiviteter()));
+            .orElseThrow(() -> FastsettePerioderFeil.manglendeOpprinneligAktivitet(uttakAktivitet, opprinneligPeriode.getAktiviteter()));
     }
 
-    private boolean gjelderSammeAktivitet(ForeldrepengerUttakAktivitet uttakAktivitet,
-                                          UttakResultatPeriodeAktivitetEntitet opprinneligAktivitet) {
-        return Objects.equals(opprinneligAktivitet.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType())
-            && Objects.equals(opprinneligAktivitet.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef())
-            && Objects.equals(opprinneligAktivitet.getUttakAktivitet().getArbeidsgiver().orElse(null),
-            uttakAktivitet.getArbeidsgiver().orElse(null));
+    private boolean gjelderSammeAktivitet(ForeldrepengerUttakAktivitet uttakAktivitet, UttakResultatPeriodeAktivitetEntitet opprinneligAktivitet) {
+        return Objects.equals(opprinneligAktivitet.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType()) && Objects.equals(
+            opprinneligAktivitet.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef()) && Objects.equals(
+            opprinneligAktivitet.getUttakAktivitet().getArbeidsgiver().orElse(null), uttakAktivitet.getArbeidsgiver().orElse(null));
     }
 }

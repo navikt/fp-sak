@@ -73,8 +73,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
 
     public RegelGrunnlag byggGrunnlag(UttakInput input, Stønadskontoberegning stønadskontoberegning) {
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = input.getYtelsespesifiktGrunnlag();
-        return new RegelGrunnlag.Builder()
-            .arbeid(arbeidGrunnlagBygger.byggGrunnlag(input))
+        return new RegelGrunnlag.Builder().arbeid(arbeidGrunnlagBygger.byggGrunnlag(input))
             .rettOgOmsorg(rettOgOmsorgGrunnlagBygger.byggGrunnlag(input))
             .behandling(behandlingGrunnlagBygger.byggGrunnlag(input))
             .medlemskap(medlemskapGrunnlagBygger.byggGrunnlag(input))

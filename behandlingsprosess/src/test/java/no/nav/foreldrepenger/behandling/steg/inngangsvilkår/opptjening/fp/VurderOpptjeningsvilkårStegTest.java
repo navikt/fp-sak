@@ -41,25 +41,21 @@ class VurderOpptjeningsvilkårStegTest {
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.IKKE_VURDERT);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(LocalDate.now())
-                .build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build();
 
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
         var behandling = lagre(scenario);
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
+            repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act
         // opprett opptjening
-        new FastsettOpptjeningsperiodeSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
-                .utførSteg(kontekst);
+        new FastsettOpptjeningsperiodeSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         // vurder vilkåret
-        new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
-                .utførSteg(kontekst);
+        new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
         assertThat(vilkårResultat.hentAlleGjeldendeVilkårsutfall()).containsOnlyOnce(VilkårUtfallType.OPPFYLT);

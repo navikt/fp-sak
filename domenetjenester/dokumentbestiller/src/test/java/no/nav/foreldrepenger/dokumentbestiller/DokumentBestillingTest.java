@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.UUID;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DokumentBestillingTest {
 
@@ -27,10 +27,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
-        var bestilling = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medDokumentMal(dokumentMal)
-            .build();
+        var bestilling = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid).medDokumentMal(dokumentMal).build();
 
         assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
         assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
@@ -52,8 +49,7 @@ class DokumentBestillingTest {
     void exception_builder_mangler_dokument_mal() {
         var behandlingUuid = UUID.randomUUID();
 
-        var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid);
+        var bestillingBuilder = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("Dokument mal må være satt");
@@ -64,9 +60,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
 
-        var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medDokumentMal(dokumentMal);
+        var bestillingBuilder = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid).medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("journalførSom");
@@ -97,9 +91,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
 
-        var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medDokumentMal(dokumentMal);
+        var bestillingBuilder = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid).medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("Fritekst må være satt");
@@ -110,11 +102,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
 
-        var bestilling = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medDokumentMal(dokumentMal)
-            .medFritekst("test")
-            .build();
+        var bestilling = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid).medDokumentMal(dokumentMal).medFritekst("test").build();
 
         assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
         assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
@@ -129,9 +117,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
 
-        var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medDokumentMal(dokumentMal);
+        var bestillingBuilder = DokumentBestilling.builder().medBehandlingUuid(behandlingUuid).medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("Revurdering årsak må være satt.");

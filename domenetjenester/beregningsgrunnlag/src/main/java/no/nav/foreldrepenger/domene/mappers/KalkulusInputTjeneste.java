@@ -51,7 +51,9 @@ public class KalkulusInputTjeneste {
 
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
         if (opptjeningAktiviteter.isEmpty()) {
-            throw new IllegalStateException(String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(), ref.saksnummer()));
+            throw new IllegalStateException(
+                String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(),
+                    ref.saksnummer()));
         }
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var kravperioderDto = MapKravperioder.map(ref, inntektsmeldinger, iayGrunnlag);

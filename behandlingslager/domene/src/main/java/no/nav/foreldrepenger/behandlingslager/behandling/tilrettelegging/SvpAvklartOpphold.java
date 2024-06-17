@@ -51,12 +51,15 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (SvpAvklartOpphold) o;
-        return Objects.equals(oppholdPeriode.getFomDato(), that.oppholdPeriode.getFomDato()) &&
-            Objects.equals(oppholdPeriode.getTomDato(), that.oppholdPeriode.getTomDato()) &&
-            Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak);
+        return Objects.equals(oppholdPeriode.getFomDato(), that.oppholdPeriode.getFomDato()) && Objects.equals(oppholdPeriode.getTomDato(),
+            that.oppholdPeriode.getTomDato()) && Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak);
     }
 
     @Override
@@ -66,36 +69,31 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "fom=" + oppholdPeriode.getFomDato() + ", "
-            + "tom=" + oppholdPeriode.getTomDato() + ", "
-            + "svpOppholdÅrsak=" + svpOppholdÅrsak + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "fom=" + oppholdPeriode.getFomDato() + ", " + "tom="
+            + oppholdPeriode.getTomDato() + ", " + "svpOppholdÅrsak=" + svpOppholdÅrsak + ", " + ">";
     }
 
     public static class Builder {
-    private final SvpAvklartOpphold kladd;
+        private final SvpAvklartOpphold kladd;
 
-    private Builder(SvpAvklartOpphold kladd) {
-        this.kladd = kladd;
-    }
+        private Builder(SvpAvklartOpphold kladd) {
+            this.kladd = kladd;
+        }
 
-    private Builder() {
-        kladd = new SvpAvklartOpphold();
-    }
+        private Builder() {
+            kladd = new SvpAvklartOpphold();
+        }
 
-    public static Builder nytt() {
-        return new Builder(new SvpAvklartOpphold());
-    }
+        public static Builder nytt() {
+            return new Builder(new SvpAvklartOpphold());
+        }
 
-    public static Builder fraEksisterende(SvpAvklartOpphold eksisterende) {
-        return new Builder()
-            .medOppholdPeriode(eksisterende.oppholdPeriode.getFomDato(), eksisterende.oppholdPeriode.getTomDato())
-            .medOppholdÅrsak(eksisterende.svpOppholdÅrsak);
-    }
+        public static Builder fraEksisterende(SvpAvklartOpphold eksisterende) {
+            return new Builder().medOppholdPeriode(eksisterende.oppholdPeriode.getFomDato(), eksisterende.oppholdPeriode.getTomDato())
+                .medOppholdÅrsak(eksisterende.svpOppholdÅrsak);
+        }
 
-    public SvpAvklartOpphold.Builder medOppholdPeriode(LocalDate fom, LocalDate tom) {
+        public SvpAvklartOpphold.Builder medOppholdPeriode(LocalDate fom, LocalDate tom) {
             kladd.oppholdPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
             return this;
         }

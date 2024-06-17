@@ -42,7 +42,8 @@ public class BesteberegningYtelsegrunnlagMapper {
         return ytelserFraFpsak.stream().map(Ytelse::getSaksnummer).toList();
     }
 
-    public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
+    public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB,
+                                                                         YtelseFilter ytelseFilter) {
         var sykepengegrunnlag = ytelseFilter.filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
             .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
@@ -50,20 +51,16 @@ public class BesteberegningYtelsegrunnlagMapper {
             .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)
             .flatMap(Optional::stream)
             .toList();
-        return sykepengeperioder.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new Ytelsegrunnlag(YtelseType.SYKEPENGER, sykepengeperioder));
+        return sykepengeperioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(YtelseType.SYKEPENGER, sykepengeperioder));
     }
 
-    public static Optional<Ytelsegrunnlag> mapFpsakYtelseTilYtelsegrunnlag(BeregningsresultatEntitet resultat,
-                                                                           FagsakYtelseType ytelseType) {
-        var ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
+    public static Optional<Ytelsegrunnlag> mapFpsakYtelseTilYtelsegrunnlag(BeregningsresultatEntitet resultat, FagsakYtelseType ytelseType) {
+        var ytelseperioder = resultat.getBeregningsresultatPerioder()
+            .stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
             .toList();
-        return ytelseperioder.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new Ytelsegrunnlag(mapTilGenerellYtelse(ytelseType), ytelseperioder));
+        return ytelseperioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(mapTilGenerellYtelse(ytelseType), ytelseperioder));
     }
 
     private static YtelseType mapTilGenerellYtelse(FagsakYtelseType ytelseType) {
@@ -75,27 +72,23 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     private static Ytelseperiode mapPeriode(BeregningsresultatPeriode periode) {
-        var andeler = periode.getBeregningsresultatAndelList().stream()
-            .map(BesteberegningYtelsegrunnlagMapper::mapAndel)
-            .toList();
-        return new Ytelseperiode(Intervall.fraOgMedTilOgMed(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), andeler);
+        var andeler = periode.getBeregningsresultatAndelList().stream().map(BesteberegningYtelsegrunnlagMapper::mapAndel).toList();
+        return new Ytelseperiode(Intervall.fraOgMedTilOgMed(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()),
+            andeler);
     }
 
     private static Ytelseandel mapAndel(BeregningsresultatAndel a) {
-        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()),
-            Inntektskategori.fraKode(a.getInntektskategori().getKode()),
+        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()), Inntektskategori.fraKode(a.getInntektskategori().getKode()),
             (long) a.getDagsats());
     }
 
 
     private static Optional<Ytelseperiode> mapTilYtelsegrunnlag(Ytelse sp) {
-        var arbeidskategori = sp.getYtelseGrunnlag()
-            .flatMap(YtelseGrunnlag::getArbeidskategori);
+        var arbeidskategori = sp.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getArbeidskategori);
         if (arbeidskategori.isEmpty() || harUgyldigTilstandForBesteberegning(arbeidskategori.get(), sp.getStatus())) {
             return Optional.empty();
         }
-        var andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
-            null);
+        var andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()), null);
         return Optional.of(new Ytelseperiode(Intervall.fraOgMedTilOgMed(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
             Collections.singletonList(andel)));
     }

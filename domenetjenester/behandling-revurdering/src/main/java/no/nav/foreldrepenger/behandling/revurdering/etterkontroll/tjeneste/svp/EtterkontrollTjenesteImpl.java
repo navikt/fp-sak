@@ -19,8 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     @Override
-    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
-            List<FødtBarnInfo> barnFraRegister) {
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling,
+                                                               FamilieHendelseGrunnlagEntitet grunnlag,
+                                                               List<FødtBarnInfo> barnFraRegister) {
         throw new IllegalStateException("Utviklerfeil: Det er ikke meningen at denne skal bli kalt");
     }
 

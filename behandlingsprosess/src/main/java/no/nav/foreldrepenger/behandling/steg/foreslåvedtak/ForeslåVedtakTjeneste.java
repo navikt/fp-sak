@@ -77,12 +77,11 @@ class ForeslåVedtakTjeneste {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
         } else {
-            aksjonspunktDefinisjoner
-                    .addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
+            aksjonspunktDefinisjoner.addAll(
+                sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
         }
 
-        var vedtakUtenTotrinnskontroll = behandling
-                .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+        var vedtakUtenTotrinnskontroll = behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
         if (vedtakUtenTotrinnskontroll.isPresent()) {
             behandling.nullstillToTrinnsBehandling();
             return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
@@ -90,8 +89,8 @@ class ForeslåVedtakTjeneste {
 
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
-        return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
-                : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+        return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunkter(
+            aksjonspunktDefinisjoner);
     }
 
     private void håndterToTrinn(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
@@ -119,8 +118,8 @@ class ForeslåVedtakTjeneste {
         if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
             return true;
         }
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) ||
-            fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || fagsakEgenskapRepository.finnFagsakMarkering(
+            behandling.getFagsakId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
             return true;
         }
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()
@@ -128,22 +127,23 @@ class ForeslåVedtakTjeneste {
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
-        return !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL) &&
-                behandling.harAksjonspunktMedTotrinnskontroll();
+        return !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)
+            && behandling.harAksjonspunktMedTotrinnskontroll();
     }
 
     private boolean erOpphørEllerUendretUtenAndreAksjonspunkt(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         // TODO: Dra med til kon aksjonspunkt rundt tilrettelegging/vilkår.
-        var aksjonspunktSomSkalGiManueltVedtak = behandling.getAksjonspunkter().stream()
+        var aksjonspunktSomSkalGiManueltVedtak = behandling.getAksjonspunkter()
+            .stream()
             .filter(Aksjonspunkt::erUtført)
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(ad -> !AksjonspunktType.AUTOPUNKT.equals(ad.getAksjonspunktType()))
             .filter(ad -> !AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ad))
             .toList();
-        return behandling.erRevurdering() && aksjonspunktDefinisjoner.isEmpty() && aksjonspunktSomSkalGiManueltVedtak.isEmpty() &&
-            behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-                .filter(br -> br.isBehandlingsresultatOpphørt() || br.isBehandlingsresultatIkkeEndret())
-                .isPresent();
+        return behandling.erRevurdering() && aksjonspunktDefinisjoner.isEmpty() && aksjonspunktSomSkalGiManueltVedtak.isEmpty()
+            && behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(br -> br.isBehandlingsresultatOpphørt() || br.isBehandlingsresultatIkkeEndret())
+            .isPresent();
     }
 
 }

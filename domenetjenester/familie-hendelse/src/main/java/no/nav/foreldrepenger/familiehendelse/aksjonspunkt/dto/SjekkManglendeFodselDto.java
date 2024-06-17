@@ -29,8 +29,10 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, boolean brukAntallBarnITps,
-        List<UidentifisertBarnDto> uidentifiserteBarn) {
+    public SjekkManglendeFodselDto(String begrunnelse,
+                                   Boolean dokumentasjonForeligger,
+                                   boolean brukAntallBarnITps,
+                                   List<UidentifisertBarnDto> uidentifiserteBarn) {
         super(begrunnelse);
         this.dokumentasjonForeligger = dokumentasjonForeligger;
         this.brukAntallBarnITps = brukAntallBarnITps;

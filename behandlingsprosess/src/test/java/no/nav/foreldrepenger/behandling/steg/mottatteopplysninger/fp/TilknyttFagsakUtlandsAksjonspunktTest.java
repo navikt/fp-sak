@@ -46,13 +46,13 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true, true));
         var behandling = scenario.lagre(provider);
 
-        when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null,
-                null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
+        when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(
+            Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
             provider.getBehandlingRepository().taSkriveLås(behandling));
 
-        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(InntektArbeidYtelseTjeneste.class),
-            mock(RegistrerFagsakEgenskaper.class));
+        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class),
+            mock(InntektArbeidYtelseTjeneste.class), mock(RegistrerFagsakEgenskaper.class));
 
         // Act
         var resultat = tilknyttFagsakSteg.utførSteg(kontekst);

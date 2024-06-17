@@ -74,8 +74,7 @@ class BeregningsresultatInputVerifisererTest {
 
 
     private BeregningsgrunnlagPrArbeidsforhold lagBGArbeidsforhold(String orgnr, String referanse, boolean erFrilans) {
-        var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold()
-                : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
+        var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold() : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
         return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold, null, null, Inntektskategori.ARBEIDSTAKER);
     }
 
@@ -90,11 +89,10 @@ class BeregningsresultatInputVerifisererTest {
     }
 
     private UttakAktivitet lagUttakAktivitet(String orgnr, String referanse, boolean erFrilans) {
-        var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold()
-                : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
+        var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold() : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
         return UttakAktivitet.ny(AktivitetStatus.ATFL, BigDecimal.valueOf(100), true)
             .medArbeidsforhold(arbeidsforhold)
-            .medStillingsgrad( BigDecimal.valueOf(100),  BigDecimal.valueOf(100))
+            .medStillingsgrad(BigDecimal.valueOf(100), BigDecimal.valueOf(100))
             .medGradering(false, BigDecimal.ZERO);
     }
 }

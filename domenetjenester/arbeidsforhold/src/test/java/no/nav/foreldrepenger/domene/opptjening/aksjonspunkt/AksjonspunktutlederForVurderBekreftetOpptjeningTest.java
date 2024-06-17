@@ -60,13 +60,12 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
         var behandling = opprettBehandling();
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
         iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
-                .leggTil(ArbeidsforholdOverstyringBuilder
-                        .oppdatere(Optional.empty())
-                        .leggTilOverstyrtPeriode(periode.getFomDato(), periode.getTomDato())
-                        .medAngittStillingsprosent(new Stillingsprosent(100))
-                        .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
-                        .medArbeidsgiver(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG))
-                        .medAngittArbeidsgiverNavn("Ambassade")));
+            .leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
+                .leggTilOverstyrtPeriode(periode.getFomDato(), periode.getTomDato())
+                .medAngittStillingsprosent(new Stillingsprosent(100))
+                .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG))
+                .medAngittArbeidsgiverNavn("Ambassade")));
         var iayGrunnlag = iayTjeneste.finnGrunnlag(behandling.getId()).get();
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         var overstyrt = filter.getYrkesaktiviteter().iterator().next();

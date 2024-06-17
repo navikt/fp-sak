@@ -48,8 +48,7 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
         var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.vurderRefusjonBeregningsgrunnlag(input);
         var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
@@ -57,8 +56,10 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddVurderRefusjonBeregningsgrunnlagVedTilbakeføring();
         }

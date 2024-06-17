@@ -85,10 +85,7 @@ public class BeregningsgrunnlagArbeidstakerAndel extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "mottarYtelse=" + mottarYtelse + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "mottarYtelse=" + mottarYtelse + ", " + ">";
     }
 
     public static class Builder {

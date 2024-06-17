@@ -19,7 +19,7 @@ public class JournalpostId implements Serializable, IndexKey {
     private static final String CHARS = "a-z0-9_:-";
 
     private static final Pattern VALID = Pattern.compile("^(-?[1-9]|[a-z0])[" + CHARS + "]*$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern INVALID = Pattern.compile("[^"+CHARS+"]+", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    private static final Pattern INVALID = Pattern.compile("[^" + CHARS + "]+", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
     @JsonValue
     @Column(name = "journalpost_id", updatable = false)
@@ -36,9 +36,10 @@ public class JournalpostId implements Serializable, IndexKey {
 
     public JournalpostId(String journalpostId) {
         Objects.requireNonNull(journalpostId, "journalpostId");
-        if(!VALID.matcher(journalpostId).matches()) {
+        if (!VALID.matcher(journalpostId).matches()) {
             // skal ikke skje, funksjonelle feilmeldinger håndteres ikke her.
-            throw new IllegalArgumentException("Ugyldig aktørId, støtter kun A-Z/0-9/:/-/_ tegn. Var: " + journalpostId.replaceAll(INVALID.pattern(), "?") + " (vasket)");
+            throw new IllegalArgumentException(
+                "Ugyldig aktørId, støtter kun A-Z/0-9/:/-/_ tegn. Var: " + journalpostId.replaceAll(INVALID.pattern(), "?") + " (vasket)");
         }
         this.journalpostId = journalpostId;
     }

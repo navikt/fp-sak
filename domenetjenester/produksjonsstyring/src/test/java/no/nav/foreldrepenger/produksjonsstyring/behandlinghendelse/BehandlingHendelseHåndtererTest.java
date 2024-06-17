@@ -63,8 +63,7 @@ class BehandlingHendelseHåndtererTest {
 
         håndterer = new BehandlingHendelseHåndterer("topic", fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
 
-        var hendelse = new BehandlingHendelseV1.Builder()
-            .medHendelseUuid(UUID.randomUUID())
+        var hendelse = new BehandlingHendelseV1.Builder().medHendelseUuid(UUID.randomUUID())
             .medBehandlingUuid(UUID.randomUUID())
             .medKildesystem(Kildesystem.FPTILBAKE)
             .medHendelse(Hendelse.OPPRETTET)
@@ -88,7 +87,7 @@ class BehandlingHendelseHåndtererTest {
     }
 
     @Test
-    void skalOppdatereFagsakStatusPlussLageTaskVedTBKAvsluttet()  {
+    void skalOppdatereFagsakStatusPlussLageTaskVedTBKAvsluttet() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
@@ -99,8 +98,7 @@ class BehandlingHendelseHåndtererTest {
 
         håndterer = new BehandlingHendelseHåndterer("topic", fagsakTjeneste, taskTjenesteMock, fagsakStatusTjeneste);
 
-        var hendelse = new BehandlingHendelseV1.Builder()
-            .medHendelseUuid(UUID.randomUUID())
+        var hendelse = new BehandlingHendelseV1.Builder().medHendelseUuid(UUID.randomUUID())
             .medBehandlingUuid(UUID.randomUUID())
             .medKildesystem(Kildesystem.FPTILBAKE)
             .medHendelse(Hendelse.AVSLUTTET)
@@ -122,16 +120,17 @@ class BehandlingHendelseHåndtererTest {
         verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET, BehandlingType.TILBAKEKREVING_REVURDERING);
     }
 
-    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,
-                                          BehandlingStatus expectedStatus, BehandlingType expectedType) {
+    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario,
+                                          ProsessTaskData prosessTaskData,
+                                          BehandlingStatus expectedStatus,
+                                          BehandlingType expectedType) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
-        assertThat(new AktørId(prosessTaskData.getAktørId()))
-                .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
+        assertThat(new AktørId(prosessTaskData.getAktørId())).isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isNull();
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(Fagsystem.FPSAK.getOffisiellKode() + "_T");
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expectedStatus.getKode());
-        assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-            .isBefore(LocalDateTime.now().plusNanos(1000));
+        assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY),
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME)).isBefore(LocalDateTime.now().plusNanos(1000));
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TYPE_KEY)).isEqualTo(expectedType.getKode());
     }
 

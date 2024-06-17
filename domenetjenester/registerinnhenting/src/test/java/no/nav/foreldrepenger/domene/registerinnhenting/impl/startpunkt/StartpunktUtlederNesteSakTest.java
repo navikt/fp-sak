@@ -29,9 +29,7 @@ class StartpunktUtlederNesteSakTest {
     @Test
     void skal_returnere_startpunkt_udefinert_dersom_ingen_neste_sak() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
         when(nesteSakRepository.hentGrunnlagPåId(anyLong())).thenReturn(null);
         // Act/Assert
         var utleder = new StartpunktUtlederNesteSak(nesteSakRepository);
@@ -41,10 +39,9 @@ class StartpunktUtlederNesteSakTest {
     @Test
     void skal_returnere_startpunkt_udefinert_dersom_lik_startdato_neste_sak() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
-        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medBehandlingId(123L)
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
+        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(123L)
             .medHendelsedato(LocalDate.now().plusWeeks(3))
             .medStartdato(LocalDate.now().plusDays(2))
             .medSaksnummer(new Saksnummer("987"))
@@ -60,10 +57,9 @@ class StartpunktUtlederNesteSakTest {
     @Test
     void skal_returnere_startpunkt_uttak_dersom_oppstått_neste_sak() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
-        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medBehandlingId(123L)
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
+        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(123L)
             .medHendelsedato(LocalDate.now().plusWeeks(3))
             .medStartdato(LocalDate.now().plusDays(2))
             .medSaksnummer(new Saksnummer("987"))
@@ -78,10 +74,9 @@ class StartpunktUtlederNesteSakTest {
     @Test
     void skal_returnere_startpunkt_uttak_dersom_ulik_startdato_neste_sak() {
         // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagMocked();
-        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medBehandlingId(123L)
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
+        var nestesak = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(123L)
             .medHendelsedato(LocalDate.now().plusWeeks(3))
             .medStartdato(LocalDate.now().plusDays(2))
             .medSaksnummer(new Saksnummer("987"))

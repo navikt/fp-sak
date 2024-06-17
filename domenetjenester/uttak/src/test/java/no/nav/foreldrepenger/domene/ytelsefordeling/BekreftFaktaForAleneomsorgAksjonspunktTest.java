@@ -21,13 +21,11 @@ class BekreftFaktaForAleneomsorgAksjonspunktTest {
         var behandlingId = behandling.getId();
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, false);
 
-        var perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getAleneomsorgAvklaring();
+        var perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(behandlingId).getAleneomsorgAvklaring();
         assertThat(perioderAleneOmsorg).isNotNull();
         assertThat(perioderAleneOmsorg).isFalse();
 
-        var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getAnnenForelderRettAvklaring();
+        var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId).getAnnenForelderRettAvklaring();
         assertThat(perioderAnnenforelderHarRettOptional).isNull();
 
         //må legge inn etter endret til har aleneomsorg
@@ -36,8 +34,7 @@ class BekreftFaktaForAleneomsorgAksjonspunktTest {
         assertThat(perioderAleneOmsorg).isNotNull();
         assertThat(perioderAleneOmsorg).isTrue();
 
-        perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId)
-            .getAnnenForelderRettAvklaring();
+        perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId).getAnnenForelderRettAvklaring();
         assertThat(perioderAnnenforelderHarRettOptional).isNotNull();
         assertThat(perioderAnnenforelderHarRettOptional).isFalse();
     }

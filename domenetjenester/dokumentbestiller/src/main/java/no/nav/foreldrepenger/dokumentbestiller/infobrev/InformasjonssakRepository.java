@@ -29,13 +29,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class InformasjonssakRepository {
 
     private static final List<String> INFOBREV_TYPER = List.of(BehandlingÅrsakType.INFOBREV_OPPHOLD.getKode(),
-            BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode(), BehandlingÅrsakType.INFOBREV_PÅMINNELSE.getKode());
+        BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode(), BehandlingÅrsakType.INFOBREV_PÅMINNELSE.getKode());
     private static final List<String> INNVILGET_TYPER = List.of(BehandlingResultatType.INNVILGET.getKode(),
-            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
-            BehandlingResultatType.INGEN_ENDRING.getKode());
+        BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode());
     private static final List<String> SENERE_TYPER = List.of(BehandlingResultatType.INNVILGET.getKode(),
-            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
-            BehandlingResultatType.INGEN_ENDRING.getKode(), BehandlingResultatType.OPPHØR.getKode());
+        BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
+        BehandlingResultatType.INGEN_ENDRING.getKode(), BehandlingResultatType.OPPHØR.getKode());
 
     // Query-resultat posisjon
     private static final int POS_FAGSAKID = 0;
@@ -104,8 +103,7 @@ public class InformasjonssakRepository {
          * uttaksdato i gitt intervall - Begrenset til ikke aleneomsorg - Begrenset til
          * levende barn - Begrenset til at det er oppgitt annen part
          */
-        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .toList();
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_VANLIG);
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom);
@@ -117,20 +115,18 @@ public class InformasjonssakRepository {
         query.setParameter("restyper", INNVILGET_TYPER);
         query.setParameter("seneretyper", SENERE_TYPER);
         query.setParameter("avsluttet", avsluttendeStatus);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
+        @SuppressWarnings("unchecked") List<Object[]> resultatList = query.getResultList();
         return toInformasjonssakData(resultatList);
     }
 
     private List<InformasjonssakData> toInformasjonssakData(List<Object[]> resultatList) {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
-            var builder = InformasjonssakData.InformasjonssakDataBuilder
-                    .ny(Long.parseLong(resultat[POS_FAGSAKID].toString()))
-                    .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
-                    .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
-                    .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
-                    .medEnhet((String) resultat[POS_ENHETID]);
+            var builder = InformasjonssakData.InformasjonssakDataBuilder.ny(Long.parseLong(resultat[POS_FAGSAKID].toString()))
+                .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
+                .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
+                .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
+                .medEnhet((String) resultat[POS_ENHETID]);
             returnList.add(builder.build());
         });
         return returnList;
@@ -183,8 +179,7 @@ public class InformasjonssakRepository {
         """;
 
     public List<InformasjonssakData> finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(LocalDate fom, LocalDate tom) {
-        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-            .toList();
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_PÅMINNELSE);
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom);
@@ -192,16 +187,14 @@ public class InformasjonssakRepository {
         query.setParameter("restyper", INNVILGET_TYPER);
         query.setParameter("seneretyper", SENERE_TYPER);
         query.setParameter("avsluttet", avsluttendeStatus);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
+        @SuppressWarnings("unchecked") List<Object[]> resultatList = query.getResultList();
         return toPåminnelseData(resultatList);
     }
 
     private List<InformasjonssakData> toPåminnelseData(List<Object[]> resultatList) {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
-            var builder = InformasjonssakData.InformasjonssakDataBuilder
-                .ny(Long.parseLong(resultat[0].toString()))
+            var builder = InformasjonssakData.InformasjonssakDataBuilder.ny(Long.parseLong(resultat[0].toString()))
                 .medAktørIdAnnenPart((String) resultat[1])
                 .medEnhet((String) resultat[2]);
             returnList.add(builder.build());
@@ -210,13 +203,13 @@ public class InformasjonssakRepository {
     }
 
     private static final String QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK = """
-            select distinct saksnummer from fagsak fs
-            where fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
-              and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
-              and exists (select b.id from behandling b join behandling_resultat br on br.behandling_id = b.id
-                            join behandling_vedtak bv on bv.behandling_resultat_id = br.id
-                          where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
-            """;
+        select distinct saksnummer from fagsak fs
+        where fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
+          and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
+          and exists (select b.id from behandling b join behandling_resultat br on br.behandling_id = b.id
+                        join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+                      where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
+        """;
 
     public List<Saksnummer> finnSakerMedVedtakDerSakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
         /*
@@ -230,19 +223,18 @@ public class InformasjonssakRepository {
         query.setParameter("ytelser", ytelsekoder);
         query.setParameter("avsluttet", avsluttendeStatus);
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode()));
-        @SuppressWarnings("unchecked")
-        List<String> resultatList = query.getResultList();
+        @SuppressWarnings("unchecked") List<String> resultatList = query.getResultList();
         return resultatList.stream().map(Saksnummer::new).toList();
     }
 
     private static final String QUERY_VEDTAK_FATTET_INTERVALL = """
-            select distinct saksnummer from fagsak fs join behandling b on b.fagsak_id = fs.id
-            join behandling_resultat br on br.behandling_id = b.id
-            join behandling_vedtak bv on bv.behandling_resultat_id = br.id
-            where b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper)
-            and bv.opprettet_tid >= :fomdato and bv.opprettet_tid < :tomdato
-            and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
-            """;
+        select distinct saksnummer from fagsak fs join behandling b on b.fagsak_id = fs.id
+        join behandling_resultat br on br.behandling_id = b.id
+        join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+        where b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper)
+        and bv.opprettet_tid >= :fomdato and bv.opprettet_tid < :tomdato
+        and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
+        """;
 
     public List<Saksnummer> finnSakerDerVedtakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
         /*
@@ -256,8 +248,7 @@ public class InformasjonssakRepository {
         query.setParameter("ytelser", ytelsekoder);
         query.setParameter("avsluttet", avsluttendeStatus);
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode()));
-        @SuppressWarnings("unchecked")
-        List<String> resultatList = query.getResultList();
+        @SuppressWarnings("unchecked") List<String> resultatList = query.getResultList();
         return resultatList.stream().map(Saksnummer::new).toList();
     }
 

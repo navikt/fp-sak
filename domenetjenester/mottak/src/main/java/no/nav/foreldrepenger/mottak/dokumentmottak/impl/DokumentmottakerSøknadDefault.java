@@ -26,6 +26,6 @@ public class DokumentmottakerSøknadDefault extends DokumentmottakerSøknad {
                                          ForeldrepengerUttakTjeneste fpUttakTjeneste,
                                          BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         super(behandlingRepository, dokumentmottakerFelles, behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste,
-                behandlingRevurderingTjeneste);
+            behandlingRevurderingTjeneste);
     }
 }

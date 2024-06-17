@@ -25,9 +25,7 @@ class RegisterdataInnhenterTest {
     @Test
     void skal_innhente_registeropplysninger_på_nytt_når_det_ble_hentet_inn_i_går() {
         // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1));
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1));
         var behandling = scenario.lagMocked();
 
         // Act
@@ -41,9 +39,7 @@ class RegisterdataInnhenterTest {
     @Test
     void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_nettopp_har_blitt_hentet_inn() {
         // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now());
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(LocalDateTime.now());
         var behandling = scenario.lagMocked();
 
         // Act
@@ -57,9 +53,7 @@ class RegisterdataInnhenterTest {
     @Test
     void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_ikke_har_blitt_hentet_inn_tidligere() {
         // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(null);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(null);
         var behandling = scenario.lagMocked();
 
         // Act
@@ -75,9 +69,7 @@ class RegisterdataInnhenterTest {
         // Arrange
         var midnatt = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(midnatt.minusMinutes(1));
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(midnatt.minusMinutes(1));
         var behandling = scenario.lagMocked();
         var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, null);
 
@@ -94,9 +86,7 @@ class RegisterdataInnhenterTest {
         var midnatt = LocalDate.now().atStartOfDay();
         var opplysningerOppdatertTidspunkt = midnatt.minusHours(1); // en time før midnatt
 
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt);
 
         var registerdataOppdatererEngangsstønad = lagRegisterdataInnhenter(scenario, "PT3H");
 
@@ -111,9 +101,7 @@ class RegisterdataInnhenterTest {
     @Test
     void skal_ikke_innhente_opplysninger_på_nytt_selvom_det_ble_hentet_inn_i_går_fordi_konfigverdien_er_mer_enn_midnatt() {
         // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusHours(20));
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusHours(20));
         var behandling = scenario.lagMocked();
 
         var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, "PT30H");
@@ -142,7 +130,7 @@ class RegisterdataInnhenterTest {
 
         assertThat(deser.pleietrengende()).isEqualTo(new AktørId("9999999999999"));
         assertThat(deser.innleggelsesPerioder()).hasSize(1);
-        assertThat(deser.innleggelsesPerioder().get(0).fom()).isEqualTo(LocalDate.of(2021,5,3));
+        assertThat(deser.innleggelsesPerioder().get(0).fom()).isEqualTo(LocalDate.of(2021, 5, 3));
     }
 
     private RegisterdataEndringshåndterer lagRegisterdataInnhenter(AbstractTestScenario<?> scenario, String durationInstance) {
@@ -150,8 +138,7 @@ class RegisterdataInnhenterTest {
         return lagRegisterdataOppdaterer(repositoryProvider, durationInstance);
     }
 
-    private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                                                    String durationInstance) {
+    private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider, String durationInstance) {
         var endringskontroller = mock(Endringskontroller.class);
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
         return new RegisterdataEndringshåndterer(repositoryProvider, durationInstance, endringskontroller, null, null, null);

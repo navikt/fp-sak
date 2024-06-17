@@ -8,13 +8,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 public interface VurderKompletthetSteg extends BehandlingSteg {
 
     default boolean skalPassereKompletthet(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        return behandling.getBehandlingÅrsaker()
+            .stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
     }
 
     default boolean kanPassereKompletthet(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        return behandling.getBehandlingÅrsaker()
+            .stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(BehandlingÅrsakType.RE_HENDELSE_FØDSEL::equals);
     }

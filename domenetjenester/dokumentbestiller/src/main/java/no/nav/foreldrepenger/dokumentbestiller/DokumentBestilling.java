@@ -5,12 +5,8 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 
-public record DokumentBestilling(UUID behandlingUuid,
-                                 DokumentMalType dokumentMal,
-                                 String fritekst,
-                                 RevurderingVarslingÅrsak revurderingÅrsak,
-                                 DokumentMalType journalførSom,
-                                 UUID bestillingUuid) {
+public record DokumentBestilling(UUID behandlingUuid, DokumentMalType dokumentMal, String fritekst, RevurderingVarslingÅrsak revurderingÅrsak,
+                                 DokumentMalType journalførSom, UUID bestillingUuid) {
 
     public static Builder builder() {
         return new Builder();

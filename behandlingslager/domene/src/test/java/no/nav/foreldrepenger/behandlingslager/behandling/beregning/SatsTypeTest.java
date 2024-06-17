@@ -34,12 +34,10 @@ class SatsTypeTest {
     @Test
     void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
-        var grunnbeløpListe = hentAlle(entityManager, BeregningSats.class)
-            .stream()
+        var grunnbeløpListe = hentAlle(entityManager, BeregningSats.class).stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GRUNNBELØP))
             .toList();
-        var gsnittListe = hentAlle(entityManager, BeregningSats.class)
-            .stream()
+        var gsnittListe = hentAlle(entityManager, BeregningSats.class).stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
             .toList();
 
@@ -50,8 +48,7 @@ class SatsTypeTest {
     @Test
     void skal_teste_gsnitt_fom_tom_er_1jan_og_31des() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
-        var gsnittListe = hentAlle(entityManager, BeregningSats.class)
-            .stream()
+        var gsnittListe = hentAlle(entityManager, BeregningSats.class).stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
             .toList();
 

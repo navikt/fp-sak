@@ -31,10 +31,7 @@ public class FamilieHendelse {
         this.stebarnsadopsjon = stebarnsadopsjon;
     }
 
-    public static FamilieHendelse forFødsel(LocalDate termindato,
-                                            LocalDate fødselsdato,
-                                            List<Barn> barna,
-                                            int antallBarn) {
+    public static FamilieHendelse forFødsel(LocalDate termindato, LocalDate fødselsdato, List<Barn> barna, int antallBarn) {
         return new FamilieHendelse(barna, antallBarn, termindato, fødselsdato, null, null, false);
     }
 
@@ -68,8 +65,7 @@ public class FamilieHendelse {
     }
 
     public LocalDate getFamilieHendelseDato() {
-        return getOmsorgsovertakelse()
-            .or(this::getFødselsdato)
+        return getOmsorgsovertakelse().or(this::getFødselsdato)
             .orElseGet(() -> getTermindato().orElseThrow(() -> new IllegalStateException("Mangler familiehendelse")));
     }
 

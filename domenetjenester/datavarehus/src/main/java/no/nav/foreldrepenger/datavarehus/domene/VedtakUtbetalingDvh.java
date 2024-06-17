@@ -69,9 +69,10 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
         return this;
     }
 
-    public void setTransTid(){
-        setTransTid( LocalDateTime.now());
+    public void setTransTid() {
+        setTransTid(LocalDateTime.now());
     }
+
     public Long getFagsakId() {
         return fagsakId;
     }
@@ -107,20 +108,15 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        return Objects.equals(vedtakDato, castOther.vedtakDato)
-            && Objects.equals(xmlClob, castOther.xmlClob)
-            && Objects.equals(fagsakId, castOther.fagsakId)
-            && Objects.equals(vedtakId, castOther.vedtakId)
-            && Objects.equals(behandlingId, castOther.behandlingId)
-            && Objects.equals(fagsakType, castOther.fagsakType)
-            && Objects.equals(behandlingType, castOther.behandlingType)
-            && Objects.equals(søknadType, castOther.søknadType);
+        return Objects.equals(vedtakDato, castOther.vedtakDato) && Objects.equals(xmlClob, castOther.xmlClob) && Objects.equals(fagsakId,
+            castOther.fagsakId) && Objects.equals(vedtakId, castOther.vedtakId) && Objects.equals(behandlingId, castOther.behandlingId)
+            && Objects.equals(fagsakType, castOther.fagsakType) && Objects.equals(behandlingType, castOther.behandlingType) && Objects.equals(
+            søknadType, castOther.søknadType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), vedtakDato, xmlClob, fagsakId, vedtakId, behandlingId, fagsakType,
-            behandlingType, søknadType);
+        return Objects.hash(super.hashCode(), vedtakDato, xmlClob, fagsakId, vedtakId, behandlingId, fagsakType, behandlingType, søknadType);
     }
 
     public static class Builder {

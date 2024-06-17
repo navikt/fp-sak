@@ -26,7 +26,7 @@ public class LagretKodeverdiNavn implements Serializable {
     @Column(name = "NAVN")
     private String navn;
 
-    @Column(name = "OPPRETTET_TID", nullable = false, updatable=false)
+    @Column(name = "OPPRETTET_TID", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
 
     @Column(name = "ENDRET_TID")
@@ -72,8 +72,12 @@ public class LagretKodeverdiNavn implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (LagretKodeverdiNavn) o;
         return kodeverk.equals(that.kodeverk) && kode.equals(that.kode);
     }

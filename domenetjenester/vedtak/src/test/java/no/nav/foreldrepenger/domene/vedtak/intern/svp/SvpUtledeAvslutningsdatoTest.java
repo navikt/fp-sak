@@ -68,13 +68,13 @@ class SvpUtledeAvslutningsdatoTest {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
-        utledeAvslutningsdato = new SvpUtledeAvslutningsdato(repositoryProvider,
-            uttakInputTjeneste, maksDatoUttakTjeneste);
+        utledeAvslutningsdato = new SvpUtledeAvslutningsdato(repositoryProvider, uttakInputTjeneste, maksDatoUttakTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
 
-        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(new UttakInput(BehandlingReferanse.fra(behandling), null, new SvangerskapspengerGrunnlag()));
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling), null, new SvangerskapspengerGrunnlag()));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
     }
 
@@ -86,18 +86,19 @@ class SvpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    void finner_avslutningsdato_fra_sisteuttaksdato(){
+    void finner_avslutningsdato_fra_sisteuttaksdato() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         var behandlingsresultat = lagBehandlingsresultat(behandling);
         var sisteUttaksdato = LocalDate.now().plusDays(10);
-        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnGyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
+        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakMedEnGyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
 
         // Act
-        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon);
         var forventetMin = sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetMax = forventetMin.plusDays(PADDING-1);
+        var forventetMax = forventetMin.plusDays(PADDING - 1);
 
         // Assert
         assertThat(avslutningdato).isBetween(forventetMin, forventetMax);
@@ -105,17 +106,18 @@ class SvpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    void finner_ingen_sisteuttaksdato_for_avslutning(){
+    void finner_ingen_sisteuttaksdato_for_avslutning() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
         var behandlingsresultat = lagBehandlingsresultat(behandling);
 
         var sisteUttaksdato = LocalDate.now().plusDays(10);
-        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnUgyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
+        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakMedEnUgyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
 
         // Act
-        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon);
 
         // Assert
         assertThat(avslutningdato).isEqualTo(LocalDate.now().plusDays(1));
@@ -129,33 +131,21 @@ class SvpUtledeAvslutningsdatoTest {
             .buildFor(behandling);
     }
 
-    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnGyldigPeriode(LocalDate fom,
-                                                                                        LocalDate tom,
-                                                                                        Behandlingsresultat br) {
-        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnGyldigPeriode(LocalDate fom, LocalDate tom, Behandlingsresultat br) {
+        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
             .build();
-        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medPeriode(periode)
-            .build();
-        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br)
-            .medUttakResultatArbeidsforhold(arbeidsforhold).build();
+        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medPeriode(periode).build();
+        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(arbeidsforhold).build();
         return Optional.of(entitet);
     }
 
-    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnUgyldigPeriode(LocalDate fom,
-                                                                                         LocalDate tom,
-                                                                                         Behandlingsresultat br) {
-        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnUgyldigPeriode(LocalDate fom, LocalDate tom, Behandlingsresultat br) {
+        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();
-        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medPeriode(periode)
-            .build();
-        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br)
-            .medUttakResultatArbeidsforhold(arbeidsforhold).build();
+        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medPeriode(periode).build();
+        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(arbeidsforhold).build();
         return Optional.of(entitet);
     }
 }

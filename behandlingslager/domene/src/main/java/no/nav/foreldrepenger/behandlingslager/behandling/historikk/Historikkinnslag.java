@@ -32,11 +32,11 @@ public class Historikkinnslag extends BaseEntitet {
     private Long fagsakId;
 
     @Convert(converter = HistorikkAktør.KodeverdiConverter.class)
-    @Column(name="historikk_aktoer_id", nullable = false)
+    @Column(name = "historikk_aktoer_id", nullable = false)
     private HistorikkAktør aktør = HistorikkAktør.UDEFINERT;
 
     @Convert(converter = HistorikkinnslagType.KodeverdiConverter.class)
-    @Column(name="historikkinnslag_type", nullable = false)
+    @Column(name = "historikkinnslag_type", nullable = false)
     private HistorikkinnslagType type = HistorikkinnslagType.UDEFINERT;
 
     @OneToMany(mappedBy = "historikkinnslag", cascade = CascadeType.ALL)
@@ -144,11 +144,8 @@ public class Historikkinnslag extends BaseEntitet {
         if (!(o instanceof Historikkinnslag that)) {
             return false;
         }
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(fagsakId, that.fagsakId) &&
-            Objects.equals(getAktør(), that.getAktør()) &&
-            Objects.equals(type, that.type) &&
-            Objects.equals(getDokumentLinker(), that.getDokumentLinker());
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(fagsakId, that.fagsakId) && Objects.equals(getAktør(),
+            that.getAktør()) && Objects.equals(type, that.type) && Objects.equals(getDokumentLinker(), that.getDokumentLinker());
     }
 
     @Override

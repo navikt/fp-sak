@@ -40,8 +40,7 @@ class SkalKopiereUttakTjenesteTest {
 
     @Test
     void endret_inntektsmelding_sammen_med_søknad_skal_ikke_kopiere() {
-        assertThat(
-            skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_ENDRING_FRA_BRUKER), false, true)).isFalse();
+        assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_ENDRING_FRA_BRUKER), false, true)).isFalse();
     }
 
     @Test
@@ -61,8 +60,7 @@ class SkalKopiereUttakTjenesteTest {
 
     @Test
     void endret_inntektsmelding_og_g_reg_skal_kopiere() {
-        assertThat(
-            skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_SATS_REGULERING), false, true)).isTrue();
+        assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_SATS_REGULERING), false, true)).isTrue();
     }
 
     @Test
@@ -97,21 +95,17 @@ class SkalKopiereUttakTjenesteTest {
     @Test
     void endret_inntektsmelding_skal_ikke_kopiere_hvis_fødsel() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(originalBehandling, Set.of(RE_ENDRET_INNTEKTSMELDING));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medOriginalBehandling(originalBehandling, Set.of(RE_ENDRET_INNTEKTSMELDING));
         var behandling = scenario.lagre(repositoryProvider);
         var termin = LocalDate.of(2021, 12, 10);
         var søknadHendelse = FamilieHendelse.forFødsel(termin, null, List.of(new Barn()), 1);
         var fødselsdato = termin.plusWeeks(1);
         var bekreftetHendelse = FamilieHendelse.forFødsel(termin, fødselsdato, List.of(new Barn()), 1);
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
-            .medOriginalBehandling(new OriginalBehandling(originalBehandling.getId(), new FamilieHendelser().medSøknadHendelse(søknadHendelse)))
-            .medFamilieHendelser(new FamilieHendelser()
-                .medSøknadHendelse(søknadHendelse)
-                .medBekreftetHendelse(bekreftetHendelse)
-            );
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag)
-            .medBehandlingÅrsaker(Set.of(RE_ENDRET_INNTEKTSMELDING));
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medOriginalBehandling(
+                new OriginalBehandling(originalBehandling.getId(), new FamilieHendelser().medSøknadHendelse(søknadHendelse)))
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(søknadHendelse).medBekreftetHendelse(bekreftetHendelse));
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medBehandlingÅrsaker(
+            Set.of(RE_ENDRET_INNTEKTSMELDING));
 
         var tjeneste = opprettTjeneste(false);
 
@@ -122,23 +116,17 @@ class SkalKopiereUttakTjenesteTest {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var behandlingId = behandlingReferanse.behandlingId();
         var yfa = ytelsesFordelingRepository.opprettBuilder(behandlingId);
-        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(førsteUttaksdato)
+        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(førsteUttaksdato)
             .medJustertEndringsdato(LocalDate.now())
             .build();
         ytelsesFordelingRepository.lagre(behandlingId, yfa.medAvklarteDatoer(avklarteDatoer).build());
     }
 
-    private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
-                                            boolean arbeidEndret,
-                                            boolean erRevurdering) {
+    private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker, boolean arbeidEndret, boolean erRevurdering) {
         return skalKopiereStegResultat(årsaker, arbeidEndret, erRevurdering, false);
     }
 
-    private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
-                                            boolean arbeidEndret,
-                                            boolean erRevurdering,
-                                            boolean dødsfall) {
+    private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker, boolean arbeidEndret, boolean erRevurdering, boolean dødsfall) {
         var input = lagInput(årsaker, erRevurdering, dødsfall);
         var tjeneste = opprettTjeneste(arbeidEndret);
         return tjeneste.skalKopiereStegResultat(input);
@@ -146,22 +134,18 @@ class SkalKopiereUttakTjenesteTest {
 
     private SkalKopiereUttakTjeneste opprettTjeneste(boolean arbeidEndret) {
         var relevanteArbeidsforholdTjeneste = mock(RelevanteArbeidsforholdTjeneste.class);
-        when(relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(
-            any())).thenReturn(arbeidEndret);
+        when(relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(any())).thenReturn(arbeidEndret);
         return new SkalKopiereUttakTjeneste(relevanteArbeidsforholdTjeneste,
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     }
 
-    private UttakInput lagInput(Set<BehandlingÅrsakType> årsaker,
-                                boolean erRevurdering,
-                                boolean dødsfall) {
+    private UttakInput lagInput(Set<BehandlingÅrsakType> årsaker, boolean erRevurdering, boolean dødsfall) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         if (erRevurdering) {
-            scenario.medOriginalBehandling(ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider),
-                årsaker);
+            scenario.medOriginalBehandling(ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider), årsaker);
         }
         var behandling = scenario.lagre(repositoryProvider);
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medDødsfall(dødsfall))
-            .medBehandlingÅrsaker(årsaker);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medDødsfall(dødsfall)).medBehandlingÅrsaker(
+            årsaker);
     }
 }

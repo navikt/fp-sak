@@ -24,8 +24,7 @@ class AvklarteDatoerTjeneste {
     private PersonopplysningerForUttak personopplysninger;
 
     @Inject
-    AvklarteDatoerTjeneste(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                           PersonopplysningerForUttak personopplysninger) {
+    AvklarteDatoerTjeneste(UttaksperiodegrenseRepository uttaksperiodegrenseRepository, PersonopplysningerForUttak personopplysninger) {
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
         this.personopplysninger = personopplysninger;
     }
@@ -40,7 +39,9 @@ class AvklarteDatoerTjeneste {
         var uttaksgrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId);
 
         SvangerskapspengerGrunnlag svpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        var termindato = svpGrunnlag.getFamilieHendelse().getTermindato().orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
+        var termindato = svpGrunnlag.getFamilieHendelse()
+            .getTermindato()
+            .orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
         var fødselsdatoOptional = svpGrunnlag.getFamilieHendelse().getFødselsdato();
         var dødsdatoBarnOptional = finnMuligDødsdatoBarn(svpGrunnlag.getFamilieHendelse().getBarna());
         var dødsdatoBrukerOptional = personopplysninger.søkersDødsdatoGjeldendePåDato(ref, LocalDate.now());
@@ -56,7 +57,8 @@ class AvklarteDatoerTjeneste {
         medlemskapOpphørsdatoOptional.ifPresent(avklarteDatoerBuilder::medOpphørsdatoForMedlemskap);
         startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
 
-        uttaksgrense.map(Uttaksperiodegrense::getMottattDato).map(Søknadsfrister::tidligsteDatoDagytelse)
+        uttaksgrense.map(Uttaksperiodegrense::getMottattDato)
+            .map(Søknadsfrister::tidligsteDatoDagytelse)
             .ifPresent(avklarteDatoerBuilder::medFørsteLovligeUttaksdato);
 
         return avklarteDatoerBuilder.build();
@@ -65,10 +67,7 @@ class AvklarteDatoerTjeneste {
     private Optional<LocalDate> finnMuligDødsdatoBarn(List<Barn> barna) {
         var levendeBarn = barna.stream().filter(barn -> barn.getDødsdato().isEmpty()).toList();
         if (levendeBarn.isEmpty()) {
-            return barna.stream()
-                .map(Barn::getDødsdato)
-                .flatMap(Optional::stream)
-                .max(LocalDate::compareTo);
+            return barna.stream().map(Barn::getDødsdato).flatMap(Optional::stream).max(LocalDate::compareTo);
         }
         return Optional.empty();
     }

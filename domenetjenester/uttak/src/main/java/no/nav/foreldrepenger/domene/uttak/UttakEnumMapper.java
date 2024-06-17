@@ -78,12 +78,10 @@ public final class UttakEnumMapper {
         return map(uttakArbeidType, arbeidsgiver, ref);
     }
 
-    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType,
-                                             Optional<Arbeidsgiver> arbeidsgiver,
-                                             InternArbeidsforholdRef ref) {
+    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType, Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef ref) {
         return switch (uttakArbeidType) {
             case FRILANS -> AktivitetIdentifikator.forFrilans();
-            case SELVSTENDIG_NÆRINGSDRIVENDE ->  AktivitetIdentifikator.forSelvstendigNæringsdrivende();
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> AktivitetIdentifikator.forSelvstendigNæringsdrivende();
             case ANNET -> AktivitetIdentifikator.annenAktivitet();
             case ORDINÆRT_ARBEID -> AktivitetIdentifikator.forArbeid(mapArbeidTypeArbeid(arbeidsgiver), ref.getReferanse());
         };
@@ -110,14 +108,12 @@ public final class UttakEnumMapper {
         if (stønadskontoType == StønadskontoType.UDEFINERT) {
             return null;
         }
-        return STØNADSKONTOTYPE_KODE_MAPPER
-            .map(stønadskontoType)
+        return STØNADSKONTOTYPE_KODE_MAPPER.map(stønadskontoType)
             .orElseThrow(() -> new UnsupportedOperationException(String.format("Har ikke støtte for søknadstype %s", stønadskontoType.getKode())));
     }
 
     private static KodeMapper<StønadskontoType, Stønadskontotype> initStønadskontotypeMapper() {
-        return KodeMapper
-            .medMapping(StønadskontoType.FORELDREPENGER, Stønadskontotype.FORELDREPENGER)
+        return KodeMapper.medMapping(StønadskontoType.FORELDREPENGER, Stønadskontotype.FORELDREPENGER)
             .medMapping(StønadskontoType.FELLESPERIODE, Stønadskontotype.FELLESPERIODE)
             .medMapping(StønadskontoType.MØDREKVOTE, Stønadskontotype.MØDREKVOTE)
             .medMapping(StønadskontoType.FEDREKVOTE, Stønadskontotype.FEDREKVOTE)
@@ -129,22 +125,21 @@ public final class UttakEnumMapper {
         return switch (årsakType) {
             case FEDREKVOTE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
             case MØDREKVOTE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
-            case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
-            case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
+            case KVOTE_FELLESPERIODE_ANNEN_FORELDER ->
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
+            case KVOTE_FORELDREPENGER_ANNEN_FORELDER ->
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
             case UDEFINERT -> null;
             default -> throw new IllegalStateException("Ikke støttet oppholdårsak " + årsakType);
         };
     }
 
     public static Stønadskontotype map(UttakPeriodeType uttakPeriodeType) {
-        return UTTAK_PERIODE_TYPE_MAPPER
-            .map(uttakPeriodeType)
-            .orElse(null);
+        return UTTAK_PERIODE_TYPE_MAPPER.map(uttakPeriodeType).orElse(null);
     }
 
     private static KodeMapper<UttakPeriodeType, Stønadskontotype> initUttakPeriodeTypeMapper() {
-        return KodeMapper
-            .medMapping(UttakPeriodeType.FORELDREPENGER, Stønadskontotype.FORELDREPENGER)
+        return KodeMapper.medMapping(UttakPeriodeType.FORELDREPENGER, Stønadskontotype.FORELDREPENGER)
             .medMapping(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL, Stønadskontotype.FORELDREPENGER_FØR_FØDSEL)
             .medMapping(UttakPeriodeType.FELLESPERIODE, Stønadskontotype.FELLESPERIODE)
             .medMapping(UttakPeriodeType.MØDREKVOTE, Stønadskontotype.MØDREKVOTE)
@@ -153,14 +148,12 @@ public final class UttakEnumMapper {
     }
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak map(UtsettelseÅrsak årsakType) {
-        return UTSETTELSE_ÅRSAK_MAPPER
-            .map(årsakType)
+        return UTSETTELSE_ÅRSAK_MAPPER.map(årsakType)
             .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet utsettelseårsak" + årsakType.getKode()));
     }
 
     private static KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> initUtsettelseÅrsakMapper() {
-        return KodeMapper
-            .medMapping(FERIE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.FERIE)
+        return KodeMapper.medMapping(FERIE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.FERIE)
             .medMapping(ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.ARBEID)
             .medMapping(SYKDOM, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.SYKDOM_SKADE)
             .medMapping(INSTITUSJON_SØKER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak.INNLAGT_SØKER)
@@ -172,8 +165,7 @@ public final class UttakEnumMapper {
     }
 
     private static KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> initUttakTilOppgittUtsettelseMapper() {
-        return KodeMapper
-            .medMapping(UttakUtsettelseType.FERIE, UtsettelseÅrsak.FERIE)
+        return KodeMapper.medMapping(UttakUtsettelseType.FERIE, UtsettelseÅrsak.FERIE)
             .medMapping(UttakUtsettelseType.ARBEID, UtsettelseÅrsak.ARBEID)
             .medMapping(UttakUtsettelseType.SYKDOM_SKADE, UtsettelseÅrsak.SYKDOM)
             .medMapping(UttakUtsettelseType.SØKER_INNLAGT, UtsettelseÅrsak.INSTITUSJON_SØKER)
@@ -185,8 +177,7 @@ public final class UttakEnumMapper {
     }
 
     private static KodeMapper<StønadskontoType, UttakPeriodeType> initPeriodeTypeMapper() {
-        return KodeMapper
-            .medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
+        return KodeMapper.medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
             .medMapping(StønadskontoType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE)
             .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medMapping(StønadskontoType.MØDREKVOTE, UttakPeriodeType.MØDREKVOTE)
@@ -196,8 +187,7 @@ public final class UttakEnumMapper {
     }
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak map(OverføringÅrsak overføringÅrsak) {
-        return OVERFØRING_ÅRSAK_MAPPER
-            .map(overføringÅrsak)
+        return OVERFØRING_ÅRSAK_MAPPER.map(overføringÅrsak)
             .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet overføringårsak " + overføringÅrsak.getKode()));
     }
 
@@ -206,24 +196,25 @@ public final class UttakEnumMapper {
         if (Set.of(MorsAktivitet.UDEFINERT, MorsAktivitet.IKKE_OPPGITT).contains(morsAktivitet)) {
             return null;
         }
-        return MORS_AKTIVITET_MAPPER
-            .map(morsAktivitet)
+        return MORS_AKTIVITET_MAPPER.map(morsAktivitet)
             .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet mors aktivitet " + morsAktivitet.getKode()));
     }
 
     private static KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> initOverføringÅrsakMapper() {
-        return KodeMapper
-            .medMapping(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.INNLEGGELSE)
-            .medMapping(OverføringÅrsak.SYKDOM_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.SYKDOM_ELLER_SKADE)
-            .medMapping(OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.ANNEN_FORELDER_IKKE_RETT)
+        return KodeMapper.medMapping(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER,
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.INNLEGGELSE)
+            .medMapping(OverføringÅrsak.SYKDOM_ANNEN_FORELDER,
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.SYKDOM_ELLER_SKADE)
+            .medMapping(OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER,
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.ANNEN_FORELDER_IKKE_RETT)
             .medMapping(OverføringÅrsak.ALENEOMSORG, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.ALENEOMSORG)
             .build();
     }
 
     private static KodeMapper<MorsAktivitet, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet> initMorsAktivitetMapper() {
-        return KodeMapper
-            .medMapping(MorsAktivitet.ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID)
-            .medMapping(MorsAktivitet.ARBEID_OG_UTDANNING, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID_OG_UTDANNING)
+        return KodeMapper.medMapping(MorsAktivitet.ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID)
+            .medMapping(MorsAktivitet.ARBEID_OG_UTDANNING,
+                no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID_OG_UTDANNING)
             .medMapping(MorsAktivitet.UTDANNING, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.UTDANNING)
             .medMapping(MorsAktivitet.UFØRE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.UFØRE)
             .medMapping(MorsAktivitet.INNLAGT, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.INNLAGT)
@@ -409,8 +400,9 @@ public final class UttakEnumMapper {
             case BARE_SØKER_RETT_GODKJENT -> DokumentasjonVurdering.ER_BARE_SØKER_RETT_GODKJENT;
             case TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT -> DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
             //Reglene trenger ikke å skille mellom "ikke dokumentert" og "ikke vurdert", setter derfor null
-            case SYKDOM_SØKER_IKKE_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT, INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT,
-                NAV_TILTAK_IKKE_GODKJENT, TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT -> null;
+            case SYKDOM_SØKER_IKKE_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT,
+                 INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT, NAV_TILTAK_IKKE_GODKJENT,
+                 TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT -> null;
         };
     }
 }

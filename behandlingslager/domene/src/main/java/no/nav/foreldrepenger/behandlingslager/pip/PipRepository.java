@@ -30,7 +30,7 @@ public class PipRepository {
     }
 
     @Inject
-    public PipRepository( EntityManager entityManager) {
+    public PipRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -49,8 +49,7 @@ public class PipRepository {
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("behandlingId", behandlingId);
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultater = query.getResultList();
+        @SuppressWarnings("unchecked") List<Object[]> resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
         }
@@ -75,8 +74,7 @@ public class PipRepository {
 
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("behandlingUuid", behandlingUuid);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultater = query.getResultList();
+        @SuppressWarnings("unchecked") List<Object[]> resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
         }
@@ -117,8 +115,7 @@ public class PipRepository {
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("fagsakIder", fagsakIder);
 
-        @SuppressWarnings("unchecked")
-        List<String> aktørIdList = query.getResultList();
+        @SuppressWarnings("unchecked") List<String> aktørIdList = query.getResultList();
         return aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -147,12 +144,11 @@ public class PipRepository {
         var query = entityManager.createNativeQuery(sql);
         query.setParameter(SAKSNUMMER, saksnummer);
 
-        @SuppressWarnings("unchecked")
-        List<String> aktørIdList = query.getResultList();
+        @SuppressWarnings("unchecked") List<String> aktørIdList = query.getResultList();
         return aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @SuppressWarnings({ "unchecked", "cast" })
+    @SuppressWarnings({"unchecked", "cast"})
     public Set<Long> fagsakIdForJournalpostId(Collection<JournalpostId> journalpostId) {
         if (journalpostId.isEmpty()) {
             return Collections.emptySet();
@@ -160,7 +156,7 @@ public class PipRepository {
         var sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("journalpostId", journalpostId.stream().map(JournalpostId::getVerdi).toList());
-        return new LinkedHashSet<>((List<Long>)query.getResultList());
+        return new LinkedHashSet<>((List<Long>) query.getResultList());
     }
 
     public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
@@ -170,7 +166,7 @@ public class PipRepository {
             .anyMatch(AksjonspunktType.OVERSTYRING::equals);
     }
 
-    @SuppressWarnings({ "unchecked", "cast" })
+    @SuppressWarnings({"unchecked", "cast"})
     public Set<Long> fagsakIderForSøker(Collection<AktørId> aktørId) {
         if (aktørId.isEmpty()) {
             return Collections.emptySet();
@@ -181,7 +177,7 @@ public class PipRepository {
         return new LinkedHashSet<>((List<Long>) query.getResultList());
     }
 
-    @SuppressWarnings({ "unchecked", "cast" })
+    @SuppressWarnings({"unchecked", "cast"})
     public Set<Long> fagsakIdForSaksnummer(Collection<String> saksnummre) {
         if (saksnummre.isEmpty()) {
             return Collections.emptySet();

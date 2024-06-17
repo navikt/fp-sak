@@ -29,8 +29,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     _8314("8314", "Perioden er etter startdato foreldrepenger", null),
     SVANGERSKAPSVILKÅRET_IKKE_OPPFYLT("8315", "Svangerskapsvilkåret er ikke oppfylt", null),
     OPPTJENINGSVILKÅRET_IKKE_OPPFYLT("8316", "Opptjeningsvilkåret er ikke oppfylt", null),
-    PERIODEN_ER_SAMTIDIG_SOM_SYKEPENGER("8317", "Uttaksperioden er samtidig som det mottas sykepenger", null)
-    ;
+    PERIODEN_ER_SAMTIDIG_SOM_SYKEPENGER("8317", "Uttaksperioden er samtidig som det mottas sykepenger", null);
 
     private static final Map<String, PeriodeIkkeOppfyltÅrsak> KODER = new LinkedHashMap<>();
 

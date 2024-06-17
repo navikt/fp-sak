@@ -48,8 +48,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
             .orElse(List.of());
     }
 
-    private Optional<DokumentasjonVurderingBehov> dokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
-                                                                              UttakInput input) {
+    private Optional<DokumentasjonVurderingBehov> dokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, UttakInput input) {
         var tidligereVurdering = oppgittPeriode.getDokumentasjonVurdering();
         var familiehendelse = finnGjeldendeFamiliehendelse(input);
         var behandlingReferanse = input.getBehandlingReferanse();

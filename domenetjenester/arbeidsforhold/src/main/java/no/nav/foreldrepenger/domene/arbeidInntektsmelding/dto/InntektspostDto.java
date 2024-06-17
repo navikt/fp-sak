@@ -5,4 +5,5 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 
-public record InntektspostDto (BigDecimal beløp, LocalDate fom, LocalDate tom, InntektspostType type){}
+public record InntektspostDto(BigDecimal beløp, LocalDate fom, LocalDate tom, InntektspostType type) {
+}

@@ -55,6 +55,7 @@ public class FpOppdragRestKlient {
 
     /**
      * Henter simuleringresultat for behandling hvis det finnes.
+     *
      * @param behandlingId
      * @return Optional med SimuleringResultatDto kan være tom
      */
@@ -70,6 +71,7 @@ public class FpOppdragRestKlient {
 
     /**
      * Starter en simulering for gitt behandling med oppdrag fra oppdragskontroll
+     *
      * @param oppdragskontrollDto med OppdragskontrollDto
      */
     public void startSimulering(OppdragskontrollDto oppdragskontrollDto) {
@@ -94,7 +96,8 @@ public class FpOppdragRestKlient {
             if (status == HTTP_UNAVAILABLE && erDetForventetNedetid(response.body())) { // 503 med OPPDRAG_FORVENTET_NEDETID propages ved nedetid
                 throw new OppdragForventetNedetidException();
             }
-            throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra FpWsProxy. Sjekk loggen til fpwsproxy for mer info.", status));
+            throw new IntegrasjonException("F-468817",
+                String.format("Uventet respons %s fra FpWsProxy. Sjekk loggen til fpwsproxy for mer info.", status));
         }
     }
 

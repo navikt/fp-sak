@@ -132,8 +132,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         var dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
-        var mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(revurdering.getFagsakId())
+        var mottattDokument = new MottattDokument.Builder().medFagsakId(revurdering.getFagsakId())
             .medBehandlingId(revurdering.getId())
             .medDokumentType(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)
             .medMottattDato(LocalDate.now())

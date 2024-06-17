@@ -43,11 +43,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void skal_ikke_ha_tapte_dager_ved_søknad_på_termin() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20))
-            .build();
+            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2019, 12, 23), LocalDate.of(2020, 12, 23))
@@ -68,11 +66,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void skal_ikke_regne_tapte_dager_hvis_søknad_på_fødsel_med_termindato() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20))
-            .build();
+            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2019, 12, 23), LocalDate.of(2020, 12, 23))
@@ -94,11 +90,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_med_fødselshendelse() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20))
-            .build();
+            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2019, 12, 23), LocalDate.of(2020, 12, 23))
@@ -111,8 +105,7 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = søktFpff.getTom().plusDays(1);
         var fødselsdato = termindato.minusDays(4);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 4);
@@ -123,11 +116,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void skal_ikke_kunne_tape_flere_dager_enn_maksdager() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20))
-            .build();
+            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 20)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2019, 12, 23), LocalDate.of(2020, 12, 23))
@@ -141,8 +132,7 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = søktFpff.getTom().plusDays(1);
         var fødselsdato = termindato.minusDays(25);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 15);
@@ -152,11 +142,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void ingen_tapte_dager_ut_ifra_gjeldendefødselshendelse() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19))
-            .build();
+            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2022, 6, 20), LocalDate.of(2022, 7, 30))
@@ -171,8 +159,7 @@ class TapteDagerFpffTjenesteTest {
         var termindato = LocalDate.of(2022, 7, 13);
         var temindateBekreftetHendelse = LocalDate.of(2022, 6, 20);
         var fødselsdato = LocalDate.of(2022, 6, 20);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
@@ -182,11 +169,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void tapte_dager_ut_ifra_gjeldendefødselshendelse() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19))
-            .build();
+            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2022, 6, 20), LocalDate.of(2022, 7, 30))
@@ -201,8 +186,7 @@ class TapteDagerFpffTjenesteTest {
         var termindato = LocalDate.of(2022, 7, 13);
         var temindateBekreftetHendelse = LocalDate.of(2022, 6, 20);
         var fødselsdato = LocalDate.of(2022, 6, 15);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
@@ -211,11 +195,8 @@ class TapteDagerFpffTjenesteTest {
     }
 
     private Stønadskontoberegning opprettFagsakRelasjon(Behandling behandling, int maksdagerFpff) {
-        var stønadskontoberegning = new Stønadskontoberegning.Builder()
-            .medStønadskonto(new Stønadskonto.Builder()
-                .medMaxDager(maksdagerFpff)
-                .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
-                .build())
+        var stønadskontoberegning = new Stønadskontoberegning.Builder().medStønadskonto(
+                new Stønadskonto.Builder().medMaxDager(maksdagerFpff).medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL).build())
             .medRegelEvaluering(" ")
             .medRegelInput(" ")
             .build();
@@ -225,11 +206,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_og_revurdering_med_fødselshendelse() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 13))
-            .build();
+            .medPeriode(LocalDate.of(2019, 12, 2), LocalDate.of(2019, 12, 13)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2019, 12, 14), LocalDate.of(2020, 12, 23))
@@ -240,14 +219,10 @@ class TapteDagerFpffTjenesteTest {
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
-        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medTrekkdager(new Trekkdager(10))
-            .build();
+        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom()).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans()).medTrekkonto(
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL).medArbeidsprosent(BigDecimal.ZERO).medTrekkdager(new Trekkdager(10)).build();
         uttakPeriode.leggTilAktivitet(aktivitet);
 
         var uttak = new UttakResultatPerioderEntitet();
@@ -262,11 +237,9 @@ class TapteDagerFpffTjenesteTest {
         var termindato = mødrekvote.getFom();
         //2 virkedager
         var fødselsdato = termindato.minusDays(2);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(familieHendelser)
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
@@ -277,11 +250,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_og_revurdering_med_fødselshendelse_ikke_søkt_om_3_uker() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //10 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 24))
-            .build();
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 24)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2023, 11, 27), LocalDate.of(2024, 2, 1))
@@ -292,14 +263,10 @@ class TapteDagerFpffTjenesteTest {
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
         var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
-        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medTrekkdager(new Trekkdager(5))
-            .build();
+        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom()).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans()).medTrekkonto(
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL).medArbeidsprosent(BigDecimal.ZERO).medTrekkdager(new Trekkdager(5)).build();
         uttakPeriode.leggTilAktivitet(aktivitet);
 
         var uttak = new UttakResultatPerioderEntitet();
@@ -314,11 +281,9 @@ class TapteDagerFpffTjenesteTest {
         var termindato = mødrekvote.getFom();
         //2 virkedager
         var fødselsdato = LocalDate.of(2023, 11, 23);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(familieHendelser)
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
@@ -328,16 +293,12 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_og_revurdering_med_fødselshendelse_fellesperiode_før_fødsel() {
-        var søktFellesperiode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFellesperiode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //2 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 9), LocalDate.of(2023, 11, 10))
-            .build();
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            .medPeriode(LocalDate.of(2023, 11, 9), LocalDate.of(2023, 11, 10)).build();
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 12, 1))
-            .build();
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 12, 1)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2023, 12, 4), LocalDate.of(2024, 3, 1))
@@ -349,14 +310,10 @@ class TapteDagerFpffTjenesteTest {
         var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         //fpff spiser opp fellesperiode før fødsel ved fødsel før termin
-        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medTrekkdager(new Trekkdager(15))
-            .build();
+        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom()).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+        var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans()).medTrekkonto(
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL).medArbeidsprosent(BigDecimal.ZERO).medTrekkdager(new Trekkdager(15)).build();
         uttakPeriode.leggTilAktivitet(aktivitetFpff);
 
         var uttak = new UttakResultatPerioderEntitet();
@@ -371,11 +328,9 @@ class TapteDagerFpffTjenesteTest {
         var termindato = mødrekvote.getFom();
         //2 virkedager
         var fødselsdato = LocalDate.of(2023, 11, 30);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(familieHendelser)
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
@@ -386,16 +341,12 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_med_fødselshendelse_fellesperiode_før_fødsel() {
-        var søktFellesperiode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFellesperiode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //2 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 9), LocalDate.of(2023, 11, 10))
-            .build();
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            .medPeriode(LocalDate.of(2023, 11, 9), LocalDate.of(2023, 11, 10)).build();
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 12, 1))
-            .build();
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 12, 1)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2023, 12, 4), LocalDate.of(2024, 3, 1))
@@ -407,14 +358,10 @@ class TapteDagerFpffTjenesteTest {
         var konto = opprettFagsakRelasjon(førstegangsBehandling, 15);
 
         //fpff spiser opp fellesperiode før fødsel ved fødsel før termin
-        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom())
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans())
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medTrekkdager(new Trekkdager(15))
-            .build();
+        var uttakPeriode = new UttakResultatPeriodeEntitet.Builder(søktFpff.getFom(), søktFpff.getTom()).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+        var aktivitetFpff = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakPeriode, frilans()).medTrekkonto(
+            UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL).medArbeidsprosent(BigDecimal.ZERO).medTrekkdager(new Trekkdager(15)).build();
         uttakPeriode.leggTilAktivitet(aktivitetFpff);
 
         var uttak = new UttakResultatPerioderEntitet();
@@ -423,10 +370,10 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = mødrekvote.getFom();
         var fødselsdato = LocalDate.of(2023, 11, 30);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(førstegangsBehandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(førstegangsBehandling), null,
+            new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
 
         //Føder 2 virkedager før termin, fellesperiode spises
@@ -435,11 +382,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_med_fødselshendelse_ikke_søkt_3_uker() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //10 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 24))
-            .build();
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 24)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2023, 11, 27), LocalDate.of(2024, 2, 1))
@@ -452,8 +397,7 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = mødrekvote.getFom();
         var fødselsdato = LocalDate.of(2023, 11, 23);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 7);
@@ -464,11 +408,9 @@ class TapteDagerFpffTjenesteTest {
 
     @Test
     void søknad_på_termindato_med_fødselshendelse_ikke_søkt_3_uker_føder_før_første_søkte_dag() {
-        var søktFpff = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+        var søktFpff = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //2 virkedager
-            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 14))
-            .build();
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 14)).build();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2023, 11, 15), LocalDate.of(2024, 2, 1))
@@ -481,8 +423,7 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = mødrekvote.getFom();
         var fødselsdato = LocalDate.of(2023, 11, 9);
-        var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(familieHendelse(termindato, null))
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 15);

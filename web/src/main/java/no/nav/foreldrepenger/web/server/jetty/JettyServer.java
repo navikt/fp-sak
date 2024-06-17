@@ -15,9 +15,9 @@ import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
-import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.Constraint;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -41,7 +41,7 @@ public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpsak");
+    private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpsak");
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*/app\\.jar$";
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
 
@@ -138,8 +138,7 @@ public class JettyServer {
     }
 
     private static ContextHandler createContext() throws IOException {
-        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null,
-            new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
+        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
 
         ctx.setParentLoaderPriority(true);
 

@@ -85,15 +85,15 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
         var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
 
-        var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
-            .map(Ytelse::getPeriode)
-            .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
-            .toList(), StandardCombinators::alwaysTrueForMatch);
+        var arenaTimeline = new LocalDateTimeline<>(
+            arenaYtelser.stream().map(Ytelse::getPeriode).map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE)).toList(),
+            StandardCombinators::alwaysTrueForMatch);
         var overlapp = lagTidslinjeFP(behandlingId).intersection(arenaTimeline).compress();
 
         // Ingen overlapp VL / Arena
-        if (overlapp.getLocalDateIntervals().isEmpty())
+        if (overlapp.getLocalDateIntervals().isEmpty()) {
             return false;
+        }
 
         // Ser både på løpende og avsluttede vedtak som overlapper første anvist dato
         if (!finnesYtelseVedtakPåEtterStartdato(arenaYtelser, førsteAnvistDatoFP)) {
@@ -104,7 +104,8 @@ public class VurderOmArenaYtelseSkalOpphøre {
         if (sisteArenaAnvistDatoFørVedtaksdato == null) {
             return false;
         }
-        var nesteArenaAnvistDatoEtterVedtaksdato = finnNesteArenaAnvistDatoEtterVedtaksdato(arenaYtelser, vedtaksDato, sisteArenaAnvistDatoFørVedtaksdato);
+        var nesteArenaAnvistDatoEtterVedtaksdato = finnNesteArenaAnvistDatoEtterVedtaksdato(arenaYtelser, vedtaksDato,
+            sisteArenaAnvistDatoFørVedtaksdato);
         if (førsteAnvistDatoFP.isBefore(sisteArenaAnvistDatoFørVedtaksdato)) {
             return true;
         }
@@ -115,16 +116,17 @@ public class VurderOmArenaYtelseSkalOpphøre {
 
     private Collection<Ytelse> hentArenaYtelser(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
         var ytelseFilter = iayTjeneste.finnGrunnlag(behandlingId)
-                .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
+            .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt))
+            .orElse(YtelseFilter.EMPTY);
 
-        return ytelseFilter
-            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()))
-            .getFiltrertYtelser();
+        return ytelseFilter.filter(y -> Fagsystem.ARENA.equals(y.getKilde())).getFiltrertYtelser();
     }
 
     private LocalDateTimeline<Boolean> lagTidslinjeFP(Long behandlingId) {
         var segmenter = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(brp -> brp.getDagsats() > 0)
             .map(brp -> new LocalDateSegment<>(brp.getBeregningsresultatPeriodeFom(), brp.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .toList();
@@ -133,7 +135,9 @@ public class VurderOmArenaYtelseSkalOpphøre {
 
     private Optional<LocalDate> finnFørsteAnvistDatoFP(Long behandlingId) {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(brp -> brp.getBeregningsresultatAndelList().stream().anyMatch(a -> a.getDagsats() > 0))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(Comparator.naturalOrder());
@@ -149,7 +153,9 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .orElse(null);
     }
 
-    private Optional<LocalDate> finnNesteArenaAnvistDatoEtterVedtaksdato(Collection<Ytelse> ytelser, LocalDate vedtaksdato, LocalDate sisteAnvisteDatoArena) {
+    private Optional<LocalDate> finnNesteArenaAnvistDatoEtterVedtaksdato(Collection<Ytelse> ytelser,
+                                                                         LocalDate vedtaksdato,
+                                                                         LocalDate sisteAnvisteDatoArena) {
         // Venter ikke egentlig treff her ettersom vedtaksdato som regel er dagens dato
         var nesteAnvistDato = ytelser.stream()
             .map(Ytelse::getYtelseAnvist)
@@ -160,9 +166,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
         if (nesteAnvistDato.isPresent()) {
             return nesteAnvistDato;
         }
-        var ytelserPåVedtaksdato = ytelser.stream()
-            .filter(y -> y.getPeriode().inkluderer(vedtaksdato))
-            .toList();
+        var ytelserPåVedtaksdato = ytelser.stream().filter(y -> y.getPeriode().inkluderer(vedtaksdato)).toList();
         if (!ytelserPåVedtaksdato.isEmpty()) {
             return Optional.of(sisteAnvisteDatoArena.plus(MELDEKORT_PERIODE));
         }
@@ -175,7 +179,6 @@ public class VurderOmArenaYtelseSkalOpphøre {
     }
 
     private boolean finnesYtelseVedtakPåEtterStartdato(Collection<Ytelse> ytelser, LocalDate startdato) {
-        return ytelser.stream()
-            .anyMatch(y -> y.getPeriode().inkluderer(startdato) || y.getPeriode().getFomDato().isAfter(startdato));
+        return ytelser.stream().anyMatch(y -> y.getPeriode().inkluderer(startdato) || y.getPeriode().getFomDato().isAfter(startdato));
     }
 }

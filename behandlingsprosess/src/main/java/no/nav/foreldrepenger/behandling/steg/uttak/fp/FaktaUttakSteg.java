@@ -59,7 +59,6 @@ public class FaktaUttakSteg implements UttakSteg {
     }
 
     private boolean harÅpentOverstyringAp(Long behandlingId) {
-        return behandlingRepository.hentBehandling(behandlingId)
-            .harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
+        return behandlingRepository.hentBehandling(behandlingId).harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
     }
 }

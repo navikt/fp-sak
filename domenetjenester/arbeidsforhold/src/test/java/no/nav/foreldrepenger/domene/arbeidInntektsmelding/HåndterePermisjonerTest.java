@@ -62,11 +62,9 @@ class HåndterePermisjonerTest {
         var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1));
         var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
 
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjon_1));
 
-        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling, List.of(yrkesaktivitet_1));
 
         var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
 
@@ -91,11 +89,9 @@ class HåndterePermisjonerTest {
         var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1));
         var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
 
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjon_1));
 
-        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling, List.of(yrkesaktivitet_1));
 
         var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
 
@@ -122,11 +118,9 @@ class HåndterePermisjonerTest {
         var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1));
         var permisjon_ok = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
         var permisjon_uten_sluttdato = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
 
-        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling, List.of(yrkesaktivitet_1));
 
         var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
@@ -158,11 +152,9 @@ class HåndterePermisjonerTest {
         var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1));
         var permisjon_ok = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
         var permisjon_uten_sluttdato = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
 
-        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling, List.of(yrkesaktivitet_1));
 
         var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
@@ -178,6 +170,7 @@ class HåndterePermisjonerTest {
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
     }
+
     @Test
     void har_relevant_permisjon_for_tilretteleggingFom() {
 
@@ -192,14 +185,14 @@ class HåndterePermisjonerTest {
 
         var permisjonInnenfor = byggPermisjon(yaBuilder, tilretteleggingFom, tilretteleggingFom.plusDays(1));
         var permisjonUtenfor = byggPermisjon(yaBuilder, tilretteleggingFom.minusYears(1), tilretteleggingFom.minusMonths(1));
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjonInnenfor, permisjonUtenfor)).build();
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjonInnenfor, permisjonUtenfor)).build();
 
         // Assert
         var erPermisjonInnenfor = HåndterePermisjoner.finnRelevantePermisjonSomOverlapperTilretteleggingFom(yrkesaktivitet_1, tilretteleggingFom);
 
         assertThat(erPermisjonInnenfor).hasSize(1);
     }
+
     @Test
     void har_ingen_relevant_permisjoner_for_tilretteleggingFom() {
         // Arrange
@@ -213,8 +206,7 @@ class HåndterePermisjonerTest {
 
         var permisjonUtenfor1 = byggPermisjon(yaBuilder, tilretteleggingFom.minusMonths(5), tilretteleggingFom.minusMonths(1));
         var permisjonUtenfor2 = byggPermisjon(yaBuilder, tilretteleggingFom.minusYears(1), tilretteleggingFom.minusMonths(1));
-        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjonUtenfor1, permisjonUtenfor2)).build();
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa, arbeidsgiver, ref, List.of(permisjonUtenfor1, permisjonUtenfor2)).build();
 
         // Assert
         var erPermisjonInnenfor = HåndterePermisjoner.finnRelevantePermisjonSomOverlapperTilretteleggingFom(yrkesaktivitet_1, tilretteleggingFom);
@@ -224,26 +216,27 @@ class HåndterePermisjonerTest {
 
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling,
                                                                                         List<YrkesaktivitetBuilder> yrkesaktiviteter) {
-        var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
-            .oppdatere(Optional.empty()).medAktørId(behandling.getAktørId());
+        var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
+            .medAktørId(behandling.getAktørId());
         yrkesaktiviteter.forEach(aktørArbeidBuilder::leggTilYrkesaktivitet);
         return aktørArbeidBuilder;
     }
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
                                                     Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
-        var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.REGISTER)
+        var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
             .leggTilAktørArbeid(aktørArbeidBuilder);
-        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(inntektArbeidYtelseAggregatBuilder);
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(inntektArbeidYtelseAggregatBuilder);
         arbeidsforholdInformasjonOpt.ifPresent(inntektArbeidYtelseGrunnlagBuilder::medInformasjon);
         return inntektArbeidYtelseGrunnlagBuilder.build();
     }
-    private YrkesaktivitetBuilder lagYrkesaktivitetBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder, AktivitetsAvtaleBuilder aktivitetsAvtale,
-                                                           Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, List<Permisjon> permisjoner) {
-        yrkesaktivitetBuilder
-            .medArbeidsforholdId(ref)
+
+    private YrkesaktivitetBuilder lagYrkesaktivitetBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder,
+                                                           AktivitetsAvtaleBuilder aktivitetsAvtale,
+                                                           Arbeidsgiver arbeidsgiver,
+                                                           InternArbeidsforholdRef ref,
+                                                           List<Permisjon> permisjoner) {
+        yrkesaktivitetBuilder.medArbeidsforholdId(ref)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .leggTilAktivitetsAvtale(aktivitetsAvtale);
@@ -258,16 +251,15 @@ class HåndterePermisjonerTest {
             .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
             .build();
     }
+
     private AktivitetsAvtaleBuilder lagAktivitetsAvtaleBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder, LocalDate fom) {
-        return yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, TIDENES_ENDE));
+        return yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder().medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, TIDENES_ENDE));
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                .build());
+        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+            .build());
     }
 }

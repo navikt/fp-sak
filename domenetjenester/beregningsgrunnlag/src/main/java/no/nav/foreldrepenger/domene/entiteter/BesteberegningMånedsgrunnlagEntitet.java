@@ -53,9 +53,7 @@ public class BesteberegningMånedsgrunnlagEntitet extends BaseEntitet {
 
     public BesteberegningMånedsgrunnlagEntitet(BesteberegningMånedsgrunnlagEntitet besteberegningMånedsgrunnlagEntitet) {
         this.periode = besteberegningMånedsgrunnlagEntitet.getPeriode();
-        besteberegningMånedsgrunnlagEntitet.getInntekter().stream()
-            .map(BesteberegningInntektEntitet::new)
-            .forEach(this::leggTilInntekt);
+        besteberegningMånedsgrunnlagEntitet.getInntekter().stream().map(BesteberegningInntektEntitet::new).forEach(this::leggTilInntekt);
     }
 
     public Long getId() {

@@ -23,8 +23,7 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject
-    public FeilPraksisUtsettelseAlleTask(FeilPraksisUtsettelseRepository utvalgRepository,
-                                         ProsessTaskTjeneste prosessTaskTjeneste) {
+    public FeilPraksisUtsettelseAlleTask(FeilPraksisUtsettelseRepository utvalgRepository, ProsessTaskTjeneste prosessTaskTjeneste) {
         this.utvalgRepository = utvalgRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
@@ -38,7 +37,8 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
 
         saker.stream().map(FeilPraksisUtsettelseAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
 
-        saker.stream().max(Comparator.naturalOrder())
+        saker.stream()
+            .max(Comparator.naturalOrder())
             .map(FeilPraksisUtsettelseAlleTask::opprettTaskForNesteUtvalg)
             .ifPresent(prosessTaskTjeneste::lagre);
 

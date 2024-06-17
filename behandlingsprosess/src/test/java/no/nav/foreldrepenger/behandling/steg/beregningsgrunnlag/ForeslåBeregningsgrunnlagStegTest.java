@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,13 +64,12 @@ class ForeslåBeregningsgrunnlagStegTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
         var stp = Skjæringstidspunkt.builder()
-                .medFørsteUttaksdato(LocalDate.now())
-                .medFørsteUttaksdatoGrunnbeløp(LocalDate.now())
-                .medSkjæringstidspunktOpptjening(LocalDate.now());
+            .medFørsteUttaksdato(LocalDate.now())
+            .medFørsteUttaksdatoGrunnbeløp(LocalDate.now())
+            .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(Dekningsgrad.DEKNINGSGRAD_100, false, AktivitetGradering.INGEN_GRADERING);
-        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(),
-                foreldrepengerGrunnlag);
+        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(), foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(inputTjeneste.lagInput(behandling.getId())).thenReturn(input);
@@ -77,8 +77,7 @@ class ForeslåBeregningsgrunnlagStegTest {
         when(beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(any())).thenReturn(beregningsgrunnlagRegelResultat);
 
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningsgrunnlagKopierOgLagreTjeneste,
-                inputProvider);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningsgrunnlagKopierOgLagreTjeneste, inputProvider);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }
@@ -100,8 +99,7 @@ class ForeslåBeregningsgrunnlagStegTest {
     void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
-        var aksjonspunktResultat = BeregningAvklaringsbehovResultat
-            .opprettFor(AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL);
+        var aksjonspunktResultat = BeregningAvklaringsbehovResultat.opprettFor(AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL);
         when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(Set.of(aksjonspunktResultat));
 
         // Act
@@ -110,12 +108,12 @@ class ForeslåBeregningsgrunnlagStegTest {
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(resultat.getAksjonspunktListe()).hasSize(1);
-        assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+        assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(
+            no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
     }
 
     private void opprettVilkårResultatForBehandling(VilkårResultatType resultatType) {
-        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType)
-                .buildFor(behandling);
+        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType).buildFor(behandling);
         var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
     }

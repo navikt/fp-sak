@@ -66,24 +66,25 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
         var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.behandlingId());
-        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
+        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling)) {
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+        }
 
-        differanse.hentKunDelresultater().stream()
+        differanse.hentKunDelresultater()
+            .stream()
             .map(diff -> utledStartpunktForDelresultat(revurdering, diff, normalDiff))
             .forEach(startpunkter::add);
 
-        return startpunkter.stream()
-            .min(Comparator.comparing(StartpunktType::getRangering))
-            .orElse(StartpunktType.UDEFINERT);
+        return startpunkter.stream().min(Comparator.comparing(StartpunktType::getRangering)).orElse(StartpunktType.UDEFINERT);
     }
 
     private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff, boolean normalDiff) {
-        if (!diff.erSporedeFeltEndret())
+        if (!diff.erSporedeFeltEndret()) {
             return StartpunktType.UDEFINERT;
+        }
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
-        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
-            utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
+        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(),
+            diff.getGrunnlagId2()) : utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
     }
 
     private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {

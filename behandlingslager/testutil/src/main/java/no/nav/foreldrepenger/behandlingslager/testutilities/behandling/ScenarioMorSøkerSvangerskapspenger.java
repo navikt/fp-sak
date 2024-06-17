@@ -11,8 +11,7 @@ public class ScenarioMorSøkerSvangerskapspenger extends AbstractTestScenario<Sc
 
     private ScenarioMorSøkerSvangerskapspenger() {
         super(FagsakYtelseType.SVANGERSKAPSPENGER, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
-        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.MORA)
-            .medSøknadsdato(LocalDate.of(2019, Month.JANUARY, 1));
+        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.MORA).medSøknadsdato(LocalDate.of(2019, Month.JANUARY, 1));
     }
 
     public static ScenarioMorSøkerSvangerskapspenger forSvangerskapspenger() {

@@ -68,18 +68,15 @@ class ØkonomioppdragMapperTest {
         lagOppdragslinje150(oppdrag110_1, 1L, true); // Inneholder en oppdragslinje150 med delytelsid 62L fra før av.
         List<Oppdrag> oppdragGenerertList = new ArrayList<>();
 
-         //Act
-        oppdrag110List.forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
+        //Act
+        oppdrag110List.forEach(
+            opp110 -> oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         //Assert
         for (var i = 0; i < oppdrag110List.size(); i++) {
             var oppdrag110Generert = oppdragGenerertList.get(i).getOppdrag110();
             var oppdrag110 = oppdrag110List.get(i);
-            var delytelseIdFraOpp150GenerertList = oppdrag110Generert.getOppdragsLinje150()
-                .stream()
-                .map(OppdragsLinje150::getDelytelseId)
-                .toList();
+            var delytelseIdFraOpp150GenerertList = oppdrag110Generert.getOppdragsLinje150().stream().map(OppdragsLinje150::getDelytelseId).toList();
             var ikkeSortertDelytelseIdFraOpp150List = oppdrag110.getOppdragslinje150Liste()
                 .stream()
                 .map(Oppdragslinje150::getDelytelseId)
@@ -88,9 +85,7 @@ class ØkonomioppdragMapperTest {
 
             assertThat(delytelseIdFraOpp150GenerertList).isNotEqualTo(ikkeSortertDelytelseIdFraOpp150List);
 
-            var sortertDelytelseIdFraOpp150List = ikkeSortertDelytelseIdFraOpp150List.stream()
-                .sorted(Comparator.comparing(Long::parseLong))
-                .toList();
+            var sortertDelytelseIdFraOpp150List = ikkeSortertDelytelseIdFraOpp150List.stream().sorted(Comparator.comparing(Long::parseLong)).toList();
 
             assertThat(delytelseIdFraOpp150GenerertList).isEqualTo(sortertDelytelseIdFraOpp150List);
         }
@@ -153,8 +148,8 @@ class ØkonomioppdragMapperTest {
         List<Oppdrag> oppdragGenerertList = new ArrayList<>();
 
         //Act
-        oppdragskontroll.getOppdrag110Liste().forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
+        oppdragskontroll.getOppdrag110Liste()
+            .forEach(opp110 -> oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         var oppdrag = oppdragGenerertList.stream().filter(o -> o.getOppdrag110().getKodeFagomraade().equals("FP")).findFirst();
         assertThat(oppdrag).isPresent();
@@ -194,13 +189,17 @@ class ØkonomioppdragMapperTest {
             for (var oppdragsLinje150Generert : oppdragsLinje150GenerertListe) {
                 var oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().get(ix);
                 assertThat(oppdragsLinje150Generert.getKodeEndringLinje()).isEqualTo(oppdragslinje150.getKodeEndringLinje().name());
-                assertThat(oppdragsLinje150Generert.getKodeStatusLinje()).isEqualTo(TkodeStatusLinje.fromValue(oppdragslinje150.getKodeStatusLinje().name()));
-                assertThat(oppdragsLinje150Generert.getDatoStatusFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoStatusFom()));
+                assertThat(oppdragsLinje150Generert.getKodeStatusLinje()).isEqualTo(
+                    TkodeStatusLinje.fromValue(oppdragslinje150.getKodeStatusLinje().name()));
+                assertThat(oppdragsLinje150Generert.getDatoStatusFom()).isEqualTo(
+                    DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoStatusFom()));
                 assertThat(oppdragsLinje150Generert.getVedtakId()).isEqualTo(String.valueOf(oppdragslinje150.getVedtakId()));
                 assertThat(oppdragsLinje150Generert.getDelytelseId()).isEqualTo(String.valueOf(oppdragslinje150.getDelytelseId()));
                 assertThat(oppdragsLinje150Generert.getKodeKlassifik()).isEqualTo(oppdragslinje150.getKodeKlassifik().getKode());
-                assertThat(oppdragsLinje150Generert.getDatoVedtakFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakFom()));
-                assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
+                assertThat(oppdragsLinje150Generert.getDatoVedtakFom()).isEqualTo(
+                    DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakFom()));
+                assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(
+                    DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(BigDecimal.valueOf(oppdragslinje150.getSats().getVerdi()));
                 assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
                 assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats().name());
@@ -230,8 +229,10 @@ class ØkonomioppdragMapperTest {
                     var refusjonsinfo156Opt = Optional.ofNullable(oppdragslinje150.getRefusjonsinfo156());
                     refusjonsinfo156Opt.ifPresent(refusjonsinfo156 -> {
                         assertThat(refusjonsinfo156Generert.getRefunderesId()).isEqualTo(refusjonsinfo156.getRefunderesId());
-                        assertThat(refusjonsinfo156Generert.getDatoFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(refusjonsinfo156.getDatoFom()));
-                        assertThat(refusjonsinfo156Generert.getMaksDato()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(refusjonsinfo156.getMaksDato()));
+                        assertThat(refusjonsinfo156Generert.getDatoFom()).isEqualTo(
+                            DateUtil.convertToXMLGregorianCalendarRemoveTimezone(refusjonsinfo156.getDatoFom()));
+                        assertThat(refusjonsinfo156Generert.getMaksDato()).isEqualTo(
+                            DateUtil.convertToXMLGregorianCalendarRemoveTimezone(refusjonsinfo156.getMaksDato()));
                     });
                 }
                 ix++;

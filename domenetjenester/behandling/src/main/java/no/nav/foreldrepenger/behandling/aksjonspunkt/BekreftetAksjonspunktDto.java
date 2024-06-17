@@ -13,8 +13,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-/** Husk @JsonTypeName på alle sublasser!! */
-public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode {
+/** Husk @JsonTypeName på alle sublasser!! */ public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode {
 
     @JsonProperty("begrunnelse")
     @Size(max = 4000)

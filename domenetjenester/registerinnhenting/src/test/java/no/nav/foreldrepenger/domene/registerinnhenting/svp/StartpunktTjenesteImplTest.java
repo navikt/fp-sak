@@ -25,8 +25,7 @@ class StartpunktTjenesteImplTest {
         endringsresultatSjekker = mock(EndringsresultatSjekker.class);
 
         // Mock startpunktutlederprovider
-        var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
-            (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.BEREGNING);
+        var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>((behandling, grunnlagId1, grunnlagId2) -> StartpunktType.BEREGNING);
 
         startpunktTjenesteSvp = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker);
     }
@@ -60,7 +59,8 @@ class StartpunktTjenesteImplTest {
         var endringsresultat = EndringsresultatDiff.opprett();
         var diffResult = mock(DiffResult.class);
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, grunnlagId1, grunnlagId2), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, grunnlagId1, grunnlagId2),
+            () -> diffResult);
 
         return endringsresultat;
     }

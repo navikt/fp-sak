@@ -37,7 +37,7 @@ public class BehandlingVedtakTjeneste {
 
     @Inject
     public BehandlingVedtakTjeneste(BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer,
-            BehandlingRepositoryProvider repositoryProvider) {
+                                    BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -45,8 +45,7 @@ public class BehandlingVedtakTjeneste {
     }
 
     public void opprettBehandlingVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsak().getYtelseType())
-                .orElseThrow();
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         var vedtakResultatType = utledVedtakResultatType(behandling);
         var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
         var vedtakstidspunkt = LocalDateTime.now();
@@ -54,13 +53,13 @@ public class BehandlingVedtakTjeneste {
         var erRevurderingMedUendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(behandling);
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
         var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakResultatType(vedtakResultatType)
-                .medAnsvarligSaksbehandler(ansvarligSaksbehandler)
-                .medVedtakstidspunkt(vedtakstidspunkt)
-                .medBehandlingsresultat(behandlingsresultat)
-                .medBeslutning(erRevurderingMedUendretUtfall)
-                .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
-                .build();
+            .medVedtakResultatType(vedtakResultatType)
+            .medAnsvarligSaksbehandler(ansvarligSaksbehandler)
+            .medVedtakstidspunkt(vedtakstidspunkt)
+            .medBehandlingsresultat(behandlingsresultat)
+            .medBeslutning(erRevurderingMedUendretUtfall)
+            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
+            .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
         behandlingVedtakEventPubliserer.fireEvent(behandlingVedtak, behandling);
     }
@@ -75,8 +74,9 @@ public class BehandlingVedtakTjeneste {
             return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
         if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
-            var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
-                    .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
+            var original = behandling.getOriginalBehandlingId()
+                .map(behandlingRepository::hentBehandling)
+                .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
             return utledVedtakResultatType(original);
         }
         return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);

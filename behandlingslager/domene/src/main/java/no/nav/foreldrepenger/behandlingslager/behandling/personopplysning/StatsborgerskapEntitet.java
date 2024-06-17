@@ -39,7 +39,7 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
 
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
-    @Column(name="statsborgerskap", nullable = false)
+    @Column(name = "statsborgerskap", nullable = false)
     private Landkoder statsborgerskap = Landkoder.UDEFINERT;
 
     @ManyToOne(optional = false)
@@ -103,9 +103,8 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
             return false;
         }
         var entitet = (StatsborgerskapEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) &&
-                Objects.equals(periode, entitet.periode) &&
-                Objects.equals(statsborgerskap, entitet.statsborgerskap);
+        return Objects.equals(aktørId, entitet.aktørId) && Objects.equals(periode, entitet.periode) && Objects.equals(statsborgerskap,
+            entitet.statsborgerskap);
     }
 
 

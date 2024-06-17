@@ -52,22 +52,15 @@ class KunYtelseHistorikkTjenesteTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, mock(VirksomhetTjeneste.class));
-        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
-            arbeidsgiverTjeneste);
+        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
         kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste);
-        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(GRUNNBELØP)
-            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .build();
+        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(GRUNNBELØP).medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPrStatusOgAndel.builder()
-            .medAndelsnr(ANDELSNR)
-            .medAktivitetStatus(BRUKERS_ANDEL)
-            .build(periode1);
+        BeregningsgrunnlagPrStatusOgAndel.builder().medAndelsnr(ANDELSNR).medAktivitetStatus(BRUKERS_ANDEL).build(periode1);
         historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), mock(DokumentArkivTjeneste.class),
-                new BehandlingRepository(entityManager));
+            new BehandlingRepository(entityManager));
     }
 
     @Test
@@ -77,11 +70,9 @@ class KunYtelseHistorikkTjenesteTest {
         var lagtTilAvSaksbehandler = false;
         var fastsatt = 100000;
         var inntektskategori = Inntektskategori.SJØMANN;
-        var andel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt,
-            inntektskategori);
+        var andel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt, inntektskategori);
         var kunYtelseDto = new FastsettBgKunYtelseDto(Collections.singletonList(andel), null);
-        var dto = new FaktaBeregningLagreDto(
-            Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
+        var dto = new FaktaBeregningLagreDto(Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
         // Act
         var tekstBuilder = historikkAdapter.tekstBuilder();
@@ -100,25 +91,23 @@ class KunYtelseHistorikkTjenesteTest {
         var lagtTilAvSaksbehandler = false;
         var fastsatt = 100000;
         var inntektskategori = Inntektskategori.SJØMANN;
-        var brukersAndel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler,
-            fastsatt, inntektskategori);
+        var brukersAndel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt, inntektskategori);
         var kunYtelseDto = new FastsettBgKunYtelseDto(Collections.singletonList(brukersAndel), null);
-        var dto = new FaktaBeregningLagreDto(
-            Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
+        var dto = new FaktaBeregningLagreDto(Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
         var forrigeBg = new BeregningsgrunnlagEntitet(beregningsgrunnlag);
         forrigeBg.getBeregningsgrunnlagPerioder()
             .forEach(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList()
-                .forEach(andel -> BeregningsgrunnlagPrStatusOgAndel.builder(andel)
-                    .medBeregnetPrÅr(BigDecimal.valueOf(fastsatt * 12))));
+                .forEach(andel -> BeregningsgrunnlagPrStatusOgAndel.builder(andel).medBeregnetPrÅr(BigDecimal.valueOf(fastsatt * 12))));
 
-        var forrigeGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(
-            Optional.empty()).medBeregningsgrunnlag(forrigeBg).build(1L, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        var forrigeGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+            .medBeregningsgrunnlag(forrigeBg)
+            .build(1L, BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
         // Act
         var tekstBuilder = historikkAdapter.tekstBuilder();
-        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag,
-            Optional.of(forrigeGrunnlag), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag, Optional.of(forrigeGrunnlag),
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         tekstBuilder.ferdigstillHistorikkinnslagDel();
 
         // Assert
@@ -128,8 +117,7 @@ class KunYtelseHistorikkTjenesteTest {
     private void assertHistorikkinnslagFordeling(Integer fastsatt, Integer overstyrt, String andelsInfo) {
         var deler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
         var andelHistorikkinnslag = deler.stream()
-            .filter(del -> del != null && del.getTema().isPresent() && andelsInfo.equals(
-                del.getTema().get().getNavnVerdi()))
+            .filter(del -> del != null && del.getTema().isPresent() && andelsInfo.equals(del.getTema().get().getNavnVerdi()))
             .toList();
         var fordelingInnslag = andelHistorikkinnslag.stream()
             .filter(del -> del.getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).isPresent())
@@ -139,24 +127,15 @@ class KunYtelseHistorikkTjenesteTest {
             assertThat(fordelingInnslag.isPresent()).isFalse();
         } else if (overstyrt == null) {
             assertThat(fordelingInnslag).isPresent();
-            assertThat(fordelingInnslag.get()
-                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
-                .get()
-                .getFraVerdi()).isNull();
-            assertThat(fordelingInnslag.get()
-                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
-                .get()
-                .getTilVerdi()).isEqualTo(fastsatt.toString());
+            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isNull();
+            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(
+                fastsatt.toString());
         } else {
             assertThat(fordelingInnslag).isPresent();
-            assertThat(fordelingInnslag.get()
-                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
-                .get()
-                .getFraVerdi()).isEqualTo(overstyrt.toString());
-            assertThat(fordelingInnslag.get()
-                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
-                .get()
-                .getTilVerdi()).isEqualTo(fastsatt.toString());
+            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isEqualTo(
+                overstyrt.toString());
+            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(
+                fastsatt.toString());
         }
     }
 

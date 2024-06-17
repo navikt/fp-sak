@@ -275,7 +275,12 @@ class GrensesnittavstemmingMapperTest {
         return oppdrag110;
     }
 
-    private void sjekkAksjonsInnhold(Avstemming forvendetFom, Avstemming forvendetTom, Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, KodeFagområde kodeFagområde) {
+    private void sjekkAksjonsInnhold(Avstemming forvendetFom,
+                                     Avstemming forvendetTom,
+                                     Avstemmingsdata avstemmingsdata,
+                                     AksjonType aksjonType,
+                                     boolean første,
+                                     KodeFagområde kodeFagområde) {
         sjekkAksjonsInnhold(avstemmingsdata, aksjonType, første, kodeFagområde);
 
         var aksjon = avstemmingsdata.getAksjon();
@@ -318,8 +323,7 @@ class GrensesnittavstemmingMapperTest {
 
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
 
-        return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+        return oppdrLinje150Builder.medKodeEndringLinje(KodeEndringLinje.ENDR)
             .medKodeStatusLinje(KodeStatusLinje.OPPH)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
@@ -334,8 +338,7 @@ class GrensesnittavstemmingMapperTest {
     }
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, KodeFagområde fagområde, LocalDateTime avstemmingsTidspunkt) {
-        return oppdr110Builder
-            .medKodeEndring(KodeEndring.NY)
+        return oppdr110Builder.medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(fagområde)
             .medFagSystemId(44L)
             .medOppdragGjelderId("12345678901")
@@ -346,14 +349,11 @@ class GrensesnittavstemmingMapperTest {
     }
 
     private OppdragKvittering buildOppdragKvittering(Oppdrag110 oppdr110) {
-        return oppdragKvitteringBuilder
-            .medOppdrag110(oppdr110)
-            .build();
+        return oppdragKvitteringBuilder.medOppdrag110(oppdr110).build();
     }
 
     private Oppdragskontroll buildOppdragskontroll(boolean venterKvittering) {
-        return oppdrkontrollBuilder
-            .medBehandlingId(15400L)
+        return oppdrkontrollBuilder.medBehandlingId(15400L)
             .medSaksnummer(new Saksnummer("3500"))
             .medVenterKvittering(venterKvittering)
             .medProsessTaskId(560000L)

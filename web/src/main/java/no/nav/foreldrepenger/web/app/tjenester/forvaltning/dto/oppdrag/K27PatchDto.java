@@ -51,7 +51,6 @@ public class K27PatchDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
+        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
     }
 }

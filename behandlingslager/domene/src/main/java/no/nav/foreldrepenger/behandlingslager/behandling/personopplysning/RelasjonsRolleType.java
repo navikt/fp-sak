@@ -32,7 +32,8 @@ public enum RelasjonsRolleType implements Kodeverdi {
 
     public static final String KODEVERK = "RELASJONSROLLE_TYPE";
 
-    private static final Set<RelasjonsRolleType> FORELDRE_ROLLER = Set.of(RelasjonsRolleType.MORA, RelasjonsRolleType.FARA, RelasjonsRolleType.MEDMOR);
+    private static final Set<RelasjonsRolleType> FORELDRE_ROLLER = Set.of(RelasjonsRolleType.MORA, RelasjonsRolleType.FARA,
+        RelasjonsRolleType.MEDMOR);
 
     static {
         for (var v : values()) {
@@ -53,8 +54,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
     }
 
     public static RelasjonsRolleType fraKode(String kode) {
-        return Optional.ofNullable(kode).map(KODER::get)
-            .orElseThrow(() -> new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode));
+        return Optional.ofNullable(kode).map(KODER::get).orElseThrow(() -> new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode));
     }
 
     public static Map<String, RelasjonsRolleType> kodeMap() {

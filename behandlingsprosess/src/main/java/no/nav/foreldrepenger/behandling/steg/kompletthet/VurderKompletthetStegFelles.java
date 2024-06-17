@@ -25,7 +25,9 @@ public class VurderKompletthetStegFelles {
         return evaluerUoppfylt(kompletthetResultat, kompletthetResultat.ventefrist(), apDef);
     }
 
-    public static BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, LocalDateTime ventefrist, AksjonspunktDefinisjon apDef) {
+    public static BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat,
+                                                       LocalDateTime ventefrist,
+                                                       AksjonspunktDefinisjon apDef) {
         if (kompletthetResultat.erFristUtløpt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
@@ -34,8 +36,6 @@ public class VurderKompletthetStegFelles {
     }
 
     public static boolean autopunktAlleredeUtført(AksjonspunktDefinisjon apDef, Behandling behandling) {
-        return behandling.getAksjonspunktMedDefinisjonOptional(apDef)
-                .map(Aksjonspunkt::erUtført)
-                .orElse(Boolean.FALSE);
+        return behandling.getAksjonspunktMedDefinisjonOptional(apDef).map(Aksjonspunkt::erUtført).orElse(Boolean.FALSE);
     }
 }

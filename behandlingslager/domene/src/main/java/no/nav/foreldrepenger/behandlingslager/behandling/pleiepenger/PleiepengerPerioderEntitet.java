@@ -33,10 +33,10 @@ public class PleiepengerPerioderEntitet extends BaseEntitet {
 
     PleiepengerPerioderEntitet(PleiepengerPerioderEntitet aggregat) {
         aggregat.getInnleggelser().forEach(e -> {
-                var entitet = new PleiepengerInnleggelseEntitet(e);
-                innleggelser.add(entitet);
-                entitet.setPleiepengerPerioder(this);
-            });
+            var entitet = new PleiepengerInnleggelseEntitet(e);
+            innleggelser.add(entitet);
+            entitet.setPleiepengerPerioder(this);
+        });
     }
 
     public List<PleiepengerInnleggelseEntitet> getInnleggelser() {
@@ -72,10 +72,14 @@ public class PleiepengerPerioderEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PleiepengerPerioderEntitet) o;
-        return Objects.equals(innleggelser,  that.innleggelser);
+        return Objects.equals(innleggelser, that.innleggelser);
     }
 
     @Override

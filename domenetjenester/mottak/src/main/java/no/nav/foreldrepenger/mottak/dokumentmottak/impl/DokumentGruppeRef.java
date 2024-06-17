@@ -16,7 +16,7 @@ import jakarta.inject.Qualifier;
 @Qualifier
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Documented
 public @interface DokumentGruppeRef {
 
@@ -25,7 +25,9 @@ public @interface DokumentGruppeRef {
      */
     DokumentGruppe value();
 
-    /** AnnotationLiteral som kan brukes ved CDI søk. */
+    /**
+     * AnnotationLiteral som kan brukes ved CDI søk.
+     */
     class DokumentGruppeRefLiteral extends AnnotationLiteral<DokumentGruppeRef> implements DokumentGruppeRef {
 
         private DokumentGruppe gruppe;

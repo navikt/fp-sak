@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Medlemskap;
 public class MedlemskapGrunnlagBygger {
 
     public Medlemskap.Builder byggGrunnlag(UttakInput input) {
-        return new Medlemskap.Builder()
-                .opphørsdato(input.getMedlemskapOpphørsdato().orElse(null));
+        return new Medlemskap.Builder().opphørsdato(input.getMedlemskapOpphørsdato().orElse(null));
     }
 }

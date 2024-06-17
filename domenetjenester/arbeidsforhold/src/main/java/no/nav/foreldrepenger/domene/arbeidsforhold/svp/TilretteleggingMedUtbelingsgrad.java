@@ -8,7 +8,7 @@ public class TilretteleggingMedUtbelingsgrad {
     private List<PeriodeMedUtbetalingsgrad> periodeMedUtbetalingsgrad;
 
     public TilretteleggingMedUtbelingsgrad(TilretteleggingArbeidsforhold tilretteleggingArbeidsforhold,
-            List<PeriodeMedUtbetalingsgrad> periodeMedUtbetalingsgrad) {
+                                           List<PeriodeMedUtbetalingsgrad> periodeMedUtbetalingsgrad) {
         this.tilretteleggingArbeidsforhold = tilretteleggingArbeidsforhold;
         this.periodeMedUtbetalingsgrad = periodeMedUtbetalingsgrad;
     }

@@ -47,8 +47,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     }
 
     @Inject
-    public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                                    BeregningTjeneste beregningTjeneste) {
+    public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository, BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningTjeneste = beregningTjeneste;
     }
@@ -57,8 +56,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = "Returnerer beregningsgrunnlag for behandling for formidlingsbruk.", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                     @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .map(BehandlingReferanse::fra)

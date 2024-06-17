@@ -26,6 +26,7 @@ public class BehandleNegativeKvitteringTjeneste {
 
     /**
      * Endre hendelse til prosess så det kan kjøres igjen
+     *
      * @param prosessTaskId id til prosess task
      */
     public void nullstilleØkonomioppdragTask(Long prosessTaskId) {

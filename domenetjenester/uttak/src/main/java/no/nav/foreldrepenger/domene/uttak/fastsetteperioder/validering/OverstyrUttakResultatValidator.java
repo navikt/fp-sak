@@ -61,8 +61,7 @@ public class OverstyrUttakResultatValidator {
     }
 
     private FastsattUttakPeriode map(ForeldrepengerUttakPeriode periode) {
-        return new FastsattUttakPeriode.Builder()
-            .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
+        return new FastsattUttakPeriode.Builder().oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .samtidigUttak(periode.isSamtidigUttak())
             .tidsperiode(periode.getTidsperiode().getFomDato(), periode.getTidsperiode().getTomDato())
             .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
@@ -79,9 +78,8 @@ public class OverstyrUttakResultatValidator {
     }
 
     private FastsattUttakPeriodeAktivitet map(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
-        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getTrekkdager()),
-            UttakEnumMapper.map(aktivitet.getTrekkonto()),
-            UttakEnumMapper.map(aktivitet.getUttakAktivitet().getUttakArbeidType(),
-                aktivitet.getUttakAktivitet().getArbeidsgiver(), aktivitet.getUttakAktivitet().getArbeidsforholdRef()));
+        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getTrekkdager()), UttakEnumMapper.map(aktivitet.getTrekkonto()),
+            UttakEnumMapper.map(aktivitet.getUttakAktivitet().getUttakArbeidType(), aktivitet.getUttakAktivitet().getArbeidsgiver(),
+                aktivitet.getUttakAktivitet().getArbeidsforholdRef()));
     }
 }

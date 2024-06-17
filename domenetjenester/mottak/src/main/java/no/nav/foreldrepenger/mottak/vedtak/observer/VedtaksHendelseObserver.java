@@ -26,6 +26,7 @@ public class VedtaksHendelseObserver {
     private static final Environment ENV = Environment.current();
 
     private ProsessTaskTjeneste taskTjeneste;
+
     public VedtaksHendelseObserver() {
     }
 

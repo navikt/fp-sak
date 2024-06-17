@@ -93,15 +93,10 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
-        var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter,
-                referanser,
-                behandlingReferanse.getUtledetSkjæringstidspunkt(),
-                mangler,
-                saksbehandlersVurderinger,
-                iayGrunnlag.getArbeidsforholdOverstyringer());
-        var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(iayGrunnlag.getArbeidsforholdOverstyringer(),
-            referanser,
-            mangler);
+        var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter, referanser,
+            behandlingReferanse.getUtledetSkjæringstidspunkt(), mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer());
+        var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(
+            iayGrunnlag.getArbeidsforholdOverstyringer(), referanser, mangler);
 
         var alleArbeidsforhold = new ArrayList<>(arbeidsforholdFraRegister);
         alleArbeidsforhold.addAll(arbeidsforholdFraOverstyringer);
@@ -117,20 +112,21 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
-        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer()).stream()
+        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer())
+            .stream()
             .filter(this::gjelderInntektsmelding)
             .toList();
         return inntektsmeldinger.stream().map(im -> {
-                var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
-                var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, referanser, kontaktinfo, dokumentId, mangler, saksbehandlersVurderinger);
-            })
-            .toList();
+            var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
+            var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
+            return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, referanser, kontaktinfo, dokumentId, mangler, saksbehandlersVurderinger);
+        }).toList();
     }
 
     private boolean gjelderInntektsmelding(ArkivJournalPost dok) {
-        return dok.getHovedDokument() != null && dok.getHovedDokument().getDokumentType() != null &&
-            dok.getHovedDokument().getDokumentType().erInntektsmelding();
+        return dok.getHovedDokument() != null && dok.getHovedDokument().getDokumentType() != null && dok.getHovedDokument()
+            .getDokumentType()
+            .erInntektsmelding();
     }
 
     private Optional<String> finnDokumentId(JournalpostId journalpostId, List<ArkivJournalPost> alleInntektsmeldingerFraArkiv) {
@@ -149,7 +145,6 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     private Optional<MottattDokument> finnMotattXML(List<MottattDokument> dokumenter, Inntektsmelding im) {
-        return dokumenter.stream().filter(d -> Objects.equals(d.getJournalpostId(), im.getJournalpostId()))
-            .findFirst();
+        return dokumenter.stream().filter(d -> Objects.equals(d.getJournalpostId(), im.getJournalpostId())).findFirst();
     }
 }

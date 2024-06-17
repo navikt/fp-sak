@@ -68,8 +68,7 @@ public class TapteDagerFpffTjeneste {
     }
 
     private static Integer antallSøkteDagerFpff(UttakResultatEntitet uttak) {
-        return uttak
-            .getGjeldendePerioder()
+        return uttak.getGjeldendePerioder()
             .getPerioder()
             .stream()
             .filter(p -> p.getAktiviteter().stream().anyMatch(a -> Objects.equals(a.getTrekkonto(), UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)))
@@ -79,8 +78,7 @@ public class TapteDagerFpffTjeneste {
     }
 
     private static Integer antallSøkteDagerFpff(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat
-            .getOppgittFordeling()
+        return ytelseFordelingAggregat.getOppgittFordeling()
             .getPerioder()
             .stream()
             .filter(p -> Objects.equals(p.getPeriodeType(), UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL))

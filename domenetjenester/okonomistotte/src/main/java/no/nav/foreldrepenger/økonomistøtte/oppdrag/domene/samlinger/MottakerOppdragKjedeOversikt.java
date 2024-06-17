@@ -21,9 +21,7 @@ public class MottakerOppdragKjedeOversikt {
     public MottakerOppdragKjedeOversikt(Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjede> oppdragskjeder) {
         this.betalingsmottaker = betalingsmottaker;
         this.oppdragskjeder = oppdragskjeder;
-        if (oppdragskjeder.keySet().stream()
-            .map(KjedeNøkkel::getBetalingsmottaker)
-            .anyMatch(kjede -> !betalingsmottaker.equals(kjede))) {
+        if (oppdragskjeder.keySet().stream().map(KjedeNøkkel::getBetalingsmottaker).anyMatch(kjede -> !betalingsmottaker.equals(kjede))) {
             throw new IllegalArgumentException("Støtter kun oppdragskjeder for spesifisert mottaker");
         }
     }
@@ -37,7 +35,8 @@ public class MottakerOppdragKjedeOversikt {
     }
 
     public DelytelseId finnHøyesteDelytelseId() {
-        return oppdragskjeder.values().stream()
+        return oppdragskjeder.values()
+            .stream()
             .map(OppdragKjede::getSisteLinje)
             .map(OppdragLinje::getDelytelseId)
             .max(Comparator.naturalOrder())

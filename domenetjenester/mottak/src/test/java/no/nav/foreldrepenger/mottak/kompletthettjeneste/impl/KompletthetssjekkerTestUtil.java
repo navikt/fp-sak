@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class KompletthetssjekkerTestUtil {
 
-    public static final AktørId AKTØR_ID  = AktørId.dummy();
+    public static final AktørId AKTØR_ID = AktørId.dummy();
 
     private final BehandlingRepositoryProvider repositoryProvider;
     private final BehandlingRepository behandlingRepository;
@@ -121,9 +121,7 @@ public class KompletthetssjekkerTestUtil {
 
     private void byggOppgittFordelingMedUtsettelse(Behandling behandling, LocalDate stp, Årsak utsettelseÅrsak) {
 
-        var builder = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(stp, stp.plusWeeks(10).minusDays(1));
+        var builder = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FORELDREPENGER).medPeriode(stp, stp.plusWeeks(10).minusDays(1));
 
         if (utsettelseÅrsak != null) {
             builder.medÅrsak(utsettelseÅrsak);
@@ -132,13 +130,13 @@ public class KompletthetssjekkerTestUtil {
         var fpPeriode = builder.build();
         var oppgittFordeling = new OppgittFordelingEntitet(List.of(fpPeriode), true);
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(oppgittFordeling);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medOppgittFordeling(oppgittFordeling);
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
-        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandlingId)
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(behandlingId)
             .medAntallBarn(1)
             .medFødselsDato(LocalDate.now().minusDays(1));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);

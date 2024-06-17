@@ -37,7 +37,7 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
     private HistorikkinnslagDel historikkinnslagDel;
 
     @Convert(converter = HistorikkinnslagFeltType.KodeverdiConverter.class)
-    @Column(name="historikkinnslag_felt_type", nullable = false)
+    @Column(name = "historikkinnslag_felt_type", nullable = false)
     private HistorikkinnslagFeltType feltType;
 
     @Column(name = "navn")
@@ -139,13 +139,9 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
         if (!(o instanceof HistorikkinnslagFelt that)) {
             return false;
         }
-        return Objects.equals(feltType, that.feltType)
-                && Objects.equals(navn, that.navn)
-                && Objects.equals(navnVerdi, that.navnVerdi)
-                && Objects.equals(klNavn, that.klNavn)
-                && Objects.equals(klFraVerdi, that.klFraVerdi)
-                && Objects.equals(klTilVerdi, that.klTilVerdi)
-                && Objects.equals(sekvensNr, that.sekvensNr);
+        return Objects.equals(feltType, that.feltType) && Objects.equals(navn, that.navn) && Objects.equals(navnVerdi, that.navnVerdi)
+            && Objects.equals(klNavn, that.klNavn) && Objects.equals(klFraVerdi, that.klFraVerdi) && Objects.equals(klTilVerdi, that.klTilVerdi)
+            && Objects.equals(sekvensNr, that.sekvensNr);
     }
 
     @Override

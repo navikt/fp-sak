@@ -38,9 +38,7 @@ public class HentMedlemskapFraRegister {
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(AktørId aktørId, LocalDate fom, LocalDate tom) {
         try {
-            var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream()
-                .map(this::mapFraMedlemsunntak)
-                .toList();
+            var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream().map(this::mapFraMedlemsunntak).toList();
             LOG.info("MEDL2 REST RS {}", mups);
             return mups;
         } catch (Exception e) {
@@ -49,8 +47,7 @@ public class HentMedlemskapFraRegister {
     }
 
     private Medlemskapsperiode mapFraMedlemsunntak(Medlemskapsunntak medlemsperiode) {
-        return new Medlemskapsperiode.Builder()
-            .medFom(medlemsperiode.fraOgMed())
+        return new Medlemskapsperiode.Builder().medFom(medlemsperiode.fraOgMed())
             .medTom(medlemsperiode.tilOgMed())
             .medDatoBesluttet(medlemsperiode.getBesluttet())
             .medErMedlem(medlemsperiode.medlem())

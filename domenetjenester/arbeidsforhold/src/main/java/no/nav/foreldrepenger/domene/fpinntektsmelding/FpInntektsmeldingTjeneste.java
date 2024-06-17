@@ -23,8 +23,7 @@ public class FpInntektsmeldingTjeneste {
     }
 
     @Inject
-    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.klient = klient;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
@@ -54,7 +53,7 @@ public class FpInntektsmeldingTjeneste {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> OpprettForespørselRequest.YtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> OpprettForespørselRequest.YtelseType.SVANGERSKAPSPENGER;
-            case UDEFINERT,ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
+            case UDEFINERT, ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
         };
     }
 }

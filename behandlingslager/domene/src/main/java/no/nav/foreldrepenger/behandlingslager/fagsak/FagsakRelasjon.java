@@ -69,10 +69,11 @@ public class FagsakRelasjon extends BaseEntitet {
     }
 
     public FagsakRelasjon(Fagsak fagsakNrEn,
-                   Fagsak fagsakNrTo,
-                   Stønadskontoberegning stønadskontoberegning, Dekningsgrad dekningsgrad,
-                   Dekningsgrad overstyrtDekningsgrad,
-                   LocalDate avsluttningsdato) {
+                          Fagsak fagsakNrTo,
+                          Stønadskontoberegning stønadskontoberegning,
+                          Dekningsgrad dekningsgrad,
+                          Dekningsgrad overstyrtDekningsgrad,
+                          LocalDate avsluttningsdato) {
         this.stønadskontoberegning = stønadskontoberegning;
         this.fagsakNrEn = fagsakNrEn;
         this.fagsakNrTo = fagsakNrTo;

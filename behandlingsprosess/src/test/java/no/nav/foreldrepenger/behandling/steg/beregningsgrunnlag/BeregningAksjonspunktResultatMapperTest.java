@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
@@ -28,8 +29,7 @@ class BeregningAksjonspunktResultatMapperTest {
     void tester_mapping_av_aksjonspunkt_med_vent() {
         var frist = LocalDateTime.now();
         var beregningAp = BeregningAvklaringsbehovResultat.opprettMedFristFor(AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_INNTKT_RAP_FRST,
-            BeregningVenteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST,
-            frist);
+            BeregningVenteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST, frist);
         var ap = BeregningAksjonspunktResultatMapper.map(beregningAp);
         assertThat(ap.getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST);
         assertThat(ap.getVenteårsak()).isEqualTo(Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST);

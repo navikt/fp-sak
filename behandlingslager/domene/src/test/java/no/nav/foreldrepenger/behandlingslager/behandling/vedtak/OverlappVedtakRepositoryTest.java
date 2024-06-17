@@ -30,8 +30,7 @@ class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
     void lagre() {
         // Arrange
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        var periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1),
-            LocalDate.of(2019, 5, 1));
+        var periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), LocalDate.of(2019, 5, 1));
         var ytelseInfotrygd = OverlappVedtak.OverlappYtelseType.BS;
         var builder = OverlappVedtak.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())

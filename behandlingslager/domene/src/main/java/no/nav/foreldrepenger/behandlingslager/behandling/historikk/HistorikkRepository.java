@@ -18,7 +18,7 @@ public class HistorikkRepository {
     }
 
     @Inject
-    public HistorikkRepository( EntityManager entityManager) {
+    public HistorikkRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -45,23 +45,17 @@ public class HistorikkRepository {
 
         return entityManager.createQuery(
             "select h from Historikkinnslag h where (h.behandlingId = :behandlingId OR h.behandlingId = NULL) AND h.fagsakId = :fagsakId ",
-            Historikkinnslag.class)
-            .setParameter("fagsakId", fagsakId)
-            .setParameter("behandlingId", behandlingId)
-            .getResultList();
+            Historikkinnslag.class).setParameter("fagsakId", fagsakId).setParameter("behandlingId", behandlingId).getResultList();
     }
 
     private Long getFagsakId(long behandlingId) {
         return entityManager.createQuery("select b.fagsak.id from Behandling b where b.id = :behandlingId", Long.class)
-                .setParameter("behandlingId", behandlingId)
-                .getSingleResult();
+            .setParameter("behandlingId", behandlingId)
+            .getSingleResult();
     }
 
     public List<Historikkinnslag> hentHistorikkForSaksnummer(Saksnummer saksnummer) {
-        return entityManager.createQuery(
-                "select h from Historikkinnslag h inner join Fagsak f On f.id = h.fagsakId where f.saksnummer= :saksnummer",
-                Historikkinnslag.class)
-                .setParameter("saksnummer", saksnummer)
-                .getResultList();
+        return entityManager.createQuery("select h from Historikkinnslag h inner join Fagsak f On f.id = h.fagsakId where f.saksnummer= :saksnummer",
+            Historikkinnslag.class).setParameter("saksnummer", saksnummer).getResultList();
     }
 }

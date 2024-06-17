@@ -26,10 +26,8 @@ final class TidligOppstartFarDokumentasjonUtleder {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var familiehendelseDato = familieHendelse.getFamilieHendelseDato();
-        if (behandlingKanIkkeHaTidligOppstart(input, ytelseFordelingAggregat, familieHendelse)
-            || !søktPeriodeInnenforTidsperiodeForbeholdtMor(oppgittPeriode, familiehendelseDato)
-            || oppgittPeriode.isFlerbarnsdager()
-            || erBalansertUttakRundtFødsel(oppgittPeriode, input)) {
+        if (behandlingKanIkkeHaTidligOppstart(input, ytelseFordelingAggregat, familieHendelse) || !søktPeriodeInnenforTidsperiodeForbeholdtMor(
+            oppgittPeriode, familiehendelseDato) || oppgittPeriode.isFlerbarnsdager() || erBalansertUttakRundtFødsel(oppgittPeriode, input)) {
             return Optional.empty();
         }
 
@@ -41,7 +39,9 @@ final class TidligOppstartFarDokumentasjonUtleder {
         return Optional.empty();
     }
 
-    private static boolean behandlingKanIkkeHaTidligOppstart(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat, FamilieHendelse familieHendelse) {
+    private static boolean behandlingKanIkkeHaTidligOppstart(UttakInput input,
+                                                             YtelseFordelingAggregat ytelseFordelingAggregat,
+                                                             FamilieHendelse familieHendelse) {
         return !familieHendelse.gjelderFødsel() || RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle())
             || ytelseFordelingAggregat.robustHarAleneomsorg(input.getBehandlingReferanse().relasjonRolle());
     }

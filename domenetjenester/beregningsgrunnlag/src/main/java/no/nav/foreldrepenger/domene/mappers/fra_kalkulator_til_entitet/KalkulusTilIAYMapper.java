@@ -15,7 +15,7 @@ public final class KalkulusTilIAYMapper {
     }
 
     public static Arbeidsgiver mapArbeidsgiver(no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver arbeidsgiver) {
-        return arbeidsgiver.getErVirksomhet() ? Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr()) :
-            Arbeidsgiver.fra(new AktørId(arbeidsgiver.getAktørId().getId()));
+        return arbeidsgiver.getErVirksomhet() ? Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr()) : Arbeidsgiver.fra(
+            new AktørId(arbeidsgiver.getAktørId().getId()));
     }
 }

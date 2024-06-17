@@ -63,12 +63,9 @@ class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     private void lagreDokumentBestillingFor(Behandling behandling, UUID bestillingUuid) {
-        var dokumenter = BehandlingDokumentEntitet.Builder.ny()
-            .medBehandling(behandling.getId())
-            .build();
+        var dokumenter = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build();
 
-        dokumenter.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
-            .medBestillingUuid(bestillingUuid)
+        dokumenter.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBestillingUuid(bestillingUuid)
             .medDokumentMalType("TEST")
             .medBehandlingDokument(dokumenter)
             .medOpprinneligDokumentMal("HMMM")

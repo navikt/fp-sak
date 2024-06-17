@@ -30,23 +30,22 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
 
     @Inject
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
-            HistorikkTjenesteAdapter historikkAdapter,
-            BeregnYtelseTjenesteES beregnTjeneste) {
+                                          HistorikkTjenesteAdapter historikkAdapter,
+                                          BeregnYtelseTjenesteES beregnTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING);
         this.beregningRepository = beregningRepository;
         this.beregnTjeneste = beregnTjeneste;
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringBeregningDto dto, Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringBeregningDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         beregnTjeneste.overstyrTilkjentYtelseForEngangsstønad(behandling, dto.getBeregnetTilkjentYtelse());
         return OppdateringResultat.utenOverhopp();
     }
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringBeregningDto dto) {
-       lagHistorikkInnslagForOverstyrtBeregning(behandling.getId(), dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
+        lagHistorikkInnslagForOverstyrtBeregning(behandling.getId(), dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
     }
 
     private void lagHistorikkInnslagForOverstyrtBeregning(Long behandlingId, String begrunnelse, Long tilBeregning) {

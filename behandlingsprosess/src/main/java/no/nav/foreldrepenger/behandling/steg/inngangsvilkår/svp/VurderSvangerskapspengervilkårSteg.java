@@ -27,7 +27,7 @@ public class VurderSvangerskapspengervilkårSteg extends InngangsvilkårStegImpl
 
     @Inject
     public VurderSvangerskapspengervilkårSteg(BehandlingRepositoryProvider repositoryProvider,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+                                              InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
     }
 
@@ -37,7 +37,9 @@ public class VurderSvangerskapspengervilkårSteg extends InngangsvilkårStegImpl
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType hoppesTilSteg,
                                    BehandlingStegType hoppesFraSteg) {
         ryddVilkårTilbakeHopp(kontekst, b -> true);
     }

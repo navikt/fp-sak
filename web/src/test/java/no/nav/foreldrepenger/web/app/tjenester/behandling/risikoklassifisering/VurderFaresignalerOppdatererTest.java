@@ -49,7 +49,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         var behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
         historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null,
-                behandlingRepositoryProvider.getBehandlingRepository());
+            behandlingRepositoryProvider.getBehandlingRepository());
         var behandlingRepository = new BehandlingRepository(entityManager);
         var risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -86,7 +86,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
 
         // Act
@@ -106,14 +107,14 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(faresignaler).isPresent();
         assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
-        assertThat(faresignaler.get().getFraVerdi()).isEqualTo(
-            HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
+        assertThat(faresignaler.get().getFraVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
     }
 
     @Test
     void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
 
         // Act
@@ -132,8 +133,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
             .findFirst();
 
         assertThat(faresignaler).isPresent();
-        assertThat(faresignaler.get().getTilVerdi()).isEqualTo(
-            HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
+        assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
         assertThat(faresignaler.get().getFraVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
     }
 

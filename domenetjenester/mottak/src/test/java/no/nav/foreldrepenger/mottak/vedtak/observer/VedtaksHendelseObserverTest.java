@@ -62,7 +62,8 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         var prosessTaskDataList = captor.getAllValues();
 
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
-        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), TaskType.forProsessTask(StartBerørtBehandlingTask.class));
+        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class),
+            TaskType.forProsessTask(StartBerørtBehandlingTask.class));
 
     }
 
@@ -99,8 +100,10 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioFP.medBehandlingVedtak()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -113,8 +116,10 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioSVP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioSVP.medBehandlingVedtak()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandling = scenarioSVP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -127,8 +132,10 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioES.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioES.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioES.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioES.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioES.medBehandlingVedtak()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandling = scenarioES.lagre(repositoryProvider);
         behandling.avsluttBehandling();

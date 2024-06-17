@@ -30,7 +30,7 @@ public class FagsakEgenskap extends BaseEntitet {
     private boolean aktiv = true;
 
     @Convert(converter = EgenskapNøkkel.KodeverdiConverter.class)
-    @Column(name="egenskap_key", nullable = false)
+    @Column(name = "egenskap_key", nullable = false)
     private EgenskapNøkkel egenskapNøkkel;
 
     @Column(name = "egenskap_value")
@@ -105,10 +105,12 @@ public class FagsakEgenskap extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof FagsakEgenskap that))
+        }
+        if (!(o instanceof FagsakEgenskap that)) {
             return false;
+        }
         return fagsakId.equals(that.fagsakId) && egenskapNøkkel == that.egenskapNøkkel && Objects.equals(egenskapVerdi, that.egenskapVerdi);
     }
 

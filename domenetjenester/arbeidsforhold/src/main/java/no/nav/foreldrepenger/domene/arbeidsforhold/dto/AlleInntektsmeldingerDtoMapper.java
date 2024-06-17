@@ -39,11 +39,9 @@ public class AlleInntektsmeldingerDtoMapper {
         var dato = ref.getUtledetSkjæringstidspunkt();
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, iayGrunnlag,
             ref.getSkjæringstidspunkt().getFørsteUttaksdatoSøknad().isPresent());
-        return inntektsmeldinger.stream()
-                .map(inntektsmelding -> {
-                    var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
-                    return new InntektsmeldingDto(inntektsmelding, virksomhet);
-                })
-                .toList();
+        return inntektsmeldinger.stream().map(inntektsmelding -> {
+            var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
+            return new InntektsmeldingDto(inntektsmelding, virksomhet);
+        }).toList();
     }
 }

@@ -15,27 +15,26 @@ public class KompletthetsjekkerProvider {
 
     public Kompletthetsjekker finnKompletthetsjekkerFor(FagsakYtelseType ytelseType, BehandlingType behandlingType) {
 
-        var instance = CDI.current()
-                .select(Kompletthetsjekker.class, new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType));
+        var instance = CDI.current().select(Kompletthetsjekker.class, new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType));
 
         if (instance.isAmbiguous()) {
             instance = instance.select(new BehandlingTypeRef.BehandlingTypeRefLiteral(behandlingType));
         }
 
         if (instance.isAmbiguous()) {
-            var msg = String.format("Mer enn en implementasjon funnet av Kompletthetsjekker for "
-                + "fagsakYtelseType=%s og behandlingType=%s", ytelseType.getKode(), behandlingType.getKode());
+            var msg = String.format("Mer enn en implementasjon funnet av Kompletthetsjekker for " + "fagsakYtelseType=%s og behandlingType=%s",
+                ytelseType.getKode(), behandlingType.getKode());
             throw new TekniskException("FP-912911", msg);
         }
         if (instance.isUnsatisfied()) {
-            var msg = String.format("Fant ingen implementasjon av Kompletthetsjekker for fagsakYtelseType=%s "
-                    + "og behandlingType=%s", ytelseType.getKode(), behandlingType.getKode());
+            var msg = String.format("Fant ingen implementasjon av Kompletthetsjekker for fagsakYtelseType=%s " + "og behandlingType=%s",
+                ytelseType.getKode(), behandlingType.getKode());
             throw new TekniskException("FP-912910", msg);
         }
         var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+                "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }
         return instance.get();
     }

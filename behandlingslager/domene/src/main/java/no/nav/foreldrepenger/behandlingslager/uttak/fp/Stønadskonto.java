@@ -30,7 +30,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
 
     @ChangeTracked
     @Convert(converter = StønadskontoType.KodeverdiConverter.class)
-    @Column(name="stoenadskontotype", nullable = false)
+    @Column(name = "stoenadskontotype", nullable = false)
     private StønadskontoType stønadskontoType;
 
     @ManyToOne

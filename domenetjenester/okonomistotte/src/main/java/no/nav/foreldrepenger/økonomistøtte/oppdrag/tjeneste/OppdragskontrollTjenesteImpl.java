@@ -23,8 +23,7 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     }
 
     @Inject
-    public OppdragskontrollTjenesteImpl(LagOppdragTjeneste lagOppdragTjeneste,
-                                        ØkonomioppdragRepository økonomioppdragRepository) {
+    public OppdragskontrollTjenesteImpl(LagOppdragTjeneste lagOppdragTjeneste, ØkonomioppdragRepository økonomioppdragRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.lagOppdragTjeneste = lagOppdragTjeneste;
     }

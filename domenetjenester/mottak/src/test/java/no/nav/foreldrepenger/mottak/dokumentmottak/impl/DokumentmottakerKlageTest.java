@@ -101,10 +101,9 @@ class DokumentmottakerKlageTest {
             historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
         var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste,
-                mock(HistorikkRepository.class), taskTjeneste);
+            mock(HistorikkRepository.class), taskTjeneste);
 
-        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
-                klageVurderingTjeneste);
+        dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles, klageVurderingTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -174,47 +173,40 @@ class DokumentmottakerKlageTest {
 
         // Assert
         verify(dokumentmottaker).opprettFraTidligereAvsluttetBehandling(fagsak, behandling.getId(), mottattDokument, BehandlingÅrsakType.UDEFINERT,
-                false);
+            false);
     }
 
     private Behandling byggAvsluttetKlage() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medBekreftetHendelse()
-                .medAntallBarn(1).medFødselsDato(LocalDate.now());
+        scenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now());
         var scenarioKlage = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
         return scenarioKlage.lagre(repositoryProvider, klageRepository);
     }
 
     private Behandling byggAvsluttetSøknadsbehandlingForFødsel(int antallBarn) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medBekreftetHendelse()
-                .medAntallBarn(antallBarn).medFødselsDato(LocalDate.now());
+        scenario.medBekreftetHendelse().medAntallBarn(antallBarn).medFødselsDato(LocalDate.now());
 
-        var behandling = scenario
-                .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
-                .lagre(repositoryProvider);
+        var behandling = scenario.medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK).lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
 
-        Behandlingsresultat.builderForInngangsvilkår()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(behandling);
+        Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .buildFor(behandling);
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .medVilkårResultatType(VilkårResultatType.INNVILGET)
+            .buildFor(behandling);
         var behandlingsresultat = behandling.getBehandlingsresultat();
         LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling, behandlingsresultat);
+            .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+            .buildFor(behandling, behandlingsresultat);
         var vedtak = BehandlingVedtak.builder()
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medBehandlingsresultat(behandlingsresultat)
-                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medAnsvarligSaksbehandler("VL")
-                .build();
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("VL")
+            .build();
         behandling.avsluttBehandling();
         var lås = kontekst.getSkriveLås();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

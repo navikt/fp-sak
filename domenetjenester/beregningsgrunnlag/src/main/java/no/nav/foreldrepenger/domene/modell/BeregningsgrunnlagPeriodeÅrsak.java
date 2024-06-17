@@ -37,8 +37,8 @@ public class BeregningsgrunnlagPeriodeÅrsak {
             return false;
         }
         var other = (BeregningsgrunnlagPeriodeÅrsak) obj;
-        return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode())
-                && Objects.equals(this.getPeriodeÅrsak(), other.getPeriodeÅrsak());
+        return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode()) && Objects.equals(this.getPeriodeÅrsak(),
+            other.getPeriodeÅrsak());
     }
 
     public static class Builder {

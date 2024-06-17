@@ -82,8 +82,7 @@ public class UtsettelsePeriode implements IndexKey {
         if (!(o instanceof UtsettelsePeriode that)) {
             return false;
         }
-        return Objects.equals(periode, that.periode) &&
-                Objects.equals(årsak, that.årsak);
+        return Objects.equals(periode, that.periode) && Objects.equals(årsak, that.årsak);
     }
 
     @Override
@@ -93,9 +92,6 @@ public class UtsettelsePeriode implements IndexKey {
 
     @Override
     public String toString() {
-        return "UtsettelsePeriodeEntitet{" +
-                "periode=" + periode +
-                ", årsak=" + årsak +
-                '}';
+        return "UtsettelsePeriodeEntitet{" + "periode=" + periode + ", årsak=" + årsak + '}';
     }
 }

@@ -46,16 +46,17 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(DødfødselForretningshendelse forretningshendelse) {
 
-        var saker = forretningshendelse.aktørIdListe().stream()
+        var saker = forretningshendelse.aktørIdListe()
+            .stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(fagsak -> fagsakErRelevantForHendelse(fagsak, forretningshendelse))
-            .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
-                || erFagsakPassendeForFamilieHendelse(forretningshendelse.dødfødselsdato(), fagsak))
+            .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype()) || erFagsakPassendeForFamilieHendelse(
+                forretningshendelse.dødfødselsdato(), fagsak))
             .toList();
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
-            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om dødfødsel i folkeregisteret"));
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype()) || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
+            saker.forEach(
+                f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om dødfødsel i folkeregisteret"));
         }
 
         return Map.of(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, saker);

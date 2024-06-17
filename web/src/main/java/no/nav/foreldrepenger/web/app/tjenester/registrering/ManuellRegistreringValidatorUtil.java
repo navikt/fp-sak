@@ -17,7 +17,7 @@ public class ManuellRegistreringValidatorUtil {
     }
 
     static boolean perioderOverlapper(Periode p1, Periode p2) {
-        if (p2.start() == null || p2.slutt() == null || p1.start() == null || p1.slutt() == null ) {
+        if (p2.start() == null || p2.slutt() == null || p1.start() == null || p1.slutt() == null) {
             return false;
         }
         p2.begynnerFør(p1);
@@ -47,7 +47,7 @@ public class ManuellRegistreringValidatorUtil {
 
     public static List<String> datoIkkeNull(List<Periode> perioder) {
         List<String> feil = new ArrayList<>();
-        for (var periode: perioder) {
+        for (var periode : perioder) {
             if (periode.start() == null || periode.slutt() == null) {
                 feil.add(PAAKREVD_FELT);
             }
@@ -68,12 +68,13 @@ public class ManuellRegistreringValidatorUtil {
             return start.isBefore(otherPeriode.start);
         }
 
-        boolean startFørSlutt(){
+        boolean startFørSlutt() {
             if (slutt == null || start == null) {
                 return true;
             }
             return start.isBefore(slutt) || start.isEqual(slutt);
         }
+
         boolean erFørDagensDato() {
             var now = LocalDate.now();
             return !(start.isAfter(now) || start.isEqual(now) || slutt.isAfter(now));

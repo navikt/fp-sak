@@ -34,10 +34,8 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
-        );
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet));
         // inntekt
         var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
@@ -51,10 +49,12 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
 
         // sjekk underkjente perioder og antatt godkjent er tomme
         assertThat(output.getUnderkjentePerioder()).isEmpty();
-        assertThat(output.getAntattGodkjentePerioder()).hasSize(1).containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), dt4, Boolean.TRUE));
+        assertThat(output.getAntattGodkjentePerioder()).hasSize(1)
+            .containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), dt4, Boolean.TRUE));
 
 
-        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
+        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet,
+            new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
 
         assertThat(output.getResultatTidslinje()).isEqualTo(new LocalDateTimeline<>(dt1, endOfInntekt, Boolean.TRUE));
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.ofMonths(2));
@@ -86,10 +86,8 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
-        );
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet));
         // inntekt
         var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
@@ -108,10 +106,12 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
         assertThat(output.getUnderkjentePerioder()).isEmpty();
         //assertThat(output.getUnderkjentePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(behandlingstidspunkt.plusDays(1), dt4, Boolean.TRUE));
 
-        assertThat(output.getAntattGodkjentePerioder()).hasSize(1).containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), behandlingstidspunkt, Boolean.TRUE));
+        assertThat(output.getAntattGodkjentePerioder()).hasSize(1)
+            .containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), behandlingstidspunkt, Boolean.TRUE));
 
 
-        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
+        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet,
+            new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
 
         assertThat(output.getResultatTidslinje()).isEqualTo(new LocalDateTimeline<>(dt1, endOfInntekt, Boolean.TRUE));
 
@@ -133,10 +133,8 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
-        );
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet));
         // inntekt
         var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
@@ -155,10 +153,12 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
         assertThat(output.getUnderkjentePerioder()).isEmpty();
         //assertThat(output.getUnderkjentePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(behandlingstidspunkt.plusDays(1), dt4, Boolean.TRUE));
 
-        assertThat(output.getAntattGodkjentePerioder()).hasSize(1).containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), behandlingstidspunkt, Boolean.TRUE));
+        assertThat(output.getAntattGodkjentePerioder()).hasSize(1)
+            .containsEntry(aktivitet, new LocalDateTimeline<>(endOfInntekt.plusDays(1), behandlingstidspunkt, Boolean.TRUE));
 
 
-        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
+        assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet,
+            new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
 
         assertThat(output.getResultatTidslinje()).isEqualTo(new LocalDateTimeline<>(dt1, endOfInntekt, Boolean.TRUE));
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.ofMonths(4));

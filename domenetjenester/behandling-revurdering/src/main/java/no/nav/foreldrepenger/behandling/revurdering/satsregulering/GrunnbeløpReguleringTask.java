@@ -78,10 +78,14 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
             var grunnbeløpFraSisteVedtatt = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
-                .map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
-            var skalBrukeGrunnbeløp = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
+                .map(Beløp::getVerdi)
+                .map(BigDecimal::longValue)
+                .orElse(0L);
+            var skalBrukeGrunnbeløp = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
+                skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
             if (grunnbeløpFraSisteVedtatt == skalBrukeGrunnbeløp) {
-                LOG.info("GrunnbeløpRegulering har rett G for saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp());
+                LOG.info("GrunnbeløpRegulering har rett G for saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(),
+                    skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp());
                 return;
             }
         }

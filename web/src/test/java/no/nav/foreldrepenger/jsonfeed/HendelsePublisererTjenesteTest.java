@@ -57,8 +57,7 @@ class HendelsePublisererTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
 
     private static final LocalDate INNVILGET_PERIODE_FØRSTE_DAG = VirkedagUtil.fomVirkedag(LocalDate.now());
-    private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = VirkedagUtil.tomVirkedag(
-        LocalDate.now().plusMonths(3));
+    private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = VirkedagUtil.tomVirkedag(LocalDate.now().plusMonths(3));
     private static final LocalDate AVSLÅTT_PERIODE_START = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(3));
     private static final LocalDate AVSLÅTT_PERIODE_SLUTT = VirkedagUtil.tomVirkedag(LocalDate.now().minusDays(1));
     private static final LocalDate NY_PERIODE_FØRSTE_DAG = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(3));
@@ -84,12 +83,11 @@ class HendelsePublisererTjenesteTest {
     void skal_sette_første_og_siste_stønadsdag_lik_siste_innvilgede_periode() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, 0, 0);
-        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
-            BehandlingResultatType.OPPHØR, berRes, nyttBer, VedtakResultatType.OPPHØR);
+        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR,
+            berRes, nyttBer, VedtakResultatType.OPPHØR);
         tjeneste.lagreVedtak(vedtak);
 
-        var behandling = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
@@ -104,11 +102,7 @@ class HendelsePublisererTjenesteTest {
     }
 
     private List<FpVedtakUtgåendeHendelse> hentUtgåendeHendelser(AktørId aktørId) {
-        var criteria = HendelseCriteria.builder()
-            .medAktørId(aktørId.getId())
-            .medMaxAntall(10L)
-            .medSisteLestSekvensId(0L)
-            .build();
+        var criteria = HendelseCriteria.builder().medAktørId(aktørId.getId()).medMaxAntall(10L).medSisteLestSekvensId(0L).build();
         return feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class, criteria);
     }
 
@@ -116,12 +110,11 @@ class HendelsePublisererTjenesteTest {
     void skal_lagre_ned_førstegangssøknad() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
 
-        var vedtak = byggBehandlingVedtakOgBehandling(null, BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingResultatType.INNVILGET, berRes, null, VedtakResultatType.INNVILGET);
+        var vedtak = byggBehandlingVedtakOgBehandling(null, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET, berRes, null,
+            VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var behandling = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
@@ -140,12 +133,11 @@ class HendelsePublisererTjenesteTest {
         var berRes = lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
 
-        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
-            BehandlingResultatType.INNVILGET, berRes, nyttBer, VedtakResultatType.INNVILGET);
+        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING, BehandlingResultatType.INNVILGET,
+            berRes, nyttBer, VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var behandling = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).isEmpty();
@@ -160,8 +152,7 @@ class HendelsePublisererTjenesteTest {
             BehandlingResultatType.FORELDREPENGER_ENDRET, berRes, nyttBer, VedtakResultatType.INNVILGET);
         tjeneste.lagreVedtak(vedtak);
 
-        var behandling = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
@@ -177,16 +168,14 @@ class HendelsePublisererTjenesteTest {
 
     @Test
     void skal_lagre_ned_revurdering_opphørt() {
-        var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG,
-            INNVILGET_PERIODE_SISTE_DAG, 100, 100);
+        var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, 0, 0);
 
-        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR, berRes, nyttBer, VedtakResultatType.OPPHØR);
+        var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING, BehandlingResultatType.OPPHØR,
+            berRes, nyttBer, VedtakResultatType.OPPHØR);
         tjeneste.lagreVedtak(vedtak);
 
-        var behandling = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var alle = hentUtgåendeHendelser(behandling.getAktørId());
 
         assertThat(alle).hasSize(1);
@@ -212,8 +201,7 @@ class HendelsePublisererTjenesteTest {
         var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1).medFødselsDato(LocalDate.now());
         var behandlingresultatBuilder = Behandlingsresultat.builder();
-        behandlingresultatBuilder.medBehandlingResultatType(
-            nyttBerRes == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
+        behandlingresultatBuilder.medBehandlingResultatType(nyttBerRes == null ? behandlingResultatType : BehandlingResultatType.INNVILGET);
         scenario.medBehandlingsresultat(behandlingresultatBuilder);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -237,8 +225,7 @@ class HendelsePublisererTjenesteTest {
         var behandlingId = behandling.getId();
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
             var nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-                    .medOriginalBehandlingId(behandling.getId()))
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).medOriginalBehandlingId(behandling.getId()))
                 .build();
             var nyttBehandlingresultatBuilder = Behandlingsresultat.builder();
             nyttBehandlingresultatBuilder.medBehandlingResultatType(behandlingResultatType);
@@ -256,19 +243,12 @@ class HendelsePublisererTjenesteTest {
             beregningsresultatRepository.lagre(nyBehandling, nyttBerRes);
         }
 
-        var hentBehandlingvedtakForBehandlingId = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(
-            behandlingId);
+        var hentBehandlingvedtakForBehandlingId = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         return hentBehandlingvedtakForBehandlingId.orElse(null);
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom,
-                                                            LocalDate periodeTom,
-                                                            int dagsats,
-                                                            double utbetalingsgrad) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
+    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int dagsats, double utbetalingsgrad) {
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
             .build(beregningsresultat);

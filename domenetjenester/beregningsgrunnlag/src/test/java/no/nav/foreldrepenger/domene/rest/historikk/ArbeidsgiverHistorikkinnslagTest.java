@@ -31,8 +31,7 @@ class ArbeidsgiverHistorikkinnslagTest {
             Collections.emptyList());
 
         // Assert
-        assertThat(tekst).isEqualTo("AG1 (" + ag.getIdentifikator() + ") ..." + ref.getReferanse()
-            .substring(ref.getReferanse().length() - 4));
+        assertThat(tekst).isEqualTo("AG1 (" + ag.getIdentifikator() + ") ..." + ref.getReferanse().substring(ref.getReferanse().length() - 4));
     }
 
 }

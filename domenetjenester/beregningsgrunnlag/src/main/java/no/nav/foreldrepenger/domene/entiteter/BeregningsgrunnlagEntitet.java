@@ -94,13 +94,14 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         kopi.getSammenligningsgrunnlag().map(Sammenligningsgrunnlag::new).ifPresent(this::setSammenligningsgrunnlag);
         kopi.getBesteberegninggrunnlag().map(BesteberegninggrunnlagEntitet::new).ifPresent(this::setBesteberegninggrunnlag);
 
-        kopi.getRegelSporinger().values().stream().map(BeregningsgrunnlagRegelSporing::new)
-            .forEach(this::leggTilBeregningsgrunnlagRegel);
-        kopi.getSammenligningsgrunnlagPrStatusListe().stream().map(SammenligningsgrunnlagPrStatus::new).forEach(this::leggTilSammenligningsgrunnlagPrStatus);
+        kopi.getRegelSporinger().values().stream().map(BeregningsgrunnlagRegelSporing::new).forEach(this::leggTilBeregningsgrunnlagRegel);
+        kopi.getSammenligningsgrunnlagPrStatusListe()
+            .stream()
+            .map(SammenligningsgrunnlagPrStatus::new)
+            .forEach(this::leggTilSammenligningsgrunnlagPrStatus);
         kopi.faktaOmBeregningTilfeller.stream().map(BeregningsgrunnlagFaktaOmBeregningTilfelle::new).forEach(this::leggTilFaktaOmBeregningTilfelle);
         kopi.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::new).forEach(this::leggTilBeregningsgrunnlagAktivitetStatus);
-        kopi.getBeregningsgrunnlagPerioder().stream().map(BeregningsgrunnlagPeriode::new)
-            .forEach(this::leggTilBeregningsgrunnlagPeriode);
+        kopi.getBeregningsgrunnlagPerioder().stream().map(BeregningsgrunnlagPeriode::new).forEach(this::leggTilBeregningsgrunnlagPeriode);
     }
 
     public BeregningsgrunnlagEntitet() {
@@ -120,10 +121,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     }
 
     public List<BeregningsgrunnlagPeriode> getBeregningsgrunnlagPerioder() {
-        return beregningsgrunnlagPerioder
-            .stream()
-            .sorted(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
-            .toList();
+        return beregningsgrunnlagPerioder.stream().sorted(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom)).toList();
     }
 
     public Optional<Sammenligningsgrunnlag> getSammenligningsgrunnlag() {
@@ -169,16 +167,17 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         var finnesFraFør = sammenligningsgrunnlagPrStatusListe.stream()
             .anyMatch(sg -> sg.getSammenligningsgrunnlagType().equals(sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()));
         if (finnesFraFør) {
-            throw new IllegalStateException("Feil: Sammenligningsgrunnlag med type "
-                + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType() + " finnes allerede på grunnlaget");
+            throw new IllegalStateException("Feil: Sammenligningsgrunnlag med type " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()
+                + " finnes allerede på grunnlaget");
         }
         // Aktivitetstatuser burde implementeres som eit Set
         if (!sammenligningsgrunnlagPrStatusListe.contains(sammenligningsgrunnlagPrStatus)) {
             sammenligningsgrunnlagPrStatus.setBeregningsgrunnlag(this);
             sammenligningsgrunnlagPrStatusListe.add(sammenligningsgrunnlagPrStatus);
         } else {
-            throw new IllegalArgumentException("Kan ikke legge til sammenligningsgrunnlag for " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType() +
-                " fordi det allerede er lagt til.");
+            throw new IllegalArgumentException(
+                "Kan ikke legge til sammenligningsgrunnlag for " + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()
+                    + " fordi det allerede er lagt til.");
         }
     }
 
@@ -228,23 +227,16 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         if (aktivitetStatuser.size() == 1) {
             return aktivitetStatuser.get(0).getHjemmel();
         }
-        var dagpenger = aktivitetStatuser.stream()
-            .filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel()))
-            .findFirst();
+        var dagpenger = aktivitetStatuser.stream().filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel())).findFirst();
         if (dagpenger.isPresent()) {
             return dagpenger.get().getHjemmel();
         }
-        var gjelder = aktivitetStatuser.stream()
-            .filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel()))
-            .findFirst();
+        var gjelder = aktivitetStatuser.stream().filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel())).findFirst();
         return gjelder.isPresent() ? gjelder.get().getHjemmel() : Hjemmel.F_14_7;
     }
 
     public List<FaktaOmBeregningTilfelle> getFaktaOmBeregningTilfeller() {
-        return faktaOmBeregningTilfeller
-            .stream()
-            .map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle)
-            .toList();
+        return faktaOmBeregningTilfeller.stream().map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle).toList();
     }
 
     public List<SammenligningsgrunnlagPrStatus> getSammenligningsgrunnlagPrStatusListe() {
@@ -273,11 +265,8 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            "id=" + id + ", "
-            + "skjæringstidspunkt=" + skjæringstidspunkt + ", "
-            + "grunnbeløp=" + grunnbeløp + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "skjæringstidspunkt=" + skjæringstidspunkt + ", " + "grunnbeløp=" + grunnbeløp
+            + ", " + ">";
     }
 
     public static Builder ny() {
@@ -356,7 +345,8 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
         public Builder leggTilFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
             verifiserKanModifisere();
-            faktaOmBeregningTilfeller.forEach(tilfelle -> BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd));
+            faktaOmBeregningTilfeller.forEach(
+                tilfelle -> BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd));
             return this;
         }
 
@@ -409,10 +399,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         public Builder medRegelinputPeriodisering(String regelInput) {
             verifiserKanModifisere();
             if (regelInput != null) {
-                BeregningsgrunnlagRegelSporing.ny()
-                    .medRegelInput(regelInput)
-                    .medRegelType(PERIODISERING)
-                    .build(kladd);
+                BeregningsgrunnlagRegelSporing.ny().medRegelInput(regelInput).medRegelType(PERIODISERING).build(kladd);
             }
             return this;
         }
@@ -452,8 +439,11 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         }
 
         public List<BeregningsgrunnlagPeriode.Builder> getPeriodeBuilders(ÅpenDatoIntervallEntitet periode) {
-            return kladd.getBeregningsgrunnlagPerioder().stream().filter(p -> p.getPeriode().overlapper(periode))
-                .map(BeregningsgrunnlagPeriode::oppdater).toList();
+            return kladd.getBeregningsgrunnlagPerioder()
+                .stream()
+                .filter(p -> p.getPeriode().overlapper(periode))
+                .map(BeregningsgrunnlagPeriode::oppdater)
+                .toList();
         }
     }
 }

@@ -69,8 +69,12 @@ public class Poststed extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Poststed) o;
         return poststednummer.equals(that.poststednummer);
     }
@@ -82,12 +86,8 @@ public class Poststed extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "Postnummer{" +
-                "poststednummer='" + poststednummer + '\'' +
-                ", poststednavn='" + poststednavn + '\'' +
-                ", gyldigFom=" + gyldigFom +
-                ", gyldigTom=" + gyldigTom +
-                '}';
+        return "Postnummer{" + "poststednummer='" + poststednummer + '\'' + ", poststednavn='" + poststednavn + '\'' + ", gyldigFom=" + gyldigFom
+            + ", gyldigTom=" + gyldigTom + '}';
     }
 
 }

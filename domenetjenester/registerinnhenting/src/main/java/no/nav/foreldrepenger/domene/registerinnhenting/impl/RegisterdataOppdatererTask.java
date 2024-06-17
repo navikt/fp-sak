@@ -56,7 +56,9 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
         // NB lås før hent behandling
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
-        if (behandling.erSaksbehandlingAvsluttet()) return;
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            return;
+        }
 
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
@@ -72,7 +74,9 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
     EndringsresultatSnapshot hentUtSnapshotFraPayload(ProsessTaskData prosessTaskData) {
         var payloadAsString = prosessTaskData.getPayloadAsString();
-        if (payloadAsString == null) return null;
+        if (payloadAsString == null) {
+            return null;
+        }
         return StandardJsonConfig.fromJson(payloadAsString, EndringsresultatSnapshot.class);
     }
 }

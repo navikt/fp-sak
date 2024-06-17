@@ -122,7 +122,11 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(søknad.tilrettelegginger()).hasSize(2);
         //tilrettelegging 1
-        var dtoTl = søknad.tilrettelegginger().stream().filter(t-> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID.equals(t.aktivitet().type())).findFirst().orElseThrow();
+        var dtoTl = søknad.tilrettelegginger()
+            .stream()
+            .filter(t -> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID.equals(t.aktivitet().type()))
+            .findFirst()
+            .orElseThrow();
         assertThat(dtoTl.aktivitet().type()).isEqualTo(SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID);
         assertThat(dtoTl.behovFom()).isEqualTo(tl.getBehovForTilretteleggingFom());
         assertThat(dtoTl.risikoFaktorer()).isEqualTo(tl.getOpplysningerOmRisikofaktorer().orElse(null));
@@ -137,7 +141,11 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
 
         //tilrettelegging 2
-        var dtoT2 = søknad.tilrettelegginger().stream().filter(t-> SvpSak.Aktivitet.Type.FRILANS.equals(t.aktivitet().type())).findFirst().orElseThrow();
+        var dtoT2 = søknad.tilrettelegginger()
+            .stream()
+            .filter(t -> SvpSak.Aktivitet.Type.FRILANS.equals(t.aktivitet().type()))
+            .findFirst()
+            .orElseThrow();
         assertThat(dtoT2.aktivitet().type()).isEqualTo(SvpSak.Aktivitet.Type.FRILANS);
         assertThat(dtoT2.behovFom()).isEqualTo(tl.getBehovForTilretteleggingFom());
         assertThat(dtoT2.risikoFaktorer()).isEqualTo(tl.getOpplysningerOmRisikofaktorer().orElse(null));
@@ -149,16 +157,22 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(dtoPeriode2.type()).isEqualTo(SvpSak.TilretteleggingType.DELVIS);
         //opphold
         assertThat(dtoT2.oppholdsperioder()).hasSize(2);
-        var opphold1 = dtoT2.oppholdsperioder().stream().filter(o-> SvpSak.OppholdPeriode.Årsak.FERIE.equals(o.årsak())).findFirst().orElseThrow();
+        var opphold1 = dtoT2.oppholdsperioder().stream().filter(o -> SvpSak.OppholdPeriode.Årsak.FERIE.equals(o.årsak())).findFirst().orElseThrow();
         assertThat(opphold1.fom()).isEqualTo(LocalDate.now());
-        var opphold2 = dtoT2.oppholdsperioder().stream().filter(o-> SvpSak.OppholdPeriode.Årsak.SYKEPENGER.equals(o.årsak())).findFirst().orElseThrow();
+        var opphold2 = dtoT2.oppholdsperioder()
+            .stream()
+            .filter(o -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER.equals(o.årsak()))
+            .findFirst()
+            .orElseThrow();
         assertThat(opphold2.fom()).isEqualTo(LocalDate.now().plusDays(10));
 
 
-
-
         assertThat(vedtak.arbeidsforhold()).hasSize(2);
-        var arbeidsforholdUttak1 = vedtak.arbeidsforhold().stream().filter(t-> SvpSak.Aktivitet.Type.FRILANS.equals(t.aktivitet().type())).findFirst().orElseThrow();
+        var arbeidsforholdUttak1 = vedtak.arbeidsforhold()
+            .stream()
+            .filter(t -> SvpSak.Aktivitet.Type.FRILANS.equals(t.aktivitet().type()))
+            .findFirst()
+            .orElseThrow();
         assertThat(arbeidsforholdUttak1.aktivitet().type()).isEqualTo(SvpSak.Aktivitet.Type.FRILANS);
         assertThat(arbeidsforholdUttak1.tiltak()).isEqualTo(tl.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         assertThat(arbeidsforholdUttak1.risikoFaktorer()).isEqualTo(tl.getOpplysningerOmRisikofaktorer().orElse(null));
@@ -173,9 +187,14 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(svpPeriode.tilretteleggingType()).isEqualTo(SvpSak.TilretteleggingType.DELVIS);
         assertThat(arbeidsforholdUttak1.oppholdsperioder()).hasSize(2);
 
-        var arbeidsforholdUttak2 = vedtak.arbeidsforhold().stream().filter(t-> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID.equals(t.aktivitet().type())).findFirst().orElseThrow();
+        var arbeidsforholdUttak2 = vedtak.arbeidsforhold()
+            .stream()
+            .filter(t -> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID.equals(t.aktivitet().type()))
+            .findFirst()
+            .orElseThrow();
         assertThat(arbeidsforholdUttak2.oppholdsperioder()).hasSize(1);
-        assertThat(arbeidsforholdUttak2.oppholdsperioder().stream().toList().get(0).kilde()).isEqualTo(SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING);
+        assertThat(arbeidsforholdUttak2.oppholdsperioder().stream().toList().get(0).kilde()).isEqualTo(
+            SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING);
 
     }
 
@@ -201,18 +220,20 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
             .build();
     }
 
-    private SvangerskapspengerUttakResultatEntitet lagUttakRes(Long behandlingId, SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode, SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode2) {
+    private SvangerskapspengerUttakResultatEntitet lagUttakRes(Long behandlingId,
+                                                               SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode,
+                                                               SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode2) {
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
         return new SvangerskapspengerUttakResultatEntitet.Builder(behandlingsresultat).medUttakResultatArbeidsforhold(
-            new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS)
-                .medPeriode(uttakPeriode)
-                .build())
+                new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS)
+                    .medPeriode(uttakPeriode)
+                    .build())
             .medUttakResultatArbeidsforhold(
                 new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                     .medArbeidsforhold(ARBEIDSGIVER, null)
                     .medPeriode(uttakPeriode2)
-                    .build()
-            ).build();
+                    .build())
+            .build();
     }
 
     private SvangerskapspengerUttakResultatPeriodeEntitet lagUttakPeriode(LocalDate termindato) {
@@ -234,7 +255,10 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
             .build();
     }
 
-    private SvpTilretteleggingEntitet lagTilrettelegging(LocalDate termindato, ArbeidType arbeidType, Arbeidsgiver arbeidsgiver, boolean skalHaOpphold) {
+    private SvpTilretteleggingEntitet lagTilrettelegging(LocalDate termindato,
+                                                         ArbeidType arbeidType,
+                                                         Arbeidsgiver arbeidsgiver,
+                                                         boolean skalHaOpphold) {
         var tilrBuilder = new SvpTilretteleggingEntitet.Builder().medArbeidType(arbeidType)
             .medDelvisTilrettelegging(termindato.minusWeeks(10), BigDecimal.valueOf(50), termindato.minusWeeks(10), SvpTilretteleggingFomKilde.SØKNAD)
             .medOpplysningerOmRisikofaktorer("risk!")

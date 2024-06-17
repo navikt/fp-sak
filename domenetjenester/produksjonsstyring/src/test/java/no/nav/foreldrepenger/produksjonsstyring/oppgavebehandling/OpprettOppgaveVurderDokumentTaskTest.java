@@ -53,7 +53,8 @@ class OpprettOppgaveVurderDokumentTaskTest {
         opprettOppgaveVurderDokumentTask.doTask(prosessTaskData);
 
         // Assert
-        verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), any(), fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
+        verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), any(),
+            fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
         assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
         assertThat(beskrivelseCaptor.getValue()).isEqualTo("VL: " + dokumentTypeId.getNavn()); // Antar testhelper, ellers bruk finn+navn

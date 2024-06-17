@@ -20,10 +20,8 @@ public class FinnNavnForManueltLagtTilArbeidsforholdTjeneste {
      * @return ArbeidsgiverOpplysninger
      */
     public static Optional<ArbeidsgiverOpplysninger> finnNavnTilManueltLagtTilArbeidsforhold(List<ArbeidsforholdOverstyring> overstyringer) {
-        return overstyringer
-                .stream()
-                .findFirst()
-                .map(arbeidsforhold -> new ArbeidsgiverOpplysninger(arbeidsforhold.getArbeidsgiver().getOrgnr(),
-                        arbeidsforhold.getArbeidsgiverNavn()));
+        return overstyringer.stream()
+            .findFirst()
+            .map(arbeidsforhold -> new ArbeidsgiverOpplysninger(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn()));
     }
 }

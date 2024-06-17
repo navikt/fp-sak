@@ -52,8 +52,7 @@ public class VurderMedlemskapTjeneste {
     }
 
     /**
-     *
-     * @param ref behandlingreferanse
+     * @param ref            behandlingreferanse
      * @param vurderingsdato hvilken dato vurderingstjenesten skal kjøre for
      * @return Liste med MedlemResultat
      */
@@ -74,7 +73,8 @@ public class VurderMedlemskapTjeneste {
     public LocalDate beregnVentPåFødselFristTid(BehandlingReferanse ref) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(ref.behandlingId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElseGet(LocalDate::now)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .orElseGet(LocalDate::now)
             .plusWeeks(ref.behandlingType().getBehandlingstidFristUker());
     }
 }

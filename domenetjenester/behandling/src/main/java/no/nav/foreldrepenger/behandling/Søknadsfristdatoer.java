@@ -33,12 +33,13 @@ public class Søknadsfristdatoer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Søknadsfristdatoer that))
+        }
+        if (!(o instanceof Søknadsfristdatoer that)) {
             return false;
-        return Objects.equals(søknadGjelderPeriode, that.søknadGjelderPeriode)
-            && Objects.equals(søknadMottattDato, that.søknadMottattDato);
+        }
+        return Objects.equals(søknadGjelderPeriode, that.søknadGjelderPeriode) && Objects.equals(søknadMottattDato, that.søknadMottattDato);
     }
 
     @Override

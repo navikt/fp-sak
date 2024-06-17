@@ -92,8 +92,7 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static Map<Integer, LocalDate> tilFødselsMap(FamilieHendelseEntitet hendelse) {
-        return hendelse.getBarna().stream()
-            .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
+        return hendelse.getBarna().stream().collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
     }
 
     private static FamiliehendelseDto lagFodselDto(FamilieHendelseEntitet hendelse, Optional<LocalDate> vedtaksdato) {

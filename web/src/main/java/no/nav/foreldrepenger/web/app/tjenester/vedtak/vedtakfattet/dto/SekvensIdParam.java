@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-public class SekvensIdParam implements AbacDto{
+public class SekvensIdParam implements AbacDto {
 
     @NotNull
     @Digits(integer = 1000, fraction = 0)
@@ -19,7 +19,7 @@ public class SekvensIdParam implements AbacDto{
     }
 
     public Long get() {
-       return Long.valueOf(sekvensId);
+        return Long.valueOf(sekvensId);
     }
 
     @Override

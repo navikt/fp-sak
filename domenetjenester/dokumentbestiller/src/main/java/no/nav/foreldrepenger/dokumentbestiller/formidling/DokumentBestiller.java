@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -60,8 +60,10 @@ public class DokumentBestiller {
         prosessTaskData.setProperty(BestillDokumentTask.DOKUMENT_MAL, bestilling.dokumentMal().name());
 
         // Optionals
-        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
-        Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.REVURDERING_ÅRSAK, a.name()));
+        Optional.ofNullable(bestilling.journalførSom())
+            .ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
+        Optional.ofNullable(bestilling.revurderingÅrsak())
+            .ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.REVURDERING_ÅRSAK, a.name()));
         prosessTaskData.setPayload(bestilling.fritekst());
 
         // Brukes kun i logging

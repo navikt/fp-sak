@@ -83,7 +83,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private SvangerskapspengerRepository svangerskapspengerRepository;
 
     @Inject
-    public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+    public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+                                   // NOSONAR
                                    DatavarehusRepository datavarehusRepository,
                                    BehandlingsresultatRepository behandlingsresultatRepository,
                                    FagsakEgenskapRepository fagsakEgenskapRepository,
@@ -128,7 +129,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var gjeldendeKlagevurderingresultat = klageRepository.hentKlageResultatHvisEksisterer(behandling.getId());
         var gjeldendeAnkevurderingresultat = ankeRepository.hentAnkeResultat(behandling.getId());
         var skjæringstidspunkt = familieHendelseGrunnlag.map(fhg -> skjæringstidspunkt(behandling, familieHendelseGrunnlag.get()));
-        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId()).stream()
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId())
+            .stream()
             .filter(md -> md.getJournalpostId() != null && erRelevantDoument(behandling, md))
             .toList();
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
@@ -137,28 +139,27 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var ytelseMedUtbetalingFra = vedtak.map(v -> finnUtbetaltDato(behandling, v));
         var vilkårSomIkkeErOppfylt = vedtak.map(BehandlingVedtak::getBehandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
-            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
+            .map(VilkårResultat::getVilkårene)
+            .orElse(List.of())
+            .stream()
             .filter(v -> VilkårUtfallType.IKKE_OPPFYLT.equals(v.getGjeldendeVilkårUtfall()))
             .map(Vilkår::getVilkårType)
             .collect(Collectors.toSet());
-        var vilkårIkkeOppfylt = vedtak
-            .map(v -> BehandlingVedtakDvhMapper.mapVilkårIkkeOppfylt(v.getVedtakResultatType(), behandling.getFagsakYtelseType(), vilkårSomIkkeErOppfylt));
+        var vilkårIkkeOppfylt = vedtak.map(
+            v -> BehandlingVedtakDvhMapper.mapVilkårIkkeOppfylt(v.getVedtakResultatType(), behandling.getFagsakYtelseType(), vilkårSomIkkeErOppfylt));
 
-        var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
-            mottatteDokumenter, vedtak, ytelseMedUtbetalingFra, vilkårIkkeOppfylt, familieHendelseGrunnlag,
-            gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
+        var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null), mottatteDokumenter, vedtak, ytelseMedUtbetalingFra,
+            vilkårIkkeOppfylt, familieHendelseGrunnlag, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
             skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet), utlandMarkering, forventetOppstart);
         datavarehusRepository.lagre(behandlingDvh);
     }
 
-    private Skjæringstidspunkt skjæringstidspunkt(Behandling behandling,
-                                                   FamilieHendelseGrunnlagEntitet fh) {
+    private Skjæringstidspunkt skjæringstidspunkt(Behandling behandling, FamilieHendelseGrunnlagEntitet fh) {
         if (!FamilieHendelseType.UDEFINERT.equals(fh.getGjeldendeVersjon().getType())) {
             try {
                 return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
             } catch (Exception e) {
-                LOG.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling",
-                    behandling.getId());
+                LOG.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling", behandling.getId());
             }
         }
         return null;
@@ -173,14 +174,15 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             return finnUttakEllerUtledetSkjæringstidspunkt(behandling, skjæringstidspunkt);
         }
-        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
-            finnEndringsdatoForeldrepenger(behandling) : finnEndringsdatoSvangerskapspenger(behandling);
+        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? finnEndringsdatoForeldrepenger(
+            behandling) : finnEndringsdatoSvangerskapspenger(behandling);
         return endretUttakFom.or(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling, skjæringstidspunkt));
     }
 
     private Optional<LocalDate> finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         try {
-            return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
+            return Optional.ofNullable(skjæringstidspunkt)
+                .flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
                 .or(() -> Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet));
         } catch (Exception e) {
             return Optional.empty();
@@ -191,9 +193,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var aggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
         var endringsdato = aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
         // Andre revurderinger enn endringssøknad har kopiert fordeling fra forrige behandling - kan ikke se på dem.
-        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) ? endringsdato :
-            endringsdato.or(() -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
-                .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
+        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) ? endringsdato : endringsdato.or(
+            () -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+                .map(OppgittFordelingEntitet::getPerioder)
+                .orElse(List.of())
+                .stream()
                 .map(OppgittPeriodeEntitet::getFom)
                 .min(Comparator.naturalOrder()));
     }
@@ -202,8 +206,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             return Optional.empty();
         }
-        return svangerskapspengerRepository.hentGrunnlag(behandling.getId()).map(SvpGrunnlagEntitet::getGjeldendeVersjon)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+        return svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(List.of())
+            .stream()
             .filter(te -> !te.getKopiertFraTidligereBehandling() && te.getSkalBrukes())
             .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
             .flatMap(Collection::stream)
@@ -213,7 +220,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     private boolean erRelevantDoument(Behandling behandling, MottattDokument mottattDokument) {
         return switch (behandling.getType()) {
-            case FØRSTEGANGSSØKNAD, REVURDERING -> mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType();
+            case FØRSTEGANGSSØKNAD, REVURDERING ->
+                mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType();
             case KLAGE, ANKE -> DokumentTypeId.KLAGE_DOKUMENT.equals(mottattDokument.getDokumentType());
             default -> false;
         };
@@ -233,7 +241,9 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         } else {
             // TODO tilby min-dato i BR-entitet og erstatt slike tilfelle som dette
             return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
-                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+                .orElse(List.of())
+                .stream()
                 .filter(p -> p.getDagsats() > 0)
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
                 .min(Comparator.naturalOrder())
@@ -306,11 +316,13 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         if (gjelderKlageEllerAnke) {
             var behandling = behandlingRepository.hentBehandling(behandlingId);
             if (BehandlingType.KLAGE.equals(behandling.getType())) {
-                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
+                aksjonspunkter.stream()
+                    .filter(Aksjonspunkt::erUtført)
                     .filter(a -> gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a))
                     .forEach(ap -> oppdaterMedKlage(behandling, ap));
             } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
+                aksjonspunkter.stream()
+                    .filter(Aksjonspunkt::erUtført)
                     .filter(DatavarehusTjenesteImpl::gjelderAnkeVurderingResultat)
                     .forEach(ap -> oppdaterMedAnke(behandling));
             }
@@ -323,17 +335,17 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         } else if (BehandlingType.KLAGE.equals(behandling.getType()) && gjelderKlageVurderingResultat(aksjonspunkt)) {
             klageRepository.hentGjeldendeKlageVurderingResultat(behandling).ifPresent(this::lagreKlageVurderingResultat);
         }
-     }
+    }
 
-     private void oppdaterMedAnke(Behandling behandling) {
+    private void oppdaterMedAnke(Behandling behandling) {
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             ankeRepository.hentAnkeVurderingResultat(behandling.getId()).ifPresent(this::lagreAnkeVurderingResultat);
         }
-     }
+    }
 
-     private static boolean gjelderKlageEllerAnke(Aksjonspunkt a) {
+    private static boolean gjelderKlageEllerAnke(Aksjonspunkt a) {
         return gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a) || gjelderAnkeVurderingResultat(a);
-     }
+    }
 
     private static boolean gjelderKlageFormkrav(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon());
@@ -345,8 +357,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private static boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon()) ||
-            AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN.equals(a.getAksjonspunktDefinisjon());
+        return AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon())
+            || AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN.equals(a.getAksjonspunktDefinisjon());
     }
 
 }

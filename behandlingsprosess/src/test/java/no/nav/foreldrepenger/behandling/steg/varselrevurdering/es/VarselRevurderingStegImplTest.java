@@ -56,8 +56,7 @@ class VarselRevurderingStegImplTest {
 
     @Test
     void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
-        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
-                .build();
+        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE)).build();
         behandling.setId(behandlingId);
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
@@ -81,8 +80,8 @@ class VarselRevurderingStegImplTest {
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
 
         // Behandling skal være på vent med frist 3 uker
-        assertThat(behandleStegResultat.getAksjonspunktResultater().get(0).getFrist().toLocalDate())
-                .isEqualTo(LocalDate.now().plus(AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
+        assertThat(behandleStegResultat.getAksjonspunktResultater().get(0).getFrist().toLocalDate()).isEqualTo(
+            LocalDate.now().plus(AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
     }
 
     @Test

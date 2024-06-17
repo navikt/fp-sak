@@ -50,12 +50,12 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
 
     //TODO(OJR) endre til å benytte BehandlingReferanse?
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyrBeregningsaktiviteterDto dto, Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyrBeregningsaktiviteterDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
 
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
         var input = tjeneste.lagInput(behandling.getId());
-        beregningHåndterer.håndterBeregningAktivitetOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
+        beregningHåndterer.håndterBeregningAktivitetOverstyring(input,
+            OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
         return OppdateringResultat.utenOverhopp();
     }
 
@@ -65,15 +65,11 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler BeregningsgrunnlagGrunnlagEntitet"));
         var originalBehandlingId = behandling.getOriginalBehandlingId();
         var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), originalBehandlingId,
-            BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
-            .map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
+            BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER).map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
         var registerAktiviteter = grunnlag.getRegisterAktiviteter();
         var overstyrteAktiviteter = grunnlag.getGjeldendeAktiviteter();
         beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandling.getId(),
-            getHistorikkAdapter().tekstBuilder().medHendelse(HistorikkinnslagType.OVERSTYRT),
-            registerAktiviteter,
-            overstyrteAktiviteter,
-            dto.getBegrunnelse(),
-            forrige);
+            getHistorikkAdapter().tekstBuilder().medHendelse(HistorikkinnslagType.OVERSTYRT), registerAktiviteter, overstyrteAktiviteter,
+            dto.getBegrunnelse(), forrige);
     }
 }

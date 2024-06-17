@@ -4,7 +4,6 @@ package no.nav.foreldrepenger.domene.modell.kodeverk;
  * <h3>Internt kodeverk</h3>
  * Definerer status/type av {@link SammenligningsgrunnlagPrStatus}
  * <p>
- *
  */
 
 import java.util.Collections;

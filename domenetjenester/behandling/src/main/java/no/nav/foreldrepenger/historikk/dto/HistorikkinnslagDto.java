@@ -99,18 +99,15 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
         if (!(o instanceof HistorikkinnslagDto that)) {
             return false;
         }
-        return Objects.equals(getBehandlingId(), that.getBehandlingId()) &&
-                Objects.equals(getBehandlingUuid(), that.getBehandlingUuid()) &&
-                Objects.equals(getType(), that.getType()) &&
-                Objects.equals(getAktoer(), that.getAktoer()) &&
-                Objects.equals(getOpprettetAv(), that.getOpprettetAv()) &&
-                Objects.equals(getOpprettetTidspunkt(), that.getOpprettetTidspunkt()) &&
-                Objects.equals(getDokumentLinks(), that.getDokumentLinks());
+        return Objects.equals(getBehandlingId(), that.getBehandlingId()) && Objects.equals(getBehandlingUuid(), that.getBehandlingUuid())
+            && Objects.equals(getType(), that.getType()) && Objects.equals(getAktoer(), that.getAktoer()) && Objects.equals(getOpprettetAv(),
+            that.getOpprettetAv()) && Objects.equals(getOpprettetTidspunkt(), that.getOpprettetTidspunkt()) && Objects.equals(getDokumentLinks(),
+            that.getDokumentLinks());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBehandlingId(), getBehandlingUuid(), getType(), getAktoer(),
-            getOpprettetAv(), getOpprettetTidspunkt(), getDokumentLinks());
+        return Objects.hash(getBehandlingId(), getBehandlingUuid(), getType(), getAktoer(), getOpprettetAv(), getOpprettetTidspunkt(),
+            getDokumentLinks());
     }
 }

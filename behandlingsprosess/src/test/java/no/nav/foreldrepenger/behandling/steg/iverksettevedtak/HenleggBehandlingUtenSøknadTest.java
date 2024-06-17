@@ -35,22 +35,21 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
-                mock(DokumentBestillerTjeneste.class), mock(ProsessTaskTjeneste.class));
+            mock(DokumentBestillerTjeneste.class), mock(ProsessTaskTjeneste.class));
     }
 
     @Test
     void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
         var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
-                                                                                 // f.eks der inntektsmelding kommer først.
-                .forFødselUtenSøknad(AktørId.dummy())
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+            // f.eks der inntektsmelding kommer først.
+            .forFødselUtenSøknad(AktørId.dummy()).medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         var behandling = scenario.lagre(repositoryProvider);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
-        assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count())
-                .isEqualTo(1);
+        assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count()).isEqualTo(
+            1);
     }
 }

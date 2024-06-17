@@ -13,13 +13,14 @@ public class FaktaAktør {
     private FaktaVurdering skalBesteberegnes;
     private FaktaVurdering mottarEtterlønnSluttpakke;
 
-    private FaktaAktør() { }
+    private FaktaAktør() {
+    }
 
     public FaktaAktør(FaktaAktør original) {
         this.erNyIArbeidslivetSN = original.getErNyIArbeidslivetSN();
         this.erNyoppstartetFL = original.getErNyoppstartetFL();
         this.harFLMottattYtelse = original.getHarFLMottattYtelse();
-        this.skalBesteberegnes = original.getSkalBesteberegnes()    ;
+        this.skalBesteberegnes = original.getSkalBesteberegnes();
         this.mottarEtterlønnSluttpakke = original.getMottarEtterlønnSluttpakke();
         this.skalBeregnesSomMilitær = original.getSkalBeregnesSomMilitær();
     }
@@ -78,13 +79,8 @@ public class FaktaAktør {
 
     @Override
     public String toString() {
-        return "FaktaAktør{" +
-                "erNyIArbeidslivetSN=" + erNyIArbeidslivetSN +
-                ", erNyoppstartetFL=" + erNyoppstartetFL +
-                ", harFLMottattYtelse=" + harFLMottattYtelse +
-                ", skalBesteberegnes=" + skalBesteberegnes +
-                ", mottarEtterlønnSluttpakke=" + mottarEtterlønnSluttpakke +
-                '}';
+        return "FaktaAktør{" + "erNyIArbeidslivetSN=" + erNyIArbeidslivetSN + ", erNyoppstartetFL=" + erNyoppstartetFL + ", harFLMottattYtelse="
+            + harFLMottattYtelse + ", skalBesteberegnes=" + skalBesteberegnes + ", mottarEtterlønnSluttpakke=" + mottarEtterlønnSluttpakke + '}';
     }
 
     public static Builder builder() {
@@ -185,12 +181,8 @@ public class FaktaAktør {
 
         // Brukes av fp-sak og må vere public
         public boolean erUgyldig() {
-            return mal.erNyIArbeidslivetSN == null
-                    && mal.erNyoppstartetFL == null
-                    && mal.skalBeregnesSomMilitær == null
-                    && mal.harFLMottattYtelse == null
-                    && mal.skalBesteberegnes == null
-                    && mal.mottarEtterlønnSluttpakke == null;
+            return mal.erNyIArbeidslivetSN == null && mal.erNyoppstartetFL == null && mal.skalBeregnesSomMilitær == null
+                && mal.harFLMottattYtelse == null && mal.skalBesteberegnes == null && mal.mottarEtterlønnSluttpakke == null;
         }
 
     }

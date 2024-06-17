@@ -229,7 +229,8 @@ class OpptjeningsgrunnlagAdapterTest {
         var opptjeningsgrunnlag = adapter.mapTilGrunnlag(opptjeningAktiveter, opptjeningInntekter);
 
         assertThat(opptjeningsgrunnlag.aktivitetPerioder()).hasSize(1);
-        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
+        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(
+            AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
     }
 
     @Test
@@ -262,7 +263,8 @@ class OpptjeningsgrunnlagAdapterTest {
         var opptjeningsgrunnlag = adapter.mapTilGrunnlag(opptjeningAktiveter, opptjeningInntekter);
 
         assertThat(opptjeningsgrunnlag.aktivitetPerioder()).hasSize(1);
-        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT);
+        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(
+            AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT);
     }
 
     @Test
@@ -305,7 +307,8 @@ class OpptjeningsgrunnlagAdapterTest {
         var opptjeningsgrunnlag = adapter.mapTilGrunnlag(opptjeningAktiveter, opptjeningInntekter);
 
         assertThat(opptjeningsgrunnlag.aktivitetPerioder()).hasSize(1);
-        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
+        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(
+            AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
     }
 
     @Test
@@ -346,7 +349,9 @@ class OpptjeningsgrunnlagAdapterTest {
         var opptjeningsgrunnlag = adapter.mapTilGrunnlag(opptjeningAktiveter, opptjeningInntekter);
 
         assertThat(opptjeningsgrunnlag.aktivitetPerioder()).hasSize(2);
-        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
-        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(1).getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT);
+        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(0).getVurderingsStatus()).isEqualTo(
+            AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
+        assertThat(opptjeningsgrunnlag.aktivitetPerioder().get(1).getVurderingsStatus()).isEqualTo(
+            AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT);
     }
 }

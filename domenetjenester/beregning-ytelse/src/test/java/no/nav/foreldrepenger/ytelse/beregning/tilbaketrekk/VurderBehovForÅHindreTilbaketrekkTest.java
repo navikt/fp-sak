@@ -42,9 +42,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         var denneTY = lagBeregningsresultatFP(0, inntektBeløp);
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -62,9 +60,8 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
 
         // Act
-        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO), List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -77,9 +74,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         var denneTY = lagBeregningsresultatFP(0, 1000);
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -94,9 +89,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         var forrigeTY = lagBeregningsresultatFP(0, 1000);
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = Collections.emptyList();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -112,9 +105,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         var denneTY = lagBeregningsresultatFP(200, 800);
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -128,28 +119,21 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(200, 800);
 
-        var br = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var br = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var periode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(br);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(br);
         lagAndel(periode1, ARBEIDSGIVER1, true, 200);
         lagAndel(periode1, ARBEIDSGIVER1, false, 800);
-        var periode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(br);
+        var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG).build(br);
         lagAndel(periode2, ARBEIDSGIVER1, true, 0);
         lagAndel(periode2, ARBEIDSGIVER1, false, 1000);
         var denneTY = periode1.getBeregningsresultat();
 
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -161,43 +145,35 @@ class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     void bortfaltAndelSkalIkkeGiAksjonspunkt() {
         // Arrange
-        var originalBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var originalBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var originalPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 200);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, false, 800);
         var originalPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(originalBR);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, true, 0);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, false, 1000);
 
-        var revurderingBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var revurderingBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var revurderingPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER2, true, 200);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER2, false, 800);
         var revurderingPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 1000);
 
         var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -209,35 +185,29 @@ class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     void originalAndelUtenReferanseOgRefusjonSplittetTilToAndelerMedReferanseOgRefusjon() {
         // Arrange
-        var originalBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var originalBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var originalPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 1000, null);
         var originalPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(originalBR);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, true, 1000, null);
 
-        var revurderingBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var revurderingBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var revurderingPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF2);
         var revurderingPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF2);
@@ -245,9 +215,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
 
         var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -265,37 +233,31 @@ class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     void revurderingAndelerMedReferanseSomIkkeMatcherOriginaleAndelerOgOriginalAndelerHarIkkeNullReferanse() {
         // Arrange
-        var originalBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var originalBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var originalPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 0, REF3);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, false, 1000, REF3);
         var originalPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(originalBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 0, REF3);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, false, 1000, REF3);
 
-        var revurderingBR = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var revurderingBR = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var revurderingPeriode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF2);
         var revurderingPeriode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(revurderingBR);
+            .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
+            .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF2);
@@ -303,9 +265,7 @@ class VurderBehovForÅHindreTilbaketrekkTest {
 
         var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTYPerioder,
-                denneTYPerioder, DAGENS_DATO);
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTYPerioder, denneTYPerioder, DAGENS_DATO);
 
         // Act
         var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -326,17 +286,12 @@ class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     private List<BeregningsresultatPeriode> lagBeregningsresultatPeriode() {
-        var br = BeregningsresultatEntitet.builder()
-                .medRegelSporing("regelsporing")
-                .medRegelInput("regelinput")
-                .build();
+        var br = BeregningsresultatEntitet.builder().medRegelSporing("regelsporing").medRegelInput("regelinput").build();
 
         var periode1 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
-                .build(br);
-        var periode2 = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
-                .build(br);
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
+            .build(br);
+        var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG).build(br);
         return List.of(periode1, periode2);
     }
 
@@ -344,19 +299,22 @@ class VurderBehovForÅHindreTilbaketrekkTest {
         return lagAndel(brp, arbeidsgiver, brukerErMottaker, dagsats, null);
     }
 
-    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp, Arbeidsgiver arbeidsgiver, boolean brukerErMottaker, int dagsats,
-            InternArbeidsforholdRef internRef) {
+    private BeregningsresultatAndel lagAndel(BeregningsresultatPeriode brp,
+                                             Arbeidsgiver arbeidsgiver,
+                                             boolean brukerErMottaker,
+                                             int dagsats,
+                                             InternArbeidsforholdRef internRef) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(brukerErMottaker)
-                .medArbeidsgiver(arbeidsgiver)
-                .medStillingsprosent(new BigDecimal(100))
-                .medUtbetalingsgrad(new BigDecimal(100))
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsforholdRef(internRef)
-                .medDagsats(dagsats)
-                .medDagsatsFraBg(dagsats)
-                .build(brp);
+            .medBrukerErMottaker(brukerErMottaker)
+            .medArbeidsgiver(arbeidsgiver)
+            .medStillingsprosent(new BigDecimal(100))
+            .medUtbetalingsgrad(new BigDecimal(100))
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsforholdRef(internRef)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .build(brp);
     }
 
 }

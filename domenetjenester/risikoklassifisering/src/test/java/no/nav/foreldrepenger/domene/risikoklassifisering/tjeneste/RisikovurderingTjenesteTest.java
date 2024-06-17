@@ -9,20 +9,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
-import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -61,7 +55,8 @@ class RisikovurderingTjenesteTest {
     @Test
     void skal_teste_at_aksjonspunkt_opprettes_når_risiko_er_høy() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, Collections.emptyList(), null)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(RisikoklasseType.HØY, Collections.emptyList(), null)));
 
         // Act
         var skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(referanse);
@@ -73,7 +68,8 @@ class RisikovurderingTjenesteTest {
     @Test
     void skal_teste_at_aksjonspunkt_ikke_opprettes_når_risiko_er_lav() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.IKKE_HØY, Collections.emptyList(), null)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(RisikoklasseType.IKKE_HØY, Collections.emptyList(), null)));
 
         // Act
         var skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(referanse);

@@ -45,8 +45,9 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
 
         // Assert
-        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
-                .getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger()
+            .get()
+            .getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe).isEmpty();
     }
 
@@ -63,49 +64,47 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
 
 
         // Assert
-        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
-                .getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger()
+            .get()
+            .getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(1);
     }
 
     private BeregningsresultatEntitet lagVlBeregningsresultat() {
-        var beregningsresultat = BeregningsresultatEntitet
-                .builder()
-                .medRegelInput("Regelinput")
-                .medRegelSporing("Regelsporing")
-                .build();
-        var vlBeregningsresultatPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode
-                .builder()
-                .medBeregningsresultatPeriodeFomOgTom(PERIODE.getFomDato(), PERIODE.getTomDato())
-                .build(beregningsresultat);
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("Regelinput").medRegelSporing("Regelsporing").build();
+        var vlBeregningsresultatPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(PERIODE.getFomDato(), PERIODE.getTomDato())
+            .build(beregningsresultat);
 
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel
-                .builder()
-                .medBrukerErMottaker(true)
-                .medDagsats((int) DAGSATS)
-                .medDagsatsFraBg((int) DAGSATS_FRA_BG)
-                .medInntektskategori(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.ARBEIDSTAKER)
-                .medUtbetalingsgrad(UTBETALINGSGRAD)
-                .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medStillingsprosent(BigDecimal.valueOf(100)).build(vlBeregningsresultatPeriode);
+        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats((int) DAGSATS)
+            .medDagsatsFraBg((int) DAGSATS_FRA_BG)
+            .medInntektskategori(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.ARBEIDSTAKER)
+            .medUtbetalingsgrad(UTBETALINGSGRAD)
+            .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(vlBeregningsresultatPeriode);
         return beregningsresultat;
     }
 
     private BeregningsresultatPeriode lagPeriodeMedAndel(BigDecimal årsbeløp) {
-        var andel = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
-                .medBrukerErMottaker(true)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsforhold(ARBEIDSFORHOLD)
-                .medDagsats(DAGSATS)
-                .medDagsatsFraBg(DAGSATS_FRA_BG)
-                .medUtbetalingssgrad(UTBETALINGSGRAD)
-                .build();
-        andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(årsbeløp)
-                .medOpptjeningÅr(LocalDate.now())
-                .medBrukerErMottaker(andel.erBrukerMottaker())
-                .medArbeidsforhold(andel.getArbeidsforhold())
-                .build());
+        var andel = BeregningsresultatAndel.builder()
+            .medAktivitetStatus(AktivitetStatus.ATFL)
+            .medBrukerErMottaker(true)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsforhold(ARBEIDSFORHOLD)
+            .medDagsats(DAGSATS)
+            .medDagsatsFraBg(DAGSATS_FRA_BG)
+            .medUtbetalingssgrad(UTBETALINGSGRAD)
+            .build();
+        andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder()
+            .medÅrsbeløp(årsbeløp)
+            .medOpptjeningÅr(LocalDate.now())
+            .medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsforhold(andel.getArbeidsforhold())
+            .build());
         var periode = new BeregningsresultatPeriode(PERIODE);
         periode.addBeregningsresultatAndel(andel);
         return periode;

@@ -84,15 +84,15 @@ public class VurderOpphørAvYtelser {
 
     private void vurderOppørAvYtelserForFP(Behandling iverksattBehandling) {
         stønadsperiodeTjeneste.stønadsperiodeStartdato(iverksattBehandling).ifPresent(startdatoIVB -> {
-            løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(iverksattBehandling.getAktørId(), iverksattBehandling.getFagsak(), startdatoIVB)
-                .forEach( fagsakOpphør -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphør, iverksattBehandling));
+            løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(iverksattBehandling.getAktørId(), iverksattBehandling.getFagsak(), startdatoIVB).forEach(
+                fagsakOpphør -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphør, iverksattBehandling));
 
             // sjekker om ny sak på mor overlapper med fars tidligere saker
             if (RelasjonsRolleType.erMor(iverksattBehandling.getRelasjonsRolleType())) {
                 personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(iverksattBehandling.getId())
                     .map(OppgittAnnenPartEntitet::getAktørId)
-                    .ifPresent(annenPart -> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(annenPart, iverksattBehandling.getFagsak(), startdatoIVB)
-                        .forEach(fagsakOpphørFar -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphørFar, iverksattBehandling)));
+                    .ifPresent(annenPart -> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(annenPart, iverksattBehandling.getFagsak(),
+                        startdatoIVB).forEach(fagsakOpphørFar -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphørFar, iverksattBehandling)));
             }
         });
     }
@@ -102,15 +102,16 @@ public class VurderOpphørAvYtelser {
     }
 
     private void vurderOpphørAvYtelserForSVP(Behandling behandling) {
-        stønadsperiodeTjeneste.stønadsperiode(behandling).ifPresent(stønadsperiodeIVB ->
-            løpendeSakerSomOverlapperUttakNySakSVP(behandling, stønadsperiodeIVB)
-                .forEach(sakspar -> opprettTaskForÅHåndtereOpphør(sakspar.fagsakOpphør(), sakspar.opphørÅrsak())));
+        stønadsperiodeTjeneste.stønadsperiode(behandling)
+            .ifPresent(stønadsperiodeIVB -> løpendeSakerSomOverlapperUttakNySakSVP(behandling, stønadsperiodeIVB).forEach(
+                sakspar -> opprettTaskForÅHåndtereOpphør(sakspar.fagsakOpphør(), sakspar.opphørÅrsak())));
     }
 
     private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør, Fagsak fersktVedtak) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsakId(sakOpphør.getId());
-        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer()));
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY,
+            String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer()));
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
@@ -120,7 +121,9 @@ public class VurderOpphørAvYtelser {
 
         //dersom to tette fødsler skal vi opprette VKY for at SB må ta stilling til eventuelt gjenstående minsterett ellers ikke
         if (toTetteFødsler(sakOpphør, iverksattBehandling) && overlappendeYtelse(sakOpphør, iverksattBehandling)) {
-            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett ved tette fødsler identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
+            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format(
+                "Overlapp på sak med minsterett ved tette fødsler identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s",
+                sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
         } else {
             prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, null);
         }
@@ -160,11 +163,13 @@ public class VurderOpphørAvYtelser {
 
     private boolean overlappendeYtelse(Fagsak sakOpphør, Behandling iverksattBehandling) {
         return !stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(sakOpphør)
-            .intersection(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(iverksattBehandling)).isEmpty();
+            .intersection(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(iverksattBehandling))
+            .isEmpty();
     }
 
     private boolean beggeSakerErForeldrepenger(Fagsak sakOpphør, Behandling iverksattBehandling) {
-        return FagsakYtelseType.FORELDREPENGER.equals(sakOpphør.getYtelseType()) && FagsakYtelseType.FORELDREPENGER.equals(iverksattBehandling.getFagsakYtelseType());
+        return FagsakYtelseType.FORELDREPENGER.equals(sakOpphør.getYtelseType()) && FagsakYtelseType.FORELDREPENGER.equals(
+            iverksattBehandling.getFagsakYtelseType());
     }
 
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startdatoIVB) {
@@ -184,10 +189,10 @@ public class VurderOpphørAvYtelser {
         return iverksatt.getSaksnummer().equals(sjekk.getSaksnummer()) || kobletTilIverksatt;
     }
 
-    private record FagsakPar(Fagsak fagsakOpphør, Fagsak opphørÅrsak) {}
+    private record FagsakPar(Fagsak fagsakOpphør, Fagsak opphørÅrsak) {
+    }
 
-    private List<FagsakPar> løpendeSakerSomOverlapperUttakNySakSVP(Behandling behandlingIVB,
-                                                                LocalDateInterval stønadsperiodeIVB) {
+    private List<FagsakPar> løpendeSakerSomOverlapperUttakNySakSVP(Behandling behandlingIVB, LocalDateInterval stønadsperiodeIVB) {
         return fagsakRepository.hentForBruker(behandlingIVB.getAktørId())
             .stream()
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
@@ -196,11 +201,14 @@ public class VurderOpphørAvYtelser {
             .toList();
     }
 
-    private Optional<FagsakPar> sjekkOverlappMotIverksattSvangerskapspenger(Fagsak sjekkFagsak, Behandling behandlingIVB,
-                                                                          LocalDateInterval stønadsperiodeIVB) {
+    private Optional<FagsakPar> sjekkOverlappMotIverksattSvangerskapspenger(Fagsak sjekkFagsak,
+                                                                            Behandling behandlingIVB,
+                                                                            LocalDateInterval stønadsperiodeIVB) {
         var overlapp = stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(sjekkFagsak)
             .filter(utbetalingsperiode -> utbetalingsperiode.overlaps(stønadsperiodeIVB));
-        if (overlapp.isEmpty()) return Optional.empty();
+        if (overlapp.isEmpty()) {
+            return Optional.empty();
+        }
         var saksnummer = behandlingIVB.getFagsak().getSaksnummer();
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(sjekkFagsak.getYtelseType())) {
             LOG.info("Overlapp SVP oppdaget for sak {} med løpende SVP-sak {}. Ingen revurdering opprettet", saksnummer, sjekkFagsak.getSaksnummer());
@@ -217,7 +225,8 @@ public class VurderOpphørAvYtelser {
                 return Optional.of(new FagsakPar(sjekkFagsak, behandlingIVB.getFagsak()));
             } else {
                 // Overlapp med løpenge graderte foreldrepenger -  kan være tillatt så derfor logger vi foreløpig
-                LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", saksnummer, sjekkFagsak.getSaksnummer());
+                LOG.info("Overlapp SVP: SVP-sak {} overlapper med gradert FP-sak {}. Ingen revurdering opprettet", saksnummer,
+                    sjekkFagsak.getSaksnummer());
                 return Optional.empty();
             }
         });
@@ -226,7 +235,8 @@ public class VurderOpphørAvYtelser {
     private boolean erMaxDatoPåLøpendeSakEtterStartDatoNysak(Fagsak fagsak, LocalDate startdatoIVB) {
         var startdato = stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak).orElse(Tid.TIDENES_ENDE);
         var sluttdato = stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(fagsak).orElse(Tid.TIDENES_BEGYNNELSE);
-        return startdato.minus(MATCH_INTERVALL_HENDELSE).isBefore(startdatoIVB.plusWeeks(6)) && (sluttdato.equals(startdatoIVB) || sluttdato.isAfter(startdatoIVB));
+        return startdato.minus(MATCH_INTERVALL_HENDELSE).isBefore(startdatoIVB.plusWeeks(6)) && (sluttdato.equals(startdatoIVB) || sluttdato.isAfter(
+            startdatoIVB));
     }
 
 }

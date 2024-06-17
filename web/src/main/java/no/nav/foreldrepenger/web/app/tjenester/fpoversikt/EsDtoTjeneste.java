@@ -55,11 +55,9 @@ public class EsDtoTjeneste {
     }
 
     private static Set<EsSak.Søknad> finnEsSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
-        return mottatteSøknader.stream()
-            .map(md -> {
-                var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
-                return new EsSak.Søknad(status, md.getMottattTidspunkt());
-            })
-            .collect(Collectors.toSet());
+        return mottatteSøknader.stream().map(md -> {
+            var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
+            return new EsSak.Søknad(status, md.getMottattTidspunkt());
+        }).collect(Collectors.toSet());
     }
 }

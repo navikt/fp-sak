@@ -21,9 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum StartpunktType implements Kodeverdi {
 
-    KONTROLLER_ARBEIDSFORHOLD("KONTROLLER_ARBEIDSFORHOLD", "Startpunkt kontroller arbeidsforhold", 1, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING),
+    KONTROLLER_ARBEIDSFORHOLD("KONTROLLER_ARBEIDSFORHOLD", "Startpunkt kontroller arbeidsforhold", 1,
+        BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING),
     KONTROLLER_FAKTA("KONTROLLER_FAKTA", "Kontroller fakta", 2, BehandlingStegType.KONTROLLER_FAKTA),
-    INNGANGSVILKÅR_OPPLYSNINGSPLIKT("INNGANGSVILKÅR_OPPL", "Inngangsvilkår opplysningsplikt", 3, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
+    INNGANGSVILKÅR_OPPLYSNINGSPLIKT("INNGANGSVILKÅR_OPPL", "Inngangsvilkår opplysningsplikt", 3,
+        BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
     SØKERS_RELASJON_TIL_BARNET("SØKERS_RELASJON_TIL_BARNET", "Søkers relasjon til barnet", 4, BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
     INNGANGSVILKÅR_MEDLEMSKAP("INNGANGSVILKÅR_MEDL", "Inngangsvilkår medlemskapsvilkår", 5, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
     OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE),
@@ -31,7 +33,8 @@ public enum StartpunktType implements Kodeverdi {
     BEREGNING("BEREGNING", "Beregning", 8, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
     // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
     BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 9, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10,
+        BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
     TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE),
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
@@ -49,22 +52,19 @@ public enum StartpunktType implements Kodeverdi {
     }
 
     static final Map<StartpunktType, Set<VilkårType>> VILKÅR_HÅNDTERT_INNEN_STARTPUNKT = new HashMap<>();
+
     static {
         // Kontroller arbeidsforhold - ingen vilkår håndter før dette startpunktet
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_ARBEIDSFORHOLD,
-            new HashSet<>());
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_ARBEIDSFORHOLD, new HashSet<>());
 
         // Kontroller Fakta - ingen vilkår håndter før dette startpunktet
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_FAKTA,
-            new HashSet<>());
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_FAKTA, new HashSet<>());
 
         // Opplysningsplikt - ingen vilkår håndter før dette startpunktet
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT,
-            new HashSet<>());
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, new HashSet<>());
 
         // Søkers relasjon
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.SØKERS_RELASJON_TIL_BARNET,
-            Set.of(VilkårType.SØKERSOPPLYSNINGSPLIKT));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.SØKERS_RELASJON_TIL_BARNET, Set.of(VilkårType.SØKERSOPPLYSNINGSPLIKT));
 
         // Medlemskap
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,

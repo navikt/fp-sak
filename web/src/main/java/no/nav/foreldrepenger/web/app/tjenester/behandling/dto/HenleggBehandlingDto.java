@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class HenleggBehandlingDto extends DtoMedBehandlingId  {
+public class HenleggBehandlingDto extends DtoMedBehandlingId {
 
 
     @NotNull

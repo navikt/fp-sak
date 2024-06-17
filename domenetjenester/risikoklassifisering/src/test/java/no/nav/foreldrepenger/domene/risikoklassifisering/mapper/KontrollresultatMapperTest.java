@@ -50,6 +50,7 @@ class KontrollresultatMapperTest {
         assertThat(wrapper.medlemskapFaresignaler().faresignaler()).containsAll(faresignaler);
 
         assertThat(wrapper.faresignalVurdering()).isNotNull();
-        assertThat(wrapper.faresignalVurdering()).isEqualTo(no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering.AVSLAG_FARESIGNAL);
+        assertThat(wrapper.faresignalVurdering()).isEqualTo(
+            no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering.AVSLAG_FARESIGNAL);
     }
 }

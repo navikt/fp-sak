@@ -41,7 +41,7 @@ public class SvpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
 
-   public LocalDate utledAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
+    public LocalDate utledAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
         var avslutningsdato = avslutningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon).orElse(null);
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElse(null);
 
@@ -60,8 +60,7 @@ public class SvpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private Optional<LocalDate> sisteUttaksdatoOgEnDag(UttakInput uttakInput) {
-        return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput)
-            .map( su -> su.plusDays(1));
+        return maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput).map(su -> su.plusDays(1));
     }
 
     private Optional<LocalDate> avslutningsdatoFraEksisterendeFagsakRelasjon(FagsakRelasjon fagsakRelasjon) {

@@ -26,18 +26,24 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
         //Skal ikke instansieres
     }
 
-    public static BeregningsresultatFeriepengerGrunnlag mapFra(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat,
+    public static BeregningsresultatFeriepengerGrunnlag mapFra(BehandlingReferanse ref,
+                                                               BeregningsresultatEntitet beregningsresultat,
                                                                Optional<BeregningsresultatEntitet> annenPartsBeregningsresultatFP,
-                                                               Dekningsgrad dekningsgrad, boolean arbeidstakerVedSTP,
+                                                               Dekningsgrad dekningsgrad,
+                                                               boolean arbeidstakerVedSTP,
                                                                int antallDagerFeriepenger) {
 
-        var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP
-            .map(a -> a.getBeregningsresultatPerioder().stream().map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).toList())
-            .orElse(Collections.emptyList());
-        var beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).toList();
+        var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder()
+            .stream()
+            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder)
+            .toList()).orElse(Collections.emptyList());
+        var beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
+            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder)
+            .toList();
         var inntektskategorier = mapInntektskategorier(beregningsresultat);
-        var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
+        var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier)
+            .orElse(Collections.emptySet());
         var erForelder1 = RelasjonsRolleType.erMor(ref.relasjonRolle());
 
         return BeregningsresultatFeriepengerGrunnlag.builder()
@@ -64,7 +70,8 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
     }
 
     private static Set<Inntektskategori> mapInntektskategorier(BeregningsresultatEntitet beregningsresultat) {
-        return beregningsresultat.getBeregningsresultatPerioder().stream()
+        return beregningsresultat.getBeregningsresultatPerioder()
+            .stream()
             .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
             .filter(andel -> andel.getDagsats() > 0)
             .map(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel::getInntektskategori)
@@ -78,8 +85,10 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
     }
 
     private static BeregningsresultatPeriode mapBeregningsresultatPerioder(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode beregningsresultatPerioder) {
-        var periode = new BeregningsresultatPeriode(beregningsresultatPerioder.getBeregningsresultatPeriodeFom(), beregningsresultatPerioder.getBeregningsresultatPeriodeTom());
-        beregningsresultatPerioder.getBeregningsresultatAndelList().forEach(andel -> periode.addBeregningsresultatAndel(mapBeregningsresultatAndel(andel)));
+        var periode = new BeregningsresultatPeriode(beregningsresultatPerioder.getBeregningsresultatPeriodeFom(),
+            beregningsresultatPerioder.getBeregningsresultatPeriodeTom());
+        beregningsresultatPerioder.getBeregningsresultatAndelList()
+            .forEach(andel -> periode.addBeregningsresultatAndel(mapBeregningsresultatAndel(andel)));
         return periode;
     }
 
@@ -104,14 +113,14 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
 
     private static Arbeidsforhold lagArbeidsforholdHosArbeidsgiver(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         if (arbeidsgiver.erAktørId()) {
-            return arbeidsforholdRef == null
-                ? Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbeidsgiver.getIdentifikator())
-                : Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbeidsgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());
+            return arbeidsforholdRef == null ? Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(
+                arbeidsgiver.getIdentifikator()) : Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbeidsgiver.getIdentifikator(),
+                arbeidsforholdRef.getReferanse());
         }
         if (arbeidsgiver.getErVirksomhet()) {
-            return arbeidsforholdRef == null
-                ? Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbeidsgiver.getIdentifikator())
-                : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbeidsgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());
+            return arbeidsforholdRef == null ? Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(
+                arbeidsgiver.getIdentifikator()) : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbeidsgiver.getIdentifikator(),
+                arbeidsforholdRef.getReferanse());
         }
         throw new IllegalStateException("Arbeidsgiver har ingen av de forventede identifikatorene");
     }

@@ -36,9 +36,9 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato.plusDays(1), termindato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato.plusDays(1), termindato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
@@ -53,9 +53,9 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato, termindato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato, termindato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
@@ -70,9 +70,9 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
@@ -87,13 +87,12 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build(),
-                AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato, termindato.plusDays(10)))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build(), AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato, termindato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
@@ -109,13 +108,12 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build(),
-                AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), termindato.plusDays(10)))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build(), AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), termindato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
@@ -130,21 +128,18 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
-                .medProsentsats(BigDecimal.valueOf(100))
-                .build(),
-                AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), termindato.plusDays(10)))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .build(),
-                AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.minusDays(10), jordmorsdato.minusDays(4)))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .build(),
-                AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.minusDays(11), jordmorsdato.minusDays(4)))
-                        .medProsentsats(BigDecimal.valueOf(100))
-                        .build());
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build(), AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), termindato.plusDays(10)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build(), AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.minusDays(10), jordmorsdato.minusDays(4)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build(), AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.minusDays(11), jordmorsdato.minusDays(4)))
+            .medProsentsats(BigDecimal.valueOf(100))
+            .build());
 
         // Act
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);

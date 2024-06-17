@@ -94,8 +94,8 @@ class VedtakFattetTjenesteTest {
     void hent_hendelser_skal_returnere_at_det_er_flere_hendelser_å_lese() {
         var hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
         var hendelse2 = mockFpHendelse(SIST_LEST_SEKVENSID + 2);
-        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class)))
-                .thenReturn(List.of(hendelse, hendelse2));
+        when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class))).thenReturn(
+            List.of(hendelse, hendelse2));
 
         var dto = tjeneste.hentFpVedtak(SIST_LEST_SEKVENSID, 1L, HENDELSE_TYPE, Optional.of(AKTØR_ID));
 

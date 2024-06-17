@@ -27,8 +27,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Inject
-    public BekreftMannAdoptererOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public BekreftMannAdoptererOppdaterer(HistorikkTjenesteAdapter historikkAdapter, FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
@@ -43,9 +42,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         var totrinn = håndterEndringHistorikk(dto, behandlingReferanse, param);
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
-        oppdatertOverstyrtHendelse
-            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
-                .medAdoptererAlene(dto.getMannAdoptererAlene()));
+        oppdatertOverstyrtHendelse.medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder().medAdoptererAlene(dto.getMannAdoptererAlene()));
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingReferanse.behandlingId(), oppdatertOverstyrtHendelse);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }

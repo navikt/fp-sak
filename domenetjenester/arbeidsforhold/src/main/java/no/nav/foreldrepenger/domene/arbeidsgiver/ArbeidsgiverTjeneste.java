@@ -65,8 +65,7 @@ public class ArbeidsgiverTjeneste {
             if (personinfo.isPresent()) {
                 var info = personinfo.get();
                 var fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                var nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(),
-                        info.getFødselsdato());
+                var nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(), info.getFødselsdato());
                 CACHE.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
             }
@@ -82,7 +81,7 @@ public class ArbeidsgiverTjeneste {
 
     public Virksomhet hentVirksomhet(String orgNummer) {
         return virksomhetTjeneste.finnOrganisasjon(orgNummer)
-                .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
+            .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
     }
 
     private Optional<PersoninfoArbeidsgiver> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {

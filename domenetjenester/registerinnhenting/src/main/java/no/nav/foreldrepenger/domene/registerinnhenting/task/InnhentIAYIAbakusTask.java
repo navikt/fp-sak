@@ -58,7 +58,8 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
         }
 
         if (hendelse.isEmpty() || grunnlag.isEmpty()) {
-            var overstyr = prosessTaskData.getPropertyValue(OVERSTYR_KEY) != null && OVERSTYR_VALUE.equals(prosessTaskData.getPropertyValue(OVERSTYR_KEY));
+            var overstyr =
+                prosessTaskData.getPropertyValue(OVERSTYR_KEY) != null && OVERSTYR_VALUE.equals(prosessTaskData.getPropertyValue(OVERSTYR_KEY));
             var behandling = behandlingRepository.hentBehandling(behandlingId);
 
             precondition(behandling);
@@ -75,9 +76,9 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     private void precondition(Behandling behandling) {
         if (behandling.erSaksbehandlingAvsluttet()) {
-            throw new IllegalStateException("Utvikler-feil - saken er ferdig behandlet, kan ikke oppdateres. behandlingId=" + behandling.getId()
-                + ", behandlingStatus=" + behandling.getStatus()
-                + ", startpunkt=" + behandling.getStartpunkt());
+            throw new IllegalStateException(
+                "Utvikler-feil - saken er ferdig behandlet, kan ikke oppdateres. behandlingId=" + behandling.getId() + ", behandlingStatus="
+                    + behandling.getStatus() + ", startpunkt=" + behandling.getStartpunkt());
         } else {
             LOG.info("Innhenter IAY-opplysninger i abakus for behandling: {}", behandling.getId());
         }
@@ -88,7 +89,8 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
         if (prosessTaskData.getVentetHendelse().filter(IAY_REGISTERDATA_CALLBACK::equals).isEmpty()) {
             throw new IllegalStateException("Ugyldig hendelse");
         }
-        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", prosessTaskData.getBehandlingId(), prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
+        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", prosessTaskData.getBehandlingId(),
+            prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
     }
 
     private void settTaskPåVent(ProsessTaskData prosessTaskData) {

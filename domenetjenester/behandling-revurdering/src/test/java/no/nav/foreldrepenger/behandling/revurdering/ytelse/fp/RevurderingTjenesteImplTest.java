@@ -103,8 +103,7 @@ class RevurderingTjenesteImplTest {
         var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
         assertThat(fodsel).hasValueSatisfying(v -> assertThat(v.getTilVerdi()).isEqualTo("04.09.2017"));
         assertThat(antallBarn).as("antallBarn")
-                .hasValueSatisfying(
-                        v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
+            .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
     }
 
     @Test
@@ -129,49 +128,39 @@ class RevurderingTjenesteImplTest {
         var fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
         var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
         var dateString = dateFormat.format(fødselsdato1) + ", " + dateFormat.format(fødselsdato2);
-        assertThat(fodsel).as("fodsel")
-                .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
+        assertThat(fodsel).as("fodsel").hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
         assertThat(antallBarn).as("antallBarn")
-                .hasValueSatisfying(
-                        v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(3)));
+            .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(3)));
     }
 
     @Test
     void skal_opprette_revurdering_for_foreldrepenger() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON,
-                BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingstidFrist(LocalDate.now().minusDays(5));
         var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
-                .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
-                        false);
+            .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
-        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
-                grunnlagRepositoryProvider, behandlingskontrollTjeneste,
-                iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
+        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
+            behandlingskontrollTjeneste, iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
 
         // Act
-        var revurdering = revurderingTjeneste
-                .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                        BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+            BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
 
         // Assert
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
-        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(
-                BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(revurdering.getType()).isEqualTo(BehandlingType.REVURDERING);
         assertThat(revurdering.getAksjonspunkter()).isEmpty();
-        assertThat(revurdering.getBehandlingstidFrist()).isNotEqualTo(
-                behandlingSomSkalRevurderes.getBehandlingstidFrist());
+        assertThat(revurdering.getBehandlingstidFrist()).isNotEqualTo(behandlingSomSkalRevurderes.getBehandlingstidFrist());
     }
 
     private void opprettRevurderingsKandidat() {
@@ -179,20 +168,16 @@ class RevurderingTjenesteImplTest {
         var terminDato = LocalDate.now().minusDays(70);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(terminDato).medUtstedtDato(terminDato))
-                .medAntallBarn(1);
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(terminDato).medUtstedtDato(terminDato))
+            .medAntallBarn(1);
         scenario.medBekreftetHendelse()
-                .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(terminDato).medUtstedtDato(terminDato.minusDays(40)))
-                .medAntallBarn(1);
+            .medTerminbekreftelse(
+                scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(terminDato).medUtstedtDato(terminDato.minusDays(40)))
+            .medAntallBarn(1);
         behandling = scenario.lagre(repositoryProvider);
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
-        return new FødtBarnInfo.Builder()
-                .medFødselsdato(fødselsdato)
-                .medIdent(PersonIdent.fra("12345678901"))
-                .build();
+        return new FødtBarnInfo.Builder().medFødselsdato(fødselsdato).medIdent(PersonIdent.fra("12345678901")).build();
     }
 }

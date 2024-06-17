@@ -36,7 +36,8 @@ class InngangsvilkårOpptjeningTest {
         // litt rart men opptjeningsperiode 2017-08-29 - 2018-01-30 gir 5 måneder og 7 enkeltdager pga regel om at 26 dager = 1 måned
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P5M7D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2017-08-29"), LocalDate.parse("2018-01-30")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2017-08-29"), LocalDate.parse("2018-01-30")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
 
     }
@@ -75,7 +76,8 @@ class InngangsvilkårOpptjeningTest {
         // skyldes 26 dagers regelen.
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P5M3D"));
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2017-08-29"), LocalDate.parse("2018-01-31")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2017-08-29"), LocalDate.parse("2018-01-31")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -97,7 +99,8 @@ class InngangsvilkårOpptjeningTest {
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
         assertThat(output.getBekreftetGodkjentePerioder()).hasSize(1);
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2016-10-14"), LocalDate.parse("2017-07-31")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2016-10-14"), LocalDate.parse("2017-07-31")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
@@ -135,7 +138,8 @@ class InngangsvilkårOpptjeningTest {
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
         assertThat(output.getBekreftetGodkjentePerioder()).hasSize(2);
 
-        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2016-10-14"), LocalDate.parse("2017-05-31")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2016-10-14"), LocalDate.parse("2017-05-31")),
+            Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 

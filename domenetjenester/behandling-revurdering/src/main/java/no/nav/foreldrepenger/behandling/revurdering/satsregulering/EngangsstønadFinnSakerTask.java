@@ -49,7 +49,9 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         boolean revurder = Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_KEY)).map(Boolean::parseBoolean).orElse(false);
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        if (MDCOperations.getCallId() == null) {
+            MDCOperations.putCallId();
+        }
         var callIdRoot = MDCOperations.getCallId() + "_";
 
         var esFomDato = finnGjeldendeSatsFomDato();

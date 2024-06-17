@@ -47,15 +47,13 @@ class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN,
-                BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         // Dto
-        var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false,
-                "test av overstyring adopsjonsvilkåret foreldrepenger", "1004");
+        var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false, "test av overstyring adopsjonsvilkåret foreldrepenger", "1004");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -64,11 +62,10 @@ class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
-        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
-                .contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
+        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
     }
 
 }

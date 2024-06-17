@@ -24,8 +24,10 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
     VM_1019("1019", "Terminbekreftelse utstedt før 22. svangerskapsuke"),
 
     VM_1020("1020", "Bruker er registrert som ikke medlem"),
-    VM_1023("1023", "Bruker ikke er registrert som norsk eller nordisk statsborger i TPS OG bruker ikke er registrert som borger av EU/EØS OG det ikke er avklart at bruker har lovlig opphold i Norge"),
-    VM_1024("1024", "Bruker ikke er registrert som norsk eller nordisk statsborger i TPS OG bruker er registrert som borger av EU/EØS OG det ikke er avklart at bruker har oppholdsrett"),
+    VM_1023("1023",
+        "Bruker ikke er registrert som norsk eller nordisk statsborger i TPS OG bruker ikke er registrert som borger av EU/EØS OG det ikke er avklart at bruker har lovlig opphold i Norge"),
+    VM_1024("1024",
+        "Bruker ikke er registrert som norsk eller nordisk statsborger i TPS OG bruker er registrert som borger av EU/EØS OG det ikke er avklart at bruker har oppholdsrett"),
     VM_1025("1025", "Bruker avklart som ikke bosatt."),
 
     VM_1026("1026", "Fødselsdato ikke oppgitt eller registrert"),
@@ -36,14 +38,10 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     VM_1041("1041", "for lavt brutto beregningsgrunnlag"),
 
-    @Deprecated
-    VM_5007("5007", "søknadsfristvilkåret"),
-    @Deprecated
-    VM_1021("1021", "Bruker er ikke registrert i TPS som bosatt i Norge"), // UTGÅTT, finnes i DB
-    @Deprecated
-    VM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"), // UTGÅTT, finnes i DB. Har vært brukt manuelt
-    @Deprecated
-    VM_7006("7006", "Venter på opptjeningsopplysninger"), // UTGÅTT, finnes i DB
+    @Deprecated VM_5007("5007", "søknadsfristvilkåret"),
+    @Deprecated VM_1021("1021", "Bruker er ikke registrert i TPS som bosatt i Norge"), // UTGÅTT, finnes i DB
+    @Deprecated VM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"), // UTGÅTT, finnes i DB. Har vært brukt manuelt
+    @Deprecated VM_7006("7006", "Venter på opptjeningsopplysninger"), // UTGÅTT, finnes i DB
 
     UDEFINERT("-", "Ikke definert"),
 

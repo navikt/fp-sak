@@ -94,14 +94,12 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
 
 
     public boolean isOppholdINorgeSistePeriode() {
-        return opphold.stream()
-                .noneMatch(o -> !o.getLand().equals(Landkoder.NOR) && o.isTidligereOpphold());
+        return opphold.stream().noneMatch(o -> !o.getLand().equals(Landkoder.NOR) && o.isTidligereOpphold());
     }
 
 
     public boolean isOppholdINorgeNestePeriode() {
-        return opphold.stream()
-                .noneMatch(o -> !o.getLand().equals(Landkoder.NOR) && !o.isTidligereOpphold());
+        return opphold.stream().noneMatch(o -> !o.getLand().equals(Landkoder.NOR) && !o.isTidligereOpphold());
     }
 
 
@@ -113,8 +111,7 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
         if (!(obj instanceof MedlemskapOppgittTilknytningEntitet other)) {
             return false;
         }
-        return Objects.equals(this.oppholdNå, other.oppholdNå)
-                && Objects.equals(this.opphold, other.opphold);
+        return Objects.equals(this.oppholdNå, other.oppholdNå) && Objects.equals(this.opphold, other.opphold);
     }
 
 

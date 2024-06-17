@@ -76,24 +76,21 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForBruker(AktørId aktørId) {
-        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and stengt=:ikkestengt",
-                Fagsak.class);
+        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and stengt=:ikkestengt", Fagsak.class);
         query.setParameter("aktørId", aktørId);
         query.setParameter("ikkestengt", false);
         return query.getResultList();
     }
 
     public List<Fagsak> hentForBrukerMulti(Set<AktørId> aktørId) {
-        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and stengt=:ikkestengt",
-                Fagsak.class);
+        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and stengt=:ikkestengt", Fagsak.class);
         query.setParameter("aktørId", aktørId);
         query.setParameter("ikkestengt", false);
         return query.getResultList();
     }
 
     public Optional<Journalpost> hentJournalpost(JournalpostId journalpostId) {
-        var query = entityManager.createQuery("from Journalpost where journalpostId=:journalpost",
-                Journalpost.class);
+        var query = entityManager.createQuery("from Journalpost where journalpostId=:journalpost", Journalpost.class);
         query.setParameter("journalpost", journalpostId);
         var journalposter = query.getResultList();
         return journalposter.isEmpty() ? Optional.empty() : Optional.ofNullable(journalposter.get(0));
@@ -190,8 +187,7 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForStatus(FagsakStatus fagsakStatus) {
-        var query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus",
-                Fagsak.class);
+        var query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus", Fagsak.class);
         query.setParameter("fagsakStatus", fagsakStatus);
 
         return query.getResultList();
@@ -199,9 +195,8 @@ public class FagsakRepository {
 
     public List<Saksnummer> hentÅpneFagsakerUtenBehandling() {
         var query = entityManager.createNativeQuery(
-                "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");
-        @SuppressWarnings("unchecked")
-        List<String> saksnumre = query.getResultList();
+            "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");
+        @SuppressWarnings("unchecked") List<String> saksnumre = query.getResultList();
         return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).toList();
     }
 
@@ -227,15 +222,13 @@ public class FagsakRepository {
 
     @SuppressWarnings("unchecked")
     public List<Fagsak> hentFagsakerRelevanteForAvslutning() {
-         var query = (NativeQuery<Fagsak>) entityManager
-            .createNativeQuery(
+        var query = (NativeQuery<Fagsak>) entityManager.createNativeQuery(
             "SELECT f.* FROM FAGSAK f JOIN FAGSAK_RELASJON fr ON (fr.aktiv = :aktivRelasjon AND f.id IN (fr.fagsak_en_id, fr.fagsak_to_id)) "
-                + " WHERE fagsak_to_id IS NOT NULL "
-                + " AND fagsak_status = :lopende "
+                + " WHERE fagsak_to_id IS NOT NULL " + " AND fagsak_status = :lopende "
                 + " AND EXISTS (select * FROM FAGSAK f2 join BEHANDLING b on b.fagsak_id = f2.id join BEHANDLING_RESULTAT br ON br.behandling_id = b.id WHERE f2.id = f.id AND br.behandling_resultat_type = :opphor ) "
                 + " AND NOT EXISTS (select * FROM BEHANDLING b2 WHERE b2.fagsak_id = f.id AND behandling_status <> :avsluttet ) "
                 + " AND NOT EXISTS (select * FROM GR_NESTESAK ns join BEHANDLING b3 ON b3.id = ns.behandling_id JOIN FAGSAK f3 ON f3.id = b3.fagsak_id WHERE f3.id = f.ID AND ns.aktiv = :aktivNesteSak ) ",
-                Fagsak.class);
+            Fagsak.class);
 
         query.setParameter("aktivRelasjon", "J")
             .setParameter("lopende", FagsakStatus.LØPENDE.getKode())
@@ -243,7 +236,7 @@ public class FagsakRepository {
             .setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("aktivNesteSak", "J");
 
-       return query.getResultList();
+        return query.getResultList();
     }
 
     public void lagreFagsakNotat(Long fagsakId, String notat) {
@@ -256,15 +249,15 @@ public class FagsakRepository {
     }
 
     public List<FagsakNotat> hentFagsakNotater(Long fagsakId) {
-        var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt asc", FagsakNotat.class)
-            .setParameter("fagsakId", fagsakId);
+        var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt asc",
+            FagsakNotat.class).setParameter("fagsakId", fagsakId);
         return query.getResultList();
     }
 
 
     public List<Fagsak> finnLøpendeFagsakerFPForEnPeriode(LocalDateTime fraDatoTid, LocalDateTime tilDatoTid) {
-        var query = entityManager.createQuery("select f from Fagsak f " +
-                    "where f.fagsakStatus = :lopende and f.opprettetTidspunkt > :fomTid and f.opprettetTidspunkt < :tomTid and f.ytelseType in (:fp, :svp)",
+        var query = entityManager.createQuery("select f from Fagsak f "
+                    + "where f.fagsakStatus = :lopende and f.opprettetTidspunkt > :fomTid and f.opprettetTidspunkt < :tomTid and f.ytelseType in (:fp, :svp)",
                 Fagsak.class)
             .setParameter("lopende", FagsakStatus.LØPENDE)
             .setParameter("fomTid", fraDatoTid)

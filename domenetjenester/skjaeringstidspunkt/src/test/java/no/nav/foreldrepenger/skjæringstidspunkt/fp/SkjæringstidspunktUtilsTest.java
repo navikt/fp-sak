@@ -20,8 +20,8 @@ class SkjæringstidspunktUtilsTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now();
         var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
-            .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
+            .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
+            .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
 
         var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
@@ -31,13 +31,13 @@ class SkjæringstidspunktUtilsTest {
     void skal_gi_false_hvis_innenfor() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(1);
-        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
-        fhOppgitt.medTerminbekreftelse(fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
-        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.OVERSTYRT);
-        fhBekreftet.medTerminbekreftelse(fhBekreftet.getTerminbekreftelseBuilder().medTermindato(bekreftet).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
-        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(fhOppgitt)
-            .medOverstyrtVersjon(fhBekreftet);
+        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        fhOppgitt.medTerminbekreftelse(
+            fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
+        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.OVERSTYRT);
+        fhBekreftet.medTerminbekreftelse(
+            fhBekreftet.getTerminbekreftelseBuilder().medTermindato(bekreftet).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
+        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medSøknadVersjon(fhOppgitt).medOverstyrtVersjon(fhBekreftet);
 
         var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
@@ -48,13 +48,12 @@ class SkjæringstidspunktUtilsTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().minusYears(1);
 
-        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
-        fhOppgitt.medTerminbekreftelse(fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
-        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET);
+        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        fhOppgitt.medTerminbekreftelse(
+            fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
+        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET);
         fhBekreftet.medFødselsDato(bekreftet);
-        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(fhOppgitt)
-            .medBekreftetVersjon(fhBekreftet);
+        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medSøknadVersjon(fhOppgitt).medBekreftetVersjon(fhBekreftet);
 
         var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
@@ -65,13 +64,11 @@ class SkjæringstidspunktUtilsTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(13);
 
-        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
+        var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         fhOppgitt.medAdopsjon(fhOppgitt.getAdopsjonBuilder().medOmsorgsovertakelseDato(oppgitt));
-        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.OVERSTYRT);
+        var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.OVERSTYRT);
         fhBekreftet.medAdopsjon(fhBekreftet.getAdopsjonBuilder().medOmsorgsovertakelseDato(bekreftet));
-        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(fhOppgitt)
-            .medOverstyrtVersjon(fhBekreftet);
+        var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medSøknadVersjon(fhOppgitt).medOverstyrtVersjon(fhBekreftet);
 
         var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);

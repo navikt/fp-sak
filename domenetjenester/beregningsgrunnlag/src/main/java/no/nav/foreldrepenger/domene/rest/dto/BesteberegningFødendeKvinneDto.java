@@ -22,7 +22,8 @@ public class BesteberegningFødendeKvinneDto {
         this.besteberegningAndelListe = besteberegningAndelListe;
     }
 
-    public BesteberegningFødendeKvinneDto(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe, DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel) {
+    public BesteberegningFødendeKvinneDto(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe,
+                                          DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel) {
         this.nyDagpengeAndel = nyDagpengeAndel;
         this.besteberegningAndelListe = besteberegningAndelListe;
     }

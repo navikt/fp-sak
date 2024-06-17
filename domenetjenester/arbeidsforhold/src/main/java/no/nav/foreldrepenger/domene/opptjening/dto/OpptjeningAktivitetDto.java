@@ -26,8 +26,7 @@ public class OpptjeningAktivitetDto {
         // trengs for deserialisering av JSON
     }
 
-    OpptjeningAktivitetDto(OpptjeningAktivitetType aktivitetType, LocalDate opptjeningFom,
-            LocalDate opptjeningTom) {
+    OpptjeningAktivitetDto(OpptjeningAktivitetType aktivitetType, LocalDate opptjeningFom, LocalDate opptjeningTom) {
         this.aktivitetType = aktivitetType;
         this.opptjeningFom = opptjeningFom;
         this.opptjeningTom = opptjeningTom;

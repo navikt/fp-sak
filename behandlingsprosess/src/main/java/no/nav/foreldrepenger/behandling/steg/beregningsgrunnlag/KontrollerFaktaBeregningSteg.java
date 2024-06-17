@@ -57,13 +57,14 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
         // TFP-4427
         frilansAvvikLoggTjeneste.loggFrilansavvikVedBehov(BehandlingReferanse.fra(behandling));
 
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettOppdatertBeregningsgrunnlag();
         }

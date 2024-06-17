@@ -32,8 +32,10 @@ public class OppdateringResultat {
     private TransisjonIdentifikator transisjonId;
     private final List<AksjonspunktResultat> ekstraAksjonspunktResultat = new ArrayList<>();
 
-    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId,
-            boolean totrinn) {
+    private OppdateringResultat(BehandlingStegType nesteSteg,
+                                OverhoppKontroll overhoppKontroll,
+                                TransisjonIdentifikator transisjonId,
+                                boolean totrinn) {
         this.overhoppKontroll = overhoppKontroll;
         this.nesteSteg = nesteSteg;
         this.transisjonId = transisjonId;
@@ -164,8 +166,8 @@ public class OppdateringResultat {
 
         public Builder leggTilIkkeVurdertVilkår(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
-            if (resultat.vilkårTyperSomSkalFjernes.contains(vilkårType) ||
-                resultat.vilkårUtfallSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
+            if (resultat.vilkårTyperSomSkalFjernes.contains(vilkårType) || resultat.vilkårUtfallSomSkalLeggesTil.stream()
+                .anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårTyperNyeIkkeVurdert.add(vilkårType);
@@ -196,8 +198,8 @@ public class OppdateringResultat {
 
         public Builder fjernVilkårType(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
-            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) ||
-                resultat.vilkårUtfallSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
+            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) || resultat.vilkårUtfallSomSkalLeggesTil.stream()
+                .anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårTyperSomSkalFjernes.add(vilkårType);
@@ -249,7 +251,9 @@ public class OppdateringResultat {
         }
 
         public OppdateringResultat build() {
-            if (resultat.vilkårUtfallSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
+            if (resultat.vilkårUtfallSomSkalLeggesTil.stream()
+                .map(VilkårOppdateringResultat::getVilkårUtfallType)
+                .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
                 resultat.vilkårResultatType = VilkårResultatType.AVSLÅTT;
             }
             return resultat;
@@ -258,12 +262,7 @@ public class OppdateringResultat {
 
     @Override
     public String toString() {
-        return "OppdateringResultat{" +
-                "nesteSteg=" + nesteSteg +
-                ", transisjonId=" + transisjonId +
-                ", overhoppKontroll=" + overhoppKontroll +
-                ", henleggelseResultat=" + henleggelseResultat +
-                ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' +
-                '}';
+        return "OppdateringResultat{" + "nesteSteg=" + nesteSteg + ", transisjonId=" + transisjonId + ", overhoppKontroll=" + overhoppKontroll
+            + ", henleggelseResultat=" + henleggelseResultat + ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' + '}';
     }
 }

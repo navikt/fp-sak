@@ -57,8 +57,7 @@ class UtledVedtakResultatTypeTest {
     @Test
     void vedtakResultatTypeSettesTilINNVILGETForForeldrepengerEndret() {
         // Act
-        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD,
-                BehandlingResultatType.FORELDREPENGER_ENDRET);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.FORELDREPENGER_ENDRET);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);

@@ -40,9 +40,7 @@ public class BatchSupportTjeneste {
      **/
     public void startBatchSchedulerTask() {
         var schedulerType = TaskType.forProsessTask(BatchSchedulerTask.class);
-        var eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream()
-            .map(ProsessTaskData::taskType)
-            .anyMatch(schedulerType::equals);
+        var eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream().map(ProsessTaskData::taskType).anyMatch(schedulerType::equals);
         if (!eksisterende) {
             var taskData = ProsessTaskData.forProsessTask(BatchSchedulerTask.class);
             taskTjeneste.lagre(taskData);

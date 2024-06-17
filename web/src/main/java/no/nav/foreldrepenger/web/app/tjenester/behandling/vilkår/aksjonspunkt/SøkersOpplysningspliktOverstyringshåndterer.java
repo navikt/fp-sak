@@ -32,8 +32,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
     }
 
     @Inject
-    public SøkersOpplysningspliktOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                       InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+    public SøkersOpplysningspliktOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, InngangsvilkårTjeneste inngangsvilkårTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST);
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
 
@@ -45,12 +44,12 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringSokersOpplysingspliktDto dto, Behandling behandling,
+    public OppdateringResultat håndterOverstyring(OverstyringSokersOpplysingspliktDto dto,
+                                                  Behandling behandling,
                                                   BehandlingskontrollKontekst kontekst) {
 
         if (!dto.getErVilkarOk() && behandling.erRevurdering()) {
-            throw new FunksjonellException("FP-093925", "Kan ikke avslå revurdering med opplysningsplikt.",
-                "Overstyr ett av de andre vilkårene.");
+            throw new FunksjonellException("FP-093925", "Kan ikke avslå revurdering med opplysningsplikt.", "Overstyr ett av de andre vilkårene.");
         }
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         inngangsvilkårTjeneste.overstyrAksjonspunktForSøkersopplysningsplikt(behandling.getId(), utfall, kontekst);
@@ -62,7 +61,8 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
                 .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
             return builder.build();
         }
-        builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET);
+        builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET);
         return builder.build();
     }
 
@@ -73,8 +73,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
         if (begrunnelse != null) {
             tekstBuilder.medBegrunnelse(begrunnelse);
         }
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT, null, tilVerdi)
-            .medSkjermlenke(SkjermlenkeType.OPPLYSNINGSPLIKT);
+        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT, null, tilVerdi).medSkjermlenke(SkjermlenkeType.OPPLYSNINGSPLIKT);
 
     }
 }

@@ -11,7 +11,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.vedtak.util.InputValideringRegex;
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class KlageFormKravAksjonspunktMellomlagringDto {
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     @JsonProperty("kode")
@@ -116,8 +117,8 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
     public String begrunnelse() {
         return begrunnelse;
     }
+
     public UUID hentpåKlagdEksternBehandlingUuId() {
-        return erTilbakekreving
-            && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
+        return erTilbakekreving && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
     }
 }

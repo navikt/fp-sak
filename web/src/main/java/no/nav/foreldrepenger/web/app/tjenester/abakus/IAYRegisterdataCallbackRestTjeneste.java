@@ -45,8 +45,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
     }
 
     @Inject
-    public IAYRegisterdataCallbackRestTjeneste(IAYRegisterdataTjeneste iayTjeneste,
-                                               BehandlingLåsRepository låsRepository) {
+    public IAYRegisterdataCallbackRestTjeneste(IAYRegisterdataTjeneste iayTjeneste, BehandlingLåsRepository låsRepository) {
         this.iayTjeneste = iayTjeneste;
         this.låsRepository = låsRepository;
     }
@@ -64,8 +63,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
             // Oppdaterer grunnlag med ny referanse
             var registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
                 dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
-                dto.getOppdatertGrunnlagRef().getReferanse(),
-                dto.getOpprettetTidspunkt());
+                dto.getOppdatertGrunnlagRef().getReferanse(), dto.getOpprettetTidspunkt());
 
             iayTjeneste.håndterCallback(registerdataCallback);
         } else {

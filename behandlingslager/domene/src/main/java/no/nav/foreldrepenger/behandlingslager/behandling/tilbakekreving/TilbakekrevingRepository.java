@@ -20,7 +20,7 @@ public class TilbakekrevingRepository {
     }
 
     @Inject
-    public TilbakekrevingRepository( EntityManager entityManager) {
+    public TilbakekrevingRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -29,19 +29,14 @@ public class TilbakekrevingRepository {
     }
 
     private Optional<TilbakekrevingValgEntitet> hentEntitet(long behandlingId) {
-        var resultList = entityManager
-            .createQuery("from TilbakekrevingValgEntitet where behandlingId=:behandlingId and aktiv=:aktiv", TilbakekrevingValgEntitet.class)
-            .setParameter("behandlingId", behandlingId)
-            .setParameter("aktiv", true)
-            .getResultList();
+        var resultList = entityManager.createQuery("from TilbakekrevingValgEntitet where behandlingId=:behandlingId and aktiv=:aktiv",
+            TilbakekrevingValgEntitet.class).setParameter("behandlingId", behandlingId).setParameter("aktiv", true).getResultList();
 
         if (resultList.size() > 1) {
             throw new IllegalStateException(
                 "Skal bare kunne finne en aktiv " + TilbakekrevingValg.class.getSimpleName() + " , men fikk flere for behandling " + behandlingId);
         }
-        return resultList.isEmpty()
-            ? Optional.empty()
-            : Optional.of(resultList.get(0));
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
     private TilbakekrevingValg map(TilbakekrevingValgEntitet entitet) {
@@ -77,20 +72,15 @@ public class TilbakekrevingRepository {
         Objects.requireNonNull(behandling, "behandling");
         deaktiverEksisterendeTilbakekrevingInntrekk(behandling);
 
-        var inntrekkEntitet = new TilbakekrevingInntrekkEntitet.Builder()
-            .medBehandling(behandling)
-            .medAvslåttInntrekk(avslåttInntrekk)
-            .build();
+        var inntrekkEntitet = new TilbakekrevingInntrekkEntitet.Builder().medBehandling(behandling).medAvslåttInntrekk(avslåttInntrekk).build();
 
         entityManager.persist(inntrekkEntitet);
         entityManager.flush();
     }
 
     public Optional<TilbakekrevingInntrekkEntitet> hentTilbakekrevingInntrekk(Long behandlingId) {
-        var query = entityManager
-            .createQuery("from TilbakekrevingInntrekkEntitet ti where ti.behandlingId =:behandlingId and aktiv =: aktiv", TilbakekrevingInntrekkEntitet.class)
-            .setParameter("behandlingId", behandlingId)
-            .setParameter("aktiv", true);
+        var query = entityManager.createQuery("from TilbakekrevingInntrekkEntitet ti where ti.behandlingId =:behandlingId and aktiv =: aktiv",
+            TilbakekrevingInntrekkEntitet.class).setParameter("behandlingId", behandlingId).setParameter("aktiv", true);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }

@@ -32,10 +32,10 @@ public class InnsynTjeneste {
 
     @Inject
     public InnsynTjeneste(BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                              FagsakRepository fagsakRepository,
-                              BehandlingRepository behandlingRepository,
-                              BehandlingsresultatRepository behandlingsresultatRepository,
-                              InnsynRepository innsynRepository) {
+                          FagsakRepository fagsakRepository,
+                          BehandlingRepository behandlingRepository,
+                          BehandlingsresultatRepository behandlingsresultatRepository,
+                          InnsynRepository innsynRepository) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
@@ -45,8 +45,8 @@ public class InnsynTjeneste {
 
     public Behandling opprettManueltInnsyn(Saksnummer saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer)
-            .orElseThrow(() -> new TekniskException("FP-148968",
-                String.format("Finner ingen fagsak som kan gis innsyn for saksnummer: %s", saksnummer)));
+            .orElseThrow(
+                () -> new TekniskException("FP-148968", String.format("Finner ingen fagsak som kan gis innsyn for saksnummer: %s", saksnummer)));
 
         return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
     }
@@ -61,9 +61,7 @@ public class InnsynTjeneste {
             .medInnsynResultatType(innsynType);
 
         if (innsynEntitetOpt.isEmpty()) {
-            innsynBuilder
-                .medBegrunnelse(innsynResultat.getBegrunnelse())
-                .medBehandlingId(behandling.getId());
+            innsynBuilder.medBegrunnelse(innsynResultat.getBegrunnelse()).medBehandlingId(behandling.getId());
         }
         innsynRepository.lagreInnsyn(innsynBuilder.build(), innsynResultat.getInnsynDokumenterOld());
 
@@ -71,9 +69,8 @@ public class InnsynTjeneste {
 
     private void lagreBehandlingResultat(InnsynResultatType innsynResultatType, Behandling behandling) {
         var eksisterendeBehandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        var builder = eksisterendeBehandlingsresultat.isPresent()
-            ? Behandlingsresultat.builderEndreEksisterende(eksisterendeBehandlingsresultat.get())
-            : Behandlingsresultat.builderForInngangsvilkår();
+        var builder = eksisterendeBehandlingsresultat.isPresent() ? Behandlingsresultat.builderEndreEksisterende(
+            eksisterendeBehandlingsresultat.get()) : Behandlingsresultat.builderForInngangsvilkår();
         builder.medBehandlingResultatType(konverterResultatType(innsynResultatType));
         var res = builder.buildFor(behandling);
         var lås = behandlingRepository.taSkriveLås(behandling);

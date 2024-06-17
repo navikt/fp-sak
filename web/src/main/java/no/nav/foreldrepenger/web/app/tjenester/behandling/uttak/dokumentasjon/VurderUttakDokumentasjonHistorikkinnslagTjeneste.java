@@ -32,15 +32,14 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(VurderUttakDokumentasjonDto dto,
-                                        List<OppgittPeriodeEntitet> eksisterendePerioder) {
+    public void opprettHistorikkinnslag(VurderUttakDokumentasjonDto dto, List<OppgittPeriodeEntitet> eksisterendePerioder) {
         var builder = historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse())
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
         for (var periode : dto.getVurderingBehov()) {
             var nyvurdering = VurderUttakDokumentasjonOppdaterer.mapVurdering(periode);
-            var eksisterendeVurdering = finnEksisterendePerioder(eksisterendePerioder, periode.fom(), periode.tom())
-                .map(OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
+            var eksisterendeVurdering = finnEksisterendePerioder(eksisterendePerioder, periode.fom(), periode.tom()).map(
+                OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
             if (nyvurdering != null && (eksisterendeVurdering == null || erEndringerIperiode(nyvurdering, eksisterendeVurdering))) {
                 opprettAvklaring(builder, nyvurdering, periode, eksisterendeVurdering);
             }
@@ -57,16 +56,11 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
             Optional.ofNullable(fraVerdi).map(Kodeverdi::getNavn).orElse(null), nyVurdering.getNavn());
     }
 
-    private boolean erEndringerIperiode(DokumentasjonVurdering nyVurdering,
-                                        DokumentasjonVurdering eksisterendeVurdering) {
+    private boolean erEndringerIperiode(DokumentasjonVurdering nyVurdering, DokumentasjonVurdering eksisterendeVurdering) {
         return !Objects.equals(nyVurdering, eksisterendeVurdering);
     }
 
-    private Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder,
-                                                                            LocalDate fom,
-                                                                            LocalDate tom) {
-        return eksisterendePerioder.stream()
-            .filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom))
-            .findFirst();
+    private Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder, LocalDate fom, LocalDate tom) {
+        return eksisterendePerioder.stream().filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom)).findFirst();
     }
 }

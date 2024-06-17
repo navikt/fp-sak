@@ -23,7 +23,8 @@ public class AvslagsårsakMapper {
             return avslagsårsaker.iterator().next();
         } else {
             return Optional.ofNullable(fraVilkårUtfallMerknad(vilkår.getVilkårUtfallMerknad()))
-                .orElseThrow(() -> new TekniskException("FP-411110", "Kan ikke utlede avslagsårsak fra utfallmerknad " + vilkår.getVilkårUtfallMerknad().getKode()));
+                .orElseThrow(() -> new TekniskException("FP-411110",
+                    "Kan ikke utlede avslagsårsak fra utfallmerknad " + vilkår.getVilkårUtfallMerknad().getKode()));
         }
     }
 

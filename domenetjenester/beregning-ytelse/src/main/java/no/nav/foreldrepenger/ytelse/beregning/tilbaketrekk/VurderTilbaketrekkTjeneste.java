@@ -37,10 +37,7 @@ public class VurderTilbaketrekkTjeneste {
     }
 
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(BehandlingReferanse ref) {
-        var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId())
-                .getAktørArbeidFraRegister(ref.aktørId());
-        return aktørArbeidFraRegister
-                .map(AktørArbeid::hentAlleYrkesaktiviteter)
-                .orElse(Collections.emptyList());
+        var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId());
+        return aktørArbeidFraRegister.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList());
     }
 }

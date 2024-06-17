@@ -73,9 +73,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         fagsakRepository = new FagsakRepository(entityManager);
         var tjeneste = mock(VirksomhetTjeneste.class);
         var builder = new Virksomhet.Builder();
-        var børreAs = builder.medOrgnr(KUNSTIG_ORG)
-                .medNavn("Børre AS")
-                .build();
+        var børreAs = builder.medOrgnr(KUNSTIG_ORG).medNavn("Børre AS").build();
         Mockito.when(tjeneste.finnOrganisasjon(ArgumentMatchers.any())).thenReturn(Optional.of(børreAs));
         bekreftOpptjeningPeriodeAksjonspunkt = new BekreftOpptjeningPeriodeAksjonspunkt(iayTjeneste, vurderOpptjening);
     }
@@ -88,13 +86,12 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
         iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
-                .leggTil(ArbeidsforholdOverstyringBuilder
-                        .oppdatere(Optional.empty())
-                        .leggTilOverstyrtPeriode(periode1.getFomDato(), periode1.getTomDato())
-                        .medAngittStillingsprosent(new Stillingsprosent(100))
-                        .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
-                        .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
-                        .medAngittArbeidsgiverNavn("Ambassade")));
+            .leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
+                .leggTilOverstyrtPeriode(periode1.getFomDato(), periode1.getTomDato())
+                .medAngittStillingsprosent(new Stillingsprosent(100))
+                .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
+                .medAngittArbeidsgiverNavn("Ambassade")));
 
         // simulerer svar fra GUI
         var dto = new BekreftOpptjeningPeriodeDto();
@@ -111,7 +108,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), Collections.singletonList(dto),
-                skjæringstidspunkt);
+            skjæringstidspunkt);
 
         var grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
@@ -120,8 +117,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
-                .toList();
+        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode).toList();
         assertThat(perioder).contains(periode1);
     }
 
@@ -173,8 +169,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
-                .toList();
+        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode).toList();
         assertThat(perioder).contains(periode1, periode2);
     }
 
@@ -183,10 +178,10 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var iDag = LocalDate.now();
         var behandling = opprettBehandling();
 
-        var avtale1Fom = LocalDate.of(2022,12,1);
-        var avtale2Fom = LocalDate.of(2023,8,1);
-        var ansFom = LocalDate.of(2023,4,1);
-        var ansTom = LocalDate.of(2024,1,1);
+        var avtale1Fom = LocalDate.of(2022, 12, 1);
+        var avtale2Fom = LocalDate.of(2023, 8, 1);
+        var ansFom = LocalDate.of(2023, 4, 1);
+        var ansTom = LocalDate.of(2024, 1, 1);
 
         var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         var arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
@@ -195,15 +190,13 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         yrkesaktivitetBuilderForType.medArbeidsgiver(ARBEIDSGIVER)
             .medArbeidsforholdId(REF)
             .leggTilAktivitetsAvtale(
-                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(avtale1Fom, avtale2Fom.minusDays(1)), false)
-                    .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
-                    .medProsentsats(BigDecimal.ZERO))
+                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(avtale1Fom, avtale2Fom.minusDays(1)),
+                    false).medSisteLønnsendringsdato(LocalDate.now().minusMonths(3)).medProsentsats(BigDecimal.ZERO))
+            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(avtale2Fom), false)
+                .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                .medProsentsats(BigDecimal.ZERO))
             .leggTilAktivitetsAvtale(
-                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(avtale2Fom), false)
-                    .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
-                    .medProsentsats(BigDecimal.ZERO))
-            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(ansFom, ansTom), true));
+                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(ansFom, ansTom), true));
         arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);
         builder.leggTilAktørArbeid(arbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -242,7 +235,8 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         var oppdatert = hentGrunnlag(behandling);
 
-        var filterSaksbehandlet = new YrkesaktivitetFilter(oppdatert.getArbeidsforholdInformasjon(), oppdatert.getBekreftetAnnenOpptjening(behandling.getAktørId()));
+        var filterSaksbehandlet = new YrkesaktivitetFilter(oppdatert.getArbeidsforholdInformasjon(),
+            oppdatert.getBekreftetAnnenOpptjening(behandling.getAktørId()));
         var yrkesaktiviteter = filterSaksbehandlet.getYrkesaktiviteter();
         var ansettelsesperioder = yrkesaktiviteter.stream()
             .flatMap(y -> y.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode))
@@ -270,8 +264,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(2));
 
         var oppgitt = OppgittOpptjeningBuilder.ny();
-        oppgitt.leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-            .medPeriode(periode1)));
+        oppgitt.leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny().medPeriode(periode1)));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         var dto = new BekreftOpptjeningPeriodeDto();
@@ -293,8 +286,9 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         assertThat(yrkesaktiviteter).hasSize(1);
         var aktivitetsAvtale = filter.getAktivitetsAvtalerForArbeid().iterator().next();
-        assertThat(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato()))
-                .isEqualTo(periode1_2);
+        assertThat(
+            DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato())).isEqualTo(
+            periode1_2);
     }
 
     private InntektArbeidYtelseGrunnlag hentGrunnlag(final Behandling behandling) {

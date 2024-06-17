@@ -259,8 +259,10 @@ public class FordelRestTjeneste {
         if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
         }
-        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream()
-            .map(fagsak -> sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak)).toList();
+        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId()))
+            .stream()
+            .map(fagsak -> sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak))
+            .toList();
     }
 
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {

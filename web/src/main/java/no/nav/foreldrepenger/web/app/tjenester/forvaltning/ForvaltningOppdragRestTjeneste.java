@@ -49,12 +49,8 @@ public class ForvaltningOppdragRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Kvitterer oppdrag manuelt. Brukes kun når det er avklart at oppdrag har gått OK, og kvittering ikke kommer til å komme fra Oppdragsystemet. Sjekk med Team Ukelønn hvis i tvil", tags = "FORVALTNING-oppdrag")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response kvitterOK(
-            @Parameter(description = "Identifikasjon av oppdrag som kvitteres OK. Sett oppdaterProsessTask til false kun når prosesstasken allerede er flyttet til FERDIG") @NotNull @Valid KvitteringDto kvitteringDto) {
-        forvaltningOppdragTjeneste.kvitterOk(
-            kvitteringDto.getBehandlingId(),
-            kvitteringDto.getFagsystemId(),
-            kvitteringDto.getOppdaterProsessTask());
+    public Response kvitterOK(@Parameter(description = "Identifikasjon av oppdrag som kvitteres OK. Sett oppdaterProsessTask til false kun når prosesstasken allerede er flyttet til FERDIG") @NotNull @Valid KvitteringDto kvitteringDto) {
+        forvaltningOppdragTjeneste.kvitterOk(kvitteringDto.getBehandlingId(), kvitteringDto.getFagsystemId(), kvitteringDto.getOppdaterProsessTask());
         return Response.ok().build();
     }
 

@@ -20,10 +20,9 @@ import no.nav.fpsak.nare.specification.Specification;
  * VilkårUtfall OPPFYLT:<br>
  * - Barn under 15 år ved omsorgsovertakelsen og kvinne som adopterer<br>
  * - Barn under 15 år ved omsorgsovertakelsen og mann som ikke adopterer alene<br>
-*  <p>
+ * <p>
  * VilkårUtfall IKKE_VURDERT:<br>
  * - Mann adopterer alene
- *
  */
 
 @RuleDocumentation(value = AdopsjonsvilkårEngangsstønad.ID, specificationReference = "https://confluence.adeo.no/pages/viewpage.action?pageId=173827808")
@@ -41,21 +40,19 @@ public class AdopsjonsvilkårEngangsstønad implements RuleService<Adopsjonsvilk
     public Specification<AdopsjonsvilkårGrunnlag> getSpecification() {
         var rs = new Ruleset<AdopsjonsvilkårGrunnlag>();
 
-        Specification<AdopsjonsvilkårGrunnlag> mannAdoptererNode =
-            rs.hvisRegel(SjekkMannAdoptererAlene.ID, "Hvis mann adopterer alene ...")
-                .hvis(new SjekkMannAdoptererAlene(), new Oppfylt())
-                .ellers(new IkkeOppfylt(SjekkMannAdoptererAlene.IKKE_OPPFYLT_MANN_ADOPTERER_IKKE_ALENE));
+        Specification<AdopsjonsvilkårGrunnlag> mannAdoptererNode = rs.hvisRegel(SjekkMannAdoptererAlene.ID, "Hvis mann adopterer alene ...")
+            .hvis(new SjekkMannAdoptererAlene(), new Oppfylt())
+            .ellers(new IkkeOppfylt(SjekkMannAdoptererAlene.IKKE_OPPFYLT_MANN_ADOPTERER_IKKE_ALENE));
 
-        Specification<AdopsjonsvilkårGrunnlag> kvinneAdoptererNode =
-            rs.hvisRegel(SjekkKvinneAdopterer.ID, "Hvis ikke kvinne adopterer ...")
-                .hvis(new SjekkKvinneAdopterer(), new Oppfylt())
-                .ellers(mannAdoptererNode);
+        Specification<AdopsjonsvilkårGrunnlag> kvinneAdoptererNode = rs.hvisRegel(SjekkKvinneAdopterer.ID, "Hvis ikke kvinne adopterer ...")
+            .hvis(new SjekkKvinneAdopterer(), new Oppfylt())
+            .ellers(mannAdoptererNode);
 
-        Specification<AdopsjonsvilkårGrunnlag> ektefelleEllerSamboersBarnNode =
-            rs.hvisRegel(SjekkEktefellesEllerSamboersBarn.ID_ES, "Hvis ikke ektefelles eller samboers barn ...")
-                .hvis(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_ES),
-                    new IkkeOppfylt(SjekkEktefellesEllerSamboersBarn.IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN))
-                .ellers(kvinneAdoptererNode);
+        Specification<AdopsjonsvilkårGrunnlag> ektefelleEllerSamboersBarnNode = rs.hvisRegel(SjekkEktefellesEllerSamboersBarn.ID_ES,
+                "Hvis ikke ektefelles eller samboers barn ...")
+            .hvis(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_ES),
+                new IkkeOppfylt(SjekkEktefellesEllerSamboersBarn.IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN))
+            .ellers(kvinneAdoptererNode);
 
         return (Specification<AdopsjonsvilkårGrunnlag>) rs.hvisRegel(SjekkBarnUnder15År.ID_ES, "Hvis barn under 15 år ved omsorgsovertakelsen ...")
             .hvis(new SjekkBarnUnder15År(SjekkBarnUnder15År.ID_ES), ektefelleEllerSamboersBarnNode)

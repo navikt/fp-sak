@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,6 +18,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
@@ -62,8 +62,7 @@ public class DokumentBehandlingTjeneste {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
-            .medBehandlingDokument(behandlingDokument)
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
             .medDokumentMalType(bestilling.dokumentMal().getKode())
             .medBestillingUuid(bestilling.bestillingUuid())
             .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
@@ -77,11 +76,13 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
+            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
+                .equals(dok.getOpprineligDokumentMal()));
     }
 
     public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
-        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId).stream()
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId)
+            .stream()
             .anyMatch(b -> erDokumentBestilt(b.getId(), dokumentMalTypeKode));
     }
 
@@ -121,7 +122,8 @@ public class DokumentBehandlingTjeneste {
         if (dokumentBestiling.isPresent()) {
             var bestilling = dokumentBestiling.get();
             var journalpostId = kvittering.journalpostId();
-            if (Objects.isNull(bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
+            if (Objects.isNull(
+                bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
                 bestilling.setJournalpostId(new JournalpostId(journalpostId));
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
@@ -134,8 +136,8 @@ public class DokumentBehandlingTjeneste {
     }
 
     private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
-        var historikkInnslag = HistorikkFraDokumentKvitteringMapper
-            .opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId, behandling.getId(), behandling.getFagsakId());
+        var historikkInnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId,
+            behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
     }
 

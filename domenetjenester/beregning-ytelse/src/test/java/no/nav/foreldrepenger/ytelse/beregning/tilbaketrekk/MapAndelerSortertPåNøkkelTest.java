@@ -139,8 +139,8 @@ class MapAndelerSortertPåNøkkelTest {
         var resultat = MapAndelerSortertPåNøkkel.map(periode.getBeregningsresultatAndelList());
 
         // Assert
-        assertInnhold(resultat, List.of(andel1.getAktivitetOgArbeidsgiverNøkkel(), andel4.getAktivitetOgArbeidsgiverNøkkel(),
-                andel6.getAktivitetOgArbeidsgiverNøkkel()));
+        assertInnhold(resultat,
+            List.of(andel1.getAktivitetOgArbeidsgiverNøkkel(), andel4.getAktivitetOgArbeidsgiverNøkkel(), andel6.getAktivitetOgArbeidsgiverNøkkel()));
 
         var resultat1 = finnAndelForNøkkel(resultat, andel1.getAktivitetOgArbeidsgiverNøkkel());
         assertThat(resultat1.getAndelerTilknyttetNøkkel()).hasSize(3);
@@ -162,9 +162,9 @@ class MapAndelerSortertPåNøkkelTest {
 
     private BRNøkkelMedAndeler finnAndelForNøkkel(List<BRNøkkelMedAndeler> resultat, AktivitetOgArbeidsgiverNøkkel aktivitetsnøkkel) {
         return resultat.stream()
-                .filter(a -> a.getNøkkel().equals(aktivitetsnøkkel))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Finner ikke forventet andel"));
+            .filter(a -> a.getNøkkel().equals(aktivitetsnøkkel))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forventet andel"));
     }
 
     private void assertInnhold(List<BRNøkkelMedAndeler> resultat, List<AktivitetOgArbeidsgiverNøkkel> forventedeAndeler) {
@@ -174,23 +174,23 @@ class MapAndelerSortertPåNøkkelTest {
 
     private BeregningsresultatAndel lagAndelForPeriode(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
         return BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(false)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medDagsats(900)
-                .medDagsatsFraBg(900)
-                .medArbeidsgiver(arbeidsgiver)
-                .medArbeidsforholdRef(ref)
-                .build(periode);
+            .medBrukerErMottaker(false)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsats(900)
+            .medDagsatsFraBg(900)
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsforholdRef(ref)
+            .build(periode);
     }
 
     private BeregningsresultatPeriode lagResultatMedPeriode() {
         var resultat = BeregningsresultatEntitet.builder().medRegelInput("test").medRegelSporing("test").build();
         return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(STARTDATO_YTELSE, STARTDATO_YTELSE.plusDays(45))
-                .build(resultat);
+            .medBeregningsresultatPeriodeFomOgTom(STARTDATO_YTELSE, STARTDATO_YTELSE.plusDays(45))
+            .build(resultat);
     }
 
 }

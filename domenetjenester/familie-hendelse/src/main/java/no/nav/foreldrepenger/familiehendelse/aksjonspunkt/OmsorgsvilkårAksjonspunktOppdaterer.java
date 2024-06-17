@@ -38,7 +38,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         // for CDI proxy
     }
 
-    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkTjenesteAdapter historikkAdapter, VilkårType vilkårType,
+    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                               VilkårType vilkårType,
                                                BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.vilkårType = vilkårType;
@@ -52,12 +53,14 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon);
         historikkAdapter.tekstBuilder()
-            .medEndretFelt(getTekstKode(), null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
+            .medEndretFelt(getTekstKode(), null,
+                dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(skjermlenkeType);
 
         // Rydd opp gjenopprettede aksjonspunkt på andre omsorgsvilkår ved eventuelt tilbakehopp
-        behandling.getAksjonspunkter().stream()
+        behandling.getAksjonspunkter()
+            .stream()
             .filter(ap -> OmsorgsvilkårKonfigurasjon.OMSORGS_AKSJONSPUNKT.contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !Objects.equals(ap.getAksjonspunktDefinisjon(), aksjonspunktDefinisjon)) // ikke sett seg selv til avbrutt
             .filter(Aksjonspunkt::erOpprettet)
@@ -68,8 +71,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                 .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
-            return resultatBuilder
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(vilkårType, avslagsårsak)
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .build();

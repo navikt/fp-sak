@@ -17,7 +17,7 @@ public class BeregningAksjonspunktResultatMapper {
         var apDef = mapTilAksjonspunkt(beregningResultat.getBeregningAvklaringsbehovDefinisjon());
         if (beregningResultat.harFrist()) {
             return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat.getVenteårsak()),
-                    beregningResultat.getVentefrist());
+                beregningResultat.getVentefrist());
         }
         return AksjonspunktResultat.opprettForAksjonspunkt(apDef);
     }
@@ -32,9 +32,10 @@ public class BeregningAksjonspunktResultatMapper {
     }
 
     private static AksjonspunktDefinisjon mapTilAksjonspunkt(AvklaringsbehovDefinisjon definisjon) {
-        return switch(definisjon) {
+        return switch (definisjon) {
             case FASTSETT_BG_AT_FL -> AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS;
-            case VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN -> AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE;
+            case VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN ->
+                AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE;
             case FORDEL_BG -> AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG;
             case FASTSETT_BG_TB_ARB -> AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD;
             case FASTSETT_BG_SN_NY_I_ARB_LIVT -> AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET;
@@ -50,7 +51,7 @@ public class BeregningAksjonspunktResultatMapper {
     }
 
     private static Venteårsak mapTilVenteårsak(BeregningVenteårsak venteårsak) {
-        return switch(venteårsak) {
+        return switch (venteårsak) {
             case VENT_PÅ_SISTE_AAP_MELDEKORT -> Venteårsak.VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
             case VENT_INNTEKT_RAPPORTERINGSFRIST -> Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST;
             default -> throw new IllegalStateException("Mottok ukjent venteårsak fra kalkulus " + venteårsak);

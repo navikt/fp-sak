@@ -44,10 +44,7 @@ public class BeregningsgrunnlagAktivitetStatus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "aktivitetStatus=" + aktivitetStatus + ", "
-            + "hjemmel=" + hjemmel + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + "aktivitetStatus=" + aktivitetStatus + ", " + "hjemmel=" + hjemmel + ", " + ">";
     }
 
     public static class Builder {

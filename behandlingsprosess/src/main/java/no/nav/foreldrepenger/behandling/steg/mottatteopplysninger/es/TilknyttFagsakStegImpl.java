@@ -30,7 +30,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepository behandlingRepository, RegistrerFagsakEgenskaper registrerFagsakEgenskaper) {
-        this.behandlingRepository  = behandlingRepository;
+        this.behandlingRepository = behandlingRepository;
         this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
     }
 

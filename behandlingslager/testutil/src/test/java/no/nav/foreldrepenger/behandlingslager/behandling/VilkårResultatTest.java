@@ -37,18 +37,14 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var id01 = behandlingsresultat1.getBehandlingId();
 
         // Act
-        var behandling2 = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medKopiAvForrigeBehandlingsresultat()
-            .build();
+        var behandling2 = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).medKopiAvForrigeBehandlingsresultat().build();
         lagreBehandling(behandling2);
         var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2, VilkårResultatType.IKKE_FASTSATT);
 
         // Assert
         assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
-        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isSameAs(getBehandlingsresultat(behandling).getVilkårResultat());
-        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
+        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat()).isSameAs(getBehandlingsresultat(behandling).getVilkårResultat());
+        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat()).isEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
 
         var id02 = behandlingsresultat2.getBehandlingId();
         assertThat(id02).isNotEqualTo(id01);
@@ -72,22 +68,20 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var id01 = behandlingsresultat1.getBehandlingId();
 
         // Act
-        var builder = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medKopiAvForrigeBehandlingsresultat();
+        var builder = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).medKopiAvForrigeBehandlingsresultat();
         var behandling2 = builder.build();
         lagreBehandling(behandling2);
 
         // legg til et nytt vilkårsresultat
         VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .buildFor(behandling2);
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
+            .medVilkårResultatType(VilkårResultatType.INNVILGET)
+            .buildFor(behandling2);
 
         var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2, VilkårResultatType.INNVILGET);
         // Assert
         assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
-        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .isNotEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
+        assertThat(getBehandlingsresultat(behandling2).getVilkårResultat()).isNotEqualTo(getBehandlingsresultat(behandling).getVilkårResultat());
 
         var id02 = behandlingsresultat2.getBehandlingId();
         assertThat(id02).isNotEqualTo(id01);
@@ -99,8 +93,8 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         lagreBehandling(behandling);
         var vilkårResultatBuilder = VilkårResultat.builder()
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .manueltVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+            .manueltVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
         var behandlingsresultatBuilder = new Behandlingsresultat.Builder(vilkårResultatBuilder);
         var behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling);
 
@@ -140,11 +134,19 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(2);
 
-        var vilkår1 = oppdatertVilkårResultat.getVilkårene().stream().filter(v -> VilkårType.SØKNADSFRISTVILKÅRET.equals(v.getVilkårType())).findFirst().orElse(null);
+        var vilkår1 = oppdatertVilkårResultat.getVilkårene()
+            .stream()
+            .filter(v -> VilkårType.SØKNADSFRISTVILKÅRET.equals(v.getVilkårType()))
+            .findFirst()
+            .orElse(null);
         assertThat(vilkår1).isNotNull();
         assertThat(vilkår1.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
-        var vilkår2 = oppdatertVilkårResultat.getVilkårene().stream().filter(v -> VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(v.getVilkårType())).findFirst().orElse(null);
+        var vilkår2 = oppdatertVilkårResultat.getVilkårene()
+            .stream()
+            .filter(v -> VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(v.getVilkårType()))
+            .findFirst()
+            .orElse(null);
         assertThat(vilkår2).isNotNull();
         assertThat(vilkår2.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
     }

@@ -29,7 +29,7 @@ public class Aktivitet {
     private ReferanseType referanseType;
 
     @JsonCreator
-    Aktivitet(){
+    Aktivitet() {
         // for json
     }
 
@@ -70,9 +70,8 @@ public class Aktivitet {
         }
         var other = (Aktivitet) obj;
 
-        return Objects.equals(aktivitetType, other.aktivitetType)
-                && Objects.equals(aktivitetReferanse, other.aktivitetReferanse)
-                && Objects.equals(referanseType, other.referanseType);
+        return Objects.equals(aktivitetType, other.aktivitetType) && Objects.equals(aktivitetReferanse, other.aktivitetReferanse) && Objects.equals(
+            referanseType, other.referanseType);
 
     }
 
@@ -83,10 +82,9 @@ public class Aktivitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<type=" + aktivitetType
-                + (aktivitetReferanse == null ? "" : ", referanse=" + aktivitetReferanse.replaceAll("^\\d{5}", "*****"))
-                + (referanseType == null ? "" : ", referanseType=" + referanseType)
-                + ">";
+        return getClass().getSimpleName() + "<type=" + aktivitetType + (
+            aktivitetReferanse == null ? "" : ", referanse=" + aktivitetReferanse.replaceAll("^\\d{5}", "*****")) + (
+            referanseType == null ? "" : ", referanseType=" + referanseType) + ">";
 
     }
 }

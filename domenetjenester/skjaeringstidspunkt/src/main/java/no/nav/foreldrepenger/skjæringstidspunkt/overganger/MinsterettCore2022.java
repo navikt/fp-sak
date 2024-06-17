@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 
 public class MinsterettCore2022 {
 
-    public static final LocalDate IKRAFT_FRA_DATO = LocalDate.of(2022, Month.AUGUST,2); // LA STÅ.
+    public static final LocalDate IKRAFT_FRA_DATO = LocalDate.of(2022, Month.AUGUST, 2); // LA STÅ.
 
     public static final boolean DEFAULT_SAK_UTEN_MINSTERETT = true;
 
@@ -31,20 +31,30 @@ public class MinsterettCore2022 {
 
 
     public boolean utenMinsterett(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        if (familieHendelseGrunnlag == null) return true;
+        if (familieHendelseGrunnlag == null) {
+            return true;
+        }
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
         if (bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).isPresent()) {
-            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
+            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .filter(hendelse -> hendelse.isBefore(ikrafttredelseDato))
+                .isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
-        if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
-        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
+        if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) {
+            return true;
+        }
+        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) {
+            return true;
+        }
         return LocalDate.now().isBefore(ikrafttredelseDato);
     }
 
-    public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
-                                                         LocalDate førsteUttaksdato, boolean utenMinsterett) {
+    public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle,
+                                                         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
+                                                         LocalDate førsteUttaksdato,
+                                                         boolean utenMinsterett) {
         // // 14-10 første ledd (far+medmor) med uttak ifm fødsel iht P15L 2021/22. Øvrige tilfelle sendes videre.
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (!utenMinsterett && gjeldendeFH.getGjelderFødsel() && !RelasjonsRolleType.MORA.equals(rolle)) {

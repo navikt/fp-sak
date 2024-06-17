@@ -97,16 +97,14 @@ public class InntektArbeidYtelseScenario {
 
             var aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(aktørId);
 
-            var aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
+            var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
                 .medProsentsats(aktivitetsAvtaleProsentsats)
                 .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
 
             var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));
 
-            @SuppressWarnings("unused") var yrkesaktivitet = yrkesaktivitetBuilder
-                .medArbeidType(yrkesaktivitetArbeidType)
+            @SuppressWarnings("unused") var yrkesaktivitet = yrkesaktivitetBuilder.medArbeidType(yrkesaktivitetArbeidType)
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
                 .medArbeidsforholdId(yrkesaktivitetArbeidsforholdId)
                 .tilbakestillAvtaler()
@@ -114,8 +112,7 @@ public class InntektArbeidYtelseScenario {
                 .leggTilAktivitetsAvtale(ansettelsesperiode)
                 .build();
 
-            var aktørArbeid = aktørArbeidBuilder
-                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+            var aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
             inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeid);
             return inntektArbeidYtelseAggregatBuilder;

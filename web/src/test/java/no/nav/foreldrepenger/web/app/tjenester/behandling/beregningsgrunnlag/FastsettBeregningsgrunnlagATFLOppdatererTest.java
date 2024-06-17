@@ -19,8 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -28,6 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
@@ -76,14 +76,14 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset,
-                beregningsgrunnlagInputTjeneste, beregningHåndterer, behandlingRepository);
+            beregningsgrunnlagInputTjeneste, beregningHåndterer, behandlingRepository);
     }
 
     @Test
     void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
         // Arrange
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong()))
-                .thenReturn(BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build());
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong())).thenReturn(
+            BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build());
 
         when(behandling.getÅpentAksjonspunktMedDefinisjonOptional(any())).thenReturn(Optional.of(ap));
         when(ap.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
@@ -97,8 +97,8 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
 
         // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getAksjonspunktDefinisjon())
-                .isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
+        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getAksjonspunktDefinisjon()).isEqualTo(
+            AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
         assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getMålStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 }

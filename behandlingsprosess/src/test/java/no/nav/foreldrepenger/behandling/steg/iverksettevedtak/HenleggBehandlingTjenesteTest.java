@@ -81,19 +81,15 @@ class HenleggBehandlingTjenesteTest {
 
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepositoryMock);
 
-        var serviceProvider = new BehandlingskontrollServiceProvider(
-                repositoryProvider.getFagsakRepository(),
-                repositoryProvider.getBehandlingRepository(),
-                repositoryProvider.getFagsakLåsRepository(),
-                repositoryProvider.getBehandlingLåsRepository(),
-                behandlingModellRepository,
-                aksjonspunktKontrollRepository);
+        var serviceProvider = new BehandlingskontrollServiceProvider(repositoryProvider.getFagsakRepository(),
+            repositoryProvider.getBehandlingRepository(), repositoryProvider.getFagsakLåsRepository(),
+            repositoryProvider.getBehandlingLåsRepository(), behandlingModellRepository, aksjonspunktKontrollRepository);
 
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
-        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider,
-                behandlingskontrollTjenesteImpl, dokumentBestillerTjenesteMock, taskTjenesteMock);
+        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl, dokumentBestillerTjenesteMock,
+            taskTjenesteMock);
     }
 
     @Test
@@ -128,8 +124,7 @@ class HenleggBehandlingTjenesteTest {
     void skal_henlegge_behandling_med_aksjonspunkt() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
-        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-                AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
         // Act
@@ -191,8 +186,9 @@ class HenleggBehandlingTjenesteTest {
         forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
 
         // Act
-        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
-                .hasMessageContaining("FP-143308");
+        assertThatThrownBy(
+            () -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse")).hasMessageContaining(
+            "FP-143308");
     }
 
     @Test
@@ -202,8 +198,9 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
-                .hasMessageContaining("FP-143308");
+        assertThatThrownBy(
+            () -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse")).hasMessageContaining(
+            "FP-143308");
     }
 
 }

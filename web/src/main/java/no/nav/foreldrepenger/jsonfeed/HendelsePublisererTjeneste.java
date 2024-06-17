@@ -73,9 +73,8 @@ public class HendelsePublisererTjeneste {
         LOG.info("Utgående feed-hendelse vedtakId {} nytt vedtak", vedtak.getId());
 
         // Disse trigger ikke hendelser
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())
-                || !behandling.getType().erYtelseBehandlingType()
-                || vedtak.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.getType().erYtelseBehandlingType()
+            || vedtak.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()) {
             LOG.info("Utgående feed-hendelse vedtakId {} ikke FP/SVP", vedtak.getId());
             return;
         }
@@ -101,7 +100,10 @@ public class HendelsePublisererTjeneste {
         LOG.info("Utgående feed-hendelse utgang for vedtak {}", vedtak.getId());
     }
 
-    private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling, PersonIdent fnr, Optional<LocalDateInterval> innvilgetPeriode,
+    private void doLagreVedtakFP(BehandlingVedtak vedtak,
+                                 Behandling behandling,
+                                 PersonIdent fnr,
+                                 Optional<LocalDateInterval> innvilgetPeriode,
                                  Optional<LocalDateInterval> orginalPeriode) {
         var fpVedtakUtgåendeHendelseBuilder = FpVedtakUtgåendeHendelse.builder();
         fpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
@@ -123,8 +125,11 @@ public class HendelsePublisererTjeneste {
         feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
     }
 
-    private void doLagreVedtakSVP(BehandlingVedtak vedtak, Behandling behandling, PersonIdent fnr, Optional<LocalDateInterval> innvilgetPeriode,
-            Optional<LocalDateInterval> orginalPeriode) {
+    private void doLagreVedtakSVP(BehandlingVedtak vedtak,
+                                  Behandling behandling,
+                                  PersonIdent fnr,
+                                  Optional<LocalDateInterval> innvilgetPeriode,
+                                  Optional<LocalDateInterval> orginalPeriode) {
         var svpVedtakUtgåendeHendelseBuilder = SvpVedtakUtgåendeHendelse.builder();
         svpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
 

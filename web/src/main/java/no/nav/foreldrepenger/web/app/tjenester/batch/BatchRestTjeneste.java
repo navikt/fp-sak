@@ -37,10 +37,7 @@ public class BatchRestTjeneste {
     @Path("/autorun")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Start task for å kjøre batchjobs", tags = "batch", responses = {
-            @ApiResponse(responseCode = "200", description = "Starter batch-scheduler"),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
-    })
+    @Operation(description = "Start task for å kjøre batchjobs", tags = "batch", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler"), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunBatch() {
         batchSupportTjeneste.startBatchSchedulerTask();

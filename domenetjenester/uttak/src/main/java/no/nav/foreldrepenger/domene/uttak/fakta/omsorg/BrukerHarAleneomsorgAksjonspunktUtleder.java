@@ -53,8 +53,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
         if (!harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
             return false;
         }
-        return RelasjonsRolleType.erFarEllerMedmor(ref.relasjonRolle())
-            || oppgittNorskAnnenpartMedSammeBosted(ref)
+        return RelasjonsRolleType.erFarEllerMedmor(ref.relasjonRolle()) || oppgittNorskAnnenpartMedSammeBosted(ref)
             || personopplysninger.ektefelleHarSammeBosted(ref);
     }
 

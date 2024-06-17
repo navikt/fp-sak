@@ -102,27 +102,19 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository));
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
-        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
-            null, null, null, null,
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null, null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
-        vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer("topic", fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
-            taskTjeneste, mottakRepository);
+        vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer("topic", fagsakTjeneste, beregningsresultatRepository, behandlingRepository,
+            overlappTjeneste, taskTjeneste, mottakRepository);
     }
 
     @Test
     void ingenOverlappOmsorgspengerSVP() {
-        var svp = leggPerioderPå(
-            lagBehandlingSVP(),
-            periodeMedGrad("2020-03-01", "2020-03-31", 100));
+        var svp = leggPerioderPå(lagBehandlingSVP(), periodeMedGrad("2020-03-01", "2020-03-31", 100));
 
-        var ompYtelse = lagVedtakForPeriode(
-            YtelseType.OMSORGSPENGER,
-            aktørFra(svp),
-            periode("2020-04-01", "2020-05-04"),
-            periodeMedGrad("2020-04-01", "2020-04-30", 100),
-            periodeMedGrad("2020-05-01", "2020-05-04", 100)
-        );
+        var ompYtelse = lagVedtakForPeriode(YtelseType.OMSORGSPENGER, aktørFra(svp), periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100), periodeMedGrad("2020-05-01", "2020-05-04", 100));
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
@@ -131,19 +123,12 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     void overlappOmsorgspengerSVP() {
-        var svp = leggPerioderPå(
-            lagBehandlingSVP(),
-            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+        var svp = leggPerioderPå(lagBehandlingSVP(), periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 100));
         lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 100);
 
-        var ompYtelse = lagVedtakForPeriode(
-            YtelseType.OMSORGSPENGER,
-            aktørFra(svp),
-            periode("2020-04-01", "2020-05-04"),
-            periodeMedGrad("2020-04-01", "2020-04-30", 100),
-            periodeMedGrad("2020-05-01", "2020-05-04", 100)
-        );
+        var ompYtelse = lagVedtakForPeriode(YtelseType.OMSORGSPENGER, aktørFra(svp), periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100), periodeMedGrad("2020-05-01", "2020-05-04", 100));
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
@@ -152,24 +137,16 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(200);
         assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
+            ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
     @Test
     void ingenOverlappOMPSVPGradertPeriode() {
-        var svp = leggPerioderPå(
-            lagBehandlingSVP(),
-            periodeMedGrad("2020-03-01", "2020-03-31", 100),
-            periodeMedGrad("2020-05-01", "2020-05-25", 50));
+        var svp = leggPerioderPå(lagBehandlingSVP(), periodeMedGrad("2020-03-01", "2020-03-31", 100), periodeMedGrad("2020-05-01", "2020-05-25", 50));
         lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 50);
 
-        var ompYtelse = lagVedtakForPeriode(
-            YtelseType.OMSORGSPENGER,
-            aktørFra(svp),
-            periode("2020-04-01", "2020-05-04"),
-            periodeMedGrad("2020-04-01", "2020-04-30", 100),
-            periodeMedGrad("2020-05-01", "2020-05-04", 50)
-        );
+        var ompYtelse = lagVedtakForPeriode(YtelseType.OMSORGSPENGER, aktørFra(svp), periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100), periodeMedGrad("2020-05-01", "2020-05-04", 50));
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
@@ -178,19 +155,11 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     void overlappOMPSVPGradertPeriode() {
-        var svp = leggPerioderPå(
-            lagBehandlingSVP(),
-            periodeMedGrad("2020-03-01", "2020-03-31", 100),
-            periodeMedGrad("2020-05-01", "2020-05-25", 60));
+        var svp = leggPerioderPå(lagBehandlingSVP(), periodeMedGrad("2020-03-01", "2020-03-31", 100), periodeMedGrad("2020-05-01", "2020-05-25", 60));
         lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 60);
 
-        var ompYtelse = lagVedtakForPeriode(
-            YtelseType.OMSORGSPENGER,
-            aktørFra(svp),
-            periode("2020-04-01", "2020-05-04"),
-            periodeMedGrad("2020-04-01", "2020-04-30", 100),
-            periodeMedGrad("2020-05-01", "2020-05-04", 60)
-        );
+        var ompYtelse = lagVedtakForPeriode(YtelseType.OMSORGSPENGER, aktørFra(svp), periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100), periodeMedGrad("2020-05-01", "2020-05-04", 60));
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
@@ -204,16 +173,11 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     void overlappOpplæringspengerSVP() {
-        var svp = leggPerioderPå(
-            lagBehandlingSVP(),
-            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+        var svp = leggPerioderPå(lagBehandlingSVP(), periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 100));
 
-        var ytelseV1 = lagVedtakForPeriode(
-            YtelseType.OPPLÆRINGSPENGER, aktørFra(svp),
-            periode("2020-04-01", "2020-05-04"),
-            periodeMedGrad("2020-04-01", "2020-04-30", 100),
-            periodeMedGrad("2020-05-01", "2020-05-04", 100));
+        var ytelseV1 = lagVedtakForPeriode(YtelseType.OPPLÆRINGSPENGER, aktørFra(svp), periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100), periodeMedGrad("2020-05-01", "2020-05-04", 100));
 
         var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
@@ -223,14 +187,10 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
-        var fpBehandling = leggPerioderPå(lagBehandlingFP(),
-            periodeMedGrad("2020-03-01", "2020-04-30", 100));
+        var fpBehandling = leggPerioderPå(lagBehandlingFP(), periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
-        var psbYtelseMedOverlapp = lagVedtakForPeriode(
-            YtelseType.PLEIEPENGER_SYKT_BARN,
-            aktørFra(fpBehandling),
-            periode("2020-04-01", "2020-06-01"),
+        var psbYtelseMedOverlapp = lagVedtakForPeriode(YtelseType.PLEIEPENGER_SYKT_BARN, aktørFra(fpBehandling), periode("2020-04-01", "2020-06-01"),
             periodeMedGrad("2020-04-01", "2020-05-01", 100));
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlapp);
 
@@ -250,16 +210,11 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
         // given
-        var fpBehandling = leggPerioderPå(
-            lagBehandlingFP(),
-            periodeMedGrad("2020-03-01", "2020-04-30", 100));
+        var fpBehandling = leggPerioderPå(lagBehandlingFP(), periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
-        var psbYtelseUTENOverlapp = lagVedtakForPeriode(
-            YtelseType.PLEIEPENGER_SYKT_BARN,
-            aktørFra(fpBehandling),
-            periode("2020-06-01", "2020-06-30"),
-        periodeMedGrad("2020-06-01", "2020-06-30", 100));
+        var psbYtelseUTENOverlapp = lagVedtakForPeriode(YtelseType.PLEIEPENGER_SYKT_BARN, aktørFra(fpBehandling), periode("2020-06-01", "2020-06-30"),
+            periodeMedGrad("2020-06-01", "2020-06-30", 100));
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseUTENOverlapp);
 
         // then
@@ -269,31 +224,29 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     void vedtak_om_PSB_som_overlapper_men_sum_utbetalingsgrad_er_ikke_over_100_ingen_tasks() {
         // given
-        var fpBehandling = leggPerioderPå(
-            lagBehandlingFP(),
-            periodeMedGrad("2020-03-01", "2020-06-01", 80));
+        var fpBehandling = leggPerioderPå(lagBehandlingFP(), periodeMedGrad("2020-03-01", "2020-06-01", 80));
 
         //when
-        var psbYtelseMedOverlappIkkeOver100Prosent = lagVedtakForPeriode(
-            YtelseType.PLEIEPENGER_SYKT_BARN,
-            aktørFra(fpBehandling),
-            periode("2020-04-01", "2020-05-01"),
-            periodeMedGrad("2020-04-01", "2020-05-01", 20));
+        var psbYtelseMedOverlappIkkeOver100Prosent = lagVedtakForPeriode(YtelseType.PLEIEPENGER_SYKT_BARN, aktørFra(fpBehandling),
+            periode("2020-04-01", "2020-05-01"), periodeMedGrad("2020-04-01", "2020-05-01", 20));
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlappIkkeOver100Prosent);
 
         // then
         verifyNoInteractions(taskTjeneste);
     }
 
-    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, PeriodeMedUtbetalingsgrad... anvistPerioder) {
+    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse,
+                                         Aktør aktør,
+                                         LocalDateInterval vedtaksPeriode,
+                                         PeriodeMedUtbetalingsgrad... anvistPerioder) {
         var periode = new Periode();
         periode.setFom(vedtaksPeriode.getFomDato());
         periode.setTom(vedtaksPeriode.getTomDato());
-        var anvistList =
-            (anvistPerioder.length == 0 ? List.of(new PeriodeMedUtbetalingsgrad(vedtaksPeriode, 100)) : Arrays.asList(anvistPerioder))
-                .stream()
-                .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(), new Desimaltall(BigDecimal.valueOf(anvistPeriode.utbetalingsgrad))))
-                .toList();
+        var anvistList = (
+            anvistPerioder.length == 0 ? List.of(new PeriodeMedUtbetalingsgrad(vedtaksPeriode, 100)) : Arrays.asList(anvistPerioder)).stream()
+            .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(),
+                new Desimaltall(BigDecimal.valueOf(anvistPeriode.utbetalingsgrad))))
+            .toList();
         return genererYtelseAbakus(abakusYtelse, aktør, periode, anvistList);
     }
 
@@ -324,8 +277,13 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     record PeriodeMedUtbetalingsgrad(LocalDateInterval periode, int utbetalingsgrad) {
-        LocalDate getFomDato() { return periode.getFomDato(); }
-        LocalDate getTomDato() { return periode.getTomDato(); }
+        LocalDate getFomDato() {
+            return periode.getFomDato();
+        }
+
+        LocalDate getTomDato() {
+            return periode.getTomDato();
+        }
     }
 
     private Behandling lagBehandlingFP() {
@@ -334,8 +292,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -348,8 +305,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioSVP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+        scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandling = scenarioSVP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -379,7 +335,9 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER).build()).build())
+                    .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER)
+                    .build())
+                .build())
             .build();
         var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
         when(beregningTjeneste.hent(BehandlingReferanse.fra(b))).thenReturn(Optional.of(gr));
@@ -409,21 +367,25 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return beregningsresultat;
     }
 
-    private void leggTilBerPeriode(BeregningsresultatEntitet beregningsresultatEntitet, LocalDate fom, LocalDate tom, int dagsats, int utbetGrad,
-            int stillingsprosent) {
+    private void leggTilBerPeriode(BeregningsresultatEntitet beregningsresultatEntitet,
+                                   LocalDate fom,
+                                   LocalDate tom,
+                                   int dagsats,
+                                   int utbetGrad,
+                                   int stillingsprosent) {
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-                .build(beregningsresultatEntitet);
+            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+            .build(beregningsresultatEntitet);
 
         BeregningsresultatAndel.builder()
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(dagsats)
-                .medDagsatsFraBg(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(BigDecimal.valueOf(utbetGrad))
-                .medStillingsprosent(BigDecimal.valueOf(stillingsprosent))
-                .build(beregningsresultatPeriode);
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(DAGSATS)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(utbetGrad))
+            .medStillingsprosent(BigDecimal.valueOf(stillingsprosent))
+            .build(beregningsresultatPeriode);
 
         beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
     }

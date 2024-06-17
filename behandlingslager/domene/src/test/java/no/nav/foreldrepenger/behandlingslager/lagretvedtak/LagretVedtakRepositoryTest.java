@@ -69,8 +69,6 @@ class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     private LagretVedtak lagLagretVedtakMedPaakrevdeFelter() {
-        return lagretVedtakBuilder.medFagsakId(FAGSAK_ID)
-                .medBehandlingId(BEHANDLING_ID)
-                .medXmlClob(STRING_XML).build();
+        return lagretVedtakBuilder.medFagsakId(FAGSAK_ID).medBehandlingId(BEHANDLING_ID).medXmlClob(STRING_XML).build();
     }
 }

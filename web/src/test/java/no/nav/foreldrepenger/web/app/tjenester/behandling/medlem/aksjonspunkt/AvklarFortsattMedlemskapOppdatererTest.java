@@ -44,11 +44,8 @@ class AvklarFortsattMedlemskapOppdatererTest {
     void avklar_fortsatt_medlemskap() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad()
-                .medSøknadsdato(now);
-        scenario.medSøknadHendelse()
-                .medFødselsDato(now.minusDays(3))
-                .medAntallBarn(1);
+        scenario.medSøknad().medSøknadsdato(now);
+        scenario.medSøknadHendelse().medFødselsDato(now.minusDays(3)).medAntallBarn(1);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
@@ -68,8 +65,8 @@ class AvklarFortsattMedlemskapOppdatererTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new AvklarFortsattMedlemskapOppdaterer(medlemskapTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        new AvklarFortsattMedlemskapOppdaterer(medlemskapTjeneste).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);
@@ -77,7 +74,7 @@ class AvklarFortsattMedlemskapOppdatererTest {
     }
 
     private Optional<VurdertMedlemskapPeriodeEntitet> getVurdertLøpendeMedlemskap(Long behandlingId,
-            BehandlingRepositoryProvider repositoryProvider) {
+                                                                                  BehandlingRepositoryProvider repositoryProvider) {
         var medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         return medlemskapRepository.hentVurdertLøpendeMedlemskap(behandlingId);
     }

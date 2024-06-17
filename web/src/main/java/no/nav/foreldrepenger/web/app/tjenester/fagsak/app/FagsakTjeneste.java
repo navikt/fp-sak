@@ -120,16 +120,14 @@ public class FagsakTjeneste {
             return Optional.empty();
         }
         var personDto = mapFraPersoninfoBasisTilPersonDto(personinfo);
-        var fagsakDtoer = fagsakRepository.hentForBruker(aktørId)
-            .stream()
-            .map(f -> mapFraFagsakTilFagsakSøkDto(f, null))
-            .toList();
+        var fagsakDtoer = fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, null)).toList();
         var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
     }
 
     public List<Behandling> hentBehandlingerMedÅpentAksjonspunkt(Fagsak fagsak) {
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+            .stream()
             .filter(b -> !b.isBehandlingPåVent() && !b.getÅpneAksjonspunkter().isEmpty())
             .toList();
     }
@@ -166,8 +164,7 @@ public class FagsakTjeneste {
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
-        return hentSisteYtelsesBehandling(fagsak)
-            .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
+        return hentSisteYtelsesBehandling(fagsak).flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(h -> new SakHendelseDto(h.getType(), hendelseDato(h), h.getAntallBarn(),
                 !h.getBarna().isEmpty() && h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));

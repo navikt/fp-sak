@@ -40,8 +40,7 @@ public class VurderSøknadsfristSteg implements BehandlingSteg {
         var trengerAvklaring = førsteLovligeUttaksdatoTjeneste.vurder(kontekst.getBehandlingId());
 
         // Returner eventuelt aksjonspunkt ifm søknadsfrist
-        return trengerAvklaring
-            .map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
+        return trengerAvklaring.map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
             .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
     }
 

@@ -18,7 +18,9 @@ import jakarta.persistence.Version;
 
 import javassist.Modifier;
 
-/** Konfig for å scanne JPA klasser. */
+/**
+ * Konfig for å scanne JPA klasser.
+ */
 public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
 
     @Override
@@ -34,12 +36,8 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
         }
 
         // følger bare standard, mappede felter i Entity grafen
-        return fld.isAnnotationPresent(Column.class)
-            || fld.isAnnotationPresent(JoinColumn.class)
-            || fld.isAnnotationPresent(OneToOne.class)
-            || fld.isAnnotationPresent(ManyToOne.class)
-            || fld.isAnnotationPresent(OneToMany.class)
-            || fld.isAnnotationPresent(ManyToMany.class)
+        return fld.isAnnotationPresent(Column.class) || fld.isAnnotationPresent(JoinColumn.class) || fld.isAnnotationPresent(OneToOne.class)
+            || fld.isAnnotationPresent(ManyToOne.class) || fld.isAnnotationPresent(OneToMany.class) || fld.isAnnotationPresent(ManyToMany.class)
             || fld.isAnnotationPresent(Embedded.class);
     }
 
@@ -52,11 +50,9 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
     public void valider(Node currentPath, Class<?> targetClass) {
         super.valider(currentPath, targetClass);
 
-        var ok = targetClass.isAnnotationPresent(Entity.class)
-            || targetClass.isAnnotationPresent(Embeddable.class);
+        var ok = targetClass.isAnnotationPresent(Entity.class) || targetClass.isAnnotationPresent(Embeddable.class);
         if (!ok) {
-            throw new IllegalArgumentException(
-                "target [" + targetClass + "] er ikke en Entity eller Embeddable (mangler annotation):" + currentPath);
+            throw new IllegalArgumentException("target [" + targetClass + "] er ikke en Entity eller Embeddable (mangler annotation):" + currentPath);
         }
 
     }

@@ -45,8 +45,8 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
         }
 
         var familieHendelseType = hendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getType)
-                .orElseThrow(() -> new IllegalStateException("Utvikler feil: Hendelse uten type"));
+            .map(FamilieHendelseEntitet::getType)
+            .orElseThrow(() -> new IllegalStateException("Utvikler feil: Hendelse uten type"));
 
         // Legger til utledere som alltid skal kjøres
         leggTilStandardUtledere(utlederHolder);
@@ -67,8 +67,6 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
     }
 
     private void leggTilStandardUtledere(AksjonspunktUtlederHolder utlederHolder) {
-        utlederHolder
-            .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class)
-            .leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
+        utlederHolder.leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class).leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
     }
 }

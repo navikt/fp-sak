@@ -16,7 +16,7 @@ public class BehandlingAbacSuppliers {
         public AbacDataAttributter apply(Object obj) {
             var req = (BehandlingIdDto) obj;
             var abac = AbacDataAttributter.opprett();
-             if (req.getBehandlingUuid() != null) {
+            if (req.getBehandlingUuid() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             } else {
                 throw new IllegalArgumentException("Må ha en av behandlingUuid spesifisert");

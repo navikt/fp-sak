@@ -35,18 +35,21 @@ public class RegelOversetter {
     }
 
     private static RegelUtfall getRegelUtfall(Evaluation evaluation, EvaluationSummary summary) {
-        var alleUtfall = summary.leafEvaluations().stream()
+        var alleUtfall = summary.leafEvaluations()
+            .stream()
             .filter(e -> e.getOutcome() != null)
             .map(e -> mapEvaluationResultToUtfallType(e.result()))
             .collect(Collectors.toSet());
         if (alleUtfall.size() > 1) {
-            throw new IllegalStateException(String.format("Utviklerfeil: Tvetydig regelutfall inngangsvilkår %s utfall %s", evaluation.ruleIdentification(), alleUtfall));
+            throw new IllegalStateException(
+                String.format("Utviklerfeil: Tvetydig regelutfall inngangsvilkår %s utfall %s", evaluation.ruleIdentification(), alleUtfall));
         }
         return alleUtfall.stream().findFirst().orElse(RegelUtfall.OPPFYLT);
     }
 
     private static Optional<MerknadRuleReasonRef> getRegelMerknad(EvaluationSummary summary) {
-        var leafReasons = summary.leafEvaluations().stream()
+        var leafReasons = summary.leafEvaluations()
+            .stream()
             .map(Evaluation::getOutcome)
             .map(o -> o instanceof MerknadRuleReasonRef mrrr ? mrrr : null)
             .filter(Objects::nonNull)

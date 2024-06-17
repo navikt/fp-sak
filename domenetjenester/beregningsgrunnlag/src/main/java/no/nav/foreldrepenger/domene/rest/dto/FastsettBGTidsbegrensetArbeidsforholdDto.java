@@ -30,7 +30,9 @@ public class FastsettBGTidsbegrensetArbeidsforholdDto extends BekreftetAksjonspu
         // For Jackson
     }
 
-    public FastsettBGTidsbegrensetArbeidsforholdDto(String begrunnelse, List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder, Integer frilansInntekt) {
+    public FastsettBGTidsbegrensetArbeidsforholdDto(String begrunnelse,
+                                                    List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder,
+                                                    Integer frilansInntekt) {
         super(begrunnelse);
         this.fastsatteTidsbegrensedePerioder = new ArrayList<>(fastsatteTidsbegrensedePerioder);
         this.frilansInntekt = frilansInntekt;

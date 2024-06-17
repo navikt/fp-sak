@@ -298,10 +298,8 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
             return false;
         }
         var that = (FamilieHendelseGrunnlagEntitet) o;
-        return aktiv == that.aktiv &&
-                Objects.equals(søknadHendelse, that.søknadHendelse) &&
-                Objects.equals(bekreftetHendelse, that.bekreftetHendelse) &&
-                Objects.equals(overstyrtHendelse, that.overstyrtHendelse);
+        return aktiv == that.aktiv && Objects.equals(søknadHendelse, that.søknadHendelse) && Objects.equals(bekreftetHendelse, that.bekreftetHendelse)
+            && Objects.equals(overstyrtHendelse, that.overstyrtHendelse);
     }
 
 

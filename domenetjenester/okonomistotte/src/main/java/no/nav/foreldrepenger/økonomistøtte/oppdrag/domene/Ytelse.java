@@ -27,7 +27,7 @@ public class Ytelse {
             }
 
             if (ytelsePeriode.getPeriode().getFom().isBefore(fom) && ytelsePeriode.getSats().getSatsType() != SatsType.ENG) {
-                    resultat.add(ytelsePeriode.fraOgMed(fom));
+                resultat.add(ytelsePeriode.fraOgMed(fom));
             } else {
                 resultat.add(ytelsePeriode);
             }
@@ -46,9 +46,7 @@ public class Ytelse {
 
     @Override
     public String toString() {
-        return "Ytelse{" +
-            "perioder=" + perioder +
-            '}';
+        return "Ytelse{" + "perioder=" + perioder + '}';
     }
 
     public static Builder builder() {
@@ -56,9 +54,7 @@ public class Ytelse {
     }
 
     public long summerYtelse() {
-        return perioder.stream()
-            .mapToLong(YtelsePeriode::summerYtelse)
-            .sum();
+        return perioder.stream().mapToLong(YtelsePeriode::summerYtelse).sum();
     }
 
     public LocalDate getFørsteDato() {
@@ -66,8 +62,7 @@ public class Ytelse {
     }
 
     public boolean harVerdiPåEllerEtter(LocalDate dato) {
-        return perioder.stream()
-            .anyMatch(p -> !p.getPeriode().getTom().isBefore(dato));
+        return perioder.stream().anyMatch(p -> !p.getPeriode().getTom().isBefore(dato));
     }
 
     public static class Builder {
@@ -99,6 +94,7 @@ public class Ytelse {
             }
             perioder = resultat;
         }
+
         public LocalDate sisteTidspunkt() {
             if (perioder.isEmpty()) {
                 return null;

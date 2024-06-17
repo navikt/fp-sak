@@ -29,37 +29,37 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 public final class KodeverkMapper {
 
     private static final Map<no.nav.abakus.iaygrunnlag.kodeverk.YtelseType, RelatertYtelseType> ABAKUS_YTELSE_TIL_RELATERT_YTELSE = Map.ofEntries(
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.DAGPENGER, RelatertYtelseType.DAGPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SYKEPENGER, RelatertYtelseType.SYKEPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER, RelatertYtelseType.OMSORGSPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER, RelatertYtelseType.OPPLÆRINGSPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN, RelatertYtelseType.FRISINN),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER, RelatertYtelseType.ENSLIG_FORSØRGER));
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.DAGPENGER, RelatertYtelseType.DAGPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SYKEPENGER, RelatertYtelseType.SYKEPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER, RelatertYtelseType.OMSORGSPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER, RelatertYtelseType.OPPLÆRINGSPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN, RelatertYtelseType.FRISINN),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER),
+        Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER, RelatertYtelseType.ENSLIG_FORSØRGER));
 
     private static final Map<RelatertYtelseType, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType> RELATERT_YTELSE_TIL_ABAKUS_YTELSE = Map.ofEntries(
-            Map.entry(RelatertYtelseType.DAGPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.DAGPENGER),
-            Map.entry(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ARBEIDSAVKLARINGSPENGER),
-            Map.entry(RelatertYtelseType.SYKEPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SYKEPENGER),
-            Map.entry(RelatertYtelseType.PLEIEPENGER_SYKT_BARN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_SYKT_BARN),
-            Map.entry(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE),
-            Map.entry(RelatertYtelseType.OMSORGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER),
-            Map.entry(RelatertYtelseType.OPPLÆRINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER),
-            Map.entry(RelatertYtelseType.FRISINN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN),
-            Map.entry(RelatertYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
-            Map.entry(RelatertYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
-            Map.entry(RelatertYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER),
-            Map.entry(RelatertYtelseType.ENSLIG_FORSØRGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER));
+        Map.entry(RelatertYtelseType.DAGPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.DAGPENGER),
+        Map.entry(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ARBEIDSAVKLARINGSPENGER),
+        Map.entry(RelatertYtelseType.SYKEPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SYKEPENGER),
+        Map.entry(RelatertYtelseType.PLEIEPENGER_SYKT_BARN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_SYKT_BARN),
+        Map.entry(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE),
+        Map.entry(RelatertYtelseType.OMSORGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER),
+        Map.entry(RelatertYtelseType.OPPLÆRINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER),
+        Map.entry(RelatertYtelseType.FRISINN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN),
+        Map.entry(RelatertYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
+        Map.entry(RelatertYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
+        Map.entry(RelatertYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER),
+        Map.entry(RelatertYtelseType.ENSLIG_FORSØRGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER));
 
     private static final Map<FagsakYtelseType, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType> FAGSAKYTELSE_TIL_ABAKUS_YTELSE = Map.ofEntries(
-            Map.entry(FagsakYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
-            Map.entry(FagsakYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
-            Map.entry(FagsakYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER));
+        Map.entry(FagsakYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
+        Map.entry(FagsakYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
+        Map.entry(FagsakYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER));
 
     private KodeverkMapper() {
     }
@@ -113,9 +113,7 @@ public final class KodeverkMapper {
     }
 
     static Fagsystem mapFagsystemFraDto(no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem dto) {
-        return dto == null
-                ? Fagsystem.UDEFINERT
-                : Fagsystem.fraKode(dto.getKode());
+        return dto == null ? Fagsystem.UDEFINERT : Fagsystem.fraKode(dto.getKode());
     }
 
     static RelatertYtelseType mapYtelseTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType ytelseType) {
@@ -169,13 +167,10 @@ public final class KodeverkMapper {
     }
 
     static ArbeidType mapArbeidType(no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType dto) {
-        return dto == null
-                ? ArbeidType.UDEFINERT
-                : ArbeidType.fraKode(dto.getKode());
+        return dto == null ? ArbeidType.UDEFINERT : ArbeidType.fraKode(dto.getKode());
     }
 
-    static InntektsmeldingInnsendingsårsakType mapInntektsmeldingInnsendingsårsak(
-            InntektsmeldingInnsendingsårsak kode) {
+    static InntektsmeldingInnsendingsårsakType mapInntektsmeldingInnsendingsårsak(InntektsmeldingInnsendingsårsak kode) {
         return kode == null || InntektsmeldingInnsendingsårsak.UDEFINERT.equals(kode) ? null : InntektsmeldingInnsendingsårsakType.fraKode(
             kode.getKode());
     }
@@ -189,70 +184,47 @@ public final class KodeverkMapper {
     }
 
     static InntektsKilde mapInntektsKildeFraDto(InntektskildeType dto) {
-        return dto == null
-                ? InntektsKilde.UDEFINERT
-                : InntektsKilde.fraKode(dto.getKode());
+        return dto == null ? InntektsKilde.UDEFINERT : InntektsKilde.fraKode(dto.getKode());
     }
 
     static ArbeidsforholdHandlingType mapArbeidsforholdHandlingTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.ArbeidsforholdHandlingType dto) {
-        return dto == null
-                ? ArbeidsforholdHandlingType.UDEFINERT
-                : ArbeidsforholdHandlingType.fraKode(dto.getKode());
+        return dto == null ? ArbeidsforholdHandlingType.UDEFINERT : ArbeidsforholdHandlingType.fraKode(dto.getKode());
     }
 
     static NaturalYtelseType mapNaturalYtelseFraDto(NaturalytelseType dto) {
-        return dto == null
-                ? NaturalYtelseType.UDEFINERT
-                : NaturalYtelseType.fraKode(dto.getKode());
+        return dto == null ? NaturalYtelseType.UDEFINERT : NaturalYtelseType.fraKode(dto.getKode());
     }
 
     static VirksomhetType mapVirksomhetTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.VirksomhetType dto) {
-        return dto == null
-                ? VirksomhetType.UDEFINERT
-                : VirksomhetType.fraKode(dto.getKode());
+        return dto == null ? VirksomhetType.UDEFINERT : VirksomhetType.fraKode(dto.getKode());
     }
 
     static SkatteOgAvgiftsregelType mapSkatteOgAvgiftsregelFraDto(no.nav.abakus.iaygrunnlag.kodeverk.SkatteOgAvgiftsregelType dto) {
-        return dto == null
-                ? SkatteOgAvgiftsregelType.UDEFINERT
-                : SkatteOgAvgiftsregelType.fraKode(dto.getKode());
+        return dto == null ? SkatteOgAvgiftsregelType.UDEFINERT : SkatteOgAvgiftsregelType.fraKode(dto.getKode());
     }
 
     static InntektspostType mapInntektspostTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.InntektspostType dto) {
-        return dto == null
-                ? InntektspostType.UDEFINERT
-                : InntektspostType.fraKode(dto.getKode());
+        return dto == null ? InntektspostType.UDEFINERT : InntektspostType.fraKode(dto.getKode());
     }
 
     static PermisjonsbeskrivelseType mapPermisjonbeskrivelseTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.PermisjonsbeskrivelseType dto) {
-        return dto == null
-                ? PermisjonsbeskrivelseType.UDEFINERT
-                : PermisjonsbeskrivelseType.fraKode(dto.getKode());
+        return dto == null ? PermisjonsbeskrivelseType.UDEFINERT : PermisjonsbeskrivelseType.fraKode(dto.getKode());
     }
 
     static Arbeidskategori mapArbeidskategoriFraDto(no.nav.abakus.iaygrunnlag.kodeverk.Arbeidskategori dto) {
-        return dto == null
-                ? Arbeidskategori.UDEFINERT
-                : Arbeidskategori.fraKode(dto.getKode());
+        return dto == null ? Arbeidskategori.UDEFINERT : Arbeidskategori.fraKode(dto.getKode());
     }
 
     static InntektPeriodeType mapInntektPeriodeTypeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.InntektPeriodeType dto) {
-        return dto == null
-                ? InntektPeriodeType.UDEFINERT
-                : InntektPeriodeType.fraKode(dto.getKode());
+        return dto == null ? InntektPeriodeType.UDEFINERT : InntektPeriodeType.fraKode(dto.getKode());
     }
 
-    static InntektsmeldingInnsendingsårsak mapInntektsmeldingInnsendingsårsakFraDto(
-            InntektsmeldingInnsendingsårsakType dto) {
-        return dto == null
-                ? InntektsmeldingInnsendingsårsak.UDEFINERT
-                : InntektsmeldingInnsendingsårsak.fraKode(dto.getKode());
+    static InntektsmeldingInnsendingsårsak mapInntektsmeldingInnsendingsårsakFraDto(InntektsmeldingInnsendingsårsakType dto) {
+        return dto == null ? InntektsmeldingInnsendingsårsak.UDEFINERT : InntektsmeldingInnsendingsårsak.fraKode(dto.getKode());
     }
 
     static UtsettelseÅrsak mapUtsettelseÅrsakFraDto(UtsettelseÅrsakType dto) {
-        return dto == null
-                ? UtsettelseÅrsak.UDEFINERT
-                : UtsettelseÅrsak.fraKode(dto.getKode());
+        return dto == null ? UtsettelseÅrsak.UDEFINERT : UtsettelseÅrsak.fraKode(dto.getKode());
     }
 
     static no.nav.abakus.iaygrunnlag.kodeverk.VirksomhetType mapVirksomhetTypeTilDto(VirksomhetType kode) {

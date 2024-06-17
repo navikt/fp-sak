@@ -27,8 +27,7 @@ public class SendDokumentForAutopunktEventObserver {
     }
 
     @Inject
-    public SendDokumentForAutopunktEventObserver(BehandlingRepository behandlingRepository,
-                                                 SendBrevForAutopunkt sendBrevForAutopunkt) {
+    public SendDokumentForAutopunktEventObserver(BehandlingRepository behandlingRepository, SendBrevForAutopunkt sendBrevForAutopunkt) {
         this.behandlingRepository = behandlingRepository;
         this.sendBrevForAutopunkt = sendBrevForAutopunkt;
     }
@@ -37,17 +36,16 @@ public class SendDokumentForAutopunktEventObserver {
         var kontekst = event.getKontekst();
         var aksjonspunkter = event.getAksjonspunkter();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling));
-        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling));
-        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForEtterkontroll(behandling));
+        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).ifPresent(
+            ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling));
+        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD).ifPresent(
+            ap -> sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling));
+        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING).ifPresent(
+            ap -> sendBrevForAutopunkt.sendBrevForEtterkontroll(behandling));
     }
 
     private Optional<Aksjonspunkt> finnAksjonspunkerMedDef(List<Aksjonspunkt> aksjonspunkter, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return aksjonspunkter
-            .stream()
+        return aksjonspunkter.stream()
             .filter(Aksjonspunkt::erOpprettet)
             .filter(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()))
             .findFirst();

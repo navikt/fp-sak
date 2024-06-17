@@ -27,9 +27,7 @@ class VurderSøknadsfristTjenesteTest {
     void skal_lagre_uttaksperiodegrense_og_ikke_få_aksjonspunkt(EntityManager entityManager) {
         var fødselsdato = LocalDate.of(2021, 2, 4);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(List.of(fødselsdato))
-            .medDefaultFordeling(fødselsdato);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fødselsdato)).medDefaultFordeling(fødselsdato);
         scenario.medSøknad().medMottattDato(fødselsdato);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -37,8 +35,7 @@ class VurderSøknadsfristTjenesteTest {
 
         var resultat = tjeneste.vurder(behandling.getId());
         assertThat(resultat).isEmpty();
-        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(uttaksperiodegrense).isPresent();
     }
 
@@ -46,9 +43,7 @@ class VurderSøknadsfristTjenesteTest {
     void skal_lagre_uttaksperiodegrense_og_få_aksjonspunkt(EntityManager entityManager) {
         var fødselsdato = LocalDate.of(2021, 2, 4);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFødselAdopsjonsdato(List.of(fødselsdato))
-            .medDefaultFordeling(fødselsdato);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fødselsdato)).medDefaultFordeling(fødselsdato);
         scenario.medSøknad().medMottattDato(fødselsdato.plusWeeks(100));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -56,8 +51,7 @@ class VurderSøknadsfristTjenesteTest {
 
         var resultat = tjeneste.vurder(behandling.getId());
         assertThat(resultat).isPresent();
-        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(uttaksperiodegrense).isPresent();
     }
 
@@ -76,8 +70,7 @@ class VurderSøknadsfristTjenesteTest {
 
         var resultat = tjeneste.vurder(behandling.getId());
         assertThat(resultat).isEmpty();
-        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
-            .hentHvisEksisterer(behandling.getId());
+        var uttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository().hentHvisEksisterer(behandling.getId());
         assertThat(uttaksperiodegrense).isPresent();
     }
 

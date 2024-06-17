@@ -22,11 +22,9 @@ public class AdopsjonsvilkåretOverstyringshåndterer extends InngangsvilkårOve
     }
 
     @Inject
-    public AdopsjonsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET,
-                VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-                inngangsvilkårTjeneste);
+    public AdopsjonsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+            inngangsvilkårTjeneste);
     }
 
     @Override

@@ -26,8 +26,7 @@ public class FastsatteVerdierForBesteberegningDto {
         // Jackson
     }
 
-    public FastsatteVerdierForBesteberegningDto(Integer fastsattBeløp,
-                                                Inntektskategori inntektskategori) {
+    public FastsatteVerdierForBesteberegningDto(Integer fastsattBeløp, Inntektskategori inntektskategori) {
         this.fastsattBeløp = fastsattBeløp;
         this.inntektskategori = inntektskategori;
     }

@@ -74,8 +74,8 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) ||
-            behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) || behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(
+            fagsakId)) {
             return;
         }
 
@@ -96,8 +96,8 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
             return Optional.of(BehandlingÅrsakType.RE_SATS_REGULERING);
         }
         var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        var fødselsdato = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), intervaller).stream()
-            .map(FødtBarnInfo::fødselsdato).max(Comparator.naturalOrder()).orElse(null);
+        var fødselsdato = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(),
+            intervaller).stream().map(FødtBarnInfo::fødselsdato).max(Comparator.naturalOrder()).orElse(null);
         if (fødselsdato != null && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato)) {
             return Optional.of(BehandlingÅrsakType.RE_SATS_REGULERING);
         }

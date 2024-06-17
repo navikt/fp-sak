@@ -24,8 +24,7 @@ public final class BesteberegningMapper {
                                                                                    Optional<FaktaAggregatDto> faktaAggregat,
                                                                                    Optional<RegelSporingAggregat> regelSporingAggregat,
                                                                                    BesteberegningVurderingGrunnlag besteberegningVurderingGrunnlag) {
-        var nyEntitet = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus,
-            faktaAggregat, regelSporingAggregat);
+        var nyEntitet = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus, faktaAggregat, regelSporingAggregat);
         return BeregningsgrunnlagEntitet.Builder.oppdater(nyEntitet)
             .medBesteberegninggrunnlag(BesteberegningMapper.mapBestebergninggrunnlag(besteberegningVurderingGrunnlag))
             .build();
@@ -43,12 +42,8 @@ public final class BesteberegningMapper {
 
     private static BesteberegningMånedsgrunnlagEntitet mapBesteberegningMåned(BesteberegningMånedGrunnlag besteberegningMånedGrunnlag) {
         var måned = besteberegningMånedGrunnlag.getMåned();
-        var månedBuilder = BesteberegningMånedsgrunnlagEntitet.ny()
-            .medPeriode(måned.atDay(1), måned.atEndOfMonth());
-        besteberegningMånedGrunnlag.getInntekter()
-            .stream()
-            .map(BesteberegningMapper::mapBesteberegningInntekt)
-            .forEach(månedBuilder::leggTilInntekt);
+        var månedBuilder = BesteberegningMånedsgrunnlagEntitet.ny().medPeriode(måned.atDay(1), måned.atEndOfMonth());
+        besteberegningMånedGrunnlag.getInntekter().stream().map(BesteberegningMapper::mapBesteberegningInntekt).forEach(månedBuilder::leggTilInntekt);
         return månedBuilder.build();
     }
 
@@ -56,17 +51,17 @@ public final class BesteberegningMapper {
         if (inntekt.getArbeidsgiver() != null) {
             return BesteberegningInntektEntitet.ny()
                 .medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(inntekt.getArbeidsgiver()))
-                .medOpptjeningAktivitetType(inntekt.getOpptjeningAktivitetType()
-                    == null ? OpptjeningAktivitetType.ARBEID : OpptjeningAktivitetType.fraKode(
-                    inntekt.getOpptjeningAktivitetType().getKode()))
+                .medOpptjeningAktivitetType(
+                    inntekt.getOpptjeningAktivitetType() == null ? OpptjeningAktivitetType.ARBEID : OpptjeningAktivitetType.fraKode(
+                        inntekt.getOpptjeningAktivitetType().getKode()))
                 .medArbeidsforholdRef(KalkulusTilIAYMapper.mapArbeidsforholdRef(inntekt.getArbeidsforholdRef()))
                 .medInntekt(Beløp.safeVerdi(inntekt.getInntekt()))
                 .build();
         }
         return BesteberegningInntektEntitet.ny()
-            .medOpptjeningAktivitetType(inntekt.getOpptjeningAktivitetType()
-                == null ? OpptjeningAktivitetType.DAGPENGER : OpptjeningAktivitetType.fraKode(
-                inntekt.getOpptjeningAktivitetType().getKode()))
+            .medOpptjeningAktivitetType(
+                inntekt.getOpptjeningAktivitetType() == null ? OpptjeningAktivitetType.DAGPENGER : OpptjeningAktivitetType.fraKode(
+                    inntekt.getOpptjeningAktivitetType().getKode()))
             .medInntekt(Beløp.safeVerdi(inntekt.getInntekt()))
             .build();
     }

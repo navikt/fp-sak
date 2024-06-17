@@ -24,8 +24,7 @@ public class UttakStegImpl implements UttakSteg {
     private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
-    public UttakStegImpl(UttakInputTjeneste uttakInputTjeneste,
-            FastsettUttaksresultatTjeneste fastsettUttaksresultatTjeneste) {
+    public UttakStegImpl(UttakInputTjeneste uttakInputTjeneste, FastsettUttaksresultatTjeneste fastsettUttaksresultatTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.fastsettUttaksresultatTjeneste = fastsettUttaksresultatTjeneste;
     }

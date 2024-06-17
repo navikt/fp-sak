@@ -41,10 +41,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     @Inject
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
-            LegacyESBeregningRepository esBeregningRepository,
-            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
-            @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
+                                     LegacyESBeregningRepository esBeregningRepository,
+                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                     @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
+                                     @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
         this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
         this.behandlingVedtakRepository = vedtakRepository;
         this.revurderingTjeneste = revurderingTjeneste;
@@ -53,8 +53,9 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
-            List<FødtBarnInfo> barnFraRegister) {
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling,
+                                                               FamilieHendelseGrunnlagEntitet grunnlag,
+                                                               List<FødtBarnInfo> barnFraRegister) {
         if (grunnlag == null) {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
         }
@@ -72,8 +73,9 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
     }
 
-    private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
-            int antallBarnRegister) {
+    private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling,
+                                                                 FamilieHendelseGrunnlagEntitet grunnlag,
+                                                                 int antallBarnRegister) {
         var antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
         if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
@@ -110,8 +112,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private int finnAntallOverstyrtManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn)
-                .orElse(0);
+        return grunnlag.getOverstyrtVersjon()
+            .filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType()))
+            .map(FamilieHendelseEntitet::getAntallBarn)
+            .orElse(0);
     }
 
 }

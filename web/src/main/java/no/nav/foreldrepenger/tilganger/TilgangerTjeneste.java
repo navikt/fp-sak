@@ -26,13 +26,11 @@ public class TilgangerTjeneste {
     }
 
     @Inject
-    public TilgangerTjeneste(
-        @KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
-        @KonfigVerdi(value = "bruker.gruppenavn.veileder") String gruppenavnVeileder,
-        @KonfigVerdi(value = "bruker.gruppenavn.overstyrer") String gruppenavnOverstyrer,
-        @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
-        @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6
-    ) {
+    public TilgangerTjeneste(@KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
+                             @KonfigVerdi(value = "bruker.gruppenavn.veileder") String gruppenavnVeileder,
+                             @KonfigVerdi(value = "bruker.gruppenavn.overstyrer") String gruppenavnOverstyrer,
+                             @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
+                             @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6) {
         this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.gruppenavnVeileder = gruppenavnVeileder;
         this.gruppenavnOverstyrer = gruppenavnOverstyrer;
@@ -65,8 +63,7 @@ public class TilgangerTjeneste {
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
         var navn = ldapBruker.displayName();
         var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
-        return new InnloggetNavAnsattDto.Builder(ident, navn)
-            .kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
+        return new InnloggetNavAnsattDto.Builder(ident, navn).kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
             .kanVeilede(grupper.contains(gruppenavnVeileder))
             .kanOverstyre(grupper.contains(gruppenavnOverstyrer))
             .kanOppgavestyre(grupper.contains(gruppenavnOppgavestyrer))

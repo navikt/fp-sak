@@ -35,11 +35,10 @@ import no.nav.vedtak.exception.FunksjonellException;
 @DtoTilServiceAdapter(dto = AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppdaterer<AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto> {
 
-    private static final Map<VilkårType, OmsorgsovertakelseVilkårType> MAP_VILKÅR_OMSORGSVILKÅR = Map.of(
-        VilkårType.OMSORGSVILKÅRET, OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET,
-        VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-        VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD
-    );
+    private static final Map<VilkårType, OmsorgsovertakelseVilkårType> MAP_VILKÅR_OMSORGSVILKÅR = Map.of(VilkårType.OMSORGSVILKÅRET,
+        OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
+        OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD,
+        OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -94,10 +93,9 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         var omsorgsovertakelseVilkårType = Optional.ofNullable(MAP_VILKÅR_OMSORGSVILKÅR.get(dto.getVilkårType()))
             .orElseThrow(() -> new FunksjonellException("FP-765341", "Mangler vilkårtype", "Oppgi vilkårtype"));
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
-        oppdatertOverstyrtHendelse
-            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
-                .medOmsorgovertalseVilkårType(omsorgsovertakelseVilkårType)
-                .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
+        oppdatertOverstyrtHendelse.medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
+            .medOmsorgovertalseVilkårType(omsorgsovertakelseVilkårType)
+            .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
     }
 
@@ -113,13 +111,18 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
         builder.leggTilIkkeVurdertVilkår(vilkårType);
         // Rydd opp i eventuelle omsorgsvilkår som er tidligere lagt til
-        behandlingsresultatRepository.hentHvisEksisterer(behandlingId).ifPresent(br -> br.getVilkårResultat().getVilkårene().stream()
-            .filter(vilkår -> OmsorgsvilkårKonfigurasjon.OMSORGS_VILKÅR.contains(vilkår.getVilkårType()))
-            // Men uten å fjerne seg selv
-            .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
-            .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType())));
+        behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
+            .ifPresent(br -> br.getVilkårResultat()
+                .getVilkårene()
+                .stream()
+                .filter(vilkår -> OmsorgsvilkårKonfigurasjon.OMSORGS_VILKÅR.contains(vilkår.getVilkårType()))
+                // Men uten å fjerne seg selv
+                .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
+                .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType())));
 
-        behandlingRepository.hentBehandling(behandlingId).getAksjonspunkter().stream()
+        behandlingRepository.hentBehandling(behandlingId)
+            .getAksjonspunkter()
+            .stream()
             .filter(ap -> OmsorgsvilkårKonfigurasjon.OMSORGS_AKSJONSPUNKT.contains(ap.getAksjonspunktDefinisjon()))
             .forEach(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
     }
@@ -131,15 +134,19 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
         var orginalOmsorgsovertakelseDato = getOriginalOmsorgsovertakelseDato(hendelseGrunnlag);
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO,
-            orginalOmsorgsovertakelseDato.orElse(null), dto.getOmsorgsovertakelseDato());
+        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO, orginalOmsorgsovertakelseDato.orElse(null),
+            dto.getOmsorgsovertakelseDato());
 
         var vilkårType = dto.getVilkårType();
-        var vilkårTyper = behandlingsresultatRepository.hent(behandlingId).getVilkårResultat().getVilkårene().stream()
+        var vilkårTyper = behandlingsresultatRepository.hent(behandlingId)
+            .getVilkårResultat()
+            .getVilkårene()
+            .stream()
             .map(Vilkår::getVilkårType)
             .toList();
         if (!vilkårTyper.contains(vilkårType)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.VILKAR_SOM_ANVENDES, null, finnTekstBasertPåOmsorgsvilkår(vilkårType));
+            historikkAdapter.tekstBuilder()
+                .medEndretFelt(HistorikkEndretFeltType.VILKAR_SOM_ANVENDES, null, finnTekstBasertPåOmsorgsvilkår(vilkårType));
         }
 
         historikkAdapter.tekstBuilder()
@@ -150,7 +157,8 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     }
 
     private SkjermlenkeType getSkjermlenkeType(FagsakYtelseType fagsakYtelseType) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR : SkjermlenkeType.FAKTA_FOR_OMSORG;
+        return FagsakYtelseType.ENGANGSTØNAD.equals(
+            fagsakYtelseType) ? SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR : SkjermlenkeType.FAKTA_FOR_OMSORG;
     }
 
     private HistorikkEndretFeltVerdiType finnTekstBasertPåOmsorgsvilkår(VilkårType vilkårType) {

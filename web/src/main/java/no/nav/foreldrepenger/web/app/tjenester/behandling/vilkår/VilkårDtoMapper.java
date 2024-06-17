@@ -20,7 +20,9 @@ public final class VilkårDtoMapper {
     public static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         return Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
-            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
+            .map(VilkårResultat::getVilkårene)
+            .orElse(List.of())
+            .stream()
             .map(vilkår -> lagVilkårDto(behandling, vilkår))
             .toList();
     }
@@ -46,8 +48,7 @@ public final class VilkårDtoMapper {
             // Startpunkt for behandling N/A, må dermed også tillate overstyring
             return true;
         }
-        var vilkårLøstFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(behandling.getStartpunkt())
-            .contains(vilkår.getVilkårType());
+        var vilkårLøstFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(behandling.getStartpunkt()).contains(vilkår.getVilkårType());
         return !vilkårLøstFørStartpunkt;
     }
 }

@@ -38,21 +38,16 @@ public class FastsatteVerdierDto {
         // Jackson
     }
 
-    public FastsatteVerdierDto(Integer refusjon,
-                               Integer fastsattBeløp,
-                               Inntektskategori inntektskategori,
-                               Boolean skalHaBesteberegning) {
+    public FastsatteVerdierDto(Integer refusjon, Integer fastsattBeløp, Inntektskategori inntektskategori, Boolean skalHaBesteberegning) {
         this.refusjon = refusjon;
-        this.refusjonPrÅr = refusjon == null ? null : refusjon*MÅNEDER_I_1_ÅR;
+        this.refusjonPrÅr = refusjon == null ? null : refusjon * MÅNEDER_I_1_ÅR;
         this.fastsattBeløp = fastsattBeløp;
         this.inntektskategori = inntektskategori;
         this.skalHaBesteberegning = skalHaBesteberegning;
     }
 
 
-    public FastsatteVerdierDto(Integer fastsattÅrsbeløp,
-                               Inntektskategori inntektskategori,
-                               Boolean skalHaBesteberegning) {
+    public FastsatteVerdierDto(Integer fastsattÅrsbeløp, Inntektskategori inntektskategori, Boolean skalHaBesteberegning) {
         this.fastsattBeløp = fastsattÅrsbeløp / MÅNEDER_I_1_ÅR;
         this.fastsattÅrsbeløp = fastsattÅrsbeløp;
         this.inntektskategori = inntektskategori;

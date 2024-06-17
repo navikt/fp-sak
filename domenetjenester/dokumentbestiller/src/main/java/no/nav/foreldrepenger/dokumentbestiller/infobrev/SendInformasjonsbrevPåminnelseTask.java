@@ -112,7 +112,8 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
     }
 
     private Behandling opprettFørstegangsbehandlingTilInfobrev(Fagsak fagsak, OrganisasjonsEnhet enhet) {
-        return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD, enhet, BehandlingÅrsakType.INFOBREV_PÅMINNELSE);
+        return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD, enhet,
+            BehandlingÅrsakType.INFOBREV_PÅMINNELSE);
     }
 
     private PersoninfoBasis hentPersonInfo(AktørId aktørId) {

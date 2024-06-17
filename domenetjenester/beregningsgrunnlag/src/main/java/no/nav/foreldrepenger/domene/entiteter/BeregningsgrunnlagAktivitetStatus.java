@@ -37,12 +37,12 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
     @JoinColumn(name = "beregningsgrunnlag_id", nullable = false, updatable = false)
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
-    @Convert(converter= AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status", nullable = false)
+    @Convert(converter = AktivitetStatus.KodeverdiConverter.class)
+    @Column(name = "aktivitet_status", nullable = false)
     private AktivitetStatus aktivitetStatus;
 
-    @Convert(converter= Hjemmel.KodeverdiConverter.class)
-    @Column(name="hjemmel", nullable = false)
+    @Convert(converter = Hjemmel.KodeverdiConverter.class)
+    @Column(name = "hjemmel", nullable = false)
     private Hjemmel hjemmel;
 
     public BeregningsgrunnlagAktivitetStatus(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatus) {
@@ -81,8 +81,8 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
         if (!(obj instanceof BeregningsgrunnlagAktivitetStatus other)) {
             return false;
         }
-        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-                && Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag());
+        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus()) && Objects.equals(this.getBeregningsgrunnlag(),
+            other.getBeregningsgrunnlag());
     }
 
     @Override
@@ -92,12 +92,8 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "beregningsgrunnlag=" + beregningsgrunnlag + ", "
-                + "aktivitetStatus=" + aktivitetStatus + ", "
-                + "hjemmel=" + hjemmel + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "beregningsgrunnlag=" + beregningsgrunnlag + ", " + "aktivitetStatus="
+            + aktivitetStatus + ", " + "hjemmel=" + hjemmel + ", " + ">";
     }
 
     public static Builder builder() {

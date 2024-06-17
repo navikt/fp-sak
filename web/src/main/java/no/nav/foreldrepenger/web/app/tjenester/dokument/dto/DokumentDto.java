@@ -110,16 +110,16 @@ public class DokumentDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (DokumentDto) o;
-        return kommunikasjonsretning == that.kommunikasjonsretning &&
-            Objects.equals(journalpostId, that.journalpostId) &&
-            Objects.equals(dokumentId, that.dokumentId) &&
-            Objects.equals(behandlinger, that.behandlinger) &&
-            Objects.equals(tidspunkt, that.tidspunkt) &&
-            Objects.equals(tittel, that.tittel) &&
-            Objects.equals(gjelderFor, that.gjelderFor);
+        return kommunikasjonsretning == that.kommunikasjonsretning && Objects.equals(journalpostId, that.journalpostId) && Objects.equals(dokumentId,
+            that.dokumentId) && Objects.equals(behandlinger, that.behandlinger) && Objects.equals(tidspunkt, that.tidspunkt) && Objects.equals(tittel,
+            that.tittel) && Objects.equals(gjelderFor, that.gjelderFor);
     }
 
     @Override

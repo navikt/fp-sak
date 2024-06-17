@@ -44,11 +44,9 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
 
         // Act
         var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
-                lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
-                        KonsekvensForYtelsen.INGEN_ENDRING),
-                lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET,
-                        KonsekvensForYtelsen.UDEFINERT),
-                originalBehandling.getType());
+            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT),
+            originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isFalse();
@@ -62,10 +60,8 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
 
         // Act
         var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
-                lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
-                        KonsekvensForYtelsen.INGEN_ENDRING),
-                lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT),
-                originalBehandling.getType());
+            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isTrue();
@@ -73,11 +69,10 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(
-                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                                .medManueltOpprettet(true)
-                                .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medManueltOpprettet(true)
+                .medOriginalBehandlingId(originalBehandling.getId()))
+            .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
         return revurdering;
     }
@@ -90,14 +85,15 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     }
 
     private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
-            BehandlingResultatType resultatType,
-            KonsekvensForYtelsen konsekvensForYtelsen) {
-        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(resultatType)
-                .leggTilKonsekvensForYtelsen(konsekvensForYtelsen).buildFor(behandling);
+                                                                 BehandlingResultatType resultatType,
+                                                                 KonsekvensForYtelsen konsekvensForYtelsen) {
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(resultatType)
+            .leggTilKonsekvensForYtelsen(konsekvensForYtelsen)
+            .buildFor(behandling);
 
         VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(behandling);
-        behandlingRepository.lagre(behandling.getBehandlingsresultat().getVilkårResultat(),
-                behandlingRepository.taSkriveLås(behandling));
+        behandlingRepository.lagre(behandling.getBehandlingsresultat().getVilkårResultat(), behandlingRepository.taSkriveLås(behandling));
 
         return Optional.of(behandlingsresultat);
     }

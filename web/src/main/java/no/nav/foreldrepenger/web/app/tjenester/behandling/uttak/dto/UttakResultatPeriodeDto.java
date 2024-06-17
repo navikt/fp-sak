@@ -201,6 +201,7 @@ public class UttakResultatPeriodeDto {
             kladd.mottattDato = mottattDato;
             return this;
         }
+
         public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
             kladd.tidligstMottattDato = tidligstMottattDato;
             return this;

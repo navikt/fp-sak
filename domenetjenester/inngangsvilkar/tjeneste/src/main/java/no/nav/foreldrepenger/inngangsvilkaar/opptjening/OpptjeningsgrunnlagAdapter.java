@@ -93,7 +93,8 @@ public class OpptjeningsgrunnlagAdapter {
             var opptjeningsnøkkel = opp.getOpptjeningsnøkkel();
             if (opptjeningsnøkkel != null) {
                 var identifikator = getIdentifikator(opp).arbeidsgiver();
-                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator, getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
+                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator,
+                    getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 aktiviteter.add(aktivitetPeriode);
             } else {
@@ -110,8 +111,7 @@ public class OpptjeningsgrunnlagAdapter {
         var utenNøkkel = opptjeningAktiviteter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).toList();
         List<OpptjeningAktivitetPeriode> resultat = new ArrayList<>(utenNøkkel);
 
-        var identifikatorTilAktivitetMap = medNøkkel.stream()
-            .collect(Collectors.groupingBy(this::getIdentifikator));
+        var identifikatorTilAktivitetMap = medNøkkel.stream().collect(Collectors.groupingBy(this::getIdentifikator));
         for (var entry : identifikatorTilAktivitetMap.entrySet()) {
             //legger de med ett innslag rett til i listen
             if (entry.getValue().size() == 1) {
@@ -123,8 +123,7 @@ public class OpptjeningsgrunnlagAdapter {
                     .map(s -> new LocalDateTimeline<>(List.of(s)))
                     .toList();
 
-                @SuppressWarnings("unchecked")
-                LocalDateTimeline<OpptjeningAktivitetPeriode> tidsserie = LocalDateTimeline.EMPTY_TIMELINE;
+                @SuppressWarnings("unchecked") LocalDateTimeline<OpptjeningAktivitetPeriode> tidsserie = LocalDateTimeline.EMPTY_TIMELINE;
 
                 for (var tidsserieInput : tidsserier) {
                     tidsserie = tidsserie.combine(tidsserieInput, this::sjekkVurdering, LocalDateTimeline.JoinStyle.CROSS_JOIN);
@@ -138,7 +137,8 @@ public class OpptjeningsgrunnlagAdapter {
         return resultat;
     }
 
-    private record AktivitetGruppering(OpptjeningAktivitetType type, String arbeidsgiver) {}
+    private record AktivitetGruppering(OpptjeningAktivitetType type, String arbeidsgiver) {
+    }
 
     private AktivitetGruppering getIdentifikator(OpptjeningAktivitetPeriode opp) {
         var identifikator = Optional.ofNullable(opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER))
@@ -172,12 +172,12 @@ public class OpptjeningsgrunnlagAdapter {
         var siste = sisteVersjon.getValue();
 
         //FERDIG_VURDERT_UNDERKJENT er nederst
-        if (VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(første.getVurderingsStatus()) &&
-            !VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(siste.getVurderingsStatus())) {
+        if (VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(første.getVurderingsStatus()) && !VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(
+            siste.getVurderingsStatus())) {
             return lagSegment(di, siste);
         }
-        if (VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(siste.getVurderingsStatus()) &&
-            !VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(første.getVurderingsStatus())) {
+        if (VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(siste.getVurderingsStatus()) && !VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(
+            første.getVurderingsStatus())) {
             return lagSegment(di, første);
         }
         if (VurderingsStatus.FERDIG_VURDERT_GODKJENT.equals(første.getVurderingsStatus())) {

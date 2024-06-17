@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class KompletthetssjekkerManglendeVedleggTest {
 
-    private static final Saksnummer SAKSNUMMER  = new Saksnummer("9999");
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("9999");
 
     private final DokumentArkivTjeneste dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
     private final SøknadRepository søknadRepository = mock(SøknadRepository.class);
@@ -38,7 +38,8 @@ class KompletthetssjekkerManglendeVedleggTest {
     private final DokumentTypeId dokumentTypeIdDokumentasjonAvOmsorgsovertakelse = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
     private final DokumentTypeId dokumentTypeIdUdefinert = DokumentTypeId.UDEFINERT;
 
-    private static KompletthetsjekkerImpl lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste, SøknadRepository søknadRepository) {
+    private static KompletthetsjekkerImpl lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste,
+                                                                              SøknadRepository søknadRepository) {
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
@@ -55,13 +56,11 @@ class KompletthetssjekkerManglendeVedleggTest {
 
         var behandling = lagBehandling();
 
-        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getKode())
+        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder().medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdUdefinert.getKode())
+        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder().medSkjemanummer(dokumentTypeIdUdefinert.getKode())
             .medErPåkrevdISøknadsdialog(false)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
@@ -88,17 +87,19 @@ class KompletthetssjekkerManglendeVedleggTest {
 
         var behandling = lagBehandling();
 
-        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
+        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder().medSkjemanummer(
+                dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.SEND_SENERE)
             .build();
-        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdUdefinert.getOffisiellKode())
+        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder().medSkjemanummer(dokumentTypeIdUdefinert.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(false)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
+        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
+            .leggTilVedlegg(påkrevdSøknadVedlegg)
+            .leggTilVedlegg(annetSøknadVedlegg)
+            .build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
@@ -119,17 +120,20 @@ class KompletthetssjekkerManglendeVedleggTest {
 
         var behandling = lagBehandling();
 
-        var påkrevdSøknadVedlegg1 = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
+        var påkrevdSøknadVedlegg1 = new SøknadVedleggEntitet.Builder().medSkjemanummer(
+                dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.SEND_SENERE)
             .build();
-        var påkrevdSøknadVedlegg2 = new SøknadVedleggEntitet.Builder()
-            .medSkjemanummer(dokumentTypeIdDokumentasjonAvOmsorgsovertakelse.getOffisiellKode())
+        var påkrevdSøknadVedlegg2 = new SøknadVedleggEntitet.Builder().medSkjemanummer(
+                dokumentTypeIdDokumentasjonAvOmsorgsovertakelse.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg2).leggTilVedlegg(påkrevdSøknadVedlegg1).build();
+        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
+            .leggTilVedlegg(påkrevdSøknadVedlegg2)
+            .leggTilVedlegg(påkrevdSøknadVedlegg1)
+            .build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
@@ -156,9 +160,7 @@ class KompletthetssjekkerManglendeVedleggTest {
     }
 
     private Behandling lagBehandling() {
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medSaksnummer(SAKSNUMMER);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medSaksnummer(SAKSNUMMER);
         return scenario.lagMocked();
     }
 }

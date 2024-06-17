@@ -22,9 +22,8 @@ public class Opptjeningsnøkkel {
     }
 
     public Opptjeningsnøkkel(InternArbeidsforholdRef arbeidsforholdId, Arbeidsgiver arbeidsgiver) {
-        this(arbeidsforholdId,
-                arbeidsgiver.getErVirksomhet() ? arbeidsgiver.getIdentifikator() : null,
-                arbeidsgiver.getErVirksomhet() ? null : arbeidsgiver.getIdentifikator());
+        this(arbeidsforholdId, arbeidsgiver.getErVirksomhet() ? arbeidsgiver.getIdentifikator() : null,
+            arbeidsgiver.getErVirksomhet() ? null : arbeidsgiver.getIdentifikator());
     }
 
     public Opptjeningsnøkkel(InternArbeidsforholdRef arbeidsforholdId, String orgNummer, String aktørId) {
@@ -132,8 +131,8 @@ public class Opptjeningsnøkkel {
     }
 
     private boolean matchOrgEllerAktørId(Opptjeningsnøkkel other) {
-        if ((Type.ORG_NUMMER.equals(other.getType()) || Type.ORG_NUMMER.equals(this.getType()))
-                && (!other.harArbeidsforholdId() || !this.harArbeidsforholdId())) {
+        if ((Type.ORG_NUMMER.equals(other.getType()) || Type.ORG_NUMMER.equals(this.getType())) && (!other.harArbeidsforholdId()
+            || !this.harArbeidsforholdId())) {
             return other.orgNummer != null && other.orgNummer.equals(this.orgNummer);
         }
         return Objects.equals(other.aktørId, this.aktørId);
@@ -159,9 +158,8 @@ public class Opptjeningsnøkkel {
             return false;
         }
         var other = (Opptjeningsnøkkel) obj;
-        return Objects.equals(aktørId, other.aktørId)
-                && Objects.equals(orgNummer, other.orgNummer)
-                && Objects.equals(arbeidsforholdId, other.arbeidsforholdId);
+        return Objects.equals(aktørId, other.aktørId) && Objects.equals(orgNummer, other.orgNummer) && Objects.equals(arbeidsforholdId,
+            other.arbeidsforholdId);
     }
 
     @Override
@@ -171,10 +169,7 @@ public class Opptjeningsnøkkel {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + "type=" + getType()
-                + ", key=" + getVerdi()
-                + ">";
+        return getClass().getSimpleName() + "<" + "type=" + getType() + ", key=" + getVerdi() + ">";
     }
 
     public boolean harType(Type type) {

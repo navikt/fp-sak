@@ -69,7 +69,8 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     }
 
     public static boolean gjelderForeldrepenger(BehandlingTema behandlingTema) {
-        return FORELDREPENGER_ADOPSJON.equals(behandlingTema) || FORELDREPENGER_FØDSEL.equals(behandlingTema) || FORELDREPENGER.equals(behandlingTema);
+        return FORELDREPENGER_ADOPSJON.equals(behandlingTema) || FORELDREPENGER_FØDSEL.equals(behandlingTema) || FORELDREPENGER.equals(
+            behandlingTema);
     }
 
     public static boolean gjelderSvangerskapspenger(BehandlingTema behandlingTema) {

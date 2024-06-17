@@ -141,7 +141,8 @@ class DtoTjenesteFelles {
             .stream()
             .filter(Behandling::erYtelseBehandling)
             .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
-        åpenYtelseBehandling.ifPresentOrElse(b -> LOG.info("Fant åpen ytelsebehandling for sak {} {}", fagsak.getSaksnummer(), b.getId()), () -> LOG.info("Ingen åpen ytelsebehandling for sak {}", fagsak.getSaksnummer()));
+        åpenYtelseBehandling.ifPresentOrElse(b -> LOG.info("Fant åpen ytelsebehandling for sak {} {}", fagsak.getSaksnummer(), b.getId()),
+            () -> LOG.info("Ingen åpen ytelsebehandling for sak {}", fagsak.getSaksnummer()));
         return åpenYtelseBehandling;
     }
 
@@ -158,8 +159,7 @@ class DtoTjenesteFelles {
 
     static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
         var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElse(null);
-        return new Sak.FamilieHendelse(fødselsdato,
-            familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
+        return new Sak.FamilieHendelse(fødselsdato, familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
             familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
     }

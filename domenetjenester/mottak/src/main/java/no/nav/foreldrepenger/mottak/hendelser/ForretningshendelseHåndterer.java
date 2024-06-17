@@ -9,7 +9,9 @@ public interface ForretningshendelseHåndterer {
 
     void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType);
 
-    void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType);
+    void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                    ForretningshendelseType forretningshendelseType,
+                                    BehandlingÅrsakType behandlingÅrsakType);
 
     default void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
     }

@@ -26,9 +26,7 @@ class DekningsgradTjenesteTest {
 
     @Test
     void skal_gi_endret_dekningsgrad_hvis_behandlingen_har_endret_dekningsgrad() {
-        var førstegangs = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittDekningsgrad(Dekningsgrad._80)
-            .lagre(repositoryProvider);
+        var førstegangs = ScenarioMorSøkerForeldrepenger.forFødsel().medOppgittDekningsgrad(Dekningsgrad._80).lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangs, BehandlingÅrsakType.RE_HENDELSE_DØD_BARN)
             .medOppgittDekningsgrad(Dekningsgrad._100)
@@ -41,9 +39,7 @@ class DekningsgradTjenesteTest {
 
     @Test
     void skal_gi_ikke_gi_endret_dekningsgrad_hvis_dekningsgrad_ikke_er_endret() {
-        var førstegangs = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittDekningsgrad(Dekningsgrad._100)
-            .lagre(repositoryProvider);
+        var førstegangs = ScenarioMorSøkerForeldrepenger.forFødsel().medOppgittDekningsgrad(Dekningsgrad._100).lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangs, BehandlingÅrsakType.RE_HENDELSE_DØD_BARN)
             .medOppgittDekningsgrad(Dekningsgrad._100)

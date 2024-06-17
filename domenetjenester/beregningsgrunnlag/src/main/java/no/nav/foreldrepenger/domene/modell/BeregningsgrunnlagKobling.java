@@ -24,11 +24,14 @@ public class BeregningsgrunnlagKobling {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (BeregningsgrunnlagKobling) o;
-        return Objects.equals(skjæringstidspunkt, that.skjæringstidspunkt) &&
-            Objects.equals(referanse, that.referanse);
+        return Objects.equals(skjæringstidspunkt, that.skjæringstidspunkt) && Objects.equals(referanse, that.referanse);
     }
 
     @Override
@@ -38,9 +41,6 @@ public class BeregningsgrunnlagKobling {
 
     @Override
     public String toString() {
-        return "BeregningsgrunnlagKobling{" +
-            "skjæringstidspunkt=" + skjæringstidspunkt +
-            ", referanse=" + referanse +
-            '}';
+        return "BeregningsgrunnlagKobling{" + "skjæringstidspunkt=" + skjæringstidspunkt + ", referanse=" + referanse + '}';
     }
 }

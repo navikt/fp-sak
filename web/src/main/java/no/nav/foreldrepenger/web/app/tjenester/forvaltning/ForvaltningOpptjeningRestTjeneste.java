@@ -75,8 +75,8 @@ public class ForvaltningOpptjeningRestTjeneste {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
         var nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
-        var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom())
-                : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
+        var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(),
+            dto.getFrilansTom()) : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
         var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
             .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
             .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
@@ -96,24 +96,23 @@ public class ForvaltningOpptjeningRestTjeneste {
         var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
         Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
         var brutto = new BigDecimal(dto.getBruttoBeløp());
-        var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
-                : DatoIntervallEntitet.fraOgMed(dto.getFom());
+        var periode =
+            dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom()) : DatoIntervallEntitet.fraOgMed(dto.getFom());
         var enBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-                .medVirksomhetType(VirksomhetType.fraKode(dto.getTypeKode()))
-                .medPeriode(periode)
-                .medBruttoInntekt(brutto)
-                .medNærRelasjon(tilBoolsk(dto.getErRelasjon()))
-                .medNyIArbeidslivet(tilBoolsk(dto.getNyIArbeidslivet()))
-                .medNyoppstartet(tilBoolsk(dto.getNyoppstartet()))
-                .medVarigEndring(tilBoolsk(dto.getVarigEndring()))
-                .medRegnskapsførerNavn(dto.getRegnskapNavn())
-                .medBegrunnelse(dto.getBegrunnelse())
-                .medEndringDato(dto.getEndringsDato())
-                .medRegnskapsførerTlf(dto.getRegnskapTlf());
+            .medVirksomhetType(VirksomhetType.fraKode(dto.getTypeKode()))
+            .medPeriode(periode)
+            .medBruttoInntekt(brutto)
+            .medNærRelasjon(tilBoolsk(dto.getErRelasjon()))
+            .medNyIArbeidslivet(tilBoolsk(dto.getNyIArbeidslivet()))
+            .medNyoppstartet(tilBoolsk(dto.getNyoppstartet()))
+            .medVarigEndring(tilBoolsk(dto.getVarigEndring()))
+            .medRegnskapsførerNavn(dto.getRegnskapNavn())
+            .medBegrunnelse(dto.getBegrunnelse())
+            .medEndringDato(dto.getEndringsDato())
+            .medRegnskapsførerTlf(dto.getRegnskapTlf());
         virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
         // Ønsker å erstatte eksisterende egen næring om orgnr er likt
-        var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
-            .leggTilEllerErstattEgenNæring(enBuilder.build());
+        var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening).leggTilEllerErstattEgenNæring(enBuilder.build());
         inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), ooBuilder);
 
         return Response.noContent().build();

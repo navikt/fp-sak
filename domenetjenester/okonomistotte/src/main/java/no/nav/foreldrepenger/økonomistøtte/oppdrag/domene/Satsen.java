@@ -9,6 +9,7 @@ public class Satsen {
     public static Satsen dagsats(long sats) {
         return new Satsen(SatsType.DAG, sats);
     }
+
     public static Satsen engang(long sats) {
         return new Satsen(SatsType.ENG, sats);
     }
@@ -28,11 +29,14 @@ public class Satsen {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var sats1 = (Satsen) o;
-        return sats == sats1.sats &&
-            satsType == sats1.satsType;
+        return sats == sats1.sats && satsType == sats1.satsType;
     }
 
     @Override
@@ -42,9 +46,6 @@ public class Satsen {
 
     @Override
     public String toString() {
-        return "Sats{" +
-            "satsType=" + satsType +
-            ", sats=" + sats +
-            '}';
+        return "Sats{" + "satsType=" + satsType + ", sats=" + sats + '}';
     }
 }

@@ -75,12 +75,12 @@ public class ScenarioAnkeEngangsstønad {
         var lås = behandlingRepository.taSkriveLås(ankeBehandling);
         behandlingRepository.lagre(ankeBehandling, lås);
         if (ankeVurdering != null) {
-            Behandlingsresultat.builder().medBehandlingResultatType(
+            Behandlingsresultat.builder()
+                .medBehandlingResultatType(
                     AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(ankeVurdering, AnkeVurderingOmgjør.ANKE_TIL_GUNST))
-                    .buildFor(ankeBehandling);
+                .buildFor(ankeBehandling);
         } else {
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                    .buildFor(ankeBehandling);
+            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(ankeBehandling);
         }
 
         ankeBehandling.getAksjonspunkter().forEach(punkt -> AksjonspunktTestSupport.setTilUtført(punkt, "Test"));

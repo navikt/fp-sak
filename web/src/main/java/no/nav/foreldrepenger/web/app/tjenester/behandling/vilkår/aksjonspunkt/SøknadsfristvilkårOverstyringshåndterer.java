@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringSøknadsfristvilkåretDto;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = OverstyringSøknadsfristvilkåretDto.class, adapter= Overstyringshåndterer.class)
+@DtoTilServiceAdapter(dto = OverstyringSøknadsfristvilkåretDto.class, adapter = Overstyringshåndterer.class)
 public class SøknadsfristvilkårOverstyringshåndterer extends InngangsvilkårOverstyringshåndterer<OverstyringSøknadsfristvilkåretDto> {
 
     SøknadsfristvilkårOverstyringshåndterer() {
@@ -22,12 +22,8 @@ public class SøknadsfristvilkårOverstyringshåndterer extends InngangsvilkårO
     }
 
     @Inject
-    public SøknadsfristvilkårOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter,
-                AksjonspunktDefinisjon.OVERSTYRING_AV_SØKNADSFRISTVILKÅRET,
-                VilkårType.SØKNADSFRISTVILKÅRET,
-                inngangsvilkårTjeneste);
+    public SøknadsfristvilkårOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_SØKNADSFRISTVILKÅRET, VilkårType.SØKNADSFRISTVILKÅRET, inngangsvilkårTjeneste);
     }
 
     @Override

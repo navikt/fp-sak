@@ -85,8 +85,7 @@ class BareSplittetPerioderValideringTest {
         var andreTom = andreFom.plusWeeks(2);
         var tredjeFom = andreTom.plusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
-        var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom),
-            periodeMedDato(andreFom, andreTom),
+        var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(andreFom, andreTom),
             periodeMedDato(tredjeFom, opprinneligTom));
 
         var validering = new BareSplittetPerioderValidering(opprinnelig);
@@ -117,8 +116,7 @@ class BareSplittetPerioderValideringTest {
     }
 
     private ForeldrepengerUttakPeriodeAktivitet aktivitet() {
-        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medArbeidsprosent(BigDecimal.TEN)
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder().medArbeidsprosent(BigDecimal.TEN)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
             .build();
@@ -126,8 +124,7 @@ class BareSplittetPerioderValideringTest {
 
     private ForeldrepengerUttakPeriode periodeMedDato(LocalDate fom, LocalDate tom) {
         var aktivitet = aktivitet();
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(fom, tom))
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(new LocalDateInterval(fom, tom))
             .medAktiviteter(Collections.singletonList(aktivitet))
             .medResultatType(PeriodeResultatType.INNVILGET)
             .build();

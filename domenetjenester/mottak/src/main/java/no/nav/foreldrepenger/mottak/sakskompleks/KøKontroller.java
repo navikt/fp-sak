@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -73,7 +73,8 @@ public class KøKontroller {
 
     public void dekøFørsteBehandlingISakskompleks(Behandling behandling) {
         var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(behandling.getFagsak());
-        var medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
+        var medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .isPresent();
         if (medforelderEndringsSøknad && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(køetBehandlingMedforelder.get());
             opprettTaskForÅStarteBehandling(behandling);
@@ -87,13 +88,16 @@ public class KøKontroller {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
+            Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     public void submitBerørtBehandling(Behandling behandling, Optional<Behandling> åpenBehandling) {
-        if (!behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())) throw new IllegalArgumentException("Behandling er ikke berørt");
-        åpenBehandling.ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
-            null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
+        if (!behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())) {
+            throw new IllegalArgumentException("Behandling er ikke berørt");
+        }
+        åpenBehandling.ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
+            Venteårsak.VENT_ÅPEN_BEHANDLING));
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
@@ -102,16 +106,18 @@ public class KøKontroller {
         var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak);
         var køetBerørt = sjekkKøetBerørt(køetBehandling, køetBehandlingMedforelder);
         if (køetBerørt.isPresent()) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(køetBerørt.get(), Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(køetBerørt.get(),
+                Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
             return;
         }
-        var nesteBehandling = finnTidligsteSøknad(køetBehandling, køetBehandlingMedforelder)
-            .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder));
+        var nesteBehandling = finnTidligsteSøknad(køetBehandling, køetBehandlingMedforelder).or(
+            () -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder));
         nesteBehandling.ifPresent(b -> {
             if (skalOppdatereKøetBehandling(b)) {
                 lagreOppdaterKøetProsesstask(b);
             } else {
-                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b,
+                    Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
             }
         });
     }
@@ -119,7 +125,9 @@ public class KøKontroller {
     private Optional<Behandling> sjekkKøetBerørt(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
         var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).map(Behandling::getOpprettetTidspunkt);
         var ts2 = behandling2.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).map(Behandling::getOpprettetTidspunkt);
-        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
+        if (ts1.isEmpty() && ts2.isEmpty()) {
+            return Optional.empty();
+        }
         if (ts1.isPresent() && ts2.isPresent()) {
             return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
         }
@@ -128,13 +136,19 @@ public class KøKontroller {
 
     private Optional<Behandling> finnTidligsteSøknad(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
         var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
-            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);
+            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId()))
+            .map(SøknadEntitet::getMottattDato);
         var ts2 = behandling2.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
-            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);
-        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
+            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId()))
+            .map(SøknadEntitet::getMottattDato);
+        if (ts1.isEmpty() && ts2.isEmpty()) {
+            return Optional.empty();
+        }
         if (ts1.isPresent() && ts2.isPresent()) {
             if (ts1.get().equals(ts2.get())) {
-                return behandling1.orElseThrow().getOpprettetTidspunkt().isBefore(behandling2.orElseThrow().getOpprettetTidspunkt()) ? behandling1 : behandling2;
+                return behandling1.orElseThrow()
+                    .getOpprettetTidspunkt()
+                    .isBefore(behandling2.orElseThrow().getOpprettetTidspunkt()) ? behandling1 : behandling2;
             }
             return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
         }
@@ -144,14 +158,19 @@ public class KøKontroller {
     private Optional<Behandling> finnTidligstOpprettet(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
         var ts1 = behandling1.map(Behandling::getOpprettetTidspunkt);
         var ts2 = behandling2.map(Behandling::getOpprettetTidspunkt);
-        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
-        if (ts1.isPresent() && ts2.isPresent()) return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
+        if (ts1.isEmpty() && ts2.isEmpty()) {
+            return Optional.empty();
+        }
+        if (ts1.isPresent() && ts2.isPresent()) {
+            return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
+        }
         return ts1.isPresent() ? behandling1 : behandling2;
     }
 
     private void opprettTaskForÅStarteBehandling(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling,
+                Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         } else {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
         }
@@ -175,15 +194,18 @@ public class KøKontroller {
             }
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(oppdatertBehandling);
         } else {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling,
+                Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         }
     }
 
     private boolean skalOppdatereKøetBehandling(Behandling behandling) {
         var originalBehandlingId = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())
-            .map(Behandling::getId).orElse(null);
-        return behandling.erRevurdering() && originalBehandlingId != null &&
-            behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandlingId)).isPresent();
+            .map(Behandling::getId)
+            .orElse(null);
+        return behandling.erRevurdering() && originalBehandlingId != null && behandling.getOriginalBehandlingId()
+            .filter(ob -> !ob.equals(originalBehandlingId))
+            .isPresent();
     }
 
     void lagreOppdaterKøetProsesstask(Behandling behandling) {

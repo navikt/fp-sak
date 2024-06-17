@@ -44,17 +44,16 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var stputil = new SkjæringstidspunktUtils(
-            Period.parse("P1Y"), Period.parse("P6M"));
+        var stputil = new SkjæringstidspunktUtils(Period.parse("P1Y"), Period.parse("P6M"));
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
-            fagsakRelasjonTjeneste);
+        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
+            repositoryProvider.getFpUttakRepository(), fagsakRelasjonTjeneste);
         var utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, fagsakRelasjonTjeneste);
         var minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil, utsettelse2021,
+            minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste);
     }
 
     @Test
@@ -79,8 +78,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                 .medNavnPå("Doktor Dankel"));
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
@@ -98,8 +96,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
@@ -114,8 +111,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var oppgittPeriodeBuilder2 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(10), LocalDate.now().plusWeeks(13))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        var oppgittFordeling = new OppgittFordelingEntitet(
-            List.of(oppgittPeriodeBuilder.build(), oppgittPeriodeBuilder2.build()), true);
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build(), oppgittPeriodeBuilder2.build()), true);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFordeling(oppgittFordeling);
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
@@ -132,8 +128,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().plusWeeks(14)).medAntallBarn(1);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
@@ -168,8 +163,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medRegisterOpplysninger(fødtBarn);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
@@ -182,13 +176,10 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
         var oppgittFordeling = new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true);
-        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository()
-            .opprettBuilder(behandling.getId())
-            .medOppgittFordeling(oppgittFordeling);
+        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository().opprettBuilder(behandling.getId()).medOppgittFordeling(oppgittFordeling);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
@@ -201,22 +192,16 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
         var oppgittFordeling = new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true);
-        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository()
-            .opprettBuilder(behandling.getId())
-            .medOppgittFordeling(oppgittFordeling);
+        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository().opprettBuilder(behandling.getId()).medOppgittFordeling(oppgittFordeling);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
     }
 
-    private Behandling settOppAdopsjonBehandlingForMor(int alder,
-                                                       boolean ektefellesBarn,
-                                                       NavBrukerKjønn kjønn,
-                                                       boolean adoptererAlene) {
+    private Behandling settOppAdopsjonBehandlingForMor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn, boolean adoptererAlene) {
         var omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
         if (kjønn.equals(NavBrukerKjønn.KVINNE)) {
             var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
@@ -255,8 +240,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
 }

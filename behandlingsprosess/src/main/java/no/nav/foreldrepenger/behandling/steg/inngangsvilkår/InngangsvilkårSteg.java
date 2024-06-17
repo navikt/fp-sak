@@ -7,6 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
 public interface InngangsvilkårSteg extends BehandlingSteg {
 
-    /** Vilkår håndtert (vurdert) i dette steget. */
+    /**
+     * Vilkår håndtert (vurdert) i dette steget.
+     */
     List<VilkårType> vilkårHåndtertAvSteg();
 }

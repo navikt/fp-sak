@@ -6,7 +6,9 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 
-/** For å få tak i riktig status konfigurasjon. */
+/**
+ * For å få tak i riktig status konfigurasjon.
+ */
 public class BehandlingStegKonfigurasjon {
 
     private List<BehandlingStegStatus> statuser;

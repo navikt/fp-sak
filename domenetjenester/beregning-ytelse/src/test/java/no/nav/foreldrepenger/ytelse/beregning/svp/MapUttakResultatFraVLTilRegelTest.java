@@ -50,7 +50,7 @@ class MapUttakResultatFraVLTilRegelTest {
 
             @Override
             protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input,
-                    SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
+                                                                SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
                 return BigDecimal.valueOf(STILLING_70);
             }
         };
@@ -193,17 +193,16 @@ class MapUttakResultatFraVLTilRegelTest {
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdEntitet lagArbeidsforhold(String orgnr,
-            InternArbeidsforholdRef arbId,
-            SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
+                                                                                   InternArbeidsforholdRef arbId,
+                                                                                   SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
         return lagUttakResultatArbeidsforhold(UttakArbeidType.ORDINÆRT_ARBEID, orgnr, arbId, uttakPeriode);
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdEntitet lagUttakResultatArbeidsforhold(UttakArbeidType uttakArbeidType,
-            String orgnr,
-            InternArbeidsforholdRef arbId,
-            SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
-        var builder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-                .medUttakArbeidType(uttakArbeidType);
+                                                                                                String orgnr,
+                                                                                                InternArbeidsforholdRef arbId,
+                                                                                                SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
+        var builder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(uttakArbeidType);
         if (orgnr != null) {
             builder.medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), arbId);
         }
@@ -212,13 +211,12 @@ class MapUttakResultatFraVLTilRegelTest {
     }
 
     private SvangerskapspengerUttakResultatPeriodeEntitet lagUttaksperiode(LocalDate fom, LocalDate tom, Utbetalingsgrad utbetalingsgrad) {
-        return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(utbetalingsgrad)
-                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-                .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-                .build();
+        return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medRegelInput("{}")
+            .medRegelEvaluering("{}")
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+            .build();
     }
 
 }

@@ -61,7 +61,7 @@ class EngangsstønadReguleringTaskTest {
         task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, tpsFamilieTjenesteMock, behandlendeEnhetTjeneste,
             legacyESBeregningRepository, behandlingProsesseringTjeneste, revurderingTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
-                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+            .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
     }
 
     @Test
@@ -86,7 +86,8 @@ class EngangsstønadReguleringTaskTest {
         var fødselsdato = cutoff.plusDays(5);
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, fødselsdato, gammelSats);
 
-        lenient().when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(byggBaby(fødselsdato)));
+        lenient().when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any()))
+            .thenReturn(List.of(byggBaby(fødselsdato)));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -99,10 +100,7 @@ class EngangsstønadReguleringTaskTest {
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
-        return new FødtBarnInfo.Builder()
-            .medFødselsdato(fødselsdato)
-            .medIdent(PersonIdent.fra("12345678901"))
-            .build();
+        return new FødtBarnInfo.Builder().medFødselsdato(fødselsdato).medIdent(PersonIdent.fra("12345678901")).build();
     }
 
 

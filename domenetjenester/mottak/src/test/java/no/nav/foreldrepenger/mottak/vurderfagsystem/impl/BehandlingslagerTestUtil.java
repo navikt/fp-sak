@@ -42,17 +42,13 @@ public class BehandlingslagerTestUtil {
     public static final FamilieHendelseGrunnlagEntitet byggFødselGrunnlag(LocalDate termindato, LocalDate fødselsdato) {
         var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         if (termindato != null) {
-            hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
-                .medUtstedtDato(termindato.minusDays(40))
-                .medTermindato(termindato)
-                .medNavnPå("NAVN"));
+            hendelseBuilder.medTerminbekreftelse(
+                hendelseBuilder.getTerminbekreftelseBuilder().medUtstedtDato(termindato.minusDays(40)).medTermindato(termindato).medNavnPå("NAVN"));
         }
         if (fødselsdato != null) {
             hendelseBuilder.medFødselsDato(fødselsdato);
         }
-        return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(hendelseBuilder)
-            .build();
+        return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medSøknadVersjon(hendelseBuilder).build();
     }
 
 }

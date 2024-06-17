@@ -41,18 +41,18 @@ public class AnnenPartGrunnlagBygger {
         }
         var annenpart = apOpt.get();
 
-        var annenpartUttak =
-            fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.gjeldendeVedtakBehandlingId());
+        var annenpartUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.gjeldendeVedtakBehandlingId());
         if (annenpartUttak.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new AnnenPart.Builder()
-            .sisteSøknadMottattTidspunkt(annenpart.søknadOpprettetTidspunkt())
+        return Optional.of(new AnnenPart.Builder().sisteSøknadMottattTidspunkt(annenpart.søknadOpprettetTidspunkt())
             .uttaksperioder(uttaksperioder(annenpartUttak.get())));
     }
 
     private List<AnnenpartUttakPeriode> uttaksperioder(UttakResultatEntitet annenpartUttak) {
-        return annenpartUttak.getGjeldendePerioder().getPerioder().stream()
+        return annenpartUttak.getGjeldendePerioder()
+            .getPerioder()
+            .stream()
             .filter(this::erInnvilgetPeriodeEllerHarTrekkdager)
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(AnnenPartGrunnlagBygger::map)
@@ -60,8 +60,7 @@ public class AnnenPartGrunnlagBygger {
     }
 
     public static AnnenpartUttakPeriode map(UttakResultatPeriodeEntitet periode) {
-        var builder = utledBuilder(periode)
-            .samtidigUttak(periode.isSamtidigUttak())
+        var builder = utledBuilder(periode).samtidigUttak(periode.isSamtidigUttak())
             .flerbarnsdager(periode.isFlerbarnsdager())
             .innvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
             .senestMottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null));
@@ -70,8 +69,8 @@ public class AnnenPartGrunnlagBygger {
             var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());
             var trekkdager = new Trekkdager(aktivitet.getTrekkdager().decimalValue());
             var trekkonto = UttakEnumMapper.map(aktivitet.getTrekkonto());
-            var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),
-                trekkonto, trekkdager, utbetalingsgrad);
+            var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()), trekkonto, trekkdager,
+                utbetalingsgrad);
             builder.uttakPeriodeAktivitet(mapped);
         }
         return builder.build();

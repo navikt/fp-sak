@@ -41,7 +41,7 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
     private DatoIntervallEntitet sammenligningsperiode;
 
     @Convert(converter = SammenligningsgrunnlagType.KodeverdiConverter.class)
-    @Column(name="sammenligningsgrunnlag_type", nullable = false)
+    @Column(name = "sammenligningsgrunnlag_type", nullable = false)
     private SammenligningsgrunnlagType sammenligningsgrunnlagType;
 
     @Column(name = "rapportert_pr_aar", nullable = false)
@@ -106,11 +106,10 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
         if (!(obj instanceof SammenligningsgrunnlagPrStatus other)) {
             return false;
         }
-        return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag())
-                && Objects.equals(this.getSammenligningsgrunnlagType(), other.getSammenligningsgrunnlagType())
-                && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
-                && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
-                && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
+        return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag()) && Objects.equals(this.getSammenligningsgrunnlagType(),
+            other.getSammenligningsgrunnlagType()) && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
+            && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom()) && Objects.equals(this.getRapportertPrÅr(),
+            other.getRapportertPrÅr());
     }
 
     @Override
@@ -120,14 +119,9 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", "
-                + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", "
-                + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", "
-                + "rapportertPrÅr=" + rapportertPrÅr + ", "
-                + "avvikPromille=" + avvikPromille + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", "
+            + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", " + "sammenligningsperiodeTom="
+            + sammenligningsperiode.getTomDato() + ", " + "rapportertPrÅr=" + rapportertPrÅr + ", " + "avvikPromille=" + avvikPromille + ", " + ">";
     }
 
     public static Builder builder() {
@@ -157,7 +151,7 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
         }
 
         public Builder medAvvikPromille(BigDecimal avvikPromille) {
-            if(avvikPromille != null) {
+            if (avvikPromille != null) {
                 sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
             }
             return this;

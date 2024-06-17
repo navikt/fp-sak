@@ -19,7 +19,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjon implements Aksjonspunk
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    AksjonspunktUtlederForForeldrepengerAdopsjon (){
+    AksjonspunktUtlederForForeldrepengerAdopsjon() {
     }
 
     @Inject

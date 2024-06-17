@@ -176,21 +176,24 @@ public class StønadsstatistikkVedtak {
         }
     }
 
-    record BeregningÅrsbeløp(BigDecimal brutto, BigDecimal avkortet, BigDecimal redusert, Long dagsats) { }
+    record BeregningÅrsbeløp(BigDecimal brutto, BigDecimal avkortet, BigDecimal redusert, Long dagsats) {
+    }
 
-    record FamilieHendelse(LocalDate termindato,
-                           LocalDate adopsjonsdato,
-                           @NotNull Integer antallBarn,
-                           List<@Valid Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
+    record FamilieHendelse(LocalDate termindato, LocalDate adopsjonsdato, @NotNull Integer antallBarn, List<@Valid Barn> barn,
+                           // AktørId setter ikke ved adopsjon og utenlandsfødte barn
                            @NotNull HendelseType hendelseType) {
 
-        record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {}
+        record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {
+        }
 
 
     }
 
     enum HendelseType {
-        FØDSEL, ADOPSJON, STEBARNSADOPSJON, OMSORGSOVERTAKELSE
+        FØDSEL,
+        ADOPSJON,
+        STEBARNSADOPSJON,
+        OMSORGSOVERTAKELSE
     }
 
     enum StønadskontoType {
@@ -207,11 +210,17 @@ public class StønadsstatistikkVedtak {
     }
 
     enum Saksrolle {
-        MOR, FAR, MEDMOR, UKJENT
+        MOR,
+        FAR,
+        MEDMOR,
+        UKJENT
     }
 
     enum RettighetType {
-        ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS
+        ALENEOMSORG,
+        BARE_SØKER_RETT,
+        BEGGE_RETT,
+        BEGGE_RETT_EØS
     }
 
     enum AndelType {
@@ -259,19 +268,14 @@ public class StønadsstatistikkVedtak {
         SKJØNN // Ftl 8-30, 8-35
     }
 
-    record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
-                                     @NotNull RettighetType rettighetType,
-                                     @NotNull Set<@Valid Stønadskonto> stønadskonti,
-                                     @Valid Set<Stønadsutvidelse> stønadsutvidelser) {
+    record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad, @NotNull RettighetType rettighetType,
+                                     @NotNull Set<@Valid Stønadskonto> stønadskonti, @Valid Set<Stønadsutvidelse> stønadsutvidelser) {
 
-        record Stønadskonto(@NotNull StønadskontoType type,
-                            @NotNull @Valid Trekkdager maksdager,
-                            @NotNull @Valid Trekkdager restdager,
+        record Stønadskonto(@NotNull StønadskontoType type, @NotNull @Valid Trekkdager maksdager, @NotNull @Valid Trekkdager restdager,
                             @Valid Trekkdager minsterett) {
         }
 
-        record Stønadsutvidelse(@NotNull StønadsstatistikkVedtak.StønadUtvidetType type,
-                                @Valid Trekkdager dager) {
+        record Stønadsutvidelse(@NotNull StønadsstatistikkVedtak.StønadUtvidetType type, @Valid Trekkdager dager) {
         }
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
@@ -287,28 +291,31 @@ public class StønadsstatistikkVedtak {
         }
     }
 
-    record AnnenForelder(@NotNull @Valid AktørId aktørId, @Valid Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {}
+    record AnnenForelder(@NotNull @Valid AktørId aktørId, @Valid Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {
+    }
 
-    public record AktørId(@NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
-                          @JsonValue String id) {
+    public record AktørId(
+        @NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") @JsonValue String id) {
         private static final String VALID_REGEXP = "^\\d{13}$";
     }
 
-    public record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
-                      @JsonValue String id) {
+    public record Saksnummer(
+        @NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") @JsonValue String id) {
         private static final String VALID_REGEXP = "^[0-9]*$";
     }
 
     enum LovVersjon {
-        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019, Month.JANUARY,1)), // LOV-2017-12-19-116 - 1/1-2019
-        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER, LocalDate.of(2021,Month.OCTOBER,1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
-        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2022,Month.AUGUST,2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
-        FORELDREPENGER_UTJEVNE80_2024_07_01(YtelseType.FORELDREPENGER, LocalDate.of(2024,Month.JULY,1)), // LOV-2024-05-14-21 - 1/7-2024 - utjevne 80%
-        FORELDREPENGER_MINSTERETT_2024_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2024,Month.AUGUST,2)), // LOV-TBA - 2/8-2024 - minsterett
+        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019, Month.JANUARY, 1)), // LOV-2017-12-19-116 - 1/1-2019
+        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER,
+            LocalDate.of(2021, Month.OCTOBER, 1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
+        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER,
+            LocalDate.of(2022, Month.AUGUST, 2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_UTJEVNE80_2024_07_01(YtelseType.FORELDREPENGER,
+            LocalDate.of(2024, Month.JULY, 1)), // LOV-2024-05-14-21 - 1/7-2024 - utjevne 80%
+        FORELDREPENGER_MINSTERETT_2024_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2024, Month.AUGUST, 2)), // LOV-TBA - 2/8-2024 - minsterett
 
-        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,Month.JANUARY,1)),
-        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,Month.JANUARY,1))
-        ;
+        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019, Month.JANUARY, 1)),
+        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019, Month.JANUARY, 1));
 
         private final YtelseType ytelseType;
         private final LocalDate datoFom;
@@ -328,15 +335,21 @@ public class StønadsstatistikkVedtak {
     }
 
     enum UtlandsTilsnitt {
-        NASJONAL, EØS_BOSATT_NORGE, BOSATT_UTLAND
+        NASJONAL,
+        EØS_BOSATT_NORGE,
+        BOSATT_UTLAND
     }
 
     enum VedtakResultat {
-        INNVILGET, AVSLAG, OPPHØR
+        INNVILGET,
+        AVSLAG,
+        OPPHØR
     }
 
     public enum YtelseType {
-        FORELDREPENGER, SVANGERSKAPSPENGER, ENGANGSSTØNAD
+        FORELDREPENGER,
+        SVANGERSKAPSPENGER,
+        ENGANGSSTØNAD
     }
 
     static class Builder {
@@ -348,18 +361,22 @@ public class StønadsstatistikkVedtak {
             kladd.fagsakId = fagsakId;
             return this;
         }
+
         Builder medYtelseType(YtelseType ytelseType) {
             kladd.ytelseType = ytelseType;
             return this;
         }
+
         Builder medLovVersjon(LovVersjon lovVersjon) {
             kladd.lovVersjon = lovVersjon;
             return this;
         }
+
         Builder medBehandlingUuid(UUID behandlingUuid) {
             kladd.behandlingUuid = behandlingUuid;
             return this;
         }
+
         Builder medForrigeBehandlingUuid(UUID forrigeBehandlingUuid) {
             kladd.forrigeBehandlingUuid = forrigeBehandlingUuid;
             return this;
@@ -374,54 +391,67 @@ public class StønadsstatistikkVedtak {
             kladd.søknadsdato = søknadsdato;
             return this;
         }
+
         Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
             kladd.skjæringstidspunkt = skjæringstidspunkt;
             return this;
         }
+
         Builder medVedtakstidspunkt(LocalDateTime vedtakstidspunkt) {
             kladd.vedtakstidspunkt = vedtakstidspunkt;
             return this;
         }
+
         Builder medVedtaksresultat(VedtakResultat vedtaksresultat) {
             kladd.vedtaksresultat = vedtaksresultat;
             return this;
         }
+
         Builder medVilkårIkkeOppfylt(VilkårIkkeOppfylt vilkårIkkeOppfylt) {
             kladd.vilkårIkkeOppfylt = vilkårIkkeOppfylt;
             return this;
         }
+
         Builder medSøker(AktørId søker) {
             kladd.søker = søker;
             return this;
         }
+
         Builder medSøkersRolle(Saksrolle saksrolle) {
             kladd.saksrolle = saksrolle;
             return this;
         }
+
         Builder medUtlandsTilsnitt(UtlandsTilsnitt utlandsTilsnitt) {
             kladd.utlandsTilsnitt = utlandsTilsnitt;
             return this;
         }
+
         Builder medAnnenForelder(AnnenForelder annenForelder) {
             kladd.annenForelder = annenForelder;
             return this;
         }
+
         Builder medFamilieHendelse(FamilieHendelse familieHendelse) {
             kladd.familieHendelse = familieHendelse;
             return this;
         }
+
         Builder medBeregning(Beregning beregning) {
             kladd.beregning = beregning;
             return this;
         }
+
         Builder medUtbetalingsreferanse(String utbetalingsreferanse) {
             kladd.utbetalingsreferanse = utbetalingsreferanse;
             return this;
         }
+
         Builder medBehandlingId(Long behandlingId) {
             kladd.behandlingId = behandlingId;
             return this;
         }
+
         Builder medEngangsstønadInnvilget(Long engangsstønadInnvilget) {
             kladd.engangsstønadInnvilget = engangsstønadInnvilget;
             return this;
@@ -436,10 +466,12 @@ public class StønadsstatistikkVedtak {
             kladd.utbetalingssperioder = utbetalingssperioder;
             return this;
         }
+
         Builder medUttakssperioder(List<StønadsstatistikkUttakPeriode> uttaksperioder) {
             kladd.uttaksperioder = uttaksperioder;
             return this;
         }
+
         public StønadsstatistikkVedtak build() {
             return kladd;
         }

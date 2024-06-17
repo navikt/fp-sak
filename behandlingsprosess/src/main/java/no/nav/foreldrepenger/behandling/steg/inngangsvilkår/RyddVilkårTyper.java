@@ -81,13 +81,12 @@ class RyddVilkårTyper {
 
     private void nullstillVedtaksresultat() {
         var behandlingsresultat = getBehandlingsresultat(behandling);
-        if (behandlingsresultat.isEmpty() ||
-            behandlingsresultat.filter(r -> BehandlingResultatType.IKKE_FASTSATT.equals(r.getBehandlingResultatType())).isPresent()) {
+        if (behandlingsresultat.isEmpty() || behandlingsresultat.filter(
+            r -> BehandlingResultatType.IKKE_FASTSATT.equals(r.getBehandlingResultatType())).isPresent()) {
             return;
         }
 
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get())
-                .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get()).medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }
 
@@ -105,28 +104,24 @@ class RyddVilkårTyper {
     }
 
     private void nullstillInngangsvilkår() {
-        getBehandlingsresultat(behandling)
-            .map(Behandlingsresultat::getVilkårResultat)
+        getBehandlingsresultat(behandling).map(Behandlingsresultat::getVilkårResultat)
             .filter(inng -> !inng.erOverstyrt() && !IKKE_FASTSATT.equals(inng.getVilkårResultatType()))
-            .ifPresent(iv -> VilkårResultat.builderFraEksisterende(iv)
-                .medVilkårResultatType(IKKE_FASTSATT)
-                .buildFor(behandling));
+            .ifPresent(iv -> VilkårResultat.builderFraEksisterende(iv).medVilkårResultatType(IKKE_FASTSATT).buildFor(behandling));
     }
 
     private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {
-        getBehandlingsresultat(behandling)
-            .map(Behandlingsresultat::getVilkårResultat)
-            .ifPresent(vilkårResultat -> {
-                var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
-                    .filter(v -> vilkårTyper.contains(v.getVilkårType()))
-                    .filter(v -> !v.erOverstyrt())
-                    .toList();
-                if (!vilkårSomSkalNullstilles.isEmpty()) {
-                    var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-                    vilkårSomSkalNullstilles.forEach(v -> builder.nullstillVilkår(v, nullstillManueltAvklartVilkår));
-                    builder.buildFor(behandling);
-                }
-            });
+        getBehandlingsresultat(behandling).map(Behandlingsresultat::getVilkårResultat).ifPresent(vilkårResultat -> {
+            var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene()
+                .stream()
+                .filter(v -> vilkårTyper.contains(v.getVilkårType()))
+                .filter(v -> !v.erOverstyrt())
+                .toList();
+            if (!vilkårSomSkalNullstilles.isEmpty()) {
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+                vilkårSomSkalNullstilles.forEach(v -> builder.nullstillVilkår(v, nullstillManueltAvklartVilkår));
+                builder.buildFor(behandling);
+            }
+        });
     }
 
 }

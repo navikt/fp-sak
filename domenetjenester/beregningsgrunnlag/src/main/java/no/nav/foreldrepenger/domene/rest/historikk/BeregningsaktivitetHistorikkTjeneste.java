@@ -43,8 +43,8 @@ public class BeregningsaktivitetHistorikkTjeneste {
                                                      String begrunnelse,
                                                      Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat) {
         var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder();
-        var builder = lagHistorikk(behandlingId, historikkInnslagTekstBuilder, registerAktiviteter,
-            saksbehandledeAktiviteter, begrunnelse, forrigeAggregat);
+        var builder = lagHistorikk(behandlingId, historikkInnslagTekstBuilder, registerAktiviteter, saksbehandledeAktiviteter, begrunnelse,
+            forrigeAggregat);
         historikkAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
         return builder;
     }
@@ -56,11 +56,9 @@ public class BeregningsaktivitetHistorikkTjeneste {
                                                      String begrunnelse,
                                                      Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat) {
         tekstBuilder.medBegrunnelse(begrunnelse).medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
-        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
-            .getArbeidsforholdOverstyringer();
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         registerAktiviteter.getBeregningAktiviteter().forEach(ba -> {
-            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba,
-                arbeidsforholdOverstyringer);
+            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba, arbeidsforholdOverstyringer);
             lagSkalBrukesHistorikk(tekstBuilder, saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn);
             lagPeriodeHistorikk(tekstBuilder, saksbehandledeAktiviteter, ba, aktivitetnavn);
         });
@@ -75,18 +73,14 @@ public class BeregningsaktivitetHistorikkTjeneste {
         var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(saksbehandledeAktiviteter, ba);
         var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(forrigeAggregat, ba);
         if (!skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi,
-                skalBrukesTilVerdi);
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi, skalBrukesTilVerdi);
         }
     }
 
     private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
                                                                 BeregningAktivitetEntitet ba) {
         if (forrigeAggregat.isPresent()) {
-            var finnesIForrige = forrigeAggregat.get()
-                .getBeregningAktiviteter()
-                .stream()
-                .anyMatch(a -> a.getNøkkel().equals(ba.getNøkkel()));
+            var finnesIForrige = forrigeAggregat.get().getBeregningAktiviteter().stream().anyMatch(a -> a.getNøkkel().equals(ba.getNøkkel()));
             return finnesIForrige ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
         }
         return null;
@@ -117,9 +111,7 @@ public class BeregningsaktivitetHistorikkTjeneste {
 
     }
 
-    private boolean finnesMatch(List<BeregningAktivitetEntitet> beregningAktiviteter,
-                                BeregningAktivitetEntitet beregningAktivitet) {
-        return beregningAktiviteter.stream()
-            .anyMatch(ba -> Objects.equals(ba.getNøkkel(), beregningAktivitet.getNøkkel()));
+    private boolean finnesMatch(List<BeregningAktivitetEntitet> beregningAktiviteter, BeregningAktivitetEntitet beregningAktivitet) {
+        return beregningAktiviteter.stream().anyMatch(ba -> Objects.equals(ba.getNøkkel(), beregningAktivitet.getNøkkel()));
     }
 }

@@ -110,26 +110,25 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
 
     private Behandling byggBehandlingFødsel(AbstractTestScenario<?> scenario, AktørId aktørId, LocalDate fødselsdato) {
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
-        scenario.medBruker(aktørId)
-                .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
+        scenario.medBruker(aktørId).medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         return lagre(scenario);
     }
 
     private Behandling byggBehandlingTermin(AbstractTestScenario<?> scenario, AktørId aktørId, LocalDate termindato) {
-        scenario.medSøknadHendelse().medAntallBarn(1)
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+        scenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medNavnPå("LEGEN LEGESEN")
                 .medUtstedtDato(termindato.minusMonths(1)));
-        scenario.medBruker(aktørId)
-            .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
+        scenario.medBruker(aktørId).medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         return lagre(scenario);
     }
 

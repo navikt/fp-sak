@@ -60,13 +60,16 @@ public class AksjonspunktResultat {
      * Factory-metode som linker {@link AksjonspunktDefinisjon} sammen med
      * ventefrist og årsak.
      */
-    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
-            LocalDateTime ventefrist) {
+    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                                                      Venteårsak venteårsak,
+                                                                      LocalDateTime ventefrist) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, OPPRETTET);
     }
 
-    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
-                                                                      LocalDateTime ventefrist, AksjonspunktStatus status) {
+    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                                                      Venteårsak venteårsak,
+                                                                      LocalDateTime ventefrist,
+                                                                      AksjonspunktStatus status) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, status);
     }
 

@@ -136,10 +136,8 @@ public class AktivitetsAvtale implements IndexKey {
         if (!(o instanceof AktivitetsAvtale that)) {
             return false;
         }
-        return Objects.equals(beskrivelse, that.beskrivelse) &&
-                Objects.equals(prosentsats, that.prosentsats) &&
-                Objects.equals(periode, that.periode) &&
-                Objects.equals(sisteLønnsendringsdato, that.sisteLønnsendringsdato);
+        return Objects.equals(beskrivelse, that.beskrivelse) && Objects.equals(prosentsats, that.prosentsats) && Objects.equals(periode, that.periode)
+            && Objects.equals(sisteLønnsendringsdato, that.sisteLønnsendringsdato);
     }
 
     @Override
@@ -149,13 +147,8 @@ public class AktivitetsAvtale implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "periode=" + periode +
-                ", overstyrtPeriode=" + overstyrtPeriode +
-                ", prosentsats=" + prosentsats +
-                ", beskrivelse=" + beskrivelse +
-                ", sisteLønnsendringsdato=" + sisteLønnsendringsdato +
-                '>';
+        return getClass().getSimpleName() + "<" + "periode=" + periode + ", overstyrtPeriode=" + overstyrtPeriode + ", prosentsats=" + prosentsats
+            + ", beskrivelse=" + beskrivelse + ", sisteLønnsendringsdato=" + sisteLønnsendringsdato + '>';
     }
 
     boolean hasValues() {

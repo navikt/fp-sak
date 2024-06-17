@@ -12,7 +12,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.Kodeverdi;
 /**
  * Enkel serialisering av Kodeverk som stammer fra ftkalkulus kontrakt/kodeverk
  * Deserialisering går av seg selv normalt
- *
+ * <p>
  * TODO: rydde i kalkulus-kodeverk/kontrakt slik at man fortrinnsvis bruker plain enum og null isf UDEFINERT
  */
 public class KalkulusKodeverdiSerializer extends StdSerializer<Kodeverdi> {

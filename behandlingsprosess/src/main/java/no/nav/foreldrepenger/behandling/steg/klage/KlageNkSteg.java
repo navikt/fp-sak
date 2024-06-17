@@ -39,7 +39,7 @@ public class KlageNkSteg implements BehandlingSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         var klageVurderingNFP = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP)
-                .orElseThrow(() -> new IllegalStateException("Skal ha NFPs klagevurdering opprettet før dette steget"));
+            .orElseThrow(() -> new IllegalStateException("Skal ha NFPs klagevurdering opprettet før dette steget"));
 
         if (KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurderingNFP.getKlageVurdering())
             && !klageVurderingNFP.getKlageResultat().erBehandletAvKabal()) {

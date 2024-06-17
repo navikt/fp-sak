@@ -46,12 +46,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class VurderLøpendeMedlemskap {
 
-    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(
-        PersonstatusType.BOSA, RegelPersonStatusType.BOSA,
-        PersonstatusType.ADNR, RegelPersonStatusType.BOSA,
-        PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
-        PersonstatusType.DØD, RegelPersonStatusType.DØD
-    );
+    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(PersonstatusType.BOSA,
+        RegelPersonStatusType.BOSA, PersonstatusType.ADNR, RegelPersonStatusType.BOSA, PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
+        PersonstatusType.DØD, RegelPersonStatusType.DØD);
 
     private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapRepository medlemskapRepository;
@@ -91,7 +88,9 @@ public class VurderLøpendeMedlemskap {
                 resultat.put(entry.getKey(), data);
             } else if (data.utfallType().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
                 if (data.vilkårUtfallMerknad() == null) {
-                    throw new IllegalStateException("Forventer at vilkår utfall merknad er satt når vilkåret blir satt til IKKE_OPPFYLT for grunnlag:" + entry.getValue().toString());
+                    throw new IllegalStateException(
+                        "Forventer at vilkår utfall merknad er satt når vilkåret blir satt til IKKE_OPPFYLT for grunnlag:" + entry.getValue()
+                            .toString());
                 }
                 resultat.put(entry.getKey(), data);
                 break;
@@ -112,10 +111,7 @@ public class VurderLøpendeMedlemskap {
 
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         var vurdertMedlemskapPeriode = medlemskap.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap);
-        var vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref)
-            .stream()
-            .sorted(LocalDate::compareTo)
-            .toList();
+        var vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref).stream().sorted(LocalDate::compareTo).toList();
 
         if (vurderingsdatoerListe.isEmpty()) {
             return Collections.emptyMap();
@@ -137,17 +133,11 @@ public class VurderLøpendeMedlemskap {
             var vurdertLovligOpphold = vurdertOpt.map(v -> defaultValueTrue(v.getLovligOppholdVurdering())).orElse(true);
             var vurdertOppholdsrett = vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true);
 
-            var grunnlag = new MedlemskapsvilkårGrunnlag(
-                tilPersonStatusType(personopplysningerAggregat), // FP VK 2.1
+            var grunnlag = new MedlemskapsvilkårGrunnlag(tilPersonStatusType(personopplysningerAggregat), // FP VK 2.1
                 brukerNorskNordisk(personopplysningerAggregat, vurderingsdato), // FP VK 2.11
                 vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true), // FP VIK 2.12
-                harOppholdstillatelsePåDato(ref, vurderingsdato),
-                finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato),
-                vurdertErMedlem,
-                avklartPliktigEllerFrivillig,
-                vurdertBosatt,
-                vurdertLovligOpphold,
-                vurdertOppholdsrett);
+                harOppholdstillatelsePåDato(ref, vurderingsdato), finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato), vurdertErMedlem,
+                avklartPliktigEllerFrivillig, vurdertBosatt, vurdertLovligOpphold, vurdertOppholdsrett);
 
             resulatat.put(vurderingsdato, grunnlag);
         }
@@ -172,37 +162,39 @@ public class VurderLøpendeMedlemskap {
         return vurderingFraSaksbehandler;
     }
 
-    private boolean brukerErMedlemEllerIkkeRelevantPeriode(Optional<MedlemskapAggregat> medlemskap, Optional<VurdertLøpendeMedlemskapEntitet> vurdertMedlemskap,
-                                                           PersonopplysningerAggregat søker, LocalDate vurderingsdato) {
-        if (vurdertMedlemskap.isPresent()
-            && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(vurdertMedlemskap.get().getMedlemsperiodeManuellVurdering())) {
+    private boolean brukerErMedlemEllerIkkeRelevantPeriode(Optional<MedlemskapAggregat> medlemskap,
+                                                           Optional<VurdertLøpendeMedlemskapEntitet> vurdertMedlemskap,
+                                                           PersonopplysningerAggregat søker,
+                                                           LocalDate vurderingsdato) {
+        if (vurdertMedlemskap.isPresent() && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(
+            vurdertMedlemskap.get().getMedlemsperiodeManuellVurdering())) {
             return true;
         }
 
-        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent() ? medlemskap.get().getRegistrertMedlemskapPerioder()
-            : Collections.emptySet();
-        var erAvklartMaskineltSomIkkeMedlem = medTjeneste.brukerMaskineltAvklartSomIkkeMedlem(søker,
-            medlemskapPerioder, vurderingsdato);
+        Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent() ? medlemskap.get()
+            .getRegistrertMedlemskapPerioder() : Collections.emptySet();
+        var erAvklartMaskineltSomIkkeMedlem = medTjeneste.brukerMaskineltAvklartSomIkkeMedlem(søker, medlemskapPerioder, vurderingsdato);
         var erAvklartManueltSomIkkeMedlem = erAvklartSomIkkeMedlem(vurdertMedlemskap);
 
         return !(erAvklartMaskineltSomIkkeMedlem || erAvklartManueltSomIkkeMedlem);
     }
 
     private boolean erAvklartSomIkkeMedlem(Optional<VurdertLøpendeMedlemskapEntitet> medlemskap) {
-        return medlemskap.isPresent() && medlemskap.get().getMedlemsperiodeManuellVurdering() != null
-            && MedlemskapManuellVurderingType.UNNTAK.equals(medlemskap.get().getMedlemsperiodeManuellVurdering());
+        return medlemskap.isPresent() && medlemskap.get().getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.UNNTAK.equals(
+            medlemskap.get().getMedlemsperiodeManuellVurdering());
     }
 
     private boolean erAvklartSomPliktigEllerFrivillingMedlem(Optional<VurdertLøpendeMedlemskapEntitet> vurdertLøpendeMedlemskap,
-                                                             Optional<MedlemskapAggregat> medlemskap, LocalDate vurderingsdato) {
+                                                             Optional<MedlemskapAggregat> medlemskap,
+                                                             LocalDate vurderingsdato) {
         if (vurdertLøpendeMedlemskap.isPresent()) {
             VurdertMedlemskap vurdertMedlemskap = vurdertLøpendeMedlemskap.get();
-            if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null &&
-                MedlemskapManuellVurderingType.MEDLEM.equals(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
+            if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.MEDLEM.equals(
+                vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
                 return true;
             }
-            if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null &&
-                MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
+            if (vurdertMedlemskap.getMedlemsperiodeManuellVurdering() != null && MedlemskapManuellVurderingType.IKKE_RELEVANT.equals(
+                vurdertMedlemskap.getMedlemsperiodeManuellVurdering())) {
                 return false;
             }
         }
@@ -226,7 +218,8 @@ public class VurderLøpendeMedlemskap {
 
         if (inntektArbeidYtelseGrunnlagOptional.isPresent()) {
             var grunnlag = inntektArbeidYtelseGrunnlagOptional.get();
-            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(vurderingsdato);
+            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+                grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(vurderingsdato);
 
             if (filter.getYrkesaktiviteter().isEmpty()) {
                 return false;
@@ -239,13 +232,13 @@ public class VurderLøpendeMedlemskap {
 
             var inntektFilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(behandling.getAktørId())).før(vurderingsdato);
 
-            return inntektFilter.filterPensjonsgivende().getAlleInntekter().stream()
-                .anyMatch(e -> arbeidsgivere.contains(e.getArbeidsgiver()));
+            return inntektFilter.filterPensjonsgivende().getAlleInntekter().stream().anyMatch(e -> arbeidsgivere.contains(e.getArbeidsgiver()));
         }
         return false;
     }
 
-    private List<Arbeidsgiver> finnRelevanteArbeidsgivereMedLøpendeAvtaleEllerAvtaleSomErGyldigPåStp(LocalDate skjæringstidspunkt, YrkesaktivitetFilter filter) {
+    private List<Arbeidsgiver> finnRelevanteArbeidsgivereMedLøpendeAvtaleEllerAvtaleSomErGyldigPåStp(LocalDate skjæringstidspunkt,
+                                                                                                     YrkesaktivitetFilter filter) {
         List<Arbeidsgiver> relevanteArbeid = new ArrayList<>();
         for (var yrkesaktivitet : filter.getYrkesaktiviteter()) {
             if (yrkesaktivitet.erArbeidsforhold()) {

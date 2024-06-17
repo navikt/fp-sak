@@ -108,8 +108,7 @@ public class KompletthetsjekkerFelles {
     public Optional<KompletthetResultat> getInntektsmeldingKomplett(BehandlingReferanse ref) {
         var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldinger(ref);
         if (!manglendeInntektsmeldinger.isEmpty()) {
-            var alleAgUtenInntektsmelding = manglendeInntektsmeldinger.stream()
-                .map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toSet());
+            var alleAgUtenInntektsmelding = manglendeInntektsmeldinger.stream().map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toSet());
             alleAgUtenInntektsmelding.forEach(ag -> fpInntektsmeldingTjeneste.lagForespørsel(ag, ref));
             loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);
             var resultat = finnVentefristTilManglendeInntektsmelding(ref).map(

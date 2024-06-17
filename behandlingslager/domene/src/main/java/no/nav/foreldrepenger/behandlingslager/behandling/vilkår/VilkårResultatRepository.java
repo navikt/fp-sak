@@ -21,7 +21,7 @@ public class VilkårResultatRepository {
     }
 
     @Inject
-    public VilkårResultatRepository( EntityManager entityManager) {
+    public VilkårResultatRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         this.behandlingRepository = new BehandlingRepository(entityManager);

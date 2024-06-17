@@ -38,8 +38,7 @@ public class BehandlingStegTilstandSnapshot {
             return false;
         }
         var that = (BehandlingStegTilstandSnapshot) o;
-        return Objects.equals(steg, that.steg) &&
-                Objects.equals(status, that.status);
+        return Objects.equals(steg, that.steg) && Objects.equals(status, that.status);
     }
 
     @Override
@@ -49,10 +48,6 @@ public class BehandlingStegTilstandSnapshot {
 
     @Override
     public String toString() {
-        return "BehandlingStegTilstandSnapshot{" +
-                "id=" + id +
-                ", steg=" + steg +
-                ", status=" + status +
-                '}';
+        return "BehandlingStegTilstandSnapshot{" + "id=" + id + ", steg=" + steg + ", status=" + status + '}';
     }
 }

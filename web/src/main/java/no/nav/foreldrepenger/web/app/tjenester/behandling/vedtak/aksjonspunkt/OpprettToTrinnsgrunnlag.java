@@ -30,10 +30,10 @@ public class OpprettToTrinnsgrunnlag {
 
     @Inject
     public OpprettToTrinnsgrunnlag(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                           YtelsesFordelingRepository ytelsesFordelingRepository,
-                           FpUttakRepository fpUttakRepository,
-                           TotrinnTjeneste totrinnTjeneste,
-                           InntektArbeidYtelseTjeneste iayTjeneste) {
+                                   YtelsesFordelingRepository ytelsesFordelingRepository,
+                                   FpUttakRepository fpUttakRepository,
+                                   TotrinnTjeneste totrinnTjeneste,
+                                   InntektArbeidYtelseTjeneste iayTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.fpUttakRepository = fpUttakRepository;
@@ -44,15 +44,13 @@ public class OpprettToTrinnsgrunnlag {
     public void settNyttTotrinnsgrunnlag(Behandling behandling) {
         var behandlingId = behandling.getId();
         var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
-                .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandlingId);
         var uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
 
-        var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
-            ytelseFordelingIdOpt.orElse(null),
-            uttakResultatOpt.map(UttakResultatEntitet::getId).orElse(null),
-            beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
+        var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, ytelseFordelingIdOpt.orElse(null),
+            uttakResultatOpt.map(UttakResultatEntitet::getId).orElse(null), beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
             iayGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getEksternReferanse).orElse(null));
 
         totrinnTjeneste.lagreNyttTotrinnresultat(totrinnsresultatgrunnlag);

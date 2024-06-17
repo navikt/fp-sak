@@ -77,11 +77,12 @@ class VurderUttakDokumentasjonOppdatererTest {
         var behandling = behandlingMedAp(List.of(eksisterendeUtsettelse, eksisterendeUttak));
 
 
-        var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUtsettelse.getFom(), eksisterendeUtsettelse.getFom().plusWeeks(1).minusDays(1),
+        var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUtsettelse.getFom(),
+            eksisterendeUtsettelse.getFom().plusWeeks(1).minusDays(1), DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE,
+            DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.GODKJENT);
+        var vurdering2 = new DokumentasjonVurderingBehovDto(vurdering1.tom().plusDays(1), eksisterendeUtsettelse.getTom(),
             DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER,
-            DokumentasjonVurderingBehovDto.Vurdering.GODKJENT);
-        var vurdering2 = new DokumentasjonVurderingBehovDto(vurdering1.tom().plusDays(1), eksisterendeUtsettelse.getTom(), DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE,
-            DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT);
+            DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT);
         var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1, vurdering2));
 
 
@@ -92,10 +93,7 @@ class VurderUttakDokumentasjonOppdatererTest {
         var lagretPerioder = hentLagretPerioder(behandling);
 
         var historikk = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
-        var historikkDeler = historikk.stream()
-            .map(Historikkinnslag::getHistorikkinnslagDeler)
-            .flatMap(Collection::stream)
-            .toList();
+        var historikkDeler = historikk.stream().map(Historikkinnslag::getHistorikkinnslagDeler).flatMap(Collection::stream).toList();
         var historikkEndretFelt = historikkDeler.stream().map(HistorikkinnslagDel::getEndredeFelt).flatMap(Collection::stream).toList();
 
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
@@ -111,11 +109,16 @@ class VurderUttakDokumentasjonOppdatererTest {
         assertThat(lagretPerioder.get(2)).isEqualTo(eksisterendeUttak);
 
         assertThat(historikkDeler).hasSize(1);
-        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(s -> assertThat(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
+        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(
+            s -> assertThat(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
         assertThat(historikkDeler.get(0).getBegrunnelse()).hasValueSatisfying(s -> assertThat("begrunnelse".equals(s)).isTrue());
         assertThat(historikkEndretFelt).hasSize(2);
-        assertThat(historikkEndretFelt.stream().map(HistorikkinnslagFelt::getTilVerdi).anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT.getNavn().equals(til))).isTrue();
-        assertThat(historikkEndretFelt.stream().map(HistorikkinnslagFelt::getTilVerdi).anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT.getNavn().equals(til))).isTrue();
+        assertThat(historikkEndretFelt.stream()
+            .map(HistorikkinnslagFelt::getTilVerdi)
+            .anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT.getNavn().equals(til))).isTrue();
+        assertThat(historikkEndretFelt.stream()
+            .map(HistorikkinnslagFelt::getTilVerdi)
+            .anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT.getNavn().equals(til))).isTrue();
     }
 
     @Test
@@ -186,10 +189,7 @@ class VurderUttakDokumentasjonOppdatererTest {
     }
 
     private List<OppgittPeriodeEntitet> hentLagretPerioder(Behandling behandling) {
-        return repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId())
-            .getGjeldendeFordeling()
-            .getPerioder();
+        return repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getGjeldendeFordeling().getPerioder();
     }
 
     private Behandling behandlingMedAp(List<OppgittPeriodeEntitet> fordeling) {
@@ -202,8 +202,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return oppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, stp), dto,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)));
+        return oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, stp), dto,
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)));
     }
 }

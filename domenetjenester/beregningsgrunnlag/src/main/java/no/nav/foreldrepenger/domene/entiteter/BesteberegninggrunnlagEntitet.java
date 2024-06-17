@@ -49,7 +49,8 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
     private BigDecimal avvik;
 
     public BesteberegninggrunnlagEntitet(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
-        besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
+        besteberegninggrunnlagEntitet.getSeksBesteMåneder()
+            .stream()
             .map(BesteberegningMånedsgrunnlagEntitet::new)
             .forEach(this::leggTilMånedsgrunnlag);
         this.avvik = besteberegninggrunnlagEntitet.getAvvik().orElse(null);
@@ -86,8 +87,7 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
 
     private void leggTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
         if (seksBesteMåneder.size() >= ANTALL_BESTEBEREGNING_MÅNEDER) {
-            throw new IllegalStateException("Kan ikke legge til mer en + " +
-                ANTALL_BESTEBEREGNING_MÅNEDER + " måneder for bestebergning");
+            throw new IllegalStateException("Kan ikke legge til mer en + " + ANTALL_BESTEBEREGNING_MÅNEDER + " måneder for bestebergning");
         }
         if (seksBesteMåneder.stream().anyMatch(m -> m.getPeriode().overlapper(månedsgrunnlagEntitet.getPeriode()))) {
             throw new IllegalStateException("Det finnes allerede et månedsgrunnlag for " + månedsgrunnlagEntitet.getPeriode());
@@ -133,10 +133,6 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
         }
 
     }
-
-
-
-
 
 
 }

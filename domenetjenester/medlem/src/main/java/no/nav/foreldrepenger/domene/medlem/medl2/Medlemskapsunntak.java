@@ -2,16 +2,8 @@ package no.nav.foreldrepenger.domene.medlem.medl2;
 
 import java.time.LocalDate;
 
-public record Medlemskapsunntak(Long unntakId,
-                                LocalDate fraOgMed,
-                                LocalDate tilOgMed,
-                                String dekning,
-                                String grunnlag,
-                                String lovvalg,
-                                String lovvalgsland,
-                                Boolean helsedel,
-                                Boolean medlem,
-                                Sporingsinformasjon sporingsinformasjon,
+public record Medlemskapsunntak(Long unntakId, LocalDate fraOgMed, LocalDate tilOgMed, String dekning, String grunnlag, String lovvalg,
+                                String lovvalgsland, Boolean helsedel, Boolean medlem, Sporingsinformasjon sporingsinformasjon,
                                 Studieinformasjon studieinformasjon) {
 
 
@@ -27,8 +19,10 @@ public record Medlemskapsunntak(Long unntakId,
         return studieinformasjon != null ? studieinformasjon.studieland() : null;
     }
 
-    record Sporingsinformasjon( LocalDate besluttet, String kilde) { }
+    record Sporingsinformasjon(LocalDate besluttet, String kilde) {
+    }
 
-    record Studieinformasjon(String studieland) { }
+    record Studieinformasjon(String studieland) {
+    }
 
 }

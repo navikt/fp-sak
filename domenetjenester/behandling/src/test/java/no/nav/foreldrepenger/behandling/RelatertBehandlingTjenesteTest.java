@@ -53,8 +53,8 @@ class RelatertBehandlingTjenesteTest {
     @Test
     void finnesIngenRelatertFagsakReturnererOptionalEmpty() {
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(
+            farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling).isEmpty();
 
@@ -69,8 +69,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        var uttakresultat = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var uttakresultat = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(uttakresultat).isEmpty();
     }
@@ -79,8 +78,8 @@ class RelatertBehandlingTjenesteTest {
     void finnesRelatertBehandlingSomErAvslått() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.AVSLAG);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.AVSLAG);
         var morsBehandling = scenario.lagre(repositoryProvider);
 
         var behandlingsresultat = morsBehandling.getBehandlingsresultat();
@@ -93,8 +92,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        var behandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var behandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(behandling.get().getId()).isEqualTo(morsBehandling.getId());
     }
@@ -103,21 +101,20 @@ class RelatertBehandlingTjenesteTest {
     void finnerRelatertBehandling() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsBehandling = scenario.lagre(repositoryProvider);
 
         morsBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        var relatertBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(relatertBehandling).isPresent();
         assertThat(relatertBehandling.get().getId()).isEqualTo(morsBehandling.getId());
@@ -127,35 +124,35 @@ class RelatertBehandlingTjenesteTest {
     void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
 
         morsFørsteBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsFørsteBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
 
         var morRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morRevurdering.medBehandlingType(BehandlingType.REVURDERING);
         morRevurdering.medOriginalBehandling(morsFørsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         morRevurdering.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsRevurdering = morRevurdering.lagre(repositoryProvider);
 
         morsRevurdering.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsRevurdering,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsRevurdering, repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
 
-        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(
+            farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling.get().getId()).isEqualTo(morsRevurdering.getId());
     }
@@ -164,39 +161,39 @@ class RelatertBehandlingTjenesteTest {
     void skal_finne_behandling_for_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
 
         morsFørsteBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsFørsteBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
 
         var morRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morRevurdering.medBehandlingType(BehandlingType.REVURDERING);
         morRevurdering.medOriginalBehandling(morsFørsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         morRevurdering.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsRevurdering = morRevurdering.lagre(repositoryProvider);
 
         morsRevurdering.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsRevurdering,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsRevurdering, repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
 
         var farsScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         farsScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 3), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 3), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
         var farsBehandling = farsScenario.lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
 
-        var annenPartsGjeldendeBehandlingPåVedtakstidspunkt = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(farsBehandling);
+        var annenPartsGjeldendeBehandlingPåVedtakstidspunkt = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(
+            farsBehandling);
 
         assertThat(annenPartsGjeldendeBehandlingPåVedtakstidspunkt.get().getId()).isEqualTo(morsRevurdering.getId());
     }
@@ -205,35 +202,35 @@ class RelatertBehandlingTjenesteTest {
     void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
 
         morsFørsteBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsFørsteBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
 
         var morRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morRevurdering.medBehandlingType(BehandlingType.REVURDERING);
         morRevurdering.medOriginalBehandling(morsFørsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         morRevurdering.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsRevurdering = morRevurdering.lagre(repositoryProvider);
 
         morsRevurdering.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsRevurdering,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsRevurdering, repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
 
-        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+        var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(
+            farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling.get().getId()).isEqualTo(morsRevurdering.getId());
     }
@@ -242,20 +239,18 @@ class RelatertBehandlingTjenesteTest {
     void skal_finne_gjeldende_behandling_fra_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        var aktivitet = new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.FRILANS)
-                .build();
+        var aktivitet = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build();
         var uttakStart = LocalDate.of(2018, 5, 14);
-        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(uttakStart, uttakStart.plusWeeks(6).minusDays(1))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
+        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(uttakStart, uttakStart.plusWeeks(6).minusDays(1)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, aktivitet)
-                .medTrekkdager(new Trekkdager(30))
-                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
-                .medArbeidsprosent(BigDecimal.TEN).build();
+            .medTrekkdager(new Trekkdager(30))
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .build();
         var uttak = new UttakResultatPerioderEntitet();
         uttak.leggTilPeriode(uttakMødrekvote);
         morFørstegangScenario.medUttak(uttak);
@@ -264,27 +259,25 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
 
         morsFørsteBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsFørsteBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsFørsteBehandling.getId()));
 
         var morRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morRevurdering.medBehandlingType(BehandlingType.REVURDERING);
         morRevurdering.medOriginalBehandling(morsFørsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         morRevurdering.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        var aktivitet2 = new UttakAktivitetEntitet.Builder()
-                .medUttakArbeidType(UttakArbeidType.FRILANS)
-                .build();
+        var aktivitet2 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build();
         // Uttak mødrekvote
-        var uttakMødrekvote2 = new UttakResultatPeriodeEntitet.Builder(uttakStart, uttakStart.plusWeeks(6).minusDays(1))
-                .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
-                .build();
+        var uttakMødrekvote2 = new UttakResultatPeriodeEntitet.Builder(uttakStart, uttakStart.plusWeeks(6).minusDays(1)).medResultatType(
+            PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT).build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote2, aktivitet2)
-                .medTrekkdager(new Trekkdager(30))
-                .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
-                .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medTrekkdager(new Trekkdager(30))
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
         var uttak2 = new UttakResultatPerioderEntitet();
         uttak2.leggTilPeriode(uttakMødrekvote2);
         morRevurdering.medUttak(uttak2);
@@ -292,19 +285,18 @@ class RelatertBehandlingTjenesteTest {
         var morsRevurdering = morRevurdering.lagre(repositoryProvider);
 
         morsRevurdering.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(morsRevurdering,
-                repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsRevurdering, repositoryProvider.getBehandlingLåsRepository().taLås(morsRevurdering.getId()));
 
         var farsScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         farsScenario.medBehandlingVedtak()
-                .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
+            .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
         var farsBehandling = farsScenario.lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
 
-        var annenPartsGjeldendeVedtattUttaksplan = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(farsBehandling);
+        var annenPartsGjeldendeVedtattUttaksplan = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(farsBehandling);
 
         assertThat(annenPartsGjeldendeVedtattUttaksplan.get().getId()).isEqualTo(morsRevurdering.getId());
     }

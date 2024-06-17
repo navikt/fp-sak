@@ -57,17 +57,16 @@ public interface InntektArbeidYtelseTjeneste {
     Optional<InntektArbeidYtelseGrunnlag> finnGrunnlag(Long behandlingId);
 
     /**
-     *
      * @param behandlingId
      * @return Register inntekt og arbeid (Opprett for å endre eller legge til
-     *         registeropplysning)
+     * registeropplysning)
      */
     InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(Long behandlingId);
 
     /**
      * @param behandlingId
      * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til
-     *         saksbehanldet)
+     * saksbehanldet)
      */
     InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(Long behandlingId);
 
@@ -84,9 +83,9 @@ public interface InntektArbeidYtelseTjeneste {
 
     /**
      * @deprecated Denne blir lett misbrukt, siden man antagelig ønsker å gjøre mer
-     *             enn kun fjerne saksbehandlet versjon. Bruk derfor heller
-     *             {@link #lagreIayAggregat(Long, InntektArbeidYtelseAggregatBuilder)}
-     *             etter du er ferdig med alle endringer du trenger å gjøre
+     * enn kun fjerne saksbehandlet versjon. Bruk derfor heller
+     * {@link #lagreIayAggregat(Long, InntektArbeidYtelseAggregatBuilder)}
+     * etter du er ferdig med alle endringer du trenger å gjøre
      */
     @Deprecated
     void fjernSaksbehandletVersjon(Long behandlingId);

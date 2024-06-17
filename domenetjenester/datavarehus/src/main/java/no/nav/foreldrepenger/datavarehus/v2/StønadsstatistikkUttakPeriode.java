@@ -6,20 +6,13 @@ import java.time.LocalDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom,
-                                     @NotNull LocalDate tom,
-                                     PeriodeType type,
+record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom, PeriodeType type,
                                      StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
-                                     @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
-                                     Forklaring forklaring,
-                                     LocalDate søknadsdato,
+                                     @NotNull StønadsstatistikkVedtak.RettighetType rettighetType, Forklaring forklaring, LocalDate søknadsdato,
                                      boolean erUtbetaling, // Skal utbetales for perioden
-                                     int virkedager,
-                                     @NotNull StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager trekkdager,
+                                     int virkedager, @NotNull StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager trekkdager,
                                      @Valid Gradering gradering, // Perioden er gradert
                                      BigDecimal samtidigUttakProsent) {
-
-
 
 
     enum Forklaring {
@@ -60,12 +53,17 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom,
     }
 
     enum AktivitetType {
-        ARBEIDSTAKER, FRILANS, NÆRING
+        ARBEIDSTAKER,
+        FRILANS,
+        NÆRING
     }
 
-    record Gradering(AktivitetType aktivitetType, BigDecimal arbeidsprosent) {}
+    record Gradering(AktivitetType aktivitetType, BigDecimal arbeidsprosent) {
+    }
 
     enum PeriodeType {
-        UTTAK, UTSETTELSE, AVSLAG
+        UTTAK,
+        UTSETTELSE,
+        AVSLAG
     }
 }

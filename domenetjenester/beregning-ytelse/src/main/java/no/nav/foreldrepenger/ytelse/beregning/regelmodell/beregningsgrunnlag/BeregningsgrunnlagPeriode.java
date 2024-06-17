@@ -12,13 +12,12 @@ public record BeregningsgrunnlagPeriode(LocalDateInterval periode, List<Beregnin
     private static final LocalDate MAX_DATO = LocalDate.of(9999, Month.DECEMBER, 31);
 
     public BeregningsgrunnlagPeriode(LocalDate fom, LocalDate tom, List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus) {
-        this(new LocalDateInterval(fom != null ? fom : MIN_DATO, tom != null ? tom : MAX_DATO), beregningsgrunnlagPrStatus != null ? beregningsgrunnlagPrStatus : List.of());
+        this(new LocalDateInterval(fom != null ? fom : MIN_DATO, tom != null ? tom : MAX_DATO),
+            beregningsgrunnlagPrStatus != null ? beregningsgrunnlagPrStatus : List.of());
     }
 
     public List<BeregningsgrunnlagPrStatus> getBeregningsgrunnlagPrStatus(AktivitetStatus aktivitetStatus) {
-        return beregningsgrunnlagPrStatus().stream()
-                .filter(af -> aktivitetStatus.equals(af.aktivitetStatus()))
-                .toList();
+        return beregningsgrunnlagPrStatus().stream().filter(af -> aktivitetStatus.equals(af.aktivitetStatus())).toList();
     }
 
 }

@@ -24,9 +24,9 @@ public class RyddDekningsgradTjeneste {
 
     @Inject
     public RyddDekningsgradTjeneste(BehandlingLåsRepository behandlingLåsRepository,
-            BehandlingRepository behandlingRepository,
-            FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-            BehandlingsresultatRepository behandlingsresultatRepository) {
+                                    BehandlingRepository behandlingRepository,
+                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                    BehandlingsresultatRepository behandlingsresultatRepository) {
         this.behandlingLåsRepository = behandlingLåsRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;

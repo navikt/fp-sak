@@ -70,8 +70,8 @@ class FarsJustering implements ForelderFødselJustering {
 
     private boolean skalJustere(List<OppgittPeriodeEntitet> oppgittePerioder) {
         if (ønskerJustertVedFødsel && !oppgittePerioder.isEmpty()) {
-            var bareEnPeriodeFraTermin = harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
-                oppgittePerioder) && intervallRundt(termindato).isPresent();
+            var bareEnPeriodeFraTermin =
+                harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(oppgittePerioder) && intervallRundt(termindato).isPresent();
             if (bareEnPeriodeFraTermin) {
                 return true;
             }

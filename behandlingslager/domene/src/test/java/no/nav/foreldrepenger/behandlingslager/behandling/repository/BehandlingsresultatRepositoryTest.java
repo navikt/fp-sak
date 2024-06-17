@@ -59,10 +59,13 @@ class BehandlingsresultatRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository.opprettNy(fagsak);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("asdf").build();
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));

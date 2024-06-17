@@ -48,7 +48,7 @@ public class IndexClasses {
     public Index getIndex() {
 
         if ("file".equals(scanLocation.getScheme()) && scanLocation.getSchemeSpecificPart().contains("/target/")
-                && !scanLocation.getSchemeSpecificPart().endsWith(".jar")) {
+            && !scanLocation.getSchemeSpecificPart().endsWith(".jar")) {
             // må regenerere index fra fil system i IDE ved å scanne dir, ellers kan den
             // mulig være utdatert (når kjører Jetty i IDE f.eks)
             return scanIndexFromFilesystem(scanLocation);
@@ -97,25 +97,19 @@ public class IndexClasses {
         classLoaders.add(getClass().getClassLoader());
         classLoaders.add(Thread.currentThread().getContextClassLoader());
 
-        return classLoaders
-                .stream()
-                .flatMap(cl -> {
-                    try {
-                        return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
-                    } catch (IOException e2) {
-                        throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
-                    }
-                })
-                .filter(url -> {
-                    try {
-                        return String.valueOf(url.toURI()).startsWith(uriString) ||
-                                String.valueOf(url.toURI().getSchemeSpecificPart()).startsWith(uriString);
-                    } catch (URISyntaxException e1) {
-                        throw new IllegalArgumentException("Kan ikke scanne URI", e1);
-                    }
-                })
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Fant ikke jandex index for location=" + location));
+        return classLoaders.stream().flatMap(cl -> {
+            try {
+                return Collections.list(cl.getResources("META-INF/" + jandexIndexFileName)).stream();
+            } catch (IOException e2) {
+                throw new IllegalArgumentException("Kan ikke lese jandex index fil", e2);
+            }
+        }).filter(url -> {
+            try {
+                return String.valueOf(url.toURI()).startsWith(uriString) || String.valueOf(url.toURI().getSchemeSpecificPart()).startsWith(uriString);
+            } catch (URISyntaxException e1) {
+                throw new IllegalArgumentException("Kan ikke scanne URI", e1);
+            }
+        }).findFirst().orElseThrow(() -> new IllegalStateException("Fant ikke jandex index for location=" + location));
     }
 
     public List<Class<?>> getClassesWithAnnotation(Class<?> annotationClass) {

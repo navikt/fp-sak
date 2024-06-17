@@ -38,13 +38,13 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
     private static final LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
     private static final String PAYLOAD_XML = "inntektsmelding.xml";
-    private static final  AktørId AKTØR_ID = new AktørId("0000000000000");
+    private static final AktørId AKTØR_ID = new AktørId("0000000000000");
 
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private HåndterMottattDokumentTask håndterMottattDokumentTask;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private final MottattDokumentPersisterer mottattDokumentPersisterer =
-        new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
+    private final MottattDokumentPersisterer mottattDokumentPersisterer = new MottattDokumentPersisterer(
+        mock(MottattDokumentPersistertPubliserer.class));
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -55,10 +55,10 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var fristInnsendingPeriode = Period.ofWeeks(6);
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, mottattDokumentPersisterer,
-            mottatteDokumentRepository, repositoryProvider);
-        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, mottattDokumentPersisterer,
-            mottatteDokumentTjeneste, repositoryProvider);
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, mottattDokumentPersisterer, mottatteDokumentRepository,
+            repositoryProvider);
+        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, mottattDokumentPersisterer, mottatteDokumentTjeneste,
+            repositoryProvider);
         fagsakRepository = new FagsakRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
     }
@@ -79,8 +79,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         // Arrange
         var xml = new FileToStringUtil().readFile(PAYLOAD_XML);
         var fagsak = opprettFagsak();
-        var mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(fagsak.getId())
+        var mottattDokument = new MottattDokument.Builder().medFagsakId(fagsak.getId())
             .medJournalPostId(JOURNALPOST_ID)
             .medDokumentType(DOKUMENTTYPE)
             .medMottattDato(FORSENDELSE_MOTTATT)
@@ -108,8 +107,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         // Arrange
         var fagsak = opprettFagsak();
         var behandlingId = opprettBehandling(fagsak);
-        var mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(fagsak.getId())
+        var mottattDokument = new MottattDokument.Builder().medFagsakId(fagsak.getId())
             .medBehandlingId(behandlingId)
             .medJournalPostId(JOURNALPOST_ID)
             .medDokumentType(DOKUMENTTYPE)

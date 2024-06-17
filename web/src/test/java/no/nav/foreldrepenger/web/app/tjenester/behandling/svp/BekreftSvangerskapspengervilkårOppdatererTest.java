@@ -35,8 +35,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
     @Test
     void skal_sette_totrinn_ved_avslag() {
         var oppdaterer = oppdaterer();
-        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
-            Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE.getKode());
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE.getKode());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
@@ -51,8 +50,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
     @Test
     void skal_avslå_vilkår() {
         var oppdaterer = oppdaterer();
-        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
-            Avslagsårsak.SØKER_ER_IKKE_I_ARBEID.getKode());
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", Avslagsårsak.SØKER_ER_IKKE_I_ARBEID.getKode());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
@@ -65,8 +63,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         resultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
-        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(
-            VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
     @Test
@@ -86,13 +83,13 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
             .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
 
-        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(
-            VilkårUtfallType.OPPFYLT);
+        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     private BekreftSvangerskapspengervilkårOppdaterer oppdaterer() {
-        return new BekreftSvangerskapspengervilkårOppdaterer
-            ( new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository()));
+        return new BekreftSvangerskapspengervilkårOppdaterer(
+            new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class),
+                repositoryProvider.getBehandlingRepository()));
     }
 
 }

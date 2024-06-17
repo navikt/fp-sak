@@ -22,11 +22,8 @@ public class FødselsvilkåretOverstyringshåndterer extends InngangsvilkårOver
     }
 
     @Inject
-    public FødselsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET,
-                VilkårType.FØDSELSVILKÅRET_MOR,
-                inngangsvilkårTjeneste);
+    public FødselsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET, VilkårType.FØDSELSVILKÅRET_MOR, inngangsvilkårTjeneste);
     }
 
     @Override

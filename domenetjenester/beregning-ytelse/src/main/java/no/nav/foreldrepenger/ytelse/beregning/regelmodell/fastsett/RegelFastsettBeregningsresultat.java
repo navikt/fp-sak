@@ -32,8 +32,7 @@ public class RegelFastsettBeregningsresultat implements RuleService<Beregningsre
     @Override
     public Specification<BeregningsresultatRegelmodellMellomregning> getSpecification() {
         var rs = new Ruleset<BeregningsresultatRegelmodellMellomregning>();
-        return rs.beregningsRegel(FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.ID, FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.BESKRIVELSE,
-                new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder(),
-                new Beregnet());
+        return rs.beregningsRegel(FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.ID,
+            FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.BESKRIVELSE, new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder(), new Beregnet());
     }
 }

@@ -23,11 +23,13 @@ public class BehandlingLåsRepository {
     }
 
     @Inject
-    public BehandlingLåsRepository( EntityManager entityManager) {
+    public BehandlingLåsRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    /** Initialiser lås og ta lock på tilhørende database rader. */
+    /**
+     * Initialiser lås og ta lock på tilhørende database rader.
+     */
     public BehandlingLås taLås(final Long behandlingId) {
         if (behandlingId != null) {
             låsBehandling(behandlingId);
@@ -47,8 +49,7 @@ public class BehandlingLåsRepository {
 
     private void låsBehandling(final Long behandlingId) {
         // bruk native query så vi ikke går i beina på hibernate session cache og transiente data
-        entityManager
-            .createNativeQuery("select 1 from BEHANDLING beh where beh.id=:id FOR UPDATE")
+        entityManager.createNativeQuery("select 1 from BEHANDLING beh where beh.id=:id FOR UPDATE")
             .setParameter("id", behandlingId)
             .setFlushMode(FlushModeType.COMMIT)
             .getSingleResult();
@@ -56,8 +57,7 @@ public class BehandlingLåsRepository {
 
     private Long låsBehandling(final UUID eksternBehandlingRef) {
         // bruk native query så vi ikke går i beina på hibernate session cache og transiente data
-        var result = entityManager
-            .createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE")
+        var result = entityManager.createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE")
             .setParameter("uuid", eksternBehandlingRef)
             .getSingleResult();
         return ((Number) result).longValue(); // JPA tar ikke scalar output mapping direkte
@@ -78,8 +78,7 @@ public class BehandlingLåsRepository {
         var lockMode = LockModeType.PESSIMISTIC_FORCE_INCREMENT;
         Object entity = entityManager.find(Behandling.class, id);
         if (entity == null) {
-            var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.",
-                Behandling.class.getSimpleName(), id);
+            var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.", Behandling.class.getSimpleName(), id);
             throw new TekniskException("FP-131239", msg);
         }
         entityManager.lock(entity, lockMode);

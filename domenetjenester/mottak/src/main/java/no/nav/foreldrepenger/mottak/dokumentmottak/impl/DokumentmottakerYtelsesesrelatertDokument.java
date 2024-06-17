@@ -5,13 +5,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -51,21 +51,29 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     }
 
     /* TEMPLATE-metoder som må håndteres spesifikt for hver type av ytelsesdokumenter - START */
-    public abstract  void håndterIngenTidligereBehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType);
+    public abstract void håndterIngenTidligereBehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType);
 
     public abstract void håndterAvsluttetTidligereBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
 
-    public abstract void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType);
+    public abstract void oppdaterÅpenBehandlingMedDokument(Behandling behandling,
+                                                           MottattDokument mottattDokument,
+                                                           BehandlingÅrsakType behandlingÅrsakType);
 
     public abstract void håndterKøetBehandling(MottattDokument mottattDokument, Behandling køetBehandling, BehandlingÅrsakType behandlingÅrsakType);
 
-    public abstract void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType);
+    public abstract void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument,
+                                                              Fagsak fagsak,
+                                                              Behandling avsluttetBehandling,
+                                                              BehandlingÅrsakType behandlingÅrsakType);
 
     public abstract void håndterUtsattStartdato(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
 
     public abstract boolean skalOppretteKøetBehandling(Fagsak fagsak);
 
-    protected abstract void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling);
+    protected abstract void opprettKøetBehandling(MottattDokument mottattDokument,
+                                                  Fagsak fagsak,
+                                                  BehandlingÅrsakType behandlingÅrsakType,
+                                                  Behandling sisteAvsluttetBehandling);
     /* TEMPLATE-metoder SLUTT */
 
     @Override
@@ -79,14 +87,13 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
         var behandling = sisteYtelsesbehandling.get();
         var sisteYtelseErFerdigbehandlet = behandling.erSaksbehandlingAvsluttet();
-        LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
-            behandling.getId(), behandling.getStatus().getKode());
+        LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(), behandling.getId(),
+            behandling.getStatus().getKode());
         if (sisteYtelseErFerdigbehandlet) {
             var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
             behandling = sisteAvsluttetBehandling.orElse(behandling);
             // Håndter avsluttet behandling
-            if (behandlingsoppretter.erAvslåttBehandling(behandling)
-                || behandlingsoppretter.erOpphørtBehandling(behandling)) {
+            if (behandlingsoppretter.erAvslåttBehandling(behandling) || behandlingsoppretter.erOpphørtBehandling(behandling)) {
                 håndterAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, behandling, behandlingÅrsakType);
             } else if (behandlingsoppretter.erUtsattBehandling(behandling)) {
                 håndterUtsattStartdato(mottattDokument, fagsak, behandlingÅrsakType);
@@ -111,7 +118,8 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
             dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
         } else if (!skalOppretteKøetBehandling(fagsak)) {
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null,
+                mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne
         } else {
             var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
             opprettKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType, sisteAvsluttetBehandling);
@@ -120,20 +128,19 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
-        return FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) &&
-            !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) &&
-            mottattDokument.getDokumentType().erForeldrepengeSøknad() &&
-            dokumentmottakerFelles.endringSomUtsetterStartdato(mottattDokument, fagsak);
+        return FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) && !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType())
+            && mottattDokument.getDokumentType().erForeldrepengeSøknad() && dokumentmottakerFelles.endringSomUtsetterStartdato(mottattDokument,
+            fagsak);
     }
 
     @Override
     public void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) &&
-            mottattDokument.getDokumentType().erForeldrepengeSøknad()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) && mottattDokument.getDokumentType().erForeldrepengeSøknad()) {
             dokumentmottakerFelles.opprettAnnulleringsBehandlinger(mottattDokument, fagsak);
         } else {
-            throw new IllegalArgumentException(String.format("Utviklerfeil: skal ikke kalles for ytelse %s dokumenttype %s",
-                fagsak.getYtelseType().getKode(), mottattDokument.getDokumentType().getKode()));
+            throw new IllegalArgumentException(
+                String.format("Utviklerfeil: skal ikke kalles for ytelse %s dokumenttype %s", fagsak.getYtelseType().getKode(),
+                    mottattDokument.getDokumentType().getKode()));
         }
     }
 
@@ -147,8 +154,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     boolean harInnvilgetPeriode(Behandling avsluttetBehandling) {
         return fpUttakTjeneste.hentUttakHvisEksisterer(avsluttetBehandling.getId())
-            .map(uttak -> uttak.getGjeldendePerioder().stream()
-                .anyMatch(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType())))
+            .map(uttak -> uttak.getGjeldendePerioder().stream().anyMatch(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType())))
             .orElse(false);
     }
 }

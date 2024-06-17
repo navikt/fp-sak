@@ -40,6 +40,7 @@ public class OppgittOpptjening {
         // å lagring
         setOpprettetTidspunkt(LocalDateTime.now());
     }
+
     public OppgittOpptjening(OppgittOpptjening oppgittOpptjening, UUID uuid) {
         this.uuid = uuid;
         this.frilans = oppgittOpptjening.frilans != null ? new OppgittFrilans(oppgittOpptjening.frilans) : null;
@@ -146,9 +147,8 @@ public class OppgittOpptjening {
         if (!(o instanceof OppgittOpptjening that)) {
             return false;
         }
-        return Objects.equals(oppgittArbeidsforhold, that.oppgittArbeidsforhold) &&
-                Objects.equals(egenNæring, that.egenNæring) &&
-                Objects.equals(annenAktivitet, that.annenAktivitet);
+        return Objects.equals(oppgittArbeidsforhold, that.oppgittArbeidsforhold) && Objects.equals(egenNæring, that.egenNæring) && Objects.equals(
+            annenAktivitet, that.annenAktivitet);
     }
 
     @Override
@@ -158,17 +158,14 @@ public class OppgittOpptjening {
 
     @Override
     public String toString() {
-        return "OppgittOpptjeningEntitet{" +
-                "oppgittArbeidsforhold=" + oppgittArbeidsforhold +
-                ", egenNæring=" + egenNæring +
-                ", annenAktivitet=" + annenAktivitet +
-                '}';
+        return "OppgittOpptjeningEntitet{" + "oppgittArbeidsforhold=" + oppgittArbeidsforhold + ", egenNæring=" + egenNæring + ", annenAktivitet="
+            + annenAktivitet + '}';
     }
 
     /**
      * Brukes til å filtrere bort tomme oppgitt opptjening elementer ved migrering.
      * Bør ikke være nødvendig til annet.
-     *
+     * <p>
      * har minst noe av oppgitt arbeidsforhold, egen næring, annen aktivitet eller
      * frilans.
      */

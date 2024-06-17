@@ -57,7 +57,7 @@ public class AktivitetskravArbeidRepository {
         }
     }
 
-    public void  fjernGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlagEntitet) {
+    public void fjernGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlagEntitet) {
         aktivitetskravGrunnlagEntitet.deaktiver();
         entityManager.persist(aktivitetskravGrunnlagEntitet);
     }

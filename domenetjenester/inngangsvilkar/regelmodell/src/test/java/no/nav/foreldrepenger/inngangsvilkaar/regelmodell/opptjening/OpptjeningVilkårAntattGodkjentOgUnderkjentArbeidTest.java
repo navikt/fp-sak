@@ -16,7 +16,7 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
 
-    private final Aktivitet bigCorp=new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet bigCorp = new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
     private final Aktivitet smallCorp = new Aktivitet(ARBEID, "SmallCorp", Aktivitet.ReferanseType.ORGNR);
     private final Aktivitet noCorp = new Aktivitet(ARBEID, "NoCorp", Aktivitet.ReferanseType.ORGNR);
 
@@ -34,16 +34,12 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
 
         // arbeid aktivitet
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), noCorp)
-        );
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), noCorp));
         // inntekt
-        var inntekter = List.of(
-            new InntektPeriode(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L),
-            new InntektPeriode(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L)
-        );
+        var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L),
+            new InntektPeriode(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 
@@ -52,9 +48,8 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         assertThat(output.getAntattGodkjentePerioder()).isEmpty();
 
-        assertThat(output.getUnderkjentePerioder())
-                .containsEntry(bigCorp, new LocalDateTimeline<>(dt1, dt2, Boolean.TRUE))
-                .containsEntry(noCorp, new LocalDateTimeline<>(dt2, dt4, Boolean.TRUE));
+        assertThat(output.getUnderkjentePerioder()).containsEntry(bigCorp, new LocalDateTimeline<>(dt1, dt2, Boolean.TRUE))
+            .containsEntry(noCorp, new LocalDateTimeline<>(dt2, dt4, Boolean.TRUE));
 
     }
 
@@ -70,15 +65,11 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         // skal også med som antatt selv om ingen inntekter er rapportert
         var førsteArbeidsdagSmallCorp = dt3.withDayOfMonth(1);
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, dt4), smallCorp)
-        );
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, dt4), smallCorp));
         // inntekt
-        var inntekter = List.of(
-            new InntektPeriode(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L)
-        );
+        var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4, aktiviteter, inntekter);
 
@@ -87,11 +78,8 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         assertThat(output.getUnderkjentePerioder()).isEmpty();
 
-        assertThat(output.getAntattGodkjentePerioder())
-                .containsEntry(bigCorp,
-                        new LocalDateTimeline<>(dt3.plusDays(1), dt4, Boolean.TRUE))
-                .containsEntry(smallCorp,
-                        new LocalDateTimeline<>(førsteArbeidsdagSmallCorp, dt4, Boolean.TRUE));
+        assertThat(output.getAntattGodkjentePerioder()).containsEntry(bigCorp, new LocalDateTimeline<>(dt3.plusDays(1), dt4, Boolean.TRUE))
+            .containsEntry(smallCorp, new LocalDateTimeline<>(førsteArbeidsdagSmallCorp, dt4, Boolean.TRUE));
 
     }
 
@@ -106,11 +94,9 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
-        var aktiviteter = List.of(
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+        var aktiviteter = List.of(AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), smallCorp)
-        );
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), smallCorp));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, List.of());
 
@@ -123,16 +109,12 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         // Assert
 
         // sjekk underkjente perioder
-        assertThat(output.getUnderkjentePerioder())
-                .containsEntry(bigCorp, new LocalDateTimeline<>(dt1, dt2, Boolean.TRUE))
-                .containsEntry(smallCorp, new LocalDateTimeline<>(dt2, førsteAntattGodkjenteDag.minusDays(1), Boolean.TRUE))
-                ;
+        assertThat(output.getUnderkjentePerioder()).containsEntry(bigCorp, new LocalDateTimeline<>(dt1, dt2, Boolean.TRUE))
+            .containsEntry(smallCorp, new LocalDateTimeline<>(dt2, førsteAntattGodkjenteDag.minusDays(1), Boolean.TRUE));
 
         // sjekk antatt godkjente perioder
-        assertThat(output.getAntattGodkjentePerioder())
-                .containsEntry(bigCorp, new LocalDateTimeline<>(dt3, dt4, Boolean.TRUE))
-                .containsEntry(smallCorp,
-                        new LocalDateTimeline<>(førsteAntattGodkjenteDag, dt4, Boolean.TRUE));
+        assertThat(output.getAntattGodkjentePerioder()).containsEntry(bigCorp, new LocalDateTimeline<>(dt3, dt4, Boolean.TRUE))
+            .containsEntry(smallCorp, new LocalDateTimeline<>(førsteAntattGodkjenteDag, dt4, Boolean.TRUE));
 
         // sjekk at antatt og underkjent arbeid aldri overlapper
         for (var entry : output.getUnderkjentePerioder().entrySet()) {

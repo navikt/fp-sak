@@ -18,13 +18,11 @@ public class LdapUtil {
     }
 
     public static Collection<String> filtrerGrupper(Collection<String> grupper) {
-        return grupper.stream()
-            .map(LdapUtil::filterDNtoCNvalue)
-            .toList();
+        return grupper.stream().map(LdapUtil::filterDNtoCNvalue).toList();
     }
 
     private static String filterDNtoCNvalue(String value) {
-        if(value.toLowerCase(Locale.ROOT).contains("cn=")) {
+        if (value.toLowerCase(Locale.ROOT).contains("cn=")) {
             try {
                 var ldapname = new LdapName(value);
                 for (var rdn : ldapname.getRdns()) {

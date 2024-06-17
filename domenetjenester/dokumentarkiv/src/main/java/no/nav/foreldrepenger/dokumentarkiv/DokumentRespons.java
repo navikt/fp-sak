@@ -8,8 +8,12 @@ public record DokumentRespons(byte[] innhold, String contentType, String content
     @Override
     public boolean equals(Object o) {
 
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         DokumentRespons that = (DokumentRespons) o;
         return Arrays.equals(innhold, that.innhold) && Objects.equals(contentType, that.contentType) && Objects.equals(contentDisp, that.contentDisp);
     }
@@ -23,10 +27,7 @@ public record DokumentRespons(byte[] innhold, String contentType, String content
 
     @Override
     public String toString() {
-        return "DokumentRespons{" +
-                "contentType='" + contentType + '\'' +
-                ", contentDisp='" + contentDisp + '\'' +
-                '}';
+        return "DokumentRespons{" + "contentType='" + contentType + '\'' + ", contentDisp='" + contentDisp + '\'' + '}';
     }
 
 

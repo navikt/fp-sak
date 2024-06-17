@@ -22,7 +22,7 @@ public class AnkeRepository {
     }
 
     @Inject
-    public AnkeRepository( EntityManager entityManager) {
+    public AnkeRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }

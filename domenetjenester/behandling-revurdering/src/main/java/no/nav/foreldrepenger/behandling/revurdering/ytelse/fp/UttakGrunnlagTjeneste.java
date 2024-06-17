@@ -100,8 +100,7 @@ public class UttakGrunnlagTjeneste {
             .filter(a -> annenpartHarInnvilgetES(familiehendelser, a))
             .isPresent();
 
-        var grunnlag = new ForeldrepengerGrunnlag()
-            .medErBerørtBehandling(erBerørtBehandling)
+        var grunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(erBerørtBehandling)
             .medFamilieHendelser(familiehendelser)
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(harAnnenForelderES)
             .medOriginalBehandling(originalBehandling.orElse(null))
@@ -109,8 +108,7 @@ public class UttakGrunnlagTjeneste {
             .medOppdagetPleiepengerOverlappendeUtbetaling(behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER))
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
-            .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
-            ;
+            .medDødsfall(harDødsfall(behandling, familiehendelser, ref));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
@@ -162,9 +160,9 @@ public class UttakGrunnlagTjeneste {
             }
             if (annenPartBehandling.isPresent()) {
                 var opprettetTidspunkt = Optional.ofNullable(søknadRepository.hentSøknad(annenPartBehandling.get().getId()))
-                    .map(SøknadEntitet::getOpprettetTidspunkt).orElse(annenPartBehandling.get().getOpprettetTidspunkt());
-                return Optional.of(
-                    new Annenpart(annenPartBehandling.get().getId(), opprettetTidspunkt));
+                    .map(SøknadEntitet::getOpprettetTidspunkt)
+                    .orElse(annenPartBehandling.get().getOpprettetTidspunkt());
+                return Optional.of(new Annenpart(annenPartBehandling.get().getId(), opprettetTidspunkt));
             }
         }
         return Optional.empty();
@@ -179,14 +177,12 @@ public class UttakGrunnlagTjeneste {
         var gjelderFødsel = FamilieHendelseType.gjelderFødsel(familieHendelseAggregat.getGjeldendeVersjon().getType());
         var søknadFamilieHendelse = map(familieHendelseAggregat.getSøknadVersjon(), gjelderFødsel);
         var bekreftetFamilieHendelse = familieHendelseAggregat.getBekreftetVersjon().map(bfh -> map(bfh, gjelderFødsel)).orElse(null);
-        var familieHendelser = new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse)
-            .medBekreftetHendelse(bekreftetFamilieHendelse);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse).medBekreftetHendelse(bekreftetFamilieHendelse);
         var overstyrtVersjon = familieHendelseAggregat.getOverstyrtVersjon();
         //        Må sjekke om saksbehandler har dokumentert pga at overstyrt versjon av familiehendelse ikke inneholder fødselsdato hvis saksbehandler velger at fødsel ikke er dokumentert
         //        Dette skaper problemer i en revurdering etter avslag pga fødselsvilkåret, der vi trenger gjeldende fødselsdato fra forrige behandling
         //        Se TFP-1880
-        if (overstyrtVersjon.isPresent() && (!gjelderFødsel || saksbehandlerHarValgAtFødselErDokumentert(
-            overstyrtVersjon.get()))) {
+        if (overstyrtVersjon.isPresent() && (!gjelderFødsel || saksbehandlerHarValgAtFødselErDokumentert(overstyrtVersjon.get()))) {
             var overstyrtFamilieHendelse = map(overstyrtVersjon.get(), gjelderFødsel);
             familieHendelser = familieHendelser.medOverstyrtHendelse(overstyrtFamilieHendelse);
         }
@@ -200,15 +196,10 @@ public class UttakGrunnlagTjeneste {
     }
 
     private FamilieHendelse map(FamilieHendelseEntitet familieHendelseEntitet, boolean gjelderFødsel) {
-        var barna = familieHendelseEntitet.getBarna()
-            .stream()
-            .map(b -> new Barn(b.getDødsdato().orElse(null)))
-            .toList();
+        var barna = familieHendelseEntitet.getBarna().stream().map(b -> new Barn(b.getDødsdato().orElse(null))).toList();
         var antallBarn = familieHendelseEntitet.getAntallBarn();
         if (gjelderFødsel) {
-            var termindato = familieHendelseEntitet.getTerminbekreftelse()
-                .map(TerminbekreftelseEntitet::getTermindato)
-                .orElse(null);
+            var termindato = familieHendelseEntitet.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
             var fødselsdato = familieHendelseEntitet.getFødselsdato().orElse(null);
             return FamilieHendelse.forFødsel(termindato, fødselsdato, barna, antallBarn);
         } else {

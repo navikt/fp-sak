@@ -95,10 +95,9 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
         if (!(obj instanceof Sammenligningsgrunnlag other)) {
             return false;
         }
-        return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag())
-                && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
-                && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
-                && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
+        return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag()) && Objects.equals(this.getSammenligningsperiodeFom(),
+            other.getSammenligningsperiodeFom()) && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
+            && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
     }
 
     @Override
@@ -108,14 +107,9 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-                + "beregningsgrunnlag=" + beregningsgrunnlag + ", "
-                + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", "
-                + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", "
-                + "rapportertPrÅr=" + rapportertPrÅr + ", "
-                + "avvikPromille=" + avvikPromille + ", "
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "beregningsgrunnlag=" + beregningsgrunnlag + ", " + "sammenligningsperiodeFom="
+            + sammenligningsperiode.getFomDato() + ", " + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", " + "rapportertPrÅr="
+            + rapportertPrÅr + ", " + "avvikPromille=" + avvikPromille + ", " + ">";
     }
 
     void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
@@ -144,7 +138,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
         }
 
         public Builder medAvvikPromille(BigDecimal avvikPromille) {
-            if(avvikPromille != null) {
+            if (avvikPromille != null) {
                 sammenligningsgrunnlagMal.avvikPromille = avvikPromille;
             }
             return this;

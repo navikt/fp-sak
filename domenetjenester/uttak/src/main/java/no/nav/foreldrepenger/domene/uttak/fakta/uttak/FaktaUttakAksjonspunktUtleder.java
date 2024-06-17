@@ -61,23 +61,25 @@ public class FaktaUttakAksjonspunktUtleder {
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
             list.add(FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
         }
-        Optional<AktørArbeid> aktørArbeidFraRegister = input.getIayGrunnlag() == null
-            ? Optional.empty()
-            : input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
-        if (graderingPåAktivitetIkkeIBeregning(input.getBeregningsgrunnlagStatuser(), perioder) ||
-            graderingPåAktivitetIkkeIIay(aktørArbeidFraRegister, perioder)) {
+        Optional<AktørArbeid> aktørArbeidFraRegister = input.getIayGrunnlag() == null ? Optional.empty() : input.getIayGrunnlag()
+            .getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
+        if (graderingPåAktivitetIkkeIBeregning(input.getBeregningsgrunnlagStatuser(), perioder) || graderingPåAktivitetIkkeIIay(
+            aktørArbeidFraRegister, perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
-        var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
-            RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
-        ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
+        var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() || RelasjonsRolleType.erMor(
+            input.getBehandlingReferanse().relasjonRolle());
+        ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId())
+            .getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
             .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, sammenhengendeEllerMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
         return list;
     }
 
-    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeEllerMor, LocalDate avklartFUD) {
+    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder,
+                                                                boolean sammenhengendeEllerMor,
+                                                                LocalDate avklartFUD) {
         return førsteSøkteDag(perioder, sammenhengendeEllerMor).map(
             oppgittPeriodeEntitet -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriodeEntitet.getFom(), avklartFUD)).orElse(true);
     }
@@ -88,13 +90,13 @@ public class FaktaUttakAksjonspunktUtleder {
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
-    private static boolean graderingPåAktivitetIkkeIIay(Optional<AktørArbeid> aktørArbeid,
-                                                        List<OppgittPeriodeEntitet> perioder) {
+    private static boolean graderingPåAktivitetIkkeIIay(Optional<AktørArbeid> aktørArbeid, List<OppgittPeriodeEntitet> perioder) {
         var yrkesaktiviteter = aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of());
         return perioder.stream()
             .filter(OppgittPeriodeEntitet::isGradert)
             .filter(op -> op.getGraderingAktivitetType() == ARBEID && op.getArbeidsgiver() != null)
-            .anyMatch(periode -> gradererUkjentIAYAktivitet(periode, yrkesaktiviteter, finnFørsteGraderteFomArbeidsgiver(periode.getArbeidsgiver(), perioder)));
+            .anyMatch(periode -> gradererUkjentIAYAktivitet(periode, yrkesaktiviteter,
+                finnFørsteGraderteFomArbeidsgiver(periode.getArbeidsgiver(), perioder)));
     }
 
     private static LocalDate finnFørsteGraderteFomArbeidsgiver(Arbeidsgiver arbeidsgiver, List<OppgittPeriodeEntitet> perioder) {
@@ -106,7 +108,8 @@ public class FaktaUttakAksjonspunktUtleder {
             .orElseThrow();
     }
 
-    private static boolean graderingPåAktivitetIkkeIBeregning(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, List<OppgittPeriodeEntitet> perioder) {
+    private static boolean graderingPåAktivitetIkkeIBeregning(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser,
+                                                              List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
             .filter(OppgittPeriodeEntitet::isGradert)
             .anyMatch(periode -> gradererUkjentBeregningAktivitet(periode, beregningsgrunnlagStatuser));
@@ -118,7 +121,8 @@ public class FaktaUttakAksjonspunktUtleder {
 
         // Sjekker kun arbeid, antar at andre graderinger er ok
         if (søknadsperiode.getGraderingAktivitetType() == ARBEID) {
-            return iayAktiviteter.stream().filter(ya -> Objects.equals(ya.getArbeidsgiver(), søknadsperiode.getArbeidsgiver()))
+            return iayAktiviteter.stream()
+                .filter(ya -> Objects.equals(ya.getArbeidsgiver(), søknadsperiode.getArbeidsgiver()))
                 .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
                 .flatMap(Collection::stream)
                 .filter(AktivitetsAvtale::erAnsettelsesPeriode)
@@ -127,14 +131,17 @@ public class FaktaUttakAksjonspunktUtleder {
         return false;
     }
 
-    private static boolean gradererUkjentBeregningAktivitet(OppgittPeriodeEntitet søknadsperiode, Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
-        if (søknadsperiode.getGraderingAktivitetType() == ARBEID && !beregningHarArbeidsgiver(søknadsperiode.getArbeidsgiver(), beregningsgrunnlagStatuser)) {
+    private static boolean gradererUkjentBeregningAktivitet(OppgittPeriodeEntitet søknadsperiode,
+                                                            Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
+        if (søknadsperiode.getGraderingAktivitetType() == ARBEID && !beregningHarArbeidsgiver(søknadsperiode.getArbeidsgiver(),
+            beregningsgrunnlagStatuser)) {
             return true;
         }
         if (søknadsperiode.getGraderingAktivitetType() == FRILANS && !beregningHarFrilanser(beregningsgrunnlagStatuser)) {
             return true;
         }
-        return søknadsperiode.getGraderingAktivitetType() == SELVSTENDIG_NÆRINGSDRIVENDE && !beregningHarSelvstendigNæringsdrivende(beregningsgrunnlagStatuser);
+        return søknadsperiode.getGraderingAktivitetType() == SELVSTENDIG_NÆRINGSDRIVENDE && !beregningHarSelvstendigNæringsdrivende(
+            beregningsgrunnlagStatuser);
     }
 
     private static boolean beregningHarSelvstendigNæringsdrivende(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
@@ -149,10 +156,10 @@ public class FaktaUttakAksjonspunktUtleder {
         if (arbeidsgiver == null) {
             return beregningsgrunnlagStatuser.stream().anyMatch(BeregningsgrunnlagStatus::erArbeidstaker);
         }
-        return beregningsgrunnlagStatuser.stream().anyMatch(statusPeriode ->
-            statusPeriode.erArbeidstaker()
-                && statusPeriode.getArbeidsgiver().isPresent()
-                && statusPeriode.getArbeidsgiver().get().equals(arbeidsgiver)
-        );
+        return beregningsgrunnlagStatuser.stream()
+            .anyMatch(
+                statusPeriode -> statusPeriode.erArbeidstaker() && statusPeriode.getArbeidsgiver().isPresent() && statusPeriode.getArbeidsgiver()
+                    .get()
+                    .equals(arbeidsgiver));
     }
 }

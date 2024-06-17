@@ -23,8 +23,7 @@ public class BekreftTerminbekreftelseValidator {
      * @param tidligsteUtstedelseAvTerminBekreftelse - Periode for tidligst utstedelse av terminbekreftelse før termindato
      */
     @Inject
-    public BekreftTerminbekreftelseValidator(
-        @KonfigVerdi(value = "terminbekreftelse.tidligst.utstedelse.før.termin", defaultVerdi = "P18W3D") Period tidligsteUtstedelseAvTerminBekreftelse) {
+    public BekreftTerminbekreftelseValidator(@KonfigVerdi(value = "terminbekreftelse.tidligst.utstedelse.før.termin", defaultVerdi = "P18W3D") Period tidligsteUtstedelseAvTerminBekreftelse) {
         this.tidlistUtstedelseAvTerminBekreftelse = tidligsteUtstedelseAvTerminBekreftelse;
     }
 
@@ -39,7 +38,7 @@ public class BekreftTerminbekreftelseValidator {
     boolean validerUtstedtdato(BekreftTerminbekreftelseAksjonspunktDto dto) {
         var utstedtdato = dto.getUtstedtdato();
         var termindato = dto.getTermindato();
-        return Objects.nonNull(termindato) && Objects.nonNull(utstedtdato) &&
-            utstedtdato.isBefore(termindato.minus(tidlistUtstedelseAvTerminBekreftelse));
+        return Objects.nonNull(termindato) && Objects.nonNull(utstedtdato) && utstedtdato.isBefore(
+            termindato.minus(tidlistUtstedelseAvTerminBekreftelse));
     }
 }

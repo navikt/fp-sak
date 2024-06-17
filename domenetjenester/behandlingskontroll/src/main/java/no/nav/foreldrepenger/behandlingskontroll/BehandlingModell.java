@@ -16,12 +16,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /**
  * Definerer metoder for å inspisere state-machine for en gitt behandling type.
- *
+ * <p>
  * Hver behandling type er knyttet til en egen BehandlingModell.
  */
 public interface BehandlingModell {
 
-    /** Gjelder kun steg ETTER angitt steg (eksklusv angitt steg). */
+    /**
+     * Gjelder kun steg ETTER angitt steg (eksklusv angitt steg).
+     */
     Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerEtter(BehandlingStegType steg);
 
     /**
@@ -53,7 +55,9 @@ public interface BehandlingModell {
 
     BehandlingStegModell finnTidligsteStegForAksjonspunktDefinisjon(Collection<AksjonspunktDefinisjon> aksjonspunktDefinisjoner);
 
-    /** Behandling type modellen gjelder for. */
+    /**
+     * Behandling type modellen gjelder for.
+     */
     BehandlingType getBehandlingType();
 
     Stream<BehandlingStegModell> hvertSteg();
@@ -72,7 +76,7 @@ public interface BehandlingModell {
      * @param stegFørType
      * @param stegEtterType
      * @return 1 (normalt fremover), mindre enn 0 (tilbakeføring), større enn 1
-     *         (overhopp/framføring)
+     * (overhopp/framføring)
      */
     int relativStegForflytning(BehandlingStegType stegFørType, BehandlingStegType stegEtterType);
 
@@ -82,7 +86,6 @@ public interface BehandlingModell {
      *
      * @param startFraBehandlingStegType
      * @param visitor
-     *
      * @return
      */
     BehandlingStegUtfall prosesserFra(BehandlingStegType startFraBehandlingStegType, BehandlingModellVisitor visitor);

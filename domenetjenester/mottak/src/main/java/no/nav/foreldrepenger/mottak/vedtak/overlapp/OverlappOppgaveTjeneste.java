@@ -42,12 +42,13 @@ public class OverlappOppgaveTjeneste {
     }
 
     public void håndterOverlapp(List<OverlappVedtak> overlappListe, Behandling behandling) {
-        var grupperteOverlapp = overlappListe.stream()
-            .collect(Collectors.groupingBy(Gruppering::new));
-        grupperteOverlapp.entrySet().stream()
+        var grupperteOverlapp = overlappListe.stream().collect(Collectors.groupingBy(Gruppering::new));
+        grupperteOverlapp.entrySet()
+            .stream()
             .filter(e -> OverlappVedtak.OverlappYtelseType.SP.equals(e.getKey().ytelseType()))
             .forEach(e -> håndterOverlappSykepenger(e.getKey(), e.getValue(), behandling));
-        grupperteOverlapp.entrySet().stream()
+        grupperteOverlapp.entrySet()
+            .stream()
             .filter(e -> OverlappVedtak.OverlappYtelseType.BS.equals(e.getKey().ytelseType()) || Fagsystem.K9SAK.equals(e.getKey().fagsystem()))
             .forEach(e -> håndterOverlappPleieOmsorg(e.getKey(), e.getValue(), behandling));
     }
@@ -57,20 +58,18 @@ public class OverlappOppgaveTjeneste {
             return;
         }
         var system = Fagsystem.INFOTRYGD.equals(gruppering.fagsystem()) ? "Infotrygd" : "Speil";
-        var minFom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getFomDato())
-            .min(Comparator.naturalOrder()).orElseThrow();
-        var maxTom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getTomDato())
-            .max(Comparator.naturalOrder()).orElseThrow();
+        var minFom = overlappListe.stream().map(periode -> periode.getPeriode().getFomDato()).min(Comparator.naturalOrder()).orElseThrow();
+        var maxTom = overlappListe.stream().map(periode -> periode.getPeriode().getTomDato()).max(Comparator.naturalOrder()).orElseThrow();
         var foreldrepengerYtelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
         var maxUtbetalingsprosent = overlappListe.stream()
             .map(OverlappVedtak::getFpsakUtbetalingsprosent)
-            .max(Comparator.naturalOrder()).orElse(100L);
+            .max(Comparator.naturalOrder())
+            .orElse(100L);
 
         // Beskrivelse må tilpasses dersom / når det skal opprettes oppgaver ved overlapp mot Infotrygd
-        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i %s. Vurder konsekvens for ytelse.",
-            foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom, system );
+        var beskrivelse = String.format(
+            "Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i %s. Vurder konsekvens for ytelse.", foreldrepengerYtelse,
+            maxUtbetalingsprosent, minFom, maxTom, system);
         oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
 
     }
@@ -79,25 +78,24 @@ public class OverlappOppgaveTjeneste {
         if (overlappListe.isEmpty()) {
             return;
         }
-        var minFom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getFomDato())
-            .min(Comparator.naturalOrder()).orElseThrow();
-        var maxTom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getTomDato())
-            .max(Comparator.naturalOrder()).orElseThrow();
+        var minFom = overlappListe.stream().map(periode -> periode.getPeriode().getFomDato()).min(Comparator.naturalOrder()).orElseThrow();
+        var maxTom = overlappListe.stream().map(periode -> periode.getPeriode().getTomDato()).max(Comparator.naturalOrder()).orElseThrow();
         var foreldrepengerYtelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
         var maxUtbetalingsprosent = overlappListe.stream()
             .map(OverlappVedtak::getFpsakUtbetalingsprosent)
-            .max(Comparator.naturalOrder()).orElse(100L);
+            .max(Comparator.naturalOrder())
+            .orElse(100L);
         var omsorgspengerYtelse = omsorgspengerYtelse(gruppering);
 
         if (Fagsystem.K9SAK.equals(gruppering.fagsystem())) {
-            var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med %s sak %s i periode %s - %s i K9-sak. Vurder konsekvens for ytelse.",
-                    foreldrepengerYtelse, maxUtbetalingsprosent, omsorgspengerYtelse, gruppering.saksnummer(), minFom, maxTom );
+            var beskrivelse = String.format(
+                "Det er innvilget %s (%s%%) som overlapper med %s sak %s i periode %s - %s i K9-sak. Vurder konsekvens for ytelse.",
+                foreldrepengerYtelse, maxUtbetalingsprosent, omsorgspengerYtelse, gruppering.saksnummer(), minFom, maxTom);
             oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
         } else {
-            var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med pleiepenger i periode %s - %s i Infotrygd. Vurder konsekvens for ytelse.",
-                    foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom );
+            var beskrivelse = String.format(
+                "Det er innvilget %s (%s%%) som overlapper med pleiepenger i periode %s - %s i Infotrygd. Vurder konsekvens for ytelse.",
+                foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom);
             oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
         }
     }

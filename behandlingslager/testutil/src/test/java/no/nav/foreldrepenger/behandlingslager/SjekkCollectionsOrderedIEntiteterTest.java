@@ -22,7 +22,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
-/** Lagt til web for å sjekke orm filer fra alle moduler. */
+/**
+ * Lagt til web for å sjekke orm filer fra alle moduler.
+ */
 class SjekkCollectionsOrderedIEntiteterTest {
 
     private static final EntityManagerFactory entityManagerFactory;
@@ -52,8 +54,11 @@ class SjekkCollectionsOrderedIEntiteterTest {
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
         var managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
-        return managedTypes.stream().map(Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
-                .filter(filter).collect(Collectors.toSet());
+        return managedTypes.stream()
+            .map(Type::getJavaType)
+            .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+            .filter(filter)
+            .collect(Collectors.toSet());
     }
 
     @ParameterizedTest

@@ -16,8 +16,7 @@ public class OpptjeningsperiodeMellomregning {
     public OpptjeningsperiodeMellomregning() {
     }
 
-    public OpptjeningsperiodeMellomregning(OpptjeningsperiodeGrunnlag grunnlag,
-                                           OpptjeningsperiodevilkårParametre regelParametre) {
+    public OpptjeningsperiodeMellomregning(OpptjeningsperiodeGrunnlag grunnlag, OpptjeningsperiodevilkårParametre regelParametre) {
         this.grunnlag = grunnlag;
         this.regelParametre = regelParametre;
     }

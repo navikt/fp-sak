@@ -32,8 +32,7 @@ public class VedlikeholdAdressebeskyttelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        @SuppressWarnings("unused")
-        var aktørId = new AktørId(prosessTaskData.getAktørId());
+        @SuppressWarnings("unused") var aktørId = new AktørId(prosessTaskData.getAktørId());
         /*
          * Placeholder for håndtering av adressebeskyttelsehendelser og øvrige tilfelle av oppdaget adressebeskyttelse
          * - maskere adresser for bruker

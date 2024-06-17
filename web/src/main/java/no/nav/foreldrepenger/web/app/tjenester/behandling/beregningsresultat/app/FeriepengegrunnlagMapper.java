@@ -23,9 +23,7 @@ public final class FeriepengegrunnlagMapper {
         if (feriepengerPrÅr.isEmpty()) {
             return Optional.empty();
         }
-        var andeler = feriepengerPrÅr.stream()
-            .map(FeriepengegrunnlagMapper::mapAndel)
-            .toList();
+        var andeler = feriepengerPrÅr.stream().map(FeriepengegrunnlagMapper::mapAndel).toList();
         return Optional.of(new FeriepengegrunnlagDto(andeler));
 
     }

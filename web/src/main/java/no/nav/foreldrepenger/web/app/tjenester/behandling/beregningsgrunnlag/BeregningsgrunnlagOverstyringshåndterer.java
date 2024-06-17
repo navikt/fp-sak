@@ -50,15 +50,14 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto,
-                                                  Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
         var input = tjeneste.lagInput(behandling.getId());
         beregningHåndterer.håndterBeregningsgrunnlagOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsgrunnlagDto(dto));
         // Lag historikk
         var builder = OppdateringResultat.utenTransisjon();
-        fjernOverstyrtAksjonspunkt(behandling)
-            .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        fjernOverstyrtAksjonspunkt(behandling).ifPresent(
+            ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }
 
@@ -68,8 +67,8 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.FORESLÅTT);
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(),
+            behandling.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT);
         var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
         faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
     }

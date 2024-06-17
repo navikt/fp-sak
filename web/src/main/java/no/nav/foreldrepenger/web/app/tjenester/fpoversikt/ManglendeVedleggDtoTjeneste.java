@@ -50,10 +50,7 @@ class ManglendeVedleggDtoTjeneste {
     }
 
     private List<DokumentTyperDto> tilDto(List<ManglendeVedlegg> manglendeVedleggs) {
-        return manglendeVedleggs.stream()
-            .map(ManglendeVedlegg::getDokumentType)
-            .map(ManglendeVedleggDtoTjeneste::tilRelevantDokumenttypeID)
-            .toList();
+        return manglendeVedleggs.stream().map(ManglendeVedlegg::getDokumentType).map(ManglendeVedleggDtoTjeneste::tilRelevantDokumenttypeID).toList();
     }
 
     private static DokumentTyperDto tilRelevantDokumenttypeID(DokumentTypeId dokumentTypeId) {

@@ -42,7 +42,7 @@ class KlageNfpStegTest {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         var klageBehandling = scenario.lagMocked();
         var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
-                new BehandlingLås(klageBehandling.getId()));
+            new BehandlingLås(klageBehandling.getId()));
 
         // Act
         var behandlingStegResultat = steg.utførSteg(kontekst);
@@ -63,7 +63,7 @@ class KlageNfpStegTest {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         var klageBehandling = scenario.lagMocked();
         var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
-                new BehandlingLås(klageBehandling.getId()));
+            new BehandlingLås(klageBehandling.getId()));
         var repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
         steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), behandlendeEnhetTjeneste);
 

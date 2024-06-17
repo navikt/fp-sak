@@ -126,11 +126,9 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA, PersonstatusType.BOSA);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO);
-        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_9_2_A) // hjemlet i bokstav a
-                .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
-                .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO)
-                .build();
+        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_9_2_A) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
+            .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO).build();
 
         scenario.leggTilMedlemskapPeriode(gyldigPeriodeUnderFødsel);
         var behandling = scenario.lagre(provider);
@@ -149,11 +147,9 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA, PersonstatusType.BOSA);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO);
-        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_6) // hjemlet i bokstav a
-                .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
-                .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO)
-                .build();
+        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder().medDekningType(MedlemskapDekningType.FTL_2_6) // hjemlet i bokstav a
+            .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
+            .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO).build();
 
         scenario.leggTilMedlemskapPeriode(gyldigPeriodeUnderFødsel);
         var behandling = scenario.lagre(provider);
@@ -168,11 +164,10 @@ class AvklarOmErBosattTest {
     @Test
     void skal_opprette_aksjonspunkt_dersom_minst_to_av_spørsmål_til_bruker_om_tilknytning_er_nei() {
         // Arrange
-        var oppholdUtlandForrigePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(true)
-                .medLand(Landkoder.BEL)
-                .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO.plusYears(1))
-                .build();
+        var oppholdUtlandForrigePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(true)
+            .medLand(Landkoder.BEL)
+            .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO.plusYears(1))
+            .build();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
@@ -194,16 +189,13 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
-        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.SWE)
-                .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusYears(2))
-                .build();
+        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.SWE)
+            .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusYears(2))
+            .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
-        scenario.medOppgittTilknytning()
-                .medOpphold(List.of(fremtidigOppholdISverige))
-                .medOppholdNå(true);
+        scenario.medOppgittTilknytning().medOpphold(List.of(fremtidigOppholdISverige)).medOppholdNå(true);
         var behandling = scenario.lagre(provider);
 
         // Act
@@ -221,34 +213,28 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
-        var swe = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.SWE)
-                .medPeriode(SKJÆRINGSDATO.plusDays(0), SKJÆRINGSDATO.plusMonths(2))
-                .build();
+        var swe = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.SWE)
+            .medPeriode(SKJÆRINGSDATO.plusDays(0), SKJÆRINGSDATO.plusMonths(2))
+            .build();
 
-        var usa = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.USA)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(2), SKJÆRINGSDATO.plusMonths(4))
-                .build();
+        var usa = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.USA)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(2), SKJÆRINGSDATO.plusMonths(4))
+            .build();
 
-        var bel = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.BEL)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(4), SKJÆRINGSDATO.plusMonths(6))
-                .build();
+        var bel = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.BEL)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(4), SKJÆRINGSDATO.plusMonths(6))
+            .build();
 
-        var png = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.PNG)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(6), SKJÆRINGSDATO.plusMonths(8))
-                .build();
+        var png = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.PNG)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(6), SKJÆRINGSDATO.plusMonths(8))
+            .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
-        scenario.medOppgittTilknytning()
-                .medOpphold(List.of(swe, usa, bel, png))
-                .medOppholdNå(true);
+        scenario.medOppgittTilknytning().medOpphold(List.of(swe, usa, bel, png)).medOppholdNå(true);
         var behandling = scenario.lagre(provider);
 
         // Act
@@ -266,34 +252,28 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
-        var swe = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.SWE)
-                .medPeriode(SKJÆRINGSDATO.plusDays(0), SKJÆRINGSDATO.plusMonths(2))
-                .build();
+        var swe = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.SWE)
+            .medPeriode(SKJÆRINGSDATO.plusDays(0), SKJÆRINGSDATO.plusMonths(2))
+            .build();
 
-        var usa = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.USA)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(2), SKJÆRINGSDATO.plusMonths(4))
-                .build();
+        var usa = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.USA)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(2), SKJÆRINGSDATO.plusMonths(4))
+            .build();
 
-        var bel = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.BEL)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(4), SKJÆRINGSDATO.plusMonths(6))
-                .build();
+        var bel = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.BEL)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(4), SKJÆRINGSDATO.plusMonths(6))
+            .build();
 
-        var png = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.PNG)
-                .medPeriode(SKJÆRINGSDATO.plusMonths(6), SKJÆRINGSDATO.plusMonths(15))
-                .build();
+        var png = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.PNG)
+            .medPeriode(SKJÆRINGSDATO.plusMonths(6), SKJÆRINGSDATO.plusMonths(15))
+            .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
-        scenario.medOppgittTilknytning()
-                .medOpphold(List.of(swe, usa, bel, png))
-                .medOppholdNå(true);
+        scenario.medOppgittTilknytning().medOpphold(List.of(swe, usa, bel, png)).medOppholdNå(true);
         var behandling = scenario.lagre(provider);
 
         // Act
@@ -309,16 +289,13 @@ class AvklarOmErBosattTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittTilknytning();
 
-        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.SWE)
-                .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusYears(2))
-                .build();
+        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.SWE)
+            .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusYears(2))
+            .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
-        scenario.medOppgittTilknytning()
-                .medOpphold(List.of(fremtidigOppholdISverige))
-                .medOppholdNå(true);
+        scenario.medOppgittTilknytning().medOpphold(List.of(fremtidigOppholdISverige)).medOppholdNå(true);
         var behandling = scenario.lagre(provider);
 
         // Act
@@ -336,16 +313,13 @@ class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medDefaultSøknadTerminbekreftelse();
 
-        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(false)
-                .medLand(Landkoder.SWE)
-                .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusMonths(9))
-                .build();
+        var fremtidigOppholdISverige = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(false)
+            .medLand(Landkoder.SWE)
+            .medPeriode(SKJÆRINGSDATO.plusDays(20), SKJÆRINGSDATO.plusMonths(9))
+            .build();
 
         leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
-        scenario.medOppgittTilknytning()
-                .medOpphold(List.of(fremtidigOppholdISverige))
-                .medOppholdNå(true);
+        scenario.medOppgittTilknytning().medOpphold(List.of(fremtidigOppholdISverige)).medOppholdNå(true);
         var behandling = scenario.lagre(provider);
 
         // Act
@@ -374,11 +348,10 @@ class AvklarOmErBosattTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, AdresseType adresseType, Landkoder adresseLand, PersonstatusType personstatus) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
-        var persona = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
-                .personstatus(personstatus)
-                .statsborgerskap(adresseLand);
+        var persona = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
+            .personstatus(personstatus)
+            .statsborgerskap(adresseLand);
 
         var adresseBuilder = PersonAdresse.builder().adresselinje1("Portveien 2").land(adresseLand);
         persona.adresse(adresseType, adresseBuilder);
@@ -390,6 +363,7 @@ class AvklarOmErBosattTest {
         return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO)
             .medUtledetMedlemsintervall(new LocalDateInterval(SKJÆRINGSDATO.minusWeeks(4), SKJÆRINGSDATO.plusWeeks(4)))
-            .medFørsteUttaksdato(SKJÆRINGSDATO).build());
+            .medFørsteUttaksdato(SKJÆRINGSDATO)
+            .build());
     }
 }

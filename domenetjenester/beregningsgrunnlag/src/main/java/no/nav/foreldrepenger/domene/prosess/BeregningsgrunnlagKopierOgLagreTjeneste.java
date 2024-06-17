@@ -92,14 +92,11 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     public void fastsettBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.fastsettBeregningsgrunnlag(
-            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
-                BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG));
+            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input, BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG));
         var beregningsgrunnlag = beregningResultatAggregat.getBeregningsgrunnlagGrunnlag()
             .getBeregningsgrunnlagHvisFinnes()
-            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
-                beregningsgrunnlagFraKalkulus,
-                beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-                beregningResultatAggregat.getRegelSporingAggregat()))
+            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus,
+                beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat()))
             .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
         beregningsgrunnlagRepository.lagre(behandlingId, beregningsgrunnlag, FASTSATT);
     }
@@ -113,45 +110,37 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
             (VurderRefusjonBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
                 BehandlingStegType.VURDER_REF_BERGRUNN));
-        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
+        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
             beregningResultatAggregat.getRegelSporingAggregat());
-        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
-            BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag),
+            VURDERT_REFUSJON);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderVilkårBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderBeregningsgrunnlagvilkår(
-            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
-                BehandlingStegType.VURDER_VILKAR_BERGRUNN));
-        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
+            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input, BehandlingStegType.VURDER_VILKAR_BERGRUNN));
+        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
             beregningResultatAggregat.getRegelSporingAggregat());
-        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
-            BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_VILKÅR);
+        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag),
+            VURDERT_VILKÅR);
         var beregningsgrunnlagVilkårOgAkjonspunktResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
         beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(getVilkårResultat(beregningResultatAggregat),
-            getRegelEvalueringVilkårvurdering(beregningResultatAggregat),
-            getRegelInputVilkårvurdering(beregningResultatAggregat));
+            getRegelEvalueringVilkårvurdering(beregningResultatAggregat), getRegelInputVilkårvurdering(beregningResultatAggregat));
         return beregningsgrunnlagVilkårOgAkjonspunktResultat;
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat fordelBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
-        var fordelInput = (FordelBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId, input, BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG);
+        var fordelInput = (FordelBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
+            BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG);
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.fordelBeregningsgrunnlag(fordelInput);
-        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlag(),
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-            beregningResultatAggregat.getRegelSporingAggregat());
+        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
     private boolean getVilkårResultat(BeregningResultatAggregat beregningResultatAggregat) {
@@ -175,62 +164,46 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         if (regelSporingPerioder.isEmpty()) {
             return Optional.empty();
         }
-        var førstePeriode = beregningResultatAggregat.getBeregningsgrunnlag()
-            .getBeregningsgrunnlagPerioder()
-            .get(0)
-            .getPeriode();
+        var førstePeriode = beregningResultatAggregat.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().get(0).getPeriode();
         return regelSporingPerioder.stream()
-            .filter(p -> p.periode().overlapper(førstePeriode) && p.regelType()
-                .equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
+            .filter(p -> p.periode().overlapper(førstePeriode) && p.regelType().equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
             .findFirst();
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBesteberegning(BeregningsgrunnlagInput input) {
 
         var behandlingId = input.getKoblingReferanse().getKoblingId();
-        var foreslåBeregningsgrunnlagInput = (ForeslåBesteberegningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId, input, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
-        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(
-            foreslåBeregningsgrunnlagInput);
-        var nyttBg = BesteberegningMapper.mapBeregningsgrunnlagMedBesteberegning(
-            beregningResultatAggregat.getBeregningsgrunnlag(),
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-            beregningResultatAggregat.getRegelSporingAggregat(),
+        var foreslåBeregningsgrunnlagInput = (ForeslåBesteberegningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId,
+            input, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(foreslåBeregningsgrunnlagInput);
+        var nyttBg = BesteberegningMapper.mapBeregningsgrunnlagMedBesteberegning(beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat(),
             beregningResultatAggregat.getBesteberegningVurderingGrunnlag());
 
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
-        var foreslåBeregningsgrunnlagInput = (ForeslåBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId, input, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
-        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlag(
-            foreslåBeregningsgrunnlagInput);
-        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlag(),
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-            beregningResultatAggregat.getRegelSporingAggregat());
+        var foreslåBeregningsgrunnlagInput = (ForeslåBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId,
+            input, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlag(foreslåBeregningsgrunnlagInput);
+        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT, FORESLÅTT_UT);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat fortsettForeslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var foreslåBeregningsgrunnlag2Input = (FortsettForeslåBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
             behandlingId, input, BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG);
-        var beregningResultatAggregat = beregningsgrunnlagTjeneste.fortsettForeslåBeregningsgrunnlag(
-            foreslåBeregningsgrunnlag2Input);
-        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlag(),
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-            beregningResultatAggregat.getRegelSporingAggregat());
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.fortsettForeslåBeregningsgrunnlag(foreslåBeregningsgrunnlag2Input);
+        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT_2, FORESLÅTT_2_UT);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
     public RyddBeregningsgrunnlag getRyddBeregningsgrunnlag(BehandlingskontrollKontekst kontekst) {
@@ -239,12 +212,10 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     public Set<BeregningAvklaringsbehovResultat> kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
-        var faktaOmBeregningInput = (FaktaOmBeregningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId, input, BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
-        var beregningResultatAggregat = beregningsgrunnlagTjeneste.kontrollerFaktaBeregningsgrunnlag(
-            faktaOmBeregningInput);
-        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
-            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
+        var faktaOmBeregningInput = (FaktaOmBeregningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
+            BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.kontrollerFaktaBeregningsgrunnlag(faktaOmBeregningInput);
+        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
             beregningResultatAggregat.getRegelSporingAggregat());
         var nyttBg = nyttGrunnlag.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
         lagreOgKopier(input, beregningResultatAggregat, nyttBg);
@@ -261,34 +232,28 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         Stream.of(BeregningsgrunnlagTilstand.values())
             .filter(tilstand -> tilstand.erFør(gjeldendeTilstand) || tilstand.equals(gjeldendeTilstand))
             .sorted(TILSTAND_COMPARATOR)
-            .forEach(
-                tilstand -> beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,
-                    behandlingId, tilstand));
+            .forEach(tilstand -> beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, behandlingId, tilstand));
     }
 
     public void kopierResultatForGRegulering(Long originalBehandlingId, Long behandlingId, LocalDate førsteUttaksdato) {
         Stream.of(BeregningsgrunnlagTilstand.values())
             .filter(tilstand -> tilstand.erFør(KOFAKBER_UT) || tilstand.equals(KOFAKBER_UT))
             .sorted(TILSTAND_COMPARATOR)
-            .forEach(tilstand -> beregningsgrunnlagRepository.oppdaterGrunnlagMedGrunnbeløp(originalBehandlingId,
-                behandlingId, tilstand, førsteUttaksdato));
+            .forEach(tilstand -> beregningsgrunnlagRepository.oppdaterGrunnlagMedGrunnbeløp(originalBehandlingId, behandlingId, tilstand,
+                førsteUttaksdato));
     }
 
     /**
      * Kun til test, overgang til ft-kalkulus.
      */
-    public void lagreBeregningsgrunnlag(Long behandlingId,
-                                        BeregningsgrunnlagEntitet beregningsgrunnlag,
-                                        BeregningsgrunnlagTilstand tilstand) {
+    public void lagreBeregningsgrunnlag(Long behandlingId, BeregningsgrunnlagEntitet beregningsgrunnlag, BeregningsgrunnlagTilstand tilstand) {
         beregningsgrunnlagRepository.lagre(behandlingId, beregningsgrunnlag, tilstand);
     }
 
-    private Optional<BeregningsgrunnlagEntitet> finnForrigeBgFraTilstand(BeregningsgrunnlagInput input,
-                                                                         BeregningsgrunnlagTilstand tilstandFraSteg) {
+    private Optional<BeregningsgrunnlagEntitet> finnForrigeBgFraTilstand(BeregningsgrunnlagInput input, BeregningsgrunnlagTilstand tilstandFraSteg) {
         var behandlingReferanse = input.getKoblingReferanse();
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandlingReferanse.getKoblingId(), behandlingReferanse.getOriginalKoblingId(), tilstandFraSteg)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingReferanse.getKoblingId(),
+            behandlingReferanse.getOriginalKoblingId(), tilstandFraSteg).flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
     }
 
     private void lagreOgKopier(BeregningsgrunnlagInput input,
@@ -301,8 +266,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         var forrigeStegGrunnlag = finnForrigeBgFraTilstand(input, stegtilstand);
         var forrigeBekreftetGrunnlag = finnForrigeBekreftetGrunnlag(input, forrigeStegGrunnlag, bekreftetTilstand);
         var kanKopiereBekreftet = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater(), nyttBg, forrigeStegGrunnlag,
-            forrigeBekreftetGrunnlag);
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater(), nyttBg, forrigeStegGrunnlag, forrigeBekreftetGrunnlag);
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, stegtilstand);
         if (kanKopiereBekreftet) {
             forrigeBekreftetGrunnlag.map(BeregningsgrunnlagEntitet::new)
@@ -318,23 +282,20 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         }
         var behandlingId = input.getKoblingId();
         return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId,
-            forrigeStegGrunnlag.get().getOpprettetTidspunkt(), tilstand)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+            forrigeStegGrunnlag.get().getOpprettetTidspunkt(), tilstand).flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
     }
 
-    private Set<BeregningAvklaringsbehovResultat> lagreOgKopier(KoblingReferanse ref,
-                                                              BeregningResultatAggregat resultat) {
+    private Set<BeregningAvklaringsbehovResultat> lagreOgKopier(KoblingReferanse ref, BeregningResultatAggregat resultat) {
         var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag(),
             resultat.getRegelSporingAggregat());
-        var forrigeBekreftetGrunnlag = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(
-            ref.getKoblingId(), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+        var forrigeBekreftetGrunnlag = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(),
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         var beregningAksjonspunktResultater = resultat.getBeregningAvklaringsbehovResultater();
-        var kanKopiereGrunnlag = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
-            beregningAksjonspunktResultater, nyttGrunnlag,
-            beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(),
-                BeregningsgrunnlagTilstand.OPPRETTET), forrigeBekreftetGrunnlag);
-        beregningsgrunnlagRepository.lagre(ref.getKoblingId(),
-            BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), BeregningsgrunnlagTilstand.OPPRETTET);
+        var kanKopiereGrunnlag = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(beregningAksjonspunktResultater, nyttGrunnlag,
+            beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(), BeregningsgrunnlagTilstand.OPPRETTET),
+            forrigeBekreftetGrunnlag);
+        beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag),
+            BeregningsgrunnlagTilstand.OPPRETTET);
         if (kanKopiereGrunnlag) {
             forrigeBekreftetGrunnlag.ifPresent(
                 gr -> beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.kopi(gr),
@@ -343,24 +304,18 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return beregningAksjonspunktResultater;
     }
 
-    private void lagreOgKopier(BeregningsgrunnlagInput input,
-                               BeregningResultatAggregat beregningResultatAggregat,
-                               BeregningsgrunnlagEntitet nyttBg) {
+    private void lagreOgKopier(BeregningsgrunnlagInput input, BeregningResultatAggregat beregningResultatAggregat, BeregningsgrunnlagEntitet nyttBg) {
         var ref = input.getKoblingReferanse();
         var behandlingId = ref.getKoblingId();
         var forrigeGrunnlagFraSteg = finnForrigeBgFraTilstand(input, OPPDATERT_MED_ANDELER);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = forrigeGrunnlagFraSteg.isPresent()
-            ? beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(ref.getKoblingId(), ref.getOriginalKoblingId(),
-            forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), KOFAKBER_UT)
-            : Optional.empty();
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = forrigeGrunnlagFraSteg.isPresent() ? beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(
+            ref.getKoblingId(), ref.getOriginalKoblingId(), forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), KOFAKBER_UT) : Optional.empty();
         var kanKopiereFraBekreftet = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater(), nyttBg,
-            forrigeGrunnlagFraSteg,
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater(), nyttBg, forrigeGrunnlagFraSteg,
             forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, OPPDATERT_MED_ANDELER);
         if (kanKopiereFraBekreftet) {
-            beregningsgrunnlagRepository.lagre(behandlingId,
-                BeregningsgrunnlagGrunnlagBuilder.kopi(forrigeBekreftetGrunnlag), KOFAKBER_UT);
+            beregningsgrunnlagRepository.lagre(behandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(forrigeBekreftetGrunnlag), KOFAKBER_UT);
         }
     }
 

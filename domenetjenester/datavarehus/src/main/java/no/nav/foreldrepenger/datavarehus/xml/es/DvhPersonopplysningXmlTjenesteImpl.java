@@ -56,11 +56,11 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     @Inject
     public DvhPersonopplysningXmlTjenesteImpl(PersonopplysningXmlFelles fellesTjeneste,
-                                                       FamilieHendelseRepository familieHendelseRepository,
-                                                       VergeRepository vergeRepository,
-                                                       MedlemskapRepository medlemskapRepository,
-                                                       PersonopplysningTjeneste personopplysningTjeneste,
-                                                       InntektArbeidYtelseTjeneste iayTjeneste) {
+                                              FamilieHendelseRepository familieHendelseRepository,
+                                              VergeRepository vergeRepository,
+                                              MedlemskapRepository medlemskapRepository,
+                                              PersonopplysningTjeneste personopplysningTjeneste,
+                                              InntektArbeidYtelseTjeneste iayTjeneste) {
         super(personopplysningTjeneste);
         personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
@@ -70,7 +70,9 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     }
 
     @Override
-    public Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat, Long behandlingId, AktørId aktørId,
+    public Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat,
+                                      Long behandlingId,
+                                      AktørId aktørId,
                                       Skjæringstidspunkt skjæringstidspunkter) {
         var personopplysninger = personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenad();
         var familieHendelseAggregatOptional = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
@@ -94,13 +96,16 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         return personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenad(personopplysninger);
     }
 
-    private void setRelaterteYtelser(Long behandlingId, AktørId aktørId, PersonopplysningerDvhEngangsstoenad personopplysninger, LocalDate skjæringstidspunkt) {
+    private void setRelaterteYtelser(Long behandlingId,
+                                     AktørId aktørId,
+                                     PersonopplysningerDvhEngangsstoenad personopplysninger,
+                                     LocalDate skjæringstidspunkt) {
         var ytelseFilter = iayTjeneste.finnGrunnlag(behandlingId)
-            .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
+            .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt))
+            .orElse(YtelseFilter.EMPTY);
         var ytelser = ytelseFilter.getFiltrertYtelser();
         if (!ytelser.isEmpty()) {
-            var relaterteYtelse = personopplysningDvhObjectFactory
-                .createPersonopplysningerDvhEngangsstoenadRelaterteYtelser();
+            var relaterteYtelse = personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenadRelaterteYtelser();
             personopplysninger.setRelaterteYtelser(relaterteYtelse);
         }
     }
@@ -134,8 +139,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         iayTjeneste.finnGrunnlag(behandlingId).ifPresent(grunnlag -> {
             var aktørInntekt = grunnlag.getAlleAktørInntektFraRegister();
             if (aktørInntekt != null) {
-                var inntekterPersonopplysning = personopplysningDvhObjectFactory
-                    .createPersonopplysningerDvhEngangsstoenadInntekter();
+                var inntekterPersonopplysning = personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenadInntekter();
                 aktørInntekt.forEach(inntekt -> {
                     var filter = new InntektFilter(inntekt).før(skjæringstidspunkt).filterPensjonsgivende();
                     inntekterPersonopplysning.getInntekt().addAll(lagInntekt(inntekt.getAktørId(), filter));
@@ -161,16 +165,15 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         return inntektList;
     }
 
-    private void setTerminbekreftelse(PersonopplysningerDvhEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    private void setTerminbekreftelse(PersonopplysningerDvhEngangsstoenad personopplysninger,
+                                      FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag.getGjeldendeVersjon().getType().equals(FamilieHendelseType.TERMIN)) {
-            var terminbekreftelseOptional = familieHendelseGrunnlag
-                .getGjeldendeTerminbekreftelse();
+            var terminbekreftelseOptional = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
             terminbekreftelseOptional.ifPresent(terminbekreftelseFraBehandling -> {
                 var terminbekreftelse = personopplysningDvhObjectFactory.createTerminbekreftelse();
                 terminbekreftelse.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(familieHendelseGrunnlag.getGjeldendeAntallBarn()));
 
-                VedtakXmlUtil.lagDateOpplysning(terminbekreftelseFraBehandling.getUtstedtdato())
-                    .ifPresent(terminbekreftelse::setUtstedtDato);
+                VedtakXmlUtil.lagDateOpplysning(terminbekreftelseFraBehandling.getUtstedtdato()).ifPresent(terminbekreftelse::setUtstedtDato);
 
                 VedtakXmlUtil.lagDateOpplysning(terminbekreftelseFraBehandling.getTermindato()).ifPresent(terminbekreftelse::setTermindato);
 
@@ -179,7 +182,8 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         }
     }
 
-    private void setOmsorgovertakelse(PersonopplysningerDvhEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    private void setOmsorgovertakelse(PersonopplysningerDvhEngangsstoenad personopplysninger,
+                                      FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag.getGjeldendeVersjon().getType().equals(FamilieHendelseType.OMSORG)) {
             familieHendelseGrunnlag.getGjeldendeAdopsjon().ifPresent(adopsjonFraBehandling -> {
                 var omsorgsovertakelse = personopplysningDvhObjectFactory.createOmsorgsovertakelse();
@@ -194,11 +198,11 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setMedlemskapsperioder(Long behandlingId, PersonopplysningerDvhEngangsstoenad personopplysninger) {
         medlemskapRepository.hentMedlemskap(behandlingId).ifPresent(medlemskapperioderFraBehandling -> {
-            var medlemskapsperioder = personopplysningDvhObjectFactory
-                .createPersonopplysningerDvhEngangsstoenadMedlemskapsperioder();
+            var medlemskapsperioder = personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenadMedlemskapsperioder();
             personopplysninger.setMedlemskapsperioder(medlemskapsperioder);
             medlemskapperioderFraBehandling.getRegistrertMedlemskapPerioder()
-                .forEach(medlemskapsperiode -> personopplysninger.getMedlemskapsperioder().getMedlemskapsperiode()
+                .forEach(medlemskapsperiode -> personopplysninger.getMedlemskapsperioder()
+                    .getMedlemskapsperiode()
                     .add(personopplysningFellesTjeneste.lagMedlemskapPeriode(medlemskapsperiode)));
         });
     }

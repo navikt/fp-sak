@@ -8,13 +8,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public record OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak,
-                                         RegelSøkerRolle søkerRolle,
-                                         LocalDate førsteUttaksDato,
-                                         LocalDate hendelsesDato,
-                                         LocalDate terminDato,
-                                         LocalDate morsMaksdato,
-                                         LovVersjoner lovVersjon) implements VilkårGrunnlag {
+public record OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak, RegelSøkerRolle søkerRolle, LocalDate førsteUttaksDato, LocalDate hendelsesDato,
+                                         LocalDate terminDato, LocalDate morsMaksdato, LovVersjoner lovVersjon) implements VilkårGrunnlag {
 
     public Optional<LocalDate> morsMaksdatoOpt() {
         return Optional.ofNullable(morsMaksdato);
@@ -29,19 +24,23 @@ public record OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak,
     }
 
     public OpptjeningsperiodeGrunnlag medFørsteUttaksDato(LocalDate førsteUttaksDato) {
-        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato, hendelsesDato(), terminDato(), morsMaksdato(), lovVersjon());
+        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato, hendelsesDato(), terminDato(), morsMaksdato(),
+            lovVersjon());
     }
 
     public OpptjeningsperiodeGrunnlag medHendelsesDato(LocalDate hendelsesDato) {
-        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato, terminDato(), morsMaksdato(), lovVersjon());
+        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato, terminDato(), morsMaksdato(),
+            lovVersjon());
     }
 
     public OpptjeningsperiodeGrunnlag medTerminDato(LocalDate terminDato) {
-        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato(), terminDato, morsMaksdato(), lovVersjon());
+        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato(), terminDato, morsMaksdato(),
+            lovVersjon());
     }
 
     public OpptjeningsperiodeGrunnlag medMorsMaksdato(LocalDate morsMaksdato) {
-        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato(), terminDato(), morsMaksdato, lovVersjon());
+        return new OpptjeningsperiodeGrunnlag(fagsakÅrsak(), søkerRolle(), førsteUttaksDato(), hendelsesDato(), terminDato(), morsMaksdato,
+            lovVersjon());
     }
 }
 

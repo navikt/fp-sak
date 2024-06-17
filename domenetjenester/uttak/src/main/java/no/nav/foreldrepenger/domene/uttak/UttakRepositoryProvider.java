@@ -36,7 +36,7 @@ public class UttakRepositoryProvider {
     }
 
     @Inject
-    public UttakRepositoryProvider( EntityManager entityManager) {
+    public UttakRepositoryProvider(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
 
         // fp spesifikke behandling aggregater

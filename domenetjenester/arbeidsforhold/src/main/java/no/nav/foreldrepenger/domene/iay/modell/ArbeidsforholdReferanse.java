@@ -31,7 +31,7 @@ public class ArbeidsforholdReferanse implements IndexKey, TraverseValue {
 
     ArbeidsforholdReferanse(ArbeidsforholdReferanse arbeidsforholdInformasjonEntitet) {
         this(arbeidsforholdInformasjonEntitet.arbeidsgiver, arbeidsforholdInformasjonEntitet.internReferanse,
-                arbeidsforholdInformasjonEntitet.eksternReferanse);
+            arbeidsforholdInformasjonEntitet.eksternReferanse);
     }
 
     @Override
@@ -59,9 +59,8 @@ public class ArbeidsforholdReferanse implements IndexKey, TraverseValue {
         if (!(o instanceof ArbeidsforholdReferanse that)) {
             return false;
         }
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(internReferanse, that.internReferanse) &&
-                Objects.equals(eksternReferanse, that.eksternReferanse);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(internReferanse, that.internReferanse) && Objects.equals(
+            eksternReferanse, that.eksternReferanse);
     }
 
     @Override
@@ -71,10 +70,7 @@ public class ArbeidsforholdReferanse implements IndexKey, TraverseValue {
 
     @Override
     public String toString() {
-        return "ArbeidsforholdReferanseEntitet{" +
-                "arbeidsgiver=" + arbeidsgiver +
-                ", internReferanse=" + internReferanse +
-                ", eksternReferanse=" + eksternReferanse +
-                '}';
+        return "ArbeidsforholdReferanseEntitet{" + "arbeidsgiver=" + arbeidsgiver + ", internReferanse=" + internReferanse + ", eksternReferanse="
+            + eksternReferanse + '}';
     }
 }

@@ -37,12 +37,14 @@ public class MedlemskapRepository {
     }
 
     @Inject
-    public MedlemskapRepository( EntityManager entityManager) {
+    public MedlemskapRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
     }
 
-    /** Henter et aggregat for Medlemskap, hvis det eksisterer, basert på kun behandlingId */
+    /**
+     * Henter et aggregat for Medlemskap, hvis det eksisterer, basert på kun behandlingId
+     */
     public Optional<MedlemskapAggregat> hentMedlemskap(Long behandlingId) {
         return getAktivtBehandlingsgrunnlag(behandlingId).map(this::hentMedlemskap);
     }
@@ -64,7 +66,9 @@ public class MedlemskapRepository {
         return new VurdertMedlemskapPeriodeEntitet.Builder(vurdertMedlemskapPeriode);
     }
 
-    /** Kopierer grunnlag fra en tidligere behandling.  Endrer ikke aggregater, en skaper nye referanser til disse. */
+    /**
+     * Kopierer grunnlag fra en tidligere behandling.  Endrer ikke aggregater, en skaper nye referanser til disse.
+     */
     public void kopierGrunnlagFraEksisterendeBehandling(Long eksisterendeBehandlingId, Long nyBehandlingId) {
         var nyLås = taLås(nyBehandlingId);
         var eksisterendeGrunnlag = getAktivtBehandlingsgrunnlag(eksisterendeBehandlingId);
@@ -79,14 +83,15 @@ public class MedlemskapRepository {
         var nyLås = taLås(nyBehandlingId);
         var eksisterendeGrunnlag = getAktivtBehandlingsgrunnlag(eksisterendeBehandlingId);
 
-        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.forRevurdering(eksisterendeGrunnlag,
-            nyBehandlingId);
+        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.forRevurdering(eksisterendeGrunnlag, nyBehandlingId);
 
         lagreOgFlush(nyBehandlingId, Optional.empty(), nyttGrunnlag);
         oppdaterLås(nyLås);
     }
 
-    /** Lagre registrert opplysninger om medlemskap (fra MEDL). Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
+    /**
+     * Lagre registrert opplysninger om medlemskap (fra MEDL). Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.
+     */
     public void lagreMedlemskapRegisterOpplysninger(Long behandlingId, Collection<MedlemskapPerioderEntitet> registrertMedlemskap) {
         var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
@@ -105,7 +110,9 @@ public class MedlemskapRepository {
         entityManager.flush();
     }
 
-    /** Lagre vurderte opplysninger om meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
+    /**
+     * Lagre vurderte opplysninger om meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.
+     */
     public void lagreMedlemskapVurdering(Long behandlingId, VurdertMedlemskap vurdertMedlemskap) {
         var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
@@ -139,7 +146,9 @@ public class MedlemskapRepository {
         entityManager.flush();
     }
 
-    /** Lagre oppgitte opplysninger om oppgitt tilknytning slik det kan brukes i vurdering av Medlemskap. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
+    /**
+     * Lagre oppgitte opplysninger om oppgitt tilknytning slik det kan brukes i vurdering av Medlemskap. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.
+     */
     public void lagreOppgittTilkytning(Long behandlingId, MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
         var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
@@ -159,8 +168,7 @@ public class MedlemskapRepository {
     public void slettAvklarteMedlemskapsdata(Long behandlingId, BehandlingLås lås) {
         oppdaterLås(lås);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
-        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId,
-            (VurdertMedlemskapEntitet) null);
+        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, (VurdertMedlemskapEntitet) null);
         lagreOgFlush(behandlingId, gr, nyttGrunnlag);
         entityManager.flush();
     }
@@ -183,8 +191,7 @@ public class MedlemskapRepository {
         return grunnlag.tilAggregat();
     }
 
-    private MedlemskapOppgittTilknytningEntitet kopierHvisEndretOgLagre(
-                                                                        Optional<MedlemskapBehandlingsgrunnlagEntitet> gr,
+    private MedlemskapOppgittTilknytningEntitet kopierHvisEndretOgLagre(Optional<MedlemskapBehandlingsgrunnlagEntitet> gr,
                                                                         MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
 
         var ny = new MedlemskapOppgittTilknytningEntitet(oppgittTilknytning);
@@ -218,8 +225,7 @@ public class MedlemskapRepository {
         return ny;
     }
 
-    private VurdertMedlemskapEntitet kopierOgLagreHvisEndret(Optional<MedlemskapBehandlingsgrunnlagEntitet> gr,
-                                                             VurdertMedlemskap vurdertMedlemskap) {
+    private VurdertMedlemskapEntitet kopierOgLagreHvisEndret(Optional<MedlemskapBehandlingsgrunnlagEntitet> gr, VurdertMedlemskap vurdertMedlemskap) {
 
         var ny = new VurdertMedlemskapEntitet(vurdertMedlemskap);
         if (gr.isPresent()) {
@@ -266,8 +272,7 @@ public class MedlemskapRepository {
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = true",
-            MedlemskapBehandlingsgrunnlagEntitet.class)
-                .setParameter("behandling_id", behandlingId);
+            MedlemskapBehandlingsgrunnlagEntitet.class).setParameter("behandling_id", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
@@ -276,30 +281,30 @@ public class MedlemskapRepository {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.
         var query = entityManager.createQuery(
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id",
-            MedlemskapBehandlingsgrunnlagEntitet.class)
-                .setParameter("behandling_id", behandlingId)
-                .setMaxResults(1);
+            MedlemskapBehandlingsgrunnlagEntitet.class).setParameter("behandling_id", behandlingId).setMaxResults(1);
 
         return query.getResultStream().findFirst();
     }
 
-    /** Henter førsteversjon av aggregat for Medlemskap, hvis det eksisterer. */
+    /**
+     * Henter førsteversjon av aggregat for Medlemskap, hvis det eksisterer.
+     */
     public Optional<MedlemskapAggregat> hentFørsteVersjonAvMedlemskap(Long behandlingId) {
         return getInitiellVersjonAvBehandlingsgrunnlag(behandlingId).map(this::hentMedlemskap);
     }
 
     public Optional<Long> hentIdPåAktivMedlemskap(Long behandlingId) {
-        return getAktivtBehandlingsgrunnlag(behandlingId)
-                .map(MedlemskapBehandlingsgrunnlagEntitet::getId);
+        return getAktivtBehandlingsgrunnlag(behandlingId).map(MedlemskapBehandlingsgrunnlagEntitet::getId);
     }
 
     public MedlemskapAggregat hentMedlemskapPåId(Long aggregatId) {
-        var optGrunnlag = hentGrunnlagPåId(
-            aggregatId);
+        var optGrunnlag = hentGrunnlagPåId(aggregatId);
         return optGrunnlag.isPresent() ? optGrunnlag.get().tilAggregat() : null;
     }
 
-    /** Lagre vurderte opplysninger om løpende meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
+    /**
+     * Lagre vurderte opplysninger om løpende meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.
+     */
     public void lagreLøpendeMedlemskapVurdering(Long behandlingId, VurdertMedlemskapPeriodeEntitet løpendeMedlemskap) {
         var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
@@ -310,10 +315,8 @@ public class MedlemskapRepository {
     }
 
     public Optional<MedlemskapBehandlingsgrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
-        var query = entityManager.createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId",
-            MedlemskapBehandlingsgrunnlagEntitet.class)
-                .setParameter("grunnlagId", grunnlagId);
+        var query = entityManager.createQuery("SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId",
+            MedlemskapBehandlingsgrunnlagEntitet.class).setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst();
     }
 }

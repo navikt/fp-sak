@@ -17,7 +17,6 @@ public class FastsettBeregningsgrunnlagPeriodeDto {
     private LocalDate tom;
 
 
-
     FastsettBeregningsgrunnlagPeriodeDto() {
         // Jackson
     }

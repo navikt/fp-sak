@@ -19,8 +19,7 @@ public class FaktaUttakOverstyringshåndterer extends AbstractOverstyringshåndt
     private FaktaUttakFellesTjeneste fellesTjeneste;
 
     @Inject
-    public FaktaUttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                           FaktaUttakFellesTjeneste fellesTjeneste) {
+    public FaktaUttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter, FaktaUttakFellesTjeneste fellesTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
         this.fellesTjeneste = fellesTjeneste;
     }

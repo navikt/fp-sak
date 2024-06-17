@@ -49,15 +49,12 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
         var virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
         var person = Arbeidsgiver.person(aktørId);
 
-        var input = new UttakInput(lagReferanse(behandling), null, null)
-                .medBeregningsgrunnlagStatuser(Set.of(
-                    new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
-                    new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
-                    new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet456, null),
-                    new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, person, null),
-                    new BeregningsgrunnlagStatus(AktivitetStatus.FRILANSER),
-                    new BeregningsgrunnlagStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                ));
+        var input = new UttakInput(lagReferanse(behandling), null, null).medBeregningsgrunnlagStatuser(
+            Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
+                new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
+                new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet456, null),
+                new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, person, null), new BeregningsgrunnlagStatus(AktivitetStatus.FRILANSER),
+                new BeregningsgrunnlagStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)));
 
         var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
@@ -81,9 +78,7 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
     private ArbeidsforholdDto finnDtoFor(List<ArbeidsforholdDto> arbeidsforhold, UttakArbeidType arbeidType, Arbeidsgiver arbeidsgiver) {
         var dtoSet = arbeidsforhold.stream().filter(a -> a.arbeidType().equals(arbeidType)).collect(Collectors.toSet());
         if (arbeidsgiver != null) {
-            dtoSet = dtoSet.stream()
-                .filter(a -> a.arbeidsgiverReferanse().equals(arbeidsgiver.getIdentifikator()))
-                .collect(Collectors.toSet());
+            dtoSet = dtoSet.stream().filter(a -> a.arbeidsgiverReferanse().equals(arbeidsgiver.getIdentifikator())).collect(Collectors.toSet());
         }
         if (dtoSet.size() != 1) {
             throw new IllegalStateException("Fint ikke akkurat 1");
@@ -97,8 +92,8 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
 
-        var input = new UttakInput(lagReferanse(behandling), null, null)
-                .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.DAGPENGER)));
+        var input = new UttakInput(lagReferanse(behandling), null, null).medBeregningsgrunnlagStatuser(
+            Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.DAGPENGER)));
         var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).isEmpty();
@@ -109,10 +104,7 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Virksomhet lagVirksomhet(String orgnr, String navn) {
-        return new Virksomhet.Builder()
-            .medOrgnr(orgnr)
-            .medNavn(navn)
-            .build();
+        return new Virksomhet.Builder().medOrgnr(orgnr).medNavn(navn).build();
     }
 
 }

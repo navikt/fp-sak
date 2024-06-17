@@ -52,14 +52,11 @@ class HarSattUtbetalingsgradValideringTest {
     }
 
     private ForeldrepengerUttakPeriode periode(PeriodeResultatType resultatType, Utbetalingsgrad utbetalingsgrad) {
-        var aktiviteter = List.of(
-            new ForeldrepengerUttakPeriodeAktivitet.Builder()
-                .medArbeidsprosent(BigDecimal.ZERO)
-                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
-                .medUtbetalingsgrad(utbetalingsgrad).build()
-        );
-        return new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
+        var aktiviteter = List.of(new ForeldrepengerUttakPeriodeAktivitet.Builder().medArbeidsprosent(BigDecimal.ZERO)
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .build());
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(new LocalDateInterval(LocalDate.now(), LocalDate.now().plusDays(1)))
             .medAktiviteter(aktiviteter)
             .medResultatType(resultatType)
             .build();

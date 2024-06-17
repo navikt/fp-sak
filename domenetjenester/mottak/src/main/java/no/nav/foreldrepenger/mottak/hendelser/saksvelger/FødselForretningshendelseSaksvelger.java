@@ -51,16 +51,17 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(FødselForretningshendelse forretningshendelse) {
 
-        var saker = forretningshendelse.aktørIdListe().stream()
+        var saker = forretningshendelse.aktørIdListe()
+            .stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(fagsak -> fagsakErRelevantForHendelse(fagsak, forretningshendelse))
-            .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
-                || erFagsakPassendeForFamilieHendelse(forretningshendelse.fødselsdato(), f))
+            .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype()) || erFagsakPassendeForFamilieHendelse(
+                forretningshendelse.fødselsdato(), f))
             .toList();
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
-            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om fødsel i folkeregisteret"));
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype()) || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
+            saker.forEach(
+                f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om fødsel i folkeregisteret"));
         }
 
         return Map.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL, saker);
@@ -74,9 +75,12 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
             }
             var tilkjentYtelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
                 .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
-                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+                .orElse(Collections.emptyList())
+                .stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-                .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+                .max(Comparator.naturalOrder())
+                .orElse(Tid.TIDENES_BEGYNNELSE);
             return forretningshendelse.fødselsdato().minusDays(1).isBefore(tilkjentYtelseTom);
         }
         return fagsak.erÅpen() || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) && behandlingRepository.finnSisteInnvilgetBehandling(

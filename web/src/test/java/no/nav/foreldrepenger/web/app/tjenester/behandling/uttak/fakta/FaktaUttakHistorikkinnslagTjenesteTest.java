@@ -30,8 +30,8 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class FaktaUttakHistorikkinnslagTjenesteTest {
 
-    private static LocalDate FOM = LocalDate.of(2022,12,1);
-    private static LocalDate TOM = LocalDate.of(2022,12,7);
+    private static LocalDate FOM = LocalDate.of(2022, 12, 1);
+    private static LocalDate TOM = LocalDate.of(2022, 12, 7);
 
     private HistorikkTjenesteAdapter adapter;
     private FaktaUttakHistorikkinnslagTjeneste tjeneste;
@@ -46,9 +46,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_uten_perioder_ved_ingen_endring() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).build();
 
         // dto
@@ -66,9 +64,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     @Test
     void skal_generere_historikkinnslag_med_tillagt_periode_ved_utvidelse() {
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.plusDays(1)).build();
 
         // dto
@@ -92,9 +88,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     @Test
     void skal_generere_historikkinnslag_med_slettet_periode_ved_krymping() {
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.minusDays(1)).build();
 
         // dto
@@ -119,12 +113,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_endring_ved_ny_årsak() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter = OppgittPeriodeBuilder.fraEksisterende(før)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_SØKER)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter = OppgittPeriodeBuilder.fraEksisterende(før).medÅrsak(UtsettelseÅrsak.INSTITUSJON_SØKER).build();
 
         // dto
         tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
@@ -149,12 +139,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_endring_type() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.MØDREKVOTE).build();
 
         // dto
         tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
@@ -179,31 +165,32 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_splitt() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.plusWeeks(5).minusDays(1))
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
-        var etter1 = OppgittPeriodeBuilder.ny().medPeriode(FOM.minusWeeks(1), FOM.minusDays(1))
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.plusWeeks(5).minusDays(1)).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
+        var etter1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(FOM.minusWeeks(1), FOM.minusDays(1))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .build();
-        var etter2 = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.minusDays(1))
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter3 = OppgittPeriodeBuilder.ny().medPeriode(TOM, TOM.plusWeeks(1).minusDays(1))
+        var etter2 = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.minusDays(1)).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter3 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM, TOM.plusWeeks(1).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
             .build();
-        var etter4 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(1), TOM.plusWeeks(2).minusDays(1))
+        var etter4 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(1), TOM.plusWeeks(2).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
-        var etter5 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(2), TOM.plusWeeks(3).minusDays(1))
+        var etter5 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(2), TOM.plusWeeks(3).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medMorsAktivitet(MorsAktivitet.TRENGER_HJELP)
             .build();
-        var etter6 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(3), TOM.plusWeeks(4).minusDays(1))
+        var etter6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(3), TOM.plusWeeks(4).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .build();
 
@@ -229,12 +216,19 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(del.getEndredeFelt()).hasSize(6);
         var endretPeriode = del.getEndredeFelt().get(0);
         assertThat(del.getEndredeFelt().stream().allMatch(f -> HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode().equals(f.getNavn()))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Lagt til") && f.getTilVerdi().contains("Overføring") && f.getTilVerdi().contains("Mødrekvoten"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Utsettelse")  && f.getTilVerdi().contains("Barn"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getFraVerdi() != null && f.getFraVerdi().contains("Uttak") && f.getTilVerdi().contains("Samtidig"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Gradering")  && f.getTilVerdi().contains("10"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Uttak")  && f.getTilVerdi().contains("Fellesperioden"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Slettet")  && f.getTilVerdi().contains("Fedrekvoten"))).isTrue();
+        assertThat(del.getEndredeFelt()
+            .stream()
+            .anyMatch(f -> f.getTilVerdi().contains("Lagt til") && f.getTilVerdi().contains("Overføring") && f.getTilVerdi()
+                .contains("Mødrekvoten"))).isTrue();
+        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Utsettelse") && f.getTilVerdi().contains("Barn"))).isTrue();
+        assertThat(del.getEndredeFelt()
+            .stream()
+            .anyMatch(f -> f.getFraVerdi() != null && f.getFraVerdi().contains("Uttak") && f.getTilVerdi().contains("Samtidig"))).isTrue();
+        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Gradering") && f.getTilVerdi().contains("10"))).isTrue();
+        assertThat(
+            del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Uttak") && f.getTilVerdi().contains("Fellesperioden"))).isTrue();
+        assertThat(
+            del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Slettet") && f.getTilVerdi().contains("Fedrekvoten"))).isTrue();
     }
 
     public Historikkinnslag opprettHistorikkInnslag(HistorikkInnslagTekstBuilder builder) {

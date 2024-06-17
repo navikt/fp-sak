@@ -89,8 +89,7 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
         if (!(o instanceof InnsynDokumentEntitet that)) {
             return false;
         }
-        return Objects.equals(journalpostId, that.journalpostId) &&
-            Objects.equals(dokumentId, that.dokumentId);
+        return Objects.equals(journalpostId, that.journalpostId) && Objects.equals(dokumentId, that.dokumentId);
     }
 
     @Override
@@ -100,11 +99,7 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "InnsynDokumentEntitet{" +
-            "id=" + id +
-            ", journalpostId='" + journalpostId + '\'' +
-            ", dokumentId='" + dokumentId + '\'' +
-            ", fikkInnsyn=" + fikkInnsyn +
-            '}';
+        return "InnsynDokumentEntitet{" + "id=" + id + ", journalpostId='" + journalpostId + '\'' + ", dokumentId='" + dokumentId + '\''
+            + ", fikkInnsyn=" + fikkInnsyn + '}';
     }
 }

@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
-@JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_INNSYN_KODE)
 public class VurderInnsynDto extends BekreftetAksjonspunktDto {
 
@@ -49,8 +49,12 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    public VurderInnsynDto(String begrunnelse, InnsynResultatType innsynResultatType, LocalDate mottattDato,
-                           boolean sattPaVent, List<VurderInnsynDokumentDto> innsynDokumenter, LocalDate fristDato) {
+    public VurderInnsynDto(String begrunnelse,
+                           InnsynResultatType innsynResultatType,
+                           LocalDate mottattDato,
+                           boolean sattPaVent,
+                           List<VurderInnsynDokumentDto> innsynDokumenter,
+                           LocalDate fristDato) {
         super(begrunnelse);
         this.innsynResultatType = innsynResultatType;
         this.mottattDato = mottattDato;
@@ -58,7 +62,6 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
         this.innsynDokumenter = innsynDokumenter;
         this.fristDato = fristDato;
     }
-
 
 
     public InnsynResultatType getInnsynResultatType() {

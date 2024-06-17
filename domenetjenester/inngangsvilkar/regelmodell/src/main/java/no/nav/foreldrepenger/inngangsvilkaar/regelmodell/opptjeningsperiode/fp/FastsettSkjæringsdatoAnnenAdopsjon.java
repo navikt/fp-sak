@@ -23,7 +23,7 @@ public class FastsettSkjæringsdatoAnnenAdopsjon extends LeafSpecification<Opptj
         var skjæringsdatoOpptjening = regelmodell.getGrunnlag().førsteUttaksDato();
 
         var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
-        if(skjæringsdatoOpptjening.isBefore(hendelsesDato)) {
+        if (skjæringsdatoOpptjening.isBefore(hendelsesDato)) {
             skjæringsdatoOpptjening = hendelsesDato;
         }
 

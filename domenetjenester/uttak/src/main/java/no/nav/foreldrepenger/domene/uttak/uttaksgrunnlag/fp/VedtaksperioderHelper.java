@@ -45,8 +45,7 @@ public class VedtaksperioderHelper {
                                                                       LocalDate fomDato,
                                                                       boolean kreverSammenhengendeUttak) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
-            fomDato, førsteSøknadsdato, kreverSammenhengendeUttak);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, fomDato, førsteSøknadsdato, kreverSammenhengendeUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -55,10 +54,8 @@ public class VedtaksperioderHelper {
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
-        return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
-            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
-            .stream()
-            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+        return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak()) && PeriodeResultatType.AVSLÅTT.equals(
+            periode.getResultatType()) && periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
     private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
@@ -89,17 +86,16 @@ public class VedtaksperioderHelper {
     }
 
     private static boolean avslåttIngenTrekkdager(UttakResultatPeriodeEntitet periode) {
-        return PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) &&
-            periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+        return PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
+            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
     private static boolean erPeriodeFraSøknad(UttakResultatPeriodeEntitet periode) {
         return periode.getPeriodeSøknad().isPresent();
     }
 
-    public static Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op,
-                                                      LocalDate fraDato,
-                                                      Optional<LocalDate> førsteSøknadsdato) {
+    public static Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op, LocalDate fraDato, Optional<LocalDate> førsteSøknadsdato) {
         Objects.requireNonNull(fraDato);
 
         var opb = OppgittPeriodeBuilder.fraEksisterende(op);
@@ -166,12 +162,15 @@ public class VedtaksperioderHelper {
 
     private static boolean morDelvisArbeid(UttakResultatPeriodeEntitet up) {
         return up.getPeriodeSøknad()
-            .filter(s -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(s.getMorsAktivitet()) && up.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().erRedusert()))
+            .filter(s -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(s.getMorsAktivitet()) && up.getAktiviteter()
+                .stream()
+                .anyMatch(a -> a.getUtbetalingsgrad().erRedusert()))
             .isPresent();
     }
 
     private static Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {
-        return up.getAktiviteter().stream()
+        return up.getAktiviteter()
+            .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .findFirst()
             .map(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet)
@@ -208,7 +207,8 @@ public class VedtaksperioderHelper {
         if (uttakResultatPeriode.isOpphold()) {
             return UttakPeriodeType.UDEFINERT;
         }
-        var harTrekkdager = uttakResultatPeriode.getAktiviteter().stream()
+        var harTrekkdager = uttakResultatPeriode.getAktiviteter()
+            .stream()
             .map(UttakResultatPeriodeAktivitetEntitet::getTrekkdager)
             .anyMatch(Trekkdager::merEnn0);
         // Utsettelse kommer normalt uten konto, mens det ofte er satt i overstyrt UR, selv uten trekkdager
@@ -232,9 +232,7 @@ public class VedtaksperioderHelper {
     private static boolean erInnvilgetUtsettelse(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         var utsettelseType = uttakResultatPeriode.getUtsettelseType();
         if (utsettelseType != null && !UttakUtsettelseType.UDEFINERT.equals(utsettelseType)) {
-            return uttakResultatPeriode.getAktiviteter()
-                .stream()
-                .noneMatch(a -> a.getUtbetalingsgrad().harUtbetaling());
+            return uttakResultatPeriode.getAktiviteter().stream().noneMatch(a -> a.getUtbetalingsgrad().harUtbetaling());
         }
         return false;
     }
