@@ -194,9 +194,8 @@ public class BehandlingsprosessTjeneste {
 
     /**
      * På grunn av (nyinnført) async-prosessering videre nedover mister vi informasjon her om at det i dette tilfellet er saksbehandler som
-     * ber om gjenopptakelse av behandlingen. Det kommer et historikkinnslag om dette (se
-     * {@link no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent})
-     * som eies av systembruker. Derfor velger vi her å legge på et innslag til med saksbehandler som eier slik at historikken blir korrekt.
+     * ber om gjenopptakelse av behandlingen. Det kommer et historikkinnslag om dette (se AksjonspunktStatusEvent) som eies av systembruker.
+     * Derfor velger vi her å legge på et innslag til med saksbehandler som eier slik at historikken blir korrekt.
      */
     private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling) {
         var builder = new HistorikkInnslagTekstBuilder();

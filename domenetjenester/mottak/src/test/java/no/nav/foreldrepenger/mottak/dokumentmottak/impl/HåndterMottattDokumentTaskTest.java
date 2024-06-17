@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -29,7 +30,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
-import no.nav.foreldrepenger.mottak.publiserer.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
@@ -44,7 +44,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     private HåndterMottattDokumentTask håndterMottattDokumentTask;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private final MottattDokumentPersisterer mottattDokumentPersisterer =
-        new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
+        new MottattDokumentPersisterer(mock(BehandlingEventPubliserer.class));
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 

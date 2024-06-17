@@ -16,9 +16,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -36,9 +36,9 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -124,7 +124,7 @@ class KlagevurderingOppdatererTest {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
-            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
+            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
     }

@@ -5,7 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
@@ -24,7 +25,7 @@ public class AnkeVurderingTjeneste {
     private AnkeRepository ankeRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRelasjonEventPubliserer relasjonEventPubliserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     AnkeVurderingTjeneste() {
         // for CDI proxy
@@ -34,11 +35,11 @@ public class AnkeVurderingTjeneste {
     public AnkeVurderingTjeneste(BehandlingRepository behandlingRepository,
                                  BehandlingsresultatRepository behandlingsresultatRepository,
                                  AnkeRepository ankeRepository,
-                                 BehandlingRelasjonEventPubliserer relasjonEventPubliserer) {
+                                 BehandlingEventPubliserer behandlingEventPubliserer) {
         this.ankeRepository = ankeRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.relasjonEventPubliserer = relasjonEventPubliserer;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     public Optional<AnkeResultatEntitet> hentAnkeResultatHvisEksisterer(Behandling behandling) {
@@ -64,7 +65,7 @@ public class AnkeVurderingTjeneste {
 
     public void oppdaterAnkeMedPåanketKlage(Behandling ankeBehandling, Long klageBehandlingId) {
         ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), klageBehandlingId);
-        relasjonEventPubliserer.fireEvent(ankeBehandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingRelasjonEvent(ankeBehandling));
     }
 
     public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,
