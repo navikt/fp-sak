@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
@@ -159,7 +158,7 @@ public class SvangerskapspengerTjeneste {
         //Dersom ingen periode overlapper er stillingsprosent 0
         return ya.getAlleAktivitetsAvtaler()
             .stream()
-            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().overlapper(DatoIntervallEntitet.fraOgMed(førsteTilrStartDato)))
+            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().inkluderer(førsteTilrStartDato))
             .filter(aa -> aa.getProsentsats() != null && aa.getProsentsats().getVerdi() != null)
             .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
             .map(AktivitetsAvtale::getProsentsats)
