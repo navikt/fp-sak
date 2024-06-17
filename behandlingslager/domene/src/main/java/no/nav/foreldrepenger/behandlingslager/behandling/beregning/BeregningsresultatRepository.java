@@ -55,14 +55,22 @@ public class BeregningsresultatRepository {
     }
 
     public void lagre(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
-        var builder = opprettResultatBuilderFor(behandling.getId());
-        builder.medBgBeregningsresultatFP(beregningsresultat);
+        var builder = opprettResultatBuilderFor(behandling.getId())
+            .medBgBeregningsresultatFP(beregningsresultat)
+            .medBeregningsresultatFeriepenger(beregningsresultat.getBeregningsresultatFeriepenger().orElse(null));
+        lagreOgFlush(behandling, builder);
+    }
+
+    public void lagreFeriepenger(Behandling behandling, BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
+        var builder = opprettResultatBuilderFor(behandling.getId())
+            .medBeregningsresultatFeriepenger(beregningsresultatFeriepenger);
         lagreOgFlush(behandling, builder);
     }
 
     public void lagreUtbetBeregningsresultat(Behandling behandling, BeregningsresultatEntitet utbetBeregningsresultatFP) {
-        var builder = opprettResultatBuilderFor(behandling.getId());
-        builder.medUtbetBeregningsresultatFP(utbetBeregningsresultatFP);
+        var builder = opprettResultatBuilderFor(behandling.getId())
+            .medUtbetBeregningsresultatFP(utbetBeregningsresultatFP)
+            .medBeregningsresultatFeriepenger(utbetBeregningsresultatFP.getBeregningsresultatFeriepenger().orElse(null));
         lagreOgFlush(behandling, builder);
     }
 
@@ -100,6 +108,10 @@ public class BeregningsresultatRepository {
             entityManager.persist(aggregatEntitet.getUtbetBeregningsresultatFP());
             aggregatEntitet.getUtbetBeregningsresultatFP().getBeregningsresultatPerioder().forEach(this::lagre);
         }
+        if (aggregatEntitet.getBeregningsresultatFeriepenger() != null) {
+            entityManager.persist(aggregatEntitet.getBeregningsresultatFeriepenger());
+            aggregatEntitet.getBeregningsresultatFeriepenger().getBeregningsresultatFeriepengerPrÅrListe().forEach(this::lagre);
+        }
         entityManager.persist(aggregatEntitet);
         entityManager.flush();
     }
@@ -120,6 +132,10 @@ public class BeregningsresultatRepository {
 
     private void lagre(BeregningsresultatAndel beregningsresultatAndel) {
         entityManager.persist(beregningsresultatAndel);
+    }
+
+    private void lagre(BeregningsresultatFeriepengerPrÅr feriepengerPrÅr) {
+        entityManager.persist(feriepengerPrÅr);
     }
 
     public void deaktiverBeregningsresultat(Long behandlingId, BehandlingLås skriveLås) {

@@ -44,6 +44,10 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
     @JoinColumn(name = "utbet_beregningsresultat_fp_id", updatable = false, unique = true)
     private BeregningsresultatEntitet utbetBeregningsresultatFP;
 
+    @OneToOne
+    @JoinColumn(name = "beregningsresultat_feriepenger_id", updatable = false, unique = true)
+    private BeregningsresultatFeriepenger beregningsresultatFeriepenger;
+
     @Column(name = "hindre_tilbaketrekk")
     @Convert(converter = BooleanToStringConverter.class)
     private Boolean skalHindreTilbaketrekk;
@@ -55,6 +59,7 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
     public BehandlingBeregningsresultatEntitet(BehandlingBeregningsresultatEntitet kladd) {
         this.behandlingId = kladd.behandlingId;
         this.bgBeregningsresultatFP = kladd.bgBeregningsresultatFP;
+        this.beregningsresultatFeriepenger = kladd.beregningsresultatFeriepenger;
         this.skalHindreTilbaketrekk = kladd.skalHindreTilbaketrekk;
     }
 
@@ -68,6 +73,10 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
 
     public BeregningsresultatEntitet getUtbetBeregningsresultatFP() {
         return utbetBeregningsresultatFP;
+    }
+
+    public BeregningsresultatFeriepenger getBeregningsresultatFeriepenger() {
+        return beregningsresultatFeriepenger;
     }
 
     public Optional<Boolean> skalHindreTilbaketrekk() {
@@ -92,6 +101,10 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
 
     void setUtbetBeregningsresultatFP(BeregningsresultatEntitet utbetBeregningsresultatFP) {
         this.utbetBeregningsresultatFP = utbetBeregningsresultatFP;
+    }
+
+    public void setBeregningsresultatFeriepenger(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
+        this.beregningsresultatFeriepenger = beregningsresultatFeriepenger;
     }
 
     void setSkalHindreTilbaketrekk(Boolean skalHindreTilbaketrekk) {
