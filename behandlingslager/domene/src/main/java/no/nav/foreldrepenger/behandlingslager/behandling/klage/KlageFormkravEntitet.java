@@ -158,23 +158,26 @@ public class KlageFormkravEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (KlageFormkravEntitet) o;
-        return harLikVurdering(that) &&
-            Objects.equals(klageResultat, that.klageResultat);
+        return harLikVurdering(that) && Objects.equals(klageResultat, that.klageResultat);
     }
 
     public boolean harLikVurdering(KlageFormkravEntitet that) {
-        if (this == that) return true;
-        if (that == null || getClass() != that.getClass()) return false;
-        return gjelderVedtak == that.gjelderVedtak &&
-            erKlagerPart == that.erKlagerPart &&
-            erFristOverholdt == that.erFristOverholdt &&
-            erKonkret == that.erKonkret &&
-            erSignert == that.erSignert &&
-            klageVurdertAv == that.klageVurdertAv &&
-            Objects.equals(begrunnelse, that.begrunnelse);
+        if (this == that) {
+            return true;
+        }
+        if (that == null || getClass() != that.getClass()) {
+            return false;
+        }
+        return gjelderVedtak == that.gjelderVedtak && erKlagerPart == that.erKlagerPart && erFristOverholdt == that.erFristOverholdt
+            && erKonkret == that.erKonkret && erSignert == that.erSignert && klageVurdertAv == that.klageVurdertAv && Objects.equals(begrunnelse,
+            that.begrunnelse);
     }
 
     @Override
@@ -259,17 +262,10 @@ public class KlageFormkravEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "klageResultat=" + hentKlageResultat() + ", "
-            + "klageVurdertAv=" + getKlageVurdertAv() + ", "
-            + "gjelderVedtak=" + hentGjelderVedtak() + ", "
-            + "erKlagerPart=" + erKlagerPart() + ", "
-            + "erFristOverholdt=" + erFristOverholdt() + ", "
-            + "erKonkret=" + erKonkret() + ", "
-            + "erSignert=" + erSignert() + ", "
-            + "begrunnelse=" + hentBegrunnelse() + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "klageResultat=" + hentKlageResultat() + ", "
+            + "klageVurdertAv=" + getKlageVurdertAv() + ", " + "gjelderVedtak=" + hentGjelderVedtak() + ", " + "erKlagerPart=" + erKlagerPart() + ", "
+            + "erFristOverholdt=" + erFristOverholdt() + ", " + "erKonkret=" + erKonkret() + ", " + "erSignert=" + erSignert() + ", " + "begrunnelse="
+            + hentBegrunnelse() + ", " + ">";
     }
 
 }

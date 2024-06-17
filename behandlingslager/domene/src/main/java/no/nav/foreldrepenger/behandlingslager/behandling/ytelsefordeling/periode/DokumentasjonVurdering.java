@@ -32,7 +32,8 @@ public enum DokumentasjonVurdering implements Kodeverdi {
     MORS_AKTIVITET_IKKE_DOKUMENTERT("MORS_AKTIVITET_IKKE_DOKUMENTERT", "Mors aktivitet er ikke dokumentert", false),
 
     //Tidlig oppstart
-    TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT", "Far kan starte tidlig fedrekvote, pga mor er syk eller innlagt", true),
+    TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT", "Far kan starte tidlig fedrekvote, pga mor er syk eller innlagt",
+        true),
     TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT", "Far kan ikke starte tidlig fedrekvote", false),
 
     //Overføring

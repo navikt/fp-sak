@@ -53,8 +53,7 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
         if (!(o instanceof BehandlingsresultatKonsekvensForYtelsen that)) {
             return false;
         }
-        return Objects.equals(behandlingsresultat, that.behandlingsresultat) &&
-            Objects.equals(konsekvensForYtelsen, that.konsekvensForYtelsen);
+        return Objects.equals(behandlingsresultat, that.behandlingsresultat) && Objects.equals(konsekvensForYtelsen, that.konsekvensForYtelsen);
     }
 
     @Override

@@ -49,8 +49,12 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
         }
 
         if (hendelseMedHøyestSeksvensnummerogKilde == null) {
-            hendelseMedHøyestSeksvensnummerogKilde = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002")
-                .type("type3").kildeId(KILDE_ID).build();
+            hendelseMedHøyestSeksvensnummerogKilde = FpVedtakUtgåendeHendelse.builder()
+                .payload(PAYLOAD)
+                .aktørId("1000000002")
+                .type("type3")
+                .kildeId(KILDE_ID)
+                .build();
             hendelseMedHøyestSeksvensnummerogKilde.setSekvensnummer(nesteSeksvensnummer());
             feedRepository.lagre(hendelseMedHøyestSeksvensnummerogKilde);
         }
@@ -102,11 +106,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         lagreHendelser();
         assertThat(feedRepository.harHendelseMedKildeId("ny_kilde")).isFalse();
-        var utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
-            .aktørId("1000000002")
-            .type("type3")
-            .kildeId("ny_kilde")
-            .build();
+        var utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId("1000000002").type("type3").kildeId("ny_kilde").build();
         feedRepository.lagre(utgåendeHendelse);
         assertThat(feedRepository.harHendelseMedKildeId("ny_kilde")).isTrue();
     }
@@ -115,10 +115,10 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_hendelser_med_type1() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder()
-                    .medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
-                    .medType(TYPE1)
-                    .medMaxAntall(100L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
+                .medType(TYPE1)
+                .medMaxAntall(100L)
+                .build());
 
         assertThat(alle).contains(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2);
     }
@@ -127,8 +127,9 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_alle_hendelser_med_sekvens_id_større_enn_sist_lest() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId2MedSek2.getSekvensnummer() - 1)
-                    .medMaxAntall(100L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId2MedSek2.getSekvensnummer() - 1)
+                .medMaxAntall(100L)
+                .build());
 
         assertThat(alle).contains(hendelseAvType1MedAktørId2MedSek2, hendelseAvType2MedAktørId1MedSek3, hendelseMedHøyestSeksvensnummerogKilde);
     }
@@ -137,7 +138,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_returnerer_tom_liste_hvis_result_set_er_tom() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(nesteSeksvensnummer() + 100).medMaxAntall(100L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(nesteSeksvensnummer() + 100).medMaxAntall(100L).build());
 
         assertThat(alle).isEmpty();
     }
@@ -146,7 +147,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_alle_hendelser_med_aktør_id() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medAktørId(AKTØR_ID_2).medMaxAntall(100L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medAktørId(AKTØR_ID_2).medMaxAntall(100L).build());
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId2MedSek2);
     }
@@ -155,8 +156,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_max_antall_1() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
-                    .medMaxAntall(1L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1).medMaxAntall(1L).build());
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1);
     }
@@ -165,26 +165,17 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
-                new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
-                    .medMaxAntall(4L).build());
+            new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1).medMaxAntall(4L).build());
 
-        assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2,
-                hendelseAvType2MedAktørId1MedSek3, hendelseMedHøyestSeksvensnummerogKilde);
+        assertThat(alle).containsOnly(hendelseAvType1MedAktørId1MedSek1, hendelseAvType1MedAktørId2MedSek2, hendelseAvType2MedAktørId1MedSek3,
+            hendelseMedHøyestSeksvensnummerogKilde);
     }
 
     private static FpVedtakUtgåendeHendelse byggUtgåendeFpHendelse() {
-        return FpVedtakUtgåendeHendelse.builder()
-                .payload(PAYLOAD)
-                .aktørId(AKTØR_ID)
-                .type(TYPE1)
-                .build();
+        return FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId(AKTØR_ID).type(TYPE1).build();
     }
 
     private static SvpVedtakUtgåendeHendelse byggUtgåendeSvpHendelse() {
-        return SvpVedtakUtgåendeHendelse.builder()
-                .payload(PAYLOAD)
-                .aktørId(AKTØR_ID)
-                .type(TYPE1)
-                .build();
+        return SvpVedtakUtgåendeHendelse.builder().payload(PAYLOAD).aktørId(AKTØR_ID).type(TYPE1).build();
     }
 }

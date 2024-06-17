@@ -29,9 +29,7 @@ public class PleiepengerRepository {
     public void lagrePerioder(Long behandlingId, PleiepengerPerioderEntitet.Builder builder) {
 
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
-        var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
-            .medBehandlingId(behandlingId)
-            .medInnleggelsePerioder(builder);
+        var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag).medBehandlingId(behandlingId).medInnleggelsePerioder(builder);
 
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
     }
@@ -64,10 +62,10 @@ public class PleiepengerRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         var innleggelser = eksisterendeGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse)
-            .map(PleiepengerPerioderEntitet::getInnleggelser).orElse(List.of());
+            .map(PleiepengerPerioderEntitet::getInnleggelser)
+            .orElse(List.of());
         if (!innleggelser.isEmpty()) {
-            var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag)
-                .medBehandlingId(nyBehandlingId);
+            var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag).medBehandlingId(nyBehandlingId);
             lagreGrunnlag(Optional.empty(), nyttGrunnlag.build());
         }
     }

@@ -68,7 +68,7 @@ public class OppgittRettighetEntitet extends BaseEntitet {
     }
 
     public static OppgittRettighetEntitet aleneomsorg() {
-        return new OppgittRettighetEntitet(false ,true, false, false, false);
+        return new OppgittRettighetEntitet(false, true, false, false, false);
     }
 
     public static OppgittRettighetEntitet beggeRett() {
@@ -107,17 +107,17 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         if (rett == null) {
             return new OppgittRettighetEntitet(null, false, null, null, null);
         }
-        return Objects.equals(false, rett.harAleneomsorgForBarnet) ? rett :
-            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, false, rett.morMottarUføretrygd, rett.annenForelderRettEØS,
-                rett.annenForelderOppholdEØS);
+        return Objects.equals(false, rett.harAleneomsorgForBarnet) ? rett : new OppgittRettighetEntitet(rett.harAnnenForeldreRett, false,
+            rett.morMottarUføretrygd, rett.annenForelderRettEØS, rett.annenForelderOppholdEØS);
     }
 
     public static OppgittRettighetEntitet kopiAleneomsorgIkkeRettAnnenForelder(OppgittRettighetEntitet rett) {
         if (rett == null) {
             return new OppgittRettighetEntitet(false, true, null, null, null);
         }
-        return Objects.equals(rett.harAleneomsorgForBarnet, Boolean.TRUE) && Objects.equals(rett.harAnnenForeldreRett, Boolean.FALSE) ? rett :
-            new OppgittRettighetEntitet(false, true, rett.morMottarUføretrygd, rett.annenForelderRettEØS, rett.annenForelderOppholdEØS);
+        return Objects.equals(rett.harAleneomsorgForBarnet, Boolean.TRUE) && Objects.equals(rett.harAnnenForeldreRett,
+            Boolean.FALSE) ? rett : new OppgittRettighetEntitet(false, true, rett.morMottarUføretrygd, rett.annenForelderRettEØS,
+            rett.annenForelderOppholdEØS);
     }
 
     public static OppgittRettighetEntitet kopiAnnenForelderRett(OppgittRettighetEntitet rett, boolean annenForelderRett) {
@@ -127,40 +127,38 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         if (rett == null) {
             return new OppgittRettighetEntitet(annenForelderRett, null, null, null, null);
         }
-        return Objects.equals(annenForelderRett, rett.harAnnenForeldreRett) ? rett :
-            new OppgittRettighetEntitet(annenForelderRett, rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, rett.annenForelderRettEØS,
-                rett.annenForelderOppholdEØS);
+        return Objects.equals(annenForelderRett, rett.harAnnenForeldreRett) ? rett : new OppgittRettighetEntitet(annenForelderRett,
+            rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, rett.annenForelderRettEØS, rett.annenForelderOppholdEØS);
     }
 
     public static OppgittRettighetEntitet kopiAnnenForelderRettEØS(OppgittRettighetEntitet rett, Boolean annenForelderRettEØS) {
         if (rett == null) {
             return new OppgittRettighetEntitet(null, null, null, annenForelderRettEØS, null);
         }
-        return Objects.equals(annenForelderRettEØS, rett.annenForelderRettEØS) ? rett :
-            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, annenForelderRettEØS,
-                rett.annenForelderOppholdEØS);
+        return Objects.equals(annenForelderRettEØS, rett.annenForelderRettEØS) ? rett : new OppgittRettighetEntitet(rett.harAnnenForeldreRett,
+            rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, annenForelderRettEØS, rett.annenForelderOppholdEØS);
     }
 
     public static OppgittRettighetEntitet kopiMorUføretrygd(OppgittRettighetEntitet rett, Boolean morUføretrygd) {
         if (rett == null) {
             return new OppgittRettighetEntitet(null, null, morUføretrygd, null, null);
         }
-        return Objects.equals(morUføretrygd, rett.morMottarUføretrygd) ? rett :
-            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, rett.harAleneomsorgForBarnet, morUføretrygd, rett.annenForelderRettEØS,
-                rett.annenForelderOppholdEØS);
+        return Objects.equals(morUføretrygd, rett.morMottarUføretrygd) ? rett : new OppgittRettighetEntitet(rett.harAnnenForeldreRett,
+            rett.harAleneomsorgForBarnet, morUføretrygd, rett.annenForelderRettEØS, rett.annenForelderOppholdEØS);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (OppgittRettighetEntitet) o;
-        return Objects.equals(harAnnenForeldreRett, that.harAnnenForeldreRett) &&
-            Objects.equals(harAleneomsorgForBarnet, that.harAleneomsorgForBarnet) &&
-            Objects.equals(annenForelderRettEØS, that.annenForelderRettEØS) &&
-            Objects.equals(annenForelderOppholdEØS, that.annenForelderOppholdEØS) &&
-            Objects.equals(morMottarUføretrygd, that.morMottarUføretrygd)
-            ;
+        return Objects.equals(harAnnenForeldreRett, that.harAnnenForeldreRett) && Objects.equals(harAleneomsorgForBarnet,
+            that.harAleneomsorgForBarnet) && Objects.equals(annenForelderRettEØS, that.annenForelderRettEØS) && Objects.equals(
+            annenForelderOppholdEØS, that.annenForelderOppholdEØS) && Objects.equals(morMottarUføretrygd, that.morMottarUføretrygd);
     }
 
     @Override
@@ -170,13 +168,8 @@ public class OppgittRettighetEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "OppgittRettighetEntitet{" +
-            "id=" + id +
-            ", harAnnenForeldreRett=" + harAnnenForeldreRett +
-            ", harAleneomsorgForBarnet=" + harAleneomsorgForBarnet +
-            ", morUføretrygd=" + morMottarUføretrygd +
-            ", annenForelderRettEØS=" + annenForelderRettEØS +
-            ", annenForelderOppholdEØS=" + annenForelderOppholdEØS +
-            '}';
+        return "OppgittRettighetEntitet{" + "id=" + id + ", harAnnenForeldreRett=" + harAnnenForeldreRett + ", harAleneomsorgForBarnet="
+            + harAleneomsorgForBarnet + ", morUføretrygd=" + morMottarUføretrygd + ", annenForelderRettEØS=" + annenForelderRettEØS
+            + ", annenForelderOppholdEØS=" + annenForelderOppholdEØS + '}';
     }
 }

@@ -50,11 +50,11 @@ public class MottattDokument extends BaseEntitet {
     private String journalEnhet;
 
     @Convert(converter = DokumentTypeId.KodeverdiConverter.class)
-    @Column(name="type", nullable = false)
+    @Column(name = "type", nullable = false)
     private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
 
     @Convert(converter = DokumentKategori.KodeverdiConverter.class)
-    @Column(name="dokument_kategori", nullable = false)
+    @Column(name = "dokument_kategori", nullable = false)
     private DokumentKategori dokumentKategori = DokumentKategori.UDEFINERT;
 
     @Column(name = "behandling_id", updatable = false)
@@ -298,11 +298,9 @@ public class MottattDokument extends BaseEntitet {
         if (!(obj instanceof MottattDokument other)) {
             return false;
         }
-        return Objects.equals(this.dokumentTypeId, other.dokumentTypeId)
-            && Objects.equals(this.dokumentKategori, other.dokumentKategori)
-            && Objects.equals(this.journalpostId, other.journalpostId)
-            && Objects.equals(this.xmlPayload, other.xmlPayload)
-            && Objects.equals(this.elektroniskRegistrert, other.elektroniskRegistrert);
+        return Objects.equals(this.dokumentTypeId, other.dokumentTypeId) && Objects.equals(this.dokumentKategori, other.dokumentKategori)
+            && Objects.equals(this.journalpostId, other.journalpostId) && Objects.equals(this.xmlPayload, other.xmlPayload) && Objects.equals(
+            this.elektroniskRegistrert, other.elektroniskRegistrert);
     }
 
     @Override

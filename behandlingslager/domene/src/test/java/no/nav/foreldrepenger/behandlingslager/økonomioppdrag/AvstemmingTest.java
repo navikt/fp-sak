@@ -30,10 +30,7 @@ class AvstemmingTest {
 
     @Test
     void skal_feile_hvis_tidspunkt_er_null() {
-        Exception thrown = assertThrows(
-            NullPointerException.class,
-            () -> Avstemming.fra(null)
-        );
+        Exception thrown = assertThrows(NullPointerException.class, () -> Avstemming.fra(null));
 
         assertTrue(thrown.getMessage().contains("avstemmingTidspunkt"));
     }
@@ -42,7 +39,7 @@ class AvstemmingTest {
     void skal_være_lik_hvis_samme_dato_valgt() {
         var testDato = LocalDateTime.now();
         var avstemming1 = Avstemming.fra(testDato);
-        var avstemming2 =  Avstemming.fra(testDato);
+        var avstemming2 = Avstemming.fra(testDato);
 
         assertEquals(avstemming1, avstemming2);
         assertEquals(avstemming2.hashCode(), avstemming1.hashCode());
@@ -52,7 +49,7 @@ class AvstemmingTest {
     void skal_være_ulik_hvis_forskjellig_dato_valgt() {
         var testDato = LocalDateTime.now();
         var avstemming1 = Avstemming.fra(testDato);
-        var avstemming2 =  Avstemming.fra(testDato.plusDays(1));
+        var avstemming2 = Avstemming.fra(testDato.plusDays(1));
 
         assertNotEquals(avstemming1, avstemming2);
         assertNotEquals(avstemming2.hashCode(), avstemming1.hashCode());
@@ -62,7 +59,7 @@ class AvstemmingTest {
     void test_compareTo() {
         var testDato = LocalDateTime.now();
         var avstemming1 = Avstemming.fra(testDato);
-        var avstemming2 =  Avstemming.fra(testDato.plusDays(1));
+        var avstemming2 = Avstemming.fra(testDato.plusDays(1));
 
         assertThat(avstemming1.compareTo(avstemming2)).isEqualTo(-1);
         assertThat(avstemming2.compareTo(avstemming1)).isEqualTo(1);

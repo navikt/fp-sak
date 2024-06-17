@@ -67,8 +67,8 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         assertThat(aggregat.getOverstyrtFordeling().orElseThrow().getPerioder()).isNotEmpty();
         assertThat(aggregat.getOverstyrtFordeling().get().getPerioder()).hasSize(2);
 
-        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder().get(0).getDokumentasjonVurdering())
-            .isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder().get(0).getDokumentasjonVurdering()).isEqualTo(
+            DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
 
     }
 
@@ -77,12 +77,9 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var periode_1 = lagOppgittPeriode(LocalDate.now().minusDays(10), LocalDate.now(),
-            UttakPeriodeType.FORELDREPENGER);
-        var periode_2 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
-            UttakPeriodeType.FORELDREPENGER);
-        var periode_3 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
-            UttakPeriodeType.FEDREKVOTE);
+        var periode_1 = lagOppgittPeriode(LocalDate.now().minusDays(10), LocalDate.now(), UttakPeriodeType.FORELDREPENGER);
+        var periode_2 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20), UttakPeriodeType.FORELDREPENGER);
+        var periode_3 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20), UttakPeriodeType.FEDREKVOTE);
 
         var yf = repository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -99,11 +96,8 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         return fagsak;
     }
 
-    private OppgittPeriodeEntitet lagOppgittPeriode(LocalDate fom, LocalDate tom, UttakPeriodeType uttakPeriodeType){
-        return OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(uttakPeriodeType)
-            .build();
+    private OppgittPeriodeEntitet lagOppgittPeriode(LocalDate fom, LocalDate tom, UttakPeriodeType uttakPeriodeType) {
+        return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
 
 }

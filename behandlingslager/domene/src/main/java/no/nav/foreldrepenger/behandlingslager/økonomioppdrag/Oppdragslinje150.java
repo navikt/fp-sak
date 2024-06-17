@@ -216,23 +216,11 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "kodeEndringLinje=" + kodeEndringLinje + ", "
-            + "kodeStatusLinje=" + kodeStatusLinje + ", "
-            + "datoStatusFom=" + datoStatusFom + ", "
-            + "vedtakId=" + vedtakId + ", "
-            + "delytelseId=" + delytelseId + ", "
-            + "kodeKlassifik=" + kodeKlassifik + ", "
-            + "vedtakPeriode=" + vedtakPeriode + ", "
-            + "sats=" + sats + ", "
-            + "typeSats=" + typeSats + ", "
-            + "utbetalesTilId=" + utbetalesTilId + ", "
-            + "refFagsystemId=" + refFagsystemId + ", "
-            + "refDelytelseId=" + refDelytelseId + ", "
-            + "grad=" + utbetalingsgrad + ", "
-            + "opprettetTs=" + getOpprettetTidspunkt()
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "kodeEndringLinje=" + kodeEndringLinje + ", "
+            + "kodeStatusLinje=" + kodeStatusLinje + ", " + "datoStatusFom=" + datoStatusFom + ", " + "vedtakId=" + vedtakId + ", " + "delytelseId="
+            + delytelseId + ", " + "kodeKlassifik=" + kodeKlassifik + ", " + "vedtakPeriode=" + vedtakPeriode + ", " + "sats=" + sats + ", "
+            + "typeSats=" + typeSats + ", " + "utbetalesTilId=" + utbetalesTilId + ", " + "refFagsystemId=" + refFagsystemId + ", "
+            + "refDelytelseId=" + refDelytelseId + ", " + "grad=" + utbetalingsgrad + ", " + "opprettetTs=" + getOpprettetTidspunkt() + ">";
     }
 
     public static class Builder {

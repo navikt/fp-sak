@@ -68,48 +68,42 @@ public class PersonInformasjonEntitet extends BaseEntitet {
 
     PersonInformasjonEntitet(PersonInformasjonEntitet aggregat) {
         if (Optional.ofNullable(aggregat.getAdresser()).isPresent()) {
-            aggregat.getAdresser()
-            .forEach(e -> {
+            aggregat.getAdresser().forEach(e -> {
                 var entitet = new PersonAdresseEntitet(e);
                 adresser.add(entitet);
                 entitet.setPersonopplysningInformasjon(this);
             });
         }
         if (Optional.ofNullable(aggregat.getPersonstatus()).isPresent()) {
-            aggregat.getPersonstatus()
-            .forEach(e -> {
+            aggregat.getPersonstatus().forEach(e -> {
                 var entitet = new PersonstatusEntitet(e);
                 personstatuser.add(entitet);
                 entitet.setPersonInformasjon(this);
             });
         }
         if (Optional.ofNullable(aggregat.getOppholdstillatelser()).isPresent()) {
-            aggregat.getOppholdstillatelser()
-                .forEach(e -> {
-                    var entitet = new OppholdstillatelseEntitet(e);
-                    oppholdstillatelser.add(entitet);
-                    entitet.setPersonInformasjon(this);
-                });
+            aggregat.getOppholdstillatelser().forEach(e -> {
+                var entitet = new OppholdstillatelseEntitet(e);
+                oppholdstillatelser.add(entitet);
+                entitet.setPersonInformasjon(this);
+            });
         }
         if (Optional.ofNullable(aggregat.getStatsborgerskap()).isPresent()) {
-            aggregat.getStatsborgerskap()
-            .forEach(e -> {
+            aggregat.getStatsborgerskap().forEach(e -> {
                 var entitet = new StatsborgerskapEntitet(e);
                 statsborgerskap.add(entitet);
                 entitet.setPersonopplysningInformasjon(this);
             });
         }
         if (Optional.ofNullable(aggregat.getRelasjoner()).isPresent()) {
-            aggregat.getRelasjoner()
-            .forEach(e -> {
+            aggregat.getRelasjoner().forEach(e -> {
                 var entitet = new PersonRelasjonEntitet(e);
                 relasjoner.add(entitet);
                 entitet.setPersonopplysningInformasjon(this);
             });
         }
         if (Optional.ofNullable(aggregat.getPersonopplysninger()).isPresent()) {
-            aggregat.getPersonopplysninger()
-            .forEach(e -> {
+            aggregat.getPersonopplysninger().forEach(e -> {
                 var entitet = new PersonopplysningEntitet(e);
                 personopplysninger.add(entitet);
                 entitet.setPersonopplysningInformasjon(this);
@@ -244,12 +238,9 @@ public class PersonInformasjonEntitet extends BaseEntitet {
             return false;
         }
         var that = (PersonInformasjonEntitet) o;
-        return Objects.equals(personstatuser, that.personstatuser) &&
-                Objects.equals(oppholdstillatelser, that.oppholdstillatelser) &&
-                Objects.equals(statsborgerskap, that.statsborgerskap) &&
-                Objects.equals(adresser, that.adresser) &&
-                Objects.equals(personopplysninger, that.personopplysninger) &&
-                Objects.equals(relasjoner, that.relasjoner);
+        return Objects.equals(personstatuser, that.personstatuser) && Objects.equals(oppholdstillatelser, that.oppholdstillatelser) && Objects.equals(
+            statsborgerskap, that.statsborgerskap) && Objects.equals(adresser, that.adresser) && Objects.equals(personopplysninger,
+            that.personopplysninger) && Objects.equals(relasjoner, that.relasjoner);
     }
 
 
@@ -261,15 +252,9 @@ public class PersonInformasjonEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "PersonInformasjonEntitet{" +
-            "id=" + id +
-            ", personstatuser=" + personstatuser +
-            ", oppholdstillatelser=" + oppholdstillatelser +
-            ", statsborgerskap=" + statsborgerskap +
-            ", adresser=" + adresser +
-            ", personopplysninger=" + personopplysninger +
-            ", relasjoner=" + relasjoner +
-            '}';
+        return "PersonInformasjonEntitet{" + "id=" + id + ", personstatuser=" + personstatuser + ", oppholdstillatelser=" + oppholdstillatelser
+            + ", statsborgerskap=" + statsborgerskap + ", adresser=" + adresser + ", personopplysninger=" + personopplysninger + ", relasjoner="
+            + relasjoner + '}';
     }
 
     PersonInformasjonBuilder.RelasjonBuilder getRelasjonBuilderForAktørId(AktørId fraAktør, AktørId tilAktør, RelasjonsRolleType rolle) {
@@ -288,16 +273,22 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     }
 
     private boolean erSannsynligvisSammePeriode(DatoIntervallEntitet eksiterendePeriode, DatoIntervallEntitet nyPeriode) {
-        return eksiterendePeriode.equals(nyPeriode) || eksiterendePeriode.getFomDato().equals(nyPeriode.getFomDato())
-                && eksiterendePeriode.getTomDato().equals(Tid.TIDENES_ENDE) && !nyPeriode.getTomDato().equals(Tid.TIDENES_ENDE);
+        return eksiterendePeriode.equals(nyPeriode)
+            || eksiterendePeriode.getFomDato().equals(nyPeriode.getFomDato()) && eksiterendePeriode.getTomDato().equals(Tid.TIDENES_ENDE)
+            && !nyPeriode.getTomDato().equals(Tid.TIDENES_ENDE);
     }
 
-    PersonInformasjonBuilder.StatsborgerskapBuilder getStatsborgerskapBuilderForAktørId(AktørId aktørId, Landkoder landkode, DatoIntervallEntitet periode) {
+    PersonInformasjonBuilder.StatsborgerskapBuilder getStatsborgerskapBuilderForAktørId(AktørId aktørId,
+                                                                                        Landkoder landkode,
+                                                                                        DatoIntervallEntitet periode) {
         var eksisterende = statsborgerskap.stream()
             .filter(it -> it.getAktørId().equals(aktørId) && it.getStatsborgerskap().equals(landkode) && erSannsynligvisSammePeriode(it.getPeriode(),
                 periode))
             .findAny();
-        return PersonInformasjonBuilder.StatsborgerskapBuilder.oppdater(eksisterende).medAktørId(aktørId).medStatsborgerskap(landkode).medPeriode(periode);
+        return PersonInformasjonBuilder.StatsborgerskapBuilder.oppdater(eksisterende)
+            .medAktørId(aktørId)
+            .medStatsborgerskap(landkode)
+            .medPeriode(periode);
     }
 
     PersonInformasjonBuilder.PersonstatusBuilder getPersonstatusBuilderForAktørId(AktørId aktørId, DatoIntervallEntitet periode) {

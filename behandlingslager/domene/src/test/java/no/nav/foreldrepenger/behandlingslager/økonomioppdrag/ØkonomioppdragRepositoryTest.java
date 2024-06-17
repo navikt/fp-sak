@@ -59,8 +59,7 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
 
-        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
-            LocalDate.now(), KodeFagområde.REFUTG);
+        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(), LocalDate.now(), KodeFagområde.REFUTG);
         assertThat(oppdragListe.stream().map(o -> o.getOppdragskontroll().getBehandlingId())).contains(behandlingId);
     }
 
@@ -88,9 +87,8 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110_2);
 
         økonomioppdragRepository.lagre(oppdrkontroll);
-        assertThatThrownBy(() ->
-            økonomioppdragRepository.hentOppdragUtenKvittering(oppdr110.getFagsystemId(), oppdrkontroll.getBehandlingId()))
-            .hasMessageContaining("returnerte mer enn eksakt ett resultat");
+        assertThatThrownBy(() -> økonomioppdragRepository.hentOppdragUtenKvittering(oppdr110.getFagsystemId(),
+            oppdrkontroll.getBehandlingId())).hasMessageContaining("returnerte mer enn eksakt ett resultat");
     }
 
     @Test
@@ -117,8 +115,8 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
         //Testene kjøres ikke mot tom db
-        var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), KodeFagområde.REFUTG).size();
+        var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1), LocalDate.now().minusDays(1),
+            KodeFagområde.REFUTG).size();
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
@@ -127,8 +125,8 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
 
-        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), KodeFagområde.REFUTG).size();
+        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1), LocalDate.now().minusDays(1),
+            KodeFagområde.REFUTG).size();
         assertThat(oppdragListe).isEqualTo(førSize);
     }
 

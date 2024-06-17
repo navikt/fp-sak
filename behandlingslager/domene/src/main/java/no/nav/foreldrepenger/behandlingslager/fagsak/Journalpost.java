@@ -73,8 +73,7 @@ public class Journalpost extends BaseEntitet {
             return false;
         }
 
-        return Objects.equals(this.journalpostId, other.journalpostId)
-                && Objects.equals(this.fagsak, other.fagsak);
+        return Objects.equals(this.journalpostId, other.journalpostId) && Objects.equals(this.fagsak, other.fagsak);
     }
 
     @Override

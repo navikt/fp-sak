@@ -171,18 +171,13 @@ public class Fagsak extends BaseEntitet {
         if (!(object instanceof Fagsak fagsak)) {
             return false;
         }
-        return Objects.equals(saksnummer, fagsak.saksnummer)
-                && Objects.equals(ytelseType, fagsak.ytelseType)
-                && Objects.equals(navBruker, fagsak.navBruker)
-                && Objects.equals(getYtelseType(), fagsak.getYtelseType());
+        return Objects.equals(saksnummer, fagsak.saksnummer) && Objects.equals(ytelseType, fagsak.ytelseType) && Objects.equals(navBruker,
+            fagsak.navBruker) && Objects.equals(getYtelseType(), fagsak.getYtelseType());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + (id == null ? "" : "id=" + id + ",")
-                + " bruker=" + navBruker
-                + ">";
+        return getClass().getSimpleName() + "<" + (id == null ? "" : "id=" + id + ",") + " bruker=" + navBruker + ">";
     }
 
     @Override

@@ -85,8 +85,7 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("ventSoknad", AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode())
             .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
-        @SuppressWarnings("unchecked")
-        var result = (List<Object[]>) query.getResultList();
+        @SuppressWarnings("unchecked") var result = (List<Object[]>) query.getResultList();
         return result.stream().map(NøkkeltallBehandlingRepository::mapFørsteUttak).toList();
     }
 
@@ -97,8 +96,7 @@ public class NøkkeltallBehandlingRepository {
         var status = BehandlingVenteStatus.valueOf((String) queryResultat[2]);
         var førsteUttaksMåned = localDate(queryResultat[3]);
         var antall = (BigDecimal) queryResultat[4];
-        return new NøkkeltallBehandlingFørsteUttak(behandlendeEnhet, behandlingType,
-            status, førsteUttaksMåned, antall.intValue());
+        return new NøkkeltallBehandlingFørsteUttak(behandlendeEnhet, behandlingType, status, førsteUttaksMåned, antall.intValue());
     }
 
     private static final String QUERY_FRIST_UTLØPER_DAG = """
@@ -124,10 +122,9 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("førstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
-            .setParameter("ventIgnorer", List.of(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode(), AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.getKode()))
-            ;
-        @SuppressWarnings("unchecked")
-        var result = (List<Object[]>) query.getResultList();
+            .setParameter("ventIgnorer",
+                List.of(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode(), AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.getKode()));
+        @SuppressWarnings("unchecked") var result = (List<Object[]>) query.getResultList();
         return result.stream().map(NøkkeltallBehandlingRepository::mapFrist).toList();
     }
 

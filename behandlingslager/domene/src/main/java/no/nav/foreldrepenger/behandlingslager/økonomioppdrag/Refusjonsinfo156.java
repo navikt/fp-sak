@@ -88,8 +88,7 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
         if (!(object instanceof Refusjonsinfo156 refusjonsinfo156)) {
             return false;
         }
-        return Objects.equals(maksDato, refusjonsinfo156.getMaksDato())
-             && Objects.equals(refunderesId, refusjonsinfo156.getRefunderesId())
+        return Objects.equals(maksDato, refusjonsinfo156.getMaksDato()) && Objects.equals(refunderesId, refusjonsinfo156.getRefunderesId())
             && Objects.equals(datoFom, refusjonsinfo156.getDatoFom());
     }
 
@@ -150,13 +149,8 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "maksDato=" + maksDato + ", "
-            + "refunderesId=" + refunderesId + ", "
-            + "datoFom=" + datoFom + ", "
-            + "opprettetTs=" + getOpprettetTidspunkt()
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "maksDato=" + maksDato + ", " + "refunderesId="
+            + refunderesId + ", " + "datoFom=" + datoFom + ", " + "opprettetTs=" + getOpprettetTidspunkt() + ">";
     }
 
 }

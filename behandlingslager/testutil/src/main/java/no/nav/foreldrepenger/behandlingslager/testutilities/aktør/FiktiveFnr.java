@@ -47,17 +47,23 @@ public class FiktiveFnr {
         return PersonIdent.fra(nesteFnr());
     }
 
-    /** Returnerer FNR for mann > 18 år */
+    /**
+     * Returnerer FNR for mann > 18 år
+     */
     public String nesteMannFnr() {
         return neste("mann");
     }
 
-    /** Returnerer FNR for kvinne > 18 år */
+    /**
+     * Returnerer FNR for kvinne > 18 år
+     */
     public String nesteKvinneFnr() {
         return neste("kvinne");
     }
 
-    /** Returnerer FNR for barn (tilfeldig kjønn) < 18 år */
+    /**
+     * Returnerer FNR for barn (tilfeldig kjønn) < 18 år
+     */
     public String nesteBarnFnr() {
         return neste("barn");
     }

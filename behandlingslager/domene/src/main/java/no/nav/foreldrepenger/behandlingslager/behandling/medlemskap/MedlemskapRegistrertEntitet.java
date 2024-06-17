@@ -31,8 +31,8 @@ public class MedlemskapRegistrertEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true /* ok med orphanremoval siden perioder er eid av denne */)
-    @JoinColumn(name="MEDLEMSKAP_REGISTRERT_ID")
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true /* ok med orphanremoval siden perioder er eid av denne */)
+    @JoinColumn(name = "MEDLEMSKAP_REGISTRERT_ID")
     @ChangeTracked
     private Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>(2);
 
@@ -40,7 +40,9 @@ public class MedlemskapRegistrertEntitet extends BaseEntitet {
         // default tom entitet for hibernate
     }
 
-    /** deep copy av MedlemskapRegistrertEntitet. */
+    /**
+     * deep copy av MedlemskapRegistrertEntitet.
+     */
     MedlemskapRegistrertEntitet(MedlemskapRegistrertEntitet medlemskapRegistrert) {
         this(Collections.unmodifiableCollection(medlemskapRegistrert.getMedlemskapPerioder()));
     }

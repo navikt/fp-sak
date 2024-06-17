@@ -31,7 +31,7 @@ class NøkkeltallBehandlingRepositoryTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setup(EntityManager entityManager){
+    void setup(EntityManager entityManager) {
         nøkkeltallBehandlingRepository = new NøkkeltallBehandlingRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
@@ -72,13 +72,18 @@ class NøkkeltallBehandlingRepositoryTest {
 
     private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
-        var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow().toLocalDate();
+        var forventetFrist = søknad.getBehandling()
+            .getAksjonspunkter()
+            .stream()
+            .findFirst()
+            .map(Aksjonspunkt::getFristTid)
+            .orElseThrow()
+            .toLocalDate();
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
         return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
     }
 
-    private static int antallTreff(List<NøkkeltallBehandlingFørsteUttak> nøkkeltallInitiell,
-                                   NøkkeltallBehandlingFørsteUttak forventet) {
+    private static int antallTreff(List<NøkkeltallBehandlingFørsteUttak> nøkkeltallInitiell, NøkkeltallBehandlingFørsteUttak forventet) {
         return nøkkeltallInitiell.stream()
             .filter(i -> Objects.equals(i.behandlendeEnhet(), forventet.behandlendeEnhet()))
             .filter(i -> Objects.equals(i.behandlingType(), forventet.behandlingType()))
@@ -88,8 +93,7 @@ class NøkkeltallBehandlingRepositoryTest {
             .sum();
     }
 
-    private static Long antallTreff(List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallInitiell,
-                                   NøkkeltallBehandlingVentefristUtløper forventet) {
+    private static Long antallTreff(List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallInitiell, NøkkeltallBehandlingVentefristUtløper forventet) {
         return nøkkeltallInitiell.stream()
             .filter(i -> Objects.equals(i.behandlendeEnhet(), forventet.behandlendeEnhet()))
             .filter(i -> Objects.equals(i.fagsakYtelseType(), forventet.fagsakYtelseType()))
@@ -101,7 +105,9 @@ class NøkkeltallBehandlingRepositoryTest {
     private LocalDate finnFørsteUttakMånedDato(ScenarioMorSøkerForeldrepenger søknad) {
         return repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(søknad.getBehandling().getId())
-            .getOppgittFordeling().getPerioder().stream()
+            .getOppgittFordeling()
+            .getPerioder()
+            .stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(LocalDate::compareTo)
             .map(d -> d.with(TemporalAdjusters.firstDayOfMonth()))

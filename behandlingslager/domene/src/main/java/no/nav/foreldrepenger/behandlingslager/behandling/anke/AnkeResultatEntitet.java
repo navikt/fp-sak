@@ -93,10 +93,7 @@ public class AnkeResultatEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "ankeBehandlingId=" + getAnkeBehandlingId() + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "ankeBehandlingId=" + getAnkeBehandlingId() + ", " + ">";
     }
 
     public static class Builder {

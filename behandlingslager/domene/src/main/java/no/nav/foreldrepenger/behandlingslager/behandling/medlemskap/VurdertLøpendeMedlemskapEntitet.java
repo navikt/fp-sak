@@ -20,10 +20,10 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for løpende medlemskap.
- *
+ * <p>
  * Implementert iht. builder pattern (ref. "Effective Java, 2. ed." J.Bloch).
  * Non-public constructors og setters, dvs. immutable.
- *
+ * <p>
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
@@ -65,7 +65,7 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
     private String begrunnelse;
 
     @Convert(converter = MedlemskapManuellVurderingType.KodeverdiConverter.class)
-    @Column(name="manuell_vurd", nullable = false)
+    @Column(name = "manuell_vurd", nullable = false)
     private MedlemskapManuellVurderingType medlemsperiodeManuellVurdering = MedlemskapManuellVurderingType.UDEFINERT;
 
     VurdertLøpendeMedlemskapEntitet() {
@@ -137,13 +137,12 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
 
     @Override
     public MedlemskapManuellVurderingType getMedlemsperiodeManuellVurdering() {
-        return Objects.equals(medlemsperiodeManuellVurdering, MedlemskapManuellVurderingType.UDEFINERT) ? null
-            : medlemsperiodeManuellVurdering;
+        return Objects.equals(medlemsperiodeManuellVurdering, MedlemskapManuellVurderingType.UDEFINERT) ? null : medlemsperiodeManuellVurdering;
     }
 
     void setMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType medlemsperiodeManuellVurdering) {
-        this.medlemsperiodeManuellVurdering = medlemsperiodeManuellVurdering == null ? MedlemskapManuellVurderingType.UDEFINERT
-            : medlemsperiodeManuellVurdering;
+        this.medlemsperiodeManuellVurdering =
+            medlemsperiodeManuellVurdering == null ? MedlemskapManuellVurderingType.UDEFINERT : medlemsperiodeManuellVurdering;
     }
 
 

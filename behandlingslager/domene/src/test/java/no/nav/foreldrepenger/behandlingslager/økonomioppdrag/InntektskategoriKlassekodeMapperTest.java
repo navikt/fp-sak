@@ -30,6 +30,6 @@ class InntektskategoriKlassekodeMapperTest {
     @Test
     void skal_kaste_exception_hvis_inntektskategori_er_udefinert_eller_ikke_finnes() {
         assertThrows(IllegalStateException.class,
-                () -> InntektskategoriKlassekodeMapper.mapTilKlassekode(Inntektskategori.UDEFINERT, FamilieYtelseType.FØDSEL));
+            () -> InntektskategoriKlassekodeMapper.mapTilKlassekode(Inntektskategori.UDEFINERT, FamilieYtelseType.FØDSEL));
     }
 }

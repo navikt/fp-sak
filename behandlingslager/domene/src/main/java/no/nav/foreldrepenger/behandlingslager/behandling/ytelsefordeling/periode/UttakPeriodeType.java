@@ -54,6 +54,7 @@ public enum UttakPeriodeType implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, UttakPeriodeType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

@@ -61,8 +61,7 @@ public class VergeGrunnlagEntitet extends BaseEntitet {
             return false;
         }
 
-        return Objects.equals(this.behandlingId, that.behandlingId)
-            && Objects.equals(this.verge, that.verge);
+        return Objects.equals(this.behandlingId, that.behandlingId) && Objects.equals(this.verge, that.verge);
     }
 
     @Override
@@ -72,9 +71,7 @@ public class VergeGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<id=" + this.id
-            + ", verge=" + this.verge
-            + ">";
+        return getClass().getSimpleName() + "<id=" + this.id + ", verge=" + this.verge + ">";
     }
 
     VergeAggregat tilAggregat() {

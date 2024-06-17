@@ -47,7 +47,7 @@ public class Uttaksperiodegrense extends BaseEntitet {
         this.mottattDato = mottattDato;
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 

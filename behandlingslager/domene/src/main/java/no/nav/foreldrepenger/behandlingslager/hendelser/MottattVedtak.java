@@ -58,13 +58,15 @@ public class MottattVedtak extends BaseCreateableEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (MottattVedtak) o;
-        return Objects.equals(saksnummer, that.saksnummer) &&
-            Objects.equals(fagsystem, that.fagsystem) &&
-            Objects.equals(ytelse, that.ytelse) &&
-            Objects.equals(referanse, that.referanse);
+        return Objects.equals(saksnummer, that.saksnummer) && Objects.equals(fagsystem, that.fagsystem) && Objects.equals(ytelse, that.ytelse)
+            && Objects.equals(referanse, that.referanse);
     }
 
     @Override

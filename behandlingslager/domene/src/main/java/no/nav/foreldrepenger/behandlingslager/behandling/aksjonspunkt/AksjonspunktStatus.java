@@ -16,9 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum AksjonspunktStatus implements Kodeverdi {
 
 
-    AVBRUTT ("AVBR", "Avbrutt"),
+    AVBRUTT("AVBR", "Avbrutt"),
     OPPRETTET("OPPR", "Opprettet"),
-    UTFØRT ("UTFO", "Utført"),
+    UTFØRT("UTFO", "Utført"),
     ;
 
     public static final String KODEVERK = "AKSJONSPUNKT_STATUS";

@@ -40,19 +40,19 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     private long versjon;
 
     @Convert(converter = VilkårType.KodeverdiConverter.class)
-    @Column(name="vilkar_type", nullable = false, updatable = false)
+    @Column(name = "vilkar_type", nullable = false, updatable = false)
     private VilkårType vilkårType;
 
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
-    @Column(name="vilkar_utfall", nullable = false)
+    @Column(name = "vilkar_utfall", nullable = false)
     private VilkårUtfallType vilkårUtfall = VilkårUtfallType.UDEFINERT;
 
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
-    @Column(name="vilkar_utfall_manuell", nullable = false)
+    @Column(name = "vilkar_utfall_manuell", nullable = false)
     private VilkårUtfallType vilkårUtfallManuelt = VilkårUtfallType.UDEFINERT;
 
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
-    @Column(name="vilkar_utfall_overstyrt", nullable = false)
+    @Column(name = "vilkar_utfall_overstyrt", nullable = false)
     private VilkårUtfallType vilkårUtfallOverstyrt = VilkårUtfallType.UDEFINERT;
 
     /*
@@ -66,7 +66,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     private VilkårUtfallMerknad vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
 
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
-    @Column(name="avslag_kode", nullable = false)
+    @Column(name = "avslag_kode", nullable = false)
     private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
 
     @Lob
@@ -122,7 +122,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
 
     /**
      * Returnerer {@link Avslagsårsak} dersom vilkår ikke er oppfylt.
-     *
+     * <p>
      * Som et resultat av automatisk regelvurdering kan {@link Avslagsårsak} persisteres på vilkår.
      * Men vilkårutfallet kan være overstyrt ift automatisk regelvurdering. Ettersom kun én {@link Avslagsårsak} lagres,
      * må det logisk evalueres at gjeldende utfall er IKKE_OPPFYLT for at {@link Avslagsårsak} skal være gyldig.
@@ -183,12 +183,8 @@ public class Vilkår extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "type=" + getVilkårType()
-            + ", utfall=" + vilkårUtfall
-            + ", utfallManuelt=" + vilkårUtfallManuelt
-            + ", utfallOverstyrt=" + vilkårUtfallOverstyrt
-            + ">";
+        return getClass().getSimpleName() + "<" + "type=" + getVilkårType() + ", utfall=" + vilkårUtfall + ", utfallManuelt=" + vilkårUtfallManuelt
+            + ", utfallOverstyrt=" + vilkårUtfallOverstyrt + ">";
     }
 
     public VilkårResultat getVilkårResultat() {
@@ -242,13 +238,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @SuppressWarnings("rawtypes")
     List tuples() {
         // returnerer liste av alle felter i et vilkår for enklere sammenligning
-        return asList(
-            this.getGjeldendeVilkårUtfall(),
-            this.getVilkårUtfallManuelt(),
-            this.getVilkårUtfallOverstyrt(),
-            this.getAvslagsårsak(),
-            this.getVilkårUtfallMerknad(),
-            this.getRegelInput(),
-            this.getRegelEvaluering());
+        return asList(this.getGjeldendeVilkårUtfall(), this.getVilkårUtfallManuelt(), this.getVilkårUtfallOverstyrt(), this.getAvslagsårsak(),
+            this.getVilkårUtfallMerknad(), this.getRegelInput(), this.getRegelEvaluering());
     }
 }

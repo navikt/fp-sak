@@ -56,7 +56,6 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     private LocalDate virkningsdato;
 
 
-
     UføretrygdGrunnlagEntitet() {
     }
 
@@ -109,13 +108,14 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UføretrygdGrunnlagEntitet that)) return false;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(aktørId, that.aktørId) &&
-            Objects.equals(uføretrygdRegister, that.uføretrygdRegister) &&
-            Objects.equals(uføredato, that.uføredato) &&
-            Objects.equals(virkningsdato, that.virkningsdato);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UføretrygdGrunnlagEntitet that)) {
+            return false;
+        }
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(aktørId, that.aktørId) && Objects.equals(uføretrygdRegister,
+            that.uføretrygdRegister) && Objects.equals(uføredato, that.uføredato) && Objects.equals(virkningsdato, that.virkningsdato);
     }
 
     @Override

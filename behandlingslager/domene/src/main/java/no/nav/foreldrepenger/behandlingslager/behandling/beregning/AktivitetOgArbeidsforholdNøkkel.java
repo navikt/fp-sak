@@ -20,12 +20,8 @@ public class AktivitetOgArbeidsforholdNøkkel {
 
     @Override
     public String toString() {
-        return "BeregningsresultatAktivitetsnøkkel{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", aktivitetStatus=" + aktivitetStatus +
-            ", inntektskategori=" + inntektskategori +
-            '}';
+        return "BeregningsresultatAktivitetsnøkkel{" + "arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef
+            + ", aktivitetStatus=" + aktivitetStatus + ", inntektskategori=" + inntektskategori + '}';
     }
 
     @Override
@@ -33,14 +29,12 @@ public class AktivitetOgArbeidsforholdNøkkel {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AktivitetOgArbeidsforholdNøkkel that)){
+        if (!(o instanceof AktivitetOgArbeidsforholdNøkkel that)) {
             return false;
         }
 
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver)
-            && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef)
-            && Objects.equals(aktivitetStatus, that.aktivitetStatus)
-            && Objects.equals(inntektskategori, that.inntektskategori);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) && Objects.equals(
+            aktivitetStatus, that.aktivitetStatus) && Objects.equals(inntektskategori, that.inntektskategori);
     }
 
     @Override

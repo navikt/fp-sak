@@ -19,10 +19,7 @@ public class AktivitetOgArbeidsgiverNøkkel {
 
     @Override
     public String toString() {
-        return "BeregningsresultatAktivitetsnøkkelV2{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", aktivitetStatus=" + aktivitetStatus +
-            '}';
+        return "BeregningsresultatAktivitetsnøkkelV2{" + "arbeidsgiver=" + arbeidsgiver + ", aktivitetStatus=" + aktivitetStatus + '}';
     }
 
     @Override
@@ -30,12 +27,11 @@ public class AktivitetOgArbeidsgiverNøkkel {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AktivitetOgArbeidsgiverNøkkel that)){
+        if (!(o instanceof AktivitetOgArbeidsgiverNøkkel that)) {
             return false;
         }
 
-        return Objects.equals(arbeidsgiver, that.arbeidsgiver)
-            && Objects.equals(aktivitetStatus, that.aktivitetStatus);
+        return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(aktivitetStatus, that.aktivitetStatus);
     }
 
     public Arbeidsgiver getArbeidsgiver() {

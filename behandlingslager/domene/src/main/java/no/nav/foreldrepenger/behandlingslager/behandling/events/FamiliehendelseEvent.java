@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class FamiliehendelseEvent  implements BehandlingEvent {
+public class FamiliehendelseEvent implements BehandlingEvent {
 
     private EventType eventType;
     private Long fagsakId;
@@ -17,8 +17,13 @@ public class FamiliehendelseEvent  implements BehandlingEvent {
     private LocalDate sisteBekreftetDato;
 
 
-    public FamiliehendelseEvent(EventType eventType, AktørId aktørId, Long fagsakId, Long behandlingId,
-                                FagsakYtelseType ytelseType, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
+    public FamiliehendelseEvent(EventType eventType,
+                                AktørId aktørId,
+                                Long fagsakId,
+                                Long behandlingId,
+                                FagsakYtelseType ytelseType,
+                                LocalDate forrigeBekreftetDato,
+                                LocalDate sisteBekreftetDato) {
         this.eventType = eventType;
         this.aktørId = aktørId;
         this.fagsakId = fagsakId;
@@ -58,9 +63,10 @@ public class FamiliehendelseEvent  implements BehandlingEvent {
         return sisteBekreftetDato;
     }
 
-    public EventType getEventType(){
+    public EventType getEventType() {
         return eventType;
     }
+
     public enum EventType {
         TERMIN_TIL_FØDSEL
     }

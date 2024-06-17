@@ -25,18 +25,18 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG_DOK_LINK")
     private Long id;
 
-    @Column(name = "link_tekst", updatable=false, nullable = false)
+    @Column(name = "link_tekst", updatable = false, nullable = false)
     private String linkTekst;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable=false)
+    @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable = false)
     private Historikkinnslag historikkinnslag;
 
     @Embedded
-    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable=false))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable = false))
     private JournalpostId journalpostId;
 
-    @Column(name = "dokument_id", updatable=false)
+    @Column(name = "dokument_id", updatable = false)
     private String dokumentId;
 
     @Override
@@ -112,11 +112,8 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
         if (!(o instanceof HistorikkinnslagDokumentLink that)) {
             return false;
         }
-        return
-            Objects.equals(getLinkTekst(), that.getLinkTekst()) &&
-            Objects.equals(historikkinnslag, that.historikkinnslag) &&
-            Objects.equals(getJournalpostId(), that.getJournalpostId()) &&
-            Objects.equals(getDokumentId(), that.getDokumentId());
+        return Objects.equals(getLinkTekst(), that.getLinkTekst()) && Objects.equals(historikkinnslag, that.historikkinnslag) && Objects.equals(
+            getJournalpostId(), that.getJournalpostId()) && Objects.equals(getDokumentId(), that.getDokumentId());
     }
 
     @Override

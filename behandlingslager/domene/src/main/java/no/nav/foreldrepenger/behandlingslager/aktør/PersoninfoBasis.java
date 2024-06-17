@@ -7,12 +7,7 @@ import java.time.LocalDate;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public record PersoninfoBasis(AktørId aktørId,
-                              PersonIdent personIdent,
-                              String navn,
-                              LocalDate fødselsdato,
-                              LocalDate dødsdato,
-                              NavBrukerKjønn kjønn,
+public record PersoninfoBasis(AktørId aktørId, PersonIdent personIdent, String navn, LocalDate fødselsdato, LocalDate dødsdato, NavBrukerKjønn kjønn,
                               String diskresjonskode) {
 
     public PersoninfoBasis {

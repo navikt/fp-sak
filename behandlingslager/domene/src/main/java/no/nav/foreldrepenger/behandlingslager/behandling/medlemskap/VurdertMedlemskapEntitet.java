@@ -17,10 +17,10 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for medlemskap.
- *
+ * <p>
  * Implementert iht. builder pattern (ref. "Effective Java, 2. ed." J.Bloch).
  * Non-public constructors og setters, dvs. immutable.
- *
+ * <p>
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
@@ -57,7 +57,7 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
     private String begrunnelse;
 
     @Convert(converter = MedlemskapManuellVurderingType.KodeverdiConverter.class)
-    @Column(name="medlemsperiode_manuell_vurd", nullable = false)
+    @Column(name = "medlemsperiode_manuell_vurd", nullable = false)
     private MedlemskapManuellVurderingType medlemsperiodeManuellVurdering = MedlemskapManuellVurderingType.UDEFINERT;
 
     VurdertMedlemskapEntitet() {
@@ -73,7 +73,7 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
         this.bosattVurdering = template.getBosattVurdering();
         this.setMedlemsperiodeManuellVurdering(template.getMedlemsperiodeManuellVurdering());
         this.erEøsBorger = template.getErEøsBorger();
-        this.fom = ((VurdertMedlemskapEntitet)template).getFom();
+        this.fom = ((VurdertMedlemskapEntitet) template).getFom();
         this.begrunnelse = template.getBegrunnelse();
     }
 
@@ -110,13 +110,12 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
 
     @Override
     public MedlemskapManuellVurderingType getMedlemsperiodeManuellVurdering() {
-        return Objects.equals(medlemsperiodeManuellVurdering, MedlemskapManuellVurderingType.UDEFINERT) ? null
-            : medlemsperiodeManuellVurdering;
+        return Objects.equals(medlemsperiodeManuellVurdering, MedlemskapManuellVurderingType.UDEFINERT) ? null : medlemsperiodeManuellVurdering;
     }
 
     void setMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType medlemsperiodeManuellVurdering) {
-        this.medlemsperiodeManuellVurdering = medlemsperiodeManuellVurdering == null ? MedlemskapManuellVurderingType.UDEFINERT
-            : medlemsperiodeManuellVurdering;
+        this.medlemsperiodeManuellVurdering =
+            medlemsperiodeManuellVurdering == null ? MedlemskapManuellVurderingType.UDEFINERT : medlemsperiodeManuellVurdering;
     }
 
 
@@ -128,19 +127,17 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
         if (!(obj instanceof VurdertMedlemskapEntitet other)) {
             return false;
         }
-        return Objects.equals(this.oppholdsrettVurdering, other.getOppholdsrettVurdering())
-                && Objects.equals(this.lovligOppholdVurdering, other.getLovligOppholdVurdering())
-                && Objects.equals(this.bosattVurdering, other.getBosattVurdering())
-                && Objects.equals(this.erEøsBorger, other.getErEøsBorger())
-                && Objects.equals(this.getMedlemsperiodeManuellVurdering(), other.getMedlemsperiodeManuellVurdering())
-                && Objects.equals(this.getFom(), other.getFom());
+        return Objects.equals(this.oppholdsrettVurdering, other.getOppholdsrettVurdering()) && Objects.equals(this.lovligOppholdVurdering,
+            other.getLovligOppholdVurdering()) && Objects.equals(this.bosattVurdering, other.getBosattVurdering()) && Objects.equals(this.erEøsBorger,
+            other.getErEøsBorger()) && Objects.equals(this.getMedlemsperiodeManuellVurdering(), other.getMedlemsperiodeManuellVurdering())
+            && Objects.equals(this.getFom(), other.getFom());
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppholdsrettVurdering, lovligOppholdVurdering, bosattVurdering, getMedlemsperiodeManuellVurdering(),
-            erEøsBorger, getFom());
+        return Objects.hash(oppholdsrettVurdering, lovligOppholdVurdering, bosattVurdering, getMedlemsperiodeManuellVurdering(), erEøsBorger,
+            getFom());
     }
 
 

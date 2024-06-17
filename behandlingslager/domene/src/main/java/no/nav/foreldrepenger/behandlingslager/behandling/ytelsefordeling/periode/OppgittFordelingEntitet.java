@@ -89,10 +89,8 @@ public class OppgittFordelingEntitet extends BaseEntitet {
         if (!(o instanceof OppgittFordelingEntitet that)) {
             return false;
         }
-        return Objects.equals(søknadsPerioder, that.søknadsPerioder) &&
-                Objects.equals(erAnnenForelderInformert, that.erAnnenForelderInformert) &&
-                Objects.equals(ønskerJustertVedFødsel, that.ønskerJustertVedFødsel)
-            ;
+        return Objects.equals(søknadsPerioder, that.søknadsPerioder) && Objects.equals(erAnnenForelderInformert, that.erAnnenForelderInformert)
+            && Objects.equals(ønskerJustertVedFødsel, that.ønskerJustertVedFødsel);
     }
 
     @Override

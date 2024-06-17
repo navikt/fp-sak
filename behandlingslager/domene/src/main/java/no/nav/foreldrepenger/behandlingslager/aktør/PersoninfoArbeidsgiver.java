@@ -36,13 +36,15 @@ public class PersoninfoArbeidsgiver {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PersoninfoArbeidsgiver) o;
-        return aktørId.equals(that.aktørId) &&
-            Objects.equals(navn, that.navn) &&
-            Objects.equals(personIdent, that.personIdent) &&
-            Objects.equals(fødselsdato, that.fødselsdato);
+        return aktørId.equals(that.aktørId) && Objects.equals(navn, that.navn) && Objects.equals(personIdent, that.personIdent) && Objects.equals(
+            fødselsdato, that.fødselsdato);
     }
 
     @Override

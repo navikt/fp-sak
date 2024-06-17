@@ -40,8 +40,7 @@ class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
 
     private Behandlingsresultat lagBehandlingMedResultat() {
         var entityManager = getEntityManager();
-        var behandling = new BasicBehandlingBuilder(entityManager)
-            .opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        var behandling = new BasicBehandlingBuilder(entityManager).opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         new BehandlingsresultatRepository(entityManager).lagre(behandling.getId(), behandlingsresultat);
         return behandlingsresultat;

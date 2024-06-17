@@ -29,7 +29,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     private Long id;
 
     @Convert(converter = ArbeidsforholdIkkeOppfyltÅrsak.KodeverdiConverter.class)
-    @Column(name="arbeidsforhold_resultat_aarsak", nullable=false)
+    @Column(name = "arbeidsforhold_resultat_aarsak", nullable = false)
     private ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak = ArbeidsforholdIkkeOppfyltÅrsak.INGEN;
 
     @Embedded

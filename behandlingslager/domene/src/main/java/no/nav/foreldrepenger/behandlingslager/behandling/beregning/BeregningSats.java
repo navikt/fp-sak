@@ -33,8 +33,8 @@ public class BeregningSats extends BaseEntitet {
     @Embedded
     DatoIntervallEntitet periode;
 
-    @Convert(converter= BeregningSatsType.KodeverdiConverter.class)
-    @Column(name="sats_type", nullable = false)
+    @Convert(converter = BeregningSatsType.KodeverdiConverter.class)
+    @Column(name = "sats_type", nullable = false)
     private BeregningSatsType satsType = BeregningSatsType.UDEFINERT;
 
     @SuppressWarnings("unused")
@@ -64,8 +64,9 @@ public class BeregningSats extends BaseEntitet {
     }
 
     public void setTomDato(LocalDate tom) {
-        if (tom == null || !tom.isAfter(periode.getFomDato()))
+        if (tom == null || !tom.isAfter(periode.getFomDato())) {
             throw new IllegalArgumentException("Feil tomdato " + tom);
+        }
         periode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), tom);
     }
 
@@ -82,9 +83,8 @@ public class BeregningSats extends BaseEntitet {
             return false;
         }
 
-        return Objects.equals(this.getSatsType(), annen.getSatsType())
-            && Objects.equals(this.periode, annen.periode)
-            && Objects.equals(this.verdi, annen.verdi);
+        return Objects.equals(this.getSatsType(), annen.getSatsType()) && Objects.equals(this.periode, annen.periode) && Objects.equals(this.verdi,
+            annen.verdi);
     }
 
     @Override

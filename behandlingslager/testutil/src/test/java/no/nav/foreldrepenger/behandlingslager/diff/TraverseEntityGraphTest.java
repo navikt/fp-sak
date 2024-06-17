@@ -118,15 +118,11 @@ class TraverseEntityGraphTest {
     @Test
     void skal_kun_diffe_på_markerte_felt() {
         // Arrange
-        var medlemskap1 = new MedlemskapPerioderBuilder()
-                .medMedlId(1L) // MedlId er ikke markert
-                .medErMedlem(true)
-                .build();
+        var medlemskap1 = new MedlemskapPerioderBuilder().medMedlId(1L) // MedlId er ikke markert
+            .medErMedlem(true).build();
 
-        var medlemskap2 = new MedlemskapPerioderBuilder()
-                .medMedlId(2L) // MedlId er ikke markert
-                .medErMedlem(false)
-                .build();
+        var medlemskap2 = new MedlemskapPerioderBuilder().medMedlId(2L) // MedlId er ikke markert
+            .medErMedlem(false).build();
 
         var differ = new DiffEntity(lagTraverserForTrackedFields());
 
@@ -200,9 +196,7 @@ class TraverseEntityGraphTest {
     }
 
     private ScenarioMorSøkerEngangsstønad lagTestScenario() {
-        return ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medTilleggsopplysninger("hello");
+        return ScenarioMorSøkerEngangsstønad.forFødsel().medTilleggsopplysninger("hello");
     }
 
     @Entity

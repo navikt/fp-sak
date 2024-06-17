@@ -78,7 +78,8 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
     private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
 
-    protected Oppdrag110() {}
+    protected Oppdrag110() {
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -170,32 +171,21 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         if (!(object instanceof Oppdrag110 oppdr110)) {
             return false;
         }
-        return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
-            && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
-            && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
-            && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId())
-            && Objects.equals(saksbehId, oppdr110.getSaksbehId())
-            && Objects.equals(nøkkelAvstemming, oppdr110.getAvstemming());
+        return Objects.equals(kodeEndring, oppdr110.getKodeEndring()) && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade()) && Objects.equals(
+            fagsystemId, oppdr110.getFagsystemId()) && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId()) && Objects.equals(saksbehId,
+            oppdr110.getSaksbehId()) && Objects.equals(nøkkelAvstemming, oppdr110.getAvstemming());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, oppdragGjelderId,
-            saksbehId, nøkkelAvstemming);
+        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, oppdragGjelderId, saksbehId, nøkkelAvstemming);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "kodeEndring=" + kodeEndring + ", "
-            + "kodeFagomrade=" + kodeFagomrade + ","
-            + "fagsystemId=" + fagsystemId + ","
-            + "oppdragGjelderId=" + oppdragGjelderId + ","
-            + "saksbehId=" + saksbehId + ","
-            + "avstemming=" + nøkkelAvstemming + ","
-            + "opprettetTs=" + getOpprettetTidspunkt()
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "kodeEndring=" + kodeEndring + ", " + "kodeFagomrade="
+            + kodeFagomrade + "," + "fagsystemId=" + fagsystemId + "," + "oppdragGjelderId=" + oppdragGjelderId + "," + "saksbehId=" + saksbehId + ","
+            + "avstemming=" + nøkkelAvstemming + "," + "opprettetTs=" + getOpprettetTidspunkt() + ">";
     }
 
     public static class Builder {

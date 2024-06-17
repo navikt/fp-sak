@@ -153,20 +153,20 @@ class Oppdrag110EntityTest {
 
     private static Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeEndring(KODEENDRING)
-                .medKodeFagomrade(KODEFAGOMRADE)
-                .medFagSystemId(FAGSYSTEMID)
-                .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medSaksbehId(SAKSBEHID)
-                .medAvstemming(Avstemming.ny())
-                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
+            .medKodeEndring(KODEENDRING)
+            .medKodeFagomrade(KODEFAGOMRADE)
+            .medFagSystemId(FAGSYSTEMID)
+            .medOppdragGjelderId(OPPDRAGGJELDERID)
+            .medSaksbehId(SAKSBEHID)
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
     }
 
     private static Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-                .medBehandlingId(BEHANDLINGID)
-                .medSaksnummer(SAKSID)
-                .medVenterKvittering(VENTERKVITTERING)
-                .medProsessTaskId(TASKID);
+            .medBehandlingId(BEHANDLINGID)
+            .medSaksnummer(SAKSID)
+            .medVenterKvittering(VENTERKVITTERING)
+            .medProsessTaskId(TASKID);
     }
 }

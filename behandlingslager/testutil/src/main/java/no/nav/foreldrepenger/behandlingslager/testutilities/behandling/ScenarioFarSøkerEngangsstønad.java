@@ -21,9 +21,7 @@ public class ScenarioFarSøkerEngangsstønad extends AbstractTestScenario<Scenar
 
     private ScenarioFarSøkerEngangsstønad() {
         super(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.FARA, NavBrukerKjønn.MANN);
-        medSøknad()
-            .medRelasjonsRolleType(RelasjonsRolleType.FARA)
-            .medSøknadsdato(LocalDate.now());
+        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.FARA).medSøknadsdato(LocalDate.now());
 
     }
 

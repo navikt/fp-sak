@@ -130,8 +130,7 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
         if (!(obj instanceof UidentifisertBarnEntitet other)) {
             return false;
         }
-        return Objects.equals(this.fødselsdato, other.getFødselsdato())
-                && Objects.equals(this.barnNummer, other.getBarnNummer());
+        return Objects.equals(this.fødselsdato, other.getFødselsdato()) && Objects.equals(this.barnNummer, other.getBarnNummer());
     }
 
 
@@ -143,10 +142,6 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
 
     @Override
     public String toString() {
-        return "UidentifisertBarnEntitet{" +
-                "fødselsdato=" + fødselsdato +
-                ", dødsdato=" + dødsdato +
-                ", barnNummer=" + barnNummer +
-                '}';
+        return "UidentifisertBarnEntitet{" + "fødselsdato=" + fødselsdato + ", dødsdato=" + dødsdato + ", barnNummer=" + barnNummer + '}';
     }
 }

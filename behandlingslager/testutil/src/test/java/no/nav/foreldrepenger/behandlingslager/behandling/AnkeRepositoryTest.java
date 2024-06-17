@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-class AnkeRepositoryTest  {
+class AnkeRepositoryTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private AnkeRepository ankeRepository;
@@ -47,8 +47,7 @@ class AnkeRepositoryTest  {
         var ankeBehandling = scenario.lagre(repositoryProvider, true);
 
         var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
-        var ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
-            .medAnkeResultat(ankeResultat);
+        var ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat).medAnkeResultat(ankeResultat);
 
         // Act
         ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
@@ -74,9 +73,7 @@ class AnkeRepositoryTest  {
     }
 
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {
-        return AnkeVurderingResultatEntitet.builder()
-            .medAnkeResultat(ankeResultat)
-            .medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER);
+        return AnkeVurderingResultatEntitet.builder().medAnkeResultat(ankeResultat).medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER);
     }
 
     private Behandling opprettBehandling() {

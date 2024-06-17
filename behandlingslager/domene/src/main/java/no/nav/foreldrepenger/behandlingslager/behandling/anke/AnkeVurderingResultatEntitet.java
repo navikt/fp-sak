@@ -31,15 +31,15 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     private AnkeResultatEntitet ankeResultat;
 
     @Convert(converter = AnkeVurdering.KodeverdiConverter.class)
-    @Column(name="ankevurdering", nullable = false)
+    @Column(name = "ankevurdering", nullable = false)
     private AnkeVurdering ankeVurdering = AnkeVurdering.UDEFINERT;
 
     @Convert(converter = AnkeOmgjørÅrsak.KodeverdiConverter.class)
-    @Column(name="anke_omgjoer_aarsak", nullable = false)
+    @Column(name = "anke_omgjoer_aarsak", nullable = false)
     private AnkeOmgjørÅrsak ankeOmgjørÅrsak = AnkeOmgjørÅrsak.UDEFINERT;
 
     @Convert(converter = AnkeVurderingOmgjør.KodeverdiConverter.class)
-    @Column(name="anke_vurdering_omgjoer", nullable = false)
+    @Column(name = "anke_vurdering_omgjoer", nullable = false)
     private AnkeVurderingOmgjør ankeVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
 
     @Column(name = "begrunnelse")
@@ -84,15 +84,15 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     private boolean erSubsidiartRealitetsbehandles;
 
     @Convert(converter = AnkeVurdering.KodeverdiConverter.class)
-    @Column(name="tr_vurdering", nullable = false)
+    @Column(name = "tr_vurdering", nullable = false)
     private AnkeVurdering trygderettVurdering = AnkeVurdering.UDEFINERT;
 
     @Convert(converter = AnkeOmgjørÅrsak.KodeverdiConverter.class)
-    @Column(name="tr_omgjoer_aarsak", nullable = false)
+    @Column(name = "tr_omgjoer_aarsak", nullable = false)
     private AnkeOmgjørÅrsak trygderettOmgjørÅrsak = AnkeOmgjørÅrsak.UDEFINERT;
 
     @Convert(converter = AnkeVurderingOmgjør.KodeverdiConverter.class)
-    @Column(name="tr_vurdering_omgjoer", nullable = false)
+    @Column(name = "tr_vurdering_omgjoer", nullable = false)
     private AnkeVurderingOmgjør trygderettVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
 
     @Column(name = "sendt_trygderett_dato")
@@ -212,21 +212,21 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return sendtTrygderettDato;
     }
 
-    public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
+    public List<AnkeAvvistÅrsak> hentAvvistÅrsaker() {
         List<AnkeAvvistÅrsak> avvistÅrsaker = new ArrayList<>();
-        if(erFristIkkeOverholdt()){
+        if (erFristIkkeOverholdt()) {
             avvistÅrsaker.add(AnkeAvvistÅrsak.ANKE_FOR_SENT);
         }
-        if(erAnkerIkkePart()){
+        if (erAnkerIkkePart()) {
             avvistÅrsaker.add(AnkeAvvistÅrsak.ANKE_IKKE_PART);
         }
-        if(erIkkeKonkret()){
+        if (erIkkeKonkret()) {
             avvistÅrsaker.add(AnkeAvvistÅrsak.ANKE_IKKE_KONKRET);
         }
-        if(erIkkeSignert()){
+        if (erIkkeSignert()) {
             avvistÅrsaker.add(AnkeAvvistÅrsak.ANKE_IKKE_SIGNERT);
         }
-        if(!gjelderVedtak){
+        if (!gjelderVedtak) {
             avvistÅrsaker.add(AnkeAvvistÅrsak.ANKE_UGYLDIG);
         }
         return avvistÅrsaker;
@@ -235,52 +235,44 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (AnkeVurderingResultatEntitet) o;
-        return harLikVurdering(that) &&
-            erMerknaderMottatt == that.erMerknaderMottatt &&
-            gjelderVedtak == that.gjelderVedtak &&
-            godkjentAvMedunderskriver == that.godkjentAvMedunderskriver &&
-            Objects.equals(ankeResultat, that.ankeResultat) &&
-            Objects.equals(fritekstTilBrev, that.fritekstTilBrev) &&
-            Objects.equals(merknaderFraBruker, that.merknaderFraBruker);
+        return harLikVurdering(that) && erMerknaderMottatt == that.erMerknaderMottatt && gjelderVedtak == that.gjelderVedtak
+            && godkjentAvMedunderskriver == that.godkjentAvMedunderskriver && Objects.equals(ankeResultat, that.ankeResultat) && Objects.equals(
+            fritekstTilBrev, that.fritekstTilBrev) && Objects.equals(merknaderFraBruker, that.merknaderFraBruker);
     }
 
     public boolean harLikVurdering(AnkeVurderingResultatEntitet that) {
-        if (this == that) return true;
-        if (that == null || getClass() != that.getClass()) return false;
-        return erAnkerIkkePart == that.erAnkerIkkePart &&
-            erFristIkkeOverholdt == that.erFristIkkeOverholdt &&
-            erIkkeKonkret == that.erIkkeKonkret &&
-            erIkkeSignert == that.erIkkeSignert &&
-            erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles &&
-            ankeVurdering == that.ankeVurdering &&
-            ankeOmgjørÅrsak == that.ankeOmgjørÅrsak &&
-            ankeVurderingOmgjør == that.ankeVurderingOmgjør &&
-            trygderettVurdering == that.trygderettVurdering &&
-            trygderettOmgjørÅrsak == that.trygderettOmgjørÅrsak &&
-            trygderettVurderingOmgjør == that.trygderettVurderingOmgjør &&
-            Objects.equals(begrunnelse, that.begrunnelse);
+        if (this == that) {
+            return true;
+        }
+        if (that == null || getClass() != that.getClass()) {
+            return false;
+        }
+        return erAnkerIkkePart == that.erAnkerIkkePart && erFristIkkeOverholdt == that.erFristIkkeOverholdt && erIkkeKonkret == that.erIkkeKonkret
+            && erIkkeSignert == that.erIkkeSignert && erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles
+            && ankeVurdering == that.ankeVurdering && ankeOmgjørÅrsak == that.ankeOmgjørÅrsak && ankeVurderingOmgjør == that.ankeVurderingOmgjør
+            && trygderettVurdering == that.trygderettVurdering && trygderettOmgjørÅrsak == that.trygderettOmgjørÅrsak
+            && trygderettVurderingOmgjør == that.trygderettVurderingOmgjør && Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev,
-            merknaderFraBruker, erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles,
+        return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev, merknaderFraBruker,
+            erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles,
             trygderettVurdering, trygderettVurderingOmgjør, trygderettOmgjørÅrsak, sendtTrygderettDato);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "ankeVurdering=" + getAnkeVurdering() + ", "
-            + "ankeVurderingOmgjør" + getAnkeVurderingOmgjør() + ", "
-            + "ankeOmgjørÅrsak=" + getAnkeOmgjørÅrsak() + ", "
-            + "begrunnelse=" + begrunnelse + ", "
-            + "fritekstTilBrev=" + fritekstTilBrev + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "ankeVurdering=" + getAnkeVurdering() + ", "
+            + "ankeVurderingOmgjør" + getAnkeVurderingOmgjør() + ", " + "ankeOmgjørÅrsak=" + getAnkeOmgjørÅrsak() + ", " + "begrunnelse="
+            + begrunnelse + ", " + "fritekstTilBrev=" + fritekstTilBrev + ", " + ">";
     }
 
     public static class Builder {

@@ -44,10 +44,8 @@ class MedlemskapRepositoryTest extends EntityManagerAwareTest {
         var medlemskapAggregat = repository.hentMedlemskap(behandlingId);
         var førsteVersjonMedlemskapAggregat = repository.hentFørsteVersjonAvMedlemskap(behandlingId);
 
-        var perioderEntitet = medlemskapAggregat.get().getRegistrertMedlemskapPerioder()
-                .stream().findFirst().get();
-        var førstePerioderEntitet = førsteVersjonMedlemskapAggregat.get()
-                .getRegistrertMedlemskapPerioder().stream().findFirst().get();
+        var perioderEntitet = medlemskapAggregat.get().getRegistrertMedlemskapPerioder().stream().findFirst().get();
+        var førstePerioderEntitet = førsteVersjonMedlemskapAggregat.get().getRegistrertMedlemskapPerioder().stream().findFirst().get();
 
         assertThat(medlemskapAggregat.get()).isNotEqualTo(førsteVersjonMedlemskapAggregat.get());
         assertThat(perioderEntitet.getMedlemskapType()).isEqualTo(MedlemskapType.ENDELIG);

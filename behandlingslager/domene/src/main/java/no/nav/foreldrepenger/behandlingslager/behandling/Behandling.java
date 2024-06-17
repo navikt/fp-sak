@@ -51,28 +51,27 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 public class Behandling extends BaseEntitet {
 
     // Null safe
-    private static final Comparator<? extends BaseEntitet> COMPARATOR_OPPRETTET_TID = Comparator
-            .comparing(BaseEntitet::getOpprettetTidspunkt, (a, b) -> {
-                if (a != null && b != null) {
-                    return a.compareTo(b);
-                }
-                if (a == null && b == null) {
-                    return 0;
-                }
-                return a == null ? -1 : 1;
-            });
+    private static final Comparator<? extends BaseEntitet> COMPARATOR_OPPRETTET_TID = Comparator.comparing(BaseEntitet::getOpprettetTidspunkt,
+        (a, b) -> {
+            if (a != null && b != null) {
+                return a.compareTo(b);
+            }
+            if (a == null && b == null) {
+                return 0;
+            }
+            return a == null ? -1 : 1;
+        });
 
     // Null safe
-    private static final Comparator<? extends BaseEntitet> COMPARATOR_ENDRET_TID = Comparator
-            .comparing(BaseEntitet::getEndretTidspunkt, (a, b) -> {
-                if (a != null && b != null) {
-                    return a.compareTo(b);
-                }
-                if (a == null && b == null) {
-                    return 0;
-                }
-                return a == null ? -1 : 1;
-            });
+    private static final Comparator<? extends BaseEntitet> COMPARATOR_ENDRET_TID = Comparator.comparing(BaseEntitet::getEndretTidspunkt, (a, b) -> {
+        if (a != null && b != null) {
+            return a.compareTo(b);
+        }
+        if (a == null && b == null) {
+            return 0;
+        }
+        return a == null ? -1 : 1;
+    });
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING")
@@ -90,7 +89,7 @@ public class Behandling extends BaseEntitet {
     @Column(name = "behandling_status", nullable = false)
     private BehandlingStatus status = BehandlingStatus.OPPRETTET;
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "behandling")
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "behandling")
     private List<BehandlingStegTilstand> behandlingStegTilstander = new ArrayList<>(1);
 
     @Convert(converter = BehandlingType.KodeverdiConverter.class)
@@ -244,7 +243,7 @@ public class Behandling extends BaseEntitet {
 
     /**
      * @deprecated FIXME PFP-1131 Fjern direkte kobling
-     *             Behandling->Behandlingsresultat fra entiteter/jpa modell
+     * Behandling->Behandlingsresultat fra entiteter/jpa modell
      */
     @Deprecated
     // (FC) støtter bare ett Behandlingsresultat for en Behandling - JPA har ikke
@@ -253,8 +252,7 @@ public class Behandling extends BaseEntitet {
     public Behandlingsresultat getBehandlingsresultat() {
         if (this.behandlingsresultat.size() > 1) {
             throw new TekniskException("FP-918665",
-                "Ugyldig antall behandlingsresultat, forventer maks 1 per behandling, men har "
-                    + behandlingsresultat.size());
+                "Ugyldig antall behandlingsresultat, forventer maks 1 per behandling, men har " + behandlingsresultat.size());
         }
         return this.behandlingsresultat.isEmpty() ? null : this.behandlingsresultat.iterator().next();
     }
@@ -274,27 +272,19 @@ public class Behandling extends BaseEntitet {
     }
 
     public boolean harBehandlingÅrsak(BehandlingÅrsakType behandlingÅrsak) {
-        return getBehandlingÅrsaker().stream()
-                .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .anyMatch(behandlingÅrsak::equals);
+        return getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(behandlingÅrsak::equals);
     }
 
     public boolean harNoenBehandlingÅrsaker(Set<BehandlingÅrsakType> behandlingÅrsaker) {
-        return getBehandlingÅrsaker().stream()
-            .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .anyMatch(behandlingÅrsaker::contains);
+        return getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(behandlingÅrsaker::contains);
     }
 
     public Optional<Long> getOriginalBehandlingId() {
-        return getBehandlingÅrsaker().stream()
-                .map(BehandlingÅrsak::getOriginalBehandlingId)
-                .filter(Objects::nonNull)
-                .findFirst();
+        return getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getOriginalBehandlingId).filter(Objects::nonNull).findFirst();
     }
 
     public boolean erManueltOpprettet() {
-        return getBehandlingÅrsaker().stream()
-                .anyMatch(BehandlingÅrsak::erManueltOpprettet);
+        return getBehandlingÅrsaker().stream().anyMatch(BehandlingÅrsak::erManueltOpprettet);
     }
 
     public Long getId() {
@@ -349,8 +339,8 @@ public class Behandling extends BaseEntitet {
 
     private void lukkBehandlingStegStatuser(Collection<BehandlingStegTilstand> stegTilstander, BehandlingStegStatus sluttStatusForSteg) {
         stegTilstander.stream()
-                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
-                .forEach(t -> t.setBehandlingStegStatus(sluttStatusForSteg));
+            .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
+            .forEach(t -> t.setBehandlingStegStatus(sluttStatusForSteg));
     }
 
     public BehandlingType getType() {
@@ -375,9 +365,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand() {
-        var tilstander = behandlingStegTilstander.stream()
-                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
-                .toList();
+        var tilstander = behandlingStegTilstander.stream().filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())).toList();
         if (tilstander.size() > 1) {
             throw new IllegalStateException("Utvikler-feil: Kan ikke ha flere steg samtidig åpne: " + tilstander);
         }
@@ -395,8 +383,7 @@ public class Behandling extends BaseEntitet {
 
         Comparator<BehandlingStegTilstand> comparatorOpprettet = compareOpprettetTid();
         Comparator<BehandlingStegTilstand> comparatorEndret = compareEndretTid();
-        var comparator = comparatorOpprettet.reversed()
-                .thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
+        var comparator = comparatorOpprettet.reversed().thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
 
         // tar nyeste.
         return behandlingStegTilstander.stream().min(comparator);
@@ -404,12 +391,10 @@ public class Behandling extends BaseEntitet {
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
         var tilstander = behandlingStegTilstander.stream()
-                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
-                        && Objects.equals(stegType, t.getBehandlingSteg()))
-                .toList();
+            .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()) && Objects.equals(stegType, t.getBehandlingSteg()))
+            .toList();
         if (tilstander.size() > 1) {
-            throw new IllegalStateException(
-                    "Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander);
+            throw new IllegalStateException("Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander);
         }
 
         return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
@@ -417,8 +402,8 @@ public class Behandling extends BaseEntitet {
 
     /**
      * @deprecated bygg fortrinnsvis logikk rundt eksistens av stegresultater (fx
-     *             vedtaksdato). Slik at man evt kan dekoble tabeller (evt behold en
-     *             current her)
+     * vedtaksdato). Slik at man evt kan dekoble tabeller (evt behold en
+     * current her)
      */
     @Deprecated
     public Stream<BehandlingStegTilstand> getBehandlingStegTilstandHistorikk() {
@@ -433,7 +418,7 @@ public class Behandling extends BaseEntitet {
 
     /**
      * @deprecated FIXME skal ikke ha public settere, og heller ikke setter for
-     *             behandlingsresultat her. Bør gå via repository.
+     * behandlingsresultat her. Bør gå via repository.
      */
     @Deprecated
     public void setBehandlingresultat(Behandlingsresultat behandlingsresultat) {
@@ -455,9 +440,8 @@ public class Behandling extends BaseEntitet {
         if (!(object instanceof Behandling other)) {
             return false;
         }
-        return Objects.equals(getFagsak(), other.getFagsak())
-                && Objects.equals(getType(), other.getType())
-                && Objects.equals(getOpprettetTidspunkt(), other.getOpprettetTidspunkt());
+        return Objects.equals(getFagsak(), other.getFagsak()) && Objects.equals(getType(), other.getType()) && Objects.equals(getOpprettetTidspunkt(),
+            other.getOpprettetTidspunkt());
     }
 
     @Override
@@ -519,63 +503,47 @@ public class Behandling extends BaseEntitet {
     }
 
     public Optional<Aksjonspunkt> getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon definisjon) {
-        return getAksjonspunkterStream()
-                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-                .findFirst();
+        return getAksjonspunkterStream().filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon)).findFirst();
     }
 
     public Optional<Aksjonspunkt> getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon definisjon) {
-        return getÅpneAksjonspunkterStream()
-                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-                .findFirst();
+        return getÅpneAksjonspunkterStream().filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon)).findFirst();
     }
 
     public Aksjonspunkt getAksjonspunktFor(AksjonspunktDefinisjon definisjon) {
-        return getAksjonspunkterStream()
-                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-                .findFirst()
-                .orElseThrow(
-                    () -> new TekniskException("FP-138032", "Behandling har ikke aksjonspunkt for definisjon " + definisjon.getKode()));
+        return getAksjonspunkterStream().filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
+            .findFirst()
+            .orElseThrow(() -> new TekniskException("FP-138032", "Behandling har ikke aksjonspunkt for definisjon " + definisjon.getKode()));
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter() {
-        return getÅpneAksjonspunkterStream()
-                .toList();
+        return getÅpneAksjonspunkterStream().toList();
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(AksjonspunktType aksjonspunktType) {
-        return getÅpneAksjonspunkterStream()
-                .filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
-                .toList();
+        return getÅpneAksjonspunkterStream().filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
+            .toList();
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(Collection<AksjonspunktDefinisjon> matchKriterier) {
-        return getÅpneAksjonspunkterStream()
-                .filter(a -> matchKriterier.contains(a.getAksjonspunktDefinisjon()))
-                .toList();
+        return getÅpneAksjonspunkterStream().filter(a -> matchKriterier.contains(a.getAksjonspunktDefinisjon())).toList();
     }
 
     public List<Aksjonspunkt> getAksjonspunkterMedTotrinnskontroll() {
-        return getAksjonspunkterStream()
-                .filter(a -> !a.erAvbrutt() && a.isToTrinnsBehandling())
-                .toList();
+        return getAksjonspunkterStream().filter(a -> !a.erAvbrutt() && a.isToTrinnsBehandling()).toList();
     }
 
     public boolean harAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return getAksjonspunkterStream()
-                .anyMatch(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()));
+        return getAksjonspunkterStream().anyMatch(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()));
     }
 
     public boolean harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return getAksjonspunkterStream()
-            .filter(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()))
+        return getAksjonspunkterStream().filter(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()))
             .anyMatch(Aksjonspunkt::erAvbrutt);
     }
 
     public boolean harAvbruttAlleAksjonspunktAvTyper(Set<AksjonspunktDefinisjon> aksjonspunktTyper) {
-        var relevanteAksjonspunkter = getAksjonspunkter().stream()
-            .filter(ap -> aksjonspunktTyper.contains(ap.getAksjonspunktDefinisjon()))
-            .toList();
+        var relevanteAksjonspunkter = getAksjonspunkter().stream().filter(ap -> aksjonspunktTyper.contains(ap.getAksjonspunktDefinisjon())).toList();
         if (relevanteAksjonspunkter.isEmpty()) {
             return false;
         }
@@ -583,23 +551,20 @@ public class Behandling extends BaseEntitet {
     }
 
     public boolean harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon)
-                .map(ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) || ap.getStatus().equals(AksjonspunktStatus.UTFØRT)).orElse(false);
+        return getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon).map(
+            ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) || ap.getStatus().equals(AksjonspunktStatus.UTFØRT)).orElse(false);
     }
 
     public boolean harÅpentAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return getÅpneAksjonspunkterStream().map(Aksjonspunkt::getAksjonspunktDefinisjon)
-                .anyMatch(aksjonspunktDefinisjon::equals);
+        return getÅpneAksjonspunkterStream().map(Aksjonspunkt::getAksjonspunktDefinisjon).anyMatch(aksjonspunktDefinisjon::equals);
     }
 
     public boolean harAksjonspunktMedTotrinnskontroll() {
-        return getAksjonspunkterStream()
-                .anyMatch(a -> !a.erAvbrutt() && a.isToTrinnsBehandling());
+        return getAksjonspunkterStream().anyMatch(a -> !a.erAvbrutt() && a.isToTrinnsBehandling());
     }
 
     private Optional<Aksjonspunkt> getFørsteÅpneAutopunkt() {
-        return getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
-                .findFirst();
+        return getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream().findFirst();
     }
 
     public boolean isBehandlingPåVent() {
@@ -607,8 +572,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public boolean erKøet() {
-        return this.getÅpneAksjonspunkterStream()
-                .anyMatch(ap -> AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(ap.getAksjonspunktDefinisjon()));
+        return this.getÅpneAksjonspunkterStream().anyMatch(ap -> AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(ap.getAksjonspunktDefinisjon()));
     }
 
     private Stream<Aksjonspunkt> getAksjonspunkterStream() {
@@ -616,8 +580,7 @@ public class Behandling extends BaseEntitet {
     }
 
     private Stream<Aksjonspunkt> getÅpneAksjonspunkterStream() {
-        return getAksjonspunkterStream()
-                .filter(Aksjonspunkt::erÅpentAksjonspunkt);
+        return getAksjonspunkterStream().filter(Aksjonspunkt::erÅpentAksjonspunkt);
     }
 
     public Long getVersjon() {

@@ -21,7 +21,7 @@ class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         var entityManager = getEntityManager();
         mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -51,8 +51,8 @@ class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
 
         //Assert
         assertThat(mottatteDokumenter).hasSize(2);
-        assertThat(mottatteDokumenter.stream().allMatch(md -> md.getBehandlingId().equals(behandling1.getId())
-            || md.getBehandlingId().equals(behandling2.getId()))).isTrue();
+        assertThat(mottatteDokumenter.stream()
+            .allMatch(md -> md.getBehandlingId().equals(behandling1.getId()) || md.getBehandlingId().equals(behandling2.getId()))).isTrue();
     }
 
     @Test
@@ -84,8 +84,7 @@ class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     public static MottattDokument lagMottatteDokument(long behandlingId, long fagsakId) {
-        return new MottattDokument.Builder()
-            .medBehandlingId(behandlingId)
+        return new MottattDokument.Builder().medBehandlingId(behandlingId)
             .medJournalPostId(new JournalpostId("123"))
             .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
             .medMottattDato(LocalDate.now())

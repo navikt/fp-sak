@@ -68,8 +68,8 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
         if (checksumTo == FNR_LENGDE) {
             checksumTo = 0;
         }
-        return checksumEn == Character.digit(foedselsnummer.charAt(FNR_LENGDE - 2), 10)
-            && checksumTo == Character.digit(foedselsnummer.charAt(FNR_LENGDE - 1), 10);
+        return checksumEn == Character.digit(foedselsnummer.charAt(FNR_LENGDE - 2), 10) && checksumTo == Character.digit(
+            foedselsnummer.charAt(FNR_LENGDE - 1), 10);
     }
 
     public static PersonIdent fra(String ident) {
@@ -108,7 +108,9 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
     }
 
     public boolean erNPID() {
-        if (ident.length() != FNR_LENGDE) return false;
+        if (ident.length() != FNR_LENGDE) {
+            return false;
+        }
         var n = Character.digit(ident.charAt(2), 10);
         return n > 1 && n <= 3;
     }

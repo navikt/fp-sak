@@ -19,16 +19,15 @@ public final class AksjonspunktTestSupport {
     }
 
     public static Aksjonspunkt leggTilAksjonspunkt(Behandling behandling,
-                                                    AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                                    BehandlingStegType behandlingStegType) {
+                                                   AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                                   BehandlingStegType behandlingStegType) {
         // sjekk at alle parametere er spesifisert
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(aksjonspunktDefinisjon, "aksjonspunktDefinisjon");
 
         // slå opp for å få riktig konfigurasjon.
-        var adBuilder = behandlingStegType != null
-            ? new Aksjonspunkt.Builder(aksjonspunktDefinisjon, behandlingStegType)
-            : new Aksjonspunkt.Builder(aksjonspunktDefinisjon);
+        var adBuilder = behandlingStegType != null ? new Aksjonspunkt.Builder(aksjonspunktDefinisjon, behandlingStegType) : new Aksjonspunkt.Builder(
+            aksjonspunktDefinisjon);
 
         if (aksjonspunktDefinisjon.getFristPeriod() != null) {
             adBuilder.medFristTid(LocalDateTime.now().plus(aksjonspunktDefinisjon.getFristPeriod()));

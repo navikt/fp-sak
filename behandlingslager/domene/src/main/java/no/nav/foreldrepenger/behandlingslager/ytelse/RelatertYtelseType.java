@@ -32,9 +32,8 @@ public enum RelatertYtelseType implements Kodeverdi {
     private static final Set<RelatertYtelseType> OPPTJENING_RELATERTYTELSE_FELLES = Set.of(SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER,
         PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
 
-    private static final Map<FagsakYtelseType, Set<RelatertYtelseType>> OPPTJENING_RELATERTYTELSE_CONFIG = Map.of(
-        FagsakYtelseType.FORELDREPENGER, Set.of(ENSLIG_FORSØRGER, ARBEIDSAVKLARINGSPENGER),
-        FagsakYtelseType.SVANGERSKAPSPENGER, Collections.emptySet());
+    private static final Map<FagsakYtelseType, Set<RelatertYtelseType>> OPPTJENING_RELATERTYTELSE_CONFIG = Map.of(FagsakYtelseType.FORELDREPENGER,
+        Set.of(ENSLIG_FORSØRGER, ARBEIDSAVKLARINGSPENGER), FagsakYtelseType.SVANGERSKAPSPENGER, Collections.emptySet());
 
     private static final Map<String, RelatertYtelseType> KODER = new LinkedHashMap<>();
 

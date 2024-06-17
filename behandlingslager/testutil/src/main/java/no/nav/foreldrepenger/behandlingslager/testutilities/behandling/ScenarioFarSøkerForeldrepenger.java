@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
  * <p>
  * Mer avansert bruk er ikke gitt at kan bruke denne
  * klassen.
- *
  */
 public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<ScenarioFarSøkerForeldrepenger> {
 
@@ -33,9 +32,7 @@ public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     private void settDefaultSøknad() {
-            medSøknad()
-                .medRelasjonsRolleType(RelasjonsRolleType.FARA)
-                .medSøknadsdato(LocalDate.now());
+        medSøknad().medRelasjonsRolleType(RelasjonsRolleType.FARA).medSøknadsdato(LocalDate.now());
     }
 
     public static ScenarioFarSøkerForeldrepenger forFødsel() {
@@ -49,7 +46,7 @@ public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     public static ScenarioFarSøkerForeldrepenger forFødselMedGittAktørId(AktørId aktørId) {
-        return new ScenarioFarSøkerForeldrepenger( aktørId);
+        return new ScenarioFarSøkerForeldrepenger(aktørId);
     }
 
     public static ScenarioFarSøkerForeldrepenger forAdopsjon() {

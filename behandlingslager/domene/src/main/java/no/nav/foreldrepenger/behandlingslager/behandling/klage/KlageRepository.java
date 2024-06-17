@@ -23,7 +23,7 @@ public class KlageRepository {
     }
 
     @Inject
-    public KlageRepository( EntityManager entityManager) {
+    public KlageRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -100,16 +100,15 @@ public class KlageRepository {
 
         var gjeldende = klageFormkravListe.stream()
             .filter(kf -> KlageVurdertAv.NK.equals(kf.getKlageVurdertAv()))
-            .findFirst().orElseGet(() -> klageFormkravListe.stream().findFirst().orElse(null));
+            .findFirst()
+            .orElseGet(() -> klageFormkravListe.stream().findFirst().orElse(null));
 
         return Optional.ofNullable(gjeldende);
     }
 
     public Optional<KlageFormkravEntitet> hentKlageFormkrav(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
         var klageFormkravList = hentKlageFormkravForKlageBehandling(klageBehandlingId);
-        return klageFormkravList.stream()
-            .filter(kf -> klageVurdertAv.equals(kf.getKlageVurdertAv()))
-            .findFirst();
+        return klageFormkravList.stream().filter(kf -> klageVurdertAv.equals(kf.getKlageVurdertAv())).findFirst();
     }
 
     public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
@@ -140,16 +139,14 @@ public class KlageRepository {
     }
 
     public void lagreVurderingsResultat(Long klageBehandlingId, KlageVurderingResultat klageVurderingResultat) {
-                hentKlageVurderingResultat(klageBehandlingId, klageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
+        hentKlageVurderingResultat(klageBehandlingId, klageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(klageVurderingResultat);
         entityManager.flush();
     }
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
         var klageVurderingResultatList = hentVurderingsResultaterForKlageBehandling(klageBehandlingId);
-        return klageVurderingResultatList.stream()
-            .filter(krv -> klageVurdertAv.equals(krv.getKlageVurdertAv()))
-            .findFirst();
+        return klageVurderingResultatList.stream().filter(krv -> klageVurdertAv.equals(krv.getKlageVurdertAv())).findFirst();
     }
 
 }

@@ -1,4 +1,3 @@
-
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
 import java.util.Collections;

@@ -98,28 +98,28 @@ class OppdragKvitteringEntityTest {
 
     private OppdragKvittering.Builder lagOppdragKvitteringMedPaakrevdeFelter() {
         return OppdragKvittering.builder()
-                .medAlvorlighetsgrad(ALVORLIGHETSGRAD)
-                .medBeskrMelding(BESKR_MELDING)
-                .medMeldingKode(MELDING_KODE)
-                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+            .medAlvorlighetsgrad(ALVORLIGHETSGRAD)
+            .medBeskrMelding(BESKR_MELDING)
+            .medMeldingKode(MELDING_KODE)
+            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KODEFAGOMRADE)
-                .medFagSystemId(FAGSYSTEMID)
-                .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medSaksbehId(SAKSBEHID)
-                .medAvstemming(Avstemming.ny())
-                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KODEFAGOMRADE)
+            .medFagSystemId(FAGSYSTEMID)
+            .medOppdragGjelderId(OPPDRAGGJELDERID)
+            .medSaksbehId(SAKSBEHID)
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-                .medBehandlingId(BEHANDLINGID)
-                .medSaksnummer(SAKSID)
-                .medVenterKvittering(VENTERKVITTERING)
-                .medProsessTaskId(TASKID);
+            .medBehandlingId(BEHANDLINGID)
+            .medSaksnummer(SAKSID)
+            .medVenterKvittering(VENTERKVITTERING)
+            .medProsessTaskId(TASKID);
     }
 }

@@ -40,7 +40,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     private Long behandlingId;
 
     @Embedded
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable=false))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable = false))
     private Saksnummer saksnummer;
 
     @Column(name = "startdato", nullable = false)
@@ -90,12 +90,14 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof NesteSakGrunnlagEntitet that)) return false;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(saksnummer, that.saksnummer) &&
-            Objects.equals(startdato, that.startdato) &&
-            Objects.equals(hendelsedato, that.hendelsedato);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NesteSakGrunnlagEntitet that)) {
+            return false;
+        }
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(saksnummer, that.saksnummer) && Objects.equals(startdato,
+            that.startdato) && Objects.equals(hendelsedato, that.hendelsedato);
     }
 
     @Override

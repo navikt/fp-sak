@@ -93,12 +93,8 @@ class OpptjeningRepositoryTest extends EntityManagerAwareTest {
         var tomorrow = today.plusDays(1);
         var behandling = opprettBehandling();
         List<OpptjeningAktivitet> aktiviteter = new ArrayList<>();
-        var opptjeningAktivitet = new OpptjeningAktivitet(tomorrow.minusMonths(10),
-            tomorrow,
-            OpptjeningAktivitetType.ARBEID,
-            OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT,
-            "abc",
-            ReferanseType.ORG_NR);
+        var opptjeningAktivitet = new OpptjeningAktivitet(tomorrow.minusMonths(10), tomorrow, OpptjeningAktivitetType.ARBEID,
+            OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, "abc", ReferanseType.ORG_NR);
         aktiviteter.add(opptjeningAktivitet);
 
         // Act

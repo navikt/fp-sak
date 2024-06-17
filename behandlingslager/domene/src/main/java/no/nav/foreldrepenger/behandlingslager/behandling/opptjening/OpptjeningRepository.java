@@ -36,7 +36,7 @@ public class OpptjeningRepository {
     }
 
     @Inject
-    public OpptjeningRepository( EntityManager em, BehandlingRepository behandlingRepository) {
+    public OpptjeningRepository(EntityManager em, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(em, "em");
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.em = em;
@@ -68,9 +68,7 @@ public class OpptjeningRepository {
      * Finn gjeldende opptjening for denne behandlingen.
      */
     public Optional<Opptjening> finnOpptjening(Long behandlingId) {
-        return Optional.ofNullable(getBehandlingsresultat(behandlingId))
-            .map(Behandlingsresultat::getVilkårResultat)
-            .flatMap(this::finnOpptjening);
+        return Optional.ofNullable(getBehandlingsresultat(behandlingId)).map(Behandlingsresultat::getVilkårResultat).flatMap(this::finnOpptjening);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
@@ -161,9 +159,10 @@ public class OpptjeningRepository {
 
     }
 
-    /** Opptjening* Lagre opptjeningresultat (opptjent periode og aktiviteter).*/
-    public Opptjening lagreOpptjeningResultat(Behandling behandling, Period opptjentPeriode,
-                                              Collection<OpptjeningAktivitet> opptjeningAktiviteter) {
+    /**
+     * Opptjening* Lagre opptjeningresultat (opptjent periode og aktiviteter).
+     */
+    public Opptjening lagreOpptjeningResultat(Behandling behandling, Period opptjentPeriode, Collection<OpptjeningAktivitet> opptjeningAktiviteter) {
 
         var kopiListe = duplikatSjekk(opptjeningAktiviteter);
 
@@ -184,8 +183,8 @@ public class OpptjeningRepository {
         // Opptjening er ikke koblet til Behandling gjennom aggregatreferanse. Må derfor kopieres som deep copy
         var orgBehandlingId = origBehandling.getId();
         var origVilkårResultatId = Optional.ofNullable(getBehandlingsresultat(orgBehandlingId)).orElseThrow().getVilkårResultat().getId();
-        var origOpptjening = hentTidligereOpptjening(origVilkårResultatId, true)
-            .orElseThrow(() -> new IllegalStateException("Original behandling har ikke opptjening."));
+        var origOpptjening = hentTidligereOpptjening(origVilkårResultatId, true).orElseThrow(
+            () -> new IllegalStateException("Original behandling har ikke opptjening."));
 
         lagreOpptjeningsperiode(nyBehandling, origOpptjening.getFom(), origOpptjening.getTom(), false);
         lagreOpptjeningResultat(nyBehandling, origOpptjening.getOpptjentPeriode(), origOpptjening.getOpptjeningAktivitet());
@@ -196,7 +195,9 @@ public class OpptjeningRepository {
         if (opptjeningAktiviteter == null) {
             return Collections.emptySet();
         }
-        Set<OpptjeningAktivitet> kopiListe = opptjeningAktiviteter.stream().map(OpptjeningAktivitet::new).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<OpptjeningAktivitet> kopiListe = opptjeningAktiviteter.stream()
+            .map(OpptjeningAktivitet::new)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (opptjeningAktiviteter.size() > kopiListe.size()) {
             // har duplikater!!

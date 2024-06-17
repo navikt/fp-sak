@@ -108,7 +108,7 @@ public class AdopsjonEntitet extends BaseEntitet {
         return foreldreansvarDato;
     }
 
-    void setForeldreansvarDato(LocalDate foreldreansvarDato){
+    void setForeldreansvarDato(LocalDate foreldreansvarDato) {
         this.foreldreansvarDato = foreldreansvarDato;
     }
 
@@ -153,10 +153,9 @@ public class AdopsjonEntitet extends BaseEntitet {
         if (!(obj instanceof AdopsjonEntitet other)) {
             return false;
         }
-        return Objects.equals(this.getOmsorgsovertakelseDato(), other.getOmsorgsovertakelseDato())
-                && Objects.equals(this.getAnkomstNorgeDato(), other.getAnkomstNorgeDato())
-                && Objects.equals(this.getErEktefellesBarn(), other.getErEktefellesBarn())
-                && Objects.equals(this.getAdoptererAlene(), other.getAdoptererAlene());
+        return Objects.equals(this.getOmsorgsovertakelseDato(), other.getOmsorgsovertakelseDato()) && Objects.equals(this.getAnkomstNorgeDato(),
+            other.getAnkomstNorgeDato()) && Objects.equals(this.getErEktefellesBarn(), other.getErEktefellesBarn()) && Objects.equals(
+            this.getAdoptererAlene(), other.getAdoptererAlene());
     }
 
 
@@ -168,12 +167,8 @@ public class AdopsjonEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "Adopsjon{" +
-                "omsorgsovertakelseDato=" + omsorgsovertakelseDato +
-                ", ankomstNorge=" + ankomstNorge +
-                ", erEktefellesBarn=" + erEktefellesBarn +
-                ", adoptererAlene=" + adoptererAlene +
-                '}';
+        return "Adopsjon{" + "omsorgsovertakelseDato=" + omsorgsovertakelseDato + ", ankomstNorge=" + ankomstNorge + ", erEktefellesBarn="
+            + erEktefellesBarn + ", adoptererAlene=" + adoptererAlene + '}';
     }
 
     void setFamilieHendelse(FamilieHendelseEntitet familieHendelse) {

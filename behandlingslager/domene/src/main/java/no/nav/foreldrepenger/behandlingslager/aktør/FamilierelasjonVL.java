@@ -25,15 +25,17 @@ public class FamilierelasjonVL {
     @Override
     public String toString() {
         // tar ikke med personIdent i toString så det ikke lekkeri logger etc.
-        return getClass().getSimpleName()
-                + "<relasjon=" + relasjonsrolle
-                + ">";
+        return getClass().getSimpleName() + "<relasjon=" + relasjonsrolle + ">";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (FamilierelasjonVL) o;
         return Objects.equals(personIdent, that.personIdent) && Objects.equals(relasjonsrolle, that.relasjonsrolle);
     }

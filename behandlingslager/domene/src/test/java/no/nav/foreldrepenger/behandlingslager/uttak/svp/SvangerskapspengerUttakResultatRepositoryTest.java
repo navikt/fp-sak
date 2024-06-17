@@ -42,8 +42,7 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
 
-        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medRegelInput("{}")
+        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medRegelInput("{}")
             .medRegelEvaluering("{}")
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
@@ -51,14 +50,10 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
             .build();
 
         var aktørId = AktørId.dummy();
-        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(aktørId), null)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medPeriode(uttakPeriode)
-            .build();
+        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(Arbeidsgiver.person(aktørId),
+            null).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).medPeriode(uttakPeriode).build();
         var br = behandlingsresultatRepository.hent(behandling.getId());
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br)
-            .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
         var hentetUttaksresultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
@@ -84,21 +79,17 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
 
-        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medRegelInput("{}")
+        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom).medRegelInput("{}")
             .medRegelEvaluering("{}")
             .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT)
             .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();
 
-        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medPeriode(uttakPeriode)
-            .build();
+        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+            Arbeidsgiver.person(AktørId.dummy()), null).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).medPeriode(uttakPeriode).build();
         var br = behandlingsresultatRepository.hent(behandling.getId());
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
         var hentetUttaksresultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
@@ -119,13 +110,13 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
     void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_arbeidsforhold() {
         var behandling = opprettBehandling();
 
-        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
+        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medArbeidsforhold(
+                Arbeidsgiver.person(AktørId.dummy()), null)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
             .build();
         var br = behandlingsresultatRepository.hent(behandling.getId());
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         svangerskapspengerUttakResultatRepository.lagre(behandling.getId(), uttakResultat);
 
 

@@ -25,11 +25,14 @@ public class StatsborgerskapPeriode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var periode = (StatsborgerskapPeriode) o;
-        return Objects.equals(gyldighetsperiode, periode.gyldighetsperiode) &&
-            Objects.equals(statsborgerskap, periode.statsborgerskap);
+        return Objects.equals(gyldighetsperiode, periode.gyldighetsperiode) && Objects.equals(statsborgerskap, periode.statsborgerskap);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class RegisterdataDiffsjekker {
         diffEntity = new DiffEntity(traverseGraph);
     }
 
-    public  <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
+    public <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
         var leafDifferences = finnForskjellerPåLister(list1, list2);
         return leafDifferences.size() > 0;
     }

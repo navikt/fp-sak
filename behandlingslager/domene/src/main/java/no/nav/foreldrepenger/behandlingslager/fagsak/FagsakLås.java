@@ -43,9 +43,7 @@ public class FagsakLås {
     void setFagsakId(Long fagsakId) {
         if (this.fagsakId != null && !Objects.equals(fagsakId, this.fagsakId)) {
             throw new IllegalStateException(
-                "Kan ikke endre fagsakId til annen verdi, var [" +
-                    this.fagsakId + "], forsøkte å sette til [" +
-                    fagsakId + "]");
+                "Kan ikke endre fagsakId til annen verdi, var [" + this.fagsakId + "], forsøkte å sette til [" + fagsakId + "]");
         }
         this.fagsakId = fagsakId;
     }
@@ -68,8 +66,6 @@ public class FagsakLås {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-            "<fagsak=" + getFagsakId() +
-            ">";
+        return getClass().getSimpleName() + "<fagsak=" + getFagsakId() + ">";
     }
 }

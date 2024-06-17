@@ -24,7 +24,7 @@ public class SøknadRepository {
     }
 
     @Inject
-    public SøknadRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public SøknadRepository(EntityManager entityManager, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingRepository = behandlingRepository;
@@ -39,12 +39,10 @@ public class SøknadRepository {
 
         query.setParameter("behandlingId", behandlingId);
 
-        return HibernateVerktøy.hentUniktResultat(query).map(SøknadGrunnlagEntitet::getSøknad)
-                .orElseGet(() -> {
-                    var originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
-                        .flatMap(Behandling::getOriginalBehandlingId);
-                    return originalId.map(this::hentSøknad).orElse(null);
-                });
+        return HibernateVerktøy.hentUniktResultat(query).map(SøknadGrunnlagEntitet::getSøknad).orElseGet(() -> {
+            var originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId).flatMap(Behandling::getOriginalBehandlingId);
+            return originalId.map(this::hentSøknad).orElse(null);
+        });
     }
 
     public Optional<SøknadEntitet> hentSøknadHvisEksisterer(Long behandlingId) {
@@ -72,11 +70,11 @@ public class SøknadRepository {
 
     private Optional<Behandling> utledSisteFørstegangsbehandlingSomIkkeErHenlagt(Behandling behandling) {
         return behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(behandling.getFagsak().getSaksnummer())
-                .stream()
-                .filter(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD))
-                .filter(b -> b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt())
-                .filter(this::harSøknad)
-                .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
+            .stream()
+            .filter(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD))
+            .filter(b -> b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt())
+            .filter(this::harSøknad)
+            .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
     }
 
     private boolean harSøknad(Behandling b) {

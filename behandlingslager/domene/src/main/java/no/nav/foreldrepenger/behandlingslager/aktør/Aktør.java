@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public abstract class Aktør extends BaseEntitet {
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", unique=true, nullable = false, updatable = false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", unique = true, nullable = false, updatable = false))
     private AktørId aktørId;
 
     @SuppressWarnings("unused")
@@ -35,8 +35,7 @@ public abstract class Aktør extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Aktør other)
-                || !(getClass().isAssignableFrom(object.getClass()) || object.getClass().isAssignableFrom(getClass()))) {
+        if (!(object instanceof Aktør other) || !(getClass().isAssignableFrom(object.getClass()) || object.getClass().isAssignableFrom(getClass()))) {
             return false;
         }
         return Objects.equals(other.aktørId, this.aktørId);

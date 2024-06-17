@@ -35,7 +35,6 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
  * Entitet som representerer Opptjening. Denne har også et sett med {@link OpptjeningAktivitet}.
  * Grafen her er immutable og tillater ikke endring av data elementer annet enn metadata (aktiv flagg osv.)
  * {@link OpptjeningRepository} besørger riktig oppdatering og skriving, og oppretting av nytt innslag ved hver endring.
- *
  */
 @Entity(name = "Opptjening")
 @Table(name = "OPPTJENING")
@@ -54,7 +53,7 @@ public class Opptjening extends BaseEntitet {
     private Long id;
 
     /* Mapper kun fra denne og ikke bi-directional, gjør vedlikehold enklere. */
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true /* ok siden aktiviteter er eid av denne */)
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true /* ok siden aktiviteter er eid av denne */)
     @JoinColumn(name = "OPPTJENINGSPERIODE_ID", nullable = false, updatable = false)
     private List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
 
@@ -76,12 +75,13 @@ public class Opptjening extends BaseEntitet {
         this.opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
     }
 
-    /** copy-constructor. */
+    /**
+     * copy-constructor.
+     */
     public Opptjening(Opptjening annen) {
         this.opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(annen.getFom(), annen.getTom());
         this.opptjentPeriode = annen.getOpptjentPeriode() == null ? null : annen.getOpptjentPeriode().toString();
-        this.opptjeningAktivitet
-                .addAll(annen.getOpptjeningAktivitet().stream().map(OpptjeningAktivitet::new).toList());
+        this.opptjeningAktivitet.addAll(annen.getOpptjeningAktivitet().stream().map(OpptjeningAktivitet::new).toList());
         // kopierer ikke data som ikke er relevante (aktiv, versjon, id, etc)
 
     }
@@ -98,8 +98,7 @@ public class Opptjening extends BaseEntitet {
         if (!(obj instanceof Opptjening other)) {
             return false;
         }
-        return aktiv == other.aktiv && Objects.equals(this.getFom(), other.getFom())
-                && Objects.equals(this.getTom(), other.getTom());
+        return aktiv == other.aktiv && Objects.equals(this.getFom(), other.getFom()) && Objects.equals(this.getTom(), other.getTom());
     }
 
     public Boolean getAktiv() {
@@ -131,16 +130,20 @@ public class Opptjening extends BaseEntitet {
         return vilkårResultat;
     }
 
-    /** fom/tom opptjening er gjort. */
+    /**
+     * fom/tom opptjening er gjort.
+     */
     public DatoIntervallEntitet getOpptjeningPeriode() {
         return opptjeningPeriode;
     }
 
     public boolean erOpptjeningPeriodeVilkårOppfylt() {
-        var opptjeningVilkårUtfall = getVilkårResultat().getVilkårene().stream()
+        var opptjeningVilkårUtfall = getVilkårResultat().getVilkårene()
+            .stream()
             .filter(v -> VilkårType.OPPTJENINGSPERIODEVILKÅR.equals(v.getVilkårType()))
             .map(Vilkår::getGjeldendeVilkårUtfall)
-            .findFirst().orElse(VilkårUtfallType.IKKE_VURDERT);
+            .findFirst()
+            .orElse(VilkårUtfallType.IKKE_VURDERT);
         return VilkårUtfallType.OPPFYLT.equals(opptjeningVilkårUtfall);
     }
 
@@ -158,12 +161,9 @@ public class Opptjening extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-                "id=" + id + ", "
-            + "opptjeningsperiodeFom=" + opptjeningPeriode.getFomDato() + ", "
-            + "opptjeningsperiodeTom=" + opptjeningPeriode.getTomDato() + ", "
-                + (opptjentPeriode == null ? "" : ", opptjentPeriode=" + opptjentPeriode)
-                + ">";
+        return getClass().getSimpleName() + "<" + "id=" + id + ", " + "opptjeningsperiodeFom=" + opptjeningPeriode.getFomDato() + ", "
+            + "opptjeningsperiodeTom=" + opptjeningPeriode.getTomDato() + ", " + (
+            opptjentPeriode == null ? "" : ", opptjentPeriode=" + opptjentPeriode) + ">";
     }
 
     void setOpptjeningAktivitet(Collection<OpptjeningAktivitet> opptjeningAktivitet) {

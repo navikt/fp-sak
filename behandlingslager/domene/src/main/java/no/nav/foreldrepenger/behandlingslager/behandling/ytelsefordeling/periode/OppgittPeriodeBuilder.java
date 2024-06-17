@@ -21,20 +21,19 @@ public class OppgittPeriodeBuilder {
     }
 
     public static OppgittPeriodeBuilder fraEksisterende(OppgittPeriodeEntitet oppgittPeriode) {
-        var oppgittPeriodeBuilder = new OppgittPeriodeBuilder()
-                .medÅrsak(oppgittPeriode.getÅrsak())
-                .medPeriode(oppgittPeriode.getFom(), oppgittPeriode.getTom())
-                .medPeriodeType(oppgittPeriode.getPeriodeType())
-                .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
-                .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
-                .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent())
-                .medFlerbarnsdager(oppgittPeriode.isFlerbarnsdager())
-                .medArbeidsgiver(oppgittPeriode.getArbeidsgiver())
-                .medGraderingAktivitetType(oppgittPeriode.getGraderingAktivitetType())
-                .medMottattDato(oppgittPeriode.getMottattDato())
-                .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
-                .medDokumentasjonVurdering(oppgittPeriode.getDokumentasjonVurdering())
-                .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
+        var oppgittPeriodeBuilder = new OppgittPeriodeBuilder().medÅrsak(oppgittPeriode.getÅrsak())
+            .medPeriode(oppgittPeriode.getFom(), oppgittPeriode.getTom())
+            .medPeriodeType(oppgittPeriode.getPeriodeType())
+            .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
+            .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
+            .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent())
+            .medFlerbarnsdager(oppgittPeriode.isFlerbarnsdager())
+            .medArbeidsgiver(oppgittPeriode.getArbeidsgiver())
+            .medGraderingAktivitetType(oppgittPeriode.getGraderingAktivitetType())
+            .medMottattDato(oppgittPeriode.getMottattDato())
+            .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
+            .medDokumentasjonVurdering(oppgittPeriode.getDokumentasjonVurdering())
+            .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
 
         if (oppgittPeriode.getArbeidsprosent() != null) {
             oppgittPeriodeBuilder.medArbeidsprosent(oppgittPeriode.getArbeidsprosent());

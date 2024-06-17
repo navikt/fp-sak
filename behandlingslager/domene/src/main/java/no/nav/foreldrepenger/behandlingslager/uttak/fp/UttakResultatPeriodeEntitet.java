@@ -81,15 +81,15 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     private OverføringÅrsak overføringÅrsak = OverføringÅrsak.UDEFINERT;
 
     @Convert(converter = PeriodeResultatType.KodeverdiConverter.class)
-    @Column(name="periode_resultat_type", nullable = false)
+    @Column(name = "periode_resultat_type", nullable = false)
     private PeriodeResultatType periodeResultatType;
 
     @Convert(converter = PeriodeResultatÅrsak.KodeverdiConverter.class)
-    @Column(name="PERIODE_RESULTAT_AARSAK", nullable = false)
+    @Column(name = "PERIODE_RESULTAT_AARSAK", nullable = false)
     private PeriodeResultatÅrsak periodeResultatÅrsak;
 
     @Convert(converter = GraderingAvslagÅrsak.KodeverdiConverter.class)
-    @Column(name="gradering_avslag_aarsak", nullable = false)
+    @Column(name = "gradering_avslag_aarsak", nullable = false)
     private GraderingAvslagÅrsak graderingAvslagÅrsak = GraderingAvslagÅrsak.UKJENT;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -113,18 +113,10 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "UttakResultatPeriodeEntitet{" +
-            "tidsperiode=" + tidsperiode +
-            ", graderingInnvilget=" + graderingInnvilget +
-            ", utsettelseType=" + utsettelseType.getKode() +
-            ", oppholdÅrsak=" + oppholdÅrsak.getKode() +
-            ", overføringÅrsak=" + overføringÅrsak.getKode() +
-            ", periodeResultatType=" + periodeResultatType.getKode() +
-            ", periodeResultatÅrsak=" + periodeResultatÅrsak +
-            ", samtidigUttak=" + samtidigUttak +
-            ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-            ", manueltBehandlet=" + manueltBehandlet +
-            '}';
+        return "UttakResultatPeriodeEntitet{" + "tidsperiode=" + tidsperiode + ", graderingInnvilget=" + graderingInnvilget + ", utsettelseType="
+            + utsettelseType.getKode() + ", oppholdÅrsak=" + oppholdÅrsak.getKode() + ", overføringÅrsak=" + overføringÅrsak.getKode()
+            + ", periodeResultatType=" + periodeResultatType.getKode() + ", periodeResultatÅrsak=" + periodeResultatÅrsak + ", samtidigUttak="
+            + samtidigUttak + ", samtidigUttaksprosent=" + samtidigUttaksprosent + ", manueltBehandlet=" + manueltBehandlet + '}';
     }
 
     public Long getId() {
@@ -245,11 +237,14 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (UttakResultatPeriodeEntitet) o;
-        return Objects.equals(perioder, that.perioder) &&
-            Objects.equals(tidsperiode, that.tidsperiode);
+        return Objects.equals(perioder, that.perioder) && Objects.equals(tidsperiode, that.tidsperiode);
     }
 
     @Override

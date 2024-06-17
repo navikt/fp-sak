@@ -24,7 +24,7 @@ public class MottatteDokumentRepository {
     }
 
     @Inject
-    public MottatteDokumentRepository( EntityManager entityManager) {
+    public MottatteDokumentRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -37,8 +37,7 @@ public class MottatteDokumentRepository {
     }
 
     public Optional<MottattDokument> hentMottattDokument(long mottattDokumentId) {
-        var query = entityManager.createQuery(
-            "select m from MottattDokument m where m.id = :param", MottattDokument.class)
+        var query = entityManager.createQuery("select m from MottattDokument m where m.id = :param", MottattDokument.class)
             .setParameter(PARAM_KEY, mottattDokumentId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
@@ -50,10 +49,7 @@ public class MottatteDokumentRepository {
      */
     public List<MottattDokument> hentMottatteDokument(long behandlingId) {
         var strQueryTemplate = "select m from MottattDokument m where m.behandlingId = :param";
-        return entityManager.createQuery(
-            strQueryTemplate, MottattDokument.class)
-            .setParameter(PARAM_KEY, behandlingId)
-            .getResultList();
+        return entityManager.createQuery(strQueryTemplate, MottattDokument.class).setParameter(PARAM_KEY, behandlingId).getResultList();
     }
 
     /**
@@ -62,7 +58,7 @@ public class MottatteDokumentRepository {
      * ikke å anbefale å bruke.
      */
     public List<MottattDokument> hentMottattDokument(JournalpostId journalpostId) {
-        var query = entityManager.createQuery( "select m from MottattDokument m where m.journalpostId = :param", MottattDokument.class)
+        var query = entityManager.createQuery("select m from MottattDokument m where m.journalpostId = :param", MottattDokument.class)
             .setParameter(PARAM_KEY, journalpostId);
         return query.getResultList();
     }
@@ -74,23 +70,18 @@ public class MottatteDokumentRepository {
      */
     public List<MottattDokument> hentMottatteDokumentMedFagsakId(long fagsakId) {
         var strQueryTemplate = "select m from MottattDokument m where m.fagsakId = :param";
-        return entityManager.createQuery(
-            strQueryTemplate, MottattDokument.class)
-            .setParameter(PARAM_KEY, fagsakId)
-            .getResultList();
+        return entityManager.createQuery(strQueryTemplate, MottattDokument.class).setParameter(PARAM_KEY, fagsakId).getResultList();
     }
 
     public void oppdaterMedBehandling(MottattDokument mottattDokument, long behandlingId) {
-        entityManager.createQuery(
-            "update MottattDokument set behandlingId = :param WHERE id = :dokumentId")
+        entityManager.createQuery("update MottattDokument set behandlingId = :param WHERE id = :dokumentId")
             .setParameter("dokumentId", mottattDokument.getId())
             .setParameter(PARAM_KEY, behandlingId)
             .executeUpdate();
     }
 
     public void oppdaterMedKanalreferanse(MottattDokument mottattDokument, String kanalreferanse) {
-        entityManager.createQuery(
-            "update MottattDokument set kanalreferanse = :param WHERE id = :dokumentId")
+        entityManager.createQuery("update MottattDokument set kanalreferanse = :param WHERE id = :dokumentId")
             .setParameter("dokumentId", mottattDokument.getId())
             .setParameter(PARAM_KEY, kanalreferanse)
             .executeUpdate();

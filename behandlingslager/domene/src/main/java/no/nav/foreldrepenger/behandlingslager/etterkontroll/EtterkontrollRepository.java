@@ -27,13 +27,10 @@ public class EtterkontrollRepository {
     }
 
     public List<Etterkontroll> finnEtterkontrollForFagsak(long fagsakId, KontrollType kontrollType) {
-        return entityManager.createQuery(
-                "from Etterkontroll " +
-                        "where fagsakId = :fagsakId and kontrollType = :kontrollType",
-                Etterkontroll.class)
-                .setParameter("fagsakId", fagsakId)
-                .setParameter("kontrollType", kontrollType)
-                .getResultList();
+        return entityManager.createQuery("from Etterkontroll " + "where fagsakId = :fagsakId and kontrollType = :kontrollType", Etterkontroll.class)
+            .setParameter("fagsakId", fagsakId)
+            .setParameter("kontrollType", kontrollType)
+            .getResultList();
     }
 
     /**
@@ -64,14 +61,10 @@ public class EtterkontrollRepository {
 
         var datoTidTilbake = LocalDate.now().atStartOfDay().plusHours(1);
 
-        var query = entityManager.createQuery(
-                "select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId " +
-                        "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake",
-                Fagsak.class);
+        var query = entityManager.createQuery("select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId "
+            + "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake", Fagsak.class);
         query.setParameter("periodeTilbake", datoTidTilbake);
 
-        return query.getResultList().stream()
-                .map(Fagsak::getId)
-                .toList();
+        return query.getResultList().stream().map(Fagsak::getId).toList();
     }
 }

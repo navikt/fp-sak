@@ -60,7 +60,7 @@ public class MedlemskapPerioderBuilder {
         return this;
     }
 
-    public MedlemskapPerioderBuilder medMedlId(Long medlId){
+    public MedlemskapPerioderBuilder medMedlId(Long medlId) {
         medlemskapPerioderMal.setMedlId(medlId);
         return this;
     }

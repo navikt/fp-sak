@@ -10,7 +10,8 @@ public final class SpesialBehandling {
 
     private static final Set<BehandlingÅrsakType> BEHOLD_GRUNNLAG = BehandlingÅrsakType.alleTekniskeÅrsaker();
 
-    private static final Set<BehandlingÅrsakType> BEHOLD_UTTAK = Set.of(BehandlingÅrsakType.REBEREGN_FERIEPENGER, BehandlingÅrsakType.RE_UTSATT_START);
+    private static final Set<BehandlingÅrsakType> BEHOLD_UTTAK = Set.of(BehandlingÅrsakType.REBEREGN_FERIEPENGER,
+        BehandlingÅrsakType.RE_UTSATT_START);
 
     private SpesialBehandling() {
     }

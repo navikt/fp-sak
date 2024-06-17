@@ -66,11 +66,14 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (PleiepengerGrunnlagEntitet) o;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(perioderMedInnleggelse, that.perioderMedInnleggelse);
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(perioderMedInnleggelse, that.perioderMedInnleggelse);
     }
 
     @Override

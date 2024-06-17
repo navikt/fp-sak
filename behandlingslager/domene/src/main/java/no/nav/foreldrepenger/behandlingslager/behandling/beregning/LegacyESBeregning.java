@@ -60,7 +60,12 @@ public class LegacyESBeregning extends BaseEntitet {
         // for hibernate
     }
 
-    public LegacyESBeregning(long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+    public LegacyESBeregning(long satsVerdi,
+                             long antallBarn,
+                             long beregnetTilkjentYtelse,
+                             LocalDateTime beregnetTidspunkt,
+                             boolean overstyrt,
+                             Long opprinneligBeregnetTilkjentYtelse) {
         this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt, opprinneligBeregnetTilkjentYtelse);
     }
 
@@ -68,7 +73,13 @@ public class LegacyESBeregning extends BaseEntitet {
         this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, false, null);
     }
 
-    LegacyESBeregning(LegacyESBeregningsresultat beregningResultat, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+    LegacyESBeregning(LegacyESBeregningsresultat beregningResultat,
+                      long satsVerdi,
+                      long antallBarn,
+                      long beregnetTilkjentYtelse,
+                      LocalDateTime beregnetTidspunkt,
+                      boolean overstyrt,
+                      Long opprinneligBeregnetTilkjentYtelse) {
         Objects.requireNonNull(beregnetTidspunkt, "beregnetTidspunkt må være satt");
         this.beregningResultat = beregningResultat;
         this.satsVerdi = satsVerdi;
@@ -118,14 +129,16 @@ public class LegacyESBeregning extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         var beregning = (LegacyESBeregning) o;
-        return Objects.equals(this.overstyrt, beregning.overstyrt)
-            && Objects.equals(this.satsVerdi, beregning.satsVerdi)
-            && Objects.equals(this.beregnetTilkjentYtelse, beregning.beregnetTilkjentYtelse)
-            && Objects.equals(this.beregnetTidspunkt, beregning.beregnetTidspunkt);
+        return Objects.equals(this.overstyrt, beregning.overstyrt) && Objects.equals(this.satsVerdi, beregning.satsVerdi) && Objects.equals(
+            this.beregnetTilkjentYtelse, beregning.beregnetTilkjentYtelse) && Objects.equals(this.beregnetTidspunkt, beregning.beregnetTidspunkt);
     }
 
     @Override

@@ -111,10 +111,12 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
             this.kladd.behandlingId = behandlingId;
             return this;
         }
+
         public Builder medPerioderMedAktivitetskravArbeid(AktivitetskravArbeidPerioderEntitet perioderEntitet) {
             this.kladd.perioderMedAktivitetskravArbeid = perioderEntitet;
             return this;
         }
+
         public Builder medPeriode(LocalDate fom, LocalDate tom) {
             this.kladd.periode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
             return this;

@@ -256,8 +256,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public boolean isGradert() {
-        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0
-            && getGraderingAktivitetType() != null;
+        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0 && getGraderingAktivitetType() != null;
     }
 
     public boolean isOpphold() {
@@ -321,37 +320,25 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         if (!(o instanceof OppgittPeriodeEntitet that)) {
             return false;
         }
-        return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) &&
-                Objects.equals(årsakType, that.årsakType) &&
-                Objects.equals(årsak, that.årsak) &&
-                Objects.equals(periode, that.periode) &&
-                Objects.equals(getArbeidsprosentSomStillingsprosent(), that.getArbeidsprosentSomStillingsprosent()) &&
-                Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-                Objects.equals(erArbeidstaker, that.erArbeidstaker) &&
-                Objects.equals(morsAktivitet, that.morsAktivitet) &&
-                Objects.equals(samtidigUttak, that.samtidigUttak) &&
-                Objects.equals(periodeKilde, that.periodeKilde) &&
-                Objects.equals(mottattDato, that.mottattDato) &&
-                Objects.equals(dokumentasjonVurdering, that.dokumentasjonVurdering) &&
-                Objects.equals(tidligstMottattDato, that.tidligstMottattDato) &&
-                Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
+        return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) && Objects.equals(årsakType, that.årsakType) && Objects.equals(årsak,
+            that.årsak) && Objects.equals(periode, that.periode) && Objects.equals(getArbeidsprosentSomStillingsprosent(),
+            that.getArbeidsprosentSomStillingsprosent()) && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(erArbeidstaker,
+            that.erArbeidstaker) && Objects.equals(morsAktivitet, that.morsAktivitet) && Objects.equals(samtidigUttak, that.samtidigUttak)
+            && Objects.equals(periodeKilde, that.periodeKilde) && Objects.equals(mottattDato, that.mottattDato) && Objects.equals(
+            dokumentasjonVurdering, that.dokumentasjonVurdering) && Objects.equals(tidligstMottattDato, that.tidligstMottattDato) && Objects.equals(
+            samtidigUttaksprosent, that.samtidigUttaksprosent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker,
-            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato, tidligstMottattDato, dokumentasjonVurdering);
+        return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker, arbeidsgiver, periodeKilde,
+            samtidigUttaksprosent, mottattDato, tidligstMottattDato, dokumentasjonVurdering);
     }
 
     @Override
     public String toString() {
-        return "OppgittPeriodeEntitet{" +
-                "uttakPeriodeType=" + uttakPeriodeType.getKode() +
-                ", årsak=" + årsak +
-                ", dokumentasjonVurdering=" + dokumentasjonVurdering +
-                ", periode=" + periode +
-                ", samtidigUttaksprosent=" + samtidigUttaksprosent +
-                ", arbeidsprosent=" + arbeidsprosent +
-                '}';
+        return "OppgittPeriodeEntitet{" + "uttakPeriodeType=" + uttakPeriodeType.getKode() + ", årsak=" + årsak + ", dokumentasjonVurdering="
+            + dokumentasjonVurdering + ", periode=" + periode + ", samtidigUttaksprosent=" + samtidigUttaksprosent + ", arbeidsprosent="
+            + arbeidsprosent + '}';
     }
 }

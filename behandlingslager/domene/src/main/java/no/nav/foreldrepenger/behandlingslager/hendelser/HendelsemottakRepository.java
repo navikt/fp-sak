@@ -16,7 +16,7 @@ public class HendelsemottakRepository {
     }
 
     @Inject
-    public HendelsemottakRepository( EntityManager entityManager) {
+    public HendelsemottakRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

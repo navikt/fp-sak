@@ -15,16 +15,16 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferans
 public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
+        "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
     KLAGE_UGYLDIG("KLAGE_UGYLDIG", "Klage er ugyldig", null),
     IKKE_PAKLAGD_VEDTAK("IKKE_PAKLAGD_VEDTAK", "Ikke påklagd et vedtak",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
+        "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
     KLAGER_IKKE_PART("KLAGER_IKKE_PART", "Klager er ikke part",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
+        "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
     IKKE_KONKRET("IKKE_KONKRET", "Klagen er ikke konkret",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"32\", \"34\"]}}}"),
+        "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"32\", \"34\"]}}}"),
     IKKE_SIGNERT("IKKE_SIGNERT", "Klagen er ikke signert",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
+        "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
     UDEFINERT("-", "Ikke definert", null),
     ;
 

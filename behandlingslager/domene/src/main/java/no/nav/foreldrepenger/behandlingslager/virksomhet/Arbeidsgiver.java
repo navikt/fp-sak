@@ -15,7 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-/** En arbeidsgiver (enten virksomhet eller personlig arbeidsgiver). */
+/**
+ * En arbeidsgiver (enten virksomhet eller personlig arbeidsgiver).
+ */
 @Embeddable
 public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
 
@@ -40,10 +42,10 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
     }
 
     protected Arbeidsgiver(String arbeidsgiverOrgnr, AktørId arbeidsgiverAktørId) {
-        if(arbeidsgiverAktørId==null && arbeidsgiverOrgnr==null) {
+        if (arbeidsgiverAktørId == null && arbeidsgiverOrgnr == null) {
             throw new IllegalArgumentException("Utvikler-feil: arbeidsgiver uten hverken orgnr eller aktørId");
         }
-        if (arbeidsgiverAktørId!=null && arbeidsgiverOrgnr!=null) {
+        if (arbeidsgiverAktørId != null && arbeidsgiverOrgnr != null) {
             throw new IllegalArgumentException("Utvikler-feil: arbeidsgiver med både orgnr og aktørId");
         }
         this.arbeidsgiverOrgnr = arbeidsgiverOrgnr;
@@ -52,9 +54,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
 
     @Override
     public String getIndexKey() {
-        return getAktørId() != null
-            ? IndexKey.createKey("arbeidsgiverAktørId", getAktørId())
-            : IndexKey.createKey("virksomhet", getOrgnr());
+        return getAktørId() != null ? IndexKey.createKey("arbeidsgiverAktørId", getAktørId()) : IndexKey.createKey("virksomhet", getOrgnr());
     }
 
     public static Arbeidsgiver virksomhet(String arbeidsgiverOrgnr) {
@@ -69,12 +69,16 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
         return new Arbeidsgiver(null, arbeidsgiverAktørId);
     }
 
-    /** Virksomhets orgnr. Leser bør ta høyde for at dette kan være juridisk orgnr (istdf. virksomhets orgnr). */
+    /**
+     * Virksomhets orgnr. Leser bør ta høyde for at dette kan være juridisk orgnr (istdf. virksomhets orgnr).
+     */
     public String getOrgnr() {
         return arbeidsgiverOrgnr;
     }
 
-    /** Hvis arbeidsgiver er en privatperson, returner aktørId for person. */
+    /**
+     * Hvis arbeidsgiver er en privatperson, returner aktørId for person.
+     */
     public AktørId getAktørId() {
         return arbeidsgiverAktørId;
     }
@@ -112,8 +116,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
         if (!(o instanceof Arbeidsgiver that)) {
             return false;
         }
-        return Objects.equals(getOrgnr(), that.getOrgnr()) &&
-            Objects.equals(getAktørId(), that.getAktørId());
+        return Objects.equals(getOrgnr(), that.getOrgnr()) && Objects.equals(getAktørId(), that.getAktørId());
     }
 
     @Override
@@ -123,14 +126,13 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
 
     @Override
     public String toString() {
-        return "Arbeidsgiver{" +
-            "virksomhet=" + tilMaskertNummer(getOrgnr()) +
-            ", arbeidsgiverAktørId='" + getAktørId() + '\'' +
-            '}';
+        return "Arbeidsgiver{" + "virksomhet=" + tilMaskertNummer(getOrgnr()) + ", arbeidsgiverAktørId='" + getAktørId() + '\'' + '}';
     }
 
     public static Arbeidsgiver fra(Arbeidsgiver arbeidsgiver) {
-        if(arbeidsgiver==null) return null;
+        if (arbeidsgiver == null) {
+            return null;
+        }
         return new Arbeidsgiver(arbeidsgiver.getOrgnr(), arbeidsgiver.getAktørId());
     }
 

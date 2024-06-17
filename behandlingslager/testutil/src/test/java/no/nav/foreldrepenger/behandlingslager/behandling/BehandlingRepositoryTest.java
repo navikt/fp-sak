@@ -143,7 +143,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
+            .build();
 
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
@@ -196,7 +197,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingsresultatRepository.lagre(behandling.getId(), behandlingsresultat);
-        behandlingVedtakRepository.lagre(forVedtak.medBehandlingsresultat(getBehandlingsresultat(behandling)).medIverksettingStatus(IverksettingStatus.IVERKSATT).build(), lås);
+        behandlingVedtakRepository.lagre(
+            forVedtak.medBehandlingsresultat(getBehandlingsresultat(behandling)).medIverksettingStatus(IverksettingStatus.IVERKSATT).build(), lås);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, lås);
 
@@ -286,8 +288,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling)).fjernKonsekvenserForYtelsen();
         setKonsekvensForYtelsen(getBehandlingsresultat(behandling), List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
 
-        var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId())
-            .getKonsekvenserForYtelsen();
+        var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId()).getKonsekvenserForYtelsen();
         assertThat(brKonsekvenser).hasSize(1);
         assertThat(brKonsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
     }
@@ -310,9 +311,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårIkkeVurdert(VilkårType.OMSORGSVILKÅRET)
-            .buildFor(behandling);
+        var vilkårResultat = VilkårResultat.builder().leggTilVilkårIkkeVurdert(VilkårType.OMSORGSVILKÅRET).buildFor(behandling);
 
         // Act
         behandlingRepository.lagre(vilkårResultat, lås);
@@ -336,8 +335,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         // Assert
         var opphentetBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType())
-            .isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+        assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType()).isEqualTo(
+            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
         var vilkårResultat1 = new VilkårResultatRepository(getEntityManager()).hentHvisEksisterer(behandling.getId());
         assertThat(vilkårResultat1).isPresent();
         assertThat(vilkårResultat1.get().getVilkårene()).isEqualTo(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene());
@@ -485,10 +484,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     void skal_finne_årsaker_for_behandling() {
 
         // Arrange
-        var behandling = opprettBuilderForBehandling()
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                .medManueltOpprettet(false))
-            .build();
+        var behandling = opprettBuilderForBehandling().medBehandlingÅrsak(
+            BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).medManueltOpprettet(false)).build();
         lagreBehandling(behandling);
 
         // Act
@@ -503,10 +500,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     void skal_finne_årsakstyper_for_behandling() {
 
         // Arrange
-        var behandling = opprettBuilderForBehandling()
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET)
-                .medManueltOpprettet(false))
-            .build();
+        var behandling = opprettBuilderForBehandling().medBehandlingÅrsak(
+            BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET).medManueltOpprettet(false)).build();
         lagreBehandling(behandling);
 
         // Act
@@ -521,8 +516,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     void skal_ikke_finne_noen_årsakstyper_hvis_ingen() {
 
         // Arrange
-        var behandling = opprettBuilderForBehandling()
-            .build();
+        var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
 
         // Act
@@ -536,8 +530,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     void skal_ikke_finne_noen_årsaker_hvis_ingen() {
 
         // Arrange
-        var behandling = opprettBuilderForBehandling()
-            .build();
+        var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
 
         // Act
@@ -551,8 +544,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     void avsluttet_dato_skal_ha_dato_og_tid() {
         // Arrange
         var avsluttetDato = LocalDateTime.now();
-        var behandling = opprettBuilderForBehandling().medAvsluttetDato(avsluttetDato)
-            .build();
+        var behandling = opprettBuilderForBehandling().medAvsluttetDato(avsluttetDato).build();
 
         lagreBehandling(behandling);
         var entityManager = getEntityManager();
@@ -597,13 +589,15 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var terminDato = LocalDate.now().plusDays(5);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("Lege Legesen"))
             .medAntallBarn(1);
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medNavnPå("NAVNSENASDA ")
                 .medUtstedtDato(terminDato.minusDays(40)))
@@ -612,9 +606,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         return scenario.lagre(repositoryProvider);
     }
 
-    private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
-                                             AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                             LocalDateTime frist) {
+    private Aksjonspunkt opprettAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, LocalDateTime frist) {
 
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
@@ -622,12 +614,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Fagsak byggFagsak(AktørId aktørId, RelasjonsRolleType rolle, NavBrukerKjønn kjønn) {
-        var navBruker = new NavBrukerBuilder()
-            .medAktørId(aktørId)
-            .medKjønn(kjønn)
-            .build();
-        var fagsak = FagsakBuilder.nyEngangstønad(rolle)
-            .medBruker(navBruker).build();
+        var navBruker = new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build();
+        var fagsak = FagsakBuilder.nyEngangstønad(rolle).medBruker(navBruker).build();
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
@@ -654,7 +642,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandling = opprettBehandlingMedTermindato();
         oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
-        return BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
+        return BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
             .medAnsvarligSaksbehandler("Janne Hansen")
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
@@ -665,13 +654,15 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
                 .medUtstedtDato(LocalDate.now())
                 .medTermindato(LocalDate.now().plusDays(40)))
             .medAntallBarn(1);
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().plusDays(40))
                 .medUtstedtDato(LocalDate.now().minusDays(7))
                 .medNavnPå("NAVN"))
@@ -686,13 +677,15 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var terminDato = LocalDate.now().minusDays(dagerTilbake);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
                 .medUtstedtDato(LocalDate.now().minusDays(40))
                 .medTermindato(terminDato))
             .medAntallBarn(1);
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medNavnPå("LEGESEN")
                 .medUtstedtDato(terminDato.minusDays(40)))
@@ -727,7 +720,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         if (innvilget) {
             builder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR).medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
-            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         builder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

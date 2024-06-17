@@ -53,7 +53,7 @@ public class DiffResult {
         });
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     private boolean areEqual(Node key, Object left, Object right) {
         if (Objects.equals(left, right)) {
             return true;
@@ -68,18 +68,20 @@ public class DiffResult {
         return false;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private boolean areEqualListsOutOfOrder(Node key, List lhsList, List rhsList) {
         Set lhsSet = new HashSet<>(lhsList);
         Set rhsSet = new HashSet<>(rhsList);
 
         if (lhsSet.size() != lhsList.size()) {
-            throw new IllegalArgumentException("Bad Equals eller duplikater i List.  lhsList har forskjellig størrelse fra lhsSet. Key=\"" + key
-                + "\"\n,\"lhsList\"=" + lhsList + "\n,\"rhsList\"=" + rhsList);
+            throw new IllegalArgumentException(
+                "Bad Equals eller duplikater i List.  lhsList har forskjellig størrelse fra lhsSet. Key=\"" + key + "\"\n,\"lhsList\"=" + lhsList
+                    + "\n,\"rhsList\"=" + rhsList);
         }
         if (rhsSet.size() != rhsList.size()) {
-            throw new IllegalArgumentException("Bad Equals eller duplikater i List.  rhsList har forskjellig størrelse fra rhsSet. Key=\"" + key
-                + "\"\n,\"lhsList\"=" + lhsList + "\n,\"rhsList\"=" + rhsList);
+            throw new IllegalArgumentException(
+                "Bad Equals eller duplikater i List.  rhsList har forskjellig størrelse fra rhsSet. Key=\"" + key + "\"\n,\"lhsList\"=" + lhsList
+                    + "\n,\"rhsList\"=" + rhsList);
         }
 
         return Objects.equals(lhsSet, rhsSet);

@@ -72,7 +72,6 @@ public enum SkjermlenkeType implements Kodeverdi {
     public static final String KODEVERK = "SKJERMLENKE_TYPE";
 
 
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -126,16 +125,18 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     /**
      * Returnerer skjermlenketype for eit aksjonspunkt. Inneheld logikk for spesialbehandling av aksjonspunkt som ikkje ligg på aksjonspunktdefinisjonen.
+     *
      * @deprecated Brukes kun i totrinnskontroll og foreslå vedtak, bør også fjernes derfra og heller lagres på Aksjonspunktet (ikke definisjonen)
      */
     @Deprecated
-    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandling behandling,
+    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                                      Behandling behandling,
                                                       Behandlingsresultat behandlingsresultat) {
-        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
-            AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
+        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)
+            || AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return getSkjermlenkeTypeForMottattStotte(behandlingsresultat);
         }
-        if (AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE.equals(aksjonspunktDefinisjon) ){
+        if (AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE.equals(aksjonspunktDefinisjon)) {
             return getSkjermlenkeTypeForOmsorgsovertakelse(behandling);
         }
         return aksjonspunktDefinisjon.getSkjermlenkeType();
@@ -143,8 +144,8 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     private static SkjermlenkeType getSkjermlenkeTypeForOmsorgsovertakelse(Behandling behandling) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)){
-            return  SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR;
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
+            return SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR;
         }
         return SkjermlenkeType.FAKTA_FOR_OMSORG;
     }
@@ -152,7 +153,8 @@ public enum SkjermlenkeType implements Kodeverdi {
     public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(Behandlingsresultat behandlingsresultat) {
         var vilkårType = Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
-            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
+            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn)
+            .orElse(null);
         return getSkjermlenkeTypeForMottattStotte(vilkårType);
     }
 

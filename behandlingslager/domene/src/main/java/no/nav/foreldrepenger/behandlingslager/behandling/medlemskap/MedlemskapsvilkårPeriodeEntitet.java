@@ -53,10 +53,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
     }
 
     private MedlemskapsvilkårPeriodeEntitet(MedlemskapsvilkårPeriodeEntitet kladd) {
-        perioder = kladd.getPerioder().stream()
-                .map(MedlemskapsvilkårPerioderEntitet::new)
-                .peek(pr -> pr.setRot(this))
-                .collect(Collectors.toSet());
+        perioder = kladd.getPerioder().stream().map(MedlemskapsvilkårPerioderEntitet::new).peek(pr -> pr.setRot(this)).collect(Collectors.toSet());
         if (kladd.getOverstyring().getOverstyringsdato().isPresent()) {
             var overstyring = kladd.getOverstyring();
             overstyrtLøpendeMedlemskap = new OverstyrtLøpendeMedlemskap(overstyring.getOverstyringsdato().orElseThrow(),
@@ -95,9 +92,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
     }
 
     MedlemskapsvilkårPerioderEntitet.Builder getBuilderFor(LocalDate vurderingsdato) {
-        var medlemOpt = perioder.stream()
-                .filter(medlem -> vurderingsdato.equals(medlem.getVurderingsdato()))
-                .findFirst();
+        var medlemOpt = perioder.stream().filter(medlem -> vurderingsdato.equals(medlem.getVurderingsdato())).findFirst();
         return MedlemskapsvilkårPerioderEntitet.Builder.oppdater(medlemOpt, vurderingsdato);
     }
 

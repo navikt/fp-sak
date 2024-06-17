@@ -123,9 +123,9 @@ class OppdragskontrollEntityTest {
 
     private Oppdragskontroll.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-                .medBehandlingId(BEHANDLINGID)
-                .medSaksnummer(SAKSID)
-                .medVenterKvittering(VENTERKVITTERING)
-                .medProsessTaskId(TASKID);
+            .medBehandlingId(BEHANDLINGID)
+            .medSaksnummer(SAKSID)
+            .medVenterKvittering(VENTERKVITTERING)
+            .medProsessTaskId(TASKID);
     }
 }

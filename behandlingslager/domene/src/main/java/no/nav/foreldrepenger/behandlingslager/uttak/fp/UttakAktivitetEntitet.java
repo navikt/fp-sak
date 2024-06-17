@@ -60,11 +60,8 @@ public class UttakAktivitetEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "UttakAktivitetEntitet{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", uttakArbeidType=" + uttakArbeidType.getKode() +
-            '}';
+        return "UttakAktivitetEntitet{" + "arbeidsgiver=" + arbeidsgiver + ", arbeidsforholdRef=" + arbeidsforholdRef + ", uttakArbeidType="
+            + uttakArbeidType.getKode() + '}';
     }
 
     @Override
@@ -76,9 +73,8 @@ public class UttakAktivitetEntitet extends BaseEntitet {
             return false;
         }
 
-        return Objects.equals(this.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef()) &&
-            Objects.equals(this.getArbeidsgiver(), uttakAktivitet.getArbeidsgiver()) &&
-            Objects.equals(this.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType());
+        return Objects.equals(this.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef()) && Objects.equals(this.getArbeidsgiver(),
+            uttakAktivitet.getArbeidsgiver()) && Objects.equals(this.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType());
     }
 
     @Override

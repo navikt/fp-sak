@@ -34,7 +34,7 @@ public class LegacyESBeregningRepository {
     }
 
     @Inject
-    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public LegacyESBeregningRepository(EntityManager entityManager, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.behandlingRepository = behandlingRepository;
         this.entityManager = entityManager;
@@ -58,9 +58,8 @@ public class LegacyESBeregningRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
-                " and periode.fomDato<=:dato" +
-                " and periode.tomDato>=:dato", BeregningSats.class);
+        var query = entityManager.createQuery(
+            "from BeregningSats where satsType=:satsType" + " and periode.fomDato<=:dato" + " and periode.tomDato>=:dato", BeregningSats.class);
 
         query.setParameter("satsType", satsType);
         query.setParameter("dato", dato);
@@ -75,7 +74,9 @@ public class LegacyESBeregningRepository {
     }
 
     private Optional<LegacyESBeregning> getSisteBeregning(Behandling behandling) {
-        return Optional.ofNullable(behandling.getBehandlingsresultat()).map(Behandlingsresultat::getBeregningResultat).flatMap(LegacyESBeregningsresultat::getSisteBeregning);
+        return Optional.ofNullable(behandling.getBehandlingsresultat())
+            .map(Behandlingsresultat::getBeregningResultat)
+            .flatMap(LegacyESBeregningsresultat::getSisteBeregning);
     }
 
     public boolean skalReberegne(Long behandlingId, LocalDate fødselsdato) {
@@ -88,10 +89,8 @@ public class LegacyESBeregningRepository {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var sisteBeregning = getSisteBeregning(behandlingId).orElse(null);
 
-        var beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
-                : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
-                        .medBeregning(nyBeregning)
-                        .buildFor(behandling, behandling.getBehandlingsresultat());
+        var beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder() : LegacyESBeregningsresultat.builderFraEksisterende(
+            sisteBeregning.getBeregningResultat())).medBeregning(nyBeregning).buildFor(behandling, behandling.getBehandlingsresultat());
 
         var skriveLås = taSkriveLås(behandlingId);
         lagre(beregningResultat, skriveLås);

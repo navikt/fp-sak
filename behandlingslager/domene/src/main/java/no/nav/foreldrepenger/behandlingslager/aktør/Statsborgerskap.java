@@ -6,7 +6,7 @@ public class Statsborgerskap {
 
     private String landkode;
 
-    public Statsborgerskap(String landkode){
+    public Statsborgerskap(String landkode) {
         this.landkode = landkode;
     }
 
@@ -20,8 +20,12 @@ public class Statsborgerskap {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Statsborgerskap) o;
         return Objects.equals(landkode, that.landkode);
     }

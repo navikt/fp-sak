@@ -85,8 +85,7 @@ public class UttakResultatEntitet extends BaseEntitet {
         private UttakResultatEntitet kladd;
 
         public Builder(Behandlingsresultat behandlingsresultat) {
-            Objects.requireNonNull(behandlingsresultat,
-                "Må ha behandlingsresultat for å opprette UttakResultatEntitet");
+            Objects.requireNonNull(behandlingsresultat, "Må ha behandlingsresultat for å opprette UttakResultatEntitet");
             kladd = new UttakResultatEntitet();
             kladd.behandlingsresultat = behandlingsresultat;
         }
@@ -115,8 +114,8 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public UttakResultatEntitet build() {
             if (kladd.getOverstyrtPerioder() != null && kladd.getOpprinneligPerioder() == null) {
-                var msg = "Behandling må ha eksisterende uttaksresultat ved lagring av manuelt fastsatte perioder. "
-                    + "Behandling id " + kladd.behandlingsresultat.getBehandlingId();
+                var msg = "Behandling må ha eksisterende uttaksresultat ved lagring av manuelt fastsatte perioder. " + "Behandling id "
+                    + kladd.behandlingsresultat.getBehandlingId();
                 throw new TekniskException("FP-661902", msg);
             }
             return kladd;

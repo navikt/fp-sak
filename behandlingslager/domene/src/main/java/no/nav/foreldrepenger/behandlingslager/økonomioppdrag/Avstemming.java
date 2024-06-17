@@ -10,7 +10,8 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
- * Den sikrer at avstemmingsnøkkel er alltid i riktig format som tilsvarer: yyyy-MM-dd-HH.mm.ss.SSS */
+ * Den sikrer at avstemmingsnøkkel er alltid i riktig format som tilsvarer: yyyy-MM-dd-HH.mm.ss.SSS
+ */
 @Embeddable
 public class Avstemming implements Comparable<Avstemming> {
 
@@ -46,6 +47,7 @@ public class Avstemming implements Comparable<Avstemming> {
 
     /**
      * Formats the given LocalDateTime into a String with the given pattern yyyy-MM-dd-HH.mm.ss.SSS
+     *
      * @param avstemmingTidspunkt - dato og tid som skal brukes i avstemmingsnøkkel.
      * @return riktig formatert string.
      * @throws NullPointerException hvis parameter er null.
@@ -58,8 +60,12 @@ public class Avstemming implements Comparable<Avstemming> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Avstemming) o;
         return getNøkkel().equals(that.getNøkkel());
     }
@@ -71,9 +77,7 @@ public class Avstemming implements Comparable<Avstemming> {
 
     @Override
     public String toString() {
-        return "Avstemming{" +
-            "nøkkelAvstemming='" + nøkkelAvstemming + '\'' +
-            '}';
+        return "Avstemming{" + "nøkkelAvstemming='" + nøkkelAvstemming + '\'' + '}';
     }
 
     @Override

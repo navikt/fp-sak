@@ -164,37 +164,37 @@ class Oppdragslinje150EntityTest {
     private Oppdragslinje150.Builder lagBuilderMedPaakrevdeFelter() {
 
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje(KODEENDRINGLINJE)
-                .medDatoStatusFom(DATOSTATUSFOM)
-                .medVedtakId(VEDTAKID)
-                .medDelytelseId(DELYTELSEID)
-                .medKodeKlassifik(KODEKLASSIFIK)
-                .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
-                .medSats(SATS)
-                .medTypeSats(TYPESATS)
-                .medUtbetalesTilId(UTBETALESTILID)
-                .medRefFagsystemId(REFFAGSYSTEMID)
-                .medRefDelytelseId(REFDELYTELSEID)
-                .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
+            .medKodeEndringLinje(KODEENDRINGLINJE)
+            .medDatoStatusFom(DATOSTATUSFOM)
+            .medVedtakId(VEDTAKID)
+            .medDelytelseId(DELYTELSEID)
+            .medKodeKlassifik(KODEKLASSIFIK)
+            .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
+            .medSats(SATS)
+            .medTypeSats(TYPESATS)
+            .medUtbetalesTilId(UTBETALESTILID)
+            .medRefFagsystemId(REFFAGSYSTEMID)
+            .medRefDelytelseId(REFDELYTELSEID)
+            .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
 
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KODEFAGOMRADE)
-                .medFagSystemId(FAGSYSTEMID)
-                .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medSaksbehId(SAKSBEHID)
-                .medAvstemming(Avstemming.ny())
-                .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KODEFAGOMRADE)
+            .medFagSystemId(FAGSYSTEMID)
+            .medOppdragGjelderId(OPPDRAGGJELDERID)
+            .medSaksbehId(SAKSBEHID)
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
-                .medBehandlingId(BEHANDLINGID)
-                .medSaksnummer(SAKSID)
-                .medVenterKvittering(VENTERKVITTERING)
-                .medProsessTaskId(TASKID);
+            .medBehandlingId(BEHANDLINGID)
+            .medSaksnummer(SAKSID)
+            .medVenterKvittering(VENTERKVITTERING)
+            .medProsessTaskId(TASKID);
     }
 }

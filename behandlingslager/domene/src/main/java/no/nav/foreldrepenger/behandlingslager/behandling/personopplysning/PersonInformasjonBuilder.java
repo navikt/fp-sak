@@ -23,7 +23,9 @@ public class PersonInformasjonBuilder {
     private AktørId søkerAktørId;
     private Optional<AktørId> annenpartAktørId;
 
-    private PersonInformasjonBuilder(PersonInformasjonEntitet personInfoAggregatEntitet, PersonopplysningVersjonType type, boolean gjelderOppdatering) {
+    private PersonInformasjonBuilder(PersonInformasjonEntitet personInfoAggregatEntitet,
+                                     PersonopplysningVersjonType type,
+                                     boolean gjelderOppdatering) {
         this.kladd = personInfoAggregatEntitet;
         this.type = type;
         this.gjelderOppdatering = gjelderOppdatering;
@@ -94,10 +96,11 @@ public class PersonInformasjonBuilder {
             aktørerIRelasjoner.addAll(kladd.getRelasjoner().stream().map(PersonRelasjonEntitet::getTilAktørId).collect(Collectors.toSet()));
 
             var personer = kladd.getPersonopplysninger()
-                    .stream()
-                    .filter(e -> !søkerAktørId.equals(e.getAktørId()))
-                    .filter(e -> annenpartAktørId.isEmpty() || !annenpartAktørId.get().equals(e.getAktørId()))
-                    .map(HarAktørId::getAktørId).collect(Collectors.toSet());
+                .stream()
+                .filter(e -> !søkerAktørId.equals(e.getAktørId()))
+                .filter(e -> annenpartAktørId.isEmpty() || !annenpartAktørId.get().equals(e.getAktørId()))
+                .map(HarAktørId::getAktørId)
+                .collect(Collectors.toSet());
             personer.forEach(e -> {
                 if (!aktørerIRelasjoner.contains(e)) {
                     kladd.fjernPersonopplysning(e);

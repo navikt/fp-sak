@@ -98,10 +98,7 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "BRFeriepenger{" +
-            "fom=" + feriepengerPeriodeFom +
-            ", tom=" + feriepengerPeriodeTom +
-            '}';
+        return "BRFeriepenger{" + "fom=" + feriepengerPeriodeFom + ", tom=" + feriepengerPeriodeTom + '}';
     }
 
     public static Builder builder() {

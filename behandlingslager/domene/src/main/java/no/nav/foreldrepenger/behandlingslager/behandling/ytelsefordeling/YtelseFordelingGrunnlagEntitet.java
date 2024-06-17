@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -180,13 +179,15 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (YtelseFordelingGrunnlagEntitet) o;
-        return aktiv == that.aktiv &&
-            Objects.equals(oppgittFordeling, that.oppgittFordeling) &&
-            Objects.equals(oppgittRettighet, that.oppgittRettighet) &&
-            Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad);
+        return aktiv == that.aktiv && Objects.equals(oppgittFordeling, that.oppgittFordeling) && Objects.equals(oppgittRettighet,
+            that.oppgittRettighet) && Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad);
     }
 
     @Override

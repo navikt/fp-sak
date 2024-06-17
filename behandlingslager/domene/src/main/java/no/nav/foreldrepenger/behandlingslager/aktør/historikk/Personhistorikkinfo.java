@@ -39,24 +39,22 @@ public class Personhistorikkinfo {
 
     @Override
     public String toString() {
-        return "Personhistorikkinfo{" +
-            "personstatushistorikk=" + personstatushistorikk +
-            ", oppholdstillatelsehistorikk=" + oppholdstillatelsehistorikk +
-            ", statsborgerskaphistorikk=" + statsborgerskaphistorikk +
-            ", adressehistorikk=" + adressehistorikk +
-            '}';
+        return "Personhistorikkinfo{" + "personstatushistorikk=" + personstatushistorikk + ", oppholdstillatelsehistorikk="
+            + oppholdstillatelsehistorikk + ", statsborgerskaphistorikk=" + statsborgerskaphistorikk + ", adressehistorikk=" + adressehistorikk + '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Personhistorikkinfo) o;
-        return Objects.equals(aktørId, that.aktørId) &&
-            Objects.equals(personstatushistorikk, that.personstatushistorikk) &&
-            Objects.equals(oppholdstillatelsehistorikk, that.oppholdstillatelsehistorikk) &&
-            Objects.equals(statsborgerskaphistorikk, that.statsborgerskaphistorikk) &&
-            Objects.equals(adressehistorikk, that.adressehistorikk);
+        return Objects.equals(aktørId, that.aktørId) && Objects.equals(personstatushistorikk, that.personstatushistorikk) && Objects.equals(
+            oppholdstillatelsehistorikk, that.oppholdstillatelsehistorikk) && Objects.equals(statsborgerskaphistorikk, that.statsborgerskaphistorikk)
+            && Objects.equals(adressehistorikk, that.adressehistorikk);
     }
 
     @Override

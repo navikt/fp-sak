@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import no.nav.vedtak.konfig.Tid;
 
-public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
+public class SimpleLocalDateInterval extends AbstractLocalDateInterval {
 
     private final LocalDate fomDato;
     private final LocalDate tomDato;
@@ -33,12 +33,15 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
         var that = (SimpleLocalDateInterval) o;
         return fomDato.equals(that.fomDato) && tomDato.equals(that.tomDato);
     }

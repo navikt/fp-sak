@@ -29,11 +29,11 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
     private Long id;
 
     @Convert(converter = VurderÅrsak.KodeverdiConverter.class)
-    @Column(name="aarsak_type", nullable=false, updatable=false)
+    @Column(name = "aarsak_type", nullable = false, updatable = false)
     private VurderÅrsak årsaksType;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "totrinnsvurdering_id", nullable = false, updatable=false)
+    @JoinColumn(name = "totrinnsvurdering_id", nullable = false, updatable = false)
     private Totrinnsvurdering totrinnsvurdering;
 
     VurderÅrsakTotrinnsvurdering() {
@@ -62,8 +62,7 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
         if (!(o instanceof VurderÅrsakTotrinnsvurdering that)) {
             return false;
         }
-        return Objects.equals(getÅrsaksType(), that.getÅrsaksType()) &&
-            Objects.equals(totrinnsvurdering, that.totrinnsvurdering);
+        return Objects.equals(getÅrsaksType(), that.getÅrsaksType()) && Objects.equals(totrinnsvurdering, that.totrinnsvurdering);
     }
 
     @Override

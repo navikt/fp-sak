@@ -26,7 +26,11 @@ public class UføretrygdRepository {
         // CDI proxy
     }
 
-    public void lagreUføreGrunnlagRegisterVersjon(Long behandlingId, AktørId aktørId, boolean erUføretrygdet, LocalDate uføredato, LocalDate virkningsdato) {
+    public void lagreUføreGrunnlagRegisterVersjon(Long behandlingId,
+                                                  AktørId aktørId,
+                                                  boolean erUføretrygdet,
+                                                  LocalDate uføredato,
+                                                  LocalDate virkningsdato) {
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
@@ -58,8 +62,7 @@ public class UføretrygdRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         eksisterendeGrunnlag.ifPresent(g -> {
-            var nyttgrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag)
-                .medBehandlingId(nyBehandlingId);
+            var nyttgrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag).medBehandlingId(nyBehandlingId);
             lagreGrunnlag(Optional.empty(), nyttgrunnlag);
         });
     }

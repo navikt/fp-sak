@@ -27,7 +27,7 @@ public class FamilieHendelseRepository {
     }
 
     @Inject
-    public FamilieHendelseRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
+    public FamilieHendelseRepository(EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = behandlingLåsRepository;
@@ -146,12 +146,12 @@ public class FamilieHendelseRepository {
     private boolean skalBeholdeOverstyrtVedEndring(FamilieHendelseGrunnlagEntitet kladd, FamilieHendelseEntitet forrige) {
         var overstyrtType = kladd.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         var nyeste = kladd.getBekreftetVersjon().orElse(null);
-        if (!kladd.getHarOverstyrteData() || !FamilieHendelseType.FØDSEL.equals(overstyrtType) || forrige == null || nyeste == null)
+        if (!kladd.getHarOverstyrteData() || !FamilieHendelseType.FØDSEL.equals(overstyrtType) || forrige == null || nyeste == null) {
             return true;
-        return Objects.equals(forrige.getAntallBarn(), nyeste.getAntallBarn()) &&
-            Objects.equals(forrige.getFødselsdato(), nyeste.getFødselsdato()) &&
-            Objects.equals(forrige.getInnholderDøfødtBarn(), nyeste.getInnholderDøfødtBarn()) &&
-            Objects.equals(forrige.getInnholderDødtBarn(), nyeste.getInnholderDødtBarn());
+        }
+        return Objects.equals(forrige.getAntallBarn(), nyeste.getAntallBarn()) && Objects.equals(forrige.getFødselsdato(), nyeste.getFødselsdato())
+            && Objects.equals(forrige.getInnholderDøfødtBarn(), nyeste.getInnholderDøfødtBarn()) && Objects.equals(forrige.getInnholderDødtBarn(),
+            nyeste.getInnholderDødtBarn());
     }
 
     private boolean erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(FamilieHendelseGrunnlagEntitet kladd) {
@@ -201,11 +201,11 @@ public class FamilieHendelseRepository {
 
     /**
      * Kopierer data fra gammel behandling til ny behandling.
-     *
+     * <p>
      * Fjerner bekreftede og overstyrte data som var for
      *
      * @param gammelBehandlingId behandlingen det opprettes revurdering på
-     * @param nyBehandlingId revurderings behandlingen
+     * @param nyBehandlingId     revurderings behandlingen
      */
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
         var familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
@@ -314,15 +314,13 @@ public class FamilieHendelseRepository {
     }
 
     public Optional<Long> hentIdPåAktivFamiliehendelse(Long behandlingId) {
-        return getAktivtFamilieHendelseGrunnlag(behandlingId)
-            .map(FamilieHendelseGrunnlagEntitet::getId);
+        return getAktivtFamilieHendelseGrunnlag(behandlingId).map(FamilieHendelseGrunnlagEntitet::getId);
     }
 
     public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
         Objects.requireNonNull(grunnlagId, "grunnlagId");
-        var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " +
-            "WHERE gr.id = :grunnlagId ", FamilieHendelseGrunnlagEntitet.class)
-           .setFlushMode(FlushModeType.COMMIT);
+        var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + "WHERE gr.id = :grunnlagId ", FamilieHendelseGrunnlagEntitet.class)
+            .setFlushMode(FlushModeType.COMMIT);
         query.setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst().orElse(null);
     }
@@ -343,10 +341,11 @@ public class FamilieHendelseRepository {
         if (grunnlag.getSøknadVersjon().getTerminbekreftelse().isPresent()) {
             fhIds.add(grunnlag.getSøknadVersjon().getId());
         }
-        if (fhIds.isEmpty())
+        if (fhIds.isEmpty()) {
             return 0;
+        }
         var antall = entityManager.createNativeQuery(
-            "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, utstedt_dato = :utstedt, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
+                "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, utstedt_dato = :utstedt, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
             .setParameter("termin", termindato)
             .setParameter("utstedt", utstedtdato)
             .setParameter("fhid", fhIds)

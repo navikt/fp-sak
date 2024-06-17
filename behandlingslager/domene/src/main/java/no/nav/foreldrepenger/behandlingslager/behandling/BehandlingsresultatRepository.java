@@ -16,7 +16,7 @@ public class BehandlingsresultatRepository {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public BehandlingsresultatRepository( EntityManager entityManager) {
+    public BehandlingsresultatRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
     }

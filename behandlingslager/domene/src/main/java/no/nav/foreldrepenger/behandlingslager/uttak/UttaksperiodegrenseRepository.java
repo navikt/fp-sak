@@ -50,23 +50,20 @@ public class UttaksperiodegrenseRepository {
     }
 
     public Uttaksperiodegrense hent(Long behandlingId) {
-        return hentHvisEksisterer(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Fant ikke uttaksperiodegrense for behandling " + behandlingId));
+        return hentHvisEksisterer(behandlingId).orElseThrow(
+            () -> new IllegalStateException("Fant ikke uttaksperiodegrense for behandling " + behandlingId));
     }
 
     public Optional<Uttaksperiodegrense> hentHvisEksisterer(Long behandlingId) {
-        var query = entityManager
-            .createQuery("select u from Uttaksperiodegrense u " +
-                "where u.behandlingsresultat.behandling.id = :behandlingId " +
-                "and u.aktiv = true", Uttaksperiodegrense.class)
-            .setParameter("behandlingId", behandlingId);
+        var query = entityManager.createQuery(
+            "select u from Uttaksperiodegrense u " + "where u.behandlingsresultat.behandling.id = :behandlingId " + "and u.aktiv = true",
+            Uttaksperiodegrense.class).setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak. Behandling "
-                + behandlingId));
+            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak. Behandling " + behandlingId));
     }
 
     private Optional<Uttaksperiodegrense> getAktivtUttaksperiodegrense(Behandlingsresultat behandlingsresultat) {

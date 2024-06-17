@@ -35,7 +35,7 @@ public class NavBrukerBuilder {
     }
 
     public AktørId getAktørId() {
-        if(bruker != null) {
+        if (bruker != null) {
             return bruker.getAktørId();
         }
         return aktørId;

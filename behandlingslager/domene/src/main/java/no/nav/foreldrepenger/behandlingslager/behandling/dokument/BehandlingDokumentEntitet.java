@@ -84,10 +84,8 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
             return false;
         }
         var that = (BehandlingDokumentEntitet) o;
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift) &&
-            Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) &&
-            Objects.equals(vedtakFritekst, that.vedtakFritekst);
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift)
+            && Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) && Objects.equals(vedtakFritekst, that.vedtakFritekst);
     }
 
     @Override
@@ -97,10 +95,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            (id != null ? "id=" + id + ", " : "")
-            + "behandling=" + behandlingId + ", "
-            + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "behandling=" + behandlingId + ", " + ">";
     }
 
     public static class Builder {
@@ -115,8 +110,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         }
 
         public static BehandlingDokumentEntitet.Builder fraEksisterende(BehandlingDokumentEntitet behandlingDokument) {
-            var builder = new Builder()
-                .medBehandling(behandlingDokument.getBehandlingId())
+            var builder = new Builder().medBehandling(behandlingDokument.getBehandlingId())
                 .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
                 .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
                 .medVedtakFritekst(behandlingDokument.getVedtakFritekst())

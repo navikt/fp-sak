@@ -31,7 +31,7 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
     private Long id;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable = false))
     private AktørId aktørId;
 
     @Embedded
@@ -39,7 +39,7 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
 
     @ChangeTracked
     @Convert(converter = PersonstatusType.KodeverdiConverter.class)
-    @Column(name="personstatus", nullable = false)
+    @Column(name = "personstatus", nullable = false)
     private PersonstatusType personstatus = PersonstatusType.UDEFINERT;
 
     @ManyToOne(optional = false)
@@ -107,9 +107,8 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
             return false;
         }
         var entitet = (PersonstatusEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) &&
-                Objects.equals(periode, entitet.periode) &&
-                Objects.equals(personstatus, entitet.personstatus);
+        return Objects.equals(aktørId, entitet.aktørId) && Objects.equals(periode, entitet.periode) && Objects.equals(personstatus,
+            entitet.personstatus);
     }
 
 

@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class NavBrukerEntityTest extends EntityManagerAwareTest {
 

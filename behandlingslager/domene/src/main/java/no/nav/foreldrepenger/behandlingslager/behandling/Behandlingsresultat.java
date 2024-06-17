@@ -41,16 +41,14 @@ public class Behandlingsresultat extends BaseEntitet {
 
     @ManyToOne
     @JoinColumn(name = "inngangsvilkar_resultat_id"
-    /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
-    /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
-    )
+        /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
+        /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */)
     private VilkårResultat vilkårResultat;
 
     @ManyToOne
     @JoinColumn(name = "beregning_resultat_id"
-    /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
-    /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
-    )
+        /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
+        /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */)
     private LegacyESBeregningsresultat beregningResultat;
 
     /* bruker @ManyToOne siden JPA ikke støtter OneToOne join på non-PK column. */
@@ -241,12 +239,10 @@ public class Behandlingsresultat extends BaseEntitet {
                 behandlingsresultat = gammeltResultat;
             }
             if (gammeltResultat != null && gammeltResultat.getVilkårResultat() != null) {
-                this.vilkårResultatBuilder = VilkårResultat
-                    .builderFraEksisterende(gammeltResultat.getVilkårResultat());
+                this.vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(gammeltResultat.getVilkårResultat());
             }
             if (gammeltResultat != null && gammeltResultat.getBeregningResultat() != null) {
-                this.beregningResultatBuilder = LegacyESBeregningsresultat
-                    .builderFraEksisterende(gammeltResultat.getBeregningResultat());
+                this.beregningResultatBuilder = LegacyESBeregningsresultat.builderFraEksisterende(gammeltResultat.getBeregningResultat());
             }
         }
 
@@ -255,8 +251,9 @@ public class Behandlingsresultat extends BaseEntitet {
         }
 
         private void validerKanModifisere() {
-            if (built)
+            if (built) {
                 throw new IllegalStateException("Kan ikke bygge to ganger med samme builder");
+            }
         }
 
         public Builder medBehandlingResultatType(BehandlingResultatType behandlingResultatType) {
@@ -274,7 +271,8 @@ public class Behandlingsresultat extends BaseEntitet {
         public Builder leggTilKonsekvensForYtelsen(KonsekvensForYtelsen konsekvensForYtelsen) {
             validerKanModifisere();
             var behandlingsresultatKonsekvensForYtelsen = BehandlingsresultatKonsekvensForYtelsen.builder()
-                .medKonsekvensForYtelsen(konsekvensForYtelsen).build(behandlingsresultat);
+                .medKonsekvensForYtelsen(konsekvensForYtelsen)
+                .build(behandlingsresultat);
             this.behandlingsresultat.konsekvenserForYtelsen.add(behandlingsresultatKonsekvensForYtelsen);
             return this;
         }
@@ -339,8 +337,7 @@ public class Behandlingsresultat extends BaseEntitet {
     }
 
     public boolean isBehandlingsresultatAvslåttOrOpphørt() {
-        return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType)
-            || BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
+        return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType) || BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
     }
 
     public boolean isBehandlingsresultatAvslått() {

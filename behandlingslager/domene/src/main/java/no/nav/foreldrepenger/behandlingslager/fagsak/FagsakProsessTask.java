@@ -79,9 +79,8 @@ public class FagsakProsessTask extends BaseEntitet {
         if (!(obj instanceof FagsakProsessTask other)) {
             return false;
         }
-        return Objects.equals(prosessTaskId, other.prosessTaskId)
-            && Objects.equals(fagsakId, other.fagsakId)
-            && Objects.equals(behandlingId, other.behandlingId);
+        return Objects.equals(prosessTaskId, other.prosessTaskId) && Objects.equals(fagsakId, other.fagsakId) && Objects.equals(behandlingId,
+            other.behandlingId);
     }
 
     @Override
@@ -91,11 +90,8 @@ public class FagsakProsessTask extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-            + "prosessTask=" + prosessTaskId
-            + ", fagsak=" + fagsakId
-            + (behandlingId == null ? "" : ", behandling=" + behandlingId)
-            + (gruppeSekvensNr == null ? "" : ", gruppeSekvensNr=" + gruppeSekvensNr)
+        return getClass().getSimpleName() + "<" + "prosessTask=" + prosessTaskId + ", fagsak=" + fagsakId + (
+            behandlingId == null ? "" : ", behandling=" + behandlingId) + (gruppeSekvensNr == null ? "" : ", gruppeSekvensNr=" + gruppeSekvensNr)
             + ">";
     }
 }

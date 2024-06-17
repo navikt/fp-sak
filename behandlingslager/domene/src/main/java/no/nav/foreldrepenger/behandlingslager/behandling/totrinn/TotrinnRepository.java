@@ -83,8 +83,7 @@ public class TotrinnRepository {
     }
 
     private Collection<Totrinnsvurdering> getAktiveTotrinnaksjonspunktvurderinger(Long behandlingId) {
-        var query = entityManager.createQuery(
-            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = true",
+        var query = entityManager.createQuery("SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = true",
             Totrinnsvurdering.class);
 
         query.setParameter("behandling_id", behandlingId);

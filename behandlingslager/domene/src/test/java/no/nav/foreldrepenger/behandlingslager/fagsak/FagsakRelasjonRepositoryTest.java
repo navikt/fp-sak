@@ -167,7 +167,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_finne_relasjon_med_saksnummer(){
+    void skal_finne_relasjon_med_saksnummer() {
         // Arrange
         var saksnummer = new Saksnummer("1337");
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, saksnummer);
@@ -224,8 +224,14 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         entityManager.flush();
 
         assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2020, 1, 1).atStartOfDay())).isEmpty();
-        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2023, 1, 1).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel1.getId());
-        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2024, 6, 6).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel2.getId());
-        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2025, 6, 6).atStartOfDay()).orElseThrow().getId()).isEqualTo(rel3.getId());
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2023, 1, 1).atStartOfDay())
+            .orElseThrow()
+            .getId()).isEqualTo(rel1.getId());
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2024, 6, 6).atStartOfDay())
+            .orElseThrow()
+            .getId()).isEqualTo(rel2.getId());
+        assertThat(relasjonRepository.finnRelasjonForHvisEksisterer(fagsak.getId(), LocalDate.of(2025, 6, 6).atStartOfDay())
+            .orElseThrow()
+            .getId()).isEqualTo(rel3.getId());
     }
 }

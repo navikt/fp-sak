@@ -145,12 +145,9 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
             return false;
         }
         var entitet = (PersonopplysningEntitet) o;
-        return Objects.equals(brukerKjønn, entitet.brukerKjønn) &&
-            Objects.equals(sivilstand, entitet.sivilstand) &&
-            Objects.equals(aktørId, entitet.aktørId) &&
-            Objects.equals(navn, entitet.navn) &&
-            Objects.equals(fødselsdato, entitet.fødselsdato) &&
-            Objects.equals(dødsdato, entitet.dødsdato);
+        return Objects.equals(brukerKjønn, entitet.brukerKjønn) && Objects.equals(sivilstand, entitet.sivilstand) && Objects.equals(aktørId,
+            entitet.aktørId) && Objects.equals(navn, entitet.navn) && Objects.equals(fødselsdato, entitet.fødselsdato) && Objects.equals(dødsdato,
+            entitet.dødsdato);
     }
 
     @Override
@@ -160,13 +157,8 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
 
     @Override
     public String toString() {
-        return "PersonopplysningEntitet{" + "id=" + id +
-            ", brukerKjønn=" + brukerKjønn +
-            ", sivilstand=" + sivilstand +
-            ", navn='" + navn + '\'' +
-            ", fødselsdato=" + fødselsdato +
-            ", dødsdato=" + dødsdato +
-            '}';
+        return "PersonopplysningEntitet{" + "id=" + id + ", brukerKjønn=" + brukerKjønn + ", sivilstand=" + sivilstand + ", navn='" + navn + '\''
+            + ", fødselsdato=" + fødselsdato + ", dødsdato=" + dødsdato + '}';
     }
 
     public int compareTo(PersonopplysningEntitet other) {

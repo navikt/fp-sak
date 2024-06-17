@@ -52,15 +52,19 @@ public class Sats {
     static Integer validate(Integer sats) {
         Objects.requireNonNull(sats, "sats");
         if (sats < 0) {
-            throw new IllegalArgumentException("Sats er utenfor lovlig intervall 0 - " + Integer.MAX_VALUE + ", var: "  + sats);
+            throw new IllegalArgumentException("Sats er utenfor lovlig intervall 0 - " + Integer.MAX_VALUE + ", var: " + sats);
         }
         return sats;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var sats1 = (Sats) o;
         return Objects.equals(sats, sats1.sats);
     }
@@ -72,8 +76,6 @@ public class Sats {
 
     @Override
     public String toString() {
-        return "Sats{" +
-            "sats=" + sats +
-            '}';
+        return "Sats{" + "sats=" + sats + '}';
     }
 }

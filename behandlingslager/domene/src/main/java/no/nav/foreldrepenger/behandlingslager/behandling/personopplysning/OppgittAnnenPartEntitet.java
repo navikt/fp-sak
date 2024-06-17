@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.domene.typer.HarAktørId;
 
 /**
  * Entitetsklasse for søknad annen part.
- *
+ * <p>
  * Implementert iht. builder pattern (ref. "Effective Java, 2. ed." J.Bloch).
  * Non-public constructors og setters, dvs. immutable.
- *
+ * <p>
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
@@ -46,7 +46,7 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     private String utenlandskPersonident;
 
     @Convert(converter = Landkoder.KodeverdiConverter.class)
-    @Column(name="utl_person_ident_land", nullable = false)
+    @Column(name = "utl_person_ident_land", nullable = false)
     private Landkoder utenlandskPersonidentLand = Landkoder.UDEFINERT;
 
     @Convert(converter = SøknadAnnenPartType.KodeverdiConverter.class)
@@ -122,10 +122,9 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
         if (!(obj instanceof OppgittAnnenPartEntitet other)) {
             return false;
         }
-        return Objects.equals(this.aktørId, other.getAktørId())
-            && Objects.equals(this.getType(), other.getType())
-            && Objects.equals(this.utenlandskPersonident, other.getUtenlandskPersonident())
-            && Objects.equals(this.getUtenlandskFnrLand(), other.getUtenlandskFnrLand());
+        return Objects.equals(this.aktørId, other.getAktørId()) && Objects.equals(this.getType(), other.getType()) && Objects.equals(
+            this.utenlandskPersonident, other.getUtenlandskPersonident()) && Objects.equals(this.getUtenlandskFnrLand(),
+            other.getUtenlandskFnrLand());
     }
 
     @Override

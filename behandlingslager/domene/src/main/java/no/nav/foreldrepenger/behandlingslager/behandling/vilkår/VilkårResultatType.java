@@ -14,11 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.vedtak.exception.TekniskException;
 
 public enum VilkårResultatType implements Kodeverdi {
-     INNVILGET("INNVILGET", "Innvilget"),
-     AVSLÅTT("AVSLAATT", "Avslått"),
-     IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
+    INNVILGET("INNVILGET", "Innvilget"),
+    AVSLÅTT("AVSLAATT", "Avslått"),
+    IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
 
-     UDEFINERT("-", "Ikke definert"),
+    UDEFINERT("-", "Ikke definert"),
 
     ;
 

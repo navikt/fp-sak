@@ -25,7 +25,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
     }
 
     @Inject
-    public LagretVedtakRepository( EntityManager entityManager) {
+    public LagretVedtakRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
@@ -71,23 +71,18 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         return query.getResultList();
     }
 
-    public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom){
+    public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom) {
 
         Objects.requireNonNull(fom, "fom");
         Objects.requireNonNull(tom, "tom");
 
-        var sql = "SELECT " +
-            "BEHANDLING_ID " +
-            "FROM LAGRET_VEDTAK  " +
-            "WHERE OPPRETTET_TID >= :fom " +
-            "AND OPPRETTET_TID <= :tom ";
+        var sql = "SELECT " + "BEHANDLING_ID " + "FROM LAGRET_VEDTAK  " + "WHERE OPPRETTET_TID >= :fom " + "AND OPPRETTET_TID <= :tom ";
 
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("fom", fom);
         query.setParameter("tom", tom);
 
-        @SuppressWarnings("unchecked")
-        List<Number> resultater = query.getResultList();
+        @SuppressWarnings("unchecked") List<Number> resultater = query.getResultList();
         return resultater.stream().map(Number::longValue).toList();
 
     }
@@ -104,8 +99,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         query.setParameter("tom", tom);
         query.setParameter("fagsakYtelseType", fagsakYtelseType.getKode());
 
-        @SuppressWarnings("unchecked")
-        List<Number> resultater = query.getResultList();
+        @SuppressWarnings("unchecked") List<Number> resultater = query.getResultList();
         return resultater.stream().map(Number::longValue).toList();
     }
 

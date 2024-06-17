@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
- *
+ * <p>
  * Støtter også kunstige orgnummer (internt definert konstant i fp - orgnummer=342352362)
  */
 @Embeddable
@@ -95,7 +95,9 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
         return "*".repeat(length - 4) + orgNummer.substring(length - 4);
     }
 
-    /** @return false hvis ikke gyldig orgnr. */
+    /**
+     * @return false hvis ikke gyldig orgnr.
+     */
     public static boolean erGyldigOrgnr(String ident) {
         return erKunstig(ident) || OrganisasjonsNummerValidator.erGyldig(ident);
     }

@@ -17,10 +17,10 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for vedlegg.
- *
+ * <p>
  * Implementert iht. builder pattern (ref. "Effective Java, 2. ed." J.Bloch).
  * Non-public constructors og setters, dvs. immutable.
- *
+ * <p>
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
@@ -106,10 +106,9 @@ public class SøknadVedleggEntitet extends BaseEntitet {
         if (!(obj instanceof SøknadVedleggEntitet other)) {
             return false;
         }
-        return Objects.equals(this.isErPåkrevdISøknadsdialog(), other.isErPåkrevdISøknadsdialog())
-            && Objects.equals(this.getInnsendingsvalg(), other.getInnsendingsvalg())
-            && Objects.equals(this.getSkjemanummer(), other.getSkjemanummer())
-            && Objects.equals(this.getTilleggsinfo(), other.getTilleggsinfo());
+        return Objects.equals(this.isErPåkrevdISøknadsdialog(), other.isErPåkrevdISøknadsdialog()) && Objects.equals(this.getInnsendingsvalg(),
+            other.getInnsendingsvalg()) && Objects.equals(this.getSkjemanummer(), other.getSkjemanummer()) && Objects.equals(this.getTilleggsinfo(),
+            other.getTilleggsinfo());
     }
 
     @Override

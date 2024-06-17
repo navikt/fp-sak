@@ -113,10 +113,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
     }
 
     private SøknadEntitet opprettSøknad(boolean erEndringssøknad) {
-        return new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now().minusDays(1))
-            .medErEndringssøknad(erEndringssøknad)
-            .build();
+        return new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now().minusDays(1)).medErEndringssøknad(erEndringssøknad).build();
     }
 
 }

@@ -75,14 +75,14 @@ public class TilretteleggingFOM extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         var that = (TilretteleggingFOM) o;
-        return type == that.type
-            && Objects.equals(fomDato, that.fomDato)
-            && Objects.equals(stillingsprosent, that.stillingsprosent)
+        return type == that.type && Objects.equals(fomDato, that.fomDato) && Objects.equals(stillingsprosent, that.stillingsprosent)
             && Objects.equals(overstyrtUtbetalingsgrad, that.overstyrtUtbetalingsgrad);
     }
 
@@ -110,7 +110,7 @@ public class TilretteleggingFOM extends BaseEntitet {
         }
 
         public Builder fraEksisterende(TilretteleggingFOM tilretteleggingFOM) {
-            var builder =  new Builder().medFomDato(tilretteleggingFOM.getFomDato())
+            var builder = new Builder().medFomDato(tilretteleggingFOM.getFomDato())
                 .medTilretteleggingType(tilretteleggingFOM.getType())
                 .medStillingsprosent(tilretteleggingFOM.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(tilretteleggingFOM.getOverstyrtUtbetalingsgrad())
@@ -145,6 +145,7 @@ public class TilretteleggingFOM extends BaseEntitet {
             mal.tidligstMotattDato = tidligstMotattDato;
             return this;
         }
+
         public Builder medKilde(SvpTilretteleggingFomKilde kilde) {
             mal.kilde = kilde;
             return this;

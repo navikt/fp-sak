@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskHandlerRef;
 
 /**
  * Vetoer kjøring av prosesstasks som tilhører grupper som er senere enn tidligste prosesstaskgruppe for en fagsak.
- *
+ * <p>
  * Denne plugges automatisk inn i prosesstask rammeverket (vha. CDI og {@link ProsessTaskLifecycleObserver} interfacet) og kan veto en
  * kjøring av en ProsessTask (denne vil da forsøkes kjøres om igjen om ca. 30 sek default).
  */
@@ -61,7 +61,9 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         return new ProsessTaskVeto(false, ptData.getId()); // do nothing, er ikke relatert til fagsak/behandling
     }
 
-    /** Denne metoden kalles umiddelbart etter at prosesstasks er oppretttet. En gruppe kan også bestå av 1 enkel task. */
+    /**
+     * Denne metoden kalles umiddelbart etter at prosesstasks er oppretttet. En gruppe kan også bestå av 1 enkel task.
+     */
     @Override
     public void opprettetProsessTaskGruppe(ProsessTaskGruppe gruppe) {
 
@@ -105,8 +107,9 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         private FagsakProsesstaskRekkefølge getFagsakProsesstaskRekkefølge() {
             var clazz = getTargetClassExpectingAnnotation(FagsakProsesstaskRekkefølge.class);
             if (!clazz.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
-                throw new UnsupportedOperationException(clazz.getSimpleName() + " må være annotert med "
-                    + FagsakProsesstaskRekkefølge.class.getSimpleName() + " for å kobles til en Fagsak");
+                throw new UnsupportedOperationException(
+                    clazz.getSimpleName() + " må være annotert med " + FagsakProsesstaskRekkefølge.class.getSimpleName()
+                        + " for å kobles til en Fagsak");
             }
             return clazz.getAnnotation(FagsakProsesstaskRekkefølge.class);
         }

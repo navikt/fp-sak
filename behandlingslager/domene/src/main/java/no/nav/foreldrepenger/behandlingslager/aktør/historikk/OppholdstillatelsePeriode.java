@@ -24,16 +24,17 @@ public class OppholdstillatelsePeriode {
 
     @Override
     public String toString() {
-        return "OppholdstillatelsePeriode{" +
-            "gyldighetsperiode=" + gyldighetsperiode +
-            ", tillatelse=" + tillatelse +
-            '}';
+        return "OppholdstillatelsePeriode{" + "gyldighetsperiode=" + gyldighetsperiode + ", tillatelse=" + tillatelse + '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (OppholdstillatelsePeriode) o;
         return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) && tillatelse == that.tillatelse;
     }

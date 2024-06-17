@@ -99,8 +99,7 @@ public class Etterkontroll extends BaseEntitet {
         if (!(o instanceof Etterkontroll that)) {
             return false;
         }
-        return Objects.equals(fagsakId, that.fagsakId) &&
-                Objects.equals(kontrollType, that.kontrollType);
+        return Objects.equals(fagsakId, that.fagsakId) && Objects.equals(kontrollType, that.kontrollType);
 
     }
 

@@ -24,7 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum BehandlingStegStatus implements Kodeverdi {
 
 
-    /** midlertidig intern tilstand når steget startes (etter inngang). */
+    /**
+     * midlertidig intern tilstand når steget startes (etter inngang).
+     */
     STARTET("STARTET", "Steget er startet"),
     INNGANG("INNGANG", "Inngangkriterier er ikke oppfylt"),
     UTGANG("UTGANG", "Utgangskriterier er ikke oppfylt"),
@@ -71,7 +73,7 @@ public enum BehandlingStegStatus implements Kodeverdi {
     }
 
     public boolean erVedInngang() {
-       return Objects.equals(INNGANG, this);
+        return Objects.equals(INNGANG, this);
     }
 
     public static boolean erVedUtgang(BehandlingStegStatus stegStatus) {

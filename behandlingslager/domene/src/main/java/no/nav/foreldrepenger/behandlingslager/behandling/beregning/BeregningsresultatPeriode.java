@@ -81,21 +81,18 @@ public class BeregningsresultatPeriode extends BaseEntitet {
 
     void addBeregningsresultatAndel(BeregningsresultatAndel beregningsresultatAndel) {
         Objects.requireNonNull(beregningsresultatAndel, "beregningsresultatAndel");
-        if (!beregningsresultatAndelList.contains(beregningsresultatAndel)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsresultatAndelList.contains(
+            beregningsresultatAndel)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             beregningsresultatAndelList.add(beregningsresultatAndel);
         }
     }
 
     public int getDagsats() {
-        return getBeregningsresultatAndelList().stream()
-            .mapToInt(BeregningsresultatAndel::getDagsats)
-            .sum();
+        return getBeregningsresultatAndelList().stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
     }
 
     public int getDagsatsFraBg() {
-        return getBeregningsresultatAndelList().stream()
-            .mapToInt(BeregningsresultatAndel::getDagsatsFraBg)
-            .sum();
+        return getBeregningsresultatAndelList().stream().mapToInt(BeregningsresultatAndel::getDagsatsFraBg).sum();
     }
 
     public Optional<BigDecimal> getLavestUtbetalingsgrad() {
@@ -108,8 +105,9 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     public BigDecimal getKalkulertUtbetalingsgrad() {
         var dagsats = getDagsats();
         var bgsats = getDagsatsFraBg();
-        if (dagsats == 0 || bgsats == 0)
+        if (dagsats == 0 || bgsats == 0) {
             return BigDecimal.ZERO;
+        }
         return new BigDecimal(100).multiply(new BigDecimal(dagsats)).divide(new BigDecimal(bgsats), RoundingMode.HALF_UP);
     }
 
@@ -121,17 +119,13 @@ public class BeregningsresultatPeriode extends BaseEntitet {
         if (!(obj instanceof BeregningsresultatPeriode other)) {
             return false;
         }
-        return Objects.equals(this.getBeregningsresultatPeriodeFom(), other.getBeregningsresultatPeriodeFom())
-            && Objects.equals(this.getBeregningsresultatPeriodeTom(), other.getBeregningsresultatPeriodeTom())
-            ;
+        return Objects.equals(this.getBeregningsresultatPeriodeFom(), other.getBeregningsresultatPeriodeFom()) && Objects.equals(
+            this.getBeregningsresultatPeriodeTom(), other.getBeregningsresultatPeriodeTom());
     }
 
     @Override
     public String toString() {
-        return "BeregningsresultatPeriode{" +
-            "beregningsresultatAndelList=" + beregningsresultatAndelList +
-            ", periode=" + periode +
-            '}';
+        return "BeregningsresultatPeriode{" + "beregningsresultatAndelList=" + beregningsresultatAndelList + ", periode=" + periode + '}';
     }
 
     @Override

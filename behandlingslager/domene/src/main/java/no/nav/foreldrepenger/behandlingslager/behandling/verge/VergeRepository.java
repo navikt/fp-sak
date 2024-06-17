@@ -21,7 +21,7 @@ public class VergeRepository {
     }
 
     @Inject
-    public VergeRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
+    public VergeRepository(EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
         this.entityManager = entityManager;
         this.behandlingLåsRepository = behandlingLåsRepository;
     }
@@ -109,8 +109,7 @@ public class VergeRepository {
     }
 
     private Optional<VergeGrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
-        var query = entityManager.createQuery(
-            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = true",
+        var query = entityManager.createQuery("SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = true",
             VergeGrunnlagEntitet.class);
 
         query.setParameter("behandling_id", behandlingId);

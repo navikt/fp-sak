@@ -110,8 +110,9 @@ public class ScenarioKlageEngangsstønad {
         return setup(abstractTestScenario, KLAGE_NFP, MANUELL_VURDERING_AV_KLAGE_NFP);
     }
 
-    private ScenarioKlageEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, BehandlingStegType stegType,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    private ScenarioKlageEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario,
+                                             BehandlingStegType stegType,
+                                             AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         this.abstractTestScenario = abstractTestScenario;
 
         // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
@@ -133,13 +134,13 @@ public class ScenarioKlageEngangsstønad {
         this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
 
         // setter default resultat NFP trenger kanskje en utledning fra resultattype
-        this.vurderingResultatNFP.medBegrunnelse("DEFAULT")
-                .medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
+        this.vurderingResultatNFP.medBegrunnelse("DEFAULT").medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
         return this;
     }
 
-    private ScenarioKlageEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, KlageVurdering resultatTypeNFP,
-            KlageVurdering resultatTypeNK) {
+    private ScenarioKlageEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario,
+                                             KlageVurdering resultatTypeNFP,
+                                             KlageVurdering resultatTypeNK) {
         setup(abstractTestScenario, resultatTypeNFP);
         this.vurderingNK = resultatTypeNK;
 
@@ -149,8 +150,7 @@ public class ScenarioKlageEngangsstønad {
         this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
 
         // setter default resultat NFP trenger kanskje en utledning fra resultattype
-        this.vurderingResultatNK.medBegrunnelse("DEFAULT")
-                .medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
+        this.vurderingResultatNK.medBegrunnelse("DEFAULT").medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
         return this;
     }
 
@@ -179,29 +179,28 @@ public class ScenarioKlageEngangsstønad {
         klageRepository.lagreFormkrav(klageBehandling, opprettFormkrav(KlageVurdertAv.NFP));
         if (vurderingNFP != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling,
-                    vurderingResultatNFP.medKlageVurdertAv(KlageVurdertAv.NFP).medKlageVurdering(vurderingNFP)
-                            .medKlageResultat(klageResultat));
+                vurderingResultatNFP.medKlageVurdertAv(KlageVurdertAv.NFP).medKlageVurdering(vurderingNFP).medKlageResultat(klageResultat));
         }
         if (vurderingNK != null) {
             klageRepository.lagreVurderingsResultat(klageBehandling,
-                    vurderingResultatNK.medKlageVurdertAv(KlageVurdertAv.NK).medKlageVurdering(vurderingNK)
-                            .medKlageResultat(klageResultat));
+                vurderingResultatNK.medKlageVurdertAv(KlageVurdertAv.NK).medKlageVurdering(vurderingNK).medKlageResultat(klageResultat));
         }
         if (vurderingNFP != null) {
-            Behandlingsresultat.builder().medBehandlingResultatType(
-                    KlageVurderingBehandlingResultat.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP, KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE, false))
-                    .buildFor(klageBehandling);
+            Behandlingsresultat.builder()
+                .medBehandlingResultatType(
+                    KlageVurderingBehandlingResultat.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP,
+                        KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE, false))
+                .buildFor(klageBehandling);
         } else {
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                    .buildFor(klageBehandling);
+            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(klageBehandling);
         }
 
         utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType));
 
         klageBehandling.getAksjonspunkter().forEach(punkt -> AksjonspunktTestSupport.setTilUtført(punkt, "Test"));
 
-        opprettedeAksjonspunktDefinisjoner
-                .forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType));
+        opprettedeAksjonspunktDefinisjoner.forEach(
+            (apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(klageBehandling, apDef, stegType));
 
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(klageBehandling, startSteg);
@@ -274,14 +273,14 @@ public class ScenarioKlageEngangsstønad {
 
     private KlageFormkravEntitet.Builder opprettFormkrav(KlageVurdertAv klageVurdertAv) {
         return KlageFormkravEntitet.builder()
-                .medErKlagerPart(true)
-                .medErFristOverholdt(true)
-                .medErKonkret(true)
-                .medErSignert(true)
-                .medGjelderVedtak(true)
-                .medBegrunnelse("Begrunnelse")
-                .medKlageResultat(klageResultat)
-                .medKlageVurdertAv(klageVurdertAv);
+            .medErKlagerPart(true)
+            .medErFristOverholdt(true)
+            .medErKonkret(true)
+            .medErSignert(true)
+            .medGjelderVedtak(true)
+            .medBegrunnelse("Begrunnelse")
+            .medKlageResultat(klageResultat)
+            .medKlageVurdertAv(klageVurdertAv);
     }
 
     public KlageRepository getKlageRepository() {
@@ -324,16 +323,16 @@ public class ScenarioKlageEngangsstønad {
             @Override
             public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling klageBehandling) {
                 if (klageVurderingResultatNfp != null || klageVurderingResultatKa != null) {
-                    return klageVurderingResultatKa != null ? Optional.ofNullable(klageVurderingResultatKa)
-                            : Optional.ofNullable(klageVurderingResultatNfp);
+                    return klageVurderingResultatKa != null ? Optional.ofNullable(klageVurderingResultatKa) : Optional.ofNullable(
+                        klageVurderingResultatNfp);
                 }
                 return Optional.empty();
             }
 
             @Override
             public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
-                return klageVurdertAv == KlageVurdertAv.NFP ? Optional.ofNullable(klageVurderingResultatNfp)
-                        : Optional.ofNullable(klageVurderingResultatKa);
+                return klageVurdertAv == KlageVurdertAv.NFP ? Optional.ofNullable(klageVurderingResultatNfp) : Optional.ofNullable(
+                    klageVurderingResultatKa);
             }
 
             @Override

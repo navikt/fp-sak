@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -24,9 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 
+import java.util.Objects;
+
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
- *
+ * <p>
  * NB: Behandlingsgrunnlag skal ikke ligge her - men i BehandlingGrunnlagRepositoryProvider
  * Forøvrig - inject enkeltvis heller enn å bruke denne
  */

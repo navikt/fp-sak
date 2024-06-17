@@ -39,8 +39,7 @@ class BeregningsresultatRepositoryTest {
     }
 
     private Behandling opprettBehandling() {
-        return new BasicBehandlingBuilder(entityManager).opprettOgLagreFørstegangssøknad(
-            FagsakYtelseType.FORELDREPENGER);
+        return new BasicBehandlingBuilder(entityManager).opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
     }
 
     @Test
@@ -53,10 +52,8 @@ class BeregningsresultatRepositoryTest {
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Assert
-        var brKoblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            behandling.getId());
-        assertThat(brKoblingOpt).hasValueSatisfying(
-            brKobling -> assertThat(brKobling.getBgBeregningsresultatFP()).isSameAs(beregningsresultat));
+        var brKoblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
+        assertThat(brKoblingOpt).hasValueSatisfying(brKobling -> assertThat(brKobling.getBgBeregningsresultatFP()).isSameAs(beregningsresultat));
     }
 
     @Test
@@ -70,8 +67,7 @@ class BeregningsresultatRepositoryTest {
 
         // Assert
         var utbetBROpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
-        assertThat(utbetBROpt).hasValueSatisfying(
-            beregningsresultat -> assertThat(beregningsresultat).isSameAs(bgBeregningsresultatFP));
+        assertThat(utbetBROpt).hasValueSatisfying(beregningsresultat -> assertThat(beregningsresultat).isSameAs(bgBeregningsresultatFP));
     }
 
     @Test
@@ -79,16 +75,14 @@ class BeregningsresultatRepositoryTest {
         // Arrange
         var behandling = opprettBehandling();
         var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
-        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false,
-            LocalDate.now().plusDays(1));
+        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now().plusDays(1));
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
         beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBeregningsresultatFP);
 
         // Assert
-        var brKoblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            behandling.getId());
+        var brKoblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
         assertThat(brKoblingOpt).hasValueSatisfying(
             brKobling -> assertThat(brKobling.getUtbetBeregningsresultatFP()).isSameAs(utbetBeregningsresultatFP));
     }
@@ -106,8 +100,7 @@ class BeregningsresultatRepositoryTest {
         var id = beregningsresultat.getId();
         assertThat(id).isNotNull();
 
-        var beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(
-            behandling.getId());
+        var beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
 
         assertThat(beregningsresultatFPLest).isEqualTo(Optional.of(beregningsresultat));
     }
@@ -117,8 +110,7 @@ class BeregningsresultatRepositoryTest {
         // Arrange
         var behandling = opprettBehandling();
         var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
-        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false,
-            LocalDate.now().plusDays(1));
+        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now().plusDays(1));
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -128,8 +120,7 @@ class BeregningsresultatRepositoryTest {
         var id = utbetBeregningsresultatFP.getId();
         assertThat(id).isNotNull();
 
-        var utbetBeregningsresultatFPLest = beregningsresultatRepository.hentUtbetBeregningsresultat(
-            behandling.getId());
+        var utbetBeregningsresultatFPLest = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
 
         assertThat(utbetBeregningsresultatFPLest).isEqualTo(Optional.of(utbetBeregningsresultatFP));
     }
@@ -147,8 +138,7 @@ class BeregningsresultatRepositoryTest {
         var id = beregningsresultat.getId();
         assertThat(id).isNotNull();
 
-        var beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(
-            behandling.getId());
+        var beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(beregningsresultatFPLest).isEqualTo(Optional.of(beregningsresultat));
         assertThat(beregningsresultatFPLest).isPresent();
         var arbeidsgiver = beregningsresultatFPLest.get()
@@ -230,10 +220,7 @@ class BeregningsresultatRepositoryTest {
             .medFeriepengerRegelSporing("-")
             .build(beregningsresultat);
 
-        var andel = beregningsresultat.getBeregningsresultatPerioder()
-            .get(0)
-            .getBeregningsresultatAndelList()
-            .get(0);
+        var andel = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         BeregningsresultatFeriepengerPrÅr.builder()
             .medOpptjeningsår(LocalDate.now().withMonth(12).withDayOfMonth(31))
             .medÅrsbeløp(300L)
@@ -243,8 +230,7 @@ class BeregningsresultatRepositoryTest {
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Assert
-        var hentetResultat = entityManager.find(BeregningsresultatEntitet.class,
-            beregningsresultat.getId());
+        var hentetResultat = entityManager.find(BeregningsresultatEntitet.class, beregningsresultat.getId());
         assertThat(hentetResultat).isNotNull();
         assertThat(hentetResultat.getBeregningsresultatFeriepenger()).isPresent();
         assertThat(hentetResultat.getBeregningsresultatFeriepenger()).hasValueSatisfying(this::assertFeriepenger);
@@ -265,10 +251,8 @@ class BeregningsresultatRepositoryTest {
         assertThat(brPeriodeLest).isEqualTo(brPeriodeExpected);
         assertThat(brPeriodeLest.getBeregningsresultatAndelList()).hasSize(1);
         assertThat(brAndelLest).isEqualTo(brPeriodeExpected.getBeregningsresultatAndelList().get(0));
-        assertThat(brPeriodeLest.getBeregningsresultatPeriodeFom()).isEqualTo(
-            brPeriodeExpected.getBeregningsresultatPeriodeFom());
-        assertThat(brPeriodeLest.getBeregningsresultatPeriodeTom()).isEqualTo(
-            brPeriodeExpected.getBeregningsresultatPeriodeTom());
+        assertThat(brPeriodeLest.getBeregningsresultatPeriodeFom()).isEqualTo(brPeriodeExpected.getBeregningsresultatPeriodeFom());
+        assertThat(brPeriodeLest.getBeregningsresultatPeriodeTom()).isEqualTo(brPeriodeExpected.getBeregningsresultatPeriodeTom());
     }
 
     @Test
@@ -283,14 +267,11 @@ class BeregningsresultatRepositoryTest {
         beregningsresultatRepository.lagre(behandling2, beregningsresultat);
 
         // Assert
-        var beregningsresultatFP1 = beregningsresultatRepository.hentBeregningsresultat(
-            behandling.getId());
-        var beregningsresultatFP2 = beregningsresultatRepository.hentBeregningsresultat(
-            behandling2.getId());
+        var beregningsresultatFP1 = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        var beregningsresultatFP2 = beregningsresultatRepository.hentBeregningsresultat(behandling2.getId());
         assertThat(beregningsresultatFP1).isPresent();
         assertThat(beregningsresultatFP2).isPresent();
-        assertThat(beregningsresultatFP1).hasValueSatisfying(
-            b -> assertThat(b).isSameAs(beregningsresultatFP2.get()));
+        assertThat(beregningsresultatFP1).hasValueSatisfying(b -> assertThat(b).isSameAs(beregningsresultatFP2.get()));
     }
 
     @Test
@@ -300,33 +281,25 @@ class BeregningsresultatRepositoryTest {
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
-        var koblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            behandling.getId());
+        var koblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
 
         // Act
-        beregningsresultatRepository.deaktiverBeregningsresultat(behandling.getId(),
-            behandlingRepository.taSkriveLås(behandling));
+        beregningsresultatRepository.deaktiverBeregningsresultat(behandling.getId(), behandlingRepository.taSkriveLås(behandling));
 
         //Assert
-        var hentetBG = entityManager.find(BeregningsresultatEntitet.class,
-            beregningsresultat.getId());
+        var hentetBG = entityManager.find(BeregningsresultatEntitet.class, beregningsresultat.getId());
         assertThat(hentetBG).isNotNull();
 
         var beregningsresultatPeriode = beregningsresultat.getBeregningsresultatPerioder().get(0);
-        var hentetBGPeriode = entityManager.find(BeregningsresultatPeriode.class,
-            beregningsresultatPeriode.getId());
+        var hentetBGPeriode = entityManager.find(BeregningsresultatPeriode.class, beregningsresultatPeriode.getId());
         assertThat(hentetBGPeriode).isNotNull();
 
-        var beregningsresultatAndel = beregningsresultatPeriode.getBeregningsresultatAndelList()
-            .get(0);
-        var hentetBRAndel = entityManager.find(BeregningsresultatAndel.class,
-            beregningsresultatAndel.getId());
+        var beregningsresultatAndel = beregningsresultatPeriode.getBeregningsresultatAndelList().get(0);
+        var hentetBRAndel = entityManager.find(BeregningsresultatAndel.class, beregningsresultatAndel.getId());
         assertThat(hentetBRAndel).isNotNull();
 
-        var deaktivertBeregningsresultatFP = beregningsresultatRepository.hentBeregningsresultat(
-            behandling.getId());
-        var deaktivertKobling = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            behandling.getId());
+        var deaktivertBeregningsresultatFP = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        var deaktivertKobling = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
         assertThat(deaktivertBeregningsresultatFP).isNotPresent();
         assertThat(deaktivertKobling).isNotPresent();
         assertThat(koblingOpt).hasValueSatisfying(kobling -> assertThat(kobling.erAktivt()).isFalse());
@@ -337,9 +310,7 @@ class BeregningsresultatRepositoryTest {
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-            .medArbeidsgiver(
-                medPrivatpersonArbeidsgiver ? Arbeidsgiver.person(ARBEIDSGIVER_AKTØR_ID) : Arbeidsgiver.virksomhet(
-                    ORGNR))
+            .medArbeidsgiver(medPrivatpersonArbeidsgiver ? Arbeidsgiver.person(ARBEIDSGIVER_AKTØR_ID) : Arbeidsgiver.virksomhet(ORGNR))
             .medDagsats(2160)
             .medDagsatsFraBg(2160)
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
@@ -359,11 +330,8 @@ class BeregningsresultatRepositoryTest {
         return buildBeregningsresultatFP(medPrivatpersonArbeidsgiver, null);
     }
 
-    private BeregningsresultatEntitet buildBeregningsresultatFP(boolean medPrivatpersonArbeidsgiver,
-                                                                LocalDate endringsdato) {
-        var builder = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+    private BeregningsresultatEntitet buildBeregningsresultatFP(boolean medPrivatpersonArbeidsgiver, LocalDate endringsdato) {
+        var builder = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2");
         var beregningsresultat = builder.build();
         var brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
         buildBeregningsresultatAndel(brPeriode, medPrivatpersonArbeidsgiver);

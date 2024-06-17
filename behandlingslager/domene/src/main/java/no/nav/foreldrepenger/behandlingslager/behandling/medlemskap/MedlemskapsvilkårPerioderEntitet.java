@@ -46,7 +46,7 @@ public class MedlemskapsvilkårPerioderEntitet extends BaseEntitet implements In
 
     @ChangeTracked
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
-    @Column(name="vilkar_utfall", nullable = false)
+    @Column(name = "vilkar_utfall", nullable = false)
     private VilkårUtfallType vilkårUtfall = VilkårUtfallType.UDEFINERT;
 
     @ChangeTracked
@@ -126,8 +126,7 @@ public class MedlemskapsvilkårPerioderEntitet extends BaseEntitet implements In
             return false;
         }
         var that = (MedlemskapsvilkårPerioderEntitet) o;
-        return Objects.equals(getFom(), that.getFom()) &&
-                Objects.equals(getTom(), that.getTom());
+        return Objects.equals(getFom(), that.getFom()) && Objects.equals(getTom(), that.getTom());
     }
 
 

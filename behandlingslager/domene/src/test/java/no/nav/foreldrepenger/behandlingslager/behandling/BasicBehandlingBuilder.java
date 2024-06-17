@@ -15,7 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-/** Enkel builder for å lage en enkel behandling for internt bruk her. */
+/**
+ * Enkel builder for å lage en enkel behandling for internt bruk her.
+ */
 public class BasicBehandlingBuilder {
 
     private EntityManager em;

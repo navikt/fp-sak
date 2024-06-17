@@ -25,7 +25,8 @@ public class BehandlingDokumentRepository {
     }
 
     public Optional<BehandlingDokumentBestiltEntitet> hentHvisEksisterer(UUID bestillingUuid) {
-        var query = entityManager.createQuery("from BehandlingDokumentBestilt where bestillingUuid = :bestillingUuid", BehandlingDokumentBestiltEntitet.class);
+        var query = entityManager.createQuery("from BehandlingDokumentBestilt where bestillingUuid = :bestillingUuid",
+            BehandlingDokumentBestiltEntitet.class);
         query.setParameter("bestillingUuid", bestillingUuid);
         return HibernateVerktøy.hentUniktResultat(query);
     }

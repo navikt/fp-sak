@@ -63,6 +63,7 @@ public enum MorsAktivitet implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, MorsAktivitet> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

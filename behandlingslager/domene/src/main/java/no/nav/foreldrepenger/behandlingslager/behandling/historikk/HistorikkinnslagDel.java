@@ -84,6 +84,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
 
     /**
      * Hent en hendelse
+     *
      * @return Et HistorikkinnslagFelt fordi vi trenger navn (f.eks. BEH_VENT) og tilVerdi (f.eks. <fristDato>)
      */
     public Optional<HistorikkinnslagFelt> getHendelse() {
@@ -108,10 +109,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
 
     public Optional<HistorikkinnslagFelt> getEndretFelt(HistorikkEndretFeltType endretFeltVerdiType) {
         var endredeFelt = getEndredeFelt();
-        return endredeFelt
-            .stream()
-            .filter(felt -> Objects.equals(endretFeltVerdiType.getKode(), felt.getNavn()))
-            .findFirst();
+        return endredeFelt.stream().filter(felt -> Objects.equals(endretFeltVerdiType.getKode(), felt.getNavn())).findFirst();
     }
 
     public List<HistorikkinnslagFelt> getEndredeFelt() {
@@ -120,9 +118,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
 
     public Optional<HistorikkinnslagFelt> getOpplysning(HistorikkOpplysningType historikkOpplysningType) {
         var opplysninger = getOpplysninger();
-        return opplysninger.stream()
-            .filter(felt -> Objects.equals(historikkOpplysningType.getKode(), felt.getNavn()))
-            .findFirst();
+        return opplysninger.stream().filter(felt -> Objects.equals(historikkOpplysningType.getKode(), felt.getNavn())).findFirst();
     }
 
     public List<HistorikkinnslagFelt> getOpplysninger() {
@@ -131,12 +127,9 @@ public class HistorikkinnslagDel extends BaseEntitet {
 
     public List<HistorikkinnslagTotrinnsvurdering> getTotrinnsvurderinger() {
         var aksjonspunktFeltTypeKoder = Arrays.asList(HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE,
-            HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT,
-            HistorikkinnslagFeltType.AKSJONSPUNKT_KODE);
+            HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT, HistorikkinnslagFeltType.AKSJONSPUNKT_KODE);
 
-        var alleAksjonspunktFelt = historikkinnslagFelt.stream()
-            .filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType()))
-            .toList();
+        var alleAksjonspunktFelt = historikkinnslagFelt.stream().filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType())).toList();
 
         return alleAksjonspunktFelt.stream()
             .collect(Collectors.groupingBy(HistorikkinnslagFelt::getSekvensNr))
@@ -165,14 +158,11 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     private Optional<HistorikkinnslagFelt> finnFelt(HistorikkinnslagFeltType historikkinnslagFeltType) {
-        return historikkinnslagFelt.stream()
-            .filter(felt -> historikkinnslagFeltType.equals(felt.getFeltType()))
-            .findFirst();
+        return historikkinnslagFelt.stream().filter(felt -> historikkinnslagFeltType.equals(felt.getFeltType())).findFirst();
     }
 
     private Optional<String> finnFeltTilVerdi(HistorikkinnslagFeltType historikkinnslagFeltType) {
-        return finnFelt(historikkinnslagFeltType)
-            .map(HistorikkinnslagFelt::getTilVerdi);
+        return finnFelt(historikkinnslagFeltType).map(HistorikkinnslagFelt::getTilVerdi);
     }
 
     private List<HistorikkinnslagFelt> finnFeltListe(HistorikkinnslagFeltType feltType) {

@@ -22,7 +22,7 @@ public class SvangerskapspengerUttakResultatRepository {
     }
 
     @Inject
-    public SvangerskapspengerUttakResultatRepository( EntityManager entityManager) {
+    public SvangerskapspengerUttakResultatRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
@@ -39,10 +39,8 @@ public class SvangerskapspengerUttakResultatRepository {
 
     public Optional<SvangerskapspengerUttakResultatEntitet> hentHvisEksisterer(Long behandlingId) {
         var query = entityManager.createQuery(
-                "select uttakResultat from SvangerskapspengerUttakResultatEntitet uttakResultat " +
-                "join uttakResultat.behandlingsresultat resultat " +
-                "where resultat.behandling.id = :behandlingId and uttakResultat.aktiv = true",
-            SvangerskapspengerUttakResultatEntitet.class);
+            "select uttakResultat from SvangerskapspengerUttakResultatEntitet uttakResultat " + "join uttakResultat.behandlingsresultat resultat "
+                + "where resultat.behandling.id = :behandlingId and uttakResultat.aktiv = true", SvangerskapspengerUttakResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }

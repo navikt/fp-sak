@@ -8,9 +8,6 @@ public class OppdragKvitteringTestUtil {
     }
 
     private static OppdragKvittering lagOppdragKvittering(Oppdrag110 o110, Alvorlighetsgrad alvorlighetsgrad) {
-        return OppdragKvittering.builder()
-            .medAlvorlighetsgrad(alvorlighetsgrad)
-            .medOppdrag110(o110)
-            .build();
+        return OppdragKvittering.builder().medAlvorlighetsgrad(alvorlighetsgrad).medOppdrag110(o110).build();
     }
 }

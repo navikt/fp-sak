@@ -204,18 +204,23 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     public static boolean likeAdresser(PersonAdresseEntitet a1, PersonAdresseEntitet a2) {
-        if (a1 == null && a2 == null) return true;
-        if (a1 == null || a2 == null) return false;
-        if (a1.matrikkelId != null || a2.matrikkelId != null) return Objects.equals(a1.matrikkelId, a2.matrikkelId);
-        return likeAdresselinjer(a1, a2) &&
-            Objects.equals(a1.postnummer, a2.postnummer) &&
-            Objects.equals(a1.land, a2.land);
+        if (a1 == null && a2 == null) {
+            return true;
+        }
+        if (a1 == null || a2 == null) {
+            return false;
+        }
+        if (a1.matrikkelId != null || a2.matrikkelId != null) {
+            return Objects.equals(a1.matrikkelId, a2.matrikkelId);
+        }
+        return likeAdresselinjer(a1, a2) && Objects.equals(a1.postnummer, a2.postnummer) && Objects.equals(a1.land, a2.land);
     }
 
     private static boolean likeAdresselinjer(PersonAdresseEntitet a1, PersonAdresseEntitet a2) {
         var a1l1 = kompaktAdresseline(a1.adresselinje1);
         var a2l1 = kompaktAdresseline(a2.adresselinje1);
-        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(kompaktAdresseline(a1.adresselinje2), a2l1);
+        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(
+            kompaktAdresseline(a1.adresselinje2), a2l1);
     }
 
     private static String kompaktAdresseline(String adresselinje) {
@@ -231,10 +236,8 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
             return false;
         }
         var entitet = (PersonAdresseEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) &&
-            Objects.equals(periode, entitet.periode) &&
-            Objects.equals(adresseType, entitet.adresseType) &&
-            Objects.equals(land, entitet.land);
+        return Objects.equals(aktørId, entitet.aktørId) && Objects.equals(periode, entitet.periode) && Objects.equals(adresseType,
+            entitet.adresseType) && Objects.equals(land, entitet.land);
     }
 
     @Override
@@ -244,16 +247,9 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     @Override
     public String toString() {
-        return "PersonAdresseEntitet{" +
-            "periode=" + periode +
-            ", adresseType=" + adresseType +
-            ", matrikkelId='" + matrikkelId + '\'' +
-            ", adresselinje1='" + adresselinje1 + '\'' +
-            ", adresselinje2='" + adresselinje2 + '\'' +
-            ", postnummer='" + postnummer + '\'' +
-            ", poststed='" + poststed + '\'' +
-            ", land='" + land + '\'' +
-            '}';
+        return "PersonAdresseEntitet{" + "periode=" + periode + ", adresseType=" + adresseType + ", matrikkelId='" + matrikkelId + '\''
+            + ", adresselinje1='" + adresselinje1 + '\'' + ", adresselinje2='" + adresselinje2 + '\'' + ", postnummer='" + postnummer + '\''
+            + ", poststed='" + poststed + '\'' + ", land='" + land + '\'' + '}';
     }
 
 }

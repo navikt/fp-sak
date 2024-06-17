@@ -85,13 +85,15 @@ public class InternArbeidsforholdRef implements IndexKey, TraverseValue, Seriali
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
+        }
         if (o == null && this.referanse == null) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         var that = (InternArbeidsforholdRef) o;
         return Objects.equals(referanse, that.referanse);
     }

@@ -35,38 +35,30 @@ public class FagsakEgenskapRepository {
     }
 
     public Optional<UtlandDokumentasjonStatus> finnUtlandDokumentasjonStatus(long fagsakId) {
-        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandDokumentasjonStatus::valueOf);
+        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).map(FagsakEgenskap::getEgenskapVerdi)
+            .map(UtlandDokumentasjonStatus::valueOf);
     }
 
     public Optional<FagsakMarkering> finnFagsakMarkering(long fagsakId) {
-        return finnEgenskap(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING)
-            .map(FagsakEgenskap::getEgenskapVerdi)
-            .map(FagsakMarkering::valueOf);
+        return finnEgenskap(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING).map(FagsakEgenskap::getEgenskapVerdi).map(FagsakMarkering::valueOf);
     }
 
     private Optional<FagsakEgenskap> finnEgenskapMedVerdi(long fagsakId, EgenskapNøkkel nøkkel) {
         var query = entityManager.createQuery(
-                "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
-                FagsakEgenskap.class)
-            .setParameter(FAGSAK_QP, fagsakId)
-            .setParameter("nøkkel", nøkkel);
+            "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
+            FagsakEgenskap.class).setParameter(FAGSAK_QP, fagsakId).setParameter("nøkkel", nøkkel);
         return hentUniktResultat(query);
     }
 
     private Optional<FagsakEgenskap> finnEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
-        var query = entityManager.createQuery(
-                "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND aktiv = true",
-                FagsakEgenskap.class)
-            .setParameter(FAGSAK_QP, fagsakId)
-            .setParameter("nøkkel", nøkkel);
+        var query = entityManager.createQuery("from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND aktiv = true",
+            FagsakEgenskap.class).setParameter(FAGSAK_QP, fagsakId).setParameter("nøkkel", nøkkel);
         return hentUniktResultat(query);
     }
 
     public List<FagsakEgenskap> finnEgenskaper(long fagsakId) {
-        var query = entityManager.createQuery(
-            "from FagsakEgenskap where fagsakId = :fagsak AND egenskapVerdi is not null AND aktiv = true",
-            FagsakEgenskap.class)
-            .setParameter(FAGSAK_QP, fagsakId);
+        var query = entityManager.createQuery("from FagsakEgenskap where fagsakId = :fagsak AND egenskapVerdi is not null AND aktiv = true",
+            FagsakEgenskap.class).setParameter(FAGSAK_QP, fagsakId);
         return query.getResultList();
     }
 

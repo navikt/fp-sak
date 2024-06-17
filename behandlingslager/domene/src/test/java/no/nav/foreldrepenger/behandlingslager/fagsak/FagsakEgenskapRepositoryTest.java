@@ -28,7 +28,7 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_to_egenskaper_og_finne_dem() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
         fagsakEgenskapRepository.lagreEgenskapBeholdHistorikk(fagsak.getId(), FagsakMarkering.BOSATT_UTLAND);
@@ -45,7 +45,7 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_en_egenskap_og_fjerne_den() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
         fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.BOSATT_UTLAND);
@@ -62,7 +62,7 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_en_egenskap_og_endre_den() {
         var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
+        var saksnummer = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
         fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET);

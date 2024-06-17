@@ -6,10 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskre
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public record PersoninfoVisning(AktørId aktørId,
-                                PersonIdent personIdent,
-                                String navn,
-                                Diskresjonskode diskresjonskode) {
+public record PersoninfoVisning(AktørId aktørId, PersonIdent personIdent, String navn, Diskresjonskode diskresjonskode) {
 
     public PersoninfoVisning {
         requireNonNull(aktørId, "Navbruker må ha aktørId");

@@ -38,7 +38,7 @@ public class BehandlingÅrsak extends BaseEntitet {
     private Behandling behandling;
 
     @Convert(converter = BehandlingÅrsakType.KodeverdiConverter.class)
-    @Column(name="behandling_arsak_type", nullable = false)
+    @Column(name = "behandling_arsak_type", nullable = false)
     private BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.UDEFINERT;
 
     @Column(name = "original_behandling_id", updatable = false)
@@ -92,7 +92,9 @@ public class BehandlingÅrsak extends BaseEntitet {
 
         public Builder(List<BehandlingÅrsakType> behandlingÅrsakTyper) {
             Objects.requireNonNull(behandlingÅrsakTyper, "behandlingÅrsakTyper");
-            if (behandlingÅrsakTyper.isEmpty()) throw new IllegalArgumentException("Mangler behandlingÅrsakTyper");
+            if (behandlingÅrsakTyper.isEmpty()) {
+                throw new IllegalArgumentException("Mangler behandlingÅrsakTyper");
+            }
             this.behandlingÅrsakTyper = behandlingÅrsakTyper;
         }
 
@@ -111,9 +113,7 @@ public class BehandlingÅrsak extends BaseEntitet {
             List<BehandlingÅrsak> nyeÅrsaker = new ArrayList<>();
             for (var årsakType : this.behandlingÅrsakTyper) {
                 // Tillater å oppdatere enkelte attributter. Kan derfor ikke bruke Hibernate + equals/hashcode til å håndtere insert vs update
-                var eksisterende = behandling.getBehandlingÅrsaker().stream()
-                    .filter(it -> it.getBehandlingÅrsakType().equals(årsakType))
-                    .findFirst();
+                var eksisterende = behandling.getBehandlingÅrsaker().stream().filter(it -> it.getBehandlingÅrsakType().equals(årsakType)).findFirst();
                 if (eksisterende.isPresent()) {
                     // Oppdater eksisterende (UPDATE)
                     var årsak = eksisterende.get();
@@ -138,8 +138,12 @@ public class BehandlingÅrsak extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (BehandlingÅrsak) o;
 
         return Objects.equals(behandlingÅrsakType, that.behandlingÅrsakType);

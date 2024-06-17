@@ -48,7 +48,13 @@ public enum StønadskontoType implements Kodeverdi {
     UDEFINERT("-", "Ikke valgt stønadskonto", KontoKategori.ANNET),
     ;
 
-    public enum KontoKategori { STØNADSDAGER, UTVIDELSE, AKTIVITETSKRAV, MINSTERETT, ANNET }
+    public enum KontoKategori {
+        STØNADSDAGER,
+        UTVIDELSE,
+        AKTIVITETSKRAV,
+        MINSTERETT,
+        ANNET
+    }
 
     private static final Map<String, StønadskontoType> KODER = new LinkedHashMap<>();
 

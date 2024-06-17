@@ -50,8 +50,10 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     SØKNAD_ENGANGSSTØNAD_FØDSEL("SØKNAD_ENGANGSSTØNAD_FØDSEL", "I000003", "Søknad om engangsstønad ved fødsel"),
     SØKNAD_ENGANGSSTØNAD_ADOPSJON("SØKNAD_ENGANGSSTØNAD_ADOPSJON", "I000004", "Søknad om engangsstønad ved adopsjon"),
     SØKNAD_FORELDREPENGER_FØDSEL("SØKNAD_FORELDREPENGER_FØDSEL", "I000005", "Søknad om foreldrepenger ved fødsel"),
-    FLEKSIBELT_UTTAK_FORELDREPENGER("FLEKSIBELT_UTTAK_FORELDREPENGER", "I000006", "Utsettelse eller gradert uttak av foreldrepenger (fleksibelt uttak)"),
-    FORELDREPENGER_ENDRING_SØKNAD("FORELDREPENGER_ENDRING_SØKNAD", "I000050", "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
+    FLEKSIBELT_UTTAK_FORELDREPENGER("FLEKSIBELT_UTTAK_FORELDREPENGER", "I000006",
+        "Utsettelse eller gradert uttak av foreldrepenger (fleksibelt uttak)"),
+    FORELDREPENGER_ENDRING_SØKNAD("FORELDREPENGER_ENDRING_SØKNAD", "I000050",
+        "Søknad om endring av uttak av foreldrepenger eller overføring av kvote"),
 
     // Inntektsmelding
     INNTEKTSMELDING("INNTEKTSMELDING", "I000067", "Inntektsmelding"),
@@ -63,7 +65,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     TILBAKEBETALING_UTTALSELSE("I000119", "Uttalelse om tilbakebetaling"),
 
     // Vedlegg fra brukerdialog fødsel / omsorg
-    DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL", "I000041", "Dokumentasjon av termindato (lev. kun av mor), fødsel eller dato for omsorgsovertakelse"),
+    DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL("DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL", "I000041",
+        "Dokumentasjon av termindato (lev. kun av mor), fødsel eller dato for omsorgsovertakelse"),
     DOKUMENTASJON_AV_OMSORGSOVERTAKELSE("DOKUMENTASJON_AV_OMSORGSOVERTAKELSE", "I000042", "Dokumentasjon av dato for overtakelse av omsorg"),
     BEKREFTELSE_VENTET_FØDSELSDATO("BEKREFTELSE_VENTET_FØDSELSDATO", "I000062", "Bekreftelse på ventet fødselsdato"),
     FØDSELSATTEST("FØDSELSATTEST", "I000063", "Fødselsattest"),
@@ -85,7 +88,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     // Vedlegg fra brukerdialog aktivitetskrav + utsettelse (sammenhengende uttak HV og NAV)
     DOK_FERIE("DOK_FERIE", "I000036", "Dokumentasjon av ferie"),
     DOK_ARBEIDSFORHOLD("DOK_ARBEIDSFORHOLD", "I000043", "Dokumentasjon av arbeidsforhold"),
-    BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM("BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM", "I000051", "Bekreftelse på deltakelse i kvalifiseringsprogrammet"),
+    BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM("BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM", "I000051",
+        "Bekreftelse på deltakelse i kvalifiseringsprogrammet"),
     BEKREFTELSE_FRA_STUDIESTED("BEKREFTELSE_FRA_STUDIESTED", "I000061", "Bekreftelse fra studiested/skole"),
     BEKREFTELSE_FRA_ARBEIDSGIVER("BEKREFTELSE_FRA_ARBEIDSGIVER", "I000065", "Bekreftelse fra arbeidsgiver"),
     I000112("I000112", "Dokumentasjon av deltakelse i introduksjonsprogrammet"),
@@ -102,9 +106,11 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
 
 
     // Opptjening/beregning/etc
-    INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007", "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
+    INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007",
+        "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     DOK_INNTEKT("DOK_INNTEKT", "I000016", "Dokumentasjon av inntekt"),
-    INNTEKTSOPPLYSNINGER("INNTEKTSOPPLYSNINGER", "I000026", "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger"),
+    INNTEKTSOPPLYSNINGER("INNTEKTSOPPLYSNINGER", "I000026",
+        "Inntektsopplysninger for arbeidstaker som skal ha sykepenger, foreldrepenger, svangerskapspenger, pleie-/opplæringspenger"),
     RESULTATREGNSKAP("RESULTATREGNSKAP", "I000032", "Resultatregnskap"),
     DOK_MILITÆR_SIVIL_TJENESTE("DOK_MILITÆR_SIVIL_TJENESTE", "I000039", "Dokumentasjon av militær- eller siviltjeneste"),
     DOK_ETTERLØNN("DOK_ETTERLØNN", "I000044", "Dokumentasjon av etterlønn/sluttvederlag"),
@@ -245,10 +251,10 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     }
 
     public static DokumentTypeId finnForKodeverkEiersNavn(String navn) {
-        if (navn == null)
+        if (navn == null) {
             return UDEFINERT;
-        return Stream.of(values()).filter(k -> Objects.equals(k.navn, navn)).findFirst()
-            .orElseGet(() -> ALT_TITLER.getOrDefault(navn, ANNET));
+        }
+        return Stream.of(values()).filter(k -> Objects.equals(k.navn, navn)).findFirst().orElseGet(() -> ALT_TITLER.getOrDefault(navn, ANNET));
     }
 
     private static final Set<DokumentTypeId> SØKNAD_TYPER = Set.of(SØKNAD_ENGANGSSTØNAD_FØDSEL, SØKNAD_FORELDREPENGER_FØDSEL,
@@ -261,9 +267,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     private static final Set<DokumentTypeId> ANNET_DOK_TYPER = Set.of(ANNET, ANNET_SKJEMA_IKKE_NAV, ANNET_SKJEMA_UTLAND_IKKE_NAV, BREV, BREV_UTLAND);
 
     private static final Set<DokumentTypeId> ETTERSENDELSE_TYPER = Set.of(ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG,
-        ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL, ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON,
-        ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL, ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON,
-        ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER);
+        ETTERSENDT_SØKNAD_ENGANGSSTØNAD_FØDSEL, ETTERSENDT_SØKNAD_ENGANGSSTØNAD_ADOPSJON, ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL,
+        ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON, ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER);
 
 
     public static Set<DokumentTypeId> getSpesialTyperKoder() {
@@ -290,8 +295,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     }
 
     public boolean erForeldrepengeSøknad() {
-        return Set.of(SØKNAD_FORELDREPENGER_FØDSEL, SØKNAD_FORELDREPENGER_ADOPSJON,
-            FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER).contains(this);
+        return Set.of(SØKNAD_FORELDREPENGER_FØDSEL, SØKNAD_FORELDREPENGER_ADOPSJON, FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER)
+            .contains(this);
     }
 
     public boolean erInntektsmelding() {
@@ -319,18 +324,14 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         Set.of(DOK_ARBEIDSFORHOLD, BEKREFTELSE_FRA_ARBEIDSGIVER, MOR_ARBEID, MOR_ARBEID_STUDIE, DOK_MORS_UTDANNING_ARBEID_SYKDOM),
         Set.of(BEKREFTELSE_FRA_STUDIESTED, DOK_MORS_UTDANNING_ARBEID_SYKDOM, MOR_STUDIE, MOR_ARBEID_STUDIE),
         Set.of(DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, BEKREFTELSE_VENTET_FØDSELSDATO, FØDSELSATTEST, TERMINBEKREFTELSE),
-        Set.of(BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM, MOR_KVALIFISERINGSPROGRAM),
-        Set.of(I000111, SEN_SØKNAD),
-        Set.of(SKATTEMELDING, KOPI_SKATTEMELDING)
-    );
-
+        Set.of(BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM, MOR_KVALIFISERINGSPROGRAM), Set.of(I000111, SEN_SØKNAD),
+        Set.of(SKATTEMELDING, KOPI_SKATTEMELDING));
 
 
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
         Map.entry("Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
-        Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
+        Map.entry("Søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER), Map.entry("Bekreftelse på avtalt ferie", DOK_FERIE),
         Map.entry("Mor er innlagt i helseinstitusjon", DOK_INNLEGGELSE),
         Map.entry("Mor er i arbeid, tar utdanning eller er for syk til å ta seg av barnet", DOK_MORS_UTDANNING_ARBEID_SYKDOM),
         Map.entry("Dokumentasjon av termindato, fødsel eller dato for omsorgsovertakelse", DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL),
@@ -339,10 +340,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         Map.entry("Dokumentasjon av etterlønn eller sluttvederlag", DOK_ETTERLØNN),
         Map.entry("Beskrivelse/Dokumentasjon funksjonsnedsettelse", BESKRIVELSE_FUNKSJONSNEDSETTELSE),
         Map.entry("Mor deltar i kvalifiseringsprogrammet", BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM),
-        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
-        Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
-        Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREVING_UTTALSELSE),
-        Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
-        Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT)
-    );
+        Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED), Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
+        Map.entry("Svar på varsel om tilbakebetaling", TILBAKEKREVING_UTTALSELSE), Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT));
 }

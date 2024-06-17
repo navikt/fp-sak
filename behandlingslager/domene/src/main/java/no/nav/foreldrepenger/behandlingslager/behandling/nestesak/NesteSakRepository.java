@@ -73,8 +73,7 @@ public class NesteSakRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         eksisterendeGrunnlag.ifPresent(g -> {
-            var nyttgrunnlag = NesteSakGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag)
-                .medBehandlingId(nyBehandlingId);
+            var nyttgrunnlag = NesteSakGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag).medBehandlingId(nyBehandlingId);
             lagreGrunnlag(Optional.empty(), nyttgrunnlag);
         });
     }

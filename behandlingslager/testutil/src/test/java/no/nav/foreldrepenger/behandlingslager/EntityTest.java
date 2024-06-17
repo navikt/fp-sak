@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 class EntityTest {
 
     private static final EntityManagerFactory entityManagerFactory;
+
     static {
         // Kan ikke skrus på nå - trigger på CHAR kolonner som kunne vært VARCHAR. Må
         // fikses først
@@ -75,8 +76,11 @@ class EntityTest {
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
         var managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
-        return managedTypes.stream().map(Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
-                .filter(filter).collect(Collectors.toSet());
+        return managedTypes.stream()
+            .map(Type::getJavaType)
+            .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+            .filter(filter)
+            .collect(Collectors.toSet());
     }
 
     private static boolean isDoubleOrFloat(Class<?> javaType) {
@@ -98,7 +102,8 @@ class EntityTest {
         try {
             entityManagerFactory.getMetamodel().managedType(entityClass);
         } catch (IllegalArgumentException e) {
-            assertThat(e).as("Er ikke registrert i orm, må ryddes fra koden: " + entityClass.getSimpleName()).isNull(); // Skal alltid feile, kun for å utvide melding
+            assertThat(e).as("Er ikke registrert i orm, må ryddes fra koden: " + entityClass.getSimpleName())
+                .isNull(); // Skal alltid feile, kun for å utvide melding
             throw e;
         }
     }
@@ -167,7 +172,7 @@ class EntityTest {
             var singleResult = getNullability(tableName, columnName);
 
             var warn = "Felt " + member
-                    + " kan ikke ha null i db. Kan medføre en smell ved skriving. Bedre å bruke primitiv hvis kan (husk sjekk med innkommende kilde til data)";
+                + " kan ikke ha null i db. Kan medføre en smell ved skriving. Bedre å bruke primitiv hvis kan (husk sjekk med innkommende kilde til data)";
             if (nullable) {
                 assertThat(singleResult).as(warn).isEqualTo("Y");
             } else {
@@ -180,9 +185,9 @@ class EntityTest {
     private String getNullability(String tableName, String columnName) {
         List<String> result = em.createNativeQuery(
                 "SELECT NULLABLE FROM ALL_TAB_COLS WHERE COLUMN_NAME=upper(:col) AND TABLE_NAME=upper(:table) AND OWNER=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')")
-                .setParameter("table", tableName)
-                .setParameter("col", columnName)
-                .getResultList();
+            .setParameter("table", tableName)
+            .setParameter("col", columnName)
+            .getResultList();
 
         return result.isEmpty() ? null : result.get(0);
     }
@@ -214,8 +219,8 @@ class EntityTest {
                     continue;
                 }
 
-                var warn = "Primitiv wrapper (Float, Double) " + member
-                        + " bør ikke brukes for felt som mappes til db.  Vil gi IEEE754 avrundingsfeil";
+                var warn =
+                    "Primitiv wrapper (Float, Double) " + member + " bør ikke brukes for felt som mappes til db.  Vil gi IEEE754 avrundingsfeil";
 
                 assertThat(member).as(warn).isNull();
             }

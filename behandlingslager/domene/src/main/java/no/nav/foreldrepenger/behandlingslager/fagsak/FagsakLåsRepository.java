@@ -16,7 +16,7 @@ public class FagsakLåsRepository {
     }
 
     @Inject
-    public FagsakLåsRepository( EntityManager entityManager) {
+    public FagsakLåsRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -52,8 +52,7 @@ public class FagsakLåsRepository {
     }
 
     private Long låsFagsak(final Long fagsakId, LockModeType lockModeType) {
-        var resultFs = (Object[]) entityManager
-            .createQuery("select fs.id, fs.versjon from Fagsak fs where fs.id=:id")
+        var resultFs = (Object[]) entityManager.createQuery("select fs.id, fs.versjon from Fagsak fs where fs.id=:id")
             .setParameter("id", fagsakId)
             .setLockMode(lockModeType)
             .getSingleResult();

@@ -45,11 +45,9 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null,
-            null, null);
+        var gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
 
-        var nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
-            null);
+        var nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
 
         totrinnRepository.lagreOgFlush(gammeltTotrinnresultatgrunnlag);
         totrinnRepository.lagreOgFlush(nyttTotrinnresultatgrunnlag);
@@ -68,8 +66,7 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         assertThat(inaktive).hasSize(1);
         assertThat(inaktive.get(0)).isEqualToComparingFieldByField(gammeltTotrinnresultatgrunnlag);
         assertThat(optionalNyttTotrinnresultatgrunnlag).isPresent();
-        assertThat(optionalNyttTotrinnresultatgrunnlag.get().getId()).isNotEqualTo(
-            gammeltTotrinnresultatgrunnlag.getId());
+        assertThat(optionalNyttTotrinnresultatgrunnlag.get().getId()).isNotEqualTo(gammeltTotrinnresultatgrunnlag.getId());
         assertThat(optionalNyttTotrinnresultatgrunnlag.get().isAktiv()).isTrue();
 
     }
@@ -84,12 +81,12 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         // Opprett vurderinger som skal være inaktive
-        var inaktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
-        var inaktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
-        var inaktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
+        var inaktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "",
+            VurderÅrsak.FEIL_FAKTA);
+        var inaktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "",
+            VurderÅrsak.FEIL_FAKTA);
+        var inaktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "",
+            VurderÅrsak.FEIL_FAKTA);
 
         List<Totrinnsvurdering> inaktivTotrinnsvurderingList = new ArrayList<>();
         inaktivTotrinnsvurderingList.add(inaktivTotrinnsvurdering1);
@@ -98,12 +95,12 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         totrinnRepository.lagreOgFlush(inaktivTotrinnsvurderingList);
 
         // Opprett vurderinger som skal være aktive
-        var aktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
-        var aktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
-        var aktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
+        var aktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "",
+            VurderÅrsak.FEIL_FAKTA);
+        var aktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "",
+            VurderÅrsak.FEIL_FAKTA);
+        var aktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "",
+            VurderÅrsak.FEIL_FAKTA);
 
         List<Totrinnsvurdering> aktivTotrinnsvurderingList = new ArrayList<>();
         aktivTotrinnsvurderingList.add(aktivTotrinnsvurdering1);
@@ -115,8 +112,7 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         var repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
 
         // Hent inaktive vurderinger etter flush
-        var query = entityManager.createQuery(
-            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = false",
+        var query = entityManager.createQuery("SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = false",
 
             Totrinnsvurdering.class);
         query.setParameter("behandling_id", behandling.getId());

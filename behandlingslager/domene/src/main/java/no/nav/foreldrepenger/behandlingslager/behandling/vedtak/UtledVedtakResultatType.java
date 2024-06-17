@@ -8,8 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 public class UtledVedtakResultatType {
 
     private static Set<BehandlingResultatType> INNVILGET_TYPER = Set.of(BehandlingResultatType.INNVILGET,
-        BehandlingResultatType.FORELDREPENGER_ENDRET,
-        BehandlingResultatType.FORELDREPENGER_SENERE);
+        BehandlingResultatType.FORELDREPENGER_ENDRET, BehandlingResultatType.FORELDREPENGER_SENERE);
 
     private UtledVedtakResultatType() {
         // hide public contructor

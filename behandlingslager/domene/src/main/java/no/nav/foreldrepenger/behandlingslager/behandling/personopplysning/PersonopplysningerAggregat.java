@@ -39,39 +39,41 @@ public class PersonopplysningerAggregat {
         this(grunnlag, aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(forDato, forDato.plusDays(1)), skjæringstidspunkt);
     }
 
-    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode, LocalDate skjæringstidspunkt) {
+    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag,
+                                      AktørId aktørId,
+                                      DatoIntervallEntitet forPeriode,
+                                      LocalDate skjæringstidspunkt) {
         this.søkerAktørId = aktørId;
         this.skjæringstidspunkt = skjæringstidspunkt;
         this.oppgittAnnenPart = grunnlag.getOppgittAnnenPart().orElse(null);
         var registerversjon = grunnlag.getRegisterVersjon().orElse(null);
         if (registerversjon != null) {
             this.alleRelasjoner = registerversjon.getRelasjoner();
-            this.personopplysninger = registerversjon.getPersonopplysninger().stream().collect(Collectors.toMap(PersonopplysningEntitet::getAktørId, Function.identity()));
-            this.adresser = registerversjon.getAdresser().stream()
-                    .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
-            overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus)
-                    .orElse(Collections.emptyList());
+            this.personopplysninger = registerversjon.getPersonopplysninger()
+                .stream()
+                .collect(Collectors.toMap(PersonopplysningEntitet::getAktørId, Function.identity()));
+            this.adresser = registerversjon.getAdresser()
+                .stream()
+                .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) || erGyldigIPeriode(forPeriode, adr.getPeriode()))
+                .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
+            overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList());
             var registerPersonstatus = registerversjon.getPersonstatus()
                 .stream()
                 .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
                 .toList();
             this.orginalPersonstatus = registerversjon.getPersonstatus()
-                    .stream()
-                    .filter(it -> !finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                    .toList();
-            this.aktuellePersonstatus = Stream.concat(
-                registerPersonstatus.stream(),
-                overstyrtPersonstatus.stream())
-                    .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, st.getPeriode()))
-                    .toList();
-            this.statsborgerskap = registerversjon.getStatsborgerskap().stream()
-                    .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
-            this.oppholdstillatelser = registerversjon.getOppholdstillatelser().stream()
+                .stream()
+                .filter(it -> !finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
+                .toList();
+            this.aktuellePersonstatus = Stream.concat(registerPersonstatus.stream(), overstyrtPersonstatus.stream())
+                .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
+                .toList();
+            this.statsborgerskap = registerversjon.getStatsborgerskap()
+                .stream()
+                .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) || erGyldigIPeriode(forPeriode, adr.getPeriode()))
+                .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
+            this.oppholdstillatelser = registerversjon.getOppholdstillatelser()
+                .stream()
                 .filter(adr -> erGyldigIPeriode(forPeriode, adr.getPeriode()))
                 .toList();
         } else {
@@ -107,14 +109,14 @@ public class PersonopplysningerAggregat {
     }
 
     public List<PersonstatusEntitet> getPersonstatuserFor(AktørId aktørId) {
-        return aktuellePersonstatus.stream()
-                .filter(ss -> ss.getAktørId().equals(aktørId))
-                .toList();
+        return aktuellePersonstatus.stream().filter(ss -> ss.getAktørId().equals(aktørId)).toList();
     }
 
     public PersonstatusEntitet getPersonstatusFor(AktørId aktørId) {
         return aktuellePersonstatus.stream()
-            .filter(ss -> ss.getAktørId().equals(aktørId)).max(Comparator.comparing(PersonstatusEntitet::getPeriode)).orElse(null);
+            .filter(ss -> ss.getAktørId().equals(aktørId))
+            .max(Comparator.comparing(PersonstatusEntitet::getPeriode))
+            .orElse(null);
     }
 
     public PersonopplysningEntitet getSøker() {
@@ -126,39 +128,49 @@ public class PersonopplysningerAggregat {
     }
 
     public Optional<StatsborgerskapEntitet> getRangertStatsborgerskapVedSkjæringstidspunktFor(AktørId aktørId) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .min(Comparator.comparing(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt).getRank()));
+        return statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
+            .min(Comparator.comparing(
+                s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)
+                    .getRank()));
     }
 
     public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+        return statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
             .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, vurderingsdato, skjæringstidspunkt))
-            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+            .min(Comparator.comparing(Region::getRank))
+            .orElse(Region.TREDJELANDS_BORGER);
     }
 
     public Region getStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+        return statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
             .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, skjæringstidspunkt, skjæringstidspunkt))
-            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+            .min(Comparator.comparing(Region::getRank))
+            .orElse(Region.TREDJELANDS_BORGER);
     }
 
     public boolean harStatsborgerskap(AktørId aktørId, Landkoder land) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
+        return statsborgerskap.getOrDefault(aktørId, List.of()).stream().anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
     }
 
     public boolean harStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, Region region) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)));
+        return statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
+            .anyMatch(sb -> region.equals(
+                MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)));
     }
 
     public boolean harStatsborgerskapRegionVedTidspunkt(AktørId aktørId, Region region, LocalDate vurderingsdato) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
+        return statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
+            .anyMatch(sb -> region.equals(
+                MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
     }
 
     public Optional<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {
@@ -169,8 +181,8 @@ public class PersonopplysningerAggregat {
     /**
      * Returnerer opprinnelig personstatus der hvor personstatus har blitt overstyrt
      *
-     * @return personstatus
      * @param søkerAktørId
+     * @return personstatus
      */
     public Optional<PersonstatusEntitet> getOrginalPersonstatusFor(AktørId søkerAktørId) {
         return orginalPersonstatus.stream()
@@ -179,9 +191,7 @@ public class PersonopplysningerAggregat {
     }
 
     public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId) {
-        return adresser.getOrDefault(aktørId, List.of()).stream()
-            .sorted(Comparator.comparing(PersonAdresseEntitet::getPeriode).reversed())
-            .toList();
+        return adresser.getOrDefault(aktørId, List.of()).stream().sorted(Comparator.comparing(PersonAdresseEntitet::getPeriode).reversed()).toList();
     }
 
     public List<PersonopplysningEntitet> getBarna() {
@@ -232,15 +242,11 @@ public class PersonopplysningerAggregat {
     }
 
     public Optional<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId, AktørId tilAktørId) {
-        return getRelasjoner().stream()
-                .filter(e -> e.getAktørId().equals(fraAktørId) && e.getTilAktørId().equals(tilAktørId))
-                .findFirst();
+        return getRelasjoner().stream().filter(e -> e.getAktørId().equals(fraAktørId) && e.getTilAktørId().equals(tilAktørId)).findFirst();
     }
 
     public List<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId) {
-        return getRelasjoner().stream()
-                .filter(e -> e.getAktørId().equals(fraAktørId))
-                .toList();
+        return getRelasjoner().stream().filter(e -> e.getAktørId().equals(fraAktørId)).toList();
     }
 
     public Optional<OppgittAnnenPartEntitet> getOppgittAnnenPart() {
@@ -249,16 +255,15 @@ public class PersonopplysningerAggregat {
 
     public List<PersonopplysningEntitet> getAlleBarnFødtI(SimpleLocalDateInterval fødselIntervall) {
         return getBarnaTil(søkerAktørId).stream()
-                .filter(barn -> fødselIntervall.overlapper(SimpleLocalDateInterval.fraOgMedTomNotNull(barn.getFødselsdato(), barn.getFødselsdato())))
-                .toList();
+            .filter(barn -> fødselIntervall.overlapper(SimpleLocalDateInterval.fraOgMedTomNotNull(barn.getFødselsdato(), barn.getFødselsdato())))
+            .toList();
     }
 
     public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle) {
         var ektefelleRelasjon = getRelasjoner().stream()
-                .filter(familierelasjon -> familierelasjon.getAktørId().equals(søkerAktørId) &&
-                    familierelasjon.getTilAktørId().equals(aktørId) &&
-                    familierelasjon.getRelasjonsrolle().equals(relasjonsRolle))
-                .findFirst();
+            .filter(familierelasjon -> familierelasjon.getAktørId().equals(søkerAktørId) && familierelasjon.getTilAktørId().equals(aktørId)
+                && familierelasjon.getRelasjonsrolle().equals(relasjonsRolle))
+            .findFirst();
         if (ektefelleRelasjon.filter(PersonRelasjonEntitet::getHarSammeBosted).isPresent()) {
             return true;
         }
@@ -290,29 +295,22 @@ public class PersonopplysningerAggregat {
             return false;
         }
         var that = (PersonopplysningerAggregat) o;
-        return Objects.equals(søkerAktørId, that.søkerAktørId) &&
-                Objects.equals(personopplysninger, that.personopplysninger) &&
-                Objects.equals(alleRelasjoner, that.alleRelasjoner) &&
-                Objects.equals(adresser, that.adresser) &&
-                Objects.equals(aktuellePersonstatus, that.aktuellePersonstatus) &&
-                Objects.equals(statsborgerskap, that.statsborgerskap) &&
-                Objects.equals(oppgittAnnenPart, that.oppgittAnnenPart);
+        return Objects.equals(søkerAktørId, that.søkerAktørId) && Objects.equals(personopplysninger, that.personopplysninger) && Objects.equals(
+            alleRelasjoner, that.alleRelasjoner) && Objects.equals(adresser, that.adresser) && Objects.equals(aktuellePersonstatus,
+            that.aktuellePersonstatus) && Objects.equals(statsborgerskap, that.statsborgerskap) && Objects.equals(oppgittAnnenPart,
+            that.oppgittAnnenPart);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(søkerAktørId, personopplysninger, alleRelasjoner, adresser, aktuellePersonstatus, statsborgerskap,
-            oppgittAnnenPart);
+        return Objects.hash(søkerAktørId, personopplysninger, alleRelasjoner, adresser, aktuellePersonstatus, statsborgerskap, oppgittAnnenPart);
     }
 
 
     @Override
     public String toString() {
-        return "PersonopplysningerAggregat{" +
-                "søkerAktørId=" + søkerAktørId +
-                ", personopplysninger=" + personopplysninger +
-                ", oppgittAnnenPart=" + oppgittAnnenPart +
-                '}';
+        return "PersonopplysningerAggregat{" + "søkerAktørId=" + søkerAktørId + ", personopplysninger=" + personopplysninger + ", oppgittAnnenPart="
+            + oppgittAnnenPart + '}';
     }
 }

@@ -51,7 +51,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     private List<TilretteleggingFOM> tilretteleggingFOMListe = new ArrayList<>();
 
     @Convert(converter = ArbeidType.KodeverdiConverter.class)
-    @Column(name="arbeid_type", nullable = false)
+    @Column(name = "arbeid_type", nullable = false)
     private ArbeidType arbeidType = ArbeidType.UDEFINERT;
 
     @Embedded
@@ -91,7 +91,8 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     public SvpTilretteleggingEntitet(SvpTilretteleggingEntitet svpTilrettelegging, SvpTilretteleggingerEntitet opprinneligeTilrettelegginger) {
         this.behovForTilretteleggingFom = svpTilrettelegging.getBehovForTilretteleggingFom();
         this.tilrettelegginger = opprinneligeTilrettelegginger;
-        svpTilrettelegging.getTilretteleggingFOMListe().stream()
+        svpTilrettelegging.getTilretteleggingFOMListe()
+            .stream()
             .map(fom -> new TilretteleggingFOM.Builder(fom).build())
             .forEach(fom -> this.tilretteleggingFOMListe.add(fom));
         this.arbeidType = svpTilrettelegging.getArbeidType();
@@ -103,15 +104,16 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         this.mottattTidspunkt = svpTilrettelegging.getMottattTidspunkt();
         this.internArbeidsforholdRef = svpTilrettelegging.getInternArbeidsforholdRef().orElse(null);
         this.skalBrukes = svpTilrettelegging.getSkalBrukes();
-        svpTilrettelegging.getAvklarteOpphold().stream()
+        svpTilrettelegging.getAvklarteOpphold()
+            .stream()
             .map(avklartOpphold -> SvpAvklartOpphold.Builder.fraEksisterende(avklartOpphold).build())
             .forEach(avklartOpphold -> this.avklarteOpphold.add(avklartOpphold));
     }
 
     @Override
     public boolean equals(Object o) {
-        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that &&
-            Objects.equals(tilretteleggingFOMListe, that.tilretteleggingFOMListe);
+        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that && Objects.equals(tilretteleggingFOMListe,
+            that.tilretteleggingFOMListe);
     }
 
     @Override
@@ -120,9 +122,9 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     }
 
     public boolean erLik(Object o) {
-        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that &&
-            tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() &&
-            new HashSet<>(tilretteleggingFOMListe).containsAll(that.tilretteleggingFOMListe);
+        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that
+            && tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() && new HashSet<>(tilretteleggingFOMListe).containsAll(
+            that.tilretteleggingFOMListe);
     }
 
 
@@ -134,10 +136,8 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
             return false;
         }
         var that = (SvpTilretteleggingEntitet) o;
-        return Objects.equals(behovForTilretteleggingFom, that.behovForTilretteleggingFom) &&
-            Objects.equals(arbeidType, that.arbeidType) &&
-            Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef);
+        return Objects.equals(behovForTilretteleggingFom, that.behovForTilretteleggingFom) && Objects.equals(arbeidType, that.arbeidType)
+            && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef);
     }
 
     public Long getId() {
@@ -201,8 +201,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         }
 
         public static Builder fraEksisterende(SvpTilretteleggingEntitet tilrettelegging) {
-            return new Builder()
-                .medArbeidsgiver(tilrettelegging.getArbeidsgiver().orElse(null))
+            return new Builder().medArbeidsgiver(tilrettelegging.getArbeidsgiver().orElse(null))
                 .medArbeidType(tilrettelegging.getArbeidType())
                 .medBehovForTilretteleggingFom(tilrettelegging.behovForTilretteleggingFom)
                 .medBegrunnelse(tilrettelegging.getBegrunnelse().orElse(null))
@@ -217,6 +216,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
                 .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe())
                 .medAvklarteOpphold(tilrettelegging.getAvklarteOpphold());
         }
+
         public Builder(SvpTilretteleggingEntitet tilretteleggingEntitet) {
             mal = new SvpTilretteleggingEntitet(tilretteleggingEntitet, null);
             if (mal.tilretteleggingFOMListe == null) {
@@ -233,8 +233,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         }
 
         public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom, LocalDate tidligstMottatt, SvpTilretteleggingFomKilde kilde) {
-            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
-                .medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
                 .medFomDato(helTilretteleggingFom)
                 .medTidligstMottattDato(tidligstMottatt)
                 .medKilde(kilde)
@@ -243,10 +242,11 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent, LocalDate tidligstMottatt,
+        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom,
+                                                BigDecimal stillingsprosent,
+                                                LocalDate tidligstMottatt,
                                                 SvpTilretteleggingFomKilde kilde) {
-            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
-                .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
                 .medFomDato(delvisTilretteleggingFom)
                 .medStillingsprosent(stillingsprosent)
                 .medTidligstMottattDato(tidligstMottatt)
@@ -257,8 +257,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         }
 
         public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom, LocalDate tidligstMottatt, SvpTilretteleggingFomKilde kilde) {
-            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
-                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
                 .medFomDato(slutteArbeidFom)
                 .medTidligstMottattDato(tidligstMottatt)
                 .medKilde(kilde)
@@ -321,6 +320,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
             this.mal.skalBrukes = skalBrukes;
             return this;
         }
+
         public Builder medAvklartOpphold(SvpAvklartOpphold avklarteOpphold) {
             this.mal.avklarteOpphold.add(avklarteOpphold);
             return this;

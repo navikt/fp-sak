@@ -57,9 +57,7 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
     }
 
     public List<SvpTilretteleggingEntitet> hentTilretteleggingerSomSkalBrukes() {
-        return getGjeldendeVersjon().getTilretteleggingListe().stream()
-            .filter(SvpTilretteleggingEntitet::getSkalBrukes)
-            .toList();
+        return getGjeldendeVersjon().getTilretteleggingListe().stream().filter(SvpTilretteleggingEntitet::getSkalBrukes).toList();
     }
 
     public Long getBehandlingId() {
@@ -124,7 +122,7 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
                 entitet.opprinneligeTilrettelegginger = opprinneligeTrlgBuilder.build();
             }
 
-            if  (overstyrteTilretteleggingerListe != null && !overstyrteTilretteleggingerListe.isEmpty()) {
+            if (overstyrteTilretteleggingerListe != null && !overstyrteTilretteleggingerListe.isEmpty()) {
                 var overstyrteTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
                 overstyrteTrlgBuilder.medTilretteleggingListe(this.overstyrteTilretteleggingerListe);
                 entitet.overstyrteTilrettelegginger = overstyrteTrlgBuilder.build();

@@ -37,11 +37,13 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now())).leggTilBarn(LocalDate.now().minusYears(5)).medAntallBarn(1));
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
+            .leggTilBarn(LocalDate.now().minusYears(5))
+            .medAntallBarn(1));
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now())).leggTilBarn(LocalDate.now().minusYears(5)).medAntallBarn(1));
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
+            .leggTilBarn(LocalDate.now().minusYears(5))
+            .medAntallBarn(1));
 
         var behandling = lagre(scenario);
 
@@ -68,13 +70,19 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now()).medNavnPå("LEGESEN").medUtstedtDato(LocalDate.now()))
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now())
+                .medNavnPå("LEGESEN")
+                .medUtstedtDato(LocalDate.now()))
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1));
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now()).medNavnPå("LEGESEN").medUtstedtDato(LocalDate.now()))
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now())
+                .medNavnPå("LEGESEN")
+                .medUtstedtDato(LocalDate.now()))
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1));
         var behandling = lagre(scenario);

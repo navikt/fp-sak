@@ -24,7 +24,7 @@ public class PersonopplysningGrunnlagBuilder {
 
     public PersonopplysningGrunnlagBuilder medRegistrertVersjon(PersonInformasjonBuilder builder) {
         if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)
-                && kladd.getRegisterVersjon().isPresent() == builder.gjelderOppdatering()) {
+            && kladd.getRegisterVersjon().isPresent() == builder.gjelderOppdatering()) {
             kladd.setRegistrertePersonopplysninger(builder.build());
         } else {
             throw PersonopplysningFeil.måBasereSegPåEksisterendeVersjon();
@@ -36,7 +36,7 @@ public class PersonopplysningGrunnlagBuilder {
         if (builder == null) {
             kladd.setOverstyrtePersonopplysninger(null);
         } else if (builder.getType().equals(PersonopplysningVersjonType.OVERSTYRT)
-                && kladd.getOverstyrtVersjon().isPresent() == builder.gjelderOppdatering()) {
+            && kladd.getOverstyrtVersjon().isPresent() == builder.gjelderOppdatering()) {
             kladd.setOverstyrtePersonopplysninger(builder.build());
         } else {
             throw PersonopplysningFeil.måBasereSegPåEksisterendeVersjon();

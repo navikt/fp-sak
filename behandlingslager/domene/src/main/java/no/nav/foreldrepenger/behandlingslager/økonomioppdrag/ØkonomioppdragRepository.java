@@ -32,8 +32,7 @@ public class ØkonomioppdragRepository {
     }
 
     public Oppdragskontroll hentOppdragskontroll(long oppdragskontrollId) {
-        var query = entityManager.createQuery(
-            "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class);
+        var query = entityManager.createQuery("from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class);
         query.setParameter("oppdragskontrollId", oppdragskontrollId);
         return hentEksaktResultat(query);
     }
@@ -46,15 +45,13 @@ public class ØkonomioppdragRepository {
             throw new IllegalArgumentException("Datointervall for økonomioppdrag må inneholde minst 1 dag");
         }
 
-        return entityManager
-            .createQuery("""
+        return entityManager.createQuery("""
                 select o110 from Oppdrag110 as o110
                 where o110.opprettetTidspunkt >= :fomTidspunkt
                     and o110.opprettetTidspunkt < :tilTidspunkt
                     and o110.kodeFagomrade = :fagomrade
                 order by o110.opprettetTidspunkt, o110.nøkkelAvstemming
-                    """,
-                Oppdrag110.class)
+                    """, Oppdrag110.class)
             .setParameter("fomTidspunkt", fomDato.atStartOfDay())
             .setParameter("tilTidspunkt", tomDato.plusDays(1).atStartOfDay())
             .setParameter("fagomrade", fagområde)
@@ -62,22 +59,17 @@ public class ØkonomioppdragRepository {
     }
 
     public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {
-        var typedQuery = entityManager
-            .createQuery("""
-                    from Oppdrag110 as o110 left join OppdragKvittering kvitto on o110.id = kvitto.oppdrag110.id
-                    where o110.oppdragskontroll.behandlingId = :behandlingId
-                    and o110.fagsystemId = :fagsystemId
-                    and kvitto is null
-                    """, Oppdrag110.class)
-            .setParameter("fagsystemId", fagsystemId)
-            .setParameter("behandlingId", behandlingId)
-            ;
+        var typedQuery = entityManager.createQuery("""
+            from Oppdrag110 as o110 left join OppdragKvittering kvitto on o110.id = kvitto.oppdrag110.id
+            where o110.oppdragskontroll.behandlingId = :behandlingId
+            and o110.fagsystemId = :fagsystemId
+            and kvitto is null
+            """, Oppdrag110.class).setParameter("fagsystemId", fagsystemId).setParameter("behandlingId", behandlingId);
         return hentEksaktResultat(typedQuery);
     }
 
     public Optional<Oppdragskontroll> finnOppdragForBehandling(long behandlingId) {
-        var resultList = entityManager.createQuery(
-            "from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)
+        var resultList = entityManager.createQuery("from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)
             .setParameter("behandlingId", behandlingId)
             .getResultList();
 
@@ -89,8 +81,7 @@ public class ØkonomioppdragRepository {
 
 
     public List<Oppdragskontroll> finnAlleOppdragForSak(Saksnummer saksnr) {
-        return entityManager.createQuery(
-            "from Oppdragskontroll where saksnummer = :saksnr", Oppdragskontroll.class)
+        return entityManager.createQuery("from Oppdragskontroll where saksnummer = :saksnr", Oppdragskontroll.class)
             .setParameter(SAKSNR, saksnr)
             .getResultList();
     }

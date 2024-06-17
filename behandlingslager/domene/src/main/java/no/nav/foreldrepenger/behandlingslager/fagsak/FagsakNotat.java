@@ -37,7 +37,7 @@ public class FagsakNotat extends BaseCreateableEntitet {
     }
 
     FagsakNotat(Long fagsakId, String notat) {
-        Objects.requireNonNull(notat,"tomt notat");
+        Objects.requireNonNull(notat, "tomt notat");
         this.fagsakId = fagsakId;
         this.notat = notat;
     }
@@ -65,10 +65,12 @@ public class FagsakNotat extends BaseCreateableEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof FagsakNotat that))
+        }
+        if (!(o instanceof FagsakNotat that)) {
             return false;
+        }
         return fagsakId.equals(that.fagsakId) && Objects.equals(notat, that.notat);
     }
 

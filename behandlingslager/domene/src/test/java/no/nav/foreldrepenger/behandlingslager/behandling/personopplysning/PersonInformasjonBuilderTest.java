@@ -83,17 +83,18 @@ class PersonInformasjonBuilderTest {
 
     }
 
-    private PersonInformasjonBuilder.RelasjonBuilder lagRelasjon(AktørId fra, AktørId til, RelasjonsRolleType type,
-            PersonInformasjonBuilder informasjonBuilder) {
+    private PersonInformasjonBuilder.RelasjonBuilder lagRelasjon(AktørId fra,
+                                                                 AktørId til,
+                                                                 RelasjonsRolleType type,
+                                                                 PersonInformasjonBuilder informasjonBuilder) {
         return informasjonBuilder.getRelasjonBuilder(fra, til, type);
     }
 
     private PersonInformasjonBuilder.PersonopplysningBuilder lagPersonopplysning(AktørId aktørId, PersonInformasjonBuilder informasjonBuilder) {
-        return informasjonBuilder
-                .getPersonopplysningBuilder(aktørId)
-                .medSivilstand(SivilstandType.GIFT)
-                .medNavn("Richard Feynman")
-                .medFødselsdato(LocalDate.now())
-                .medKjønn(NavBrukerKjønn.KVINNE);
+        return informasjonBuilder.getPersonopplysningBuilder(aktørId)
+            .medSivilstand(SivilstandType.GIFT)
+            .medNavn("Richard Feynman")
+            .medFødselsdato(LocalDate.now())
+            .medKjønn(NavBrukerKjønn.KVINNE);
     }
 }

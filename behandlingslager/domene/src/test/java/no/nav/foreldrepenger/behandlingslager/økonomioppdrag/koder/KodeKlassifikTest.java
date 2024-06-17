@@ -18,10 +18,7 @@ class KodeKlassifikTest {
 
     @Test
     void fraKode_nok() {
-        Exception thrown = assertThrows(
-            IllegalArgumentException.class,
-            () -> KodeKlassifik.fraKode("UKJENT_KODE")
-        );
+        Exception thrown = assertThrows(IllegalArgumentException.class, () -> KodeKlassifik.fraKode("UKJENT_KODE"));
 
         assertTrue(thrown.getMessage().contains("Ukjent KodeKlassifik"));
     }

@@ -24,10 +24,7 @@ class UtbetalingsgradTest {
 
     @Test
     void skal_feile_hvis_utbetalingsgrad_er_null() {
-        Exception thrown = assertThrows(
-            NullPointerException.class,
-            () -> Utbetalingsgrad.prosent(null)
-        );
+        Exception thrown = assertThrows(NullPointerException.class, () -> Utbetalingsgrad.prosent(null));
 
         assertTrue(thrown.getMessage().contains("utbetalingsgrad"));
     }

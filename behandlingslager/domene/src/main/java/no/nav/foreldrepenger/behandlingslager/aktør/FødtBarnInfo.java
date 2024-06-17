@@ -13,10 +13,7 @@ public record FødtBarnInfo(PersonIdent ident, LocalDate fødselsdato, LocalDate
 
     @Override
     public String toString() {
-        return "FødtBarnInfo{" +
-            "fødselsdato=" + fødselsdato +
-            ", dødsdato=" + dødsdato +
-            '}';
+        return "FødtBarnInfo{" + "fødselsdato=" + fødselsdato + ", dødsdato=" + dødsdato + '}';
     }
 
     public static class Builder {

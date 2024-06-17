@@ -80,7 +80,8 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var fagsak1 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var aktørId1 = fagsak1.getAktørId();
         var fagsak2 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
-        @SuppressWarnings("unused") var fagsakAnnenAktør = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER);
+        @SuppressWarnings("unused") var fagsakAnnenAktør = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(
+            FagsakYtelseType.FORELDREPENGER);
 
         var resultat = pipRepository.fagsakIderForSøker(Collections.singleton(aktørId1));
 
@@ -115,7 +116,8 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var resultat1 = PipRepository.harAksjonspunktTypeOverstyring(Collections.singletonList(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING));
         assertThat(resultat1).isTrue();
 
-        var resultat2 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));
+        var resultat2 = PipRepository.harAksjonspunktTypeOverstyring(
+            List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));
         assertThat(resultat2).isTrue();
 
         var resultat3 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));

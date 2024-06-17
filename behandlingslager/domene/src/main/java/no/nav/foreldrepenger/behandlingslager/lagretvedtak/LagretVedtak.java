@@ -53,6 +53,7 @@ public class LagretVedtak extends BaseEntitet {
     public String getXmlClob() {
         return xmlClob;
     }
+
     public void setXmlClob(String xmlClob) {
         this.xmlClob = xmlClob;
     }
@@ -65,9 +66,8 @@ public class LagretVedtak extends BaseEntitet {
         if (!(object instanceof LagretVedtak lagretVedtak)) {
             return false;
         }
-        return Objects.equals(fagsakId, lagretVedtak.getFagsakId())
-            && Objects.equals(behandlingId, lagretVedtak.getBehandlingId())
-            && Objects.equals(xmlClob, lagretVedtak.getXmlClob());
+        return Objects.equals(fagsakId, lagretVedtak.getFagsakId()) && Objects.equals(behandlingId, lagretVedtak.getBehandlingId()) && Objects.equals(
+            xmlClob, lagretVedtak.getXmlClob());
     }
 
     @Override

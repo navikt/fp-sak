@@ -50,6 +50,7 @@ public enum OppholdÅrsak implements Årsak {
         }
         return ad;
     }
+
     public static Map<String, OppholdÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

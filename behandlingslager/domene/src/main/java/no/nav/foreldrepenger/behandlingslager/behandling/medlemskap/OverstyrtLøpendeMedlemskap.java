@@ -19,12 +19,12 @@ public class OverstyrtLøpendeMedlemskap {
     private LocalDate overstyringsdato;
 
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
-    @Column(name="overstyrt_utfall", nullable = false)
+    @Column(name = "overstyrt_utfall", nullable = false)
     private VilkårUtfallType vilkårUtfall = VilkårUtfallType.UDEFINERT;
 
     @ChangeTracked
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
-    @Column(name="avslagsarsak", nullable = false)
+    @Column(name = "avslagsarsak", nullable = false)
     private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
 
     OverstyrtLøpendeMedlemskap() {

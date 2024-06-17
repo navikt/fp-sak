@@ -25,7 +25,7 @@ public class NavBruker extends Person {
     private long versjon;
 
     @Convert(converter = Språkkode.KodeverdiConverter.class)
-    @Column(name="sprak_kode", nullable = false)
+    @Column(name = "sprak_kode", nullable = false)
     private Språkkode språkkode = Språkkode.NB;
 
     NavBruker() {
