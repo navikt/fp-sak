@@ -14,10 +14,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpinntektsmelding.url", endpointDefault = "https://ftinntektsmelding.intern.dev.nav.no/ftinntektsmelding",
-    scopesProperty = "fpinntektsmelding.scopes", scopesDefault = "api://dev-gcp.teamforeldrepenger.ftinntektsmelding/.default", application = FpApplication.FPINNTEKTSMELDING)
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
 public class FpinntektsmeldingKlient {
-    private static final String FP_INNTEKSTMELDING_OPPRETT_FORESPORSEL = "/api/foresporsel/opprett";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -26,7 +24,7 @@ public class FpinntektsmeldingKlient {
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
-        this.uriOpprettForesporsel = UriBuilder.fromUri(restConfig.fpContextPath()).path(FP_INNTEKSTMELDING_OPPRETT_FORESPORSEL).build();
+        this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
     }
 
     public void opprettForespørsel(OpprettForespørselRequest request) {
@@ -38,5 +36,14 @@ public class FpinntektsmeldingKlient {
             throw new IllegalStateException("Klarte ikke opprette forespørsel om inntektsmelding", e);
         }
     }
+
+    private URI toUri(URI endpointURI, String path) {
+        try {
+            return UriBuilder.fromUri(endpointURI).path(path).build();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
+        }
+    }
+
 }
 
