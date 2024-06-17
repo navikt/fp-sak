@@ -188,7 +188,7 @@ public class PersoninfoTjeneste {
         query.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
                 .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
@@ -345,12 +345,13 @@ public class PersoninfoTjeneste {
         return builder.build();
     }
 
-    private static String mapNavn(Navn navn) {
-        if (navn.getForkortetNavn() != null)
-            return navn.getForkortetNavn();
-        return navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn());
+    static String mapNavn(Navn navn) {
+        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
     }
 
+    private static String leftPad(String navn) {
+        return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
+    }
     private static NavBrukerKjønn mapKjønn(Person person) {
         var kode = person.getKjoenn().stream()
                 .map(Kjoenn::getKjoenn)

@@ -29,7 +29,6 @@ import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
 import no.nav.pdl.KjoennType;
-import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
@@ -54,7 +53,7 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
@@ -66,7 +65,7 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
                 .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .kjoenn(new KjoennResponseProjection().kjoenn())
@@ -91,7 +90,7 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
                 .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
@@ -102,7 +101,7 @@ public class PersonBasisTjeneste {
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
 
         var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
                 .medFødselsdato(fødselsdato)
                 .build();
 
@@ -135,15 +134,9 @@ public class PersonBasisTjeneste {
 
     private String mapNavn(Person person) {
         return person.getNavn().stream()
-            .map(PersonBasisTjeneste::mapNavn)
+            .map(PersoninfoTjeneste::mapNavn)
             .filter(Objects::nonNull)
             .findFirst().orElseGet(() -> IS_PROD ? null : "Navnløs i Folkeregister");
-    }
-
-    private static String mapNavn(Navn navn) {
-        if (navn.getForkortetNavn() != null)
-            return navn.getForkortetNavn();
-        return navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn());
     }
 
     private static NavBrukerKjønn mapKjønn(Person person) {
