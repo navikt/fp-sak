@@ -116,6 +116,16 @@ public class TestEventObserver {
         }
     }
 
+    public static void containsExactly(BehandlingStatusEvent... bse) {
+        List<BehandlingStatusEvent> behandlingStatusEvents = getEvents(BehandlingStatusEvent.class);
+        assertThat(behandlingStatusEvents).hasSize(bse.length);
+        for (var i = 0; i < bse.length; i++) {
+            var minEvent = bse[i];
+            assertThat(behandlingStatusEvents.get(i).getNyStatus()).as("%s:%s", i, minEvent.getNyStatus())
+                .isEqualTo(minEvent.getNyStatus());
+        }
+    }
+
     private static String hentKode(Optional<BehandlingStegTilstandSnapshot> behandlingStegTilstand) {
         return behandlingStegTilstand
                 .map(BehandlingStegTilstandSnapshot::getStatus)

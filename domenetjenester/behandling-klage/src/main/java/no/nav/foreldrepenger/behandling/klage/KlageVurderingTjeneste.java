@@ -7,13 +7,14 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
@@ -26,9 +27,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
@@ -41,7 +42,7 @@ public class KlageVurderingTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRelasjonEventPubliserer relasjonEventPubliserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
@@ -51,7 +52,7 @@ public class KlageVurderingTjeneste {
                                   KlageRepository klageRepository,
                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                   BehandlingsresultatRepository behandlingsresultatRepository,
-                                  BehandlingRelasjonEventPubliserer relasjonEventPubliserer) {
+                                  BehandlingEventPubliserer behandlingEventPubliserer) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
@@ -59,7 +60,7 @@ public class KlageVurderingTjeneste {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.relasjonEventPubliserer = relasjonEventPubliserer;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     KlageVurderingTjeneste() {
@@ -90,7 +91,7 @@ public class KlageVurderingTjeneste {
     public void oppdaterKlageMedPåklagetBehandling(Behandling klageBehandling, UUID påklagetBehandlingUuid) {
         var påklagetBehandlingId = getPåklagetBehandlingId(påklagetBehandlingUuid);
         klageRepository.settPåklagdBehandlingId(klageBehandling.getId(), påklagetBehandlingId.orElse(null));
-        relasjonEventPubliserer.fireEvent(klageBehandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingRelasjonEvent(klageBehandling));
     }
 
     public void oppdaterKlageMedKabalReferanse(Long klageBehandlingId, String ref) {

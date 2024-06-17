@@ -1,55 +1,44 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 
 /** For å få tak i riktig status konfigurasjon. */
 public class BehandlingStegKonfigurasjon {
 
-    private List<BehandlingStegStatus> statuser;
-
-    public BehandlingStegKonfigurasjon(Collection<BehandlingStegStatus> list) {
-        this.statuser = new ArrayList<>(list);
+    private BehandlingStegKonfigurasjon() {
     }
 
-    public BehandlingStegStatus getStartet() {
-        return mapTilStatusEntitet(BehandlingStegStatus.STARTET);
+    public static BehandlingStegStatus getStartet() {
+        return BehandlingStegStatus.STARTET;
     }
 
-    public BehandlingStegStatus getInngang() {
-        return mapTilStatusEntitet(BehandlingStegStatus.INNGANG);
+    public static BehandlingStegStatus getInngang() {
+        return BehandlingStegStatus.INNGANG;
     }
 
-    public BehandlingStegStatus getVenter() {
-        return mapTilStatusEntitet(BehandlingStegStatus.VENTER);
+    public static BehandlingStegStatus getVenter() {
+        return BehandlingStegStatus.VENTER;
     }
 
-    public BehandlingStegStatus getUtgang() {
-        return mapTilStatusEntitet(BehandlingStegStatus.UTGANG);
+    public static BehandlingStegStatus getUtgang() {
+        return BehandlingStegStatus.UTGANG;
     }
 
-    public BehandlingStegStatus getAvbrutt() {
-        return mapTilStatusEntitet(BehandlingStegStatus.AVBRUTT);
+    public static BehandlingStegStatus getAvbrutt() {
+        return BehandlingStegStatus.AVBRUTT;
     }
 
-    public BehandlingStegStatus getUtført() {
-        return mapTilStatusEntitet(BehandlingStegStatus.UTFØRT);
+    public static BehandlingStegStatus getUtført() {
+        return BehandlingStegStatus.UTFØRT;
     }
 
-    public BehandlingStegStatus getTilbakeført() {
-        return mapTilStatusEntitet(BehandlingStegStatus.TILBAKEFØRT);
+    public static BehandlingStegStatus getTilbakeført() {
+        return BehandlingStegStatus.TILBAKEFØRT;
     }
 
-    public BehandlingStegStatus mapTilStatus(BehandlingStegResultat stegResultat) {
-        var status = BehandlingStegResultat.mapTilStatus(stegResultat);
-        return mapTilStatusEntitet(status);
-    }
+    public static BehandlingStegStatus mapTilStatus(BehandlingStegResultat stegResultat) {
+        return BehandlingStegResultat.mapTilStatus(stegResultat);
 
-    private BehandlingStegStatus mapTilStatusEntitet(BehandlingStegStatus status) {
-        return statuser.get(statuser.indexOf(status));
     }
 
 }

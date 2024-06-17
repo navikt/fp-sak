@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -39,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +49,7 @@ class AvsluttBehandlingTest {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Mock
-    private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
+    private BehandlingEventPubliserer behandlingVedtakEventPubliserer;
 
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;

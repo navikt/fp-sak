@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
@@ -143,17 +142,12 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                 behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
             }
         });
-        behandling.setAnsvarligSaksbehandler(getCurrentUserId());
     }
 
     private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat,
                                                Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return !BehandlingType.KLAGE.equals(behandling.getType()) && !behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
             && behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null;
-    }
-
-    protected String getCurrentUserId() {
-        return KontekstHolder.getKontekst().getUid();
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, boolean toTrinn) {

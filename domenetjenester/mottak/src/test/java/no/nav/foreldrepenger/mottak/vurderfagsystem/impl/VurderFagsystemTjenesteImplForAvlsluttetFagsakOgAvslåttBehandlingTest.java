@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,7 +34,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
-import no.nav.foreldrepenger.mottak.publiserer.MottattDokumentPersistertPubliserer;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
@@ -56,7 +56,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
     public void setUp() {
         behandlingRepository = new BehandlingRepository(getEntityManager());
         var mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        var mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
+        var mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(BehandlingEventPubliserer.class));
 
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,

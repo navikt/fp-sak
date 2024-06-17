@@ -5,6 +5,7 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -14,15 +15,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 @BehandlingStegRef(BehandlingStegType.IVERKSETT_VEDTAK)
 @BehandlingTypeRef(BehandlingType.INNSYN) // Innsyn
@@ -32,7 +33,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
-    private BehandlingVedtakEventPubliserer eventPubliserer;
+    private BehandlingEventPubliserer eventPubliserer;
 
     public IverksetteInnsynVedtakStegFelles() {
         // for CDI proxy
@@ -41,7 +42,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     @Inject
     protected IverksetteInnsynVedtakStegFelles(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                                BehandlingRepositoryProvider repositoryProvider,
-                                               BehandlingVedtakEventPubliserer eventPubliserer) {
+                                               BehandlingEventPubliserer eventPubliserer) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
@@ -59,7 +60,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         if (vedtak != null) {
             vedtak.setIverksettingStatus(IverksettingStatus.IVERKSATT);
             vedtakRepository.lagre(vedtak, kontekst.getSkriveLås());
-            eventPubliserer.fireEvent(vedtak, behandling);
+            eventPubliserer.publiserBehandlingEvent(new BehandlingVedtakEvent(vedtak, behandling));
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

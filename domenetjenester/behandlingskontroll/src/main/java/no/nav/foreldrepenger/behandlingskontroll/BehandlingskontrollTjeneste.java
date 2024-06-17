@@ -219,8 +219,6 @@ public interface BehandlingskontrollTjeneste {
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
 
-    BehandlingStegKonfigurasjon getBehandlingStegKonfigurasjon();
-
     Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså);
 
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);

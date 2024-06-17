@@ -98,32 +98,6 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void bekreft_foreslå_vedtak_aksjonspkt_setter_ansvarlig_saksbehandler() {
-        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.medSøknadHendelse().medFødselsDato(now);
-        var behandling = scenario.lagre(repositoryProvider);
-        var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
-        var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
-                vedtakTjeneste,
-                behandlingDokumentRepository) {
-            @Override
-            protected String getCurrentUserId() {
-                // return test verdi
-                return ANSVARLIG_SAKSBEHANLDER;
-            }
-        };
-
-        // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
-
-        // Assert
-        assertThat(behandling.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANLDER);
-    }
-
-    @Test
     void bekreft_foreslå_vedtak_aksjonspunkt_lagrer_begrunnelse_og_overstyrende_fritekst_i_behandling_dokument() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();

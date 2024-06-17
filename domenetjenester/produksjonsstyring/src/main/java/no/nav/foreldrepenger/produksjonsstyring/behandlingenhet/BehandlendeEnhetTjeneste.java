@@ -11,9 +11,11 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -33,13 +35,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 
 @ApplicationScoped
 public class BehandlendeEnhetTjeneste {
 
     private EnhetsTjeneste enhetsTjeneste;
-    private BehandlingEnhetEventPubliserer eventPubliserer;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -53,12 +54,12 @@ public class BehandlendeEnhetTjeneste {
 
     @Inject
     public BehandlendeEnhetTjeneste(EnhetsTjeneste enhetsTjeneste,
-                                    BehandlingEnhetEventPubliserer eventPubliserer,
+                                    BehandlingEventPubliserer behandlingEventPubliserer,
                                     BehandlingRepositoryProvider provider,
                                     FagsakEgenskapRepository fagsakEgenskapRepository,
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.enhetsTjeneste = enhetsTjeneste;
-        this.eventPubliserer = eventPubliserer;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.personopplysningRepository = provider.getPersonopplysningRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = provider.getFagsakRepository();
@@ -209,7 +210,7 @@ public class BehandlendeEnhetTjeneste {
         behandling.setBehandlendeEnhetÅrsak(begrunnelse);
 
         behandlingRepository.lagre(behandling, lås);
-        eventPubliserer.fireEvent(behandling);
+        behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingEnhetEvent(behandling));
     }
 
     private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, String begrunnelse, HistorikkAktør aktør) {
