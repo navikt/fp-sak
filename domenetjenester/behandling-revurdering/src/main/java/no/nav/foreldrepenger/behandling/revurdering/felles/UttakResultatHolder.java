@@ -29,5 +29,9 @@ public interface UttakResultatHolder {
 
     boolean harUlikUttaksplan(UttakResultatHolder other);
 
+    default boolean harUlikKontoEllerMinsterett(UttakResultatHolder other) {
+        return false;
+    }
+
     Optional<BehandlingVedtak> getBehandlingVedtak();
 }

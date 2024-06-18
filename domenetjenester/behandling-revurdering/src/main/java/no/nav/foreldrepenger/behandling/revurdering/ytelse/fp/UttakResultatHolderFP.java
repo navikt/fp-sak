@@ -16,6 +16,7 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -89,6 +90,27 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         }
         var kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return !kombinert.filterValue(Objects::nonNull).getLocalDateIntervals().isEmpty();
+    }
+
+    @Override
+    public boolean harUlikKontoEllerMinsterett(UttakResultatHolder other) {
+        var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
+        return !Objects.equals(getKontoDager(this), getKontoDager(uttakresultatSammenligneMed)) ||
+            !Objects.equals(getMinsterettDager(this), getMinsterettDager(uttakresultatSammenligneMed));
+    }
+
+    private Integer getKontoDager(UttakResultatHolderFP uttakResultatHolder) {
+        return uttakResultatHolder.uttakresultat.map(ForeldrepengerUttak::getStønadskontoBeregning)
+            .map(u -> u.getOrDefault(StønadskontoType.FORELDREPENGER, 0) + u.getOrDefault(StønadskontoType.FELLESPERIODE, 0))
+            .orElse(0);
+    }
+
+    private Integer getMinsterettDager(UttakResultatHolderFP uttakResultatHolder) {
+        return uttakResultatHolder.uttakresultat.map(ForeldrepengerUttak::getStønadskontoBeregning)
+            .map(u -> u.getOrDefault(StønadskontoType.BARE_FAR_RETT, 0) +
+                u.getOrDefault(StønadskontoType.TETTE_SAKER_MOR, 0) +
+                u.getOrDefault(StønadskontoType.TETTE_SAKER_FAR, 0))
+            .orElse(0);
     }
 
     @Override

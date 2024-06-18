@@ -139,8 +139,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                 Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
         }
 
-        var erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(
-            uttakresultatRevurderingOpt);
+        var erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(uttakresultatRevurderingOpt) ||
+            uttakresultatOriginalOpt.harUlikKontoEllerMinsterett(uttakresultatRevurderingOpt);
         if (erEndringIUttakFraEndringstidspunkt
             && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
