@@ -242,7 +242,7 @@ public class LosBehandlingDtoTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             var uttakEllerSkjæringstidspunkt = finnUttakEllerUtledetSkjæringstidspunkt(behandling);
             return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt);
-        } else if (behandling.erRevurdering()){ // Revudering SVP eller FP
+        } else { // Revudering SVP eller FP
             var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
                 finnEndringsdatoForeldrepengerRevurdering(behandling, aggregat) : finnEndringsdatoSvangerskapspengerRevurdering(behandling);
             var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
