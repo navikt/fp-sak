@@ -8,7 +8,9 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,7 +51,7 @@ public abstract class BeregnFeriepengerTjeneste {
     }
 
 
-    public void beregnFeriepenger(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
+    public BeregningsresultatFeriepenger beregnFeriepenger(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
 
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
@@ -64,15 +66,15 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+        return MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(resultat);
     }
 
     public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref) {
-        return beregningsresultatRepository.hentUtbetBeregningsresultat(ref.behandlingId())
+        return beregningsresultatRepository.hentBeregningsresultatAggregat(ref.behandlingId())
             .map(br -> avvikBeregnetFeriepengerBeregningsresultat(ref, br)).orElse(false);
     }
 
-    public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
+    public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref, BehandlingBeregningsresultatEntitet beregningsresultat) {
 
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
@@ -82,12 +84,12 @@ public abstract class BeregnFeriepengerTjeneste {
             annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
         var gjeldendeDekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
 
-        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
+        var grunnlag = mapFra(ref, beregningsresultat.getGjeldendeBeregningsresultat(), annenPartsBeregningsresultat, gjeldendeDekningsgrad,
+            arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat.getGjeldendeBeregningsresultat()));
 
         var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
-        return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, resultat.resultat());
+        return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat.getGjeldendeFeriepenger(), resultat.resultat());
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(BehandlingReferanse ref) {

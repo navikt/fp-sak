@@ -42,10 +42,6 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     @JoinColumn(name = "br_feriepenger_id", nullable = false, updatable = false)
     private BeregningsresultatFeriepenger beregningsresultatFeriepenger;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "beregningsresultat_andel_id")
-    private BeregningsresultatAndel beregningsresultatAndel;
-
     @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
     @Column(name="aktivitet_status")
     private AktivitetStatus aktivitetStatus;
@@ -77,10 +73,6 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
 
     public BeregningsresultatFeriepenger getBeregningsresultatFeriepenger() {
         return beregningsresultatFeriepenger;
-    }
-
-    public BeregningsresultatAndel getBeregningsresultatAndel() {
-        return beregningsresultatAndel;
     }
 
     public AktivitetStatus getAktivitetStatus() {
@@ -168,6 +160,26 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
             beregningsresultatFeriepengerPrÅrMal = new BeregningsresultatFeriepengerPrÅr();
         }
 
+        public Builder medAktivitetStatus(AktivitetStatus aktivitetStatus) {
+            beregningsresultatFeriepengerPrÅrMal.aktivitetStatus = aktivitetStatus;
+            return this;
+        }
+
+        public Builder medBrukerErMottaker(boolean brukerErMottaker) {
+            beregningsresultatFeriepengerPrÅrMal.brukerErMottaker = brukerErMottaker;
+            return this;
+        }
+
+        public Builder medArbeidsgiver(Arbeidsgiver arbeidsgiver) {
+            beregningsresultatFeriepengerPrÅrMal.arbeidsgiver = arbeidsgiver;
+            return this;
+        }
+
+        public Builder medArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
+            beregningsresultatFeriepengerPrÅrMal.arbeidsforholdRef = arbeidsforholdRef;
+            return this;
+        }
+
         public Builder medOpptjeningsår(int opptjeningsår) {
             beregningsresultatFeriepengerPrÅrMal.opptjeningsår = LocalDate.of(opptjeningsår, 12, 31);
             return this;
@@ -188,22 +200,15 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
             return this;
         }
 
-        public BeregningsresultatFeriepengerPrÅr build(BeregningsresultatFeriepenger beregningsresultatFeriepenger, BeregningsresultatAndel beregningsresultatAndel) {
+        public BeregningsresultatFeriepengerPrÅr build(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
             beregningsresultatFeriepengerPrÅrMal.beregningsresultatFeriepenger = beregningsresultatFeriepenger;
             BeregningsresultatFeriepenger.builder(beregningsresultatFeriepenger).leggTilBeregningsresultatFeriepengerPrÅr(beregningsresultatFeriepengerPrÅrMal);
-            beregningsresultatFeriepengerPrÅrMal.beregningsresultatAndel = beregningsresultatAndel;
-            beregningsresultatFeriepengerPrÅrMal.brukerErMottaker = beregningsresultatAndel.erBrukerMottaker();
-            beregningsresultatFeriepengerPrÅrMal.aktivitetStatus = beregningsresultatAndel.getAktivitetStatus();
-            beregningsresultatAndel.getArbeidsgiver().ifPresent(a -> beregningsresultatFeriepengerPrÅrMal.arbeidsgiver = a);
-            beregningsresultatFeriepengerPrÅrMal.arbeidsforholdRef = beregningsresultatAndel.getArbeidsforholdRef();
-            BeregningsresultatAndel.builder(beregningsresultatAndel).leggTilBeregningsresultatFeriepengerPrÅr(beregningsresultatFeriepengerPrÅrMal);
             verifyStateForBuild();
             return beregningsresultatFeriepengerPrÅrMal;
         }
 
         public void verifyStateForBuild() {
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.beregningsresultatFeriepenger, "beregningsresultatFeriepenger");
-            Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.beregningsresultatAndel, "beregningsresultatAndel");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.brukerErMottaker, "brukerErMottaker");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.opptjeningsår, "opptjeningsår");

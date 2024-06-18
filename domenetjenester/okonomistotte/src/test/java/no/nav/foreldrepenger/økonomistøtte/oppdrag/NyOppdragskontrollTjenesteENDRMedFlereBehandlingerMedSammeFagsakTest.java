@@ -545,7 +545,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var b1Andel = buildBeregningsresultatAndel(b1Periode_1, true, 500, utbetalingsgrad, virksomhet);
         var b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_1, 9, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, utbetalingsgrad, virksomhet);
-        var b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
+        var b1_feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
 
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -561,7 +561,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var b2Andel = buildBeregningsresultatAndel(b2Periode_1, true, 500, utbetalingsgrad, virksomhet);
         var b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 9, 16);
         buildBeregningsresultatAndel(b2Periode_2, true, 1000, utbetalingsgrad, virksomhet);
-        var b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFørsteRevurderingFP);
+        var b2_feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
 
         var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatFørsteRevurderingFP);
@@ -577,7 +577,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var b3Andel = buildBeregningsresultatAndel(b3Periode_1, true, 600, utbetalingsgrad, virksomhet);
         var b3Periode_2 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 9, 12);
         buildBeregningsresultatAndel(b3Periode_2, true, 900, utbetalingsgrad, virksomhet);
-        var b3_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatAndreRevurderingFP);
+        var b3_feriepenger = buildBeregningsresultatFeriepenger();
         buildBeregningsresultatFeriepengerPrÅr(b3_feriepenger, b3Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
 
         var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatAndreRevurderingFP);

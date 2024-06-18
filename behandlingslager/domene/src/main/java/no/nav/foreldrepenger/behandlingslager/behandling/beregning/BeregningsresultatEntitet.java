@@ -3,11 +3,8 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,12 +34,6 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultat", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsresultatPeriode> beregningsresultatPerioder = new ArrayList<>();
-
-    /**
-     * Er egentlig OneToOne, men må mappes slik da JPA/Hibernate ikke støtter OneToOne på annet enn shared PK.
-     */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultat", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private Set<BeregningsresultatFeriepenger> beregningsresultatFeriepenger = new HashSet<>(1);
 
     @Lob
     @Column(name = "regel_input", nullable = false)
@@ -76,13 +67,6 @@ public class BeregningsresultatEntitet extends BaseEntitet {
         if (!beregningsresultatPerioder.contains(brPeriode)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             beregningsresultatPerioder.add(brPeriode);
         }
-    }
-
-    public Optional<BeregningsresultatFeriepenger> getBeregningsresultatFeriepenger() {
-        if (this.beregningsresultatFeriepenger.size() > 1) {
-            throw new IllegalStateException("Utviklerfeil: Det finnes flere BeregningsresultatFeriepenger");
-        }
-        return beregningsresultatFeriepenger.isEmpty() ? Optional.empty() : Optional.of(beregningsresultatFeriepenger.iterator().next());
     }
 
     @Override
@@ -127,12 +111,6 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
         public Builder medRegelSporing(String regelSporing){
             beregningsresultatFPMal.regelSporing = regelSporing;
-            return this;
-        }
-
-        public Builder medBeregningsresultatFeriepenger(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
-            beregningsresultatFPMal.beregningsresultatFeriepenger.clear();
-            beregningsresultatFPMal.beregningsresultatFeriepenger.add(beregningsresultatFeriepenger);
             return this;
         }
 

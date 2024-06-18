@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -82,11 +83,17 @@ class LagOppdragTjenesteTest {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
-        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
-        BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger, andel);
+        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build();
+        BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel.getAktivitetStatus()).medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsgiver(andel.getArbeidsgiver().orElse(null)).medArbeidsforholdRef(andel.getArbeidsforholdRef())
+            .medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger);
+
+        var grunnlag = BehandlingBeregningsresultatBuilder.ny().medBgBeregningsresultatFP(tilkjentYtelse)
+            .medBeregningsresultatFeriepenger(feriepenger).build(1L);
 
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
+        var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(grunnlag);
 
         var input = lagInput(FagsakYtelseType.FORELDREPENGER, gruppertYtelse);
         //act

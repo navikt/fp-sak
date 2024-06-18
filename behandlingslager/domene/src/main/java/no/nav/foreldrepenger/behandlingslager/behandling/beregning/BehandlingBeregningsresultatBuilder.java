@@ -23,6 +23,10 @@ public class BehandlingBeregningsresultatBuilder {
         return kladd.map(BehandlingBeregningsresultatBuilder::oppdatere).orElseGet(BehandlingBeregningsresultatBuilder::nytt);
     }
 
+    public static BehandlingBeregningsresultatBuilder ny() {
+        return nytt();
+    }
+
     public BehandlingBeregningsresultatBuilder medBgBeregningsresultatFP(BeregningsresultatEntitet beregningsresultat) {
         kladd.setBgBeregningsresultatFP(beregningsresultat);
         return this;

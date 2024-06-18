@@ -84,13 +84,14 @@ class BeregningsresultatRepositoryTest {
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
-        beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBeregningsresultatFP);
+        beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBeregningsresultatFP, null);
 
         // Assert
         var brKoblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(
             behandling.getId());
         assertThat(brKoblingOpt).hasValueSatisfying(
-            brKobling -> assertThat(brKobling.getUtbetBeregningsresultatFP()).isSameAs(utbetBeregningsresultatFP));
+            brKobling -> assertThat(brKobling.getUtbetBeregningsresultatFP())
+                .hasValueSatisfying(utbet -> assertThat(utbet).isSameAs(utbetBeregningsresultatFP)));
     }
 
     @Test
@@ -122,7 +123,7 @@ class BeregningsresultatRepositoryTest {
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
-        beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBeregningsresultatFP);
+        beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBeregningsresultatFP, null);
 
         // Assert
         var id = utbetBeregningsresultatFP.getId();
@@ -228,32 +229,35 @@ class BeregningsresultatRepositoryTest {
             .medFeriepengerPeriodeTom(LocalDate.now())
             .medFeriepengerRegelInput("-")
             .medFeriepengerRegelSporing("-")
-            .build(beregningsresultat);
+            .build();
 
         var andel = beregningsresultat.getBeregningsresultatPerioder()
             .get(0)
             .getBeregningsresultatAndelList()
             .get(0);
         BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel.getAktivitetStatus())
+            .medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsgiver(andel.getArbeidsgiver().orElse(null))
+            .medArbeidsforholdRef(andel.getArbeidsforholdRef())
             .medOpptjeningsår(LocalDate.now().withMonth(12).withDayOfMonth(31))
             .medÅrsbeløp(300L)
-            .build(feriepenger, andel);
+            .build(feriepenger);
 
         // Act
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        beregningsresultatRepository.lagre(behandling, beregningsresultat, feriepenger);
 
         // Assert
-        var hentetResultat = entityManager.find(BeregningsresultatEntitet.class,
-            beregningsresultat.getId());
+        var hentetResultat = beregningsresultatRepository.hentFeriepenger(behandling.getId());
         assertThat(hentetResultat).isNotNull();
-        assertThat(hentetResultat.getBeregningsresultatFeriepenger()).isPresent();
-        assertThat(hentetResultat.getBeregningsresultatFeriepenger()).hasValueSatisfying(this::assertFeriepenger);
+        assertThat(hentetResultat).isPresent();
+        assertThat(hentetResultat).hasValueSatisfying(this::assertFeriepenger);
     }
 
     private void assertFeriepenger(BeregningsresultatFeriepenger hentetFeriepenger) {
         var prÅrListe = hentetFeriepenger.getBeregningsresultatFeriepengerPrÅrListe();
-        assertThat(prÅrListe).hasOnlyOneElementSatisfying(beregningsresultatFeriepengerPrÅr -> {
-            assertThat(beregningsresultatFeriepengerPrÅr.getBeregningsresultatAndel()).isNotNull();
+        assertThat(prÅrListe).satisfiesOnlyOnce(beregningsresultatFeriepengerPrÅr -> {
+            assertThat(beregningsresultatFeriepengerPrÅr.getAktivitetStatus()).isNotNull();
             assertThat(beregningsresultatFeriepengerPrÅr.getOpptjeningsår()).isNotNull();
             assertThat(beregningsresultatFeriepengerPrÅr.getÅrsbeløp()).isNotNull();
         });

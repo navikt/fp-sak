@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
@@ -51,10 +52,6 @@ public class BeregnYtelseTjeneste {
         // Kalle regeltjeneste
         var beregningsresultat = FastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
 
-        // Beregn feriepenger
-        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, referanse.fagsakYtelseType()).orElseThrow();
-        feriepengerTjeneste.beregnFeriepenger(referanse, beregningsresultat);
-
         // Verifiser beregningsresultat
         try {
             BeregningsresultatOutputVerifiserer.verifiserOutput(beregningsresultat);
@@ -64,6 +61,13 @@ public class BeregnYtelseTjeneste {
         }
 
         return beregningsresultat;
+    }
+
+    public BeregningsresultatFeriepenger beregnFeriepenger(BehandlingReferanse referanse, BeregningsresultatEntitet beregningsresultat) {
+        // Map til regelmodell
+        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, referanse.fagsakYtelseType()).orElseThrow();
+        var feriepenger = feriepengerTjeneste.beregnFeriepenger(referanse, beregningsresultat);
+        return feriepenger;
     }
 
     private void log(BeregningsresultatGrunnlag grunnlag) {

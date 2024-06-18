@@ -3,11 +3,9 @@ package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class BeregnFeriepengerForPeriode {
@@ -16,8 +14,8 @@ class BeregnFeriepengerForPeriode {
     private BeregnFeriepengerForPeriode() {
     }
 
-    static void beregn(Map<String, Object> resultater, List<BeregningsresultatPeriode> beregningsresultatPerioder, LocalDateInterval feriepengerPeriode) {
-        beregningsresultatPerioder.stream()
+    static void beregn(Map<String, Object> resultater, BeregningsresultatFeriepengerRegelModell regelModell, LocalDateInterval feriepengerPeriode) {
+        regelModell.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getPeriode().overlaps(feriepengerPeriode))
             .forEach(periode -> {
                 var overlapp = periode.getPeriode().overlap(feriepengerPeriode).get();
@@ -37,11 +35,12 @@ class BeregnFeriepengerForPeriode {
                         if (feriepengerAndelPrÅr.compareTo(BigDecimal.ZERO) == 0) {
                             return;
                         }
-                        andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder()
+                        regelModell.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder()
                             .medOpptjeningÅr(opptjeningÅr)
                             .medÅrsbeløp(feriepengerAndelPrÅr)
                             .medBrukerErMottaker(andel.erBrukerMottaker())
                             .medArbeidsforhold(andel.getArbeidsforhold())
+                            .medAktivitetStatus(andel.getAktivitetStatus())
                             .build());
 
                         //Regelsporing

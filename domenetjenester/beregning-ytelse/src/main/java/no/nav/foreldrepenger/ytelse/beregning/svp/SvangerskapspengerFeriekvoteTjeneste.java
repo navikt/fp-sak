@@ -63,7 +63,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
         // Finner behandlinger som gjelder samme svangerskap
         var behandlingerSomAngårSammeSvangerskap = finnBehandlingerSomGjelderSammeSvangerskap(gjeldendeVedtakForSVP, termindato);
         var annenTilkjentYtelsePåSammeSvangerskap = behandlingerSomAngårSammeSvangerskap.stream()
-            .map(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
+            .map(b -> beregningsresultatRepository.hentBeregningsresultatAggregat(b.getId()))
             .flatMap(Optional::stream)
             .toList();
         return svangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);

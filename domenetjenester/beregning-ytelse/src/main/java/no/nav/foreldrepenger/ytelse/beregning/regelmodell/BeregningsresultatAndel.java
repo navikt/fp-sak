@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
@@ -19,7 +17,6 @@ public class BeregningsresultatAndel {
     private Long dagsatsFraBg;
     private AktivitetStatus aktivitetStatus;
     private Inntektskategori inntektskategori;
-    private List<BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe = new ArrayList<>();
 
     private BeregningsresultatAndel() {
     }
@@ -53,17 +50,6 @@ public class BeregningsresultatAndel {
         return arbeidsforhold;
     }
 
-    public List<BeregningsresultatFeriepengerPrÅr> getBeregningsresultatFeriepengerPrÅrListe() {
-        return beregningsresultatFeriepengerPrÅrListe;
-    }
-
-    public void addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅr) {
-        Objects.requireNonNull(beregningsresultatFeriepengerPrÅr, "beregningsresultatFeriepengerPrÅr");
-        if (!beregningsresultatFeriepengerPrÅrListe.contains(beregningsresultatFeriepengerPrÅr)) {
-            beregningsresultatFeriepengerPrÅrListe.add(beregningsresultatFeriepengerPrÅr);
-        }
-    }
-
     public String getArbeidsgiverId() {
         return arbeidsforhold == null ? null : arbeidsforhold.identifikator();
     }
@@ -80,19 +66,6 @@ public class BeregningsresultatAndel {
             ", arbeidsforholdId=" + (arbeidsforhold != null ? arbeidsforhold.arbeidsforholdId() : null) +
             ", erBrukerMottaker=" + erBrukerMottaker() +
             '}';
-    }
-
-    public static BeregningsresultatAndel copyUtenFeriepenger(BeregningsresultatAndel andel) {
-        return BeregningsresultatAndel.builder()
-            .medAktivitetStatus(andel.aktivitetStatus)
-            .medArbeidsforhold(andel.arbeidsforhold)
-            .medBrukerErMottaker(andel.brukerErMottaker)
-            .medDagsats(andel.dagsats)
-            .medDagsatsFraBg(andel.dagsatsFraBg)
-            .medInntektskategori(andel.inntektskategori)
-            .medStillingsprosent(andel.stillingsprosent)
-            .medUtbetalingssgrad(andel.utbetalingsgrad)
-            .build();
     }
 
     public static Builder builder() {
