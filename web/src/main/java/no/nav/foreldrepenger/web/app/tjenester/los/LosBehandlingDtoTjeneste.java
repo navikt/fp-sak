@@ -16,6 +16,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -81,7 +82,7 @@ public class LosBehandlingDtoTjeneste {
                                     SvangerskapspengerRepository svangerskapspengerRepository,
                                     FagsakEgenskapRepository fagsakEgenskapRepository,
                                     UttakInputTjeneste uttakInputTjeneste,
-                                    EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
+                                    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
@@ -221,9 +222,12 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling, List<String> behandlingsegenskaper) {
+        if (!behandling.erYtelseBehandling()) {
+            return null;
+        }
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() &&
-            aggregat.filter(a -> a.harAleneomsorg()).isEmpty() &&
+            aggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isEmpty() &&
             aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
             behandlingsegenskaper.add(BehandlingEgenskap.BARE_FAR_RETT.name());
         }
@@ -238,11 +242,12 @@ public class LosBehandlingDtoTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             var uttakEllerSkjæringstidspunkt = finnUttakEllerUtledetSkjæringstidspunkt(behandling);
             return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt);
+        } else if (behandling.erRevurdering()){ // Revudering SVP eller FP
+            var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
+                finnEndringsdatoForeldrepengerRevurdering(behandling, aggregat) : finnEndringsdatoSvangerskapspengerRevurdering(behandling);
+            var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
+            return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak);
         }
-        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
-            finnEndringsdatoForeldrepenger(behandling, aggregat) : finnEndringsdatoSvangerskapspenger(behandling);
-        var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
-        return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak);
     }
 
     private LocalDate finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling) {
@@ -256,7 +261,7 @@ public class LosBehandlingDtoTjeneste {
         }
     }
 
-    private Optional<LocalDate> finnEndringsdatoForeldrepenger(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
+    private Optional<LocalDate> finnEndringsdatoForeldrepengerRevurdering(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
         try {
             return aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato)
                 .or(() -> Optional.ofNullable(endringsdatoRevurderingUtleder.utledEndringsdato(uttakInputTjeneste.lagInput(behandling))));
@@ -266,7 +271,7 @@ public class LosBehandlingDtoTjeneste {
 
     }
 
-    private Optional<LocalDate> finnEndringsdatoSvangerskapspenger(Behandling behandling) {
+    private Optional<LocalDate> finnEndringsdatoSvangerskapspengerRevurdering(Behandling behandling) {
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             return Optional.empty();
         }
