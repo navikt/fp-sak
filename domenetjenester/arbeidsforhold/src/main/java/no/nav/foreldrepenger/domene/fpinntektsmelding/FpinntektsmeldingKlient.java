@@ -13,9 +13,13 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
 public class FpinntektsmeldingKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -33,7 +37,7 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
-            throw new IllegalStateException("Klarte ikke opprette forespørsel om inntektsmelding", e);
+            LOG.warn("Feil ved oversending til fpinntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
         }
     }
 
