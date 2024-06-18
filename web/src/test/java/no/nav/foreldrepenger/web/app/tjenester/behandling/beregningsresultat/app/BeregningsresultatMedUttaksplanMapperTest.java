@@ -383,7 +383,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
                 .medRegelInput("")
                 .medRegelSporing("")
                 .build();
-        var builder = BehandlingBeregningsresultatBuilder.oppdatere(Optional.empty())
+        var builder = BehandlingBeregningsresultatBuilder.ny()
                 .medBgBeregningsresultatFP(bgres);
         return builder.build(behandling.getId());
     }

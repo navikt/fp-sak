@@ -1,10 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
@@ -14,14 +17,12 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 @RuleDocumentationGrunnlag
 public class BeregningsresultatFeriepengerRegelModell {
     private BeregningsresultatFeriepengerGrunnlag grunnlag;
-    private List<BeregningsresultatPeriode> beregningsresultatPerioder;
+    private List<BeregningsresultatFeriepengerPrÅr> feriepengerPrÅrListe = new ArrayList<>();
     private LocalDateInterval feriepengerPeriode;
 
 
-    public BeregningsresultatFeriepengerRegelModell(BeregningsresultatFeriepengerGrunnlag grunnlag,
-                                                     List<BeregningsresultatPeriode> beregningsresultatPerioder) {
+    public BeregningsresultatFeriepengerRegelModell(BeregningsresultatFeriepengerGrunnlag grunnlag) {
         this.grunnlag = grunnlag;
-        this.beregningsresultatPerioder = beregningsresultatPerioder;
     }
 
     public boolean erArbeidstakerVedSkjæringstidspunkt() {
@@ -33,7 +34,7 @@ public class BeregningsresultatFeriepengerRegelModell {
     }
 
     public List<BeregningsresultatPeriode> getBeregningsresultatPerioder() {
-        return beregningsresultatPerioder;
+        return grunnlag.getBeregningsresultatPerioder();
     }
 
     public List<BeregningsresultatPeriode> getAnnenPartsBeregningsresultatPerioder() {
@@ -62,5 +63,20 @@ public class BeregningsresultatFeriepengerRegelModell {
 
     public void setFeriepengerPeriode(LocalDate feriepengePeriodeFom, LocalDate feriepengePeriodeTom) {
         this.feriepengerPeriode = new LocalDateInterval(feriepengePeriodeFom, feriepengePeriodeTom);
+    }
+
+    public List<BeregningsresultatFeriepengerPrÅr> getBeregningsresultatFeriepengerPrÅrListe() {
+        return feriepengerPrÅrListe;
+    }
+
+    public void tømBeregningsresultatFeriepengerPrÅrListe() {
+        feriepengerPrÅrListe.clear();
+    }
+
+    public void addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅr) {
+        Objects.requireNonNull(beregningsresultatFeriepengerPrÅr, "beregningsresultatFeriepengerPrÅr");
+        if (!feriepengerPrÅrListe.contains(beregningsresultatFeriepengerPrÅr)) {
+            feriepengerPrÅrListe.add(beregningsresultatFeriepengerPrÅr);
+        }
     }
 }

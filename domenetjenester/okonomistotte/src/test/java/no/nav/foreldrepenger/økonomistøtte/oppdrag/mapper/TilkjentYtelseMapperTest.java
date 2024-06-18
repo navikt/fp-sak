@@ -50,7 +50,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilBruker(Inntektskategori.FRILANSER, 100, periode1);
         var perioder = List.of(periode1);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         Assertions.assertThat(resultat).hasSize(1);
 
@@ -92,7 +92,7 @@ class TilkjentYtelseMapperTest {
 
         var perioder = List.of(periode1);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         Assertions.assertThat(resultat).hasSize(1);
 
@@ -115,7 +115,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilBruker(Inntektskategori.ARBEIDSAVKLARINGSPENGER, 200, periode1);
         var perioder = List.of(periode1);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         Assertions.assertThat(resultat).hasSize(1);
 
@@ -141,7 +141,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilBruker(Inntektskategori.FRILANSER, 1, periode2);
         var perioder = List.of(periode1, periode2);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         Assertions.assertThat(resultat).hasSize(1);
 
@@ -164,19 +164,25 @@ class TilkjentYtelseMapperTest {
             .medFeriepengerPeriodeTom(LocalDate.of(2021, 5, 31))
             .medFeriepengerRegelInput("foo")
             .medFeriepengerRegelSporing("bar")
-            .build(ENTITET);
+            .build();
 
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_1, JAN_2).build(ENTITET);
         var andel1 = lagAndelTilOrg(ARBEIDSGIVER_1, 1000, periode1);
-        BeregningsresultatFeriepengerPrÅr.builder().medOpptjeningsår(2020).medÅrsbeløp(204).build(brFeriepenger, andel1);
+        var feriepenger1 = BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel1.getAktivitetStatus()).medBrukerErMottaker(andel1.erBrukerMottaker())
+            .medArbeidsgiver(andel1.getArbeidsgiver().orElse(null)).medArbeidsforholdRef(andel1.getArbeidsforholdRef())
+            .medOpptjeningsår(2020).medÅrsbeløp(204).build(brFeriepenger);
 
         var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_3, JAN_4).build(ENTITET);
         var andel2 = lagAndelTilOrg(ARBEIDSGIVER_1, 1500, periode2);
-        BeregningsresultatFeriepengerPrÅr.builder().medOpptjeningsår(2020).medÅrsbeløp(408).build(brFeriepenger, andel2);
+        var feriepenger2 = BeregningsresultatFeriepengerPrÅr.builder()
+            .medAktivitetStatus(andel2.getAktivitetStatus()).medBrukerErMottaker(andel2.erBrukerMottaker())
+            .medArbeidsgiver(andel2.getArbeidsgiver().orElse(null)).medArbeidsforholdRef(andel2.getArbeidsforholdRef())
+            .medOpptjeningsår(2020).medÅrsbeløp(408).build(brFeriepenger);
         var perioder = List.of(periode1, periode2);
 
         //act
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of(feriepenger1, feriepenger2)).getYtelsePrNøkkel();
 
         //assert
         var forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("111111111"));
@@ -210,7 +216,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode2);
         var perioder = List.of(periode1, periode2);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         //assert
         var forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
@@ -233,7 +239,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode2);
         var perioder = List.of(periode1, periode2);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         //assert
         var forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
@@ -258,7 +264,7 @@ class TilkjentYtelseMapperTest {
         lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode2);
         var perioder = List.of(periode1, periode2);
 
-        var resultat = MAPPER.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+        var resultat = MAPPER.fordelPåNøkler(perioder, List.of()).getYtelsePrNøkkel();
 
         //assert
         var forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);

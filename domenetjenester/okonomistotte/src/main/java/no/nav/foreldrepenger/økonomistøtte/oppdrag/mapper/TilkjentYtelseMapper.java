@@ -9,11 +9,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
@@ -53,17 +56,31 @@ public class TilkjentYtelseMapper {
         return new TilkjentYtelseMapper(familieYtelseType, feriepengerDødsdato);
     }
 
+    public GruppertYtelse fordelPåNøkler(BehandlingBeregningsresultatEntitet tilkjentYtelse) {
+        if (tilkjentYtelse == null || tilkjentYtelse.getGjeldendeBeregningsresultat() == null || tilkjentYtelse.getGjeldendePerioder().isEmpty()) {
+            return GruppertYtelse.TOM;
+        }
+        return fordelPåNøkler(tilkjentYtelse.getGjeldendePerioder(), tilkjentYtelse.getGjeldendeFeriepenger());
+    }
+
+    // Test av oppdrag uten feriepenger
     public GruppertYtelse fordelPåNøkler(BeregningsresultatEntitet tilkjentYtelse) {
+        return fordelPåNøkler(tilkjentYtelse, null);
+    }
+
+    // Test av oppdrag mulig med feriepenger
+    public GruppertYtelse fordelPåNøkler(BeregningsresultatEntitet tilkjentYtelse, BeregningsresultatFeriepenger feriepenger) {
         if (tilkjentYtelse == null) {
             return GruppertYtelse.TOM;
         }
-        return fordelPåNøkler(tilkjentYtelse.getBeregningsresultatPerioder());
+        var feriepengerListe = Optional.ofNullable(feriepenger).map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of());
+        return fordelPåNøkler(tilkjentYtelse.getBeregningsresultatPerioder(), feriepengerListe);
     }
 
-    public GruppertYtelse fordelPåNøkler(List<BeregningsresultatPeriode> tilkjentYtelsePerioder) {
+    public GruppertYtelse fordelPåNøkler(List<BeregningsresultatPeriode> tilkjentYtelsePerioder, List<BeregningsresultatFeriepengerPrÅr> feriepenger) {
         Map<KjedeNøkkel, Ytelse> resultat = new HashMap<>();
         resultat.putAll(fordelYtelsePåNøkler(tilkjentYtelsePerioder));
-        resultat.putAll(fordelFeriepengerPåNøkler(tilkjentYtelsePerioder));
+        resultat.putAll(fordelFeriepengerPåNøkler(feriepenger));
 
         return new GruppertYtelse(resultat);
     }
@@ -88,16 +105,12 @@ public class TilkjentYtelseMapper {
         return build(buildere);
     }
 
-    public Map<KjedeNøkkel, Ytelse> fordelFeriepengerPåNøkler(Collection<BeregningsresultatPeriode> tilkjentYtelsePerioder) {
+    public Map<KjedeNøkkel, Ytelse> fordelFeriepengerPåNøkler(Collection<BeregningsresultatFeriepengerPrÅr> feriepengerListe) {
         List<YtelsePeriodeMedNøkkel> alleFeriepenger = new ArrayList<>();
-        for (var periode : sortert(tilkjentYtelsePerioder)) {
-            for (var andel : periode.getBeregningsresultatAndelList()) {
-                for (var feriepenger : andel.getBeregningsresultatFeriepengerPrÅrListe()) {
-                    var nøkkel = tilNøkkelFeriepenger(andel, feriepenger.getOpptjeningsåret());
-                    var ytelsePeriode = lagYtelsePeriodeForFeriepenger(andel, feriepenger);
-                    alleFeriepenger.add(new YtelsePeriodeMedNøkkel(nøkkel, ytelsePeriode));
-                }
-            }
+        for (var feriepenger : feriepengerListe) {
+            var nøkkel = tilNøkkelFeriepenger(feriepenger);
+            var ytelsePeriode = lagYtelsePeriodeForFeriepenger(feriepenger);
+            alleFeriepenger.add(new YtelsePeriodeMedNøkkel(nøkkel, ytelsePeriode));
         }
         var feriepengerPrNøkkel = alleFeriepenger.stream().collect(Collectors.groupingBy(YtelsePeriodeMedNøkkel::getNøkkel));
 
@@ -110,8 +123,8 @@ public class TilkjentYtelseMapper {
         return resultat;
     }
 
-    private YtelsePeriode lagYtelsePeriodeForFeriepenger(BeregningsresultatAndel andel, BeregningsresultatFeriepengerPrÅr feriepenger) {
-        var tilBruker = andel.skalTilBrukerEllerPrivatperson();
+    private YtelsePeriode lagYtelsePeriodeForFeriepenger(BeregningsresultatFeriepengerPrÅr feriepenger) {
+        var tilBruker = feriepenger.skalTilBrukerEllerPrivatperson();
         return new YtelsePeriode(beregnFeriepengePeriode(feriepenger.getOpptjeningsåret(), tilBruker),
             Satsen.engang(feriepenger.getÅrsbeløp().getVerdi().intValueExact()));
     }
@@ -138,13 +151,13 @@ public class TilkjentYtelseMapper {
             KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
     }
 
-    private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
-        var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        var brukferiepengerMaksdato = beregnFeriepengePeriode(opptjeningsår, tilBruker).getTom();
-        var klasseKode = tilBruker ? KlassekodeUtleder.utledForFeriepenger(ytelseType, opptjeningsår, feriepengerDødsdato) :
+    private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatFeriepengerPrÅr feriepengerPrÅr) {
+        var tilBruker = feriepengerPrÅr.skalTilBrukerEllerPrivatperson();
+        var brukferiepengerMaksdato = beregnFeriepengePeriode(feriepengerPrÅr.getOpptjeningsåret(), tilBruker).getTom();
+        var klasseKode = tilBruker ? KlassekodeUtleder.utledForFeriepenger(ytelseType, feriepengerPrÅr.getOpptjeningsåret(), feriepengerDødsdato) :
             KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType);
         return tilBruker ? KjedeNøkkel.lag(klasseKode, Betalingsmottaker.BRUKER, brukferiepengerMaksdato) :
-            KjedeNøkkel.lag(klasseKode, Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
+            KjedeNøkkel.lag(klasseKode, Betalingsmottaker.forArbeidsgiver(feriepengerPrÅr.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
     }
 
     private Periode beregnFeriepengePeriode(int opptjeningsår, boolean tilBruker) {

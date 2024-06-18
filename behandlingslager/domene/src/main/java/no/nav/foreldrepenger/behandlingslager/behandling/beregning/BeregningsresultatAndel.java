@@ -1,29 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -75,10 +68,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     @Column(name = "dagsats_fra_bg", nullable = false)
     private Integer dagsatsFraBg;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultatAndel", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe;
 
     @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
     @Column(name="aktivitet_status", nullable = false)
@@ -141,13 +130,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     public int getDagsatsFraBg() {
         return dagsatsFraBg;
-    }
-
-    public List<BeregningsresultatFeriepengerPrÅr> getBeregningsresultatFeriepengerPrÅrListe() {
-        if (beregningsresultatFeriepengerPrÅrListe == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(beregningsresultatFeriepengerPrÅrListe);
     }
 
     public AktivitetStatus getAktivitetStatus() {
@@ -222,9 +204,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
         }
 
         public Builder(BeregningsresultatAndel eksisterendeBeregningsresultatAndel) {
-            if (eksisterendeBeregningsresultatAndel.getBeregningsresultatFeriepengerPrÅrListe().isEmpty()) {
-                eksisterendeBeregningsresultatAndel.beregningsresultatFeriepengerPrÅrListe = new ArrayList<>();
-            }
             beregningsresultatAndelMal = eksisterendeBeregningsresultatAndel;
         }
 
@@ -275,11 +254,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
         public Builder medInntektskategori(Inntektskategori inntektskategori) {
             beregningsresultatAndelMal.inntektskategori = inntektskategori;
-            return this;
-        }
-
-        public Builder leggTilBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅr) {
-            beregningsresultatAndelMal.beregningsresultatFeriepengerPrÅrListe.add(beregningsresultatFeriepengerPrÅr);
             return this;
         }
 

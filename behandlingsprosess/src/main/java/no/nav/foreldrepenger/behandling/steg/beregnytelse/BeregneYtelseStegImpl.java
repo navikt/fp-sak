@@ -53,9 +53,10 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
         // Beregn ytelse
         var beregningsresultat = beregnYtelseTjeneste.beregnYtelse(ref);
+        var feriepenger = beregnYtelseTjeneste.beregnFeriepenger(ref, beregningsresultat);
 
         // Lagre beregningsresultat
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        beregningsresultatRepository.lagre(behandling, beregningsresultat, feriepenger);
 
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
