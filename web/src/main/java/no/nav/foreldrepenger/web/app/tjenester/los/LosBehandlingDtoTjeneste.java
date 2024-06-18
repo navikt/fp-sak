@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -41,6 +42,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
@@ -67,6 +69,8 @@ public class LosBehandlingDtoTjeneste {
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private UttakInputTjeneste uttakInputTjeneste;
+    private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
 
     @Inject
@@ -75,13 +79,17 @@ public class LosBehandlingDtoTjeneste {
                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                     SvangerskapspengerRepository svangerskapspengerRepository,
-                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                    FagsakEgenskapRepository fagsakEgenskapRepository,
+                                    UttakInputTjeneste uttakInputTjeneste,
+                                    EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.uttakInputTjeneste = uttakInputTjeneste;
+        this.endringsdatoRevurderingUtleder = endringsdatoRevurderingUtleder;
     }
 
     LosBehandlingDtoTjeneste() {
@@ -224,8 +232,6 @@ public class LosBehandlingDtoTjeneste {
         if (vurderSykdom) {
             behandlingsegenskaper.add(BehandlingEgenskap.SYKDOMSVURDERING.name());
         }
-        var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
-            .stream().anyMatch(OppgittPeriodeEntitet::isGradert);
         if (FagsakYtelseType.UDEFINERT.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling()) {
             return null;
         }
@@ -251,13 +257,13 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private Optional<LocalDate> finnEndringsdatoForeldrepenger(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
-        var endringsdato = aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
-        // Andre revurderinger enn endringssøknad har kopiert fordeling fra forrige behandling - kan ikke se på dem.
-        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)? endringsdato : endringsdato
-            .or(() -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
-                .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
-                .map(OppgittPeriodeEntitet::getFom)
-                .min(Comparator.naturalOrder()));
+        try {
+            return aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato)
+                .or(() -> Optional.ofNullable(endringsdatoRevurderingUtleder.utledEndringsdato(uttakInputTjeneste.lagInput(behandling))));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 
     private Optional<LocalDate> finnEndringsdatoSvangerskapspenger(Behandling behandling) {
