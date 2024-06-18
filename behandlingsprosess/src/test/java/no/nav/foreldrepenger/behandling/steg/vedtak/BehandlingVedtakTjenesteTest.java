@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -33,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
@@ -47,7 +47,7 @@ class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
-        var behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
+        var behandlingVedtakEventPubliserer = mock(BehandlingEventPubliserer.class);
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);

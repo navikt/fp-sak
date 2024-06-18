@@ -69,7 +69,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         var aggregatTY = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId)
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
 
-        if (aggregatTY.getUtbetBeregningsresultatFP() != null) {
+        if (aggregatTY.getUtbetBeregningsresultatFP().isPresent()) {
             // I enkelte tilfeller kopieres utbet resultat i vurder tilbaketrekk steget,
             // isåfall skal vi bare bruke dette og ikke reberegne noe mer her
             // TFP-4279
@@ -88,8 +88,8 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
             // Reberegn feriepenger
             var ref = BehandlingReferanse.fra(behandling);
             var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.fagsakYtelseType()).orElseThrow();
-            feriepengerTjeneste.beregnFeriepenger(ref, utbetBR);
-            beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR);
+            var feriepenger = feriepengerTjeneste.beregnFeriepenger(ref, utbetBR);
+            beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR, feriepenger);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

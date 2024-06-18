@@ -19,7 +19,7 @@ class BeregnFeriepengerEttÅr extends LeafSpecification<BeregningsresultatFeriep
         Map<String, Object> resultater = new LinkedHashMap<>();
 
         var feriepengerPeriode = regelModell.getFeriepengerPeriode();
-        BeregnFeriepengerForPeriode.beregn(resultater, regelModell.getBeregningsresultatPerioder(), feriepengerPeriode);
+        BeregnFeriepengerForPeriode.beregn(resultater, regelModell, feriepengerPeriode);
 
         return beregnet(resultater);
     }

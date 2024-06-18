@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.FeriepengegrunnlagMapper;
@@ -56,7 +57,8 @@ public class FeriepengegrunnlagRestTjeneste {
     public FeriepengegrunnlagDto hentFeriepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
+        var dto = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId())
+            .map(BehandlingBeregningsresultatEntitet::getGjeldendeFeriepenger)
             .flatMap(FeriepengegrunnlagMapper::map);
         return dto.orElse(null);
     }

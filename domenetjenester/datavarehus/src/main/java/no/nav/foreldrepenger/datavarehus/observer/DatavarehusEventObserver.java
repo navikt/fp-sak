@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
@@ -37,10 +38,15 @@ public class DatavarehusEventObserver {
         if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
             tjeneste.lagreNedBehandling(event.getBehandlingId());
         }
+        // Sjekker om aksjonspunkt er relatert til klage/anke og er UTFØRT. TODO: TFP-5788
         tjeneste.oppdaterHvisKlageEllerAnke(event.getBehandlingId(), aksjonspunkter);
     }
 
     public void observerBehandlingEnhetEvent(@Observes BehandlingEnhetEvent event) {
+        tjeneste.lagreNedBehandling(event.getBehandlingId());
+    }
+
+    public void observerBehandlingSaksbehandlerEvent(@Observes BehandlingSaksbehandlerEvent event) {
         tjeneste.lagreNedBehandling(event.getBehandlingId());
     }
 

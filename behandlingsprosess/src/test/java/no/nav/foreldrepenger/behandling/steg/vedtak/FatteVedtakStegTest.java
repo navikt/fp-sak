@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -81,7 +82,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -147,7 +147,7 @@ class FatteVedtakStegTest {
                 behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, mock(TotrinnTjeneste.class));
 
-        var behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
+        var behandlingVedtakEventPubliserer = mock(BehandlingEventPubliserer.class);
 
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
 
 final class AktivitetStatusMapper {
 
@@ -49,6 +50,17 @@ final class AktivitetStatusMapper {
             return REGEL_TIL_VL_MAP.get(andel.getAktivitetStatus());
         }
         throw new IllegalArgumentException("Ukjent AktivitetStatus " + andel.getAktivitetStatus().name());
+    }
+
+    static AktivitetStatus fraRegelTilVl(BeregningsresultatFeriepengerPrÅr feriepenger) {
+        if (feriepenger.getAktivitetStatus().equals(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.ATFL)) {
+            var arbeidsforhold = feriepenger.getArbeidsforhold();
+            return arbeidsforhold != null && arbeidsforhold.frilanser() ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER;
+        }
+        if (REGEL_TIL_VL_MAP.containsKey(feriepenger.getAktivitetStatus())) {
+            return REGEL_TIL_VL_MAP.get(feriepenger.getAktivitetStatus());
+        }
+        throw new IllegalArgumentException("Ukjent AktivitetStatus " + feriepenger.getAktivitetStatus().name());
     }
 
     static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus fraVLTilRegel(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus vlAktivitetStatus) {

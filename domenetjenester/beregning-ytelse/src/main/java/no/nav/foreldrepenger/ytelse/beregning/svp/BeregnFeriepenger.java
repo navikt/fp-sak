@@ -40,11 +40,6 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
 
     @Override
     protected int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
-        var tilgjengeligeDagerOpt = svangerskapspengerFeriekvoteTjeneste.beregnTilgjengeligFeriekvote(ref, beregningsresultat);
-        if (tilgjengeligeDagerOpt.isEmpty()) {
-            // Kunne ikke beregne gjenstående dager, defaulter til standard kvote
-            return antallDagerFeriepenger;
-        }
-        return tilgjengeligeDagerOpt.get();
+        return svangerskapspengerFeriekvoteTjeneste.beregnTilgjengeligFeriekvote(ref, beregningsresultat).orElse(antallDagerFeriepenger);
     }
 }

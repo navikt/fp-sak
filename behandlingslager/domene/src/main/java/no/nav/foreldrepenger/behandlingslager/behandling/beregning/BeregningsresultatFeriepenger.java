@@ -14,9 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -34,10 +32,6 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "BEREGNINGSRESULTAT_FP_ID", updatable = false)
-    private BeregningsresultatEntitet beregningsresultat;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultatFeriepenger", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsresultatFeriepengerPrÅr> beregningsresultatFeriepengerPrÅrListe = new ArrayList<>();
@@ -148,15 +142,12 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
             return this;
         }
 
-        public BeregningsresultatFeriepenger build(BeregningsresultatEntitet beregningsresultat) {
-            beregningsresultatFPMal.beregningsresultat = beregningsresultat;
-            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(beregningsresultatFPMal);
+        public BeregningsresultatFeriepenger build() {
             verifyStateForBuild();
             return beregningsresultatFPMal;
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(beregningsresultatFPMal.beregningsresultat, "beregningsresultat");
             Objects.requireNonNull(beregningsresultatFPMal.beregningsresultatFeriepengerPrÅrListe, "beregningsresultatFeriepengerPrÅrListe");
             Objects.requireNonNull(beregningsresultatFPMal.feriepengerRegelInput, "feriepengerRegelInput");
             Objects.requireNonNull(beregningsresultatFPMal.feriepengerRegelSporing, "feriepengerRegelSporing");

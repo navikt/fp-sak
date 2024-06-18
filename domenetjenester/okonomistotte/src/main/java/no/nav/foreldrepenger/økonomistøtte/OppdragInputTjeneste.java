@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
@@ -125,7 +124,7 @@ public class OppdragInputTjeneste {
                 .map(PersoninfoBasis::dødsdato)
                 .orElse(null);
             inputBuilder
-                .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak), feriepengerDødsdato))
+                .medTilkjentYtelse(grupperYtelse(behandlingId, getFamilieYtelseType(behandlingId, fagsak), feriepengerDødsdato))
                 .medBrukInntrekk(hentBrukInntrekk(behandlingId));
         }
 
@@ -187,13 +186,11 @@ public class OppdragInputTjeneste {
         return !inntrekkErSkruddAv;
     }
 
-    private BeregningsresultatEntitet hentTilkjentYtelse(Long behandlingId) {
-        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId).orElse(null);
-    }
-
-    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType, LocalDate feriepengerVedDød) {
+    private GruppertYtelse grupperYtelse(Long behandlingId, FamilieYtelseType familieYtelseType, LocalDate feriepengerVedDød) {
+        var tilkjentAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId).orElse(null);
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType, feriepengerVedDød);
-        return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
+        return tilkjentAggregat == null ? GruppertYtelse.TOM :
+            tilkjentYtelseMapper.fordelPåNøkler(tilkjentAggregat);
     }
 
     private FamilieYtelseType finnFamilieYtelseType(long behandlingId, FagsakYtelseType fagsakYtelseType) {

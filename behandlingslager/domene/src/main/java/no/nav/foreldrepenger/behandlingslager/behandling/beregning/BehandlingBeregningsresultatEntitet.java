@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.Column;
@@ -71,12 +72,25 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
         return bgBeregningsresultatFP;
     }
 
-    public BeregningsresultatEntitet getUtbetBeregningsresultatFP() {
-        return utbetBeregningsresultatFP;
+    public Optional<BeregningsresultatEntitet> getUtbetBeregningsresultatFP() {
+        return Optional.ofNullable(utbetBeregningsresultatFP);
     }
 
-    public BeregningsresultatFeriepenger getBeregningsresultatFeriepenger() {
-        return beregningsresultatFeriepenger;
+    public Optional<BeregningsresultatFeriepenger> getBeregningsresultatFeriepenger() {
+        return Optional.ofNullable(beregningsresultatFeriepenger);
+    }
+
+    public BeregningsresultatEntitet getGjeldendeBeregningsresultat() {
+        return getUtbetBeregningsresultatFP().orElse(bgBeregningsresultatFP);
+    }
+
+    public List<BeregningsresultatPeriode> getGjeldendePerioder() {
+        return getGjeldendeBeregningsresultat().getBeregningsresultatPerioder();
+    }
+
+    public List<BeregningsresultatFeriepengerPrÅr> getGjeldendeFeriepenger() {
+        return getBeregningsresultatFeriepenger()
+            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElseGet(List::of);
     }
 
     public Optional<Boolean> skalHindreTilbaketrekk() {

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -69,7 +69,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class),
             behandlingRepository);
         KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
-            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
+            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter, behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, mock(BehandlingskontrollTjeneste.class));
 
