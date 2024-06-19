@@ -48,6 +48,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -136,7 +139,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -162,7 +165,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -187,7 +190,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -212,7 +215,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -258,7 +261,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -319,7 +322,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -344,7 +347,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -369,7 +372,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -392,7 +395,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -415,7 +418,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -438,7 +441,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -463,7 +466,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -472,8 +475,9 @@ class ErEndringIUttakTest {
     @Test
     void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
         // Act
-        var endringIUttak = new UttakResultatHolderFP(Optional.empty(), null).harUlikUttaksplan(new UttakResultatHolderFP(Optional.empty(), null));
-
+        var revurderingHolder = new UttakResultatHolderFP(Optional.empty(), null);
+        var originalBehandlingHolder = new UttakResultatHolderFP(Optional.empty(), null);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
         // Assert
         assertThat(endringIUttak).isFalse();
     }
@@ -497,7 +501,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -520,7 +524,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -544,7 +548,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -567,7 +571,7 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isTrue();
@@ -592,7 +596,113 @@ class ErEndringIUttakTest {
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
-        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder);
+        var endringIUttak = originalBehandlingHolder.harUlikUttaksplan(revurderingHolder) || originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
+
+        // Assert
+        assertThat(endringIUttak).isFalse();
+    }
+
+    @Test
+    void skal_gi_endring_i_uttak_om_det_er_endring_kontodager() {
+        // Arrange
+        var dato = LocalDate.now();
+        var førstegangsbehandling = opprettFørstegangsbehandling();
+        var revurdering = opprettRevurdering(førstegangsbehandling);
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
+
+        var kontoOriginal = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(280).build())
+            .build();
+
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoOriginal);
+
+        var kontoRevurdering = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(291).build())
+            .build();
+
+        var uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoRevurdering);
+
+
+        // Act
+        var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
+        var endringIUttak = originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
+
+        // Assert
+        assertThat(endringIUttak).isTrue();
+    }
+
+    @Test
+    void skal_gi_endring_i_uttak_om_det_er_endring_minsterett() {
+        // Arrange
+        var dato = LocalDate.now();
+        var førstegangsbehandling = opprettFørstegangsbehandling();
+        var revurdering = opprettRevurdering(førstegangsbehandling);
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
+
+        var kontoOriginal = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(40).build())
+            .build();
+
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoOriginal);
+
+        var kontoRevurdering = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(50).build())
+            .build();
+
+        var uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoRevurdering);
+
+
+        // Act
+        var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
+        var endringIUttak = originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
+
+        // Assert
+        assertThat(endringIUttak).isTrue();
+    }
+
+    @Test
+    void skal_ikke_gi_endring_i_uttak_om_det_er_konto_minsterett_uendret() {
+        // Arrange
+        var dato = LocalDate.now();
+        var førstegangsbehandling = opprettFørstegangsbehandling();
+        var revurdering = opprettRevurdering(førstegangsbehandling);
+        lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
+
+        var kontoOriginal = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(40).build())
+            .build();
+
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoOriginal);
+
+        var kontoRevurdering = new Stønadskontoberegning.Builder()
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
+            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(40).build())
+            .build();
+
+        var uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering, List.of(new LocalDateInterval(dato, dato.plusDays(10))),
+            List.of(false), List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+            List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoRevurdering);
+
+
+        // Act
+        var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
+        var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
+        var endringIUttak = originalBehandlingHolder.harUlikKontoEllerMinsterett(revurderingHolder);
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -691,6 +801,22 @@ class ErEndringIUttakTest {
                                                                    List<Integer> utbetalingsgrad,
                                                                    List<Trekkdager> trekkdager,
                                                                    List<UttakPeriodeType> stønadskontoTyper) {
+        return lagUttakResultatPlanForBehandling(behandling, perioder, samtidigUttak, erFlerbarnsdager, periodeResultatTyper,
+            periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper, null);
+    }
+
+    private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
+                                                                   List<LocalDateInterval> perioder,
+                                                                   List<Boolean> samtidigUttak,
+                                                                   List<Boolean> erFlerbarnsdager,
+                                                                   List<PeriodeResultatType> periodeResultatTyper,
+                                                                   List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+                                                                   List<Boolean> graderingInnvilget,
+                                                                   List<Integer> andelIArbeid,
+                                                                   List<Integer> utbetalingsgrad,
+                                                                   List<Trekkdager> trekkdager,
+                                                                   List<UttakPeriodeType> stønadskontoTyper,
+                                                                   Stønadskontoberegning stønadskontoberegning) {
         var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
         var uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
@@ -703,7 +829,7 @@ class ErEndringIUttakTest {
                 periodeResultatÅrsak.get(i), graderingInnvilget.get(i), erFlerbarnsdager.get(i), andelIArbeid, utbetalingsgrad, trekkdager,
                 stønadskontoTyper);
         }
-        var uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
+        var uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).medStønadskontoberegning(stønadskontoberegning).build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat.getGjeldendePerioder());
         return uttakResultat;
 
