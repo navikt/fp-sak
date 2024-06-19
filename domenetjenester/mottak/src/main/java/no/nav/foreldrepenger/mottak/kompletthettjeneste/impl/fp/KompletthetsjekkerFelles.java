@@ -110,7 +110,7 @@ public class KompletthetsjekkerFelles {
         if (!manglendeInntektsmeldinger.isEmpty()) {
             var alleAgUtenInntektsmelding = manglendeInntektsmeldinger.stream()
                 .map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toSet());
-            alleAgUtenInntektsmelding.forEach(ag -> fpInntektsmeldingTjeneste.lagForespørsel(ag, ref));
+            alleAgUtenInntektsmelding.forEach(ag -> fpInntektsmeldingTjeneste.lagForespørselTask(ag, ref));
             loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);
             var resultat = finnVentefristTilManglendeInntektsmelding(ref).map(
                 frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING)).orElse(KompletthetResultat.fristUtløpt());
