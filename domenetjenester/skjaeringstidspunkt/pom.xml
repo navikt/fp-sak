@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>inngangsvilkar-regelmodell</artifactId>
+            <artifactId>inngangsvilkar-regler</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
