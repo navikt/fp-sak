@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
+package no.nav.foreldrepenger.ytelse.beregning;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
 
 import org.junit.jupiter.api.Test;
 

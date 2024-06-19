@@ -25,9 +25,11 @@
     </modules>
 
     <properties>
+        <fp-inngangsvilkar.version>1.0.0</fp-inngangsvilkar.version>
         <fp-uttak.version>15.1.6</fp-uttak.version>
         <fp-stonadskonto.version>2.1.0</fp-stonadskonto.version>
         <svp-uttak.version>2.4.1</svp-uttak.version>
+        <fp-ytelse-beregn.version>1.0.2</fp-ytelse-beregn.version>
 
         <felles.version>7.2.1</felles.version>
         <prosesstask.version>5.0.9</prosesstask.version>
@@ -170,6 +172,17 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>inngangsvilkar-regler</artifactId>
+                <version>${fp-inngangsvilkar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>inngangsvilkar-regler</artifactId>
+                <version>${fp-inngangsvilkar.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>stonadskonto-regler</artifactId>
                 <version>${fp-stonadskonto.version}</version>
             </dependency>
@@ -199,6 +212,17 @@
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>svp-uttak</artifactId>
                 <version>${svp-uttak.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>ytelse-beregn-regler</artifactId>
+                <version>${fp-ytelse-beregn.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>ytelse-beregn-regler</artifactId>
+                <version>${fp-ytelse-beregn.version}</version>
                 <classifier>sources</classifier>
             </dependency>
 
@@ -246,11 +270,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>behandlingskontroll</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>inngangsvilkar-regelmodell</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
