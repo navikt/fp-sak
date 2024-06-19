@@ -86,4 +86,17 @@ public class ForvaltningUttakRestTjeneste {
         forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);
         return Response.noContent().build();
     }
+
+    @POST
+    @Path("/endre-uforetrygd")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Endrer om mor har uføretrygd (bare far rett)", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response endreUføreTrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
+                                    @QueryParam(value = "morUforetrygd") @Valid Boolean morUforetrygd) {
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
+
+        forvaltningUttakTjeneste.endreMorUføretrygd(dto.getBehandlingUuid(), morUforetrygd);
+        return Response.noContent().build();
+    }
 }
