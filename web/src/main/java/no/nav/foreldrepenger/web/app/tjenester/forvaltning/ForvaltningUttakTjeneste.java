@@ -11,7 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
@@ -28,6 +30,7 @@ public class ForvaltningUttakTjeneste {
     private FagsakRepository fagsakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private HistorikkRepository historikkRepository;
+    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(BehandlingRepository behandlingRepository,
@@ -36,7 +39,8 @@ public class ForvaltningUttakTjeneste {
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                     FagsakRepository fagsakRepository,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                    HistorikkRepository historikkRepository) {
+                                    HistorikkRepository historikkRepository,
+                                    UføretrygdRepository uføretrygdRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -44,6 +48,7 @@ public class ForvaltningUttakTjeneste {
         this.fagsakRepository = fagsakRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkRepository = historikkRepository;
+        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     ForvaltningUttakTjeneste() {
@@ -106,6 +111,31 @@ public class ForvaltningUttakTjeneste {
             .medBegrunnelse(begrunnelse);
         historieBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
+    }
+
+    public void endreMorUføretrygd(UUID behandlingUUID, boolean morUføretrygd) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUUID);
+        var behandlingId = behandling.getId();
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var bareFarRett = !RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) &&
+            !ytelseFordelingAggregat.harAnnenForelderRett(false);
+        if (!bareFarRett) {
+            throw new ForvaltningException("Gjelder ikke bare far rett");
+        }
+        if (!behandling.erRevurdering() && ytelseFordelingAggregat.getMorUføretrygdAvklaring() != null) {
+            throw new ForvaltningException("Kan ikke endre oppgitt Uføretrygd rett hvis rett og omsorg allerede er avklart i aksjonspunkt. "
+                + "Hopp behandlingen tilbake til tidligere steg for å fjerne avklaringen. Senest steg KONTROLLER_OMSORG_RETT");
+        }
+
+        var nyRettighet = new OppgittRettighetEntitet(false, false, morUføretrygd, false, null);
+        if (ytelseFordelingAggregat.getOverstyrtRettighet().isEmpty()) {
+            ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
+        } else {
+            ytelseFordelingTjeneste.endreOverstyrtRettighet(behandlingId, nyRettighet);
+        }
+        var begrunnelse = morUføretrygd ? "FORVALTNING - Endret til at mor mottar Uføretrygd" :
+            "FORVALTNING - Endret til at mor ikke mottar Uføretrygd";
+        lagHistorikkinnslagRett(behandlingId, begrunnelse);
     }
 
     private void lagHistorikkinnslagRett(Long behandlingId, String begrunnelse) {
