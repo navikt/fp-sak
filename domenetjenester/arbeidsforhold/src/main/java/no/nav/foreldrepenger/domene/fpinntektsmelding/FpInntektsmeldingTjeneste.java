@@ -7,25 +7,38 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
     private FpinntektsmeldingKlient klient;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     FpInntektsmeldingTjeneste() {
         // CDI
     }
 
     @Inject
-    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient, ProsessTaskTjeneste prosessTaskTjeneste) {
         this.klient = klient;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
-    public void lagForespørsel(String ag, BehandlingReferanse ref) {
+    public void lagForespørselTask(String ag, BehandlingReferanse ref) {
+        // Toggler av for prod og lokalt, ikke støtte lokalt
+        if (!Environment.current().isDev()) {
+            return;
+        }
+        var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
+        taskdata.setBehandling(ref.fagsakId(), ref.behandlingId());
+        taskdata.setCallIdFraEksisterende();
+        taskdata.setProperty(FpinntektsmeldingTask.ARBEIDSGIVER_KEY, ag);
+        prosessTaskTjeneste.lagre(taskdata);
+    }
+
+    void lagForespørsel(String ag, BehandlingReferanse refMedStp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!Environment.current().isDev()) {
             return;
@@ -33,11 +46,9 @@ public class FpInntektsmeldingTjeneste {
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             return;
         }
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
-        ref.medSkjæringstidspunkt(skjæringstidspunkter);
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), ref.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
-            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
+        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(refMedStp.aktørId().getId()),
+            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), refMedStp.getUtledetSkjæringstidspunkt(), mapYtelsetype(refMedStp.fagsakYtelseType()),
+            new OpprettForespørselRequest.SaksnummerDto(refMedStp.saksnummer().getVerdi()));
         klient.opprettForespørsel(request);
     }
 
