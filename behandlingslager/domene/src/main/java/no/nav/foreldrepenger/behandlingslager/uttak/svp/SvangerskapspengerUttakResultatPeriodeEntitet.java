@@ -52,6 +52,9 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name = "regel_evaluering", nullable = false, updatable = false)
     private String regelEvaluering;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     @Override
     public String toString() {
         return "SvangerskapspengerUttakResultatPeriodeEntitet{" +
@@ -96,6 +99,10 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
 
     public String getRegelEvaluering() {
         return regelEvaluering;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public boolean isInnvilget() {
@@ -150,6 +157,11 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
 
         public Builder medRegelEvaluering(String regelEvaluering) {
             kladd.regelEvaluering = regelEvaluering;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            kladd.regelVersjon = regelVersjon;
             return this;
         }
 

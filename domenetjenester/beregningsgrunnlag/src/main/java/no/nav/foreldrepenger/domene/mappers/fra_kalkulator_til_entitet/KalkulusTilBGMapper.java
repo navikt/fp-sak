@@ -54,7 +54,8 @@ public final class KalkulusTilBGMapper {
         builder.medBruttoPrÅr(mapBeløp(fraKalkulus.getBruttoPrÅr()));
         builder.medRedusertPrÅr(mapBeløp(fraKalkulus.getRedusertPrÅr()));
         regelSporingerPeriode.forEach(rs -> builder.medRegelEvaluering(rs.regelInput(), rs.regelEvaluering(),
-            BeregningsgrunnlagPeriodeRegelType.fraKode(rs.regelType().getKode())));
+            BeregningsgrunnlagPeriodeRegelType.fraKode(rs.regelType().getKode()),
+            Optional.ofNullable(rs.regelVersjon()).map(v -> v.startsWith("f") ? v : "ft-beregning:" + v).orElse(null)));
 
         // legg til
         fraKalkulus.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(PeriodeÅrsak.fraKode(periodeÅrsak.getKode())));

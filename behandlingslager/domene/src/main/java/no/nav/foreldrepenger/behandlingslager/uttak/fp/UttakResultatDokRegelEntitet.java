@@ -46,6 +46,9 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
     @Column(name = "regel_evaluering", updatable = false)
     private String regelEvaluering;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "til_manuell_behandling", nullable = false, updatable = false)
     private boolean tilManuellBehandling;
@@ -64,6 +67,10 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
 
     public String getRegelEvaluering() {
         return regelEvaluering;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public boolean isTilManuellBehandling() {
@@ -109,6 +116,11 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
 
         public Builder medRegelEvaluering(String regelEvaluering) {
             kladd.regelEvaluering = regelEvaluering;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            kladd.regelVersjon = regelVersjon;
             return this;
         }
 

@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
-
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -71,7 +70,9 @@ public class StønadskontoRegelAdapter {
     private Stønadskontoberegning konverterTilStønadskontoberegning(StønadskontoResultat stønadskontoResultat) {
         var stønadskontoberegningBuilder = Stønadskontoberegning.builder()
             .medRegelEvaluering(stønadskontoResultat.getEvalueringResultat())
-            .medRegelInput(stønadskontoResultat.getInnsendtGrunnlag());
+            .medRegelInput(stønadskontoResultat.getInnsendtGrunnlag())
+            .medRegelVersjon(Optional.ofNullable(stønadskontoResultat.getRegelVersjon())
+                .map(v -> v.startsWith("f") ? v : "fp-stonadskonto:" + v).orElse(null));
 
         var maksDagerStønadskonto = stønadskontoResultat.getStønadskontoer();
         for (var entry : maksDagerStønadskonto.entrySet()) {

@@ -50,6 +50,10 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
     @Column(name = "feriepenger_regel_sporing", nullable = false)
     private String feriepengerRegelSporing;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
+
     public Long getId() {
         return id;
     }
@@ -68,6 +72,10 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
 
     public String getFeriepengerRegelSporing() {
         return feriepengerRegelSporing;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public List<BeregningsresultatFeriepengerPrÅr> getBeregningsresultatFeriepengerPrÅrListe() {
@@ -129,6 +137,11 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
 
         public Builder medFeriepengerRegelSporing(String regelSporing) {
             beregningsresultatFPMal.feriepengerRegelSporing = regelSporing;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            beregningsresultatFPMal.regelVersjon = regelVersjon;
             return this;
         }
 

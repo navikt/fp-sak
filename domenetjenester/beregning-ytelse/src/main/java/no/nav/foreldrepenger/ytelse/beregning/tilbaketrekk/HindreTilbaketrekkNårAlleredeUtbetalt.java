@@ -28,6 +28,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
         var utbetaltTY = BeregningsresultatEntitet.builder()
             .medRegelSporing(beregningsgrunnlagTY.getRegelSporing())
             .medRegelInput(beregningsgrunnlagTY.getRegelInput())
+            .medRegelVersjon(beregningsgrunnlagTY.getRegelVersjon())
             .build();
 
         for (var segment : tidslinje.toSegments()) {

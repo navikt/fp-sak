@@ -36,6 +36,9 @@ public class Stønadskontoberegning extends BaseEntitet {
     @Column(name = "regel_evaluering", nullable = false)
     private String regelEvaluering;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     @ChangeTracked
     @OneToMany(mappedBy = "stønadskontoberegning")
     private Set<Stønadskonto> stønadskontoer = new HashSet<>();
@@ -55,6 +58,10 @@ public class Stønadskontoberegning extends BaseEntitet {
 
     public String getRegelEvaluering() {
         return regelEvaluering;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public Set<Stønadskonto> getStønadskontoer() {
@@ -92,6 +99,11 @@ public class Stønadskontoberegning extends BaseEntitet {
 
         public Builder medRegelEvaluering(String regelEvaluering) {
             kladd.regelEvaluering = regelEvaluering;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            kladd.regelVersjon = regelVersjon;
             return this;
         }
 

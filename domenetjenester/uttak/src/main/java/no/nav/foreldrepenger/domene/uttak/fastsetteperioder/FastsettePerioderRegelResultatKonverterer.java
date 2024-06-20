@@ -281,6 +281,7 @@ public class FastsettePerioderRegelResultatKonverterer {
             manuellBehandlingÅrsak) : UttakResultatDokRegelEntitet.utenManuellBehandling();
         return builder.medRegelEvaluering(resultat.evalueringResultat())
             .medRegelInput(resultat.innsendtGrunnlag())
+            .medRegelVersjon(Optional.ofNullable(resultat.versjon()).map(v -> v.startsWith("f") ? v : "fp-uttak:" + v).orElse(null))
             .build();
     }
 

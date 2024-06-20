@@ -215,6 +215,7 @@ class MapUttakResultatFraVLTilRegelTest {
         return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")
+                .medRegelVersjon("1.2.3")
                 .medUtbetalingsgrad(utbetalingsgrad)
                 .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
                 .medPeriodeResultatType(PeriodeResultatType.INNVILGET)

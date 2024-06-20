@@ -79,6 +79,9 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @Basic(fetch = FetchType.LAZY)
     private String regelInput;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     Vilkår() {
         // for hibernate og builder
     }
@@ -223,6 +226,14 @@ public class Vilkår extends BaseEntitet implements IndexKey {
         this.regelInput = regelInput;
     }
 
+    public String getRegelVersjon() {
+        return regelVersjon;
+    }
+
+    public void setRegelVersjon(String regelVersjon) {
+        this.regelVersjon = regelVersjon;
+    }
+
     void setVilkårUtfallManuelt(VilkårUtfallType vilkårUtfallManuelt) {
         this.vilkårUtfallManuelt = vilkårUtfallManuelt;
     }
@@ -249,6 +260,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
             this.getAvslagsårsak(),
             this.getVilkårUtfallMerknad(),
             this.getRegelInput(),
-            this.getRegelEvaluering());
+            this.getRegelEvaluering(),
+            this.getRegelVersjon());
     }
 }

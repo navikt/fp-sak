@@ -62,14 +62,6 @@ import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -345,61 +337,4 @@ class VedtakXmlTest {
         return beregningsresultat;
     }
 
-    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-                .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
-                .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
-                .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
-                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
-                .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-                .build(beregningsgrunnlag);
-    }
-
-    private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medGrunnbeløp(BigDecimal.valueOf(91425))
-                .medRegelloggSkjæringstidspunkt("input1", "clob1")
-                .medRegelloggBrukersStatus("input2", "clob2")
-                .medRegelinputPeriodisering("input3")
-                .build();
-        buildSammenligningsgrunnlag(beregningsgrunnlag);
-        buildBgAktivitetStatus(beregningsgrunnlag);
-        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
-        buildBgPrStatusOgAndel(bgPeriode);
-        return beregningsgrunnlag;
-    }
-
-    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .build(beregningsgrunnlag);
-    }
-
-    private Sammenligningsgrunnlag buildSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return Sammenligningsgrunnlag.builder()
-                .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
-                .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-                .medAvvikPromille(BigDecimal.valueOf(120L))
-                .build(beregningsgrunnlag);
-    }
-
-    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        var bga = BGAndelArbeidsforhold
-                .builder()
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-        return BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medBGAndelArbeidsforhold(bga)
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
-                .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
-                .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
-                .medRedusertPrÅr(BigDecimal.valueOf(52335))
-                .build(beregningsgrunnlagPeriode);
-    }
 }

@@ -336,7 +336,8 @@ public class VilkårResultat extends BaseEntitet {
                 .medUtfallManuell(skalKopiereManuellVurdering ? vilkår.getVilkårUtfallManuelt() : VilkårUtfallType.UDEFINERT,
                     skalKopiereManuellVurdering ? vilkår.getAvslagsårsak() : Avslagsårsak.UDEFINERT)
                 .medRegelEvaluering(vilkår.getRegelEvaluering())
-                .medRegelInput(vilkår.getRegelInput());
+                .medRegelInput(vilkår.getRegelInput())
+                .medRegelVersjon(vilkår.getRegelVersjon());
             if (settTilIkkeVurdert) {
                 builder.medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
             } else {

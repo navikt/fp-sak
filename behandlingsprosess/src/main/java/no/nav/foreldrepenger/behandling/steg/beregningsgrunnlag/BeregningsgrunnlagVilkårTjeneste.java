@@ -38,9 +38,7 @@ class BeregningsgrunnlagVilkårTjeneste {
 
     void lagreVilkårresultat(BehandlingskontrollKontekst kontekst, BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagResultat) {
         boolean vilkårOppfylt = beregningsgrunnlagResultat.getVilkårOppfylt();
-        var regelEvaluering = beregningsgrunnlagResultat.getRegelEvalueringVilkårVurdering();
-        var regelInput = beregningsgrunnlagResultat.getRegelInputVilkårVurdering();
-        var vilkårResultatBuilder = opprettVilkårsResultat(kontekst.getBehandlingId(), regelEvaluering, regelInput, vilkårOppfylt);
+        var vilkårResultatBuilder = opprettVilkårsResultat(kontekst.getBehandlingId(), beregningsgrunnlagResultat, vilkårOppfylt);
         if (!vilkårOppfylt) {
             var behandlingsresultat = getBehandlingsresultat(kontekst.getBehandlingId());
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
@@ -57,12 +55,13 @@ class BeregningsgrunnlagVilkårTjeneste {
         return behandlingsresultatRepository.hent(behandlingId);
     }
 
-    private VilkårResultat.Builder opprettVilkårsResultat(Long behandlingId, String regelEvaluering, String regelInput, boolean oppfylt) {
+    private VilkårResultat.Builder opprettVilkårsResultat(Long behandlingId, BeregningsgrunnlagVilkårOgAkjonspunktResultat resultat, boolean oppfylt) {
         var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
         var vilkårBuilder = builder.getVilkårBuilderFor(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)
-            .medRegelEvaluering(regelEvaluering)
-            .medRegelInput(regelInput);
+            .medRegelEvaluering(resultat.getRegelEvalueringVilkårVurdering())
+            .medRegelInput(resultat.getRegelInputVilkårVurdering())
+            .medRegelVersjon(resultat.getRegelVersjonVilkårVurdering());
         if (oppfylt) {
             vilkårBuilder.medVilkårUtfall(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
         } else {

@@ -335,11 +335,14 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             return this;
         }
 
-        public Builder medRegelEvaluering(String regelInput, String regelEvaluering, BeregningsgrunnlagPeriodeRegelType regelType) {
+        public Builder medRegelEvaluering(String regelInput, String regelEvaluering,
+                                          BeregningsgrunnlagPeriodeRegelType regelType,
+                                          String regelVersjon) {
             verifiserKanModifisere();
             BeregningsgrunnlagPeriodeRegelSporing.ny()
                 .medRegelInput(regelInput)
                 .medRegelEvaluering(regelEvaluering)
+                .medRegelVersjon(regelVersjon)
                 .medRegelType(regelType)
                 .build(kladd);
             return this;

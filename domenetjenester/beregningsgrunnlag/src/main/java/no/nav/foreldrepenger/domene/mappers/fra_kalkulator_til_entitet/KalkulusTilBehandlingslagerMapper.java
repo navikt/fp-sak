@@ -98,9 +98,9 @@ public final class KalkulusTilBehandlingslagerMapper {
         var regelLogg = regelSporingerGrunnlag.stream()
             .filter(rs -> rs.regelType().getKode().equals(regelType.getKode()))
             .findFirst();
-        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.regelInput(),
-            regelSporingGrunnlag.regelEvaluering(),
-            no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
+        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.regelInput(), regelSporingGrunnlag.regelEvaluering(),
+            no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()),
+            Optional.ofNullable(regelSporingGrunnlag.regelVersjon()).map(v -> v.startsWith("f") ? v : "ft-beregning:" + v).orElse(null)));
     }
 
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {

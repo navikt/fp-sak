@@ -42,6 +42,9 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
     @Column(name = "regel_input")
     private String regelInput;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     @Convert(converter= BeregningsgrunnlagPeriodeRegelType.KodeverdiConverter.class)
     @Column(name="regel_type", nullable = false)
     private BeregningsgrunnlagPeriodeRegelType regelType;
@@ -50,6 +53,7 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
         this.regelEvaluering = beregningsgrunnlagPeriodeRegelSporing.getRegelEvaluering();
         this.regelInput = beregningsgrunnlagPeriodeRegelSporing.getRegelInput();
         this.regelType = beregningsgrunnlagPeriodeRegelSporing.getRegelType();
+        this.regelVersjon = beregningsgrunnlagPeriodeRegelSporing.getRegelVersjon();
     }
 
     BeregningsgrunnlagPeriodeRegelSporing() {
@@ -70,6 +74,10 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
 
     public String getRegelInput() {
         return regelInput;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     void setBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
@@ -94,6 +102,11 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
 
         Builder medRegelEvaluering(String regelEvaluering) {
             beregningsgrunnlagPeriodeRegelSporingMal.regelEvaluering = regelEvaluering;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            beregningsgrunnlagPeriodeRegelSporingMal.regelVersjon = regelVersjon;
             return this;
         }
 

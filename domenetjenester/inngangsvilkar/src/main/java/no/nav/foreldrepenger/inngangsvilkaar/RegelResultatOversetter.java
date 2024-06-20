@@ -40,7 +40,7 @@ public class RegelResultatOversetter {
             .map(RegelResultatOversetter::mapRegelMerknad).orElse(null);
 
         return new VilkårData(vilkårType, mapRegelResultUtfallToUtfallType(resultat), vilkårUtfallMerknad, List.of(), resultat.regelEvaluering(),
-            resultat.regelInput(), resultat.resultatData());
+            resultat.regelInput(), resultat.regelVersjon(), resultat.resultatData());
 
     }
 

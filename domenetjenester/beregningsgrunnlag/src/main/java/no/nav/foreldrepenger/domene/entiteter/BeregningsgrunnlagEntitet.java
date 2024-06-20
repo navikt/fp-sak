@@ -386,43 +386,13 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medRegelloggSkjæringstidspunkt(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            BeregningsgrunnlagRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(SKJÆRINGSTIDSPUNKT)
-                .build(kladd);
-            return this;
-        }
-
-        public Builder medRegelloggBrukersStatus(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            BeregningsgrunnlagRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(BRUKERS_STATUS)
-                .build(kladd);
-            return this;
-        }
-
-        public Builder medRegelinputPeriodisering(String regelInput) {
-            verifiserKanModifisere();
-            if (regelInput != null) {
-                BeregningsgrunnlagRegelSporing.ny()
-                    .medRegelInput(regelInput)
-                    .medRegelType(PERIODISERING)
-                    .build(kladd);
-            }
-            return this;
-        }
-
-        public Builder medRegelSporing(String regelInput, String regelEvaluering, BeregningsgrunnlagRegelType regelType) {
+        public Builder medRegelSporing(String regelInput, String regelEvaluering, BeregningsgrunnlagRegelType regelType, String regelVersjon) {
             verifiserKanModifisere();
             if (regelInput != null) {
                 BeregningsgrunnlagRegelSporing.ny()
                     .medRegelInput(regelInput)
                     .medRegelEvaluering(regelEvaluering)
+                    .medRegelVersjon(regelVersjon)
                     .medRegelType(regelType)
                     .build(kladd);
             }
