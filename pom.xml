@@ -28,11 +28,11 @@
         <fp-inngangsvilkar.version>1.0.0</fp-inngangsvilkar.version>
         <fp-uttak.version>15.1.6</fp-uttak.version>
         <fp-stonadskonto.version>2.1.0</fp-stonadskonto.version>
-        <svp-uttak.version>2.4.1</svp-uttak.version>
+        <svp-uttak.version>2.4.3</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.2</fp-ytelse-beregn.version>
 
         <felles.version>7.2.1</felles.version>
-        <prosesstask.version>5.0.9</prosesstask.version>
+        <prosesstask.version>5.0.11</prosesstask.version>
 
         <fp-kontrakter.version>9.1.15</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
