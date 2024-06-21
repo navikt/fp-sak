@@ -82,8 +82,7 @@ public class EnhetsTjeneste {
     private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO,
         STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET, MIDLERTIDIG_ENHET);
 
-    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ,
-        MIDLERTIDIG_ENHET, UTLAND_ENHET, KONTROLL_ENHET);
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ, MIDLERTIDIG_ENHET);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
