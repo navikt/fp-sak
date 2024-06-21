@@ -42,6 +42,7 @@ public class EnhetsTjeneste {
     private static final String SF_ENHET_ID = "2103"; // Adressesperre
     private static final String UT_ENHET_ID = "4806"; // Utlandsenhet
     private static final String SK_ENHET_ID = "4817"; // Sammensatt kontroll
+    private static final String MI_ENHET_ID = "4863"; // Midlertidig spesialisert enhet
     private static final String NY_ENHET_ID = "4867"; // Nasjonal enhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
 
@@ -49,6 +50,8 @@ public class EnhetsTjeneste {
     private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
     private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
     private static final OrganisasjonsEnhet KONTROLL_ENHET =  new OrganisasjonsEnhet(SK_ENHET_ID, "NAV Familie- og pensjonsytelser Steinkjer");
+    public static final OrganisasjonsEnhet MIDLERTIDIG_ENHET =  new OrganisasjonsEnhet(MI_ENHET_ID, "NAV Familie- og pensjonsytelser midlertidig enhet");
+
     private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
     private static final OrganisasjonsEnhet NASJONAL_ENHET = new OrganisasjonsEnhet(NY_ENHET_ID, "NAV Familie- og pensjonsytelser Foreldrepenger");
 
@@ -76,9 +79,11 @@ public class EnhetsTjeneste {
         Map.entry("4205", KLAGE_ENHET)
     );
 
-    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
+    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO,
+        STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET, MIDLERTIDIG_ENHET);
 
-    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ);
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ,
+        MIDLERTIDIG_ENHET, UTLAND_ENHET, KONTROLL_ENHET);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
@@ -110,6 +115,9 @@ public class EnhetsTjeneste {
         }
         if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(markering)) {
             return KONTROLL_ENHET;
+        }
+        if (FagsakMarkering.PRAKSIS_UTSETTELSE.equals(markering)) {
+            return MIDLERTIDIG_ENHET;
         }
         if (FagsakMarkering.BOSATT_UTLAND.equals(markering)) {
             return UTLAND_ENHET;
@@ -148,6 +156,9 @@ public class EnhetsTjeneste {
         }
         if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(saksmarkering)) {
             return !KONTROLL_ENHET.enhetId().equals(enhetId) ? Optional.of(KONTROLL_ENHET) : Optional.empty();
+        }
+        if (FagsakMarkering.PRAKSIS_UTSETTELSE.equals(saksmarkering)) {
+            return !MIDLERTIDIG_ENHET.enhetId().equals(enhetId) ? Optional.of(MIDLERTIDIG_ENHET) : Optional.empty();
         }
         if (FagsakMarkering.BOSATT_UTLAND.equals(saksmarkering)) {
             return !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
