@@ -43,6 +43,9 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     @Column(name = "regel_sporing", nullable = false)
     private String regelSporing;
 
+    @Column(name = "regel_versjon")
+    private String regelVersjon;
+
     public BeregningsresultatEntitet() {
     }
 
@@ -56,6 +59,10 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
     public String getRegelSporing() {
         return regelSporing;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public List<BeregningsresultatPeriode> getBeregningsresultatPerioder() {
@@ -111,6 +118,11 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
         public Builder medRegelSporing(String regelSporing){
             beregningsresultatFPMal.regelSporing = regelSporing;
+            return this;
+        }
+
+        public Builder medRegelVersjon(String regelVersjon) {
+            beregningsresultatFPMal.regelVersjon = regelVersjon;
             return this;
         }
 

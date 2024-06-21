@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
@@ -508,8 +509,8 @@ class BeregningsgrunnlagRepositoryTest {
                 .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
                 .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
                 .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
-                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
+                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ, "versjon")
+                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT, "versjon")
                 .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
                 .build(beregningsgrunnlag);
     }
@@ -518,9 +519,8 @@ class BeregningsgrunnlagRepositoryTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
-                .medRegelloggSkjæringstidspunkt("input1", "clob1")
-                .medRegelloggBrukersStatus("input2", "clob2")
-                .medRegelinputPeriodisering("input3")
+                .medRegelSporing("input1", "clob1", BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT, "versjon")
+                .medRegelSporing("input1", "clob1", BeregningsgrunnlagRegelType.BRUKERS_STATUS, "versjon")
                 .build();
         buildSammenligningsgrunnlag(beregningsgrunnlag);
         buildBgAktivitetStatus(beregningsgrunnlag);

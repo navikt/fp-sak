@@ -134,9 +134,11 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_VILKÅR);
         var beregningsgrunnlagVilkårOgAkjonspunktResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
-        beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(getVilkårResultat(beregningResultatAggregat),
-            getRegelEvalueringVilkårvurdering(beregningResultatAggregat),
-            getRegelInputVilkårvurdering(beregningResultatAggregat));
+        var vilkårSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
+        beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(beregningResultatAggregat.getBeregningVilkårResultat().getErVilkårOppfylt(),
+            vilkårSporing.map(RegelSporingPeriode::regelEvaluering).orElse(null),
+            vilkårSporing.map(RegelSporingPeriode::regelInput).orElse(null),
+            vilkårSporing.map(RegelSporingPeriode::regelVersjon).map(v -> v.startsWith("f") ? v : "ft-beregning:" + v).orElse(null));
         return beregningsgrunnlagVilkårOgAkjonspunktResultat;
     }
 
@@ -152,20 +154,6 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
-    }
-
-    private boolean getVilkårResultat(BeregningResultatAggregat beregningResultatAggregat) {
-        return beregningResultatAggregat.getBeregningVilkårResultat().getErVilkårOppfylt();
-    }
-
-    private String getRegelEvalueringVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
-        var regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
-        return regelSporing.map(RegelSporingPeriode::regelEvaluering).orElse(null);
-    }
-
-    private String getRegelInputVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
-        var regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
-        return regelSporing.map(RegelSporingPeriode::regelInput).orElse(null);
     }
 
     private Optional<RegelSporingPeriode> finnRegelSporingVilkårVurdering(BeregningResultatAggregat beregningResultatAggregat) {

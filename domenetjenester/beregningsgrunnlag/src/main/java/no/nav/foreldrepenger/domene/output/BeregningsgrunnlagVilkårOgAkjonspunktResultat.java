@@ -9,6 +9,7 @@ public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
     private Boolean vilkårOppfylt;
     private String regelEvalueringVilkårVurdering;
     private String regelInputVilkårVurdering;
+    private String regelVersjonVilkårVurdering;
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat(Set<BeregningAvklaringsbehovResultat> aksjonspunktResultatListe) {
         this.aksjonspunkter = aksjonspunktResultatListe;
@@ -22,9 +23,11 @@ public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
         return vilkårOppfylt;
     }
 
-    public void setVilkårOppfylt(Boolean vilkårOppfylt, String regelEvalueringVilkårVurdering, String regelInputVilkårVurdering) {
+    public void setVilkårOppfylt(Boolean vilkårOppfylt, String regelEvalueringVilkårVurdering,
+                                 String regelInputVilkårVurdering, String regelVersjonVilkårVurdering) {
         this.regelEvalueringVilkårVurdering = regelEvalueringVilkårVurdering;
         this.regelInputVilkårVurdering = regelInputVilkårVurdering;
+        this.regelVersjonVilkårVurdering = regelVersjonVilkårVurdering;
         this.vilkårOppfylt = vilkårOppfylt;
     }
 
@@ -34,5 +37,9 @@ public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
 
     public String getRegelInputVilkårVurdering() {
         return regelInputVilkårVurdering;
+    }
+
+    public String getRegelVersjonVilkårVurdering() {
+        return regelVersjonVilkårVurdering;
     }
 }

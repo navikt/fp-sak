@@ -35,6 +35,9 @@ public class LagretVedtak extends BaseEntitet {
     @Column(name = "XML_CLOB", nullable = false)
     private String xmlClob;
 
+    @Column(name = "fpsak_versjon")
+    private String fpsakVersjon;
+
     LagretVedtak() {
     }
 
@@ -55,6 +58,10 @@ public class LagretVedtak extends BaseEntitet {
     }
     public void setXmlClob(String xmlClob) {
         this.xmlClob = xmlClob;
+    }
+
+    public String getFpsakVersjon() {
+        return fpsakVersjon;
     }
 
     @Override
@@ -83,6 +90,7 @@ public class LagretVedtak extends BaseEntitet {
         private Long fagsakId;
         private Long behandlingId;
         private String xmlClob;
+        private String fpsakVersjon;
 
         public Builder medFagsakId(Long fagsakId) {
             this.fagsakId = fagsakId;
@@ -99,12 +107,18 @@ public class LagretVedtak extends BaseEntitet {
             return this;
         }
 
+        public Builder medFpsakVersjon(String fpsakVersjon) {
+            this.fpsakVersjon = fpsakVersjon;
+            return this;
+        }
+
         public LagretVedtak build() {
             verifyStateForBuild();
             var lagretVedtak = new LagretVedtak();
             lagretVedtak.fagsakId = fagsakId;
             lagretVedtak.behandlingId = behandlingId;
             lagretVedtak.xmlClob = xmlClob;
+            lagretVedtak.fpsakVersjon = fpsakVersjon;
             return lagretVedtak;
         }
 

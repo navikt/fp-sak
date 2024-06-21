@@ -98,6 +98,7 @@ public class KopierUtbetResultatTjeneste {
         var nyttUtbetResultat = BeregningsresultatEntitet.builder()
             .medRegelSporing(forrigeUtbetResultat.getRegelSporing())
             .medRegelInput(forrigeUtbetResultat.getRegelInput())
+            .medRegelVersjon(forrigeUtbetResultat.getRegelVersjon())
             .build();
 
         forrigeUtbetResultat.getBeregningsresultatPerioder().forEach(utbPeriode -> {

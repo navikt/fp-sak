@@ -39,14 +39,14 @@ public class KopierRegelsporing {
             var sporingerSomKopieres = finnRegelsporingerSomSkalKopieres(nyttBG.get(),
                 tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
             sporingerSomKopieres.forEach(
-                rs -> bgBuilder.medRegelSporing(rs.getRegelInput(), rs.getRegelEvaluering(), rs.getRegelType()));
+                rs -> bgBuilder.medRegelSporing(rs.getRegelInput(), rs.getRegelEvaluering(), rs.getRegelType(), rs.getRegelVersjon()));
             var sporingerPeriodeSomKopieres = finnRegelsporingerSomSkalKopieresFraPeriode(
                 nyttBG.get(),
                 tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
             sporingerPeriodeSomKopieres.forEach((periode, regelsporing) -> {
                 var periodeBuilders = bgBuilder.getPeriodeBuilders(periode);
                 periodeBuilders.forEach(b -> regelsporing.forEach(
-                    sp -> b.medRegelEvaluering(sp.getRegelInput(), sp.getRegelEvaluering(), sp.getRegelType())));
+                    sp -> b.medRegelEvaluering(sp.getRegelInput(), sp.getRegelEvaluering(), sp.getRegelType(), sp.getRegelVersjon())));
             });
         }
     }

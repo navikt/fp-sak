@@ -22,10 +22,13 @@ import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FatteVedtakTjeneste {
+
+    private static final String FPSAK_IMAGE = Environment.current().imageName();
 
     public static final String UTVIKLER_FEIL_VEDTAK = "Utvikler-feil: Vedtak kan ikke fattes, behandlingsresultat er ";
 
@@ -130,10 +133,12 @@ public class FatteVedtakTjeneste {
                 behandling.getStatus().getKode());
             throw new TekniskException("FP-142918", msg);
         }
+        var versjon = FPSAK_IMAGE != null && FPSAK_IMAGE.contains("fp-sak") ? FPSAK_IMAGE.substring(FPSAK_IMAGE.indexOf("fp-sak")) : null;
         var lagretVedtak = LagretVedtak.builder()
                 .medBehandlingId(behandling.getId())
                 .medFagsakId(behandling.getFagsakId())
                 .medXmlClob(vedtakXmlTjeneste.opprettVedtakXml(behandling.getId()))
+                .medFpsakVersjon(versjon)
                 .build();
         lagretVedtakRepository.lagre(lagretVedtak);
     }

@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -14,8 +16,10 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegler;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
@@ -50,7 +54,7 @@ public class BeregnYtelseTjeneste {
         }
 
         // Kalle regeltjeneste
-        var beregningsresultat = FastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
+        var beregningsresultat = fastsettBeregningsresultat(regelmodell);
 
         // Verifiser beregningsresultat
         try {
@@ -68,6 +72,22 @@ public class BeregnYtelseTjeneste {
         var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, referanse.fagsakYtelseType()).orElseThrow();
         var feriepenger = feriepengerTjeneste.beregnFeriepenger(referanse, beregningsresultat);
         return feriepenger;
+    }
+
+    private static BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsresultatGrunnlag regelmodell) {
+        // Kjør regel
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(regelmodell);
+
+        // Map tilbake til domenemodell fra regelmodell
+        var beregningsresultat = BeregningsresultatEntitet.builder()
+            .medRegelInput(resultat.regelInput())
+            .medRegelSporing(resultat.regelSporing())
+            .medRegelVersjon(Optional.ofNullable(resultat.versjon()).map(v -> v.startsWith("f") ? v : "fp-ytelse-beregn:" + v).orElse(null))
+            .build();
+
+        MapBeregningsresultatFraRegelTilVL.mapFra(resultat.beregningsresultat(), beregningsresultat);
+
+        return beregningsresultat;
     }
 
     private void log(BeregningsresultatGrunnlag grunnlag) {

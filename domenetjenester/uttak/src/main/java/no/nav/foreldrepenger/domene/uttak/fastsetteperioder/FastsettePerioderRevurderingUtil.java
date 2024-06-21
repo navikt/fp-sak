@@ -104,6 +104,7 @@ public final class FastsettePerioderRevurderingUtil {
         return nyDokRegel
             .medRegelEvaluering(dokRegel.getRegelEvaluering())
             .medRegelInput(dokRegel.getRegelInput())
+            .medRegelVersjon(dokRegel.getRegelVersjon())
             .build();
     }
 

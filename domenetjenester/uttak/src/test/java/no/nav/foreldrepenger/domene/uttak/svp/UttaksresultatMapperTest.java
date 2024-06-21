@@ -33,7 +33,7 @@ class UttaksresultatMapperTest {
         var behandling = scenario.lagre(repositoryProvider);
         var perioder = new Uttaksperioder();
         var periode = new Uttaksperiode(LocalDate.of(2019, Month.JANUARY, 1), LocalDate.of(2019, Month.MARCH, 31), BigDecimal.ZERO);
-        periode.avslå(no.nav.svangerskapspenger.domene.resultat.PeriodeIkkeOppfyltÅrsak.SØKT_FOR_SENT, "", "");
+        periode.avslå(no.nav.svangerskapspenger.domene.resultat.PeriodeIkkeOppfyltÅrsak.SØKT_FOR_SENT, "", "", "versjon");
         perioder.leggTilPerioder(Arbeidsforhold.aktør(AktivitetType.ARBEID, aktørId.getId(), internRef), periode);
 
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
