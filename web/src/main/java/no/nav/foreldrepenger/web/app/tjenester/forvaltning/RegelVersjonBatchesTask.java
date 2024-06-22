@@ -39,7 +39,6 @@ class RegelVersjonBatchesTask implements ProsessTaskHandler {
         oppdaterFeriepenger();
         oppdaterSvangerskapspenger();
         oppdaterStønadskontoUttak();
-        oppdaterStønadskontoKonto();
     }
 
     private void oppdaterInngangsvilkår() {
