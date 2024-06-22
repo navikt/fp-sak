@@ -88,7 +88,12 @@ class RegelVersjonDagTask implements ProsessTaskHandler {
         var sql ="""
             update UTTAK_RESULTAT_DOK_REGEL
             set regel_versjon = 'fp-uttak:'||cast(substr(substr(regel_evaluering, instr(regel_evaluering, '"fp-uttak"') + 14), 0, instr(substr(regel_evaluering, instr(regel_evaluering, '"fp-uttak"') + 14), '"') - 1) as varchar2(30))
-            where opprettet_tid >= :tidspunktFra and opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"fp-uttak"%'
+            where id in (select udr.id
+            from fpsak.UTTAK_RESULTAT_DOK_REGEL udr
+            join fpsak.UTTAK_RESULTAT_PERIODE urp on udr.uttak_resultat_periode_id = urp.id
+            join fpsak.UTTAK_RESULTAT ur on urp.uttak_resultat_perioder_id = ur.opprinnelig_perioder_id
+            where ur.aktiv='J' and ur.opprettet_tid >= :tidspunktFra and ur.opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"fp-uttak"%'
+            )
             """;
 
         var antall = entityManager.createNativeQuery(sql)
@@ -101,8 +106,12 @@ class RegelVersjonDagTask implements ProsessTaskHandler {
     private void oppdaterBeregningsGrunnlag(LocalDate dato) {
         var sql ="""
             update BG_REGEL_SPORING
-            set regel_versjon ='ft-beregning:'||cast(substr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), 0, instr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), '"') - 1) as varchar2(30))
-            where opprettet_tid >= :tidspunktFra and opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"beregningsgrunnlag"%'
+            set regel_versjon ='ft-beregning:'||cast(substr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), 0, instr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), '"') - 1) as varchar2(20))
+            where id in (
+            select rs.id
+            from fpsak.BG_REGEL_SPORING rs join fpsak.GR_BEREGNINGSGRUNNLAG gr on rs.bg_id = gr.beregningsgrunnlag_id
+            where gr.aktiv='J' and gr.opprettet_tid >= :tidspunktFra and gr.opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"beregningsgrunnlag"%'
+            )
             """;
 
         var antall = entityManager.createNativeQuery(sql)
@@ -115,8 +124,12 @@ class RegelVersjonDagTask implements ProsessTaskHandler {
     private void oppdaterBeregningsGrunnlagPeriode(LocalDate dato) {
         var sql ="""
             update BG_PERIODE_REGEL_SPORING
-            set regel_versjon ='ft-beregning:'||cast(substr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), 0, instr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), '"') - 1) as varchar2(30))
-            where opprettet_tid >= :tidspunktFra and opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"beregningsgrunnlag"%'
+            set regel_versjon ='ft-beregning:'||cast(substr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), 0, instr(substr(regel_evaluering, instr(regel_evaluering, '"beregningsgrunnlag"') + 24), '"') - 1) as varchar2(20))
+            where id in (
+            select rs.id
+            from fpsak.BG_PERIODE_REGEL_SPORING rs join fpsak.BEREGNINGSGRUNNLAG_PERIODE bp on rs.bg_periode_id = bp.id
+            join fpsak.GR_BEREGNINGSGRUNNLAG gr on bp.beregningsgrunnlag_id = gr.beregningsgrunnlag_id
+            where gr.aktiv='J' and gr.opprettet_tid >= :tidspunktFra and gr.opprettet_tid < :tidspunktTil and regel_versjon is null and regel_evaluering like '%"beregningsgrunnlag"%'
             )
             """;
 
