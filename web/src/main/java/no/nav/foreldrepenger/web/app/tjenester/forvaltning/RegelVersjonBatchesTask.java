@@ -66,7 +66,7 @@ class RegelVersjonBatchesTask implements ProsessTaskHandler {
     }
 
     private void slettProsesstaskUtenGruppe() {
-        entityManager.createNativeQuery("DELETE from prosess_task where task_gruppe is null and status = 'FERDIG''")
+        entityManager.createNativeQuery("DELETE from prosess_task where task_gruppe is null and status = 'FERDIG'")
             .executeUpdate();
     }
 
