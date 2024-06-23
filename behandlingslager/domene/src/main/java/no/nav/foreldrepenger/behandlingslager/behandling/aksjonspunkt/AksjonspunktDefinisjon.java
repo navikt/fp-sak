@@ -79,7 +79,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             "Manuell vurdering av foreldreansvarsvilkåret 4.ledd", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
             VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR, TOTRINN, EnumSet.of(ES, FP)),
     FORESLÅ_VEDTAK(AksjonspunktKodeDefinisjon.FORESLÅ_VEDTAK_KODE,
-            AksjonspunktType.MANUELL, "Vurder om ytelse allerede er innvilget", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+            AksjonspunktType.MANUELL, "Foreslå vedtak totrinn", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.VEDTAK, ENTRINN, EnumSet.of(ES, FP, SVP)),
     FATTER_VEDTAK(AksjonspunktKodeDefinisjon.FATTER_VEDTAK_KODE,
             AksjonspunktType.MANUELL, "Fatter vedtak", BehandlingStegType.FATTE_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.VEDTAK, ENTRINN,
@@ -181,11 +181,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE, AksjonspunktType.MANUELL,
             "Vurder varsel ved vedtak til ugunst",
             BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    //TODO deprecate når alle AP av denne typen i prod er løst
-    KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING(
-            AksjonspunktKodeDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING_KODE, AksjonspunktType.MANUELL,
-            "Kontroll av manuelt opprettet revurderingsbehandling", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
-            EnumSet.of(ES, FP, SVP)),
     REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER(
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER_KODE, AksjonspunktType.MANUELL,
             "Registrer papir endringssøknad foreldrepenger",
@@ -274,7 +269,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE, AksjonspunktType.MANUELL, "Registrer papirsøknad svangerskapspenger",
             BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_UTTAK_DOKUMENTASJON(
-        AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder dokumentasjon",
+        AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder uttaksdokumentasjon",
         BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 600
@@ -391,6 +386,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
     @Deprecated
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
+    @Deprecated
+    UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
     @Deprecated
     UTGÅTT_5067("5067", AksjonspunktType.MANUELL, "Bruker har minsterett ifm tette saker og uttak etter start av ny sak"),
     @Deprecated
