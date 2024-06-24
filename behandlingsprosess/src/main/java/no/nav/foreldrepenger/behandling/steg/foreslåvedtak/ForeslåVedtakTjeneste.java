@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -31,6 +33,7 @@ class ForeslåVedtakTjeneste {
 
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
     private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -42,6 +45,7 @@ class ForeslåVedtakTjeneste {
 
     @Inject
     ForeslåVedtakTjeneste(FagsakRepository fagsakRepository,
+                          BehandlingRepository behandlingRepository,
                           BehandlingsresultatRepository behandlingsresultatRepository,
                           KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                           SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste,
@@ -51,6 +55,7 @@ class ForeslåVedtakTjeneste {
         this.fagsakRepository = fagsakRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
+        this.behandlingRepository = behandlingRepository;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
@@ -79,6 +84,10 @@ class ForeslåVedtakTjeneste {
         } else {
             aksjonspunktDefinisjoner
                     .addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
+            if (behandling.erRevurdering() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING) &&
+                harÅpneKlagerEllerAnker(behandling.getFagsak())) {
+                aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.VURDERE_INNTEKTSMELDING_FØR_VEDTAK);
+            }
         }
 
         var vedtakUtenTotrinnskontroll = behandling
@@ -92,6 +101,11 @@ class ForeslåVedtakTjeneste {
 
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
                 : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+    }
+
+    private boolean harÅpneKlagerEllerAnker(Fagsak fagsak) {
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .anyMatch(KlageAnkeVedtakTjeneste::behandlingErKlageEllerAnke);
     }
 
     private void håndterToTrinn(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {

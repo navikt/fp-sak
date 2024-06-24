@@ -24,6 +24,7 @@ public class AksjonspunktKodeDefinisjon {
 
 
     public static final String AVKLAR_DEKNINGSGRAD_KODE = "5002";
+
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
     public static final String AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE = "5021";
     public static final String AVKLAR_LOVLIG_OPPHOLD_KODE = "5019";
@@ -80,6 +81,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";
     public static final String VENT_PÅ_SØKNAD_KODE = "7013";
 
+    public static final String VURDERE_INNTEKTSMELDING_FØR_VEDTAK_KODE = "5003";
     public static final String VURDERE_ANNEN_YTELSE_FØR_VEDTAK_KODE = "5033";
     public static final String VURDERE_DOKUMENT_FØR_VEDTAK_KODE = "5034";
 
