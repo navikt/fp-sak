@@ -27,6 +27,7 @@ public record FagsakFullDto(String saksnummer,
                             SakHendelseDto familiehendelse,
                             FagsakMarkering utlandMarkering,
                             FagsakMarkering fagsakMarkering,
+                            List<FagsakMarkeringDto> fagsakMarkeringer,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                             List<FagsakBehandlingDto> behandlinger,
                             List<HistorikkinnslagDto> historikkinnslag,
@@ -45,6 +46,7 @@ public record FagsakFullDto(String saksnummer,
                          List<FagsakNotatDto> notater, KontrollresultatDto kontrollResultat) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
-            familiehendelse, fagsakMarkering, fagsakMarkering, behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);
+            familiehendelse, fagsakMarkering, fagsakMarkering, List.of(new FagsakMarkeringDto(fagsakMarkering, fagsakMarkering.getKortNavn())),
+            behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);
     }
 }

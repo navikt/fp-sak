@@ -221,15 +221,15 @@ public class FagsakRestTjeneste {
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
             // Sjekk om uendret merking (nasjonal er default)
-            if (Objects.equals(eksisterende, endreUtland.fagsakMarkering())) {
+            if (Objects.equals(eksisterende, endreUtland.getEnkeltMarkering())) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
-            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.fagsakMarkering());
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.getEnkeltMarkering());
+            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.getEnkeltMarkering());
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, endreUtland.fagsakMarkering()).isPresent())
+                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, endreUtland.getEnkeltMarkering()).isPresent())
                 .toList();
             behandlingerSomBytterEnhet.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
             // Oppdater LOS-oppgaver for andre tilfelle av endre saksmerking

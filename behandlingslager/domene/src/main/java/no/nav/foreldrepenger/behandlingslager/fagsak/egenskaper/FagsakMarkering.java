@@ -63,6 +63,10 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
         return navn;
     }
 
+    public String getKortNavn() {
+        return kortNavn;
+    }
+
     private static final Map<String, FagsakMarkering> KODER = new LinkedHashMap<>();
 
     static {
