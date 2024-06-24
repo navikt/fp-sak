@@ -75,7 +75,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
         var behandlingId = originalBehandling.getId();
 
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(originalBehandling.getFagsak(), dekningsgrad);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(originalBehandling.getFagsak());
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
 
@@ -161,7 +161,7 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         førstegangScenario.medRegisterOpplysninger(builderForRegisteropplysninger.build());
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(originalBehandling.getFagsak(), dekningsgrad);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(originalBehandling.getFagsak());
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
 

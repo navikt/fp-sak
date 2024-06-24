@@ -44,7 +44,7 @@ public class FagsakRelasjon extends BaseEntitet {
     @JoinColumn(name = "overstyrt_konto_beregning_id")
     private Stønadskontoberegning overstyrtStønadskontoberegning;
 
-    @AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad", nullable = false))
+    @AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad"))
     @Embedded
     private Dekningsgrad dekningsgrad;
 

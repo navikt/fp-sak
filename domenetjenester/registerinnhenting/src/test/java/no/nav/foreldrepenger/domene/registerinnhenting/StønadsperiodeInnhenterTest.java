@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -250,10 +249,10 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(FH_DATO.plusWeeks(34)));
 
-        fagsakRelasjonTjeneste.opprettRelasjon(gammelBehandlingMor.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(gammelBehandlingMor.getFagsak(), behandling.getFagsak(), gammelBehandlingMor);
-        fagsakRelasjonTjeneste.opprettRelasjon(nyereBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(nyereBehandling.getFagsak(), nyereÅpenBehandlingFar.getFagsak(), nyereBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(gammelBehandlingMor.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(gammelBehandlingMor.getFagsak(), behandling.getFagsak());
+        fagsakRelasjonTjeneste.opprettRelasjon(nyereBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(nyereBehandling.getFagsak(), nyereÅpenBehandlingFar.getFagsak());
 
         assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
 

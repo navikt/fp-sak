@@ -226,7 +226,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var behandlingSøker = morBehandlingMedUttak(perioderSøker, LocalDateTime.now());
         var behandlingAnnenpart = farBehandlingMedUttak(perioderAnnenpart, LocalDateTime.now().minusDays(1));
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak());
 
         var tjeneste = tjeneste();
 
@@ -269,7 +269,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingSøker.getId(), builder);
         inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingAnnenpart.getId(), lagFiktivtArbeidsforholdOverstyring(internArbeidsforholdIdAnnenPart));
 
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak());
 
         var tjeneste = tjeneste();
 

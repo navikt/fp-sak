@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -97,6 +98,8 @@ class RevurderingBehandlingsresultatutlederTest {
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
     @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    @Inject
+    private DekningsgradTjeneste dekningsgradTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
     @Mock
@@ -116,7 +119,7 @@ class RevurderingBehandlingsresultatutlederTest {
             opphørUttakTjeneste,
             skjæringstidspunktTjeneste,
             medlemTjeneste,
-            foreldrepengerUttakTjeneste);
+            foreldrepengerUttakTjeneste, dekningsgradTjeneste);
 
     }
 

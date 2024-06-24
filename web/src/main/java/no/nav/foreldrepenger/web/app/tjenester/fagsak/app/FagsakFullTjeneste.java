@@ -9,8 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -28,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
@@ -51,7 +50,7 @@ public class FagsakFullTjeneste {
     private BehandlingRepository behandlingRepository;
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private DekningsgradTjeneste dekningsgradTjeneste;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -70,7 +69,7 @@ public class FagsakFullTjeneste {
                               BehandlingRepository behandlingRepository,
                               PersoninfoAdapter personinfoAdapter,
                               FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                              DekningsgradTjeneste dekningsgradTjeneste,
+                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
                               FagsakEgenskapRepository fagsakEgenskapRepository,
                               FamilieHendelseTjeneste familieHendelseTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
@@ -81,7 +80,7 @@ public class FagsakFullTjeneste {
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -139,7 +138,8 @@ public class FagsakFullTjeneste {
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
         var sisteYtelsesBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        return sisteYtelsesBehandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
+        return sisteYtelsesBehandling.flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()))
+            .flatMap(yfa -> Optional.ofNullable(yfa.getGjeldendeDekningsgrad()))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
     }

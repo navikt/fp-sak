@@ -16,7 +16,6 @@ public class TotrinnskontrollAksjonspunkterDto {
     private Set<VurderÅrsak> vurderPaNyttArsaker;
     private List<UttakPeriodeEndringDto> uttakPerioder;
 
-
     public String getAksjonspunktKode() {
         return aksjonspunktKode;
     }

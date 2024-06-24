@@ -219,7 +219,7 @@ class TapteDagerFpffTjenesteTest {
             .medRegelEvaluering(" ")
             .medRegelInput(" ")
             .build();
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
         return repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandling.getFagsak()).getStønadskontoberegning().orElseThrow();
     }
 

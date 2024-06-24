@@ -314,7 +314,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
         var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonTjeneste);
+                fagsakRepository);
 
         // Arrange - mock tjenestekall
         var nyBehandling = mock(Behandling.class);
@@ -613,7 +613,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
                 .medBehandlingType(BehandlingType.REVURDERING)
                 .lagre(repositoryProvider);
         simulerKøetBehandling(behandlingMedforelder);
-        kobleFagsaker(behandling1, behandlingMedforelder);
+        fagsakRelasjonTjeneste.kobleFagsaker(behandling1.getFagsak(), behandlingMedforelder.getFagsak());
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
@@ -664,7 +664,4 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 
-    private void kobleFagsaker(Behandling behandling, Behandling medforeldersBehandling) {
-        fagsakRelasjonTjeneste.kobleFagsaker(behandling.getFagsak(), medforeldersBehandling.getFagsak(), behandling);
-    }
 }

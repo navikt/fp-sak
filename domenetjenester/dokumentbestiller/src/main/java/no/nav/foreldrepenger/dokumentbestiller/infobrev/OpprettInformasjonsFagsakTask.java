@@ -120,7 +120,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra
         // uttaket på eksisterende fagsak
         var vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMor.getId());
-        vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak, behandling));
+        vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak));
     }
 
     private Behandling opprettFørstegangsbehandlingInformasjonssak(Fagsak fagsak, OrganisasjonsEnhet enhet, BehandlingÅrsakType behandlingÅrsakType) {

@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.registerinnhenting.fp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
@@ -13,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
@@ -32,6 +36,8 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     private Instance<StartpunktUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     StartpunktTjenesteImpl() {
         // For CDI
@@ -40,10 +46,14 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     @Inject
     public StartpunktTjenesteImpl(@Any Instance<StartpunktUtleder> utledere,
                                   EndringsresultatSjekker endringsresultatSjekker,
-                                  FamilieHendelseTjeneste familieHendelseTjeneste) {
+                                  FamilieHendelseTjeneste familieHendelseTjeneste,
+                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                  DekningsgradTjeneste dekningsgradTjeneste) {
         this.utledere = utledere;
         this.endringsresultatSjekker = endringsresultatSjekker;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     @Override
@@ -66,8 +76,15 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
         var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.behandlingId());
-        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
+        if (skalSjekkeForManglendeFødsel(grunnlagForBehandling)) {
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
+        }
+        if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(revurdering.fagsakId())
+            .flatMap(fr -> Optional.ofNullable(fr.getGjeldendeDekningsgrad()))
+            .filter(frDekningsgrad -> !Objects.equals(frDekningsgrad, dekningsgradTjeneste.finnGjeldendeDekningsgrad(revurdering)))
+            .isPresent()) {
+            startpunkter.add(StartpunktType.DEKNINGSGRAD);
+        }
 
         differanse.hentKunDelresultater().stream()
             .map(diff -> utledStartpunktForDelresultat(revurdering, diff, normalDiff))

@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -117,8 +116,8 @@ public class KobleSakerTjeneste {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
     }
 
-    public void oppdaterFagsakRelasjonMedDekningsgrad(Fagsak fagsak, Optional<FagsakRelasjon> relasjon, Dekningsgrad dekningsgrad) {
-        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, relasjon, dekningsgrad);
+    public void opprettFagsakRelasjon(Fagsak fagsak) {
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak);
     }
 
     public void kobleRelatertFagsakHvisDetFinnesEn(Behandling behandling) {
@@ -127,7 +126,7 @@ public class KobleSakerTjeneste {
             return;
         }
         var potensiellFagsak = finnRelatertFagsakDersomRelevant(behandling);
-        potensiellFagsak.ifPresent(fagsak -> fagsakRelasjonTjeneste.kobleFagsaker(fagsak, behandling.getFagsak(), behandling));
+        potensiellFagsak.ifPresent(fagsak -> fagsakRelasjonTjeneste.kobleFagsaker(fagsak, behandling.getFagsak()));
     }
 
     private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {

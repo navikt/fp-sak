@@ -96,7 +96,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.AVKLAR_DEKNINGSGRAD_KODE,
             AksjonspunktType.MANUELL, "Avklar dekningsgrad", BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT,
-            UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER, ENTRINN, EnumSet.of(FP)),
+            UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER, TOTRINN, EnumSet.of(FP)),
     AVKLAR_OM_ER_BOSATT(AksjonspunktKodeDefinisjon.AVKLAR_OM_ER_BOSATT_KODE,
             AksjonspunktType.MANUELL, "Avklar om bruker er bosatt.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -317,6 +317,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_AVKLART_STARTDATO(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE, AksjonspunktType.MANUELL, "Overstyr avklart startdato for foreldrepengeperioden",
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
             TOTRINN, EnumSet.of(ES, FP, SVP)),
+    OVERSTYRING_AV_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD_KODE, AksjonspunktType.OVERSTYRING, "Overstyr dekningsgrad",
+        BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
+        TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 700
 

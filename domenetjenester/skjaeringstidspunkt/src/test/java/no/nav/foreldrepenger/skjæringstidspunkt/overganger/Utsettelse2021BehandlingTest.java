@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
@@ -187,9 +186,9 @@ class Utsettelse2021BehandlingTest {
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandlingFar, Mockito.mock(BehandlingLås.class));
 
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandlingFar.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak(), behandling);
+        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak());
+        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandlingFar.getFagsak());
+        mockprovider.getFagsakRelasjonRepository().kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak());
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
@@ -220,9 +219,9 @@ class Utsettelse2021BehandlingTest {
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandlingFar, Mockito.mock(BehandlingLås.class));
 
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandlingFar.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak(), behandling);
+        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak());
+        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandlingFar.getFagsak());
+        mockprovider.getFagsakRelasjonRepository().kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak());
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 

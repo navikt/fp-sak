@@ -53,6 +53,8 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     // G-regulering
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering grunnbeløp"),
 
+    ENDRE_DEKNINGSGRAD("ENDRE-DEKNINGSGRAD", "Endre dekningsgrad"),
+
     // For automatiske informasjonsbrev
     INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Informasjonsbrev uttak"),
     INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Informasjonsbrev opphold"),
@@ -187,7 +189,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     }
 
     public static Set<BehandlingÅrsakType> årsakerForRelatertVedtak() {
-        return Set.of(BERØRT_BEHANDLING, REBEREGN_FERIEPENGER);
+        return Set.of(BERØRT_BEHANDLING, REBEREGN_FERIEPENGER, ENDRE_DEKNINGSGRAD);
     }
 
     public static Set<BehandlingÅrsakType> alleTekniskeÅrsaker() {

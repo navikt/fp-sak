@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
@@ -45,36 +43,24 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void lagre(Fagsak fagsak, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
+        return opprettRelasjon(fagsak, mock(FagsakRelasjon.class));
     }
 
     @Override
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjon = mock(FagsakRelasjon.class);
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
         lenient().when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsak);
-        lenient().when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(dekningsgrad);
         map.put(fagsak.getSaksnummer(), fagsakRelasjon);
         return fagsakRelasjon;
     }
 
     @Override
-    public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
+    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 
     @Override
-    public Optional<FagsakRelasjon> opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
-    }
-
-    @Override
-    public FagsakRelasjon oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
-    }
-
-    @Override
-    public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
+    public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         var eksisterendeEn = finnRelasjonFor(fagsakEn).getDekningsgrad();
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         lenient().when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsakEn);
@@ -88,17 +74,12 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public Optional<FagsakRelasjon> fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
+    public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 
     @Override
-    public FagsakRelasjon nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
-    }
-
-    @Override
-    public Optional<FagsakRelasjon> nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
+    public void nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 
@@ -108,7 +89,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 }

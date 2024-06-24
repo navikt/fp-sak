@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -85,7 +86,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,
-                uttakTjeneste));
+                uttakTjeneste, new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository())));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(this.repositoryProvider,
                 new ForeldrepengerUttakTjeneste(this.repositoryProvider.getFpUttakRepository()),
                 dokumentBehandlingTjeneste,
