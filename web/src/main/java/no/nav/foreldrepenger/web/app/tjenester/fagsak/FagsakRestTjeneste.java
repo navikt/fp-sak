@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -221,15 +223,15 @@ public class FagsakRestTjeneste {
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
             // Sjekk om uendret merking (nasjonal er default)
-            if (Objects.equals(eksisterende, endreUtland.getEnkeltMarkering())) {
+            if (Objects.equals(eksisterende, getEnkeltMarkering(endreUtland))) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.getEnkeltMarkering());
-            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.getEnkeltMarkering());
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), getEnkeltMarkering(endreUtland));
+            lagHistorikkInnslag(fagsak, eksisterende, getEnkeltMarkering(endreUtland));
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, endreUtland.getEnkeltMarkering()).isPresent())
+                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, getEnkeltMarkering(endreUtland)).isPresent())
                 .toList();
             behandlingerSomBytterEnhet.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
             // Oppdater LOS-oppgaver for andre tilfelle av endre saksmerking
@@ -244,6 +246,17 @@ public class FagsakRestTjeneste {
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+
+    private static Set<FagsakMarkering> getMarkeringer(EndreUtlandMarkeringDto dto) {
+        return Optional.ofNullable(dto.fagsakMarkeringer()).filter(l -> !l.isEmpty() || dto.fagsakMarkering() == null)
+            .orElseGet(() -> Set.of(dto.fagsakMarkering()));
+    }
+
+    private static FagsakMarkering getEnkeltMarkering(EndreUtlandMarkeringDto dto) {
+        return Optional.ofNullable(dto.fagsakMarkeringer()).flatMap(l -> l.stream().findFirst())
+            .or(() -> Optional.ofNullable(dto.fagsakMarkering()))
+            .orElseThrow(() -> new IllegalArgumentException("Ingen markering angitt"));
     }
 
     private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
