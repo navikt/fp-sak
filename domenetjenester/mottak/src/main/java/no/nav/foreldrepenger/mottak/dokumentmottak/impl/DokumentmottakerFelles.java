@@ -22,9 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -49,7 +47,6 @@ public class DokumentmottakerFelles {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private Behandlingsoppretter behandlingsoppretter;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
-    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @SuppressWarnings("unused")
     private DokumentmottakerFelles() {
@@ -64,8 +61,7 @@ public class DokumentmottakerFelles {
                                   HistorikkinnslagTjeneste historikkinnslagTjeneste,
                                   MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                   Behandlingsoppretter behandlingsoppretter,
-                                  TomtUttakTjeneste tomtUttakTjeneste,
-                                  FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                  TomtUttakTjeneste tomtUttakTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.tomtUttakTjeneste = tomtUttakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -75,7 +71,6 @@ public class DokumentmottakerFelles {
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
-        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsak) {
@@ -141,10 +136,6 @@ public class DokumentmottakerFelles {
             return journalEnhet.get().enhetId();
         }
         // Midlertidig for håndtering av feil praksis utsettelse
-        if (fagsakEgenskapRepository != null &&
-            fagsakEgenskapRepository.finnFagsakMarkering(sak.getId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
-            return "4863";
-        }
         if (behandling == null) {
             return finnEnhetFraFagsak(sak).enhetId();
         }

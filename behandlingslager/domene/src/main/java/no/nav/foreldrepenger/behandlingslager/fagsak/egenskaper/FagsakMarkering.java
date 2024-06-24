@@ -1,19 +1,35 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.EgenskapNøkkel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.EgenskapVerdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum FagsakMarkering implements EgenskapVerdi {
+public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
 
-    NASJONAL,
-    EØS_BOSATT_NORGE,
-    BOSATT_UTLAND,
-    SAMMENSATT_KONTROLL,
-    DØD_DØDFØDSEL,
-    PRAKSIS_UTSETTELSE,
-    SELVSTENDIG_NÆRING;
+    NASJONAL("Nasjonal", null),
+    EØS_BOSATT_NORGE("EØS bosatt Norge", "EØS"),
+    BOSATT_UTLAND("Bosatt utland", "Utland"),
+    SAMMENSATT_KONTROLL("Sammensatt kontroll", "Kontroll"),
+    DØD_DØDFØDSEL("Død eller dødfødsel", "Død"),
+    PRAKSIS_UTSETTELSE("Næringsdrivende", "Næring"),
+    SELVSTENDIG_NÆRING("Praksis utsettelse", "Utsettelse");
+
+    @JsonIgnore
+    private final String kortNavn;
+    @JsonIgnore
+    private final String navn;
+
+    FagsakMarkering(String navn, String kortNavn) {
+        this.kortNavn = kortNavn;
+        this.navn = navn;
+    }
 
     @Override
     public String getVerdi() {
@@ -32,4 +48,32 @@ public enum FagsakMarkering implements EgenskapVerdi {
         return fagsakMarkering != null && PRIORITERT.contains(fagsakMarkering);
     }
 
+    @Override
+    public String getKode() {
+        return name();
+    }
+
+    @Override
+    public String getKodeverk() {
+        return EgenskapNøkkel.FAGSAK_MARKERING.name();
+    }
+
+    @Override
+    public String getNavn() {
+        return navn;
+    }
+
+    private static final Map<String, FagsakMarkering> KODER = new LinkedHashMap<>();
+
+    static {
+        for (var v : values()) {
+            if (KODER.putIfAbsent(v.navn, v) != null) {
+                throw new IllegalArgumentException("Duplikat : " + v.name());
+            }
+        }
+    }
+
+    public static Map<String, FagsakMarkering> kodeMap() {
+        return Collections.unmodifiableMap(KODER);
+    }
 }

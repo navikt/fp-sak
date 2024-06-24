@@ -55,7 +55,7 @@ class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends Dokume
             mockHist,
             mockMD,
             behandlingsoppretterSpied,
-            mock(TomtUttakTjeneste.class), null);
+            mock(TomtUttakTjeneste.class));
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(repositoryProvider.getBehandlingRepository(), felles, behandlingsoppretterSpied,
             kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);

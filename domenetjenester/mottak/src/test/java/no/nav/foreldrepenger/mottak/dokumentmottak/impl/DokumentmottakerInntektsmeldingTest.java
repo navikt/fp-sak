@@ -86,7 +86,7 @@ class DokumentmottakerInntektsmeldingTest {
     @BeforeEach
     public void oppsett() {
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
-                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
+                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 

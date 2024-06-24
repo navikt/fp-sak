@@ -28,7 +28,7 @@
         <!-- generelle verktøy og regel-repositories -->
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
-        <fp-inngangsvilkar.version>1.0.0</fp-inngangsvilkar.version>
+        <fp-inngangsvilkar.version>1.0.1</fp-inngangsvilkar.version>
         <beregning.version>5.0.8</beregning.version>
         <fp-uttak.version>15.1.6</fp-uttak.version>
         <fp-stonadskonto.version>2.1.0</fp-stonadskonto.version>
