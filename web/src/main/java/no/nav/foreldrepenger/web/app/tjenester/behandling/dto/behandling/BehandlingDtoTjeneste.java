@@ -12,6 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -117,6 +118,7 @@ public class BehandlingDtoTjeneste {
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
 
     @Inject
@@ -130,7 +132,7 @@ public class BehandlingDtoTjeneste {
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                                  FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                 UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
+                                 UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste, DekningsgradTjeneste dekningsgradTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -148,6 +150,7 @@ public class BehandlingDtoTjeneste {
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     BehandlingDtoTjeneste() {
@@ -474,6 +477,7 @@ public class BehandlingDtoTjeneste {
         dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
         dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
+        dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());

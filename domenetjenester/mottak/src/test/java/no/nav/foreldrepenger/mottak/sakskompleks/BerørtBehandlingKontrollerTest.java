@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
@@ -32,18 +33,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
@@ -72,7 +74,7 @@ class BerørtBehandlingKontrollerTest {
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     @Mock
     private SøknadRepository søknadRepository;
     @Mock
@@ -97,7 +99,6 @@ class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
-        when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
 
@@ -136,11 +137,14 @@ class BerørtBehandlingKontrollerTest {
         when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.empty());
         when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.empty());
 
+        when(ytelseFordelingTjeneste.hentAggregat(anyLong())).thenReturn(YtelseFordelingAggregat.oppdatere(Optional.empty()).medSakskompleksDekningsgrad(
+            Dekningsgrad._100).build());
 
         var køkontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste, repositoryProvider, null, behandlingRevurderingTjeneste,
             behandlingsoppretter, null);
-        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, behandlingRevurderingTjeneste, berørtBehandlingTjeneste, behandlingsoppretter,
-            beregnFeriepenger, køkontroller);
+        berørtBehandlingKontroller =
+            new BerørtBehandlingKontroller(repositoryProvider, behandlingRevurderingTjeneste, berørtBehandlingTjeneste, behandlingsoppretter,
+            beregnFeriepenger, køkontroller, ytelseFordelingTjeneste, behandlingProsesseringTjeneste);
     }
 
     @Test
@@ -161,7 +165,6 @@ class BerørtBehandlingKontrollerTest {
     void testHåndterKøHvisFørstegangUttakKø() {
         // Arrange
         var køetBehandlingPåVent = mock(Behandling.class);
-        var aksjonspunkt = mock(Aksjonspunkt.class);
         var aktørId = mock(AktørId.class);
         var nå = LocalDateTime.now();
         when(aktørId.getId()).thenReturn("");
@@ -367,6 +370,24 @@ class BerørtBehandlingKontrollerTest {
         // Assert opprett berørt (for medforelder)
         verify(behandlingsoppretter).opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
+    }
+
+    @Test
+    void skalOpppretteDekningsgradRevurdering() {
+        // Arrange
+        settOppAvsluttetBehandlingBruker();
+        settOppAvsluttetBehandlingAnnenpart();
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(Optional.empty());
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
+        when(behandlingsoppretter.opprettRevurdering(any(), eq(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD))).thenReturn(berørtFeriepenger);
+        when(ytelseFordelingTjeneste.hentAggregat(fBehandling.getId())).thenReturn(
+            YtelseFordelingAggregat.oppdatere(Optional.empty()).medSakskompleksDekningsgrad(Dekningsgrad._100).build());
+        when(ytelseFordelingTjeneste.hentAggregat(fBehandlingMedforelder.getId())).thenReturn(
+            YtelseFordelingAggregat.oppdatere(Optional.empty()).medSakskompleksDekningsgrad(Dekningsgrad._80).build());
+        // Act
+        berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
+        // Assert opprett revurdering (for medforelder)
+        verify(behandlingsoppretter).opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
     }
 
     @Test

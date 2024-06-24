@@ -33,17 +33,6 @@ public class StønadskontoRegelAdapter {
         this.uttakCore2024 = uttakCore2024;
     }
 
-    public Stønadskontoberegning beregnKontoer(BehandlingReferanse ref,
-                                               YtelseFordelingAggregat ytelseFordelingAggregat,
-                                               Dekningsgrad dekningsgrad,
-                                               Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
-                                               ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
-                                               Map<StønadskontoType, Integer> tidligereUtregning) {
-        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, dekningsgrad,
-            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, tidligereUtregning);
-        return konverterTilStønadskontoberegning(resultat);
-    }
-
     public Optional<Stønadskontoberegning> beregnKontoerSjekkDiff(BehandlingReferanse ref,
                                                                   YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                   Dekningsgrad dekningsgrad,

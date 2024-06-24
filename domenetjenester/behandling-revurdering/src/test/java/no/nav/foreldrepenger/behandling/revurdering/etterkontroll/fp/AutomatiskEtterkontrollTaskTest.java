@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
@@ -124,7 +123,7 @@ class AutomatiskEtterkontrollTaskTest {
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(vilkårResultat, lås);
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         return behandling;
     }
@@ -221,7 +220,7 @@ class AutomatiskEtterkontrollTaskTest {
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         var uttakResultatPerioderForFar = new UttakResultatPerioderEntitet();
@@ -319,7 +318,7 @@ class AutomatiskEtterkontrollTaskTest {
         // --- Fars behandling
         var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
         var virksomhetForFar = arbeidsgiver("456");
         var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         var uttakResultatPerioderForFar = new UttakResultatPerioderEntitet();

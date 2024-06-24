@@ -46,8 +46,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
     @Inject
     ForeslåVedtakRevurderingStegImpl(ForeslåVedtakTjeneste foreslåVedtakTjeneste,
-            BeregningTjeneste beregningTjeneste,
-            BehandlingRepositoryProvider repositoryProvider) {
+                                     BeregningTjeneste beregningTjeneste,
+                                     BehandlingRepositoryProvider repositoryProvider) {
         this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåVedtakTjeneste = foreslåVedtakTjeneste;
@@ -61,7 +61,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
         List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn orginal
-        var revurderingBG = hentBeregningsgrunnlag(BehandlingReferanse.fra(revurdering));
+        var ref = BehandlingReferanse.fra(revurdering);
+        var revurderingBG = hentBeregningsgrunnlag(ref);
         if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) && ErEndringIBeregning.vurderUgunst(
             revurderingBG, hentBeregningsgrunnlag(BehandlingReferanse.fra(orginalBehandling)))) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);

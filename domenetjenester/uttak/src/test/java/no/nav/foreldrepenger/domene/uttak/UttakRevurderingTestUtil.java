@@ -113,8 +113,7 @@ public class UttakRevurderingTestUtil {
         var revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
-        repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(revurdering.getFagsak(), dekningsgrad);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(revurdering.getFagsak());
         return revurdering;
     }
 
@@ -258,11 +257,10 @@ public class UttakRevurderingTestUtil {
             BehandlingResultatType.INNVILGET).build();
         scenario.medBehandlingsresultat(behandlingsresultat);
         var førstegangsbehandling = lagre(scenario);
-        repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(førstegangsbehandling.getFagsak(), Dekningsgrad._100);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førstegangsbehandling.getFagsak());
         if (relatertFagsak != null) {
             repositoryProvider.getFagsakRelasjonRepository()
-                .kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak, førstegangsbehandling);
+                .kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak);
         }
         opprettUttakResultat(førstegangsbehandling, perioder);
         repositoryProvider.getYtelsesFordelingRepository().lagre(førstegangsbehandling.getId(), aggregat);

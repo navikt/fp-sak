@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -66,8 +65,8 @@ class RelatertBehandlingTjenesteTest {
         var morsBehandling = scenario.lagre(repositoryProvider);
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var uttakresultat = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -90,8 +89,8 @@ class RelatertBehandlingTjenesteTest {
         em.persist(morsBehandling);
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var behandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -113,8 +112,8 @@ class RelatertBehandlingTjenesteTest {
                 repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var relatertBehandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -131,7 +130,7 @@ class RelatertBehandlingTjenesteTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak());
 
         morsFørsteBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
@@ -152,7 +151,7 @@ class RelatertBehandlingTjenesteTest {
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
-        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -168,7 +167,7 @@ class RelatertBehandlingTjenesteTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak());
 
         morsFørsteBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
@@ -193,7 +192,7 @@ class RelatertBehandlingTjenesteTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
         var farsBehandling = farsScenario.lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
-        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeBehandlingPåVedtakstidspunkt = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(farsBehandling);
@@ -209,7 +208,7 @@ class RelatertBehandlingTjenesteTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak());
 
         morsFørsteBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
@@ -230,7 +229,7 @@ class RelatertBehandlingTjenesteTest {
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
-        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -261,7 +260,7 @@ class RelatertBehandlingTjenesteTest {
         morFørstegangScenario.medUttak(uttak);
 
         var morsFørsteBehandling = morFørstegangScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(morsFørsteBehandling.getFagsak());
 
         morsFørsteBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsFørsteBehandling,
@@ -301,7 +300,7 @@ class RelatertBehandlingTjenesteTest {
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
         var farsBehandling = farsScenario.lagre(repositoryProvider);
         farsBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(farsBehandling.getId());
-        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak(), morsRevurdering);
+        fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeVedtattUttaksplan = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(farsBehandling);

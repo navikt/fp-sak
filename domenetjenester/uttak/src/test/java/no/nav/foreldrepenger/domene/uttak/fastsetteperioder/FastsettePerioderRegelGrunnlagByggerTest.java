@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -385,9 +384,9 @@ class FastsettePerioderRegelGrunnlagByggerTest {
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var farsBehandling = lagre(scenarioFarSøkerForeldrepenger);
 
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak());
         repositoryProvider.getFagsakRelasjonRepository()
-            .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+            .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), farsBehandling.getId());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),

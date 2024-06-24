@@ -48,7 +48,7 @@ public class BeregnStønadskontoerTjeneste {
     public void opprettStønadskontoer(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoberegning = beregnForBehandling(uttakInput, Map.of()).orElseThrow();
-        fagsakRelasjonTjeneste.lagre(ref.fagsakId(), ref.behandlingId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.lagre(ref.fagsakId(), stønadskontoberegning);
     }
 
     public Optional<Stønadskontoberegning> beregnForBehandling(UttakInput uttakInput, Map<StønadskontoType, Integer> tidligereBeregning) {

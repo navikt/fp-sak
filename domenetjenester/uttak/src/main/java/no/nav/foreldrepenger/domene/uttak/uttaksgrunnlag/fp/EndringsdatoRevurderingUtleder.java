@@ -133,6 +133,9 @@ public class EndringsdatoRevurderingUtleder {
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
         nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         pleiepengerEndringstype(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
+        if (endretDekningsgrad(ref)) {
+            endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
+        }
 
         return endringsdatoTypeEnumSet;
     }
@@ -420,9 +423,10 @@ public class EndringsdatoRevurderingUtleder {
 
     private Optional<LocalDate> beregnetEndringsdatoBerørtBehandling(UttakInput input, Long utløsendeBehandlingId) {
         var utløsendeUttak = hentUttak(utløsendeBehandlingId).orElseGet(() -> new ForeldrepengerUttak(List.of()));
-        var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
+        var originalBehandlingId = input.getBehandlingReferanse().originalBehandlingId();
+        var berørtUttak = hentUttak(originalBehandlingId);
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak,
-            ytelsesFordelingRepository.hentAggregatHvisEksisterer(utløsendeBehandlingId),
+            ytelsesFordelingRepository.hentAggregat(utløsendeBehandlingId),
             stønadskontoSaldoTjeneste.erOriginalNegativSaldoPåNoenKontoForsiktig(input), // Gambler på samme resultat for input fra begge partene
             berørtUttak,
             input,

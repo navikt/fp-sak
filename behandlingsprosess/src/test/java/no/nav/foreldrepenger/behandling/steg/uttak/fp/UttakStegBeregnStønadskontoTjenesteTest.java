@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -61,7 +62,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
             dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
-        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste);
+        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste,
+            repositoryProvider.getBehandlingRepository());
     }
 
     @Test
@@ -160,7 +162,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
             .medOppgittDekningsgrad(Dekningsgrad._100);
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(morBehandling.getId(), LocalDateTime.now()));
@@ -187,7 +189,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
             .medOppgittDekningsgrad(Dekningsgrad._100);
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
@@ -209,7 +211,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
             .medOppgittDekningsgrad(Dekningsgrad._100);
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
-        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
@@ -256,12 +258,13 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettStønadskontoer(Behandling førsteBehandling) {
-        fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
+        var dekningsgrad = Dekningsgrad._100;
         var stønadskontoberegning = Stønadskontoberegning.builder()
             .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
             .medRegelEvaluering(" ")
             .medRegelInput(" ")
             .build();
-        fagsakRelasjonTjeneste.lagre(førsteBehandling.getFagsak().getId(), førsteBehandling.getId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), new FagsakRelasjon(førsteBehandling.getFagsak(), null,
+            stønadskontoberegning, dekningsgrad, null, null));
     }
 }

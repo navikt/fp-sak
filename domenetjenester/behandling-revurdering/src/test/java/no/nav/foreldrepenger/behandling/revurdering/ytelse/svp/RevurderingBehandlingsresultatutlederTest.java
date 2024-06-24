@@ -19,6 +19,7 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
@@ -110,6 +111,8 @@ class RevurderingBehandlingsresultatutlederTest {
     private SvangerskapspengerUttakResultatRepository uttakRepository;
     @Inject
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
+    @Inject
+    private DekningsgradTjeneste dekningsgradTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
@@ -143,7 +146,7 @@ class RevurderingBehandlingsresultatutlederTest {
                 beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
-                medlemTjeneste);
+                medlemTjeneste, dekningsgradTjeneste);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);

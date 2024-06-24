@@ -62,6 +62,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE = "6011";
     public static final String OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE = "6014";
     public static final String OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE = "6015";
+    public static final String OVERSTYRING_AV_DEKNINGSGRAD_KODE = "6016";
 
     public static final String REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE = "5012";
 

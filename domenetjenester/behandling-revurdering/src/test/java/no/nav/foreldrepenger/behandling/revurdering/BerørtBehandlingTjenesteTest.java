@@ -76,8 +76,8 @@ class BerørtBehandlingTjenesteTest {
 
     @Test
     void berørt_behandling_skal_ikke_opprette_berørt() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null,
             new ForeldrepengerGrunnlag().medErBerørtBehandling(true));
@@ -90,8 +90,8 @@ class BerørtBehandlingTjenesteTest {
 
     @Test
     void annenpart_uten_uttak_skal_ikke_opprette_berørt() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInput(behandling);
 
@@ -104,8 +104,14 @@ class BerørtBehandlingTjenesteTest {
 
     @Test
     void behandling_uten_uttak_skal_ikke_opprette_berørt() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(LocalDate.now()).lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(LocalDate.now()).lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(LocalDate.now())
+            .lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(LocalDate.now())
+            .lagre(repositoryProvider);
 
         lagUttakInput(behandling);
 
@@ -126,8 +132,14 @@ class BerørtBehandlingTjenesteTest {
     void behandling_med_negativ_saldo_skal_opprette_berørt() {
         var basedato = LocalDate.now();
 
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(basedato.minusWeeks(7))
+            .lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(basedato.minusWeeks(7))
+            .lagre(repositoryProvider);
 
         var morsMK = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(basedato.minusWeeks(7), basedato.minusWeeks(1).minusDays(1))
@@ -206,8 +218,14 @@ class BerørtBehandlingTjenesteTest {
     void behandling_med_endret_stønadskonto_skal_opprette_berørt() {
         var basedato = LocalDate.now();
 
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(basedato.minusWeeks(7))
+            .lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(basedato.minusWeeks(7))
+            .lagre(repositoryProvider);
 
         var morsMK = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(basedato.minusWeeks(7), basedato.minusWeeks(1).minusDays(1))
@@ -247,7 +265,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoFar = startDatoMor.plusMonths(3);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -282,7 +300,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoFar = startDatoMor.plusMonths(3);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -323,7 +341,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoFar = startDatoMor.plusMonths(3);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInputSammenhengendeUttak(farBehandling);
 
@@ -405,7 +423,7 @@ class BerørtBehandlingTjenesteTest {
             .build();
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInputSammenhengendeUttak(farBehandling);
 
@@ -426,10 +444,12 @@ class BerørtBehandlingTjenesteTest {
 
         var fødselsdato = LocalDate.of(2021, 9, 26);
         var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
             .medFødselAdopsjonsdato(fødselsdato)
             .medAvklarteUttakDatoer(avklarteDatoer(startDatoFar))
             .lagre(repositoryProvider);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
 
         lagUttakInputSammenhengendeUttak(farBehandling);
@@ -479,7 +499,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -508,7 +528,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -545,10 +565,12 @@ class BerørtBehandlingTjenesteTest {
         var endringsdato = startDatoMor.plusMonths(3);
 
         var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
             .medAvklarteUttakDatoer(avklarteDatoer(endringsdato))
             .medFødselAdopsjonsdato(startDatoMor)
             .lagre(repositoryProvider);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
             .medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
@@ -584,7 +606,10 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(startDatoMor)
+            .lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -619,7 +644,10 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
+            .medFødselAdopsjonsdato(startDatoMor)
+            .lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -653,7 +681,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.of(2021, 11, 1));
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
 
         lagUttakInputUtenMinsterett(farBehandling);
 
@@ -688,7 +716,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
 
@@ -723,7 +751,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
 
         lagUttakInputSammenhengendeUttak(farBehandling);
@@ -764,9 +792,11 @@ class BerørtBehandlingTjenesteTest {
         var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(avklarteDatoer(farStart))
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
@@ -811,9 +841,11 @@ class BerørtBehandlingTjenesteTest {
         var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(avklarteDatoer(farStart))
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
@@ -860,9 +892,11 @@ class BerørtBehandlingTjenesteTest {
         var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(avklarteDatoer(farStart))
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
 
         lagUttakInputSammenhengendeUttak(farBehandling);
@@ -902,7 +936,8 @@ class BerørtBehandlingTjenesteTest {
     void berørt_behandling_hvis_tomt_uttak_fører_til_hull_i_tidsperiode_forbeholdt_mor() {
         var startDatoMor = LocalDate.of(2021, 12, 13);
 
-        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad();
         //Annulleringsbehandling for far
         var farBehandling = farAnnulleringsbehandling(startDatoMor);
         var morBehandling = scenarioAnnenpart.lagre(repositoryProvider);
@@ -940,6 +975,7 @@ class BerørtBehandlingTjenesteTest {
         //Annulleringsbehandling for far
         var farBehandling = farAnnulleringsbehandling(startDatoMor);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
 
         lagUttakInput(farBehandling);
@@ -969,6 +1005,7 @@ class BerørtBehandlingTjenesteTest {
         return ScenarioFarSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFødselAdopsjonsdato(startDatoMor)
+            .medDefaultOppgittDekningsgrad()
             .lagre(repositoryProvider);
     }
 
@@ -977,7 +1014,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         lagUttakInputSammenhengendeUttak(farBehandling);
 
@@ -1006,7 +1043,7 @@ class BerørtBehandlingTjenesteTest {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
-        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
         var brMedIngenEndring = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(farBehandling.getId()))
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
@@ -1077,7 +1114,7 @@ class BerørtBehandlingTjenesteTest {
     void ikke_berørt_behandling_ved_overlapp_mellom_partene_der_bruker_har_avslått_utsettelse() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
-        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad();
         var farBehandling = opprettBehandlingFar(startDatoMor);
         var morBehandling = scenarioAnnenpart.lagre(repositoryProvider);
 

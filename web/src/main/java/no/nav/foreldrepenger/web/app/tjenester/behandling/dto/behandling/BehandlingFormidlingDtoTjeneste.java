@@ -253,8 +253,7 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
-        var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling));
-        dto.setEndretDekningsgrad(endretDekningsgrad);
+        dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingDokument.isPresent()) {

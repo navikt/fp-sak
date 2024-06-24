@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -23,23 +24,20 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingTypeRef(BehandlingType.REVURDERING)
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
-    private SvangerskapspengerUttakResultatRepository uttakRepository;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private final SvangerskapspengerUttakResultatRepository uttakRepository;
+    private final BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
-            SvangerskapspengerUttakResultatRepository uttakResultatRepository,
-            BeregningTjeneste beregningTjeneste,
-            OpphørUttakTjeneste opphørUttakTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            MedlemTjeneste medlemTjeneste) {
-        super(repositoryProvider,
-                grunnlagRepositoryProvider,
-                beregningTjeneste,
-                medlemTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste);
+                                                 BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
+                                                 SvangerskapspengerUttakResultatRepository uttakResultatRepository,
+                                                 BeregningTjeneste beregningTjeneste,
+                                                 OpphørUttakTjeneste opphørUttakTjeneste,
+                                                 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                 MedlemTjeneste medlemTjeneste,
+                                                 DekningsgradTjeneste dekningsgradTjeneste) {
+        super(repositoryProvider, grunnlagRepositoryProvider, beregningTjeneste, medlemTjeneste, opphørUttakTjeneste, skjæringstidspunktTjeneste,
+            dekningsgradTjeneste);
         this.uttakRepository = uttakResultatRepository;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }

@@ -96,7 +96,7 @@ public class BehandlingRepositoryProvider {
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
 
         // Må gjøres til slutt pga deps
-        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
+        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, fagsakLåsRepository);
 
 
         // ********
