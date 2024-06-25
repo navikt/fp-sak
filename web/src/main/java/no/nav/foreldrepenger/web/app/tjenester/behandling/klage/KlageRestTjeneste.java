@@ -133,9 +133,10 @@ public class KlageRestTjeneste {
 
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP)) {
             mapMellomlagreKlage(apDto, builder);
+            klageFormkravHistorikk.opprettHistorikkinnslagVurdering(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP,
+                apDto, apDto.getBegrunnelse());
         }
-        klageFormkravHistorikk.opprettHistorikkinnslagVurdering(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP,
-            apDto, apDto.getBegrunnelse());
+
         builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
 
         klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, builder, vurdertAv);
@@ -162,6 +163,7 @@ public class KlageRestTjeneste {
             : KlageVurdertAv.NK;
         var behandling = behandlingRepository.hentBehandling(apDto.behandlingUuid());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
+        var lagretFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, vurdertAv);
         var builderFormKrav = klageVurderingTjeneste.hentKlageFormkravBuilder(behandling, vurdertAv);
         var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
@@ -173,11 +175,9 @@ public class KlageRestTjeneste {
             oppdaterKlageresultat(apDto, klageResultat, behandling);
             mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat );
             klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
+            klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(behandling, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP, apDto,
+                lagretFormkrav, klageResultat, apDto.begrunnelse());
         }
-
-        var lagretFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, vurdertAv);
-        klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(behandling, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP, apDto,
-            lagretFormkrav, klageResultat, apDto.begrunnelse());
 
         vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
 
