@@ -84,7 +84,7 @@ class ForeslåVedtakTjenesteTest {
 
         var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingsresultatRepository,
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingRepository, behandlingsresultatRepository,
             klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste, mock(FagsakEgenskapRepository.class));
     }
 

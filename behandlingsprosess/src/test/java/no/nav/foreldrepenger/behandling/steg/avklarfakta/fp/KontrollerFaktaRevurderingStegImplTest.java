@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -390,8 +389,8 @@ class KontrollerFaktaRevurderingStegImplTest {
         førstegangScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
 
         var behandling = førstegangScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), new FagsakRelasjon(behandling.getFagsak(), null,
-            null, Dekningsgrad._100, null, null));
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak());
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(behandling.getFagsak(), Dekningsgrad._100, null);
         return behandling;
     }
 

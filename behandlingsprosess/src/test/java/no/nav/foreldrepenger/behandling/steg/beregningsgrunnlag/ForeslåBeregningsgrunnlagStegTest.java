@@ -7,8 +7,9 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
-import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -100,9 +99,8 @@ class ForeslåBeregningsgrunnlagStegTest {
     void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
-        var aksjonspunktResultat = BeregningAvklaringsbehovResultat
-            .opprettFor(AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL);
-        when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(Set.of(aksjonspunktResultat));
+        when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(List.of(AksjonspunktResultat.opprettForAksjonspunkt(
+            AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS)));
 
         // Act
         var resultat = steg.utførSteg(kontekst);

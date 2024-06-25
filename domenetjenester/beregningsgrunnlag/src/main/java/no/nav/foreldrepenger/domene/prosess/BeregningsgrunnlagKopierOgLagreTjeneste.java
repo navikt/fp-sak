@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -32,7 +31,6 @@ import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.FortsettForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
-import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
@@ -47,6 +45,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
@@ -82,7 +81,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         this.kalkulatorStegProsesseringInputTjeneste = kalkulatorStegProsesseringInputTjeneste;
     }
 
-    public Set<BeregningAvklaringsbehovResultat> fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
         var ref = input.getKoblingReferanse();
         var resultat = beregningsgrunnlagTjeneste.fastsettBeregningsaktiviteter(
             kalkulatorStegProsesseringInputTjeneste.lagStartInput(ref.getKoblingId(), input));
@@ -119,7 +118,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
             BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderVilkårBeregningsgrunnlag(BeregningsgrunnlagInput input) {
@@ -133,7 +132,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
             BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_VILKÅR);
         var beregningsgrunnlagVilkårOgAkjonspunktResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
         var vilkårSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
         beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(beregningResultatAggregat.getBeregningVilkårResultat().getErVilkårOppfylt(),
             vilkårSporing.map(RegelSporingPeriode::regelEvaluering).orElse(null),
@@ -153,7 +152,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private Optional<RegelSporingPeriode> finnRegelSporingVilkårVurdering(BeregningResultatAggregat beregningResultatAggregat) {
@@ -188,7 +187,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
@@ -203,7 +202,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT, FORESLÅTT_UT);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat fortsettForeslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
@@ -218,14 +217,14 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT_2, FORESLÅTT_2_UT);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
-            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     public RyddBeregningsgrunnlag getRyddBeregningsgrunnlag(BehandlingskontrollKontekst kontekst) {
         return new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 
-    public Set<BeregningAvklaringsbehovResultat> kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var faktaOmBeregningInput = (FaktaOmBeregningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
             behandlingId, input, BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
@@ -236,7 +235,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getRegelSporingAggregat());
         var nyttBg = nyttGrunnlag.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
         lagreOgKopier(input, beregningResultatAggregat, nyttBg);
-        return beregningResultatAggregat.getBeregningAvklaringsbehovResultater();
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     public void kopierBeregningsresultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
@@ -310,8 +310,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
     }
 
-    private Set<BeregningAvklaringsbehovResultat> lagreOgKopier(KoblingReferanse ref,
-                                                              BeregningResultatAggregat resultat) {
+    private BeregningsgrunnlagVilkårOgAkjonspunktResultat lagreOgKopier(KoblingReferanse ref,
+                                                                        BeregningResultatAggregat resultat) {
         var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag(),
             resultat.getRegelSporingAggregat());
         var forrigeBekreftetGrunnlag = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(
@@ -328,7 +328,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
                 gr -> beregningsgrunnlagRepository.lagre(ref.getKoblingId(), BeregningsgrunnlagGrunnlagBuilder.kopi(gr),
                     BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER));
         }
-        return beregningAksjonspunktResultater;
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
+            resultat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private void lagreOgKopier(BeregningsgrunnlagInput input,

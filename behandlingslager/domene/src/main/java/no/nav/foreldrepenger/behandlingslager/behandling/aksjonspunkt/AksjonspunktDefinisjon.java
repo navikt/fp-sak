@@ -132,6 +132,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK_KODE, AksjonspunktType.MANUELL, "Vurdere dokument før vedtak",
             BehandlingStegType.FORESLÅ_VEDTAK,
             VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    VURDERE_INNTEKTSMELDING_FØR_VEDTAK(
+        AksjonspunktKodeDefinisjon.VURDERE_INNTEKTSMELDING_FØR_VEDTAK_KODE, AksjonspunktType.MANUELL, "Vurdere inntektsmelding før vedtak",
+        BehandlingStegType.FORESLÅ_VEDTAK,
+        VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(FP, SVP)),
     MANUELL_VURDERING_AV_KLAGE_NFP(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av klage (NFP)",
             BehandlingStegType.KLAGE_NFP, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KLAGE_BEH_NFP, ENTRINN, EnumSet.of(ES, FP, SVP)),

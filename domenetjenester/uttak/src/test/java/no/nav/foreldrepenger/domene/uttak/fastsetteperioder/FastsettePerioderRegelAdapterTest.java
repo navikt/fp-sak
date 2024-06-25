@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -764,8 +763,8 @@ class FastsettePerioderRegelAdapterTest {
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
 
         var farBehandling = farScenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morBehandling.getFagsak(), new FagsakRelasjon(morBehandling.getFagsak(),
-            farBehandling.getFagsak(), null, null, null, null));
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morBehandling.getFagsak());
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var farUttakresultat = new UttakResultatPerioderEntitet();
         var farPeriode = new UttakResultatPeriodeEntitet.Builder(
@@ -1337,8 +1336,9 @@ class FastsettePerioderRegelAdapterTest {
             .medStønadskonto(new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
             .build();
 
-        fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak(), new FagsakRelasjon(revurdering.getFagsak(),
-            null, stønadskontoberegning, Dekningsgrad._100, null, null));
+        fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak());
+        fagsakRelasjonRepository.oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100, null);
+        fagsakRelasjonRepository.lagre(revurdering.getFagsak(), stønadskontoberegning);
 
         var endringsdato = revurderingSøknadsperiodeFellesperiode.getFom();
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(

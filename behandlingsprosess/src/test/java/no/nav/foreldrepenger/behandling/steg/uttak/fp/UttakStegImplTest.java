@@ -52,7 +52,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -375,8 +374,8 @@ class UttakStegImplTest {
         var førstegangsBehandling = scenario.lagre(repositoryProvider);
         byggArbeidForBehandling(førstegangsBehandling);
         opprettUttaksperiodegrense(fødselsdato, førstegangsBehandling);
-        fagsakRelasjonTjeneste.opprettRelasjon(førstegangsBehandling.getFagsak(), new FagsakRelasjon(førstegangsBehandling.getFagsak(), null, null,
-            Dekningsgrad._100, null, null));
+        fagsakRelasjonTjeneste.opprettRelasjon(førstegangsBehandling.getFagsak());
+        fagsakRelasjonTjeneste.oppdaterDekningsgrad(førstegangsBehandling.getFagsakId(), Dekningsgrad._100);
 
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);
