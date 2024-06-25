@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
@@ -51,14 +50,12 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.vurderVilkårBeregningsgrunnlag(input);
-        beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, beregningsgrunnlagResultat);
-        if (Boolean.FALSE.equals(beregningsgrunnlagResultat.getVilkårOppfylt())) {
+        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.vurderVilkårBeregningsgrunnlag(input);
+        beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, resultat);
+        if (Boolean.FALSE.equals(resultat.getVilkårOppfylt())) {
             return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
         }
-        var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(resultat.getAksjonspunkter());
     }
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {

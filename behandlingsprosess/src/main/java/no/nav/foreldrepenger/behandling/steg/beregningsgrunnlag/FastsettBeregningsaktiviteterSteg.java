@@ -7,13 +7,11 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -29,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -69,26 +66,18 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
-        var ugyldigAndel = UgyldigGraderingUtleder.finnFørsteUgyldigeAndel(input);
-        if (ugyldigAndel.isPresent()) {
-            var saksnummer = BehandlingReferanse.fra(behandling).saksnummer();
-            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s", saksnummer.getVerdi(),
-                OrgNummer.tilMaskertNummer(ugyldigAndel.get().arbeidsgiverIdent()), ugyldigAndel.get().internRef());
-            LOG.warn(feilmelding);
-        }
-
-        var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
-        if (aksjonspunktResultater == null) {
+        if (resultat == null) {
+            // Tror denne if bolken kan slettes, da det aldri vil skje. Legger inn logg for å se om det faktisk oppstår.
+            LOG.info("BG_LOG_FASTSETT_STP_BER: Hopper frem til foreslå behandlingsresultat");
             return BehandleStegResultat.fremoverført(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
         }
         // Hvis det ikke allerede er utledet ventepunkt og vi har ventepunkt for sykemelding
-        if (aksjonspunktResultater.stream().noneMatch(BeregningAvklaringsbehovResultat::harFrist) && ventPåSykemeldingAksjonspunkt.isPresent()) {
+        if (resultat.getAksjonspunkter().stream().noneMatch(a -> a.getFrist() != null) && ventPåSykemeldingAksjonspunkt.isPresent()) {
             return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåSykemeldingAksjonspunkt.get());
         }
-        // hent på nytt i tilfelle lagret og flushet
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(resultat.getAksjonspunkter());
     }
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {

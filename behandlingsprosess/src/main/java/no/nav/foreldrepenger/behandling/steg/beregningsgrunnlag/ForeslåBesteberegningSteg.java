@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.util.ArrayList;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
-import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
@@ -62,7 +61,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
         if (skalBeregnesAutomatisk(ref)) {
             var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
-            var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
+            var aksjonspunkter = new ArrayList<>(resultat.getAksjonspunkter());
 
             if (besteberegningFødendeKvinneTjeneste.trengerManuellKontrollAvAutomatiskBesteberegning(ref)) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING));
