@@ -51,7 +51,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
+    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad) {
         throw new UnsupportedOperationException(IKKE_STOTTET);
     }
 

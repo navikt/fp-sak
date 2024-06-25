@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
@@ -30,7 +29,6 @@ public class ForvaltningUttakTjeneste {
     private FagsakRepository fagsakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private HistorikkRepository historikkRepository;
-    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(BehandlingRepository behandlingRepository,
@@ -39,8 +37,7 @@ public class ForvaltningUttakTjeneste {
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                     FagsakRepository fagsakRepository,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                    HistorikkRepository historikkRepository,
-                                    UføretrygdRepository uføretrygdRepository) {
+                                    HistorikkRepository historikkRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -48,7 +45,6 @@ public class ForvaltningUttakTjeneste {
         this.fagsakRepository = fagsakRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkRepository = historikkRepository;
-        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     ForvaltningUttakTjeneste() {

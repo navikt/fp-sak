@@ -1337,7 +1337,7 @@ class FastsettePerioderRegelAdapterTest {
             .build();
 
         fagsakRelasjonRepository.opprettRelasjon(revurdering.getFagsak());
-        fagsakRelasjonRepository.oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100, null);
+        fagsakRelasjonRepository.oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonRepository.lagre(revurdering.getFagsak(), stønadskontoberegning);
 
         var endringsdato = revurderingSøknadsperiodeFellesperiode.getFom();

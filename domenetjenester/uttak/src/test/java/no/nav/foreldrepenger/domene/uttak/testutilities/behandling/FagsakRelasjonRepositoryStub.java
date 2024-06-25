@@ -74,13 +74,13 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     }
 
     @Override
-    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
+    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad) {
         var fagsakRelasjon = finnRelasjonForHvisEksisterer(fagsak).orElse(null);
         if (fagsakRelasjon == null) {
             fagsakRelasjon = opprettRelasjon(fagsak);
         }
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            fagsakRelasjon.getStønadskontoberegning().orElse(null), dekningsgrad, overstyrtDekningsgrad,
+            fagsakRelasjon.getStønadskontoberegning().orElse(null), dekningsgrad, null,
             fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }
