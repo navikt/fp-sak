@@ -78,10 +78,6 @@ public class FagsakRelasjonTjeneste {
         fagsakRelasjonRepository.oppdaterDekningsgrad(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId), dekningsgrad, null);
     }
 
-    public void opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
-       fagsakRelasjonRepository.opprettRelasjon(fagsak, fagsakRelasjon);
-    }
-
     public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo);
     }

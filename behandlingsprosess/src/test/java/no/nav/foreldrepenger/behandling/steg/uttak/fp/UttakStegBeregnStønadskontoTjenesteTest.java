@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -264,7 +263,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
             .medRegelEvaluering(" ")
             .medRegelInput(" ")
             .build();
-        fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak(), new FagsakRelasjon(førsteBehandling.getFagsak(), null,
-            stønadskontoberegning, dekningsgrad, null, null));
+        fagsakRelasjonTjeneste.opprettRelasjon(førsteBehandling.getFagsak());
+        fagsakRelasjonTjeneste.oppdaterDekningsgrad(førsteBehandling.getFagsakId(), dekningsgrad);
+        fagsakRelasjonTjeneste.lagre(førsteBehandling.getFagsakId(), stønadskontoberegning);
     }
 }

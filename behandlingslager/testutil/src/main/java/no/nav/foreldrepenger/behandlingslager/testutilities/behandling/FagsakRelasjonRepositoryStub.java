@@ -44,11 +44,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
-        return opprettRelasjon(fagsak, mock(FagsakRelasjon.class));
-    }
-
-    @Override
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
         lenient().when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsak);
         map.put(fagsak.getSaksnummer(), fagsakRelasjon);
         return fagsakRelasjon;
