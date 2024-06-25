@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormkravAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormkravOppdaterer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageTilbakekrevingDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
@@ -70,8 +71,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
             behandlingRepository);
         KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter, behandlingRepository,
-            repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, mock(BehandlingskontrollTjeneste.class));
+        var formHistorikk = new KlageHistorikkinnslag(historikkTjenesteAdapter, behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
+        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, mock(BehandlingskontrollTjeneste.class), formHistorikk);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
     }

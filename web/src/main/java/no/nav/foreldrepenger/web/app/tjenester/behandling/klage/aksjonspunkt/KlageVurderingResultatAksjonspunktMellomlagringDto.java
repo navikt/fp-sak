@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
@@ -19,41 +18,33 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public class KlageVurderingResultatAksjonspunktMellomlagringDto {
+public class KlageVurderingResultatAksjonspunktMellomlagringDto implements KlageVurderingLagreDto{
 
     @Pattern(regexp = InputValideringRegex.KODEVERK)
-    @JsonProperty("kode")
     private String kode;
 
     @Valid
     @NotNull
-    @JsonProperty("behandlingUuid")
     private UUID behandlingUuid;
 
     @ValidKodeverk
-    @JsonProperty("klageVurdering")
     private KlageVurdering klageVurdering;
 
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("begrunnelse")
     private String begrunnelse;
 
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
     @ValidKodeverk
-    @JsonProperty("klageMedholdArsak")
     private KlageMedholdÅrsak klageMedholdArsak;
 
     @ValidKodeverk
-    @JsonProperty("klageVurderingOmgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjoer;
 
     @ValidKodeverk
-    @JsonProperty("klageHjemmel")
     private KlageHjemmel klageHjemmel;
 
     public KlageVurderingResultatAksjonspunktMellomlagringDto() {
@@ -78,6 +69,7 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
         this.klageHjemmel = klageHjemmel;
     }
 
+    @Override
     public KlageVurdering getKlageVurdering() {
         return klageVurdering;
     }
@@ -90,14 +82,17 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
         return fritekstTilBrev;
     }
 
+    @Override
     public KlageMedholdÅrsak getKlageMedholdArsak() {
         return klageMedholdArsak;
     }
 
+    @Override
     public KlageVurderingOmgjør getKlageVurderingOmgjoer() {
         return klageVurderingOmgjoer;
     }
 
+    @Override
     public KlageHjemmel getKlageHjemmel() {
         return klageHjemmel;
     }

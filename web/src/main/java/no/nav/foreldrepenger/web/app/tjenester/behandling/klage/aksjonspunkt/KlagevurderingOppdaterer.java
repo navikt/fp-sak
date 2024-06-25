@@ -12,16 +12,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 
@@ -29,7 +22,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 @DtoTilServiceAdapter(dto = KlageVurderingResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVurderingResultatAksjonspunktDto> {
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private KlageHistorikkinnslag klageHistorikkinnslag;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -39,12 +32,12 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     @Inject
-    public KlagevurderingOppdaterer(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+    public KlagevurderingOppdaterer(KlageHistorikkinnslag klageHistorikkinnslag,
                                     BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     KlageVurderingTjeneste klageVurderingTjeneste,
                                     BehandlingRepository behandlingRepository) {
-        this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
+        this.klageHistorikkinnslag = klageHistorikkinnslag;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -59,7 +52,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
         håndterKlageVurdering(dto, behandling, aksjonspunktDefinisjon);
 
-        opprettHistorikkinnslag(behandling, aksjonspunktDefinisjon, dto);
+        klageHistorikkinnslag.opprettHistorikkinnslagVurdering(behandling, aksjonspunktDefinisjon, dto, dto.getBegrunnelse());
         oppdatereDatavarehus(dto, behandling, aksjonspunktDefinisjon);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
@@ -94,43 +87,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
         }
-    }
-
-    private void opprettHistorikkinnslag(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurderingResultatAksjonspunktDto dto) {
-        var klageVurdering = dto.getKlageVurdering();
-        var klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null ? dto.getKlageVurderingOmgjoer() : null;
-        var erNfpAksjonspunkt = erNfpAksjonspunkt(aksjonspunktDefinisjon);
-        var historikkinnslagType = erNfpAksjonspunkt ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
-        Kodeverdi årsak = null;
-        if (dto.getKlageMedholdArsak() != null) {
-            årsak = dto.getKlageMedholdArsak();
-        } else if (dto.getKlageAvvistArsak() != null) {
-            årsak = dto.getKlageAvvistArsak();
-        }
-
-        var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, erNfpAksjonspunkt ? KlageVurdertAv.NFP : KlageVurdertAv.NK, klageVurderingOmgjør);
-        var historiebygger = new HistorikkInnslagTekstBuilder();
-        if (erNfpAksjonspunkt) {
-            historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP, null, resultat.getNavn());
-        }
-        if (årsak != null) {
-            historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_OMGJØR_ÅRSAK, null, årsak.getNavn());
-        }
-        var skjermlenkeType = getSkjermlenkeType(dto.getAksjonspunktDefinisjon());
-        historiebygger.medBegrunnelse(dto.getBegrunnelse());
-        historiebygger.medSkjermlenke(skjermlenkeType);
-
-        var innslag = new Historikkinnslag();
-        innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        innslag.setType(historikkinnslagType);
-        innslag.setBehandlingId(behandling.getId());
-        historiebygger.build(innslag);
-
-        historikkApplikasjonTjeneste.lagInnslag(innslag);
-    }
-
-    private SkjermlenkeType getSkjermlenkeType(AksjonspunktDefinisjon apDef) {
-        return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(apDef) ? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
     }
 
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
