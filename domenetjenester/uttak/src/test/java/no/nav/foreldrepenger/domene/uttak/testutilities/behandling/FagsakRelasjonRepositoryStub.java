@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -54,13 +55,9 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
-        return opprettRelasjon(fagsak, new FagsakRelasjon(fagsak, null, null, null, null, null));
-    }
-
-    @Override
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
-        lagre(fagsak, fagsakRelasjon);
-        return fagsakRelasjon;
+        var relasjon = new FagsakRelasjon(fagsak, null, null, null, null, null);
+        lagre(fagsak, relasjon);
+        return relasjon;
     }
 
     @Override
@@ -72,6 +69,18 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
             stønadskontoberegning,
                 fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
+            fagsakRelasjon.getAvsluttningsdato());
+        lagre(fagsak, ny);
+    }
+
+    @Override
+    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
+        var fagsakRelasjon = finnRelasjonForHvisEksisterer(fagsak).orElse(null);
+        if (fagsakRelasjon == null) {
+            fagsakRelasjon = opprettRelasjon(fagsak);
+        }
+        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
+            fagsakRelasjon.getStønadskontoberegning().orElse(null), dekningsgrad, overstyrtDekningsgrad,
             fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }

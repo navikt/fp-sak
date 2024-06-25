@@ -378,8 +378,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var søknadMottattDato = skjemaWrapper.getSkjema().getMottattDato();
         if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-                .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medOppgittFordeling(oversettFordeling(behandling, omYtelse, søknadMottattDato));
+            if (!behandling.erRevurdering()) {
+                yfBuilder.medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
+                    .medSakskompleksDekningsgrad(null);
+            }
             oversettRettighet(omYtelse).ifPresent(yfBuilder::medOppgittRettighet);
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {

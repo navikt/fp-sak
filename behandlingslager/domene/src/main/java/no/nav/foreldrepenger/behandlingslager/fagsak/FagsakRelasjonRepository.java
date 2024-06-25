@@ -133,14 +133,10 @@ public class FagsakRelasjonRepository {
     }
 
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
-        return opprettRelasjon(fagsak, new FagsakRelasjon(fagsak, null, null, null, null, null));
-    }
-
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, FagsakRelasjon fagsakRelasjon) {
         Objects.requireNonNull(fagsak, FAGSAK_QP);
-        Objects.requireNonNull(fagsakRelasjon);
         var fagsakLås = fagsakLåsRepository.taLås(fagsak);
-        return opprettRelasjon(fagsakLås, fagsakRelasjon);
+        finnRelasjonForHvisEksisterer(fagsakLås.getFagsakId()).ifPresent(this::deaktiverEksisterendeRelasjon);
+        return opprettRelasjon(fagsakLås, new FagsakRelasjon(fagsak, null, null, null, null, null));
     }
 
     private FagsakRelasjon opprettRelasjon(FagsakLås fagsakLås, FagsakRelasjon nyFagsakRelasjon) {
