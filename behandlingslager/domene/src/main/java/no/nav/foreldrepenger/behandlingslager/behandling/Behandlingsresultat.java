@@ -77,6 +77,7 @@ public class Behandlingsresultat extends BaseEntitet {
     @Column(name = "vedtaksbrev", nullable = false)
     private Vedtaksbrev vedtaksbrev = Vedtaksbrev.UDEFINERT;
 
+    //TODO TFP-5702 fjern
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "endret_dekningsgrad", nullable = false)
     private boolean endretDekningsgrad;
@@ -167,10 +168,6 @@ public class Behandlingsresultat extends BaseEntitet {
 
     public Vedtaksbrev getVedtaksbrev() {
         return vedtaksbrev;
-    }
-
-    public boolean isEndretDekningsgrad() {
-        return endretDekningsgrad;
     }
 
     @Override
@@ -294,12 +291,6 @@ public class Behandlingsresultat extends BaseEntitet {
         public Builder medAvslagsårsak(Avslagsårsak avslagsårsak) {
             validerKanModifisere();
             this.behandlingsresultat.avslagsårsak = Optional.ofNullable(avslagsårsak).orElse(Avslagsårsak.UDEFINERT);
-            return this;
-        }
-
-        public Builder medEndretDekningsgrad(boolean endretDekningsgrad) {
-            validerKanModifisere();
-            this.behandlingsresultat.endretDekningsgrad = endretDekningsgrad;
             return this;
         }
 

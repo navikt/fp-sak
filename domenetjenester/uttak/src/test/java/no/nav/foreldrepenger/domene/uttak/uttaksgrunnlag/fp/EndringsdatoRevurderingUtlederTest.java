@@ -720,10 +720,11 @@ class EndringsdatoRevurderingUtlederTest {
         morPeriode.leggTilAktivitet(aktivitet1);
         morPeriode.leggTilAktivitet(aktivitet2);
         morUttak.leggTilPeriode(morPeriode);
-        morScenario.medUttak(morUttak);
+        morScenario.medDefaultOppgittDekningsgrad().medUttak(morUttak);
         var førstegangsbehandling = morScenario.lagre(repositoryProvider);
 
-        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittDekningsgrad();
         uttakBeregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver1, null);
         uttakBeregningsandelTjeneste.leggTilOrdinærtArbeid(nyArbeidsgiver, null);
         revurderingScenario.medOriginalBehandling(førstegangsbehandling, RE_ENDRING_FRA_BRUKER);

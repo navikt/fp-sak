@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingFeil;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder.VurderOpphørFørDagensDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -55,6 +56,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private NesteSakRepository nesteSakRepository;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     protected RevurderingBehandlingsresultatutlederFelles() {
         // for CDI proxy
@@ -65,7 +67,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                                                        BeregningTjeneste beregningTjeneste,
                                                        MedlemTjeneste medlemTjeneste,
                                                        OpphørUttakTjeneste opphørUttakTjeneste,
-                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                       DekningsgradTjeneste dekningsgradTjeneste) {
 
         this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -77,6 +80,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef,
@@ -140,7 +144,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         }
 
         var erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(uttakresultatRevurderingOpt) ||
-            uttakresultatOriginalOpt.harUlikKontoEllerMinsterett(uttakresultatRevurderingOpt);
+            uttakresultatOriginalOpt.harUlikKontoEllerMinsterett(uttakresultatRevurderingOpt) ||
+            dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
         if (erEndringIUttakFraEndringstidspunkt
             && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode

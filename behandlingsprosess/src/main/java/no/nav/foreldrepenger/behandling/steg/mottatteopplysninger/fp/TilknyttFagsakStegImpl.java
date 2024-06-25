@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -113,20 +112,21 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         kobleSakTjeneste.kobleRelatertFagsakHvisDetFinnesEn(behandling);
         var kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling);
 
-        if (kobling.isEmpty() || kobling.flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty()) {
-            // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves
-            // dekningsgrad fra koblet sak.
-            if (!behandling.erRevurdering()) {
-                var dekningsgrad = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
-                    .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
-                    .orElse(Dekningsgrad._100);
-                kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, dekningsgrad);
-            }
-            // Ingen kobling foretatt
-            return;
-        }
-        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling)
+        if (kobling.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) { // Ble koblet sjekk enhet
+            behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling)
                 .ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
-                        .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
+                    .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
+        } else if (kobling.isEmpty()) { // Finnes ikke kobling fra før, lag en.
+            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+                kobleSakTjeneste.opprettFagsakRelasjon(behandling.getFagsak());
+            } else {
+                throw new IllegalStateException("Utviklerfeil: Foreldrepenger revurdering uten relasjon, sak " + behandling.getFagsak().getSaksnummer().getVerdi());
+            }
+        } else { // Finnes fagsakrelasjon. Skal ikke endre denne dersom det finnes vedtak. Dersom finnes og det ikke er vedtak - lagre ny (uten DG)
+            var harVedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).isPresent();
+            if (!harVedtak && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && kobling.get().getGjeldendeDekningsgrad() != null) {
+                kobleSakTjeneste.opprettFagsakRelasjon(behandling.getFagsak());
+            }
+        }
     }
 }

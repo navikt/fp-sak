@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -66,7 +65,6 @@ public class ForvaltningFagsakRestTjeneste {
     private OpprettSakTjeneste opprettSakTjeneste;
     private AktørTjeneste aktørTjeneste;
     private NavBrukerTjeneste brukerTjeneste;
-    private OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste;
 
     public ForvaltningFagsakRestTjeneste() {
         // For CDI
@@ -74,18 +72,16 @@ public class ForvaltningFagsakRestTjeneste {
 
     @Inject
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-            OpprettSakTjeneste opprettSakTjeneste,
+                                         OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
+                                         OpprettSakTjeneste opprettSakTjeneste,
                                          AktørTjeneste aktørTjeneste,
-            NavBrukerTjeneste brukerTjeneste,
-            OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste,
-            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                         NavBrukerTjeneste brukerTjeneste,
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
-        this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.aktørTjeneste = aktørTjeneste;
         this.brukerTjeneste = brukerTjeneste;
@@ -184,9 +180,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi());
-        var behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
-                .orElse(null);
-        fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
+        fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2);
         return Response.ok().build();
     }
 
@@ -218,22 +212,6 @@ public class ForvaltningFagsakRestTjeneste {
 
     private boolean erFagsakRelasjonKoblet(FagsakRelasjon fagsakRelasjon) {
         return fagsakRelasjon != null && fagsakRelasjon.getFagsakNrEn() != null && fagsakRelasjon.getFagsakNrTo().isPresent();
-    }
-
-    @POST
-    @Path("/overstyrDekningsgrad")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Overstyr dekningsgrad. NB: Dersom det finnes en åpen revurdering som har passert beregning. Bruk Overstyr dekningsgrad først og så hoppTilbakeTil FASTSETT_STP_BER.", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Dekningsgrad overstyrt."),
-            @ApiResponse(responseCode = "204", description = "Dekningsgrad er ikke endret."),
-            @ApiResponse(responseCode = "400", description = "Dekningsgrad er ugyldig."),
-            @ApiResponse(responseCode = "404", description = "Fagsak finnes ikke."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response overstyrDekningsgrad(@BeanParam @Valid OverstyrDekningsgradDto dto) {
-        return overstyrDekningsgradTjeneste.overstyr(dto.getSaksnummer(), Integer.parseInt(dto.getDekningsgrad()));
     }
 
     @POST

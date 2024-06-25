@@ -153,7 +153,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var avsluttetBehMor = lagBehandlingFPAdopsjonMor(MEDF_AKTØR_ID, START_PERIODEDAG_LØPENDE_BEHANDLING);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(avsluttetBehFar.getFagsak(), avsluttetBehMor.getFagsak(), avsluttetBehFar);
+        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(avsluttetBehFar.getFagsak(), avsluttetBehMor.getFagsak());
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(avsluttetBehMor);
 

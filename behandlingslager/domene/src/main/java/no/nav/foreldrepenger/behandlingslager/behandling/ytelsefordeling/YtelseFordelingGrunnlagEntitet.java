@@ -67,7 +67,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @Column(name = "sakskompleks_dekningsgrad")
     @Max(value = 100)
     @Min(value = 0)
-    @ChangeTracked
     private Integer sakskompleksDekningsgrad;
 
     @Convert(converter = BooleanToStringConverter.class)

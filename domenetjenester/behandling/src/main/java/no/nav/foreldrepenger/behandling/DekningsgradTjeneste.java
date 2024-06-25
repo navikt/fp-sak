@@ -43,6 +43,9 @@ public class DekningsgradTjeneste {
     }
 
     public boolean behandlingHarEndretDekningsgrad(BehandlingReferanse ref) {
+        if (ref.fagsakYtelseType() != FagsakYtelseType.FORELDREPENGER) {
+            return false;
+        }
         var yfaOpt = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
         if (yfaOpt.isEmpty()) {
             return false;
@@ -53,7 +56,5 @@ public class DekningsgradTjeneste {
             var behandlingDekningsgad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
             return !Objects.equals(originalDekningsgrad, behandlingDekningsgad);
         }).orElseGet(() -> !Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), ytelseFordelingAggregat.getOppgittDekningsgrad()));
-
     }
-
 }

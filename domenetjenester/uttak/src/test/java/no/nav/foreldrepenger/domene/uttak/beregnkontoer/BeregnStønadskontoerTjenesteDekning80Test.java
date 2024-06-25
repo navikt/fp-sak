@@ -53,7 +53,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -99,7 +99,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -135,7 +135,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
@@ -169,7 +169,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
@@ -204,7 +204,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
@@ -240,7 +240,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var dekningsgrad = Dekningsgrad._80;
         var behandlingId = behandling.getId();
-        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())

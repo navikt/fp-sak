@@ -86,7 +86,7 @@ class DokumentmottakerInntektsmeldingTest {
     @BeforeEach
     public void oppsett() {
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
-                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class), null);
+                historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
@@ -228,7 +228,7 @@ class DokumentmottakerInntektsmeldingTest {
     void skal_opprette_førstegangsbehandling() {
 
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonTjeneste);
+                fagsakRepository);
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, 123L, "", now(), true, "123");
         var førstegangsbehandling = mock(Behandling.class);
@@ -277,7 +277,7 @@ class DokumentmottakerInntektsmeldingTest {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
         var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonTjeneste);
+                fagsakRepository);
 
         // Arrange - sett opp opprettelse av køet behandling
         var behandling = mock(Behandling.class);

@@ -30,13 +30,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
 class KontrollerFaktaRevurderingStegImplTest {
@@ -255,6 +255,51 @@ class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
+    void skal_ikke_utlede_startpunkt_dekningsgrad_dersom_endret_dekningsgrad_i_berørt_revurdering() {
+        // Arrange
+        var revurdering = opprettRevurderingPgaBerørtBehandling();
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100, null);
+        endreDekningsgrad(revurdering.getId(), Dekningsgrad._80);
+        var fagsak = revurdering.getFagsak();
+        var lås = behandlingRepository.taSkriveLås(revurdering);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+
+        // Act
+        steg.utførSteg(kontekst).getAksjonspunktListe();
+
+        // Assert
+        var behandlingEtterSteg = behandlingRepository.hentBehandling(revurdering.getId());
+        assertThat(behandlingEtterSteg.getStartpunkt()).isEqualTo(StartpunktType.UTTAKSVILKÅR);
+    }
+
+    private void endreDekningsgrad(Long behandlingId, Dekningsgrad dekningsgrad) {
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfa = ytelsesFordelingRepository
+            .opprettBuilder(behandlingId)
+            .medSakskompleksDekningsgrad(dekningsgrad)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, yfa);
+    }
+
+    @Test
+    void skal_utlede_startpunkt_dekningsgrad_dersom_endret_dekningsgrad_i_dekningsgrad_revurdering() {
+        // Arrange
+        var revurdering = opprettRevurdering(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._80, null);
+        endreDekningsgrad(revurdering.getId(), Dekningsgrad._100);
+        var fagsak = revurdering.getFagsak();
+        var lås = behandlingRepository.taSkriveLås(revurdering);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+
+        // Act
+        steg.utførSteg(kontekst).getAksjonspunktListe();
+
+        // Assert
+        var behandlingEtterSteg = behandlingRepository.hentBehandling(revurdering.getId());
+        assertThat(behandlingEtterSteg.getStartpunkt()).isEqualTo(StartpunktType.DEKNINGSGRAD);
+    }
+
+    @Test
     void skal_sette_startpunkt_inngangsvilkår_for_manuelt_opprettet_revurdering() {
         var behandling = opprettRevurdering();
         // Arrange
@@ -285,8 +330,9 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         var fordeling = new OppgittFordelingEntitet(List.of(), true);
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .medDefaultOppgittDekningsgrad()
             .medFordeling(fordeling);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
@@ -311,6 +357,7 @@ class KontrollerFaktaRevurderingStegImplTest {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)
+            .medDefaultOppgittDekningsgrad()
             .medFordeling(fordeling);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
@@ -332,17 +379,19 @@ class KontrollerFaktaRevurderingStegImplTest {
     private Behandling opprettFørstegangsbehandling(Behandlingsresultat.Builder behandlingsresultat) {
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medBehandlingsresultat(behandlingsresultat)
-                .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
-
-        var søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .medBehandlingsresultat(behandlingsresultat)
+            .medDefaultOppgittDekningsgrad()
+            .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
 
         førstegangScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
 
         førstegangScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
 
-        return førstegangScenario.lagre(repositoryProvider);
+        var behandling = førstegangScenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak());
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(behandling.getFagsak(), Dekningsgrad._100, null);
+        return behandling;
     }
 
     private Behandling opprettRevurdering() {
@@ -350,8 +399,6 @@ class KontrollerFaktaRevurderingStegImplTest {
     }
 
     private Behandling opprettRevurdering(BehandlingÅrsakType årsak) {
-        var fødselsdato = LocalDate.now().minusYears(20);
-        var aktørId = AktørId.dummy();
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -370,7 +417,8 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         førstegangScenario.medRegisterOpplysninger(personInformasjon);
 
-        førstegangScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
+        var fødselsDato = LocalDate.now().minusDays(10);
+        førstegangScenario.medBekreftetHendelse().medFødselsDato(fødselsDato);
 
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(LocalDate.now())
@@ -384,6 +432,7 @@ class KontrollerFaktaRevurderingStegImplTest {
             .medFordeling(fordeling);
 
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førstegangScenario.getFagsak());
         // Legg til Uttaksperiodegrense -> dessverre ikke tilgjengelig i scenariobygger
         var lås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, lås);
@@ -394,16 +443,16 @@ class KontrollerFaktaRevurderingStegImplTest {
                 false);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(originalBehandling, årsak);
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(originalBehandling, årsak)
+            .medFordeling(fordeling)
+            .medRegisterOpplysninger(personInformasjon);
         revurderingScenario.medDefaultOppgittTilknytning();
 
-        revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        revurderingScenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
-        revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
+        revurderingScenario.medBekreftetHendelse().medFødselsDato(fødselsDato);
         var behandling = revurderingScenario.lagre(repositoryProvider);
-        // kopierer ytelsefordeling grunnlag
-        repositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), behandling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);

@@ -157,7 +157,13 @@ public class FastsettUttaksgrunnlagTjeneste {
                 var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get();
                 var mottattDato = førsteUttaksperiode.getMottattDato();
                 var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
-                LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny behandling har registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+
+                if (mottattDato.isAfter(fødselsdato)) {
+                    // TODO: return false? Ikke juster disse tilfellene?
+                    LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn ETTER registert fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+                } else {
+                    LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn samme dato eller før registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+                }
 
                 if (fødselsdato.isEqual(førsteUttaksperiode.getFom())) {
                     LOG.info("Termin til fødsel: Startdato for første uttaksperiode er lik fødseldato {}", fødselsdato);

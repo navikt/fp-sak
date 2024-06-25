@@ -8,7 +8,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -65,37 +64,26 @@ public class FagsakRelasjonTjeneste {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId, aktivPåTidspunkt);
     }
 
-    public void lagre(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public void lagre(long fagsakId,
+                      Stønadskontoberegning stønadskontoberegning) {
         var fagsak = finnFagsak(fagsakId);
-        fagsakRelasjonRepository.lagre(fagsak, behandlingId, stønadskontoberegning);
+        fagsakRelasjonRepository.lagre(fagsak, stønadskontoberegning);
     }
 
-    public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        return fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
+    public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
+        return fagsakRelasjonRepository.opprettRelasjon(fagsak);
     }
 
     public void oppdaterDekningsgrad(Long fagsakId, Dekningsgrad dekningsgrad) {
         fagsakRelasjonRepository.oppdaterDekningsgrad(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId), dekningsgrad, null);
     }
 
-    public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
-        return fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
-    }
-
-    public void opprettRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        fagsakRelasjonRepository.opprettRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
-    }
-
-    public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
-        fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
+    public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
+        fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo);
     }
 
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
-    }
-
-    public void nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
-        fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
     }
 
     private Fagsak finnFagsak(long fagsakId) {
@@ -107,8 +95,8 @@ public class FagsakRelasjonTjeneste {
         fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås, fagsak2Lås);
     }
 
-    public Optional<FagsakRelasjon> nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
-        return fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
+    public void nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
+        fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
     }
 
     public List<Fagsak> finnFagsakerForAvsluttning(LocalDate dato) {

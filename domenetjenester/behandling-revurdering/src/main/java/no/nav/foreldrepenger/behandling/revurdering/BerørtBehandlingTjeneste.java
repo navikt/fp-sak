@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.revurdering;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -14,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -57,8 +59,8 @@ public class BerørtBehandlingTjeneste {
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public Optional<BerørtÅrsak> skalBerørtBehandlingOpprettes(Behandlingsresultat vedtattBehandlingsresultat,
-                                                 Behandling vedtattBehandling,
-                                                 Long sistVedtattBehandlingIdAnnenPart) {
+                                                               Behandling vedtattBehandling,
+                                                               Long sistVedtattBehandlingIdAnnenPart) {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
         if (ikkeAktuellForVurderBerørt(vedtattBehandling, vedtattBehandlingsresultat)) {
             return Optional.empty();
@@ -67,24 +69,30 @@ public class BerørtBehandlingTjeneste {
 
         var vedtattUttak = hentUttak(vedtattBehandling.getId()).orElse(tomtUttak());
         var annenpartsSistVedtatteUttak = hentUttak(sistVedtattBehandlingIdAnnenPart);
-        if (annenpartsSistVedtatteUttak.isEmpty() || finnMinAktivDato(annenpartsSistVedtatteUttak.get()).isEmpty() || finnMinAktivDato(vedtattUttak, annenpartsSistVedtatteUttak.get()).isEmpty()) {
+        var vedtattYfa = ytelseFordelingTjeneste.hentAggregat(vedtattBehandling.getId());
+        if (annenpartsSistVedtatteUttak.isEmpty() || finnMinAktivDato(annenpartsSistVedtatteUttak.get()).isEmpty() || finnMinAktivDato(vedtattUttak,
+            annenpartsSistVedtatteUttak.get()).isEmpty() || !harLikDekningsgrad(sistVedtattBehandlingIdAnnenPart, vedtattYfa)) { //Skal opprette egen dekningsgrad revurdering hvis ulik dekningsgrad
             return Optional.empty();
         }
 
-        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(vedtattUttak,
-            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(vedtattBehandling.getId()),
+        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(vedtattUttak, vedtattYfa,
             stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput),
             annenpartsSistVedtatteUttak,
             uttakInput,
             "Skal opprette berørt").isPresent() ? Optional.of(utledÅrsak(vedtattUttak, annenpartsSistVedtatteUttak.get())) : Optional.empty();
     }
 
-    private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
+    private boolean harLikDekningsgrad(Long sistVedtattBehandlingIdAnnenPart, YtelseFordelingAggregat vedtattYfa) {
+        return Objects.equals(vedtattYfa.getGjeldendeDekningsgrad(),
+            ytelseFordelingTjeneste.hentAggregat(sistVedtattBehandlingIdAnnenPart).getGjeldendeDekningsgrad());
+    }
+
+    private BerørtÅrsak utledÅrsak(ForeldrepengerUttak brukersUttak,
+                                   ForeldrepengerUttak annenpartsUttak) {
         var harEndretStrukturEllerRedusertAntallStønadsdager = UtregnetStønadskontoTjeneste
             .harEndretStrukturEllerRedusertAntallStønadsdager(annenpartsUttak.getStønadskontoBeregning(), brukersUttak.getStønadskontoBeregning());
         return harEndretStrukturEllerRedusertAntallStønadsdager ? BerørtÅrsak.KONTO_REDUSERT : BerørtÅrsak.ORDINÆR;
     }
-
 
     private boolean ikkeAktuellForVurderBerørt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         // Vurder å inkludere

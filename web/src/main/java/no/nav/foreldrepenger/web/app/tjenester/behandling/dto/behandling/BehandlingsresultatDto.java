@@ -37,7 +37,7 @@ public class BehandlingsresultatDto {
     @JsonProperty("skjæringstidspunkt")
     private SkjæringstidspunktDto skjæringstidspunkt;
     @JsonProperty("endretDekningsgrad")
-    private Boolean endretDekningsgrad;
+    private boolean endretDekningsgrad;
 
     public BehandlingsresultatDto() {
         // trengs for deserialisering av JSON

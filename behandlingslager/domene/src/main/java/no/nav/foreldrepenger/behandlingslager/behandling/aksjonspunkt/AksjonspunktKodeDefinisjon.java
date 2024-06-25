@@ -62,6 +62,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE = "6011";
     public static final String OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE = "6014";
     public static final String OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE = "6015";
+    public static final String OVERSTYRING_AV_DEKNINGSGRAD_KODE = "6016";
 
     public static final String REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE = "5012";
 
@@ -70,7 +71,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String VARSEL_REVURDERING_MANUELL_KODE = "5026";
     public static final String KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE = "5055";
-    public static final String KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING_KODE = "5056";
 
     public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
 
@@ -151,12 +151,12 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean TILBAKE = true;
     public static final boolean FORBLI = false;
 
-    // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnnn til andre formål enn det opprinnelige før det har gått noe tid
+    // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5009",
     //  "5022"  "5024"  "5025"
     //  "5036"
     //  "5042"  "5044"  "5045"  "5048"
-    //  "5050"
+    //  "5050"  "5056"
     //  "5067"
     //  "5070"  "5075"  "5078"  "5079"
     //  "5080"  "5081"  "5083"  "5088"

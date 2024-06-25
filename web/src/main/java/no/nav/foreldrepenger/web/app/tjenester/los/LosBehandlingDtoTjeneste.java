@@ -183,7 +183,7 @@ public class LosBehandlingDtoTjeneste {
 
     private static Behandlingsårsak mapBehandlingsårsak(BehandlingÅrsakType årsak) {
         return switch (årsak) {
-            case BERØRT_BEHANDLING, REBEREGN_FERIEPENGER -> Behandlingsårsak.BERØRT;
+            case BERØRT_BEHANDLING, REBEREGN_FERIEPENGER, ENDRE_DEKNINGSGRAD -> Behandlingsårsak.BERØRT;
             case RE_ENDRING_FRA_BRUKER -> Behandlingsårsak.SØKNAD;
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
             case RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN -> Behandlingsårsak.ETTERKONTROLL;

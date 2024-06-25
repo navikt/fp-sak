@@ -19,7 +19,6 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     ENDRING_I_UTTAK("ENDRING_I_UTTAK", "Endring i uttak"),
     ENDRING_I_FORDELING_AV_YTELSEN("ENDRING_I_FORDELING_AV_YTELSEN", "Endring i fordeling av ytelsen"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
-    ENDRING_I_BEREGNING_OG_UTTAK("ENDRING_I_BEREGNING_OG_UTTAK", "Endring i beregning og uttak"),
     UDEFINERT("-", "Udefinert"),
 
     ;

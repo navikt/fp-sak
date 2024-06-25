@@ -44,7 +44,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()).isEmpty()) {
-            fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+            fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak());
         }
         registrerFagsakEgenskaper.fagsakEgenskaperFraSøknad(behandling, false);
         return BehandleStegResultat.utførtUtenAksjonspunkter();

@@ -36,7 +36,7 @@ public final class EndringsdatoBerørtUtleder {
     }
 
     public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeUttak,
-                                                                           Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
+                                                                           YtelseFordelingAggregat utløsendeBehandlingYtelseFordeling,
                                                                            boolean negativSaldoNoenKonto,
                                                                            Optional<ForeldrepengerUttak> berørtUttakOpt,
                                                                            UttakInput uttakInput,
@@ -50,7 +50,7 @@ public final class EndringsdatoBerørtUtleder {
         }
         var berørtUttak = berørtUttakOpt.get();
         // Endring fra en søknadsperiode eller fra start?
-        var endringsdato = utløsendeBehandlingYtelseFordeling.flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
+        var endringsdato = utløsendeBehandlingYtelseFordeling.getGjeldendeEndringsdatoHvisEksisterer()
             .orElseGet(() -> {
                 //mangler endringsdato ved utsatt oppstart behandlinger.
                 return finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow();

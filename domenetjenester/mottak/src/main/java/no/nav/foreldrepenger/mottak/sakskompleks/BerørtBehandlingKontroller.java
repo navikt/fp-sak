@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,6 +31,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
@@ -55,6 +58,8 @@ public class BerørtBehandlingKontroller {
     private FagsakLåsRepository fagsakLåsRepository;
     private Behandlingsoppretter behandlingsoppretter;
     private KøKontroller køKontroller;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
     public BerørtBehandlingKontroller(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -62,7 +67,8 @@ public class BerørtBehandlingKontroller {
                                       BerørtBehandlingTjeneste berørtBehandlingTjeneste,
                                       Behandlingsoppretter behandlingsoppretter,
                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) BeregnFeriepenger beregnFeriepenger,
-                                      KøKontroller køKontroller) {
+                                      KøKontroller køKontroller, YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
@@ -72,6 +78,8 @@ public class BerørtBehandlingKontroller {
         this.historikkRepository = behandlingRepositoryProvider.getHistorikkRepository();
         this.beregnFeriepenger = beregnFeriepenger;
         this.køKontroller = køKontroller;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     BerørtBehandlingKontroller() {
@@ -99,17 +107,33 @@ public class BerørtBehandlingKontroller {
                 sistVedtatteBehandlingForMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes.isPresent()) {
                 opprettBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat, skalBerørtBehandlingOpprettes.get());
+            } else if (skalEndreDekningsgradForMedForelder(vedtattBehandling, sistVedtatteBehandlingForMedforelder.get())) {
+                opprettDekningsgradRevurdering(fagsakMedforelder);
+            } else if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteBehandlingForMedforelder.get(), vedtattBehandling.getId())) {
+                LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), vedtattBehandling.getId());
+                opprettFerieBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat);
             } else {
-                if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteBehandlingForMedforelder.get(), vedtattBehandling.getId())) {
-                    LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), vedtattBehandling.getId());
-                    opprettFerieBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat);
-                } else {
-                    håndterKø(fagsakMedforelder);
-                }
+                håndterKø(fagsakMedforelder);
             }
+
         } else {
             håndterKø(vedtattBehandling.getFagsak());
         }
+    }
+
+    private boolean skalEndreDekningsgradForMedForelder(Behandling vedtattBehandling, Behandling behandlingMedforelder) {
+        if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandlingMedforelder.getFagsakId()).isEmpty()) {
+            return false;
+        }
+        var avsluttetErEndreDekningsgrad = vedtattBehandling.harBehandlingÅrsak(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
+        var vedtattDekningsgrad = ytelseFordelingTjeneste.hentAggregat(vedtattBehandling.getId()).getGjeldendeDekningsgrad();
+        var medforelderDekningsgrad = ytelseFordelingTjeneste.hentAggregat(behandlingMedforelder.getId()).getGjeldendeDekningsgrad();
+        var ulikDekningsgrad = !Objects.equals(vedtattDekningsgrad, medforelderDekningsgrad);
+        if (avsluttetErEndreDekningsgrad && ulikDekningsgrad) {
+            LOG.warn("Endre dekningsgrad potensiell cascade avsluttet behandlingId {} sak medforelder {}", vedtattBehandling.getId(), behandlingMedforelder.getFagsak().getSaksnummer());
+            return false;
+        }
+        return ulikDekningsgrad;
     }
 
     private boolean ikkeAvslått(Behandling b) {
@@ -168,6 +192,16 @@ public class BerørtBehandlingKontroller {
         var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker, årsak);
         køKontroller.submitBerørtBehandling(berørtBehandling, åpenBehandling);
+    }
+
+    private void opprettDekningsgradRevurdering(Fagsak fagsakMedforelder) {
+        fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        var revurderingMedforelder = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
+        if (køKontroller.skalEvtNyBehandlingKøes(fagsakMedforelder)) {
+            køKontroller.enkøBehandling(revurderingMedforelder);
+        } else {
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurderingMedforelder);
+        }
     }
 
     private void opprettFerieBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
