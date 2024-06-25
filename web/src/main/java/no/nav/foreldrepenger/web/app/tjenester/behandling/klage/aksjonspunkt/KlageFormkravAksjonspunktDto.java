@@ -4,7 +4,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -18,22 +17,13 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE)
-public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto {
+public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto implements KlageFormKravLagreDto {
 
-    @NotNull
-    @JsonProperty("erKlagerPart")
     private boolean erKlagerPart;
-    @NotNull
-    @JsonProperty("erFristOverholdt")
     private boolean erFristOverholdt;
-    @NotNull
-    @JsonProperty("erKonkret")
     private boolean erKonkret;
-    @NotNull
-    @JsonProperty("erSignert")
     private boolean erSignert;
 
-    @JsonProperty("erTilbakekreving")
     private boolean erTilbakekreving;
 
     @Valid
@@ -45,7 +35,6 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
 
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
 
@@ -73,37 +62,36 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
         this.fritekstTilBrev = fritekstTilBrev;
     }
 
+    @Override
     public boolean erKlagerPart() {
         return erKlagerPart;
     }
-
+    @Override
     public boolean erFristOverholdt() {
         return erFristOverholdt;
     }
-
+    @Override
     public boolean erKonkret() {
         return erKonkret;
     }
-
+    @Override
     public boolean erSignert() {
         return erSignert;
     }
 
-    public UUID hentPåKlagdBehandlingUuid() {
+    public UUID påKlagdBehandlingUuid() {
         return påKlagdBehandlingUuid;
     }
 
-    public UUID hentpåKlagdEksternBehandlingUuId() {
-        return erTilbakekreving
-            && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
-    }
-
+    @Override
     public boolean erTilbakekreving() {
         return erTilbakekreving;
     }
 
+
+    @Override
     @JsonProperty("tilbakekrevingInfo")
-    public KlageTilbakekrevingDto getKlageTilbakekreving() {
+    public KlageTilbakekrevingDto klageTilbakekreving() {
         return klageTilbakekreving;
     }
 

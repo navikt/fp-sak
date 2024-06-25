@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormKravAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
@@ -76,6 +77,7 @@ public class KlageRestTjeneste {
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private KlageHistorikkinnslag klageFormkravHistorikk;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -85,11 +87,13 @@ public class KlageRestTjeneste {
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
                              KlageVurderingTjeneste klageVurderingTjeneste,
                              FptilbakeRestKlient fptilbakeRestKlient,
-                             MottatteDokumentRepository mottatteDokumentRepository) {
+                             MottatteDokumentRepository mottatteDokumentRepository,
+                             KlageHistorikkinnslag klageFormkravHistorikk) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.klageFormkravHistorikk = klageFormkravHistorikk;
     }
 
     @GET
@@ -130,6 +134,8 @@ public class KlageRestTjeneste {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP)) {
             mapMellomlagreKlage(apDto, builder);
         }
+        klageFormkravHistorikk.opprettHistorikkinnslagVurdering(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP,
+            apDto, apDto.getBegrunnelse());
         builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
 
         klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, builder, vurdertAv);
@@ -168,6 +174,11 @@ public class KlageRestTjeneste {
             mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat );
             klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
         }
+
+        var lagretFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, vurdertAv);
+        klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(behandling, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP, apDto,
+            lagretFormkrav, klageResultat, apDto.begrunnelse());
+
         vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
 
         klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, vurderingResultatBuilder, vurdertAv);

@@ -12,23 +12,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.vedtak.util.InputValideringRegex;
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public class KlageFormKravAksjonspunktMellomlagringDto {
+public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravLagreDto {
     @Pattern(regexp = InputValideringRegex.KODEVERK)
-    @JsonProperty("kode")
     private String kode;
     @Valid
     @NotNull
-    @JsonProperty("behandlingUuid")
     private UUID behandlingUuid;
-    @JsonProperty("erKlagerPart")
     private boolean erKlagerPart;
-    @JsonProperty("erFristOverholdt")
     private boolean erFristOverholdt;
-    @JsonProperty("erKonkret")
     private boolean erKonkret;
-    @JsonProperty("erSignert")
     private boolean erSignert;
-    @JsonProperty("erTilbakekreving")
     private boolean erTilbakekreving;
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
@@ -36,11 +29,9 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
     private UUID paKlagdBehandlingUuid;
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("begrunnelse")
     private String begrunnelse;
     @Size(max = 100000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
 
 
@@ -81,18 +72,19 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
         return behandlingUuid;
     }
 
+    @Override
     public boolean erKlagerPart() {
         return erKlagerPart;
     }
-
+    @Override
     public boolean erFristOverholdt() {
         return erFristOverholdt;
     }
-
+    @Override
     public boolean erKonkret() {
         return erKonkret;
     }
-
+    @Override
     public boolean erSignert() {
         return erSignert;
     }
@@ -101,10 +93,15 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
         return paKlagdBehandlingUuid;
     }
 
+    @Override
+    public UUID påKlagdBehandlingUuid() {
+        return paKlagdBehandlingUuid;
+    }
+    @Override
     public boolean erTilbakekreving() {
         return erTilbakekreving;
     }
-
+    @Override
     public KlageTilbakekrevingDto klageTilbakekreving() {
         return klageTilbakekreving;
     }
@@ -115,9 +112,5 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
 
     public String begrunnelse() {
         return begrunnelse;
-    }
-    public UUID hentpåKlagdEksternBehandlingUuId() {
-        return erTilbakekreving
-            && klageTilbakekreving != null ? klageTilbakekreving.tilbakekrevingUuid() : null;
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.app;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
@@ -43,8 +42,10 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlagevurderingOppdaterer;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 
 @CdiDbAwareTest
 class KlagevurderingOppdatererTest {
@@ -75,7 +76,7 @@ class KlagevurderingOppdatererTest {
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
         var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null, false);
+                klageVurdering, null,  "Fritekst til brev", null, null);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
@@ -125,7 +126,8 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
+        var klageHistorikk = new KlageHistorikkinnslag(historikkApplikasjonTjeneste, behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
+        return new KlagevurderingOppdaterer(klageHistorikk, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
     }
 
