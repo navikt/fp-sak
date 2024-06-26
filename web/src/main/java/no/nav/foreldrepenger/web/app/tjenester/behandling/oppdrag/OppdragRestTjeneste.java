@@ -54,7 +54,7 @@ public class OppdragRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
         return oppdragskontroll
-                .map(OppdragDto::fraDomene)
+                .map(OppdragDto::new)
                 .orElse(null);
     }
 
