@@ -7,6 +7,11 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.vedtak.exception.TekniskException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
@@ -27,6 +32,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPKALKULUS)
 public class KalkulusKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(KalkulusKlient.class);
 
     private URI beregn;
     private URI hentGrunnlag;
@@ -52,9 +58,13 @@ public class KalkulusKlient {
 
     public KalkulusRespons beregn(BeregnRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, beregn, restConfig);
-        var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
-        var aksjonspunkter = respons.getAvklaringsbehovMedTilstandDto().stream().map(BeregningAksjonspunktResultatMapper::mapKontrakt).toList();
-        return new KalkulusRespons(aksjonspunkter, respons.getVilkarOppfylt());
+        try {
+            var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
+            var aksjonspunkter = respons.getAvklaringsbehovMedTilstandDto().stream().map(BeregningAksjonspunktResultatMapper::mapKontrakt).toList();
+            return new KalkulusRespons(aksjonspunkter, respons.getVilkarOppfylt());
+        } catch (Exception e) {
+            throw new TekniskException("FP-503800", "Feil ved kall til fpkalkulus: " + e);
+        }
     }
 
     public Optional<BeregningsgrunnlagGrunnlagDto> hentGrunnlag(EnkelFpkalkulusRequestDto request) {

@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -13,9 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_REF_BERGRUNN)
@@ -25,7 +22,7 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningTjeneste beregningTjeneste;
 
     protected VurderRefusjonBeregningsgrunnlagSteg() {
         // CDI Proxy
@@ -34,23 +31,17 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
     @Inject
     public VurderRefusjonBeregningsgrunnlagSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                                 BehandlingRepository behandlingRepository,
-                                                BeregningsgrunnlagInputProvider inputTjenesteProvider) {
-        this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
+                                                BeregningTjeneste beregningTjeneste) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.vurderRefusjonBeregningsgrunnlag(input);
+        var beregningsgrunnlagResultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.VURDER_REF_BERGRUNN);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(beregningsgrunnlagResultat.getAksjonspunkter());
-    }
-
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
     }
 
     @Override

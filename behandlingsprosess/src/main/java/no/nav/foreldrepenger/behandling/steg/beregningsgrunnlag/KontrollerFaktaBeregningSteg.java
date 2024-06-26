@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -14,10 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.opptjening.FrilansAvvikLoggTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef
@@ -28,8 +23,7 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
-    private FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     protected KontrollerFaktaBeregningSteg() {
         // for CDI proxy
@@ -38,24 +32,17 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
     @Inject
     public KontrollerFaktaBeregningSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                         BehandlingRepository behandlingRepository,
-                                        BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                                        FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste) {
+                                        BeregningTjeneste beregningTjeneste) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
-        this.frilansAvvikLoggTjeneste = frilansAvvikLoggTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
-        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.kontrollerFaktaBeregningsgrunnlag(input);
-
-        // TFP-4427
-        frilansAvvikLoggTjeneste.loggFrilansavvikVedBehov(BehandlingReferanse.fra(behandling));
-
+        var resultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultat.getAksjonspunkter());
     }
 
@@ -65,9 +52,5 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
         if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettOppdatertBeregningsgrunnlag();
         }
-    }
-
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
     }
 }

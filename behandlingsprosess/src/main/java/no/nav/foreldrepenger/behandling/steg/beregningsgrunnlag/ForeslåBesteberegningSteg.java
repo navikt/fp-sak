@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,8 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -32,9 +30,9 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     protected ForeslåBesteberegningSteg() {
         // for CDI proxy
@@ -43,14 +41,13 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     @Inject
     public ForeslåBesteberegningSteg(BehandlingRepository behandlingRepository,
                                      BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                     BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                      BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
-        this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
@@ -58,9 +55,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
         if (skalBeregnesAutomatisk(ref)) {
-            var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
+            var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
             var aksjonspunkter = new ArrayList<>(resultat.getAksjonspunkter());
 
             if (besteberegningFødendeKvinneTjeneste.trengerManuellKontrollAvAutomatiskBesteberegning(ref)) {
@@ -83,10 +79,4 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBesteberegningVedTilbakeføring();
         }
     }
-
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
-    }
-
-
 }

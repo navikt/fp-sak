@@ -1,14 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -39,8 +36,8 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     private static final Logger LOG = LoggerFactory.getLogger(FastsettBeregningsaktiviteterSteg.class);
 
     private BehandlingRepository behandlingRepository;
+    private BeregningTjeneste beregningTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private SykemeldingVentTjeneste sykemeldingVentTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -50,13 +47,13 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
 
     @Inject
     public FastsettBeregningsaktiviteterSteg(BehandlingRepository behandlingRepository,
+                                             BeregningTjeneste beregningTjeneste,
                                              BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                             BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                              SykemeldingVentTjeneste sykemeldingVentTjeneste,
                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
+        this.beregningTjeneste = beregningTjeneste;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
-        this.beregningsgrunnlagInputTjeneste = Objects.requireNonNull(inputTjenesteProvider, "inputTjenestene");
         this.sykemeldingVentTjeneste = sykemeldingVentTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
@@ -65,8 +62,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
-        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var resultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
         if (resultat == null) {
             // Tror denne if bolken kan slettes, da det aldri vil skje. Legger inn logg for å se om det faktisk oppstår.
@@ -101,9 +97,5 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         } else {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddFastsettSkjæringstidspunktVedTilbakeføring();
         }
-    }
-
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputTjeneste.getTjeneste(ytelseType);
     }
 }
