@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag.OppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
@@ -83,6 +84,7 @@ public class BehandlingDtoForBackendTjeneste {
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
         dto.leggTil(get(TilbakekrevingRestTjeneste.VARSELTEKST_PATH, "tilbakekrevingsvarsel-fritekst", uuidDto));
         dto.leggTil(get(TilbakekrevingRestTjeneste.VALG_PATH, "tilbakekreving-valg", uuidDto));
+        dto.leggTil(get(OppdragRestTjeneste.OPPDRAGINFO_PATH, "oppdrag-info", uuidDto));
 
         setVedtakDato(dto, behandlingVedtak);
         setBehandlingsresultat(dto, behandlingVedtak);
