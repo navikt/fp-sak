@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 public class FortsettForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    private HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste;
     private BeregningTjeneste beregningTjeneste;
 
     protected FortsettForeslåBeregningsgrunnlagSteg() {
@@ -33,11 +31,9 @@ public class FortsettForeslåBeregningsgrunnlagSteg implements Beregningsgrunnla
     @Inject
     public FortsettForeslåBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
                                                  BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                                 HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
                                                  BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
-        this.hentOgLagreBeregningsgrunnlagTjeneste = hentOgLagreBeregningsgrunnlagTjeneste;
         this.beregningTjeneste = beregningTjeneste;
     }
 
