@@ -258,7 +258,7 @@ class KontrollerFaktaRevurderingStegImplTest {
     void skal_ikke_utlede_startpunkt_dekningsgrad_dersom_endret_dekningsgrad_i_berørt_revurdering() {
         // Arrange
         var revurdering = opprettRevurderingPgaBerørtBehandling();
-        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100, null);
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100);
         endreDekningsgrad(revurdering.getId(), Dekningsgrad._80);
         var fagsak = revurdering.getFagsak();
         var lås = behandlingRepository.taSkriveLås(revurdering);
@@ -285,7 +285,7 @@ class KontrollerFaktaRevurderingStegImplTest {
     void skal_utlede_startpunkt_dekningsgrad_dersom_endret_dekningsgrad_i_dekningsgrad_revurdering() {
         // Arrange
         var revurdering = opprettRevurdering(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
-        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._80, null);
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._80);
         endreDekningsgrad(revurdering.getId(), Dekningsgrad._100);
         var fagsak = revurdering.getFagsak();
         var lås = behandlingRepository.taSkriveLås(revurdering);
@@ -390,7 +390,7 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         var behandling = førstegangScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak());
-        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(behandling.getFagsak(), Dekningsgrad._100, null);
+        repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
         return behandling;
     }
 

@@ -151,7 +151,7 @@ public class FagsakRelasjonRepository {
         return nyFagsakRelasjon;
     }
 
-    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad, Dekningsgrad overstyrtDekningsgrad) {
+    public void oppdaterDekningsgrad(Fagsak fagsak, Dekningsgrad dekningsgrad) {
         Objects.requireNonNull(fagsak, FAGSAK_QP);
         var eksisterendeFagsakRelasjon = finnRelasjonFor(fagsak);
 
@@ -159,8 +159,7 @@ public class FagsakRelasjonRepository {
         deaktiverEksisterendeRelasjon(eksisterendeFagsakRelasjon);
         var nyFagsakRelasjon = new FagsakRelasjon(eksisterendeFagsakRelasjon.getFagsakNrEn(), eksisterendeFagsakRelasjon.getFagsakNrTo().orElse(null),
             eksisterendeFagsakRelasjon.getStønadskontoberegning().orElse(null),
-            // Hvis dekningsgrad blir oversyrt så skal overstyrt stønadskontoberegning allerede være null
-            dekningsgrad, overstyrtDekningsgrad, eksisterendeFagsakRelasjon.getAvsluttningsdato());
+            dekningsgrad, null, eksisterendeFagsakRelasjon.getAvsluttningsdato());
         entityManager.persist(nyFagsakRelasjon);
         fagsakLåsRepository.oppdaterLåsVersjon(fagsakLås);
         entityManager.flush();
