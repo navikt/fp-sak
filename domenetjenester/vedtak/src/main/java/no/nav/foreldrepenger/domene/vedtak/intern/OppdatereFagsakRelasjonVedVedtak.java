@@ -50,7 +50,7 @@ public class OppdatereFagsakRelasjonVedVedtak {
         if (!UtregnetStønadskontoTjeneste.harSammeAntallStønadsdager(gjeldendeKontoutregning, uttak.getStønadskontoberegning().getStønadskontoutregning())) {
             fagsakRelasjonTjeneste.lagre(behandling.getFagsakId(), uttak.getStønadskontoberegning());
         }
-        if (!Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), fagsakrelasjon.getGjeldendeDekningsgrad())) {
+        if (!Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), fagsakrelasjon.getDekningsgrad())) {
             var dekningsgrad = ytelseFordelingAggregat.getGjeldendeDekningsgrad();
             fagsakRelasjonTjeneste.oppdaterDekningsgrad(behandling.getFagsakId(), dekningsgrad);
         }

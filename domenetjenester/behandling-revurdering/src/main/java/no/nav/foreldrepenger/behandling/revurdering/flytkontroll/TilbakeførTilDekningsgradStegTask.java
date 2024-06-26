@@ -61,7 +61,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
         }
 
         var fagsakrelDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
-            .map(FagsakRelasjon::getGjeldendeDekningsgrad);
+            .map(FagsakRelasjon::getDekningsgrad);
         var behandlingDekningsgrad = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
             .map(YtelseFordelingAggregat::getGjeldendeDekningsgrad);
         if (fagsakrelDekningsgrad.isEmpty() || behandlingDekningsgrad.isEmpty()) {

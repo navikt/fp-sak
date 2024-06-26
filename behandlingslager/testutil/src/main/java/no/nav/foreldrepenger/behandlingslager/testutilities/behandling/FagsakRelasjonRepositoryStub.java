@@ -63,7 +63,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
         lenient().when(fagsakRelasjon.getFagsakNrTo()).thenReturn(Optional.of(fagsakTo));
         lenient().when(fagsakRelasjon.getRelatertFagsak(fagsakEn)).thenReturn(Optional.of(fagsakTo));
         lenient().when(fagsakRelasjon.getRelatertFagsak(fagsakTo)).thenReturn(Optional.of(fagsakEn));
-        lenient().when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(eksisterendeEn);
+        lenient().when(fagsakRelasjon.getDekningsgrad()).thenReturn(eksisterendeEn);
         map.put(fagsakEn.getSaksnummer(), fagsakRelasjon);
         map.put(fagsakTo.getSaksnummer(), fagsakRelasjon);
         return Optional.of(fagsakRelasjon);

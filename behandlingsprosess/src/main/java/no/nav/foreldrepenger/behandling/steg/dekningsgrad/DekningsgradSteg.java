@@ -58,7 +58,7 @@ public class DekningsgradSteg implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
 
-        var fagsakRelasjonDekningsgrad = hentFagsakRelasjon(kontekst).getGjeldendeDekningsgrad();
+        var fagsakRelasjonDekningsgrad = hentFagsakRelasjon(kontekst).getDekningsgrad();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         var eksisterendeSakskompleksDekningsgrad = ytelseFordelingAggregat.getSakskompleksDekningsgrad();
         var annenPartsOppgittDekningsgrad = finnAnnenPartsOppgittDekningsgrad(kontekst.getFagsakId()).orElse(null);
