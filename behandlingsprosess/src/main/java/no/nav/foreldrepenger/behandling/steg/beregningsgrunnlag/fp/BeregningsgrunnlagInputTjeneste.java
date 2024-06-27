@@ -54,7 +54,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
 
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
-        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
+        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderingerKalkulus(ref);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         var kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
         var fpGrunnlag = new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering);
