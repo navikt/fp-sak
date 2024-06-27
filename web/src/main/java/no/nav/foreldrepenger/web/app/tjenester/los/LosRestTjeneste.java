@@ -93,7 +93,7 @@ public class LosRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentFagsakEgenskaper(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         return fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi()))
-            .map(f -> losBehandlingDtoTjeneste.lagFagsakEgenskaper(f))
+            .map(f -> new LosFagsakEgenskaperDto(losBehandlingDtoTjeneste.lagFagsakEgenskaperString(f), null))
             .map(Response::ok)
             .orElseGet(() -> Response.status(Response.Status.FORBIDDEN)).build(); // Etablert praksis
     }
