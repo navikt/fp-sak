@@ -54,7 +54,6 @@ import no.nav.vedtak.hendelser.behandling.Behandlingsårsak;
 import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.Ytelse;
 import no.nav.vedtak.hendelser.behandling.los.LosBehandlingDto;
-import no.nav.vedtak.hendelser.behandling.los.LosFagsakEgenskaperDto;
 
 /**
  * Returnerer behandlingsinformasjon tilpasset behov i FP-LOS
@@ -123,7 +122,6 @@ public class LosBehandlingDtoTjeneste {
             faresignaler,
             refusjonskrav,
             lagFagsakEgenskaperString(behandling.getFagsak()),
-            lagFagsakEgenskaper(behandling.getFagsak()),
             fpUttak,
             behandlingsegenskaper,
             null);
@@ -303,33 +301,17 @@ public class LosBehandlingDtoTjeneste {
             .allMatch(beløp -> beløp != null && beløp.compareTo(Beløp.ZERO) > 0);
     }
 
-    public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
-        var markering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).map(this::mapMarkering).orElse(null);
-        return new LosFagsakEgenskaperDto(markering);
-    }
-
     public List<String> lagFagsakEgenskaperString(Fagsak fagsak) {
         return fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId())
+            .filter(fm -> !FagsakMarkering.NASJONAL.equals(fm))
             .map(this::mapLokalMarkering)
             .map(FagsakEgenskap::name)
-            .map(List::of).orElse(List.of());
-    }
-
-    private LosFagsakEgenskaperDto.FagsakMarkering mapMarkering(FagsakMarkering markering) {
-        return  switch (markering) {
-            case NASJONAL -> LosFagsakEgenskaperDto.FagsakMarkering.NASJONAL;
-            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.FagsakMarkering.EØS_BOSATT_NORGE;
-            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.FagsakMarkering.BOSATT_UTLAND;
-            case SAMMENSATT_KONTROLL -> LosFagsakEgenskaperDto.FagsakMarkering.SAMMENSATT_KONTROLL;
-            case DØD_DØDFØDSEL -> LosFagsakEgenskaperDto.FagsakMarkering.DØD;
-            case SELVSTENDIG_NÆRING -> LosFagsakEgenskaperDto.FagsakMarkering.NÆRING;
-            case PRAKSIS_UTSETTELSE -> LosFagsakEgenskaperDto.FagsakMarkering.PRAKSIS_UTSETTELSE;
-        };
+            .map(List::of).orElseGet(List::of);
     }
 
     private FagsakEgenskap mapLokalMarkering(FagsakMarkering markering) {
         return  switch (markering) {
-            case NASJONAL -> FagsakEgenskap.NASJONAL;
+            case NASJONAL -> throw new IllegalArgumentException("Skal sende opp nasjonal som tom liste");
             case EØS_BOSATT_NORGE -> FagsakEgenskap.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> FagsakEgenskap.BOSATT_UTLAND;
             case SAMMENSATT_KONTROLL -> FagsakEgenskap.SAMMENSATT_KONTROLL;
@@ -339,8 +321,9 @@ public class LosBehandlingDtoTjeneste {
         };
     }
 
+    // Bør matche LOS sin LokalFagsakEgenskap 1:1
     public enum FagsakEgenskap {
-        NASJONAL, EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
+        EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
 
     }
 
