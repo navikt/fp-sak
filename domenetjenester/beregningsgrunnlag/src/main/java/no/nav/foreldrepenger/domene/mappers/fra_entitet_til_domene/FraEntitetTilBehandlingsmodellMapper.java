@@ -45,7 +45,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
             .medBeregningsgrunnlag(
                 grunnlagEntitet.getBeregningsgrunnlag().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningsgrunnlag).orElse(null))
-            .medRegisterAktiviteter(mapBeregningAktivitetAggregat(grunnlagEntitet.getRegisterAktiviteter()))
+            .medRegisterAktiviteter(grunnlagEntitet.getRegisterAktiviteter() == null ? null : mapBeregningAktivitetAggregat(grunnlagEntitet.getRegisterAktiviteter()))
             .medSaksbehandletAktiviteter(
                 grunnlagEntitet.getSaksbehandletAktiviteter().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitetAggregat).orElse(null))
             .medOverstyring(
