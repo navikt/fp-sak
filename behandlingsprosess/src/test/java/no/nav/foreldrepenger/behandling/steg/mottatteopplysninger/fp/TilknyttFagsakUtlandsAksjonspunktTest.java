@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -35,8 +34,6 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
     private BehandlingRepositoryProvider provider;
 
 
-    private TilknyttFagsakSteg tilknyttFagsakSteg;
-
     @Test
     void utland_markering_dersom_oppgitt_mor_stønad_eøs() {
         // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i TPS
@@ -47,12 +44,12 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
         var behandling = scenario.lagre(provider);
 
         when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null,
-                null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
+                null, Dekningsgrad._100, fødselsdato.plusYears(3))));
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
             provider.getBehandlingRepository().taSkriveLås(behandling));
 
-        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(InntektArbeidYtelseTjeneste.class),
-            mock(RegistrerFagsakEgenskaper.class));
+        var tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class),
+            mock(InntektArbeidYtelseTjeneste.class), mock(RegistrerFagsakEgenskaper.class));
 
         // Act
         var resultat = tilknyttFagsakSteg.utførSteg(kontekst);

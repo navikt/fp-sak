@@ -164,7 +164,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private boolean erDekningsgradEndring(BehandlingReferanse ref) {
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         var fagsakrelDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
-            .getGjeldendeDekningsgrad();
+            .getDekningsgrad();
         return !Objects.equals(dekningsgrad, fagsakrelDekningsgrad);
     }
 

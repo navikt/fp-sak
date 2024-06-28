@@ -124,7 +124,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             }
         } else { // Finnes fagsakrelasjon. Skal ikke endre denne dersom det finnes vedtak. Dersom finnes og det ikke er vedtak - lagre ny (uten DG)
             var harVedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).isPresent();
-            if (!harVedtak && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && kobling.get().getGjeldendeDekningsgrad() != null) {
+            if (!harVedtak && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && kobling.get().getDekningsgrad() != null) {
                 kobleSakTjeneste.opprettFagsakRelasjon(behandling.getFagsak());
             }
         }

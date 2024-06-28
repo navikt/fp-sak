@@ -55,7 +55,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
-        var relasjon = new FagsakRelasjon(fagsak, null, null, null, null, null);
+        var relasjon = new FagsakRelasjon(fagsak, null, null, null, null);
         lagre(fagsak, relasjon);
         return relasjon;
     }
@@ -66,10 +66,8 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
         if (fagsakRelasjon == null) {
             fagsakRelasjon = opprettRelasjon(fagsak);
         }
-        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            stønadskontoberegning,
-                fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null),
-            fagsakRelasjon.getAvsluttningsdato());
+        var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null), stønadskontoberegning,
+            fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }
 
@@ -80,7 +78,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
             fagsakRelasjon = opprettRelasjon(fagsak);
         }
         var ny = new FagsakRelasjon(fagsakRelasjon.getFagsakNrEn(), fagsakRelasjon.getFagsakNrTo().orElse(null),
-            fagsakRelasjon.getStønadskontoberegning().orElse(null), dekningsgrad, null,
+            fagsakRelasjon.getStønadskontoberegning().orElse(null), dekningsgrad,
             fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsak, ny);
     }
@@ -94,8 +92,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         var fagsakRelasjon = finnRelasjonFor(fagsakEn);
         var ny = new FagsakRelasjon(fagsakEn, fagsakTo, fagsakRelasjon.getStønadskontoberegning().orElse(null),
-                fagsakRelasjon.getDekningsgrad(),
-            fagsakRelasjon.getOverstyrtDekningsgrad().orElse(null), fagsakRelasjon.getAvsluttningsdato());
+                fagsakRelasjon.getDekningsgrad(), fagsakRelasjon.getAvsluttningsdato());
         lagre(fagsakEn, ny);
         lagre(fagsakTo, ny);
         return Optional.of(ny);

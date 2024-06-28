@@ -29,7 +29,7 @@
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
         <fp-inngangsvilkar.version>1.0.1</fp-inngangsvilkar.version>
-        <beregning.version>5.0.8</beregning.version>
+        <beregning.version>5.1.0</beregning.version>
         <fp-uttak.version>15.1.6</fp-uttak.version>
         <fp-stonadskonto.version>2.1.0</fp-stonadskonto.version>
         <svp-uttak.version>2.4.3</svp-uttak.version>
@@ -38,7 +38,7 @@
         <felles.version>7.2.1</felles.version>
         <prosesstask.version>5.0.11</prosesstask.version>
 
-        <fp-kontrakter.version>9.1.15</fp-kontrakter.version>
+        <fp-kontrakter.version>9.1.19</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
         <kalkulus.version>0.0.5</kalkulus.version>
 
@@ -150,7 +150,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.6</version>
+                <version>3.2.7</version>
             </dependency>
 
             <dependency>

@@ -80,7 +80,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         }
         if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(revurdering.fagsakId())
-            .flatMap(fr -> Optional.ofNullable(fr.getGjeldendeDekningsgrad()))
+            .flatMap(fr -> Optional.ofNullable(fr.getDekningsgrad()))
             .filter(frDekningsgrad -> !Objects.equals(frDekningsgrad, dekningsgradTjeneste.finnGjeldendeDekningsgrad(revurdering)))
             .isPresent()) {
             startpunkter.add(StartpunktType.DEKNINGSGRAD);

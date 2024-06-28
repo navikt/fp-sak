@@ -4,12 +4,10 @@ import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -29,12 +27,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class ForvaltningUttakRestTjeneste {
 
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
-    private EntityManager entityManager;
 
     @Inject
-    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste, EntityManager entityManager) {
+    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste) {
         this.forvaltningUttakTjeneste = forvaltningUttakTjeneste;
-        this.entityManager = entityManager;
     }
 
     public ForvaltningUttakRestTjeneste() {
@@ -102,19 +98,5 @@ public class ForvaltningUttakRestTjeneste {
 
         forvaltningUttakTjeneste.endreMorUføretrygd(dto.getBehandlingUuid(), morUforetrygd);
         return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/flyttOverstyrtDekningsgrad")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Operation(description = "Saner overstyrt dekningsgrad", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response flyttOverstyrt() {
-        var antall = entityManager.createNativeQuery(
-                "UPDATE FAGSAK_RELASJON SET DEKNINGSGRAD = OVERSTYRT_DEKNINGSGRAD WHERE OVERSTYRT_DEKNINGSGRAD is not null")
-            .executeUpdate();
-        entityManager.flush();
-
-        return Response.ok(antall).build();
     }
 }

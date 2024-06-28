@@ -121,15 +121,15 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak);
-        var rel1 = new FagsakRelasjon(fagsak, null, null, null, null, null);
+        var rel1 = new FagsakRelasjon(fagsak, null, null, null, null);
         rel1.setOpprettetTidspunkt(LocalDate.of(2023, 1, 1).atStartOfDay());
         entityManager.persist(rel1);
 
-        var rel2 = new FagsakRelasjon(fagsak, null, null, null, null, null);
+        var rel2 = new FagsakRelasjon(fagsak, null, null, null, null);
         rel2.setOpprettetTidspunkt(LocalDate.of(2024, 1, 1).atStartOfDay());
         entityManager.persist(rel2);
 
-        var rel3 = new FagsakRelasjon(fagsak, null, null, null, null, null);
+        var rel3 = new FagsakRelasjon(fagsak, null, null, null, null);
         rel3.setOpprettetTidspunkt(LocalDate.of(2025, 1, 1).atStartOfDay());
         entityManager.persist(rel3);
 
