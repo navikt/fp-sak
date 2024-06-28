@@ -76,7 +76,7 @@ public final class KalkulusTilFpsakMapper {
     private static BeregningAktivitetOverstyring mapAktivitetOverstyring(BeregningAktivitetOverstyringDto aktivitetDto) {
         return BeregningAktivitetOverstyring.builder()
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(aktivitetDto.getPeriode().getFom(), aktivitetDto.getPeriode().getTom()))
-            .medArbeidsgiver(mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
+            .medArbeidsgiver(aktivitetDto.getArbeidsgiver() == null ? null : mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
             .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
             .medOpptjeningAktivitetType(KodeverkFraKalkulusMapper.mapOpptjeningtype(aktivitetDto.getOpptjeningAktivitetType()))
             .medHandling(KodeverkFraKalkulusMapper.mapHandling(aktivitetDto.getHandlingType()))
@@ -93,7 +93,7 @@ public final class KalkulusTilFpsakMapper {
         return BeregningAktivitet.builder()
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(aktivitetDto.getPeriode().getFom(), aktivitetDto.getPeriode().getTom()))
             .medArbeidsforholdRef(aktivitetDto.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(aktivitetDto.getArbeidsforholdRef().getAbakusReferanse()))
-            .medArbeidsgiver(mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
+            .medArbeidsgiver(aktivitetDto.getArbeidsgiver() == null ? null : mapArbeidsgiver(aktivitetDto.getArbeidsgiver()))
             .medOpptjeningAktivitetType(KodeverkFraKalkulusMapper.mapOpptjeningtype(aktivitetDto.getOpptjeningAktivitetType()))
             .build();
     }

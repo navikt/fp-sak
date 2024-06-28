@@ -88,7 +88,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return lagreOgKopier(ref, resultat);
     }
 
-    public void fastsettBeregningsgrunnlag(BeregningsgrunnlagInput input) {
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat fastsettBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.fastsettBeregningsgrunnlag(
             kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
@@ -101,6 +101,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
                 beregningResultatAggregat.getRegelSporingAggregat()))
             .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
         beregningsgrunnlagRepository.lagre(behandlingId, beregningsgrunnlag, FASTSATT);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(Collections.emptyList());
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {

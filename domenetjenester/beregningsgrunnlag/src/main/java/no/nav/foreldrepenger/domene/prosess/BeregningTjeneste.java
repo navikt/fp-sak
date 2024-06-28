@@ -7,7 +7,9 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 @ApplicationScoped
 public class BeregningTjeneste {
@@ -40,6 +42,14 @@ public class BeregningTjeneste {
             return kalkulusBeregner.hentGUIDto(referanse);
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
+        }
+    }
+
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        if (skalKalleKalkulus) {
+            return kalkulusBeregner.beregn(referanse, stegType);
+        } else {
+            return fpsakBeregner.beregn(referanse, stegType);
         }
     }
 

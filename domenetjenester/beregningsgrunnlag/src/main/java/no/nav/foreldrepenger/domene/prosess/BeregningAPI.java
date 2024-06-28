@@ -6,12 +6,13 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 public interface BeregningAPI {
 
     Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse);
 
-    void beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType);
+    BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType);
 
     Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse);
 
