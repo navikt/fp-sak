@@ -66,7 +66,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
-        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
+        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderingerKalkulus(ref);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         var kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
         var besteberegninggrunnlag = hentOgLagreBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(ref.behandlingId())

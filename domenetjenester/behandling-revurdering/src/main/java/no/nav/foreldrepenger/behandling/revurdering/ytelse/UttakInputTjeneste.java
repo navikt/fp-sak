@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.guitjenester.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -21,13 +21,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
@@ -40,18 +40,16 @@ public class UttakInputTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MedlemTjeneste medlemTjeneste;
     private BehandlingRepository behandlingRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private SøknadRepository søknadRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste;
 
     @Inject
-    public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                              InntektArbeidYtelseTjeneste iayTjeneste,
+    public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider, InntektArbeidYtelseTjeneste iayTjeneste,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                              MedlemTjeneste medlemTjeneste,
+                              MedlemTjeneste medlemTjeneste, BeregningTjeneste beregningTjeneste,
                               BeregningUttakTjeneste beregningUttakTjeneste,
                               no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste,
                               no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste) {
@@ -59,8 +57,8 @@ public class UttakInputTjeneste {
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
         this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.beregningTjeneste = beregningTjeneste;
         this.beregningUttakTjeneste = beregningUttakTjeneste;
         this.fpUttakGrunnlagTjeneste = fpUttakGrunnlagTjeneste;
         this.svpUttakGrunnlagTjeneste = svpUttakGrunnlagTjeneste;
@@ -94,7 +92,7 @@ public class UttakInputTjeneste {
             .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
             .medBehandlingÅrsaker(map(årsaker))
             .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker));
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
+        var beregningsgrunnlag = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
             var finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag(ref, beregningsgrunnlag.get());
@@ -104,11 +102,9 @@ public class UttakInputTjeneste {
         return input;
     }
 
-    private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
-        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste
-                .finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
-
+    private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, Beregningsgrunnlag beregningsgrunnlag) {
+        var aktivitetGradering = beregningUttakTjeneste.finnPerioderMedGradering(ref);
+        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnesAndelerMedGraderingUtenBG(beregningsgrunnlag, aktivitetGradering);
         return !andelerMedGraderingUtenBG.isEmpty();
     }
 
@@ -125,7 +121,7 @@ public class UttakInputTjeneste {
         return new HashSet<>(behandling.getBehandlingÅrsaker());
     }
 
-    private Set<BeregningsgrunnlagStatus> lagBeregningsgrunnlagStatuser(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    private Set<BeregningsgrunnlagStatus> lagBeregningsgrunnlagStatuser(Beregningsgrunnlag beregningsgrunnlag) {
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
                 .flatMap(beregningsgrunnlagPeriode -> beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
                 .map(this::mapAndel)

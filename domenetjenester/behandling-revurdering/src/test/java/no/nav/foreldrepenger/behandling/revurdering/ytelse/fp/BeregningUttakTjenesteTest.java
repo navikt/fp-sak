@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -89,7 +88,7 @@ class BeregningUttakTjenesteTest {
         var behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        var andelGraderingList = tjeneste.finnAktivitetGraderinger(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        var andelGraderingList = tjeneste.finnAktivitetGraderingerKalkulus(BehandlingReferanse.fra(behandling)).getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(3);
         var andelGraderingArbeidsgiver1 = forArbeidsgiver(andelGraderingList, arbeidsgiver1, AktivitetStatus.ARBEIDSTAKER);
@@ -166,7 +165,7 @@ class BeregningUttakTjenesteTest {
         var behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        var andelGraderingList = tjeneste.finnAktivitetGraderinger(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        var andelGraderingList = tjeneste.finnAktivitetGraderingerKalkulus(BehandlingReferanse.fra(behandling)).getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver, AktivitetStatus.ARBEIDSTAKER);
@@ -213,7 +212,7 @@ class BeregningUttakTjenesteTest {
         var behandling = scenario.lagMocked();
         medFordeling(behandling, new OppgittFordelingEntitet(Collections.emptyList(), false));
 
-        var andelGraderingList = tjeneste.finnAktivitetGraderinger(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        var andelGraderingList = tjeneste.finnAktivitetGraderingerKalkulus(BehandlingReferanse.fra(behandling)).getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
         var graderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver, AktivitetStatus.ARBEIDSTAKER);
@@ -248,7 +247,7 @@ class BeregningUttakTjenesteTest {
         var behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        var andelGraderingList = tjeneste.finnAktivitetGraderinger(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        var andelGraderingList = tjeneste.finnAktivitetGraderingerKalkulus(BehandlingReferanse.fra(behandling)).getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.FRILANSER);
@@ -285,7 +284,7 @@ class BeregningUttakTjenesteTest {
         var behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        var andelGraderingList = tjeneste.finnAktivitetGraderinger(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        var andelGraderingList = tjeneste.finnAktivitetGraderingerKalkulus(BehandlingReferanse.fra(behandling)).getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
