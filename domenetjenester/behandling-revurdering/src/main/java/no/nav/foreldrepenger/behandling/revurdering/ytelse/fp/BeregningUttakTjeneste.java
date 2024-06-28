@@ -153,7 +153,7 @@ public class BeregningUttakTjeneste {
     private PeriodeMedGradering map(OppgittPeriodeEntitet gradertPeriode) {
         return new PeriodeMedGradering(gradertPeriode.getFom(), gradertPeriode.getTom(), gradertPeriode.getArbeidsprosent(),
             mapAktivitetStatus(gradertPeriode),
-            gradertPeriode.getArbeidsgiver() == null ? null : gradertPeriode.getArbeidsgiver());
+            gradertPeriode.getArbeidsgiver());
     }
 
     private List<PeriodeMedGradering> fraVedtak(Optional<LocalDate> førsteDatoSøknad, Long originalBehandling) {
