@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
@@ -56,6 +58,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -78,6 +81,7 @@ public class KlageRestTjeneste {
     private FptilbakeRestKlient fptilbakeRestKlient;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private KlageHistorikkinnslag klageFormkravHistorikk;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -88,12 +92,14 @@ public class KlageRestTjeneste {
                              KlageVurderingTjeneste klageVurderingTjeneste,
                              FptilbakeRestKlient fptilbakeRestKlient,
                              MottatteDokumentRepository mottatteDokumentRepository,
-                             KlageHistorikkinnslag klageFormkravHistorikk) {
+                             KlageHistorikkinnslag klageFormkravHistorikk,
+                             BehandlingEventPubliserer behandlingEventPubliserer) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.klageFormkravHistorikk = klageFormkravHistorikk;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     @GET
@@ -132,6 +138,10 @@ public class KlageRestTjeneste {
         }
 
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP)) {
+            behandling.setAnsvarligSaksbehandler(KontekstHolder.getKontekst().getUid());
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingSaksbehandlerEvent(behandling));
+
             mapMellomlagreKlage(apDto, builder);
             klageFormkravHistorikk.opprettHistorikkinnslagVurdering(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP,
                 apDto, apDto.getBegrunnelse());
@@ -172,8 +182,11 @@ public class KlageRestTjeneste {
         }
 
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP)) {
+            behandling.setAnsvarligSaksbehandler(KontekstHolder.getKontekst().getUid());
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingSaksbehandlerEvent(behandling));
             oppdaterKlageresultat(apDto, klageResultat, behandling);
-            mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat );
+            mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat);
             klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
             klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(behandling, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP, apDto,
                 lagretFormkrav, klageResultat, apDto.begrunnelse());

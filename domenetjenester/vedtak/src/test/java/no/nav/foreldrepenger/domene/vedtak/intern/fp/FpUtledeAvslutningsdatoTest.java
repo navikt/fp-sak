@@ -196,7 +196,7 @@ class FpUtledeAvslutningsdatoTest {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, Dekningsgrad._80, null)));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
             Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
@@ -230,7 +230,7 @@ class FpUtledeAvslutningsdatoTest {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
-            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, Dekningsgrad._80, null, null)));
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, Dekningsgrad._80, null)));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
             Optional.of(behandling));
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(

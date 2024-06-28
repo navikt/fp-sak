@@ -72,13 +72,11 @@ public class FagsakRelasjon extends BaseEntitet {
                           Fagsak fagsakNrTo,
                           Stønadskontoberegning stønadskontoberegning,
                           Dekningsgrad dekningsgrad,
-                          Dekningsgrad overstyrtDekningsgrad,
                           LocalDate avsluttningsdato) {
         this.stønadskontoberegning = stønadskontoberegning;
         this.fagsakNrEn = fagsakNrEn;
         this.fagsakNrTo = fagsakNrTo;
         this.dekningsgrad = dekningsgrad;
-        this.overstyrtDekningsgrad = overstyrtDekningsgrad;
         this.avsluttningsdato = avsluttningsdato;
     }
 
@@ -120,17 +118,8 @@ public class FagsakRelasjon extends BaseEntitet {
         return getRelatertFagsakFraId(fagsak.getId());
     }
 
-
     public Dekningsgrad getDekningsgrad() {
         return dekningsgrad;
-    }
-
-    public Optional<Dekningsgrad> getOverstyrtDekningsgrad() {
-        return Optional.ofNullable(overstyrtDekningsgrad);
-    }
-
-    public Dekningsgrad getGjeldendeDekningsgrad() {
-        return getOverstyrtDekningsgrad().orElse(getDekningsgrad());
     }
 
     public LocalDate getAvsluttningsdato() {
