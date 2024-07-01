@@ -5,7 +5,6 @@
        bean-discovery-mode="annotated">
 
         <alternatives>
-            <class>no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory</class>
             <class>no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste</class>
         </alternatives>
 </beans>
