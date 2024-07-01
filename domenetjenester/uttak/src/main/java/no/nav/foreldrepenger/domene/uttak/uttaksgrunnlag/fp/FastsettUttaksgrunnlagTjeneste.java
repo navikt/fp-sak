@@ -128,6 +128,10 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private static boolean skalJustereFordelingEtterFamiliehendelse(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
+        if (input.getBehandlingReferanse().behandlingId().equals(3112142L)) { // TODO: Fjern denne etter behandling OK.
+            LOG.info("Justerer ikke behandling 3112142");
+            return false;
+        }
         if (!fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             return false;
         }
