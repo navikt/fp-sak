@@ -71,8 +71,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -104,7 +105,7 @@ public class StønadsstatistikkTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private LegacyESBeregningRepository legacyESBeregningRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private SøknadRepository søknadRepository;
@@ -125,7 +126,7 @@ public class StønadsstatistikkTjeneste {
                                      UttakInputTjeneste uttakInputTjeneste,
                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                      LegacyESBeregningRepository legacyESBeregningRepository,
-                                     HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                     BeregningTjeneste beregningTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                      SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                                      SøknadRepository søknadRepository,
@@ -143,7 +144,7 @@ public class StønadsstatistikkTjeneste {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.legacyESBeregningRepository = legacyESBeregningRepository;
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.søknadRepository = søknadRepository;
@@ -239,12 +240,12 @@ public class StønadsstatistikkTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return null;
         }
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(behandling.getId()).orElse(null);
-        if (beregningsgrunnlag == null) {
+        var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        if (beregningsgrunnlag.isEmpty()) {
             return null;
         }
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
-        return StønadsstatistikkBeregningMapper.mapBeregning(behandling, beregningsgrunnlag, iayGrunnlag);
+        return StønadsstatistikkBeregningMapper.mapBeregning(behandling, beregningsgrunnlag.get(), iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {

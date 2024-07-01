@@ -2,55 +2,20 @@ package no.nav.foreldrepenger.domene.prosess;
 
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
-@ApplicationScoped
-public class BeregningTjeneste {
-    private BeregningFPSAK fpsakBeregner;
-    private BeregningKalkulus kalkulusBeregner;
-    private boolean skalKalleKalkulus;
+public interface BeregningTjeneste {
 
-    BeregningTjeneste() {
-        // CDI
-    }
+    Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse);
 
-    @Inject
-    public BeregningTjeneste(BeregningFPSAK fpsakBeregner,
-                             BeregningKalkulus kalkulusBeregner) {
-        this.fpsakBeregner = fpsakBeregner;
-        this.kalkulusBeregner = kalkulusBeregner;
-        this.skalKalleKalkulus = false;
-    }
+    Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse);
 
-    public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
-            return kalkulusBeregner.hent(referanse);
-        } else {
-            return fpsakBeregner.hent(referanse);
-        }
-    }
+    BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType);
 
-    public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
-            return kalkulusBeregner.hentGUIDto(referanse);
-        } else {
-            return fpsakBeregner.hentGUIDto(referanse);
-        }
-    }
-
-    public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType) {
-        if (skalKalleKalkulus) {
-            return kalkulusBeregner.beregn(referanse, stegType);
-        } else {
-            return fpsakBeregner.beregn(referanse, stegType);
-        }
-    }
+    void lagre(BeregningsgrunnlagGrunnlag beregningsgrunnlagGrunnlag, BehandlingReferanse referanse);
 
 }
