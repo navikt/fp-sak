@@ -7,45 +7,40 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
-
-import java.util.Collections;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class BrevmalTjenesteTest {
 
     @Mock
-    DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     @Mock
-    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
-
-    @Mock
-    Behandling behandling;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Test
     void hent_brevmaler_for_es_førstegangsbehandling() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.FØRSTEGANGSSØKNAD);
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
@@ -59,6 +54,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_es_revurdering_manuelt_opprettet() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -72,6 +68,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_es_revurdering_automatisk_opprettet() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(false);
@@ -85,6 +82,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_fp_revurdering() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -105,6 +103,7 @@ class BrevmalTjenesteTest {
             InternArbeidsforholdRef.nyRef(), ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -127,6 +126,7 @@ class BrevmalTjenesteTest {
             InternArbeidsforholdRef.nyRef(), ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -146,6 +146,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_fp_revurdering_varsel_sendt() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -165,6 +166,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_fp_innsyn() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.INNSYN);
 
@@ -181,6 +183,7 @@ class BrevmalTjenesteTest {
     @Test
     void hent_brevmaler_for_fp_klage() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.KLAGE);
 
@@ -192,5 +195,44 @@ class BrevmalTjenesteTest {
                 DokumentMalType.INNHENTE_OPPLYSNINGER.getKode(),
                 DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.getKode());
 
+    }
+
+    @Test
+    void skal_hente_forlenget_saksbehandlingstid_for_es() {
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = mock(Behandling.class);
+        when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
+        when(behandling.getType()).thenReturn(BehandlingType.FØRSTEGANGSSØKNAD);
+        var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
+
+        assertThat(brevmalDtos).anyMatch(dto -> dto.kode().equals(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.getKode()));
+    }
+
+    @Test
+    void skal_ikke_hente_forlenget_saksbehandlingstid_for_fp() {
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = førstegangsbehandling(FagsakYtelseType.FORELDREPENGER);
+        var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
+
+        assertThat(brevmalDtos).noneMatch(dto -> dto.kode().equals(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.getKode()));
+    }
+
+    @Test
+    void skal_ikke_hente_forlenget_saksbehandlingstid_for_svp() {
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        var behandling = førstegangsbehandling(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
+
+        assertThat(brevmalDtos).noneMatch(dto -> dto.kode().equals(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.getKode()));
+    }
+
+    private Behandling førstegangsbehandling(FagsakYtelseType foreldrepenger) {
+        var behandling = mock(Behandling.class);
+        when(behandling.getFagsakYtelseType()).thenReturn(foreldrepenger);
+        when(behandling.getType()).thenReturn(BehandlingType.FØRSTEGANGSSØKNAD);
+        var fag = mock(Fagsak.class);
+        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
+        when(behandling.getFagsak()).thenReturn(fag);
+        return behandling;
     }
 }

@@ -42,7 +42,9 @@ public class BrevmalTjeneste {
     }
 
     // Fjerner dokumentmaler som ikke er tilgjengelig for manuell utsendelse, og for ulike behandlingstyper
-    Set<DokumentMalType> finnIrrelevanteMaler(FagsakYtelseType ytelseType, BehandlingType behandlingType, boolean erBehandlingManueltOpprettet) {
+    private Set<DokumentMalType> finnIrrelevanteMaler(FagsakYtelseType ytelseType,
+                                                      BehandlingType behandlingType,
+                                                      boolean erBehandlingManueltOpprettet) {
         Set<DokumentMalType> fjernes = new HashSet<>();
 
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
@@ -58,16 +60,30 @@ public class BrevmalTjeneste {
             fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
         }
 
+        fjernes.addAll(finnIrrelevanteMalerPåYtelseType(ytelseType, behandlingType, erBehandlingManueltOpprettet));
+        return fjernes;
+    }
+
+    private Set<DokumentMalType> finnIrrelevanteMalerPåYtelseType(FagsakYtelseType ytelseType,
+                                                                  BehandlingType behandlingType,
+                                                                  boolean erBehandlingManueltOpprettet) {
+        return switch (ytelseType) {
+            case ENGANGSTØNAD -> finnIrrelevanteMalerES(behandlingType, erBehandlingManueltOpprettet);
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> Set.of(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            case UDEFINERT -> throw new IllegalArgumentException("Støtter ikke " + behandlingType);
+        };
+    }
+
+    private Set<DokumentMalType> finnIrrelevanteMalerES(BehandlingType behandlingType, boolean erBehandlingManueltOpprettet) {
         // Engangsstønad revurdering har en egen VARSEL_OM_REVURDERING aksjonspunkt - så dette brevet må fjernes fra panelet.
         // Inntektsmelding trenges ikke heler.
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
-            fjernes.add(DokumentMalType.ETTERLYS_INNTEKTSMELDING);
-            if (BehandlingType.REVURDERING.equals(behandlingType)) {
-                fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID);
-                fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
-                if (erBehandlingManueltOpprettet) {
-                    fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
-                }
+        var fjernes = new HashSet<DokumentMalType>();
+        fjernes.add(DokumentMalType.ETTERLYS_INNTEKTSMELDING);
+        if (BehandlingType.REVURDERING.equals(behandlingType)) {
+            fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID);
+            fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            if (erBehandlingManueltOpprettet) {
+                fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
             }
         }
         return fjernes;
@@ -96,7 +112,8 @@ public class BrevmalTjeneste {
     private boolean manglerInntektsmelding(Behandling behandling) {
         var arbeidsforhold = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(
             BehandlingReferanse.fra(behandling));
-        return arbeidsforhold.stream().anyMatch(af -> ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT.equals(af.inntektsmeldingStatus()));
+        return arbeidsforhold.stream()
+            .anyMatch(af -> ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT.equals(af.inntektsmeldingStatus()));
     }
 
     private boolean erÅpenBehandling(Behandling behandling) {
