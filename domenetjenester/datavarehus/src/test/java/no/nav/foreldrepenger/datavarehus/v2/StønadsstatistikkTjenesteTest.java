@@ -301,15 +301,16 @@ class StønadsstatistikkTjenesteTest {
         var bruttoPrÅr = BigDecimal.valueOf(999000);
         var avkortetPrÅr = grunnbeløp.getVerdi().multiply(BigDecimal.valueOf(6));
         var redusertPrÅr = BigDecimal.valueOf(200000);
-        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
-            baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build();
-        BeregningsgrunnlagPrStatusOgAndel.builder()
+        var bgAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(arbeidsgiver).medRefusjonskravPrÅr(bruttoPrÅr))
             .medBeregnetPrÅr(bruttoPrÅr)
+            .medBruttoPrÅr(bruttoPrÅr)
             .medAvkortetPrÅr(avkortetPrÅr)
             .medRedusertPrÅr(redusertPrÅr)
             .build();
+        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
+            baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).leggTilBeregningsgrunnlagPrStatusOgAndel(bgAndel).build();
         var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(baselineDato)
             .medGrunnbeløp(grunnbeløp)
@@ -325,7 +326,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(baselineDato);
