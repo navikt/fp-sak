@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.tilganger.azure;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -25,11 +25,21 @@ public class TilgangKlient {
     public TilgangKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/bruker/fraKontekst").build();
+        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/bruker/informasjon").build();
     }
 
-    public InnloggetNavAnsattDto brukerInfo() {
+    public BrukerInfoResponseDto brukerInfo() {
         var request = RestRequest.newGET(UriBuilder.fromUri(uri).build(), restConfig);
-        return restClient.send(request, InnloggetNavAnsattDto.class);
+        return restClient.send(request, BrukerInfoResponseDto.class);
+    }
+
+    public record BrukerInfoResponseDto(String brukernavn,
+                                        String navn,
+                                        boolean kanSaksbehandle,
+                                        boolean kanVeilede,
+                                        boolean kanOverstyre,
+                                        boolean kanOppgavestyre,
+                                        boolean kanBehandleKode6,
+                                        LocalDateTime funksjonellTid) {
     }
 }
