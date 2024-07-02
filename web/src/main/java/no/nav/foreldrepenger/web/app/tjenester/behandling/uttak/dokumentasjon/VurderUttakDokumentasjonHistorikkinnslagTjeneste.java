@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder.forma
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -32,41 +30,39 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(VurderUttakDokumentasjonDto dto,
-                                        List<OppgittPeriodeEntitet> eksisterendePerioder) {
+    public void opprettHistorikkinnslag(String begrunnelse, List<OppgittPeriodeEntitet> eksisterendePerioder , List<OppgittPeriodeEntitet> nyFordeling) {
         var builder = historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse())
+            .medBegrunnelse(begrunnelse)
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
-        for (var periode : dto.getVurderingBehov()) {
-            var nyvurdering = VurderUttakDokumentasjonOppdaterer.mapVurdering(periode);
-            var eksisterendeVurdering = finnEksisterendePerioder(eksisterendePerioder, periode.fom(), periode.tom())
-                .map(OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
-            if (nyvurdering != null && (eksisterendeVurdering == null || erEndringerIperiode(nyvurdering, eksisterendeVurdering))) {
-                opprettAvklaring(builder, nyvurdering, periode, eksisterendeVurdering);
+        for (var periode : nyFordeling) {
+            var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom())
+                .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
+                .orElse(null);
+
+            var nyttInnslag = periode.getDokumentasjonVurdering();
+            if (nyttInnslag != null && !nyttInnslag.equals(eksisterendeInnslag)) {
+                opprettAvklaring(builder, periode, eksisterendeInnslag);
             }
         }
     }
 
     private void opprettAvklaring(HistorikkInnslagTekstBuilder builder,
-                                  DokumentasjonVurdering nyVurdering,
-                                  DokumentasjonVurderingBehovDto periode,
-                                  DokumentasjonVurdering eksisterendeVurdering) {
-        var fraVerdi = Objects.equals(eksisterendeVurdering, nyVurdering) ? null : eksisterendeVurdering;
-        var tekstperiode = String.format("%s - %s", formatString(periode.fom()), formatString(periode.tom()));
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAKPERIODE_DOK_AVKLARING, tekstperiode,
-            Optional.ofNullable(fraVerdi).map(Kodeverdi::getNavn).orElse(null), nyVurdering.getNavn());
+                                  OppgittPeriodeEntitet oppdatertPeriode,
+                                  DokumentasjonVurdering eksisterendeDokumentasjonVurdering) {
+        var tekstperiode = String.format("%s - %s", formatString(oppdatertPeriode.getFom()), formatString(oppdatertPeriode.getTom()));
+        var fraVerdi = Optional.ofNullable(eksisterendeDokumentasjonVurdering).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
+        var nyVerdi = formaterStreng(oppdatertPeriode.getDokumentasjonVurdering());
+        builder.medEndretFelt(HistorikkEndretFeltType.UTTAKPERIODE_DOK_AVKLARING, tekstperiode, fraVerdi, nyVerdi);
     }
 
-    private boolean erEndringerIperiode(DokumentasjonVurdering nyVurdering,
-                                        DokumentasjonVurdering eksisterendeVurdering) {
-        return !Objects.equals(nyVurdering, eksisterendeVurdering);
+    private static String formaterStreng(DokumentasjonVurdering dokumentasjonVurdering) {
+        if (DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT.equals(dokumentasjonVurdering.type()) && dokumentasjonVurdering.morsStillingsprosent() != null) {
+            return String.format("%s (%s%% arbeid)", dokumentasjonVurdering.type().getNavn(), dokumentasjonVurdering.morsStillingsprosent());
+        }
+        return dokumentasjonVurdering.type().getNavn();
     }
 
-    private Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder,
-                                                                            LocalDate fom,
-                                                                            LocalDate tom) {
-        return eksisterendePerioder.stream()
-            .filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom))
-            .findFirst();
+    private Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder, LocalDate fom, LocalDate tom) {
+        return eksisterendePerioder.stream().filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom)).findFirst();
     }
 }

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.ANDRE_NAV_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.SAKSBEHANDLER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.SØKNAD;
@@ -215,7 +217,7 @@ class FaktaUttakFellesTjenesteTest {
             .medPeriode(fødsel.plusWeeks(4), fødsel.plusWeeks(10))
             .medMottattDato(fødsel.plusWeeks(2))
             .medTidligstMottattDato(fødsel.plusWeeks(1))
-            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(SYKDOM_ANNEN_FORELDER_GODKJENT))
             .build();
         var lagretEndretVedtaksperiode = periode(fødsel, fødsel.plusWeeks(1), SAKSBEHANDLER, MØDREKVOTE);
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -229,7 +231,7 @@ class FaktaUttakFellesTjenesteTest {
                 .medUttakPeriodeType(lagretEndretVedtaksperiode.uttakPeriodeType())
                 .medMottattDato(fødsel.minusWeeks(2))
                 .medTidligstMottattDato(fødsel.minusWeeks(3))
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_IKKE_DOKUMENTERT))
                 .build())
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, new UttakAktivitetEntitet.Builder()

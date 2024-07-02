@@ -17,7 +17,7 @@ class VurderUttakDokumentasjonDto extends BekreftetAksjonspunktDto {
     @Valid
     @NotNull
     @Size(min = 1, max = 200)
-    private List<DokumentasjonVurderingBehovDto> vurderingBehov;
+    private List<@Valid @NotNull DokumentasjonVurderingBehovDto> vurderingBehov;
 
     public VurderUttakDokumentasjonDto() {
     }

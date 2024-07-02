@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_SØKER_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,7 +66,8 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultat.get(0).getDokRegel()).isNotNull();
         assertThat(resultat.get(0).getPeriodeSøknad()).isNotEmpty();
         assertThat(resultat.get(0).getAktiviteter().get(0).getUttakAktivitet()).isNotNull();
-        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT);
+        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering().type()).isEqualTo(
+            INNLEGGELSE_SØKER_GODKJENT);
     }
 
     @Test
@@ -217,7 +219,7 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(INNLEGGELSE_SØKER_GODKJENT))
             .build();
         var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

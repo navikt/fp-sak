@@ -38,6 +38,7 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
     OVERLAPPENDE_PLEIEPENGER_UTEN_INNLEGGELSE("5029", "Innvilget pleiepenger uten innleggelse, vurder riktig ytelse"),
     FAR_SØKER_FØR_FØDSEL("5030", "Far/medmor søker før fødsel/omsorg"),
     VURDER_OM_UTSETTELSE("5031", "Vurder om det skal være utsettelse i perioden"),
+    AKTIVITETSKRAV_DELVIS_ARBEID("5032", "Vurder utbetalingsgrad og trekkdager når mor er i delvis arbeid (under 75% arbeidsprosent)");
     ;
 
     private static final Map<String, ManuellBehandlingÅrsak> KODER = new LinkedHashMap<>();

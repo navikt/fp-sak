@@ -51,6 +51,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -84,6 +85,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -123,6 +125,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -155,6 +158,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -193,6 +197,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -225,6 +230,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(new Utbetalingsgrad(90))
             .medErSøktGradering(true)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
@@ -264,6 +270,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -312,6 +319,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode0, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode0);
         var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
@@ -321,6 +329,7 @@ class VedtaksperiodeFilterTest {
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();

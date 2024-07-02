@@ -468,6 +468,7 @@ class TidligstMottattOppdatererTest {
             .medTrekkdager(new Trekkdager(42))
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medErSøktGradering(true)
+            .medUtbetalingsgrad(new Utbetalingsgrad(90))
             .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakPeriode1);
         var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
@@ -518,6 +519,7 @@ class TidligstMottattOppdatererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode0, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode0);
@@ -527,6 +529,7 @@ class TidligstMottattOppdatererTest {
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(42))
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medArbeidsprosent(BigDecimal.ZERO).build();
         perioder.leggTilPeriode(uttakPeriode1);

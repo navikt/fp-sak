@@ -1,28 +1,28 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.ALENEOMSORG_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.ALENEOMSORG_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.BARE_SØKER_RETT_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.BARE_SØKER_RETT_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.HV_OVELSE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.HV_OVELSE_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_BARN_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_BARN_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.INNLEGGELSE_SØKER_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.NAV_TILTAK_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.NAV_TILTAK_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_SØKER_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -79,22 +79,21 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             dto.getVurderingBehov().stream().map(vb -> new LocalDateSegment<>(vb.fom(), vb.tom(), vb)).toList());
         var yfTimeline = new LocalDateTimeline<>(gjeldendePerioder.stream().map(op -> new LocalDateSegment<>(op.getFom(), op.getTom(), op)).toList());
 
-        if (vurderingTimeline.getMinLocalDate().isBefore(yfTimeline.getMinLocalDate())
-            || vurderingTimeline.getMaxLocalDate().isAfter(yfTimeline.getMaxLocalDate())) {
+        if (!vurderingTimeline.disjoint(yfTimeline).isEmpty()) {
             throw new IllegalArgumentException("Vurdering " + vurderingTimeline + " ligger utenfor yf perioder " + yfTimeline);
         }
 
         var nyFordeling = yfTimeline.combine(vurderingTimeline, (datoInterval, oppgittPeriode, vurdering) -> {
             var nyPeriode = OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode.getValue())
-                .medPeriode(datoInterval.getFomDato(), datoInterval.getTomDato())
-                .medDokumentasjonVurdering(vurdering == null || vurdering.getValue().vurdering() == null ? oppgittPeriode.getValue()
-                    .getDokumentasjonVurdering() : mapVurdering(vurdering.getValue()))
-                .build();
-            return new LocalDateSegment<>(datoInterval, nyPeriode);
+                .medPeriode(datoInterval.getFomDato(), datoInterval.getTomDato());
+            if (vurdering != null && vurdering.getValue().vurdering() != null) {
+                nyPeriode.medDokumentasjonVurdering(mapVurdering(vurdering.getValue()));
+            }
+            return new LocalDateSegment<>(datoInterval, nyPeriode.build());
         }, LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(param.getBehandlingId(), nyFordeling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(dto, gjeldendePerioder);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(dto.getBegrunnelse(), gjeldendePerioder, nyFordeling);
         return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent(!harLøstAksjonspunktet(param)).build();
     }
 
@@ -104,22 +103,23 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     static DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
-        return switch (dto.type()) {
+        var type = switch (dto.type()) {
             case UTSETTELSE -> mapUtsettelseVurdering(dto.årsak(), dto.vurdering());
             case UTTAK -> mapUttak(dto.årsak(), dto.vurdering());
             case OVERFØRING -> mapOverføringVurdering(dto.årsak(), dto.vurdering());
         };
+        return new DokumentasjonVurdering(type, dto.morsStillingsprosent());
     }
 
-    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.Årsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering.Type mapUttak(DokumentasjonVurderingBehov.Behov.Årsak årsak,
+                                                        DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
-                AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
-                switch (vurdering) {
-                    case GODKJENT -> MORS_AKTIVITET_GODKJENT;
-                    case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
-                    case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-                };
+                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
+                case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
+                case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
+            };
             case TIDLIG_OPPSTART_FAR -> switch (vurdering) {
                 case GODKJENT -> TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
@@ -129,8 +129,8 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private static DokumentasjonVurdering mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                                                 DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering.Type mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
+                                                                      DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         if (vurdering == null) {
             return null;
         }
@@ -156,8 +156,8 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private static DokumentasjonVurdering mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                                                 DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering.Type mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
+                                                                      DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case INNLEGGELSE_SØKER -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_SØKER_GODKJENT;
@@ -180,12 +180,11 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> SYKDOM_SØKER_IKKE_GODKJENT;
             };
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
-                AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
-                switch (vurdering) {
-                    case GODKJENT -> MORS_AKTIVITET_GODKJENT;
-                    case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
-                    case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-                };
+                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
+                case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
+                case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
+            };
             default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
     }
