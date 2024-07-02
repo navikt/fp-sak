@@ -310,8 +310,8 @@ class VedtaksperioderHelperTest {
         avlått.leggTilAktivitet(
             UttakResultatPeriodeAktivitetEntitet.builder(avlått, opprettArbeidstakerUttakAktivitet("orgnr"))
                 .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
-                .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(Trekkdager.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medArbeidsprosent(BigDecimal.ZERO)
                 .build());
 
