@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
@@ -31,7 +31,7 @@ class StønadsstatistikkBeregningMapper {
     }
 
     static StønadsstatistikkVedtak.Beregning mapBeregning(Behandling behandling,
-                                                          BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
+                                                          Beregningsgrunnlag beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
         if (beregningsgrunnlag == null) {
             return null;
         }
@@ -143,13 +143,13 @@ class StønadsstatistikkBeregningMapper {
         };
     }
 
-    private static StønadsstatistikkVedtak.BeregningHjemmel mapBeregningshjemmel(FagsakYtelseType ytelseType, BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    private static StønadsstatistikkVedtak.BeregningHjemmel mapBeregningshjemmel(FagsakYtelseType ytelseType, Beregningsgrunnlag beregningsgrunnlag) {
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             var hjemler = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getHjemmel).collect(Collectors.toSet());
             var statuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toSet());
 
             if (hjemler.contains(Hjemmel.F_14_7_8_49) || statuser.contains(AktivitetStatus.DAGPENGER)) {
-                var besteberegnet = beregningsgrunnlag.getBesteberegninggrunnlag().isPresent() ||
+                var besteberegnet = beregningsgrunnlag.getBesteberegningGrunnlag().isPresent() ||
                     beregningsgrunnlag.getFaktaOmBeregningTilfeller().stream().anyMatch(BESTEBEREGNING_FAKTA::contains);
                 return besteberegnet ? StønadsstatistikkVedtak.BeregningHjemmel.BESTEBEREGNING : StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
             }

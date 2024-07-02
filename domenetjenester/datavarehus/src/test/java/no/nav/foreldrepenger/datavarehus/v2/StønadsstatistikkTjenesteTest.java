@@ -20,6 +20,14 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -53,15 +61,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -75,7 +77,7 @@ class StønadsstatistikkTjenesteTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
+    private BeregningTjenesteInMemory beregningstjeneste;
     @Inject
     private EntityManager entityManager;
 
@@ -104,15 +106,16 @@ class StønadsstatistikkTjenesteTest {
         var avkortetPrÅr = BigDecimal.valueOf(300000);
         var redusertPrÅr = BigDecimal.valueOf(200000);
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(fødselsdato.minusYears(1),
-            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr);
+            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build();
         var grunnbeløp = Beløp.av(100000);
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(fødselsdato)
             .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40).build())
             .build();
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        beregningstjeneste.lagre(gr, BehandlingReferanse.fra(behandling));
         var uttaksperiode = uttak.getPerioder().getFirst();
         var beregningsresultat = lagBeregningsresultatMedAndel(uttaksperiode);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, beregningsresultat);
@@ -121,7 +124,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(fødselsdato);
@@ -224,15 +227,16 @@ class StønadsstatistikkTjenesteTest {
         var avkortetPrÅr = BigDecimal.valueOf(300000);
         var redusertPrÅr = BigDecimal.valueOf(200000);
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(fødselsdato.minusYears(1),
-            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr);
+            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build();
         var grunnbeløp = Beløp.av(100000);
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(fødselsdato)
             .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40).build())
             .build();
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        beregningstjeneste.lagre(gr, BehandlingReferanse.fra(behandling));
         var uttaksperiode = uttak.getPerioder().getFirst();
         var beregningsresultat = lagBeregningsresultatMedAndel(uttaksperiode);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, beregningsresultat);
@@ -297,22 +301,24 @@ class StønadsstatistikkTjenesteTest {
         var bruttoPrÅr = BigDecimal.valueOf(999000);
         var avkortetPrÅr = grunnbeløp.getVerdi().multiply(BigDecimal.valueOf(6));
         var redusertPrÅr = BigDecimal.valueOf(200000);
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(baselineDato)
-            .medGrunnbeløp(grunnbeløp)
-            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30))
-            .build();
-        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
-            baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build(beregningsgrunnlag);
-        BeregningsgrunnlagPrStatusOgAndel.builder()
+        var bgAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(arbeidsgiver).medRefusjonskravPrÅr(bruttoPrÅr))
             .medBeregnetPrÅr(bruttoPrÅr)
+            .medBruttoPrÅr(bruttoPrÅr)
             .medAvkortetPrÅr(avkortetPrÅr)
             .medRedusertPrÅr(redusertPrÅr)
-            .build(beregningsgrunnlagPeriode);
-
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+            .build();
+        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
+            baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).leggTilBeregningsgrunnlagPrStatusOgAndel(bgAndel).build();
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
+            .medSkjæringstidspunkt(baselineDato)
+            .medGrunnbeløp(grunnbeløp)
+            .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30).build())
+            .build();
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        beregningstjeneste.lagre(gr, BehandlingReferanse.fra(behandling));
         var beregningsresultat = lagBeregningsresultatMedAndel(baselineDato, baselineDato.plusDays(19), arbeidsgiver, false);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, beregningsresultat);
         var beregningsresultatPeriode = beregningsresultat.getBeregningsresultatPerioder().getFirst();
@@ -320,7 +326,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(baselineDato);
