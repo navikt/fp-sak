@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,13 +48,14 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(MockitoExtension.class)
 class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
-    private static final LocalDate START_PERIODEDAG_LØPENDE_BEHANDLING = VirkedagUtil.fomVirkedag(LocalDate.now().minusWeeks(100));
+    private static final LocalDate DATO = LocalDate.of(2024, 6, 6);
+    private static final LocalDate START_PERIODEDAG_LØPENDE_BEHANDLING = VirkedagUtil.fomVirkedag(DATO.minusWeeks(100));
     private static final LocalDate SISTE_PERIODEDAG_LØPENDE_BEHANDLING = START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(50);
 
     private static final LocalDate START_PERIODEDAG_OVERLAPP = VirkedagUtil.fomVirkedag(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1));
     private static final LocalDate SISTE_PERIODEDAG_OVERLAPP = START_PERIODEDAG_OVERLAPP.plusWeeks(6);
 
-    private static final LocalDate START_PERIODEDAG_IKKE_OVERLAPP = VirkedagUtil.fomVirkedag(LocalDate.now());
+    private static final LocalDate START_PERIODEDAG_IKKE_OVERLAPP = VirkedagUtil.fomVirkedag(DATO);
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
@@ -288,14 +288,14 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     void opphørSakPåMorNårToTette() {
-        var avsluttetBehMor = lagBehandlingMor(LocalDate.now(), AKTØR_ID_MOR, null);
+        var avsluttetBehMor = lagBehandlingMor(DATO, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
             SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(avsluttetBehMor.getFagsak()))
             .thenReturn(new LocalDateTimeline<>(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1), SISTE_PERIODEDAG_LØPENDE_BEHANDLING, Boolean.TRUE));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(LocalDate.now().plusWeeks(20), AKTØR_ID_MOR, null);
+        var nyAvsBehandlingMor = lagBehandlingMor(DATO.plusWeeks(20), AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyAvsBehandlingMor))
             .thenReturn(new LocalDateTimeline<>(SISTE_PERIODEDAG_LØPENDE_BEHANDLING, SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(1), Boolean.TRUE));
@@ -303,11 +303,11 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         //første barn
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(LocalDate.now());
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(DATO);
         //andre barn
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreBarn);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetAndreBarn);
-        when(familieHendelseEntitetAndreBarn.getSkjæringstidspunkt()).thenReturn(LocalDate.now().plusWeeks(20));
+        when(familieHendelseEntitetAndreBarn.getSkjæringstidspunkt()).thenReturn(DATO.plusWeeks(20));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
         verifiserAtProsesstaskForHåndteringAvOpphørErOpprettetOgToTetteBeskrivelse(avsluttetBehMor.getFagsak());
@@ -486,7 +486,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medDefaultOppgittDekningsgrad();
         var behandling = scenarioAvsluttetBehMor.lagre(repositoryProvider);
@@ -507,7 +507,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehFar.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehFar.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenarioAvsluttetBehFar.medDefaultOppgittDekningsgrad();
         var behandling = scenarioAvsluttetBehFar.lagre(repositoryProvider);
@@ -530,7 +530,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario.medDefaultOppgittDekningsgrad();
         var behandling = scenario.lagre(repositoryProvider);
@@ -554,7 +554,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
+            .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario.medDefaultOppgittDekningsgrad();
         var behandling = scenario.lagre(repositoryProvider);
@@ -571,7 +571,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenarioAvslBeh.medSøknadHendelse().medTerminbekreftelse(scenarioAvslBeh.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("LEGEN MIN")
                 .medTermindato(START_PERIODEDAG_LØPENDE_BEHANDLING)
-                .medUtstedtDato(LocalDate.now().minusDays(3)))
+                .medUtstedtDato(DATO.minusDays(3)))
             .medAntallBarn(1);
 
         scenarioAvslBeh.medBruker(aktørId, NavBrukerKjønn.KVINNE)
@@ -580,7 +580,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvslBeh.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvslBeh.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
+            .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(1))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandlingSVP = scenarioAvslBeh.lagre(repositoryProvider);
