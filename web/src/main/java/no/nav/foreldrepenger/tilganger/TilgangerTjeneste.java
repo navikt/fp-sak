@@ -51,7 +51,7 @@ public class TilgangerTjeneste {
     private static void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
         LOG.info("TILGANGER Azure. Henter fra azure.");
         try {
-            var azureBrukerInfo = new TilgangKlient().brukerInfo();
+            var azureBrukerInfo = mapTilDomene(new TilgangKlient().brukerInfo());
             if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
                 LOG.info("TILGANGER Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
             } else {
@@ -60,6 +60,16 @@ public class TilgangerTjeneste {
         } catch (Exception ex) {
             LOG.info("TILGANGER Azure. Klienten feilet med exception: {}", ex.getMessage());
         }
+    }
+
+    private static InnloggetNavAnsattDto mapTilDomene(TilgangKlient.BrukerInfoResponseDto brukerInfo) {
+        return new InnloggetNavAnsattDto.Builder(brukerInfo.brukernavn(), brukerInfo.navn())
+            .kanSaksbehandle(brukerInfo.kanSaksbehandle())
+            .kanVeilede(brukerInfo.kanVeilede())
+            .kanOverstyre(brukerInfo.kanOverstyre())
+            .kanOppgavestyre(brukerInfo.kanOppgavestyre())
+            .kanBehandleKode6(brukerInfo.kanBehandleKode6())
+            .build();
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
