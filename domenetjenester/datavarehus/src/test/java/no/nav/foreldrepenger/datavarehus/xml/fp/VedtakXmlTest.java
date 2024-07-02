@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -70,19 +71,20 @@ import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -116,7 +118,7 @@ class VedtakXmlTest {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjenesteInMemory beregningTjenesteInMemory;
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -252,23 +254,28 @@ class VedtakXmlTest {
     }
 
     private void lagBeregningsgrunnlag(Behandling behandling) {
-        var bg = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .build();
-        var bgPeriode = BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-                .build(bg);
-        BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER)
-                .medAvkortetPrÅr(BigDecimal.TEN)
-                .medAvkortetBrukersAndelPrÅr(BigDecimal.TEN)
-                .medAvkortetRefusjonPrÅr(BigDecimal.ZERO)
-                .medRedusertPrÅr(BigDecimal.TEN)
-                .medRedusertBrukersAndelPrÅr(BigDecimal.TEN)
-                .medRedusertRefusjonPrÅr(BigDecimal.ZERO)
-                .build(bgPeriode);
+        var andel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER)
+            .medAvkortetPrÅr(BigDecimal.TEN)
+            .medAvkortetBrukersAndelPrÅr(BigDecimal.TEN)
+            .medAvkortetRefusjonPrÅr(BigDecimal.ZERO)
+            .medRedusertPrÅr(BigDecimal.TEN)
+            .medDagsatsBruker(1L)
+            .medDagsatsArbeidsgiver(1L)
+            .medRedusertBrukersAndelPrÅr(BigDecimal.TEN)
+            .medRedusertRefusjonPrÅr(BigDecimal.ZERO)
+            .build();
+        var bgPeriode = BeregningsgrunnlagPeriode.builder()
+            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
+            .leggTilBeregningsgrunnlagPrStatusOgAndel(andel)
+            .build();
+        var bg = Beregningsgrunnlag.builder()
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .leggTilBeregningsgrunnlagPeriode(bgPeriode)
+            .build();
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
 
-        beregningsgrunnlagRepository.lagre(behandling.getId(), bg, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningTjenesteInMemory.lagre(gr, BehandlingReferanse.fra(behandling));
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
