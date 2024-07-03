@@ -6,9 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -17,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -33,8 +29,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingTypeRef
 @ApplicationScoped
 public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg {
-    private static final Logger LOG = LoggerFactory.getLogger(FastsettBeregningsaktiviteterSteg.class);
-
     private BehandlingRepository behandlingRepository;
     private BeregningTjeneste beregningTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
@@ -64,11 +58,6 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var resultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
-        if (resultat == null) {
-            // Tror denne if bolken kan slettes, da det aldri vil skje. Legger inn logg for å se om det faktisk oppstår.
-            LOG.info("BG_LOG_FASTSETT_STP_BER: Hopper frem til foreslå behandlingsresultat");
-            return BehandleStegResultat.fremoverført(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
-        }
         // Hvis det ikke allerede er utledet ventepunkt og vi har ventepunkt for sykemelding
         if (resultat.getAksjonspunkter().stream().noneMatch(a -> a.getFrist() != null) && ventPåSykemeldingAksjonspunkt.isPresent()) {
             return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåSykemeldingAksjonspunkt.get());

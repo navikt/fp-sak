@@ -40,7 +40,7 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetOppdaterer impleme
     @Override
     public OppdateringResultat oppdater(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto, AksjonspunktOppdaterParameter param) {
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
-        var input = tjeneste.lagInput(param.getRef().behandlingId());
+        var input = tjeneste.lagInput(param.getRef());
         beregningHåndterer.håndterFastsettBruttoForSNNyIArbeidslivet(input, OppdatererDtoMapper.mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto));
         fastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste.lagHistorikk(dto, param);
 

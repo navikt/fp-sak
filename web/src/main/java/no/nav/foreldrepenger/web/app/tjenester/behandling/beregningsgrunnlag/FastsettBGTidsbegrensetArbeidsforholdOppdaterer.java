@@ -56,7 +56,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdOppdaterer implements Aksjonsp
         var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_UT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
-        beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(tjeneste.lagInput(param.getRef().behandlingId()), OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
+        beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(tjeneste.lagInput(param.getRef()), OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
         fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtBG, forrigeGrunnlag, dto);
         var builder = OppdateringResultat.utenTransisjon();
         håndterEventueltOverflødigAksjonspunkt(behandling)

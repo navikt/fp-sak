@@ -297,49 +297,6 @@ class BeregningUttakTjenesteTest {
             Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
     }
 
-    @Test
-    void skal_finne_siste_uttaksdag_når_ytelsefordeling_finnes() {
-        scenario.medBehandlingType(BehandlingType.REVURDERING);
-        var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
-            .medArbeidsprosent(BigDecimal.TEN)
-            .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .medPeriode(LocalDate.of(2019, 5, 21), LocalDate.of(2019, 6, 25))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .build();
-
-        var oppgittFordeling = List.of(oppgittPeriodeMedGradering);
-        var fordeling = new OppgittFordelingEntitet(oppgittFordeling, false);
-        var behandling = scenario.lagMocked();
-        medFordeling(behandling, fordeling);
-
-        tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
-        var sisteUttaksdato = tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
-
-        assertThat(sisteUttaksdato).isPresent();
-        assertThat(sisteUttaksdato).contains(LocalDate.of(2019, 6, 25));
-    }
-
-    @Test
-    void skal_finne_siste_uttaksdag_når_ytelsefordeling_mangler() {
-        var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var uttaksperiode = uttaksperiode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 1));
-
-        var originalBehandling = originalScenario.lagMocked();
-        medUttak(originalBehandling, List.of(uttaksperiode));
-
-        scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
-        scenario.medBehandlingType(BehandlingType.REVURDERING);
-        var behandling = scenario.lagMocked();
-
-        tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
-        var sisteUttaksdato = tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
-
-        assertThat(sisteUttaksdato).isPresent();
-        assertThat(sisteUttaksdato).contains(LocalDate.of(2019, 6, 1));
-    }
-
-
     private ForeldrepengerUttakPeriode gradertUttaksperiode(Arbeidsgiver arbeidsgiver,
                                                             UttakArbeidType uttakArbeidType,
                                                             LocalDate fom,

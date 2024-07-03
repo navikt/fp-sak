@@ -43,7 +43,7 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
     public OppdateringResultat oppdater(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingRef = param.getRef();
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.fagsakYtelseType());
-        var input = tjeneste.lagInput(behandlingRef.behandlingId());
+        var input = tjeneste.lagInput(behandlingRef);
         var forrigeGrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
                 behandlingRef.behandlingId(),

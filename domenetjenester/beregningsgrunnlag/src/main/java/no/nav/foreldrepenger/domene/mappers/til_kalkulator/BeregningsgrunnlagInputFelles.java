@@ -9,15 +9,10 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.MapBehandlingRef;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -53,31 +48,10 @@ public abstract class BeregningsgrunnlagInputFelles {
     public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
-    public BeregningsgrunnlagInput lagInput(Long behandlingId) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return lagInput(behandling, iayGrunnlag);
-    }
-
-    public BeregningsgrunnlagInput lagInput(Behandling behandling) {
-        var behandlingId = behandling.getId();
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-
-        return lagInput(ref, iayGrunnlag);
-    }
-
     public BeregningsgrunnlagInput lagInput(BehandlingReferanse referanse) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.behandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
         return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag);
-    }
-
-    private BeregningsgrunnlagInput lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        return lagInput(ref, iayGrunnlag);
     }
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
