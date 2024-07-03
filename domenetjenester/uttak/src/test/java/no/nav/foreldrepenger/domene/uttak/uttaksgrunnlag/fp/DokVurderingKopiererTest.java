@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_ANNEN_FORELDER_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -98,6 +99,51 @@ class DokVurderingKopiererTest {
         assertThat(oppdatertperiode.getDokumentasjonVurdering()).isNull();
         assertThat(oppdatertperiode.getFom()).isEqualTo(periode.getFom());
         assertThat(oppdatertperiode.getTom()).isEqualTo(periode.getTom());
+    }
+
+    @Test
+    void skalHåndtereAtEnPeriodeStarterPåLørdag() {
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2024, 8, 23), LocalDate.of(2024, 8, 23))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
+                .medMorsAktivitet(MorsAktivitet.UTDANNING)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
+                .build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, new UttakAktivitetEntitet())
+            .medTrekkdager(new Trekkdager(5))
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medArbeidsprosent(BigDecimal.ZERO).build();
+        perioder.leggTilPeriode(uttakPeriode1);
+
+        var uttakPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2024, 8, 24), LocalDate.of(2025, 8, 19))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medUttakPeriodeType(UttakPeriodeType.UDEFINERT)
+                .medMorsAktivitet(MorsAktivitet.ARBEID)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
+                .build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode2, new UttakAktivitetEntitet())
+            .medTrekkdager(new Trekkdager(5))
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medArbeidsprosent(BigDecimal.ZERO).build();
+        perioder.leggTilPeriode(uttakPeriode2);
+
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .medPeriode(LocalDate.of(2024, 8, 24), LocalDate.of(2025, 8, 19)).build();
+
+        var søknad = List.of(søknadsperiode);
+        var forrigeUttak = Optional.of(new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build());
+        assertThatCode(() -> DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(søknad, List.of(), forrigeUttak)).doesNotThrowAnyException();
     }
 
     @Test

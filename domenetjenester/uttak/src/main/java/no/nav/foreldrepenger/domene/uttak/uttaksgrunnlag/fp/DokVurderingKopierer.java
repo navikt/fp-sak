@@ -72,11 +72,13 @@ public class DokVurderingKopierer {
         // Bygg tidslinjer for uttaksperioder
         var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioder));
 
-        // Finn sammenfallende perioder - søkt likt innen samme peride
+        // Finn sammenfallende perioder - søkt likt innen samme periode
         var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, DokVurderingKopierer::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
 
         // Bygg tidslinjer over vurdering - men kun de som finnes for sammenfallende (like nok) perioder
-        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder))
+        var tidslinjeVurderingForrigeSøknad = new LocalDateTimeline<>(dokumentasjonVurderingFraOppgittePerioderJusterHelg(perioder),
+            (datoInterval, datoSegment, datoSegment2) -> new LocalDateSegment<>(datoInterval, new DokumentasjonVurdering(datoSegment.getValue().type(), datoSegment.getValue()
+                .morsStillingsprosent())))
             .intersection(tidslinjeSammenfallForrigeSøknad).filterValue(Objects::nonNull).compress();
 
         if (tidslinjeVurderingForrigeSøknad.isEmpty()) {
