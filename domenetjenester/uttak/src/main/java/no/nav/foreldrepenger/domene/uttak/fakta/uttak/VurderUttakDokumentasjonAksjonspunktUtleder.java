@@ -31,7 +31,6 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
     }
 
     public boolean utledAksjonspunktFor(UttakInput input) {
-
         var dokumentasjonVurderingBehov = utledDokumentasjonVurderingBehov(input);
         return dokumentasjonVurderingBehov.stream().anyMatch(DokumentasjonVurderingBehov::måVurderes);
     }

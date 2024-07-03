@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -22,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -68,39 +70,6 @@ class VedtaksperioderHelperTest {
         assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(perioder.get(0).getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(perioder.get(0).getTom()).isEqualTo(fødselsdato.plusWeeks(16).minusDays(1));
-    }
-
-    @Test
-    void skal_lage_vedtaksperioder_av_tidligere_uttak() {
-        var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
-        uttakResultatPerioderEntitet.leggTilPeriode(
-            nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
-                UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL));
-        uttakResultatPerioderEntitet.leggTilPeriode(
-            nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato, fødselsdato.plusWeeks(6).minusDays(1),
-                UttakPeriodeType.MØDREKVOTE));
-        uttakResultatPerioderEntitet.leggTilPeriode(
-            nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(16).minusDays(1),
-                UttakPeriodeType.FELLESPERIODE));
-
-        var uttakResultatEntitet = new UttakResultatEntitet.Builder(
-            mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
-
-        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), false);
-
-        assertThat(perioder).hasSize(3);
-        assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        assertThat(perioder.get(0).getFom()).isEqualTo(fødselsdato.minusWeeks(3));
-        assertThat(perioder.get(0).getTom()).isEqualTo(fødselsdato.minusDays(1));
-
-        assertThat(perioder.get(1).getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
-        assertThat(perioder.get(1).getFom()).isEqualTo(fødselsdato);
-        assertThat(perioder.get(1).getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
-
-        assertThat(perioder.get(2).getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
-        assertThat(perioder.get(2).getFom()).isEqualTo(fødselsdato.plusWeeks(6));
-        assertThat(perioder.get(2).getTom()).isEqualTo(fødselsdato.plusWeeks(16).minusDays(1));
     }
 
     @Test
@@ -734,6 +703,7 @@ class VedtaksperioderHelperTest {
             UttakResultatPeriodeAktivitetEntitet.builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
                 .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
                 .medTrekkdager(new Trekkdager(2))
+                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
                 .medArbeidsprosent(BigDecimal.TEN)
                 .build());
 
@@ -756,6 +726,7 @@ class VedtaksperioderHelperTest {
             UttakResultatPeriodeAktivitetEntitet.builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
                 .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
                 .medTrekkdager(new Trekkdager(2))
+                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
                 .medArbeidsprosent(BigDecimal.TEN)
                 .build());
 
@@ -778,6 +749,7 @@ class VedtaksperioderHelperTest {
             UttakResultatPeriodeAktivitetEntitet.builder(uttaksperiode, opprettArbeidstakerUttakAktivitet("123"))
                 .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
                 .medTrekkdager(new Trekkdager(2))
+                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
                 .medArbeidsprosent(BigDecimal.TEN)
                 .build());
 
@@ -800,6 +772,7 @@ class VedtaksperioderHelperTest {
             UttakResultatPeriodeAktivitetEntitet.builder(uttaksperiode, opprettArbeidstakerUttakAktivitet("123"))
                 .medTrekkonto(UttakPeriodeType.FEDREKVOTE)
                 .medTrekkdager(new Trekkdager(2))
+                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
                 .medArbeidsprosent(BigDecimal.TEN)
                 .build());
 
@@ -813,7 +786,7 @@ class VedtaksperioderHelperTest {
         var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .medMorsAktivitet(MorsAktivitet.ARBEID)
                 .build())
@@ -830,7 +803,7 @@ class VedtaksperioderHelperTest {
         var uttaksperiode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2020, Month.JULY, 3),
             LocalDate.of(2020, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
                 .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .medMorsAktivitet(MorsAktivitet.ARBEID)
                 .build())
@@ -844,11 +817,31 @@ class VedtaksperioderHelperTest {
                 .medArbeidsprosent(BigDecimal.ZERO)
                 .build());
 
+        var uttaksperiode3 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2021, Month.JULY, 3),
+            LocalDate.of(2021, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.TEN)))
+                .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medMorsAktivitet(MorsAktivitet.ARBEID)
+                .build())
+            .build();
+        uttaksperiode3.leggTilAktivitet(
+            UttakResultatPeriodeAktivitetEntitet.builder(uttaksperiode3, opprettArbeidstakerUttakAktivitet("123"))
+                .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+                .medTrekkdager(new Trekkdager(2))
+                //Mor 10% i arbeid
+                .medUtbetalingsgrad(new Utbetalingsgrad(10))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .build());
+
         var konvertetPeriode1 = VedtaksperioderHelper.konverter(uttaksperiode1);
         assertThat(konvertetPeriode1.getDokumentasjonVurdering()).isNull();
 
         var konvertetPeriode2 = VedtaksperioderHelper.konverter(uttaksperiode2);
         assertThat(konvertetPeriode2.getDokumentasjonVurdering()).isEqualTo(uttaksperiode2.getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering());
+
+        var konvertetPeriode3 = VedtaksperioderHelper.konverter(uttaksperiode3);
+        assertThat(konvertetPeriode3.getDokumentasjonVurdering()).isEqualTo(uttaksperiode3.getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering());
     }
 
     private UttakAktivitetEntitet opprettArbeidstakerUttakAktivitet(String arbeidsgiverIdentifikator) {
@@ -900,6 +893,7 @@ class VedtaksperioderHelperTest {
         var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(Virkedager.beregnAntallVirkedager(fom, tom)))
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);

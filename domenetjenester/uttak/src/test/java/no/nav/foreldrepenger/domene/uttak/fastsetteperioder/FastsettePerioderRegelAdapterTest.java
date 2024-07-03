@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.SYKDOM_SØKER_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -800,7 +801,7 @@ class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom())
-            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(SYKDOM_SØKER_GODKJENT))
             .build();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)

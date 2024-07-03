@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
@@ -335,7 +337,7 @@ class FastsettePerioderTjenesteTest {
         var oppgittFriUtsettelse1 = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FRI)
             .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(8).minusDays(1))
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT))
             .build();
         var oppgittForeldrepenger1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(FELLESPERIODE)
@@ -344,7 +346,7 @@ class FastsettePerioderTjenesteTest {
         var oppgittFriUtsettelse2 = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FRI)
             .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(12).minusDays(1))
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_IKKE_DOKUMENTERT))
             .build();
         var oppgittForeldrepenger2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(FORELDREPENGER)

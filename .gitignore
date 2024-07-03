@@ -34,3 +34,4 @@ dep.txt
 .temp*.txt
 .env
 /lsp/
+.DS_Store

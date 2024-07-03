@@ -129,6 +129,16 @@ public class OppgittPeriodeBuilder {
         if (kladd.getÅrsak() == Årsak.UKJENT && kladd.getPeriodeType() == UttakPeriodeType.UDEFINERT) {
             throw new IllegalStateException("Periode må enten være utsettele, overføring eller uttak");
         }
+        if (morsStillingsprosentErSattForAktivetSomIkkeErArbeid()) {
+            throw new IllegalStateException("Morsstillingsprosent kan bare være satt når mors aktivetet er ARBEID");
+        }
         return kladd;
+    }
+
+    private boolean morsStillingsprosentErSattForAktivetSomIkkeErArbeid() {
+        if (!MorsAktivitet.ARBEID.equals(kladd.getMorsAktivitet())) {
+            return kladd.getDokumentasjonVurdering() != null && kladd.getDokumentasjonVurdering().morsStillingsprosent() != null;
+        }
+        return false;
     }
 }

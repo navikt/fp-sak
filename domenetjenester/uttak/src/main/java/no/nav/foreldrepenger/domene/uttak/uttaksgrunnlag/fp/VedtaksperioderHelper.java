@@ -158,15 +158,20 @@ public class VedtaksperioderHelper {
     }
 
     private static Optional<DokumentasjonVurdering> finnDokumentasjonVurdering(UttakResultatPeriodeEntitet up) {
-        if (morDelvisArbeid(up)) {
+        if (trengerNyDokumentasjonsvurdering(up)) {
             return Optional.empty();
         }
         return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering);
     }
 
-    private static boolean morDelvisArbeid(UttakResultatPeriodeEntitet up) {
+    private static boolean trengerNyDokumentasjonsvurdering(UttakResultatPeriodeEntitet up) {
+        if (up.getAktiviteter().stream().noneMatch(a -> a.getUtbetalingsgrad().erRedusert())) {
+            return false;
+        }
+
         return up.getPeriodeSøknad()
-            .filter(s -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(s.getMorsAktivitet()) && up.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().erRedusert()))
+            .filter(periode -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(periode.getMorsAktivitet()))
+            .filter(periode -> periode.getDokumentasjonVurdering().morsStillingsprosent() == null)
             .isPresent();
     }
 

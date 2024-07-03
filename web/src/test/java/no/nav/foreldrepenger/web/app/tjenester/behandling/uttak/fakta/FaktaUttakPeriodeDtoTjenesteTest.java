@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.Type.MORS_AKTIVITET_IKKE_DOKUMENTERT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -106,7 +107,7 @@ class FaktaUttakPeriodeDtoTjenesteTest {
             .medMorsAktivitet(MorsAktivitet.UFØRE)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medSamtidigUttak(true)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(MORS_AKTIVITET_IKKE_DOKUMENTERT))
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medFlerbarnsdager(true)
             .medBegrunnelse("begrunnelse")

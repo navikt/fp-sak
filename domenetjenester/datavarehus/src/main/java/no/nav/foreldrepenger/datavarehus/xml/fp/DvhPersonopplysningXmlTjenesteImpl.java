@@ -301,7 +301,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     }
 
     static UttakDokumentasjonType mapTilDokType(DokumentasjonVurdering dokumentasjonVurdering) {
-        return switch (dokumentasjonVurdering) {
+        return switch (dokumentasjonVurdering.type()) {
             case SYKDOM_SØKER_GODKJENT -> UttakDokumentasjonType.SYK_SØKER;
             case INNLEGGELSE_SØKER_GODKJENT -> UttakDokumentasjonType.INNLAGT_SØKER;
             case INNLEGGELSE_BARN_GODKJENT -> UttakDokumentasjonType.INNLAGT_BARN;

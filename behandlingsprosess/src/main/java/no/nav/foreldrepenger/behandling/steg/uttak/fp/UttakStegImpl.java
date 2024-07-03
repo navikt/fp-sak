@@ -104,9 +104,11 @@ public class UttakStegImpl implements UttakSteg {
     }
 
     private boolean erAktivitetskravVurdert(DokumentasjonVurdering dokumentasjonVurdering) {
-        return switch (dokumentasjonVurdering) {
+        if (dokumentasjonVurdering == null) {
+            return false;
+        }
+        return switch (dokumentasjonVurdering.type()) {
             case MORS_AKTIVITET_GODKJENT, MORS_AKTIVITET_IKKE_GODKJENT, MORS_AKTIVITET_IKKE_DOKUMENTERT -> true;
-            case null -> false;
             default -> false;
         };
     }

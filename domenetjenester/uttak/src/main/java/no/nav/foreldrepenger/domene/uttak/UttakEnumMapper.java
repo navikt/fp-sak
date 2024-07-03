@@ -394,7 +394,8 @@ public final class UttakEnumMapper {
         if (dokumentasjonVurdering == null) {
             return null;
         }
-        return switch (dokumentasjonVurdering) {
+
+        return switch (dokumentasjonVurdering.type()) {
             case SYKDOM_SØKER_GODKJENT -> DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
             case SYKDOM_ANNEN_FORELDER_GODKJENT -> DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT;
             case INNLEGGELSE_SØKER_GODKJENT -> DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT;
@@ -409,8 +410,9 @@ public final class UttakEnumMapper {
             case BARE_SØKER_RETT_GODKJENT -> DokumentasjonVurdering.ER_BARE_SØKER_RETT_GODKJENT;
             case TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT -> DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
             //Reglene trenger ikke å skille mellom "ikke dokumentert" og "ikke vurdert", setter derfor null
-            case SYKDOM_SØKER_IKKE_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT, INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT,
-                NAV_TILTAK_IKKE_GODKJENT, TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT -> null;
+            case SYKDOM_SØKER_IKKE_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT,
+                 INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT, NAV_TILTAK_IKKE_GODKJENT,
+                 TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT -> null;
         };
     }
 }
