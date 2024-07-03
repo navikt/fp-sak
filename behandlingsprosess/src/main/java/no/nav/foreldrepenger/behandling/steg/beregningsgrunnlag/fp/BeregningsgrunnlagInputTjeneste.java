@@ -58,11 +58,9 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
         var kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
         var fpGrunnlag = new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering);
-        beregningUttakTjeneste.finnSisteTilnærmedeUttaksdato(ref).ifPresent(fpGrunnlag::setSisteSøkteUttaksdag);
         if (besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref)) {
             fpGrunnlag.setBesteberegningYtelsegrunnlag(besteberegningFødendeKvinneTjeneste.lagBesteberegningYtelseinput(ref));
         }
-        fpGrunnlag.setBehandlingstidspunkt(behandlingRepository.hentBehandling(ref.behandlingId()).getOpprettetDato().toLocalDate());
         return fpGrunnlag;
     }
 

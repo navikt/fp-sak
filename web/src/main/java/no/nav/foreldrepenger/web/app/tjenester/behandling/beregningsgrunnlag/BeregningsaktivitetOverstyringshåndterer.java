@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -54,7 +55,7 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
                                                   BehandlingskontrollKontekst kontekst) {
 
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
-        var input = tjeneste.lagInput(behandling.getId());
+        var input = tjeneste.lagInput(BehandlingReferanse.fra(behandling));
         beregningHåndterer.håndterBeregningAktivitetOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
         return OppdateringResultat.utenOverhopp();
     }

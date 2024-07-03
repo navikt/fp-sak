@@ -28,6 +28,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,7 +209,7 @@ public class ForvaltningBeregningRestTjeneste {
     public Response hentRefusjonskravperioderInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
-        var beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
+        var beregningsgrunnlagInput = inputTjeneste.lagInput(BehandlingReferanse.fra(behandling));
         if (beregningsgrunnlagInput == null) {
             return Response.noContent().build();
         }
@@ -224,7 +226,7 @@ public class ForvaltningBeregningRestTjeneste {
     public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
-        var beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
+        var beregningsgrunnlagInput = inputTjeneste.lagInput(BehandlingReferanse.fra(behandling));
         var kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
         if (kalkulatorInputDto == null) {
             return Response.noContent().build();

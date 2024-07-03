@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -49,34 +48,6 @@ public class BeregningUttakTjeneste {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
-    /**
-     * Siden beregning kjøres før uttak må vi gjøre en estimering for når siste uttaksdag er.
-     * Vi ser på ytelsesfordelingen om vi har det, eller ser vi på forrige behandlings uttaksresultat.
-     * @param ref referanse til behandlingen
-     * @return
-     */
-    public Optional<LocalDate> finnSisteTilnærmedeUttaksdato(BehandlingReferanse ref) {
-        var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
-        return yfAggregat.map(this::finnSisteSøkteUttaksdag)
-            .orElseGet(() -> ref.getOriginalBehandlingId()
-                .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
-                .flatMap(this::finnSisteInnvilgedeUttak));
-    }
-
-    private Optional<LocalDate> finnSisteInnvilgedeUttak(ForeldrepengerUttak uttak) {
-        return uttak.getGjeldendePerioder()
-            .stream()
-            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
-            .map(ForeldrepengerUttakPeriode::getTom)
-            .max(Comparator.naturalOrder());
-    }
-
-    private Optional<LocalDate> finnSisteSøkteUttaksdag(YtelseFordelingAggregat yfAggregat) {
-        return yfAggregat.getGjeldendeFordeling().getPerioder()
-            .stream()
-            .map(OppgittPeriodeEntitet::getTom)
-            .max(Comparator.naturalOrder());
-    }
 
     public AktivitetGradering finnAktivitetGraderingerKalkulus(BehandlingReferanse ref) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
