@@ -90,6 +90,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     void opphørLøpendeSakNårNySakOverlapperPåMor() {
+        //behandling 1 mor
         var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
@@ -98,10 +99,9 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
-        //behandling barn 2 med overlapp
+        //behandling 2 på overlapper behandling 1
         var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
-
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_OVERLAPP);
@@ -118,22 +118,20 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     void opphørSakPåMorOgMedforelderNårNySakOverlapper() {
-        //Barn 1 - behanlding mor
+        //behandling 1 mor barn 1
         var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
             SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
-        //fødelsehendelse barn 1
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
-        //Barn 1 - behandling far
+        //behandling 1 far barn 1
         var avslBehFarMedOverlappMor = lagBehandlingFar(START_PERIODEDAG_OVERLAPP.plusMonths(1), MEDF_AKTØR_ID, AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP.plusMonths(1)));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(
             SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
-        //fødelsehendelse barn 1
         when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
@@ -141,11 +139,9 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         //Barn 2 - ny behandling mor som overlapper forrige sak på mor og far
         var nyAvsBehandlingMor = lagBehandlingMor(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1), AKTØR_ID_MOR, MEDF_AKTØR_ID);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
-        //fødelsehendelse barn 2
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_OVERLAPP);
-
 
         //ingen minsterett
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtenMinsterett(false).build();
@@ -178,6 +174,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     void vurderOverlappVedAdospjonForskjelligeBarn() {
+        //behandling 1 med adopsjon
         var omsorgsovertakelsedato = LocalDate.of(2019, 1, 1);
         var adopsjonFarLop = lagBehandlingFPAdopsjonFar(null, omsorgsovertakelsedato);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(adopsjonFarLop.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
@@ -188,7 +185,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         when(familieHendelseRepository.hentAggregat(adopsjonFarLop.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(omsorgsovertakelsedato);
 
-        //behandling adopsjon 2 to med overlapp
+        //behandling 2 med adopsjon nytt barn to med overlapp
         var omsorgsovertakelsedato2 = LocalDate.of(2020, 1, 1);
         var morAdopsjonIVB = lagBehandlingFPAdopsjonMor(adopsjonFarLop.getAktørId(), omsorgsovertakelsedato2);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(morAdopsjonIVB)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
@@ -227,18 +224,18 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var sistePeriodedagAvsluttetFar = SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusMonths(2);
         var startPeriodedagNyMorOverlappFar = sistePeriodedagAvsluttetFar.minusDays(3);
 
-        //behandling 1
+        //behandling 1 mor
         var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(2)));
-        //behandling 2
+        //behandling 2 far
         var avsluttetBehFar = lagBehandlingFar(startPeriodedagAvslutttetFar, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehFar.getFagsak())).thenReturn(Optional.of(startPeriodedagAvslutttetFar));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehFar.getFagsak())).thenReturn(Optional.of(sistePeriodedagAvsluttetFar));
         when(familieHendelseRepository.hentAggregat(avsluttetBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreBarn);
         when(familieHendelseRepository.hentAggregat(avsluttetBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetAndreBarn);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(startPeriodedagAvslutttetFar);
-        //behandling 3
+        //behandling 3 på nytt barn overlapper med behandling 2
         var nyBehMorSomOverlapperFar = lagBehandlingMor(startPeriodedagNyMorOverlappFar, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehMorSomOverlapperFar)).thenReturn(Optional.of(startPeriodedagNyMorOverlappFar));
 
@@ -294,7 +291,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
-        //Behandling 2 mor som overlapper 1
+        //Behandling 2 på mor med nytt barn som overlapper behandling 1
         var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtenMinsterett(false).build();
@@ -319,17 +316,15 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(avsluttetBehMor.getFagsak()))
             .thenReturn(new LocalDateTimeline<>(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1), SISTE_PERIODEDAG_LØPENDE_BEHANDLING, Boolean.TRUE));
-        //første barn
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(DATO);
 
-        //Behandling 2 mor som overlapper behandling 1 og to tette
+        //Behandling 2 på mor med nytt barn som overlapper behandling 1, og to tette
         var nyAvsBehandlingMor = lagBehandlingMor(DATO.plusWeeks(20), AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.utbetalingsTidslinjeEnkeltSak(nyAvsBehandlingMor))
             .thenReturn(new LocalDateTimeline<>(SISTE_PERIODEDAG_LØPENDE_BEHANDLING, SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(1), Boolean.TRUE));
-        //andre barn
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreBarn);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetAndreBarn);
         when(familieHendelseEntitetAndreBarn.getSkjæringstidspunkt()).thenReturn(DATO.plusWeeks(20));
@@ -344,20 +339,18 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     void skalIkkeFåTekstForToTetteNårUtenMinsterett() {
         var fødselDatoFørMinsterett = LocalDate.of(2022, 1, 3);
         var sisteDagAvsluttetBehandling = fødselDatoFørMinsterett.plusWeeks(50);
-        //Behandling1 før minsterett
+        //Behandling1 på mor før minsterett
         var avsluttetBehMor = lagBehandlingMor(fødselDatoFørMinsterett, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(fødselDatoFørMinsterett.minusWeeks(3)));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
             fødselDatoFørMinsterett.plusWeeks(50)));
-        //første barn
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(fødselDatoFørMinsterett);
 
-        //Behandling 2 overlapper med 1, og barnet er født innenfor 48 uker
+        //Behandling 2 på nytt barn som overlapper med behandling 1, og barnet er født innenfor 48 uker, og ingen minsterett
         var behandlingBarnToMedToTette = lagBehandlingMor(fødselDatoFørMinsterett.plusWeeks(20), AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandlingBarnToMedToTette)).thenReturn(Optional.of(sisteDagAvsluttetBehandling));
-        //andre barn
         when(familieHendelseRepository.hentAggregat(behandlingBarnToMedToTette.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreBarn);
         when(familieHendelseRepository.hentAggregat(behandlingBarnToMedToTette.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetAndreBarn);
         when(familieHendelseEntitetAndreBarn.getSkjæringstidspunkt()).thenReturn(fødselDatoFørMinsterett.plusWeeks(20));
@@ -373,7 +366,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     void opphørSelvOmSkjæringstidspunktErNull() {
-        //Behandling 1
+        //Behandling 1 mor
         var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(START_PERIODEDAG_LØPENDE_BEHANDLING));
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
@@ -381,7 +374,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
         lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(null);
-        //Behandling 2
+        //Behandling 2 mor overlapper behandling 1
         var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtenMinsterett(false).build();
