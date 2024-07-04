@@ -29,6 +29,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         this.skalKalleKalkulus = false;
     }
 
+    @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
         if (skalKalleKalkulus) {
             return kalkulusBeregner.hent(referanse);
@@ -37,6 +38,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         }
     }
 
+    @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
         if (skalKalleKalkulus) {
             return kalkulusBeregner.hentGUIDto(referanse);
@@ -45,6 +47,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         }
     }
 
+    @Override
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType) {
         if (skalKalleKalkulus) {
             return kalkulusBeregner.beregn(referanse, stegType);
