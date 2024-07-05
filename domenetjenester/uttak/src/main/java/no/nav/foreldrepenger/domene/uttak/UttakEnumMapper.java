@@ -347,6 +347,7 @@ public final class UttakEnumMapper {
         }
         return switch (graderingIkkeInnvilgetÅrsak) {
             case AVSLAG_PGA_FOR_TIDLIG_GRADERING -> GraderingAvslagÅrsak.GRADERING_FØR_UKE_7;
+            case MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV -> GraderingAvslagÅrsak.MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV;
         };
     }
 
