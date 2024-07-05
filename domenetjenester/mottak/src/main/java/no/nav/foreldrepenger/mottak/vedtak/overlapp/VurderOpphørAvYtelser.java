@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -50,7 +51,7 @@ public class VurderOpphørAvYtelser {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
-
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
 
     private static final Period TO_TETTE_GRENSE = Period.ofWeeks(48);
@@ -60,7 +61,8 @@ public class VurderOpphørAvYtelser {
                                  StønadsperiodeTjeneste stønadsperiodeTjeneste,
                                  ProsessTaskTjeneste taskTjeneste,
                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                 FamilieHendelseRepository familieHendelseRepository) {
+                                 FamilieHendelseRepository familieHendelseRepository,
+                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -68,6 +70,7 @@ public class VurderOpphørAvYtelser {
         this.taskTjeneste = taskTjeneste;
         this.stønadsperiodeTjeneste = stønadsperiodeTjeneste;
         this.familieHendelseRepository = familieHendelseRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     VurderOpphørAvYtelser() {
@@ -151,11 +154,19 @@ public class VurderOpphørAvYtelser {
         var tidligsteFH = fhDatoFraBehOpphør.isBefore(fhDatoNyBeh) ? fhDatoFraBehOpphør : fhDatoNyBeh;
         var senesteFH = fhDatoNyBeh.isAfter(fhDatoFraBehOpphør) ? fhDatoNyBeh : fhDatoFraBehOpphør;
 
-        if (tidligsteFH.isBefore(LocalDate.of(2022, 8, 2))) {
+        if (erFørsteBehandlingUtenMinsterett(sakOpphør, iverksattBehandling, fhDatoFraBehOpphør, fhDatoNyBeh) || fhDatoFraBehOpphør.equals(fhDatoNyBeh)) {
             return false;
         }
         var grenseToTette = tidligsteFH.plus(TO_TETTE_GRENSE).plusDays(1);
         return grenseToTette.isAfter(senesteFH);
+    }
+
+    private boolean erFørsteBehandlingUtenMinsterett(Fagsak sakOpphør, Behandling iverksattBehandling, LocalDate fhDatoFraBehOpphør, LocalDate fhDatoNyBeh) {
+        if (fhDatoFraBehOpphør.isBefore(fhDatoNyBeh)) {
+            return  skjæringstidspunktTjeneste.getSkjæringstidspunkter(sakOpphør.getId()).utenMinsterett();
+        } else {
+            return skjæringstidspunktTjeneste.getSkjæringstidspunkter(iverksattBehandling.getId()).utenMinsterett();
+        }
     }
 
     private boolean overlappendeYtelse(Fagsak sakOpphør, Behandling iverksattBehandling) {
