@@ -8,18 +8,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-class TilgangerTjenesteTest {
+class BrukerProfilTjenesteTest {
 
     private static final String gruppenavnSaksbehandler = "Saksbehandler";
     private static final String gruppenavnVeileder = "Veileder";
     private static final String gruppenavnOverstyrer = "Overstyrer";
     private static final String gruppenavnOppgavestyrer = "Oppgavestyrer";
     private static final String gruppenavnKode6 = "Kode6";
-    private TilgangerTjeneste tilgangerTjeneste;
+    private BrukerProfilTjeneste brukerProfilTjeneste;
 
     @BeforeEach
     public void setUp() {
-        tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnOverstyrer,
+        brukerProfilTjeneste = new BrukerProfilTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnOverstyrer,
             gruppenavnOppgavestyrer, gruppenavnKode6);
     }
 
@@ -28,9 +28,9 @@ class TilgangerTjenesteTest {
         var brukerUtenforSaksbehandlerGruppe = getTestBruker();
         var brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
-        var innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null,
+        var innloggetBrukerUtenSaksbehandlerRettighet = brukerProfilTjeneste.getInnloggetBruker(null,
                 brukerUtenforSaksbehandlerGruppe);
-        var innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
+        var innloggetBrukerMedSaksbehandlerRettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
         assertThat(innloggetBrukerUtenSaksbehandlerRettighet.kanSaksbehandle()).isFalse();
         assertThat(innloggetBrukerMedSaksbehandlerRettighet.kanSaksbehandle()).isTrue();
@@ -41,8 +41,8 @@ class TilgangerTjenesteTest {
         var brukerUtenforVeilederGruppe = getTestBruker();
         var brukerIVeilederGruppe = getTestBruker(gruppenavnVeileder);
 
-        var innloggetBrukerUtenVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
-        var innloggetBrukerMedVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
+        var innloggetBrukerUtenVeilederRettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
+        var innloggetBrukerMedVeilederRettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
 
         assertThat(innloggetBrukerUtenVeilederRettighet.kanVeilede()).isFalse();
         assertThat(innloggetBrukerMedVeilederRettighet.kanVeilede()).isTrue();
@@ -53,8 +53,8 @@ class TilgangerTjenesteTest {
         var brukerUtenforOverstyrerGruppe = getTestBruker();
         var brukerIOverstyrerGruppe = getTestBruker(gruppenavnOverstyrer);
 
-        var innloggetBrukerUtenOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
-        var innloggetBrukerMedOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
+        var innloggetBrukerUtenOverstyrerRettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
+        var innloggetBrukerMedOverstyrerRettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
 
         assertThat(innloggetBrukerUtenOverstyrerRettighet.kanOverstyre()).isFalse();
         assertThat(innloggetBrukerMedOverstyrerRettighet.kanOverstyre()).isTrue();
@@ -65,8 +65,8 @@ class TilgangerTjenesteTest {
         var brukerUtenforKode6Gruppe = getTestBruker();
         var brukerIKode6Gruppe = getTestBruker(gruppenavnKode6);
 
-        var innloggetBrukerUtenKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
-        var innloggetBrukerMedKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
+        var innloggetBrukerUtenKode6Rettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
+        var innloggetBrukerMedKode6Rettighet = brukerProfilTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
 
         assertThat(innloggetBrukerUtenKode6Rettighet.kanBehandleKode6()).isFalse();
         assertThat(innloggetBrukerMedKode6Rettighet.kanBehandleKode6()).isTrue();

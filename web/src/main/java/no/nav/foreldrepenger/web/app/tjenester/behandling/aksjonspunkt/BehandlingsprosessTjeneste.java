@@ -20,24 +20,21 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTj
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.foreldrepenger.tilganger.LdapBrukeroppslag;
+import no.nav.foreldrepenger.tilganger.BrukerProfilTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class BehandlingsprosessTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private String gruppenavnSaksbehandler;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private HistorikkRepository historikkRepository;
+    private BrukerProfilTjeneste brukerProfilTjeneste;
 
     BehandlingsprosessTjeneste() {
         // for CDI proxy
@@ -49,19 +46,17 @@ public class BehandlingsprosessTjeneste {
     }
 
     @Inject
-    public BehandlingsprosessTjeneste(
-                                                     BehandlingRepository behandlingRepository,
-                                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                                     @KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
-                                                     HistorikkRepository historikkRepository) {
+    public BehandlingsprosessTjeneste(BehandlingRepository behandlingRepository,
+                                      ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste, HistorikkRepository historikkRepository,
+                                      BrukerProfilTjeneste brukerProfilTjeneste) {
 
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.behandlingRepository = behandlingRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.gruppenavnSaksbehandler = gruppenavnSaksbehandler;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.historikkRepository = historikkRepository;
+        this.brukerProfilTjeneste = brukerProfilTjeneste;
     }
 
     /**
@@ -94,12 +89,12 @@ public class BehandlingsprosessTjeneste {
         return prosesseringAsynkTjeneste.asynkStartBehandlingProsess(behandling);
     }
 
-    /** Hvorvidt betingelser for å hente inn registeropplysninger på nytt er oppfylt. */
+    /**
+     * Hvorvidt betingelser for å hente inn registeropplysninger på nytt er oppfylt.
+     */
     private boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
         var behandlingStatus = behandling.getStatus();
-        return BehandlingStatus.UTREDES.equals(behandlingStatus)
-            && !behandling.isBehandlingPåVent()
-            && harRolleSaksbehandler()
+        return BehandlingStatus.UTREDES.equals(behandlingStatus) && !behandling.isBehandlingPåVent() && kanSaksbehandle()
             && behandlingProsesseringTjeneste.skalInnhenteRegisteropplysningerPåNytt(behandling);
     }
 
@@ -123,11 +118,11 @@ public class BehandlingsprosessTjeneste {
      * @return Prosess Task gruppenavn som kan brukes til å sjekke fremdrift
      */
     private String asynkInnhentingAvRegisteropplysningerOgKjørProsess(Behandling behandling) {
-        return behandlingProsesseringTjeneste.finnesTasksForPolling(behandling)
-            .orElseGet(() -> {
-                var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
-                return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(), gruppe);
-            });
+        return behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).orElseGet(() -> {
+            var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
+            return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
+                gruppe);
+        });
     }
 
     /**
@@ -140,7 +135,9 @@ public class BehandlingsprosessTjeneste {
         return Optional.of(asynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling));
     }
 
-    /** Sjekker om det pågår åpne prosess tasks (for angitt gruppe). Returnerer eventuelt task gruppe for eventuell åpen prosess task gruppe. */
+    /**
+     * Sjekker om det pågår åpne prosess tasks (for angitt gruppe). Returnerer eventuelt task gruppe for eventuell åpen prosess task gruppe.
+     */
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågårForBehandling(Behandling behandling, String gruppe) {
 
         var behandlingId = behandling.getId();
@@ -150,11 +147,8 @@ public class BehandlingsprosessTjeneste {
 
     }
 
-    private boolean harRolleSaksbehandler() {
-        var ident = KontekstHolder.getKontekst().getUid();
-        var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
-        var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
-        return grupper.contains(gruppenavnSaksbehandler);
+    private boolean kanSaksbehandle() {
+        return brukerProfilTjeneste.innloggetBruker().kanSaksbehandle();
     }
 
     public Behandling hentBehandling(Long behandlingsId) {
@@ -214,8 +208,7 @@ public class BehandlingsprosessTjeneste {
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT);
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
             .medBegrunnelse(HistorikkBegrunnelseType.BEH_STARTET_PA_NYTT);
         historikkInnslagTekstBuilder.build(historikkinnslag);
         historikkinnslag.setBehandling(behandling);

@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerV
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
+import no.nav.foreldrepenger.tilganger.BrukerProfilTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -70,7 +70,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     private ArbeidOgInntektsmeldingDtoTjeneste arbeidOgInntektsmeldingDtoTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste;
-    private TilgangerTjeneste tilgangerTjeneste;
+    private BrukerProfilTjeneste brukerProfilTjeneste;
     private BehandlingsutredningTjeneste behandlingutredningTjeneste;
 
     ArbeidOgInntektsmeldingRestTjeneste() {
@@ -83,14 +83,14 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                ArbeidOgInntektsmeldingDtoTjeneste arbeidOgInntektsmeldingDtoTjeneste,
                                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
                                                ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste,
-                                               TilgangerTjeneste tilgangerTjeneste,
+                                               BrukerProfilTjeneste brukerProfilTjeneste,
                                                BehandlingsutredningTjeneste behandlingutredningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.arbeidOgInntektsmeldingDtoTjeneste = arbeidOgInntektsmeldingDtoTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.arbeidOgInntektsmeldingProsessTjeneste = arbeidOgInntektsmeldingProsessTjeneste;
-        this.tilgangerTjeneste = tilgangerTjeneste;
+        this.brukerProfilTjeneste = brukerProfilTjeneste;
         this.behandlingutredningTjeneste = behandlingutredningTjeneste;
     }
 
@@ -167,8 +167,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     }
 
     private boolean erOverstyringLovlig() {
-        var innloggetBruker = tilgangerTjeneste.innloggetBruker();
-        return innloggetBruker.kanOverstyre();
+        return brukerProfilTjeneste.innloggetBruker().kanOverstyre();
     }
 
     private boolean endringGjelderHelmanueltArbeidsforhold(ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
