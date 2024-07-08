@@ -356,7 +356,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         when(familieHendelseEntitetAndreBarn.getSkjæringstidspunkt()).thenReturn(fødselDatoFørMinsterett.plusWeeks(20));
         //ingen minsterett
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtenMinsterett(true).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(avsluttetBehMor.getId())).thenReturn(skjæringstidspunkt);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(behandlingBarnToMedToTette);
         var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
