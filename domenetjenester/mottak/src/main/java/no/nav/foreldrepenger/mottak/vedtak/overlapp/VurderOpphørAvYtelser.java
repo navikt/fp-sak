@@ -134,9 +134,13 @@ public class VurderOpphørAvYtelser {
     }
 
     private LocalDate hentFamilieHenseleDatoFraSisteYtelseBehandling(Fagsak sakOpphør) {
-        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(sakOpphør.getId())
+        return hentBehandling(sakOpphør)
             .map(sisteBehandlingPåsakOpphør -> finnGjeldendeFamiliehendelseDato(sisteBehandlingPåsakOpphør.getId()))
             .orElse(null);
+    }
+
+    private Optional<Behandling> hentBehandling(Fagsak sakOpphør) {
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(sakOpphør.getId());
     }
 
     private boolean toTetteFødsler(Fagsak sakOpphør, Behandling iverksattBehandling) {
@@ -163,7 +167,8 @@ public class VurderOpphørAvYtelser {
 
     private boolean erFørsteBehandlingUtenMinsterett(Fagsak sakOpphør, Behandling iverksattBehandling, LocalDate fhDatoFraBehOpphør, LocalDate fhDatoNyBeh) {
         if (fhDatoFraBehOpphør.isBefore(fhDatoNyBeh)) {
-            return  skjæringstidspunktTjeneste.getSkjæringstidspunkter(sakOpphør.getId()).utenMinsterett();
+            var sisteYtelseBehandling = hentBehandling(sakOpphør).orElseThrow(() -> new IllegalStateException(String.format("Finner ikke siste ytelsesbehandling for sak %s.", sakOpphør.getSaksnummer().getVerdi())));
+            return  skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteYtelseBehandling.getId()).utenMinsterett();
         } else {
             return skjæringstidspunktTjeneste.getSkjæringstidspunkter(iverksattBehandling.getId()).utenMinsterett();
         }
