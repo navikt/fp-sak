@@ -12,7 +12,7 @@ import javax.naming.ldap.LdapContext;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
-public class LdapInnlogging {
+class LdapInnlogging {
 
     private static final Environment ENV = Environment.current();
 

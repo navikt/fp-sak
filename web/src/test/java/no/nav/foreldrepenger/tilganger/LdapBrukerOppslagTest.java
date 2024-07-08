@@ -29,7 +29,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
-class LdapBrukeroppslagTest {
+class LdapBrukerOppslagTest {
 
     @Mock
     private LdapContext context;
@@ -47,7 +47,7 @@ class LdapBrukeroppslagTest {
         attributes.put("cn", "L999999");
         attributes.put(new BasicAttribute("memberOf"));
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
-        assertEquals("Lars Saksbehandler", new LdapBrukeroppslag(context, baseSearch).getDisplayName(resultat));
+        assertEquals("Lars Saksbehandler", new LdapBrukerOppslag(context, baseSearch).getDisplayName(resultat));
     }
 
     @Test
@@ -60,7 +60,7 @@ class LdapBrukeroppslagTest {
         memberOf.add("OU=ourGroup");
         attributes.put(memberOf);
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
-        assertThat(new LdapBrukeroppslag(null, null).getMemberOf(resultat)).contains("CN=myGroup", "OU=ourGroup");
+        assertThat(new LdapBrukerOppslag(null, null).getMemberOf(resultat)).contains("CN=myGroup", "OU=ourGroup");
     }
 
     @Test
@@ -70,7 +70,7 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenReturn(heleResultatet);
 
-        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        var ldapBrukeroppslag = new LdapBrukerOppslag(context, baseSearch);
         assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
     }
 
@@ -79,7 +79,7 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenThrow(new LimitExceededException("This is a test"));
 
-        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        var ldapBrukeroppslag = new LdapBrukerOppslag(context, baseSearch);
         var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
         assertEquals("F-137440", e.getKode());
 
@@ -95,14 +95,14 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenReturn(heleResultatet);
 
-        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        var ldapBrukeroppslag = new LdapBrukerOppslag(context, baseSearch);
         var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
         assertTrue(e.getMessage().contains("Resultat fra LDAP manglet påkrevet attributtnavn displayName"));
     }
 
     @Test
     void skal_gi_exception_når_det_søkes_med_spesialtegn() {
-        var ldap = new LdapBrukeroppslag(context, baseSearch);
+        var ldap = new LdapBrukerOppslag(context, baseSearch);
         var e = assertThrows(TekniskException.class, () -> ldap.hentBrukerinformasjon("L999999) or (cn=A*"));
         assertEquals("F-271934", e.getKode());
 

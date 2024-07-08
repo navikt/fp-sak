@@ -7,13 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.foreldrepenger.tilganger.azure.TilgangKlient;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import java.time.Duration;
+
 @ApplicationScoped
-public class TilgangerTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(TilgangerTjeneste.class);
+public class BrukerProfilTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BrukerProfilTjeneste.class);
 
     private String gruppenavnSaksbehandler;
     private String gruppenavnVeileder;
@@ -21,12 +22,12 @@ public class TilgangerTjeneste {
     private String gruppenavnOppgavestyrer;
     private String gruppenavnKode6;
 
-    public TilgangerTjeneste() {
+    public BrukerProfilTjeneste() {
         // CDI
     }
 
     @Inject
-    public TilgangerTjeneste(
+    public BrukerProfilTjeneste(
         @KonfigVerdi(value = "bruker.gruppenavn.saksbehandler") String gruppenavnSaksbehandler,
         @KonfigVerdi(value = "bruker.gruppenavn.veileder") String gruppenavnVeileder,
         @KonfigVerdi(value = "bruker.gruppenavn.overstyrer") String gruppenavnOverstyrer,
@@ -41,28 +42,32 @@ public class TilgangerTjeneste {
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
+        var før = System.nanoTime();
         var ident = KontekstHolder.getKontekst().getUid();
-        var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
+        var ldapBruker = new LdapBrukerOppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
+        LOG.info("LDAP bruker profil oppslag: {}ms. ", Duration.ofNanos(System.nanoTime() - før).toMillis());
         sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
         return ldapBrukerInfo;
     }
 
     private static void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
-        LOG.info("TILGANGER Azure. Henter fra azure.");
+        LOG.info("PROFIL Azure. Henter fra azure.");
         try {
-            var azureBrukerInfo = mapTilDomene(new TilgangKlient().brukerInfo());
+            var før = System.nanoTime();
+            var azureBrukerInfo = mapTilDomene(new EntraBrukerOppslag().brukerInfo());
             if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
-                LOG.info("TILGANGER Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
+                LOG.info("PROFIL Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
             } else {
-                LOG.info("TILGANGER Azure. Azure == LDAP :)");
+                LOG.info("PROFIL Azure. Azure == LDAP :)");
             }
+            LOG.info("Azure bruker profil oppslag: {}ms. ", Duration.ofNanos(System.nanoTime() - før).toMillis());
         } catch (Exception ex) {
-            LOG.info("TILGANGER Azure. Klienten feilet med exception: {}", ex.getMessage());
+            LOG.info("PROFIL Azure. Klienten feilet med exception: {}", ex.getMessage());
         }
     }
 
-    private static InnloggetNavAnsattDto mapTilDomene(TilgangKlient.BrukerInfoResponseDto brukerInfo) {
+    private static InnloggetNavAnsattDto mapTilDomene(EntraBrukerOppslag.BrukerInfoResponseDto brukerInfo) {
         return new InnloggetNavAnsattDto.Builder(brukerInfo.brukernavn(), brukerInfo.navn())
             .kanSaksbehandle(brukerInfo.kanSaksbehandle())
             .kanVeilede(brukerInfo.kanVeilede())

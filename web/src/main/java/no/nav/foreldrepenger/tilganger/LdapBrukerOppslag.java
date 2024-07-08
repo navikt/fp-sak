@@ -21,25 +21,25 @@ import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.TekniskException;
 
 
-public class LdapBrukeroppslag {
+class LdapBrukerOppslag {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LdapBrukeroppslag.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapBrukerOppslag.class);
 
     private final LdapContext context;
     private final LdapName searchBase;
 
     private static final Pattern IDENT_PATTERN = Pattern.compile("^\\p{LD}+$");
 
-    public LdapBrukeroppslag() {
+    LdapBrukerOppslag() {
         this(LdapInnlogging.lagLdapContext(), lagLdapSearchBase());
     }
 
-    LdapBrukeroppslag(LdapContext context, LdapName searcBase) {
+    LdapBrukerOppslag(LdapContext context, LdapName searcBase) {
         this.context = context;
         this.searchBase = searcBase;
     }
 
-    public LdapBruker hentBrukerinformasjon(String ident) {
+    LdapBruker hentBrukerinformasjon(String ident) {
         var result = ldapSearch(ident);
         //evaluerAdresse(ident, result); Testformål
         return new LdapBruker(getDisplayName(result), getMemberOf(result));
@@ -72,7 +72,7 @@ public class LdapBrukeroppslag {
         }
     }
 
-    protected String getDisplayName(SearchResult result) {
+    String getDisplayName(SearchResult result) {
         var attributeName = "displayName";
         var displayName = find(result, attributeName);
         try {
