@@ -64,7 +64,6 @@ public class ForvaltningFagsakRestTjeneste {
 
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private OpprettSakTjeneste opprettSakTjeneste;
@@ -84,7 +83,6 @@ public class ForvaltningFagsakRestTjeneste {
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;

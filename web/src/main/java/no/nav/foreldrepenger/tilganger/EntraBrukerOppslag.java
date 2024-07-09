@@ -23,7 +23,7 @@ class EntraBrukerOppslag {
     EntraBrukerOppslag() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/bruker/informasjon").build();
+        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/bruker/profil/utvidet").build();
     }
 
     BrukerInfoResponseDto brukerInfo() {
