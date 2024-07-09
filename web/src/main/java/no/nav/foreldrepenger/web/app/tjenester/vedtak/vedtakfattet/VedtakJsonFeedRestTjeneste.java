@@ -12,6 +12,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +61,7 @@ public class VedtakJsonFeedRestTjeneste {
     @Operation(description = "Henter ut hendelser om foreldrepenger-vedtak", tags = "feed", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hendelser om foreldrepenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, availabilityType = AvailabilityType.ALL)
     public FeedDto fpVedtakHendelser(
             @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
@@ -88,7 +90,7 @@ public class VedtakJsonFeedRestTjeneste {
     @Operation(description = "Henter ut hendelser om svangerskapspenger-vedtak", tags = "feed", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hendelser om svangerskapspenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, availabilityType = AvailabilityType.ALL)
     public FeedDto svpVedtakHendelser(
             @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
