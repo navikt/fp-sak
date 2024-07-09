@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.EmptyStackException;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -295,12 +296,20 @@ public class ForvaltningFagsakRestTjeneste {
     @Produces(APPLICATION_JSON)
     @Operation(description = "Finner fagsak informasjon for et gitt fagsakId", tags = "FORVALTNING-fagsak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response oppdaterAktoerId(@PathParam("fagsakId") Long fagsakId) {
+    public Response hentFagsakInformasjon(@TilpassetAbacAttributt(supplierClass = AbacEmptySupplier.class) @PathParam("fagsakId") @Valid Long fagsakId) {
         if (fagsakId == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var forvaltningInfoDto = mapTilDto(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId));
         return Response.ok(forvaltningInfoDto).build();
+    }
+
+    public class AbacEmptySupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett();
+        }
     }
 
     private FagsakForvaltningInfoDto mapTilDto(Fagsak fagsak) {
