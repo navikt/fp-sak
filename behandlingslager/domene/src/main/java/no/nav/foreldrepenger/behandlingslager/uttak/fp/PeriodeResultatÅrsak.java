@@ -130,7 +130,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         ("2036", "14-14-3", "§14-14 tredje ledd: Innvilget foreldrepenger, kun far har rett - dager uten aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14\"}}}",
             of(UTTAK), of(FORELDREPENGER), null, of(IKKE_MOR)),
     FORELDREPENGER_FELLESPERIODE_TIL_FAR
-        ("2037", "14-09", "§14-9, jf. §14-13: Innvilget fellesperiode til far", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}",
+        ("2037", "14-09", "§14-9, jf. §14-13: Innvilget fellesperiode til far", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9,14-13\"}}}",
             of(UTTAK), of(FELLESPERIODE), null, of(IKKE_MOR)),
     FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK
         ("2038", "14-10-6", "§14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}",

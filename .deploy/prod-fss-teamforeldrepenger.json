@@ -78,6 +78,11 @@
       "app": "saf",
       "namespace": "teamdokumenthandtering",
       "cluster": "prod-fss"
+    },
+    {
+      "app": "infotrygd-feed-proxy-v2",
+      "namespace": "infotrygd",
+      "cluster": "prod-fss"
     }
   ]
 }
