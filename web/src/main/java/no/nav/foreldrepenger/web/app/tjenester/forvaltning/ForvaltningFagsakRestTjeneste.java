@@ -304,7 +304,7 @@ public class ForvaltningFagsakRestTjeneste {
         return Response.ok(forvaltningInfoDto).build();
     }
 
-    public class AbacEmptySupplier implements Function<Object, AbacDataAttributter> {
+    public static class AbacEmptySupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
