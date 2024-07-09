@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.EmptyStackException;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,11 +12,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -29,14 +31,17 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -89,10 +94,10 @@ public class ForvaltningFagsakRestTjeneste {
 
     @POST
     @Path("/avsluttFagsakUtenBehandling")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Operation(description = "Avslutt fagsak uten noen behandlinger", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -112,10 +117,10 @@ public class ForvaltningFagsakRestTjeneste {
 
     @POST
     @Path("/stengFagsakForVidereBruk")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Operation(description = "Stenger fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -136,10 +141,10 @@ public class ForvaltningFagsakRestTjeneste {
 
     @POST
     @Path("/gjenAapneFagsakForVidereBruk")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Operation(description = "Gjenåpner fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -160,10 +165,10 @@ public class ForvaltningFagsakRestTjeneste {
 
     @POST
     @Path("/kobleSammenFagsaker")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Operation(description = "Kobler sammen angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsaker koblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Fagsaker koblet.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -186,10 +191,10 @@ public class ForvaltningFagsakRestTjeneste {
 
     @POST
     @Path("/kobleFraFagsaker")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Operation(description = "Kobler fra hverandre angitte fagsaker", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsaker frakoblet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Fagsaker frakoblet.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -283,6 +288,44 @@ public class ForvaltningFagsakRestTjeneste {
         fagsakRepository.oppdaterBrukerMedAktørId(dto.utgåttAktørId(), dto.gyldigAktørId());
         personopplysningRepository.oppdaterAktørIdFor(dto.utgåttAktørId(), dto.gyldigAktørId());
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/fagsak/{fagsakId}")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Finner fagsak informasjon for et gitt fagsakId", tags = "FORVALTNING-fagsak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response hentFagsakInformasjon(@TilpassetAbacAttributt(supplierClass = AbacEmptySupplier.class) @PathParam("fagsakId") @Valid Long fagsakId) {
+        if (fagsakId == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        var forvaltningInfoDto = mapTilDto(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId));
+        return Response.ok(forvaltningInfoDto).build();
+    }
+
+    public class AbacEmptySupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett();
+        }
+    }
+
+    private FagsakForvaltningInfoDto mapTilDto(Fagsak fagsak) {
+        return new FagsakForvaltningInfoDto(fagsak.getId(), new SaksnummerDto(fagsak.getSaksnummer()), mapYtelseType(fagsak.getYtelseType()));
+    }
+
+    private YtelseTypeDto mapYtelseType(FagsakYtelseType fagsakYtelseType) {
+        return switch (fagsakYtelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case ENGANGSTØNAD -> YtelseTypeDto.ENGANGSTØNAD;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case UDEFINERT -> null;
+        };
+    }
+
+    record FagsakForvaltningInfoDto(@NotNull Long fagsakId, @NotNull @Valid SaksnummerDto saksnummer, @NotNull YtelseTypeDto ytelseType) {
     }
 
     /**
