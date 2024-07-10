@@ -216,13 +216,6 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-jaxrs2-jakarta</artifactId>
         </dependency>
-        <!-- Må gjenta her for å få riktig scope (kolliderer ellers med dependencyManagement -->
-
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
