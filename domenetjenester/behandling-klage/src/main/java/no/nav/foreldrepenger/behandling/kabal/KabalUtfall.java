@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.kabal;
 
 public enum KabalUtfall {
     TRUKKET,
+    HEVET, // Kun for tilfelle av Anke i TrR der bruker trekker anken
     RETUR,
     OPPHEVET,
     MEDHOLD,
