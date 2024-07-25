@@ -41,7 +41,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String OVERSENDTR_KEY = "oversendtTrygderett";
     public static final String FEILOPPRETTET_TYPE_KEY = "feilopprettetType";
 
-    private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
+    private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.HEVET, KabalUtfall.RETUR);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -98,7 +98,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!UTEN_VURDERING.contains(utfall)) {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, utfall);
         }
-        if (KabalUtfall.TRUKKET.equals(utfall)) {
+        if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (klageBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(klageBehandling, kontekst);
             }
@@ -162,7 +162,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling.getId());
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
-        if (KabalUtfall.TRUKKET.equals(utfall)) {
+        if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (ankeBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(ankeBehandling, kontekst);
             }

@@ -253,7 +253,7 @@ public class KabalTjeneste {
             case AVVIST, INNSTILLING_AVVIST -> KlageVurdering.AVVIS_KLAGE;
             case OPPHEVET -> KlageVurdering.OPPHEVE_YTELSESVEDTAK;
             case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> KlageVurdering.MEDHOLD_I_KLAGE;
-            case RETUR, TRUKKET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+            case RETUR, TRUKKET, HEVET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
@@ -272,7 +272,7 @@ public class KabalTjeneste {
             case AVVIST, INNSTILLING_AVVIST -> AnkeVurdering.ANKE_AVVIS;
             case OPPHEVET -> AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
             case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> AnkeVurdering.ANKE_OMGJOER;
-            case RETUR, TRUKKET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+            case RETUR, TRUKKET, HEVET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
