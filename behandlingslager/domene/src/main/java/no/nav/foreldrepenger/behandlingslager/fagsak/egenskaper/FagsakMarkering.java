@@ -18,8 +18,8 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
     BOSATT_UTLAND("Bosatt utland", "Utland"),
     SAMMENSATT_KONTROLL("Sammensatt kontroll", "Kontroll"),
     DØD_DØDFØDSEL("Død eller dødfødsel", "Død"),
-    PRAKSIS_UTSETTELSE("Næringsdrivende", "Næring"),
-    SELVSTENDIG_NÆRING("Praksis utsettelse", "Utsettelse");
+    PRAKSIS_UTSETTELSE("Praksis utsettelse", "Utsettelse"),
+    SELVSTENDIG_NÆRING("Næringsdrivende", "Næring");
 
     @JsonIgnore
     private final String kortNavn;
