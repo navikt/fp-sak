@@ -98,7 +98,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!UTEN_VURDERING.contains(utfall)) {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, utfall);
         }
-        if (KabalUtfall.TRUKKET.equals(utfall)) {
+        if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (klageBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(klageBehandling, kontekst);
             }
