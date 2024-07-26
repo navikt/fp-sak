@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -161,7 +162,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_ikke_sende_brev_når_frister_passert() {
+    void skal_sende_brev_med_kort_frist_når_opprinnelig_frist_passert() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -174,9 +175,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
                 lagRef(behandling, LocalDate.now()));
 
         // Assert
-        assertThat(kompletthetResultat.erOppfylt()).isTrue();
-        assertThat(kompletthetResultat.ventefrist()).isNull();
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class), any());
+        assertThat(kompletthetResultat.erOppfylt()).isFalse();
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(1));
+        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class), any());
     }
 
     @Test
@@ -187,6 +188,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(4),
                 STARTDATO_PERMISJON);
         when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
+        when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(LocalDateTime.now().minusWeeks(3)));
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(

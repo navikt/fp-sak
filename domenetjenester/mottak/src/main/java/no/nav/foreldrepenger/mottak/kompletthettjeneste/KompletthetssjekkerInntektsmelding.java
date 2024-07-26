@@ -13,20 +13,20 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 @ApplicationScoped
 public class KompletthetssjekkerInntektsmelding {
 
-    private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
     public KompletthetssjekkerInntektsmelding() {
         //DCI
     }
 
     @Inject
-    public KompletthetssjekkerInntektsmelding(InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste) {
-        this.inntektsmeldingArkivTjeneste = inntektsmeldingArkivTjeneste;
+    public KompletthetssjekkerInntektsmelding(InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
 
     public List<ManglendeVedlegg> utledManglendeInntektsmeldinger(BehandlingReferanse ref) {
-        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, false)
+        return inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, false)
             .keySet()
             .stream()
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
@@ -34,7 +34,7 @@ public class KompletthetssjekkerInntektsmelding {
     }
 
     public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref) {
-        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, false)
+        return inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, false)
             .keySet()
             .stream()
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))

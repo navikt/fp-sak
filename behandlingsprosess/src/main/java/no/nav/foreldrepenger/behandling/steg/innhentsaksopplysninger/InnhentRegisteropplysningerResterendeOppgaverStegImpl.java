@@ -81,7 +81,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         oppdaterFagsakEgenskaper(behandling);
 
-        if (!skalPassereUtenBrev(behandling)) {
+        if (!skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
             var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
@@ -110,7 +110,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         return søker.getFødselsdato().isAfter(LocalDate.now().minusYears(18));
     }
 
-    private boolean skalPassereUtenBrev(Behandling behandling) {
+    private boolean skalPassereUtenBrevEtterlysInntektsmelding(Behandling behandling) {
         return behandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
