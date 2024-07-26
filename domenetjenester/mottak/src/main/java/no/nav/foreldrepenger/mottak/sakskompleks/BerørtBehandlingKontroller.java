@@ -107,7 +107,7 @@ public class BerørtBehandlingKontroller {
                 sistVedtatteBehandlingForMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes.isPresent()) {
                 opprettBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat, skalBerørtBehandlingOpprettes.get());
-            } else if (skalEndreDekningsgradForMedForelder(vedtattBehandling, sistVedtatteBehandlingForMedforelder.get())) {
+            } else if (skalEndreDekningsgradForMedForelder(vedtattBehandling, vedtattBehandlingsresultat, sistVedtatteBehandlingForMedforelder.get())) {
                 opprettDekningsgradRevurdering(fagsakMedforelder);
             } else if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteBehandlingForMedforelder.get(), vedtattBehandling.getId())) {
                 LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), vedtattBehandling.getId());
@@ -121,8 +121,8 @@ public class BerørtBehandlingKontroller {
         }
     }
 
-    private boolean skalEndreDekningsgradForMedForelder(Behandling vedtattBehandling, Behandling behandlingMedforelder) {
-        if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandlingMedforelder.getFagsakId()).isEmpty()) {
+    private boolean skalEndreDekningsgradForMedForelder(Behandling vedtattBehandling, Behandlingsresultat vedtattResultat, Behandling behandlingMedforelder) {
+        if (vedtattResultat.isBehandlingHenlagt() || !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandlingMedforelder.getFagsakId()).isEmpty()) {
             return false;
         }
         var avsluttetErEndreDekningsgrad = vedtattBehandling.harBehandlingÅrsak(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
