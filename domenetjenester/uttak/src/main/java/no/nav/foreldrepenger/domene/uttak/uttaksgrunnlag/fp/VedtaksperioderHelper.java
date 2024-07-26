@@ -171,7 +171,7 @@ public class VedtaksperioderHelper {
 
         return up.getPeriodeSøknad()
             .filter(periode -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(periode.getMorsAktivitet()))
-            .filter(periode -> periode.getDokumentasjonVurdering().morsStillingsprosent() == null)
+            .filter(periode -> periode.getDokumentasjonVurdering() == null || periode.getDokumentasjonVurdering().morsStillingsprosent() == null)
             .isPresent();
     }
 
