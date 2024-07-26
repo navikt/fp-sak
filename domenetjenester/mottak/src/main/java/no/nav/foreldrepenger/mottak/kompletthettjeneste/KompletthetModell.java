@@ -118,14 +118,12 @@ public class KompletthetModell {
             throw new IllegalArgumentException("Utvklerfeil: Skal alltid finnes kompletthetsfunksjoner");
         }
         // Hent siste
-        return rangerteAutopunkter.get(rangerteAutopunkter.size() - 1);
+        return rangerteAutopunkter.getLast();
     }
 
     public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, AksjonspunktDefinisjon autopunkt) {
-        var kompletthetsfunksjon = KOMPLETTHETSFUNKSJONER.get(autopunkt);
-        if (kompletthetsfunksjon == null) {
-            throw new IllegalStateException("Utviklerfeil: Kan ikke finne kompletthetsfunksjon for autopunkt: " + autopunkt.getKode());
-        }
-        return kompletthetsfunksjon.apply(this, ref);
+        return Optional.ofNullable(KOMPLETTHETSFUNKSJONER.get(autopunkt))
+            .map(kompletthetsfunksjon -> kompletthetsfunksjon.apply(this, ref))
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kan ikke finne kompletthetsfunksjon for autopunkt: " + autopunkt.getKode()));
     }
 }

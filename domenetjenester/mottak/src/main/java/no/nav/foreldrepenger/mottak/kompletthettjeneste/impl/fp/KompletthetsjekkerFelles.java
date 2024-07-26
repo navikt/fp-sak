@@ -140,35 +140,43 @@ public class KompletthetsjekkerFelles {
         if (ventefristEtterlysning.isEmpty()) {
             return Optional.empty();
         }
-        // Gjeldende logikk: Etterlys hvis ingen mottatte
+        // Gjeldende logikk: Alltid etterlys ved mangler. Tidligere: Etterlys hvis ingen mottatte
         var erSendtBrev = erEtterlysInntektsmeldingBrevSendt(ref.behandlingId());
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt());
-        if (inntektsmeldinger.isEmpty()) {
-            if (!erSendtBrev) {
-                sendEtterlysInntektsmeldingBrev(ref.behandlingId(), ref.behandlingUuid());
-            }
-            return ventefristEtterlysning;
+        if (!erSendtBrev) {
+            sendEtterlysInntektsmeldingBrev(ref.behandlingId(), ref.behandlingUuid());
+            return finnVentefristNårSendtEtterlysning(ref, ventefristEtterlysning.get(), LocalDate.now(), manglendeInntektsmeldinger);
+        } else {
+            var sendtEtterlysningDato = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING)
+                .orElseThrow().toLocalDate();
+            return finnVentefristNårSendtEtterlysning(ref, ventefristEtterlysning.get(), sendtEtterlysningDato, manglendeInntektsmeldinger);
         }
-        return finnVentefristNårFinnesInntektsmelding(ref, ventefristEtterlysning.get(), erSendtBrev, inntektsmeldinger, manglendeInntektsmeldinger);
     }
 
-    private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref,
-                                                                           LocalDateTime frist,
-                                                                           boolean erSendtBrev,
-                                                                           List<Inntektsmelding> inntektsmeldinger,
-                                                                           List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+    private Optional<LocalDateTime> finnVentefristNårSendtEtterlysning(BehandlingReferanse ref,
+                                                                       LocalDateTime frist,
+                                                                       LocalDate sendtEtterlysningDato,
+                                                                       List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+        // Sikre noen dager etter sendt brev
+        var fristBasertPåSendtBrev = sendtEtterlysningDato.plusWeeks(1);
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
-        var tidligstMottatt = inntektsmeldinger.stream()
+        var inntektsmeldingerEtterAktuellSøknad = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt()).stream()
+            .filter(im -> baseline.isBefore(im.getInnsendingstidspunkt()))  // Filtrer ut IM sendt før søknad
+            .toList();
+        if (inntektsmeldingerEtterAktuellSøknad.isEmpty()) {
+            LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), 0, manglendeInntektsmeldinger.size());
+            return finnVentefrist(fristBasertPåSendtBrev.isAfter(frist.toLocalDate()) ? fristBasertPåSendtBrev : frist.toLocalDate());
+        }
+        var tidligstMottatt = inntektsmeldingerEtterAktuellSøknad.stream()
             .map(Inntektsmelding::getInnsendingstidspunkt)
-            .filter(baseline::isBefore)  // Filtrer ut IM sendt før søknad
             .min(Comparator.naturalOrder())
-            .orElseGet(() -> frist.minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        LOG.info("ETTERLYS behandlingId {} erSendtBrev {} mottattIm {} manglerIm {}", ref.behandlingId(), erSendtBrev, inntektsmeldinger.size(),
+            .orElseThrow()
+            .toLocalDate();
+        LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), inntektsmeldingerEtterAktuellSøknad.size(),
             manglendeInntektsmeldinger.size());
 
-        // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
-        long venteantalldøgn = tidligstMottatt.toLocalDate().getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 6 : 4;
-        return finnVentefrist(tidligstMottatt.toLocalDate().plusDays(venteantalldøgn));
+        // Vent N=4 døgn etter første mottatte IM. Bruk N+1 pga startofday.
+        var basertPåMottattIM = tidligstMottatt.plusDays(tidligstMottatt.getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 6 : 4);
+        return finnVentefrist(fristBasertPåSendtBrev.isAfter(basertPåMottattIM) ? fristBasertPåSendtBrev : basertPåMottattIM);
     }
 
     private Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref) {
@@ -184,9 +192,8 @@ public class KompletthetsjekkerFelles {
     private Optional<LocalDateTime> finnVentefristForEtterlysning(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = ref.getUtledetSkjæringstidspunkt();
-        var muligFrist = LocalDate.now()
-            .isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ? LocalDate.now() : permisjonsstart.minusWeeks(
-            TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
+        var muligFrist = LocalDate.now().isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ?
+            LocalDate.now() : permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
         var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
         var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);

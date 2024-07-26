@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -78,6 +80,16 @@ public class DokumentBehandlingTjeneste {
             .orElse(List.of())
             .stream()
             .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
+    }
+
+    public Optional<LocalDateTime> dokumentSistBestiltTidspunkt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter)
+            .orElse(List.of())
+            .stream()
+            .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()))
+            .map(BaseCreateableEntitet::getOpprettetTidspunkt)
+            .max(Comparator.naturalOrder());
     }
 
     public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
