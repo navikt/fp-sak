@@ -138,7 +138,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(beregningResultatAggregat.getBeregningVilkårResultat().getErVilkårOppfylt(),
             vilkårSporing.map(RegelSporingPeriode::regelEvaluering).orElse(null),
             vilkårSporing.map(RegelSporingPeriode::regelInput).orElse(null),
-            vilkårSporing.map(RegelSporingPeriode::regelVersjon).map(v -> v.startsWith("f") ? v : "ft-beregning:" + v).orElse(null));
+            vilkårSporing.map(RegelSporingPeriode::regelVersjon).orElse(null));
         return beregningsgrunnlagVilkårOgAkjonspunktResultat;
     }
 

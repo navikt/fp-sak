@@ -60,8 +60,7 @@ public class StønadskontoRegelAdapter {
         var stønadskontoberegningBuilder = Stønadskontoberegning.builder()
             .medRegelEvaluering(stønadskontoResultat.getEvalueringResultat())
             .medRegelInput(stønadskontoResultat.getInnsendtGrunnlag())
-            .medRegelVersjon(Optional.ofNullable(stønadskontoResultat.getRegelVersjon())
-                .map(v -> v.startsWith("f") ? v : "fp-stonadskonto:" + v).orElse(null));
+            .medRegelVersjon(stønadskontoResultat.getRegelVersjon());
 
         var maksDagerStønadskonto = stønadskontoResultat.getStønadskontoer();
         for (var entry : maksDagerStønadskonto.entrySet()) {

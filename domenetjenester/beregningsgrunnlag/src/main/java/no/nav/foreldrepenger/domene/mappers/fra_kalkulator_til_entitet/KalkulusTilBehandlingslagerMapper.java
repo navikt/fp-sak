@@ -100,7 +100,7 @@ public final class KalkulusTilBehandlingslagerMapper {
             .findFirst();
         regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.regelInput(), regelSporingGrunnlag.regelEvaluering(),
             no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()),
-            Optional.ofNullable(regelSporingGrunnlag.regelVersjon()).map(v -> v.startsWith("f") ? v : "ft-beregning:" + v).orElse(null)));
+            regelSporingGrunnlag.regelVersjon()));
     }
 
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {
