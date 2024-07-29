@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -82,7 +80,7 @@ public class BeregnYtelseTjeneste {
         var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput(resultat.regelInput())
             .medRegelSporing(resultat.regelSporing())
-            .medRegelVersjon(Optional.ofNullable(resultat.versjon()).map(v -> v.startsWith("f") ? v : "fp-ytelse-beregn:" + v).orElse(null))
+            .medRegelVersjon(resultat.versjon())
             .build();
 
         MapBeregningsresultatFraRegelTilVL.mapFra(resultat.beregningsresultat(), beregningsresultat);

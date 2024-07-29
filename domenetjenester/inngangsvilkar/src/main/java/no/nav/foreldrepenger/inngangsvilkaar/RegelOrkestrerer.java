@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -129,7 +128,7 @@ public class RegelOrkestrerer {
             .medVilkårUtfall(vilkårData.utfallType(), vilkårData.vilkårUtfallMerknad())
             .medRegelEvaluering(vilkårData.regelEvaluering())
             .medRegelInput(vilkårData.regelInput())
-            .medRegelVersjon(Optional.ofNullable(vilkårData.regelVersjon()).map(v -> v.startsWith("f") ? v : "fp-inngangsvilkar:" + v).orElse(null));
+            .medRegelVersjon(vilkårData.regelVersjon());
         builder.leggTilVilkår(vilkårBuilder);
 
         builder.buildFor(behandling);
