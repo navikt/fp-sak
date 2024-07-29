@@ -30,17 +30,11 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @ApplicationScoped
 @Transactional
 @Path(AktoerRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class AktoerRestTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(AktoerRestTjeneste.class);
 
     static final String BASE_PATH = "/aktoer-info";
     private static final String AKTOER_INFO_PART_PATH = "";
@@ -65,7 +59,6 @@ public class AktoerRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     // re-enable hvis endres til ikke-tom @Path(AKTOER_INFO_PART_PATH)
     public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
-        LOG.info("ANALYSE: {} kallt av {}", BASE_PATH, KontekstHolder.getKontekst().getKonsumentId());
         var aktoerId = aktoerIdDto.get();
         if (aktoerId.isPresent()) {
             return fagsakTjeneste.lagAktoerInfoDto(aktoerId.get()).map(a -> Response.ok(a).build())
