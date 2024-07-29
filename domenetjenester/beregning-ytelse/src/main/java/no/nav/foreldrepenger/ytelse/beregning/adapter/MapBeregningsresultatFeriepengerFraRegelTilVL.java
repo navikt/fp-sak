@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
 import java.math.RoundingMode;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -21,8 +20,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
          var feriepengerBuilder = BeregningsresultatFeriepenger.builder()
              .medFeriepengerRegelInput(feriepengeresultat.regelInput())
              .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
-             .medRegelVersjon(Optional.ofNullable(feriepengeresultat.versjon())
-                 .map(v -> v.startsWith("f") ? v : "fp-ytelse-beregn:" + v).orElse(null));
+             .medRegelVersjon(feriepengeresultat.versjon());
 
         if (feriepengeresultat.resultat().feriepengerPeriode() == null) {
             // Lagrer sporing

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -68,8 +66,7 @@ class UttaksresultatMapper {
         var periodeBuilder = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(periode.getFom(), periode.getTom())
             .medRegelInput(periode.getRegelInput())
             .medRegelEvaluering(periode.getRegelSporing())
-            .medRegelVersjon(Optional.ofNullable(periode.getRegelVersjon())
-                .map(v -> v.startsWith("s") || v.startsWith("f") ? v : "svp-uttak:" + v).orElse(null));
+            .medRegelVersjon(periode.getRegelVersjon());
         if (periode.getUtfallType().equals(UtfallType.OPPFYLT)) {
             periodeBuilder.medPeriodeResultatType(PeriodeResultatType.INNVILGET);
             periodeBuilder.medUtbetalingsgrad(new Utbetalingsgrad(periode.getUtbetalingsgrad()));
