@@ -113,12 +113,12 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         var tapteDager = tapteDager(uttak.getGjeldendePerioder().getPerioder());
         if (tapteDager.compareTo(Trekkdager.ZERO) == 0) {
             LOG.info("FeilPraksisUtsettelse: Sak gir ikke utslag saksnummer {}", fagsak.getSaksnummer());
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
+            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
             return;
         }
         if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
             LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
+            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
@@ -127,7 +127,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
         if (famileHendelseEtterPraksisendring(sisteVedtatte)) {
             LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.NASJONAL);
+            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
             return;
         }
 

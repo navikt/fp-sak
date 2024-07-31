@@ -41,9 +41,7 @@ public class FagsakEgenskap extends BaseEntitet {
     }
 
     FagsakEgenskap(Long fagsakId, EgenskapVerdi verdi) {
-        this.fagsakId = fagsakId;
-        this.egenskapNøkkel = verdi.getNøkkel();
-        this.egenskapVerdi = verdi.getVerdi();
+        this(fagsakId, verdi.getNøkkel(), verdi.getVerdi());
     }
 
 
@@ -54,9 +52,7 @@ public class FagsakEgenskap extends BaseEntitet {
     }
 
     FagsakEgenskap(FagsakEgenskap egenskap) {
-        this.fagsakId = egenskap.fagsakId;
-        this.egenskapNøkkel = egenskap.egenskapNøkkel;
-        this.egenskapVerdi = egenskap.egenskapVerdi;
+        this(egenskap.fagsakId, egenskap.egenskapNøkkel, egenskap.egenskapVerdi);
     }
 
     public Long getId() {

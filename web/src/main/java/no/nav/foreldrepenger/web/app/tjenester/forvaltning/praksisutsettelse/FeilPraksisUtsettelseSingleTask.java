@@ -42,12 +42,11 @@ class FeilPraksisUtsettelseSingleTask implements ProsessTaskHandler {
         var sak = Optional.ofNullable(prosessTaskData.getPropertyValue(FAGSAK_ID))
             .map(fid -> fagsakRepository.finnEksaktFagsak(Long.parseLong(fid)))
             .orElseThrow();
-        var saksmerking = fagsakEgenskapRepository.finnFagsakMarkering(sak.getId()).orElse(FagsakMarkering.NASJONAL);
-        if (FagsakMarkering.PRAKSIS_UTSETTELSE.equals(saksmerking)) {
+        if (fagsakEgenskapRepository.harFagsakMarkering(sak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             feilPraksisOpprettBehandlingTjeneste.opprettBehandling(sak);
         } else {
             LOG.info("FeilPraksisUtsettelse: Mangler saksmerking praksis utsettelse, oppretter ikke revurdering for {} som har merking {}",
-                sak.getSaksnummer(), saksmerking);
+                sak.getSaksnummer(), fagsakEgenskapRepository.finnFagsakMarkeringer(sak.getId()));
         }
     }
 

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.datavarehus.tjeneste;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class BehandlingDvhMapper {
                                     Optional<KlageResultatEntitet> klageResultat,
                                     Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<LocalDate> skjæringstidspunkt,
-                                    FagsakMarkering fagsakMarkering,
+                                    Collection<FagsakMarkering> fagsakMarkering,
                                     Optional<LocalDate> forventetOppstartDato) {
 
         var builder = BehandlingDvh.builder()
@@ -89,9 +90,14 @@ public class BehandlingDvhMapper {
             .orElseGet(() -> behandling.getStatus().getKode());
     }
 
-    private static String getUtlandstilsnitt(FagsakMarkering fagsakMarkering) {
-        return FagsakMarkering.BOSATT_UTLAND.equals(fagsakMarkering) || FagsakMarkering.EØS_BOSATT_NORGE.equals(fagsakMarkering) ?
-            fagsakMarkering.name() : FagsakMarkering.NASJONAL.name();
+    private static String getUtlandstilsnitt(Collection<FagsakMarkering> fagsakMarkering) {
+        if (fagsakMarkering.contains(FagsakMarkering.BOSATT_UTLAND)) {
+            return FagsakMarkering.BOSATT_UTLAND.name();
+        } else if (fagsakMarkering.contains(FagsakMarkering.EØS_BOSATT_NORGE)) {
+            return FagsakMarkering.EØS_BOSATT_NORGE.name();
+        } else {
+            return "NASJONAL";
+        }
     }
 
     private static LocalDateTime kanBehandlesTid(Behandling behandling) {
@@ -171,12 +177,12 @@ public class BehandlingDvhMapper {
             CommonDvhMapper.erSaksbehandler(aksjonspunkt.getEndretAv()) || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getOpprettetAv());
     }
 
-    private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, FagsakMarkering fagsakMarkering) {
+    private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, Collection<FagsakMarkering> fagsakMarkering) {
         if (!behandling.erRevurdering()) {
             return null;
         }
         // Midlertidig
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return RevurderingÅrsak.PRAKSISUTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

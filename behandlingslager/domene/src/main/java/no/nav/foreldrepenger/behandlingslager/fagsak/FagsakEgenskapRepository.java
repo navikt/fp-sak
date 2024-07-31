@@ -2,9 +2,12 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,89 +34,90 @@ public class FagsakEgenskapRepository {
     }
 
     public <E extends Enum<E>> Optional<E> finnEgenskapVerdi(long fagsakId, EgenskapNøkkel nøkkel, Class<E> enumCls) {
-        return finnEgenskap(fagsakId, nøkkel).flatMap(fe -> fe.getEgenskapVerdiHvisFinnes(enumCls));
+        return finnEgenskaper(fagsakId, nøkkel).stream().findFirst().flatMap(fe -> fe.getEgenskapVerdiHvisFinnes(enumCls));
     }
 
     public Optional<UtlandDokumentasjonStatus> finnUtlandDokumentasjonStatus(long fagsakId) {
-        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandDokumentasjonStatus::valueOf);
-    }
-
-    public Optional<FagsakMarkering> finnFagsakMarkering(long fagsakId) {
-        return finnEgenskap(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING)
+        return finnEgenskaper(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).stream().findFirst()
             .map(FagsakEgenskap::getEgenskapVerdi)
-            .map(FagsakMarkering::valueOf);
+            .map(UtlandDokumentasjonStatus::valueOf);
     }
 
-    private Optional<FagsakEgenskap> finnEgenskapMedVerdi(long fagsakId, EgenskapNøkkel nøkkel) {
+    public void lagreUtlandDokumentasjonStatus(long fagsakId, UtlandDokumentasjonStatus verdi) {
+        if (finnEgenskapMedGittVerdi(fagsakId, verdi).isEmpty()) {
+            var lagres = finnEgenskaper(fagsakId, verdi.getNøkkel()).stream().findFirst().orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
+            lagres.setEgenskapVerdi(verdi);
+            lagres.setAktiv(true);
+            entityManager.persist(lagres);
+            entityManager.flush();
+        }
+    }
+
+    public Collection<FagsakMarkering> finnFagsakMarkeringer(long fagsakId) {
+        var markeringer = finnEgenskaper(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING).stream()
+            .map(FagsakEgenskap::getEgenskapVerdi)
+            .filter(Objects::nonNull)
+            .map(FagsakMarkering::valueOf)
+            .collect(Collectors.toSet());
+        return markeringer.isEmpty() ? Set.of(FagsakMarkering.NASJONAL) : markeringer;
+    }
+
+    public boolean harFagsakMarkering(long fagsakId, FagsakMarkering markering) {
+        return finnEgenskapMedGittVerdi(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING, markering.name()).isPresent();
+    }
+
+    private Optional<FagsakEgenskap> finnEgenskapMedGittVerdi(long fagsakId, EgenskapVerdi verdi) {
+        return finnEgenskapMedGittVerdi(fagsakId, verdi.getNøkkel(), verdi.getVerdi());
+    }
+
+    private Optional<FagsakEgenskap> finnEgenskapMedGittVerdi(long fagsakId, EgenskapNøkkel nøkkel, String egenskap) {
         var query = entityManager.createQuery(
-                "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
+                "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi = :egenskap AND aktiv = true",
                 FagsakEgenskap.class)
             .setParameter(FAGSAK_QP, fagsakId)
-            .setParameter("nøkkel", nøkkel);
+            .setParameter("nøkkel", nøkkel)
+            .setParameter("egenskap", egenskap);
         return hentUniktResultat(query);
     }
 
-    private Optional<FagsakEgenskap> finnEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
+    private List<FagsakEgenskap> finnEgenskaper(long fagsakId, EgenskapNøkkel nøkkel) {
         var query = entityManager.createQuery(
                 "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND aktiv = true",
                 FagsakEgenskap.class)
             .setParameter(FAGSAK_QP, fagsakId)
             .setParameter("nøkkel", nøkkel);
-        return hentUniktResultat(query);
-    }
-
-    public List<FagsakEgenskap> finnEgenskaper(long fagsakId) {
-        var query = entityManager.createQuery(
-            "from FagsakEgenskap where fagsakId = :fagsak AND egenskapVerdi is not null AND aktiv = true",
-            FagsakEgenskap.class)
-            .setParameter(FAGSAK_QP, fagsakId);
         return query.getResultList();
     }
 
-
-    public void fjernEgenskapBeholdHistorikk(long fagsakId, EgenskapNøkkel nøkkel) {
-        finnEgenskapMedVerdi(fagsakId, nøkkel).ifPresent(egenskap -> {
-            egenskap.setAktiv(false);
-            entityManager.persist(egenskap);
-            entityManager.flush();
-        });
+    public void lagreAlleFagsakMarkeringer(long fagsakId, Collection<FagsakMarkering> markeringer) {
+        var eksisterende = finnFagsakMarkeringer(fagsakId);
+        markeringer.stream().filter(fm -> !FagsakMarkering.NASJONAL.equals(fm)).filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
+        eksisterende.stream().filter(fm -> !markeringer.contains(fm)).forEach(fm -> fjernFagsakMarkering(fagsakId, fm));
     }
 
-    public void lagreEgenskapBeholdHistorikk(long fagsakId, EgenskapVerdi verdi) {
+    private void lagreFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
         Objects.requireNonNull(verdi);
-        var eksisterende = finnEgenskap(fagsakId, verdi.getNøkkel());
-        if (eksisterende.filter(e -> e.harSammeVerdi(verdi)).isPresent()) {
-            return;
+        var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
+        if (eksisterende.isEmpty()) {
+            lagreFagsakEgenskap(fagsakId, verdi);
         }
-        var lagres = eksisterende.map(FagsakEgenskap::new).orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
-        lagres.setEgenskapVerdi(verdi);
-        eksisterende.ifPresent(e -> {
-            e.setAktiv(false);
-            entityManager.persist(e);
-        });
+    }
+
+    public void fjernFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
+        Objects.requireNonNull(verdi);
+        var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
+        eksisterende.ifPresent(this::fjernFagsakEgenskap);
+    }
+
+    private void lagreFagsakEgenskap(long fagsakId, FagsakMarkering verdi) {
+        var lagres = new FagsakEgenskap(fagsakId, verdi);
         entityManager.persist(lagres);
         entityManager.flush();
     }
 
-    public void fjernEgenskapUtenHistorikk(long fagsakId, EgenskapNøkkel nøkkel) {
-        finnEgenskapMedVerdi(fagsakId, nøkkel).ifPresent(egenskap -> {
-            egenskap.fjernEgenskapVerdi();
-            entityManager.persist(egenskap);
-            entityManager.flush();
-        });
-    }
-
-    // Primært ifm migrering
-    public void lagreEgenskapUtenHistorikk(long fagsakId, EgenskapVerdi verdi) {
-        Objects.requireNonNull(verdi);
-        var eksisterende = finnEgenskap(fagsakId, verdi.getNøkkel());
-        if (eksisterende.filter(e -> e.harSammeVerdi(verdi)).isPresent()) {
-            return;
-        }
-        var lagres = eksisterende.orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
-        lagres.setEgenskapVerdi(verdi);
-        lagres.setAktiv(true);
-        entityManager.persist(lagres);
+    private void fjernFagsakEgenskap(FagsakEgenskap fagsakEgenskap) {
+        fagsakEgenskap.setAktiv(false);
+        entityManager.persist(fagsakEgenskap);
         entityManager.flush();
     }
 

@@ -134,7 +134,7 @@ class ForeslåVedtakTjeneste {
             return true;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) ||
-            fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
+            fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return true;
         }
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()

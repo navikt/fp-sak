@@ -48,31 +48,30 @@ public class RegistrerFagsakEgenskaper {
         this.iayTjeneste = iayTjeneste;
     }
 
-    public FagsakMarkering fagsakEgenskaperForBruker(Behandling behandling) {
-        var gjeldendeMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
+    public void fagsakEgenskaperForBruker(Behandling behandling) {
+        var erMarkertMedPrioritet = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()).stream()
+            .anyMatch(FagsakMarkering::erPrioritert);
 
-        if (behandling.erManueltOpprettet() || gjeldendeMarkering.filter(FagsakMarkering::erPrioritert).isPresent()) {
-            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        if (behandling.erManueltOpprettet() || erMarkertMedPrioritet) {
+            return;
         }
 
         // Har registrert en tilknytning og ikke utflyttet
-        if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) != null) {
-            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) == null) {
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(FagsakMarkering.BOSATT_UTLAND)); // TODO: ADD når multiple merker tillatt
+            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, List.of(FagsakMarkering.BOSATT_UTLAND))
+                .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
         }
-        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
-        BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, FagsakMarkering.BOSATT_UTLAND)
-            .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
-        return FagsakMarkering.BOSATT_UTLAND;
     }
 
-    public FagsakMarkering fagsakEgenskaperFraSøknad(Behandling behandling, boolean oppgittRelasjonTilEØS) {
-        var gjeldendeMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
+    public void fagsakEgenskaperFraSøknad(Behandling behandling, boolean oppgittRelasjonTilEØS) {
+        var gjeldendeMarkering = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId());
 
-        if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) || gjeldendeMarkering.isPresent()) {
-            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) || !gjeldendeMarkering.isEmpty()) {
+            return;
         }
 
-        var saksmarkering = FagsakMarkering.NASJONAL;
+        FagsakMarkering saksmarkering = null;
         if (vurderOppgittUtlandsopphold(behandling.getId())) {
             saksmarkering = FagsakMarkering.BOSATT_UTLAND;
         } else if (oppgittRelasjonTilEØS) {
@@ -80,12 +79,11 @@ public class RegistrerFagsakEgenskaper {
         } else if (harOppgittEgenNæring(behandling.getId())) {
             saksmarkering = FagsakMarkering.SELVSTENDIG_NÆRING;
         }
-        if (!FagsakMarkering.NASJONAL.equals(saksmarkering)) {
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), saksmarkering);
-            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
+        if (saksmarkering != null) {
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(saksmarkering)); // TODO tillate flere - men lagre enkeltvis
+            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, Set.of(saksmarkering))
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysning"));
         }
-        return saksmarkering;
     }
 
     public boolean harVurdertInnhentingDokumentasjon(Behandling behandling) {
