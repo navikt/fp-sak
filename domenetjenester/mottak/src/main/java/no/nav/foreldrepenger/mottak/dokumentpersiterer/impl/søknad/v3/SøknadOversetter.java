@@ -518,7 +518,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
                 if (aktørIdArbeidsgiver.isEmpty()) {
                     throw new TekniskException("FP-545381",
-                        "Fant ikke personident for arbeidsgiver som er privatperson i TPS");
+                        "Fant ikke personident for arbeidsgiver som er privatperson i PDL");
                 }
                 arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
             }

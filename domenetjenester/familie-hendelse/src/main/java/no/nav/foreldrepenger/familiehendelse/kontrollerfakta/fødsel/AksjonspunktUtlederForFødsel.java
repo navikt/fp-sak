@@ -51,8 +51,8 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         var familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
         // Sjekk om registrert eller allerede overstyrt fødsel. Deretter om frist utløpt
-        if (erFødselenRegistrertITps(familieHendelseGrunnlag) == JA) {
-            return samsvarerAntallBarnISøknadMedAntallBarnITps(familieHendelseGrunnlag) == NEI ?
+        if (erFødselenRegistrert(familieHendelseGrunnlag) == JA) {
+            return samsvarerAntallBarnISøknadMedAntallBarnIPDL(familieHendelseGrunnlag) == NEI ?
                 opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
         }
         if (finnesOverstyrtFødsel(familieHendelseGrunnlag) == JA) {
@@ -77,7 +77,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         return harArbeidsforholdMedArbeidstyperSomAngitt(param) ?  JA : NEI;
     }
 
-    Utfall samsvarerAntallBarnISøknadMedAntallBarnITps(FamilieHendelseGrunnlagEntitet grunnlag) {
+    Utfall samsvarerAntallBarnISøknadMedAntallBarnIPDL(FamilieHendelseGrunnlagEntitet grunnlag) {
         return grunnlag.getSøknadVersjon().getAntallBarn().equals(grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0)) ?
             JA : NEI;
     }
@@ -98,7 +98,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         return FamilieHendelseType.TERMIN.equals(grunnlag.getSøknadVersjon().getType()) || grunnlag.getSøknadVersjon().getBarna().isEmpty() ? NEI : JA;
     }
 
-    Utfall erFødselenRegistrertITps(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    Utfall erFødselenRegistrert(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         return familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty() ? NEI : JA;
     }
 

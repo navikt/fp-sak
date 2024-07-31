@@ -133,7 +133,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
             var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(
                 new PersonIdent(arbeidsgiverPrivat.get().getArbeidsgiverFnr()))
                 .orElseThrow(() -> new TekniskException("FP-159641",
-                    "Fant ikke personident for arbeidsgiver som er privatperson i TPS"));
+                    "Fant ikke personident for arbeidsgiver som er privatperson i PDL"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
         } else {
             throw new TekniskException("FP-183452", "Fant ikke informasjon om arbeidsgiver på inntektsmelding");

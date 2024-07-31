@@ -18,7 +18,7 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     @NotNull
     private Boolean dokumentasjonForeligger;
 
-    private boolean brukAntallBarnITps;
+    private boolean brukAntallBarnITps; //TDP = PDL
 
     @Valid
     @NotNull

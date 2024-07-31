@@ -101,12 +101,12 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     @Test
     void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         //Arrange
-        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ,1, 1);
+        var behandling = opprettBehandlingForFødselRegistrertIPDL(FØDSELSDATO_NÅ,1, 1);
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).isEmpty();
-        verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     @Test
@@ -123,12 +123,12 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     @Test
     void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         //Arrange
-        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ, 2, 1);
+        var behandling = opprettBehandlingForFødselRegistrertIPDL(FØDSELSDATO_NÅ, 2, 1);
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
-        verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     private Behandling opprettBehandlingMedOppgittTermin(LocalDate termindato, BehandlingType behandlingType) {
@@ -153,25 +153,25 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         return scenario.lagre(repositoryProvider);
     }
 
-    private Behandling opprettBehandlingForFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
+    private Behandling opprettBehandlingForFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
-        scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(fødseldato, antallBarnPDL).medAntallBarn(antallBarnPDL);
         return scenario.lagre(repositoryProvider);
     }
 
-    private Behandling opprettBehandlingForFødselOverstyrt(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
+    private Behandling opprettBehandlingForFødselOverstyrt(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato)
             .medAntallBarn(antallBarnSøknad);
-        scenario.medOverstyrtHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnTps);
+        scenario.medOverstyrtHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnPDL);
         return scenario.lagre(repositoryProvider);
     }
 

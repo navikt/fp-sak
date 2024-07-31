@@ -100,7 +100,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .map(FamilieHendelseEntitet::getAntallBarn)
             .orElse(0);
 
-        opprettetInnslagforFeltBrukAntallBarnITps(dto, behandlingReferanse);
+        opprettetInnslagforFeltBrukAntallBarnIPDL(dto, behandlingReferanse);
 
         historikkAdapter.tekstBuilder()
             .medOpplysning(HistorikkOpplysningType.ANTALL_BARN, gjeldendeAntallBarn)
@@ -170,7 +170,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return erEndretTemp;
     }
 
-    private void opprettetInnslagforFeltBrukAntallBarnITps(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
+    private void opprettetInnslagforFeltBrukAntallBarnIPDL(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
         if (dto.getDokumentasjonForeligger()) {
             var feltNavn = utledFeltNavn(dto, behandlingReferanse);
             historikkAdapter.tekstBuilder().medEndretFelt(feltNavn, null, true);

@@ -24,7 +24,7 @@ public class ArbeidsgiverTjeneste {
     private static final LRUCache<String, ArbeidsgiverOpplysninger> CACHE = new LRUCache<>(2500, CACHE_ELEMENT_LIVE_TIME_MS);
     private static final LRUCache<String, ArbeidsgiverOpplysninger> FAIL_BACKOFF_CACHE = new LRUCache<>(100, SHORT_CACHE_ELEMENT_LIVE_TIME_MS);
 
-    private PersonIdentTjeneste tpsTjeneste;
+    private PersonIdentTjeneste personIdentTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
 
     ArbeidsgiverTjeneste() {
@@ -32,8 +32,8 @@ public class ArbeidsgiverTjeneste {
     }
 
     @Inject
-    public ArbeidsgiverTjeneste(PersonIdentTjeneste tpsTjeneste, VirksomhetTjeneste virksomhetTjeneste) {
-        this.tpsTjeneste = tpsTjeneste;
+    public ArbeidsgiverTjeneste(PersonIdentTjeneste personIdentTjeneste, VirksomhetTjeneste virksomhetTjeneste) {
+        this.personIdentTjeneste = personIdentTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
@@ -61,7 +61,7 @@ public class ArbeidsgiverTjeneste {
             return new ArbeidsgiverOpplysninger(OrgNummer.KUNSTIG_ORG, "Kunstig(Lagt til av saksbehandling)");
         }
         if (arbeidsgiver.erAktørId()) {
-            var personinfo = hentInformasjonFraTps(arbeidsgiver);
+            var personinfo = hentInformasjonFraPDL(arbeidsgiver);
             if (personinfo.isPresent()) {
                 var info = personinfo.get();
                 var fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -71,7 +71,7 @@ public class ArbeidsgiverTjeneste {
                 return nyOpplysninger;
             }
             // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
-            // denne i en backoff cache som benyttes for at vi ikke skal hamre på tps ved
+            // denne i en backoff cache som benyttes for at vi ikke skal hamre på pdl ved
             // sikkerhetsbegrensning
             var opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
             FAIL_BACKOFF_CACHE.put(arbeidsgiver.getIdentifikator(), opplysninger);
@@ -85,9 +85,9 @@ public class ArbeidsgiverTjeneste {
                 .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
     }
 
-    private Optional<PersoninfoArbeidsgiver> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {
+    private Optional<PersoninfoArbeidsgiver> hentInformasjonFraPDL(Arbeidsgiver arbeidsgiver) {
         try {
-            return tpsTjeneste.hentBrukerForAktør(arbeidsgiver.getAktørId());
+            return personIdentTjeneste.hentBrukerForAktør(arbeidsgiver.getAktørId());
         } catch (VLException feil) {
             // Ønsker ikke å gi GUI problemer ved å eksponere exceptions
             return Optional.empty();

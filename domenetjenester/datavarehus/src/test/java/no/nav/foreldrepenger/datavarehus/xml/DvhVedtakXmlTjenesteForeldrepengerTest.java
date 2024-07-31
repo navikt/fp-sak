@@ -137,7 +137,7 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
     private EntityManager entityManager;
 
     @Mock
-    private PersoninfoAdapter tpsTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -179,7 +179,7 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
+        var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
 
         var dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles, familieHendelseRepository, vergeRepository,
             medlemskapRepository, virksomhetTjeneste, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste, foreldrepengerUttakTjeneste);

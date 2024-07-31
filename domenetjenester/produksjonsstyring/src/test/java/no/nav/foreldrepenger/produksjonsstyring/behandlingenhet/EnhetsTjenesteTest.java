@@ -63,7 +63,7 @@ class EnhetsTjenesteTest {
     @Test
     void finn_enhet_utvidet_normal_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(false, false, false);
+        settOppPDLStrukturer(false, false, false);
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
@@ -74,7 +74,7 @@ class EnhetsTjenesteTest {
     @Test
     void finn_enhet_utvidet_bruker_kode_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(true, false, false);
+        settOppPDLStrukturer(true, false, false);
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
@@ -96,7 +96,7 @@ class EnhetsTjenesteTest {
     @Test
     void finn_enhet_utvidet_barn_kode_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(false, true, false);
+        settOppPDLStrukturer(false, true, false);
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
@@ -109,7 +109,7 @@ class EnhetsTjenesteTest {
     @Test
     void finn_enhet_utvidet_ektefelle_kode_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(false, false, true);
+        settOppPDLStrukturer(false, false, true);
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
@@ -122,7 +122,7 @@ class EnhetsTjenesteTest {
     @Test
     void oppdater_enhet_annenpart_kode_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(false, false, true);
+        settOppPDLStrukturer(false, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
             MOR_AKTØR_ID, FAMILIE, Set.of());
@@ -149,7 +149,7 @@ class EnhetsTjenesteTest {
     @Test
     void presendens_enhet() {
         // Oppsett
-        settOppTpsStrukturer(false, false, false);
+        settOppPDLStrukturer(false, false, false);
 
         var enhet = EnhetsTjeneste.enhetsPresedens(enhetNormal, enhetKode6);
 
@@ -159,7 +159,7 @@ class EnhetsTjenesteTest {
     @Test
     void oppdater_enhet_mor_annenpart_kode_fordeling() {
         // Oppsett
-        settOppTpsStrukturer(true, false, true);
+        settOppPDLStrukturer(true, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, Set.of());
@@ -170,7 +170,7 @@ class EnhetsTjenesteTest {
     @Test
     void oppdater_etter_vent_barn_fått_kode6() {
         // Oppsett
-        settOppTpsStrukturer(false, true, false);
+        settOppPDLStrukturer(false, true, false);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, Set.of());
@@ -182,7 +182,7 @@ class EnhetsTjenesteTest {
     @Test
     void oppdater_etter_vent_far_fått_kode6() {
         // Oppsett
-        settOppTpsStrukturer(false, false, true);
+        settOppPDLStrukturer(false, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, Set.of());
@@ -203,7 +203,7 @@ class EnhetsTjenesteTest {
         assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetSkjermet));
     }
 
-    private void settOppTpsStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
+    private void settOppPDLStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
 
         lenient().when(personinfoAdapter.hentGeografiskTilknytning(any(), any())).thenReturn("0219");
 
