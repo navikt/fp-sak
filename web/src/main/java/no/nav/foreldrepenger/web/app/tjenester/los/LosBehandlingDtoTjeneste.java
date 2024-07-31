@@ -302,11 +302,11 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public List<String> lagFagsakEgenskaperString(Fagsak fagsak) {
-        return fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId())
+        return fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId()).stream()
             .filter(fm -> !FagsakMarkering.NASJONAL.equals(fm))
             .map(this::mapLokalMarkering)
             .map(FagsakEgenskap::name)
-            .map(List::of).orElseGet(List::of);
+            .toList();
     }
 
     private FagsakEgenskap mapLokalMarkering(FagsakMarkering markering) {

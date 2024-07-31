@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -101,24 +102,24 @@ public class EnhetsTjeneste {
         this.skjermetPersonKlient = skjermetPersonKlient;
     }
 
-    static OrganisasjonsEnhet velgEnhet(OrganisasjonsEnhet enhet, FagsakMarkering markering) {
+    static OrganisasjonsEnhet velgEnhet(OrganisasjonsEnhet enhet, Collection<FagsakMarkering> markering) {
         return enhet != null ? velgEnhet(enhet.enhetId(), markering) : null;
     }
 
-    static OrganisasjonsEnhet velgEnhet(String enhetId, FagsakMarkering markering) {
+    static OrganisasjonsEnhet velgEnhet(String enhetId, Collection<FagsakMarkering> markering) {
         if (enhetId == null) {
             return null;
         }
         if (SPESIALENHETER.contains(enhetId)) {
             return FLYTTE_MAP.get(enhetId);
         }
-        if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(markering)) {
+        if (markering.contains(FagsakMarkering.SAMMENSATT_KONTROLL)) {
             return KONTROLL_ENHET;
         }
-        if (FagsakMarkering.PRAKSIS_UTSETTELSE.equals(markering)) {
+        if (markering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return MIDLERTIDIG_ENHET;
         }
-        if (FagsakMarkering.BOSATT_UTLAND.equals(markering)) {
+        if (markering.contains(FagsakMarkering.BOSATT_UTLAND)) {
             return UTLAND_ENHET;
         }
         return Optional.ofNullable(FLYTTE_MAP.get(enhetId)).orElse(NASJONAL_ENHET);
@@ -142,7 +143,7 @@ public class EnhetsTjeneste {
     }
 
     Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, FagsakYtelseType ytelseType, AktørId hovedAktør,
-                                                                    Set<AktørId> alleAktører, FagsakMarkering saksmarkering) {
+                                                                    Set<AktørId> alleAktører, Collection<FagsakMarkering> saksmarkering) {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
@@ -153,13 +154,13 @@ public class EnhetsTjeneste {
             LOG.info("FPSAK enhettjeneste skjermet person funnet");
             return Optional.of(SKJERMET_ENHET);
         }
-        if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(saksmarkering)) {
+        if (saksmarkering.contains(FagsakMarkering.SAMMENSATT_KONTROLL)) {
             return !KONTROLL_ENHET.enhetId().equals(enhetId) ? Optional.of(KONTROLL_ENHET) : Optional.empty();
         }
-        if (FagsakMarkering.PRAKSIS_UTSETTELSE.equals(saksmarkering)) {
+        if (saksmarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return !MIDLERTIDIG_ENHET.enhetId().equals(enhetId) ? Optional.of(MIDLERTIDIG_ENHET) : Optional.empty();
         }
-        if (FagsakMarkering.BOSATT_UTLAND.equals(saksmarkering)) {
+        if (saksmarkering.contains(FagsakMarkering.BOSATT_UTLAND)) {
             return !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
         }
         if (FLYTTE_MAP.get(enhetId) == null) {

@@ -117,14 +117,15 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     }
 
     private void oppdaterFagsakEgenskaper(Behandling behandling) {
-        var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
-        if (eksisterende.filter(FagsakMarkering::erPrioritert).isPresent()) {
+        var eksisterendePrioritert = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()).stream()
+            .anyMatch(FagsakMarkering::erPrioritert);
+        if (eksisterendePrioritert) {
             return;
         }
         var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(bat -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(bat));
         if (dødsrelatert) {
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.DØD_DØDFØDSEL);
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(FagsakMarkering.DØD_DØDFØDSEL)); // TODO: ADD når multiple merker tillatt
         }
     }
 

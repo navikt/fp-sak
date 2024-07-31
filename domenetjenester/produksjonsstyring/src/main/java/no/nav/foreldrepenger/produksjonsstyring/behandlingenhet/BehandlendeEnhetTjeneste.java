@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -114,12 +115,12 @@ public class BehandlendeEnhetTjeneste {
         return enhet.equals(enhetFraKobling) ? Optional.empty() : Optional.of(enhetFraKobling);
     }
 
-    private FagsakMarkering finnSaksmerking(Fagsak fagsak) {
+    private Collection<FagsakMarkering> finnSaksmerking(Fagsak fagsak) {
         return finnSaksmerking(fagsak.getId());
     }
 
-    private FagsakMarkering finnSaksmerking(Long fagsakId) {
-        return fagsakEgenskapRepository.finnFagsakMarkering(fagsakId).orElse(null);
+    private Collection<FagsakMarkering> finnSaksmerking(Long fagsakId) {
+        return fagsakEgenskapRepository.finnFagsakMarkeringer(fagsakId);
     }
 
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Behandling behandling, OrganisasjonsEnhet enhet) {
@@ -185,7 +186,7 @@ public class BehandlendeEnhetTjeneste {
         return sjekkSkalOppdatereEnhet(behandling, merking);
     }
 
-    public static Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, FagsakMarkering merking) {
+    public static Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, Collection<FagsakMarkering> merking) {
         var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
         return Optional.ofNullable(enhet)
             .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));

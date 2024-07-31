@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -162,7 +163,7 @@ public class StønadsstatistikkTjeneste {
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
         var stp = behandlingReferanse.getSkjæringstidspunkt();
         var forrigeBehandlingUuid = behandling.getOriginalBehandlingId().map(id -> behandlingRepository.hentBehandling(id)).map(Behandling::getUuid);
-        var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
+        var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId());
         var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
         var vedtakstidspunkt = vedtak.getVedtakstidspunkt().isBefore(VEDTAK_MED_TIDSPUNKT) ? vedtak.getOpprettetTidspunkt() : vedtak.getVedtakstidspunkt();
@@ -354,12 +355,14 @@ public class StønadsstatistikkTjeneste {
         return annenpartIntervall.filter(i -> i.overlaps(egetIntervall)).isPresent();
     }
 
-    private static UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
-        return switch (fagsakMarkering) {
-            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING, PRAKSIS_UTSETTELSE -> UtlandsTilsnitt.NASJONAL;
-            case EØS_BOSATT_NORGE -> UtlandsTilsnitt.EØS_BOSATT_NORGE;
-            case BOSATT_UTLAND -> UtlandsTilsnitt.BOSATT_UTLAND;
-        };
+    private static UtlandsTilsnitt utledUtlandsTilsnitt(Collection<FagsakMarkering> fagsakMarkering) {
+        if (fagsakMarkering.contains(FagsakMarkering.EØS_BOSATT_NORGE)) {
+            return UtlandsTilsnitt.EØS_BOSATT_NORGE;
+        } else if (fagsakMarkering.contains(FagsakMarkering.BOSATT_UTLAND)) {
+            return UtlandsTilsnitt.BOSATT_UTLAND;
+        } else {
+            return UtlandsTilsnitt.NASJONAL;
+        }
     }
 
     private static VilkårIkkeOppfylt utledVilkårIkkeOppfylt(BehandlingVedtak vedtak, Behandling behandling) {
@@ -510,12 +513,12 @@ public class StønadsstatistikkTjeneste {
         return new StønadsstatistikkVedtak.Saksnummer(saksnummer.getVerdi());
     }
 
-    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, FagsakMarkering fagsakMarkering) {
+    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling, Collection<FagsakMarkering> fagsakMarkering) {
         if (!behandling.erRevurdering()) {
             return null;
         }
         // MIdlertidig
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || FagsakMarkering.PRAKSIS_UTSETTELSE.equals(fagsakMarkering)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

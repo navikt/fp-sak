@@ -36,7 +36,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
     @Override
     public OppdateringResultat oppdater(MerkOpptjeningUtlandDto dto, AksjonspunktOppdaterParameter param) {
         var eksisterende = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(param.getRef().fagsakId()).orElse(null);
-        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(param.getRef().fagsakId(), dto.getDokStatus());
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(param.getRef().fagsakId(), dto.getDokStatus());
         if (!Objects.equals(eksisterende, dto.getDokStatus())) {
             historikkTjenesteAdapter.tekstBuilder()
                 .medEndretFelt(HistorikkEndretFeltType.INNHENT_SED, fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus()))

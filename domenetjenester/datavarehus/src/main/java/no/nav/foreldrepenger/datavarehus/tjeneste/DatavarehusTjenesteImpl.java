@@ -57,7 +57,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -132,7 +131,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             .filter(md -> md.getJournalpostId() != null && erRelevantDoument(behandling, md))
             .toList();
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
+        var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId());
         var forventetOppstart = forventetOppstartDato(behandling, skjæringstidspunkt.orElse(null));
         var ytelseMedUtbetalingFra = vedtak.map(v -> finnUtbetaltDato(behandling, v));
         var vilkårSomIkkeErOppfylt = vedtak.map(BehandlingVedtak::getBehandlingsresultat)

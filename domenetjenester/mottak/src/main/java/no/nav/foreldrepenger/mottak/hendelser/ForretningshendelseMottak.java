@@ -180,9 +180,9 @@ public class ForretningshendelseMottak {
 
     private void merkUtlandsSakerFlyttBehandlinger(List<Fagsak> saker, ProsessTaskGruppe taskGruppe) {
         var oppdaterEgenskap = saker.stream()
-            .filter(f -> !FagsakMarkering.erPrioritert(fagsakEgenskapRepository.finnFagsakMarkering(f.getId()).orElse(FagsakMarkering.NASJONAL)))
+            .filter(this::erIkkeMerketPrioritert)
             .toList();
-        oppdaterEgenskap.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f.getId(), FagsakMarkering.BOSATT_UTLAND));
+        oppdaterEgenskap.forEach(f -> fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(f.getId(), List.of(FagsakMarkering.BOSATT_UTLAND))); // TODO: ADD når multiple merker tillatt
         var åpneBehandlingerFlyttes = oppdaterEgenskap.stream()
             .map(f -> behandlingRepository.hentÅpneBehandlingerForFagsakId(f.getId()))
             .flatMap(Collection::stream)
@@ -192,6 +192,11 @@ public class ForretningshendelseMottak {
         åpneBehandlingerFlyttes.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
         // Oppdater LOS-oppgaver (blir nødvendig ved sentralisering av spesialenheter)
         //fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).stream().map(this::opprettLosProsessTask).forEach(taskGruppe::addNesteSekvensiell);
+    }
+
+    private boolean erIkkeMerketPrioritert(Fagsak f) {
+        var markeringer = fagsakEgenskapRepository.finnFagsakMarkeringer(f.getId());
+        return markeringer.isEmpty() || markeringer.stream().noneMatch(FagsakMarkering::erPrioritert);
     }
 
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {

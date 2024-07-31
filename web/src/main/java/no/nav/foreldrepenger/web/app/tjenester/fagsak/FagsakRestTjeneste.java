@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -221,17 +220,18 @@ public class FagsakRestTjeneste {
                                           @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
-            var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
+            var eksisterende = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
+            var markeringerFraDto = getMarkeringer(endreUtland);
             // Sjekk om uendret merking (nasjonal er default)
-            if (Objects.equals(eksisterende, getEnkeltMarkering(endreUtland))) {
+            if (eksisterende.size() == markeringerFraDto.size() && markeringerFraDto.containsAll(eksisterende)) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), getEnkeltMarkering(endreUtland));
-            lagHistorikkInnslag(fagsak, eksisterende, getEnkeltMarkering(endreUtland));
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), getMarkeringer(endreUtland));
+            lagHistorikkInnslag(fagsak, eksisterende, getMarkeringer(endreUtland));
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, getEnkeltMarkering(endreUtland)).isPresent())
+                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, getMarkeringer(endreUtland)).isPresent())
                 .toList();
             behandlingerSomBytterEnhet.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
             // Oppdater LOS-oppgaver for andre tilfelle av endre saksmerking
@@ -251,12 +251,6 @@ public class FagsakRestTjeneste {
     private static Set<FagsakMarkering> getMarkeringer(EndreUtlandMarkeringDto dto) {
         return Optional.ofNullable(dto.fagsakMarkeringer()).filter(l -> !l.isEmpty() || dto.fagsakMarkering() == null)
             .orElseGet(() -> Set.of(dto.fagsakMarkering()));
-    }
-
-    private static FagsakMarkering getEnkeltMarkering(EndreUtlandMarkeringDto dto) {
-        return Optional.ofNullable(dto.fagsakMarkeringer()).flatMap(l -> l.stream().findFirst())
-            .or(() -> Optional.ofNullable(dto.fagsakMarkering()))
-            .orElseThrow(() -> new IllegalArgumentException("Ingen markering angitt"));
     }
 
     private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
@@ -292,9 +286,9 @@ public class FagsakRestTjeneste {
         }
     }
 
-    private void lagHistorikkInnslag(Fagsak fagsak, FagsakMarkering eksisterende, FagsakMarkering ny) {
-        var fraVerdi = HistorikkEndretFeltVerdiType.valueOf(eksisterende.name());
-        var tilVerdi = HistorikkEndretFeltVerdiType.valueOf(ny.name());
+    private void lagHistorikkInnslag(Fagsak fagsak, Collection<FagsakMarkering> eksisterende, Collection<FagsakMarkering> ny) {
+        var fraVerdi = eksisterende.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
+        var tilVerdi = ny.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
 
         var historikkinnslag = new Historikkinnslag.Builder()
             .medFagsakId(fagsak.getId())

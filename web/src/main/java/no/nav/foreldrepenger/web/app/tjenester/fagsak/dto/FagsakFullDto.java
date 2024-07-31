@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
+import java.util.Collection;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -25,7 +26,6 @@ public record FagsakFullDto(String saksnummer,
                             PersonDto annenPart,
                             AnnenPartBehandlingDto annenpartBehandling,
                             SakHendelseDto familiehendelse,
-                            FagsakMarkering utlandMarkering,
                             FagsakMarkering fagsakMarkering,
                             List<FagsakMarkeringDto> fagsakMarkeringer,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
@@ -39,15 +39,15 @@ public record FagsakFullDto(String saksnummer,
                          PersonDto annenPart,
                          AnnenPartBehandlingDto annenpartBehandling,
                          SakHendelseDto familiehendelse,
-                         FagsakMarkering fagsakMarkering,
+                         Collection<FagsakMarkering> fagsakMarkeringer,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                          List<FagsakBehandlingDto> behandlinger,
                          List<HistorikkinnslagDto> historikkinnslag,
                          List<FagsakNotatDto> notater, KontrollresultatDto kontrollResultat) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
-            familiehendelse, fagsakMarkering, fagsakMarkering,
-            fagsakMarkering != null ? List.of(new FagsakMarkeringDto(fagsakMarkering, fagsakMarkering.getKortNavn())) : List.of(),
+            familiehendelse, fagsakMarkeringer.stream().findFirst().orElse(FagsakMarkering.NASJONAL),
+            fagsakMarkeringer.stream().map(fm -> new FagsakMarkeringDto(fm, fm.getKortNavn())).toList(),
             behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);
     }
 }

@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -72,7 +71,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.of(grunnlag), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.of(grunnlag), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL.getKode());
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
@@ -88,7 +87,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getAnsvarligBeslutter()).isEqualTo(ANSVARLIG_BESLUTTER);
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
@@ -127,13 +126,13 @@ class BehandlingDvhMapperTest {
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattDokument, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp), List.of(), Optional.empty());
         assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(stp);
 
         var behandlingsresultat2 = repositoryProvider.getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh2 = BehandlingDvhMapper.map(behandling, behandlingsresultat2, mottattDokument, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp.plusDays(1)), FagsakMarkering.NASJONAL, Optional.of(stp));
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp.plusDays(1)), List.of(), Optional.of(stp));
         assertThat(dvh2.getFoersteStoenadsdag()).isEqualTo(stp.plusDays(1));
         assertThat(dvh2.getForventetOppstartTid()).isEqualTo(stp);
 
@@ -149,7 +148,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -165,7 +164,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getBehandlingStatus()).isEqualTo(VenteGruppe.VenteKategori.VENT_TIDLIG.name());
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
@@ -182,7 +181,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -197,7 +196,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -212,7 +211,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -227,7 +226,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -242,7 +241,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
@@ -265,7 +264,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(klageBehandling.getId());
         var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattDokument, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), List.of(),
             Optional.empty());
 
         assertThat(dvh.getRelatertBehandling()).as(
@@ -290,7 +289,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(klageBehandling.getId());
         var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), List.of(),
             Optional.empty());
 
         assertThat(dvh.getRelatertBehandling()).as(
@@ -316,7 +315,7 @@ class BehandlingDvhMapperTest {
         behandlingVedtak.setId(VEDTAK_ID);
 
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt,
-            Optional.of(behandlingVedtak), Optional.of(LocalDate.now()), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.of(behandlingVedtak), Optional.of(LocalDate.now()), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(),
             Optional.empty());
 
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
