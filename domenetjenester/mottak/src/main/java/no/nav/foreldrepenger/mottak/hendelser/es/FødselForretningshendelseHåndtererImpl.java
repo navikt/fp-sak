@@ -25,20 +25,20 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private Period tpsRegistreringsTidsrom;
+    private Period pdlRegistreringsTidsrom;
     private LegacyESBeregningRepository legacyESBeregningRepository;
 
 
     /**
-     * @param tpsRegistreringsTidsrom - Periode før termin hvor dødfødsel kan være registrert i TPS
+     * @param pdlRegistreringsTidsrom - Periode før termin hvor dødfødsel kan være registrert i PDL
      */
     @Inject
     public FødselForretningshendelseHåndtererImpl(ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles,
-                                                  @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period tpsRegistreringsTidsrom,
+                                                  @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period pdlRegistreringsTidsrom,
                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                   LegacyESBeregningRepository legacyESBeregningRepository) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
-        this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
+        this.pdlRegistreringsTidsrom = pdlRegistreringsTidsrom;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.legacyESBeregningRepository = legacyESBeregningRepository;
     }
@@ -61,6 +61,6 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
         var idag = LocalDate.now().minusDays(1);
         // Gjelder terminsøknader pluss intervall. Øvrige tilfelle fanges opp i etterkontroll.
-        return idag.isBefore(stp.plus(tpsRegistreringsTidsrom)) && legacyESBeregningRepository.skalReberegne(behandling.getId(), idag);
+        return idag.isBefore(stp.plus(pdlRegistreringsTidsrom)) && legacyESBeregningRepository.skalReberegne(behandling.getId(), idag);
     }
 }

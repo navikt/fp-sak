@@ -117,7 +117,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_opprette_aksjonspunkt_om_søkers_barn_fra_tps_er_født_i_utlandet() {
+    void skal_opprette_aksjonspunkt_om_søkers_barn_fra_pdl_er_født_i_utlandet() {
         //Arrange
         var fødselsdato = LocalDate.now().minusDays(5L);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

@@ -53,7 +53,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og TPS-relaterte personer (barn, ekte). Bør spisses der det er behov.
+    // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og PDL-relaterte personer (barn, ekte). Bør spisses der det er behov.
     private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref,
                                                                          PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
         var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
@@ -101,7 +101,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, endretPåSTP, "region");
         }
         if (barnBorteEndringIdentifiserer.erEndret(ref)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "barn fjernet fra TPS", grunnlag1.getId(), grunnlag2.getId());
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "barn fjernet fra PDL", grunnlag1.getId(), grunnlag2.getId());
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         }
         if(poDiff.erRelasjonerEndret()) {

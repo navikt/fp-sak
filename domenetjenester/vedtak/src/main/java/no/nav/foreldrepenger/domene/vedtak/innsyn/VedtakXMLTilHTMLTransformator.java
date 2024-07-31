@@ -41,7 +41,7 @@ import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
 
 public class VedtakXMLTilHTMLTransformator {
 
-    private static final String TPS = "Folkeregisteret.";
+    private static final String PDL = "Folkeregisteret.";
     private static final String INNTEKTSKOMPONENTEN = "a-ordningen.";
     private static final String SIGRUN = "Sigrun.";
     private static final String MEDL2 = "Medlemsskapsregisteret.";
@@ -139,7 +139,7 @@ public class VedtakXMLTilHTMLTransformator {
         var vedtak = (Vedtak) JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, vedtakXml,
             dokumentParserKonfig.xsdLocation, dokumentParserKonfig.additionalXsd,
             dokumentParserKonfig.additionalClasses);
-        kilder.add(TPS); // en behandling vil alltid innhente opplysninger fra TPS
+        kilder.add(PDL); // en behandling vil alltid innhente opplysninger fra PDL
         var personopplysninger = vedtak.getPersonOpplysninger();
         personopplysninger.getAny().forEach(ob -> håndterPersonopplysninger(ob, kilder, vedtak));
 

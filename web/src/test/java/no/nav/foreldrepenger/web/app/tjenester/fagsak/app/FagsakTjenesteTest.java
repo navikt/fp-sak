@@ -120,7 +120,7 @@ class FagsakTjenesteTest {
     }
 
     @Test
-    void skal_returnere_tomt_view_når_fagsakens_bruker_er_ukjent_for_tps() {
+    void skal_returnere_tomt_view_når_fagsakens_bruker_er_ukjent_for_pdl() {
         // Arrange
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();

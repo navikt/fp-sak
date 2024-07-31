@@ -69,7 +69,7 @@ class VarselRevurderingStegImplTest {
     }
 
     @Test
-    void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
+    void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnIPDL() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
         behandling.setId(behandlingId);
 

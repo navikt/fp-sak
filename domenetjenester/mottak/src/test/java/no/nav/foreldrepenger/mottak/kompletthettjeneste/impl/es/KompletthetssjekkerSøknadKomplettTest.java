@@ -80,29 +80,29 @@ class KompletthetssjekkerSøknadKomplettTest {
     }
 
     @Test
-    void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_barn_finnes_i_tps_og_mangler_ikke_vedlegg() {
+    void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_barn_finnes_i_pdl_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), true);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    void elektronisk_reg_søknad_skal_behandles_som_være_komplett_ved_fødsel_og_barn_finnes_ikke_i_tps_og_mangler_ikke_vedlegg() {
+    void elektronisk_reg_søknad_skal_behandles_som_være_komplett_ved_fødsel_og_barn_finnes_ikke_i_pdl_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), false);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     private Behandling lagMocketBehandling(boolean elektroniskRegistrert, boolean gjelderFødsel, boolean manglerVedlegg,
-                                           LocalDate fødselsdatoBarn, boolean bekreftetViaTps) {
+                                           LocalDate fødselsdatoBarn, boolean bekreftetViaPDL) {
 
         var scenario = lagScenario(gjelderFødsel, elektroniskRegistrert);
-        leggVedRegisteropplysninger(fødselsdatoBarn, bekreftetViaTps, scenario);
+        leggVedRegisteropplysninger(fødselsdatoBarn, bekreftetViaPDL, scenario);
 
         return lagBehandling(manglerVedlegg, scenario);
     }
 
-    private void leggVedRegisteropplysninger(LocalDate fødselsdatoBarn, boolean bekreftetViaTps, AbstractTestScenario<?> scenario) {
+    private void leggVedRegisteropplysninger(LocalDate fødselsdatoBarn, boolean bekreftetViaPDL, AbstractTestScenario<?> scenario) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
         var barnAktørId = AktørId.dummy();
@@ -114,7 +114,7 @@ class KompletthetssjekkerSøknadKomplettTest {
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, false)
             .build();
 
-        if (bekreftetViaTps) {
+        if (bekreftetViaPDL) {
             scenario.medRegisterOpplysninger(fødtBarn);
         }
 

@@ -1,6 +1,6 @@
 # Person-tjeneste
 
-Modulen er Vedtaksløsningens proxy mot TPS. TPS er NAV sin versjon av folkeregisteret, og gir informasjon om personer, relasjoner og blant annet adresse og geografisk tilhørighet.
+Modulen er Vedtaksløsningens proxy mot PDL. PDL er NAV sin versjon av folkeregisteret, og gir informasjon om personer, relasjoner og blant annet adresse og geografisk tilhørighet.
 
 For uthenting så brukes en aktørId istedet for fødselsnummer, men aktørId kan hentes ved bruk av fødselsnummer.
 
@@ -14,5 +14,5 @@ Modulen brukes av Vedtaksløsningen (automatisert behandling og saksbehandlers a
 
 ## Integrasjoner
 
-* Tjenestebasert PersondataSystem (TPS)
+* Tjenestebasert PersondataSystem (PDL)
 * Vedtaksløsningen

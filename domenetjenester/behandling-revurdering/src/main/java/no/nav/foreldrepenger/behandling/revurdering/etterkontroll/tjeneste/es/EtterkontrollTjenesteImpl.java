@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
-    private Period tpsRegistreringsTidsrom;
+    private Period pdlRegistreringsTidsrom;
     private RevurderingTjeneste revurderingTjeneste;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -44,8 +44,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             LegacyESBeregningRepository esBeregningRepository,
             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
-            @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
-        this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
+            @KonfigVerdi(value = "etterkontroll.pdlregistrering.periode", defaultVerdi = "P11W") Period pdlRegistreringsTidsrom) {
+        this.pdlRegistreringsTidsrom = pdlRegistreringsTidsrom;
         this.behandlingVedtakRepository = vedtakRepository;
         this.revurderingTjeneste = revurderingTjeneste;
         this.esBeregningRepository = esBeregningRepository;
@@ -89,10 +89,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
         var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
         if (termindato.isPresent()) {
-            var tidligsteTpsRegistreringsDato = termindato.get().minus(tpsRegistreringsTidsrom);
+            var tidligstePDLRegistreringsDato = termindato.get().minus(pdlRegistreringsTidsrom);
             var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
             var vedtaksDato = vedtak.getVedtaksdato();
-            if (vedtaksDato.isBefore(tidligsteTpsRegistreringsDato)) {
+            if (vedtaksDato.isBefore(tidligstePDLRegistreringsDato)) {
                 return Optional.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
             }
         }

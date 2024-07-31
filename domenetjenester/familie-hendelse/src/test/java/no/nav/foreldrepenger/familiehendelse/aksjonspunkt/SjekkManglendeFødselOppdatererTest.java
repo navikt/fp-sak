@@ -115,10 +115,10 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     void skal_generere_historikkinnslag_ved_avklaring_av_antall_barn() {
         // Arrange
         var antallBarnOpprinnelig = 2;
-        var antallBarnTpsGjelderBekreftet = false;
+        var antallBarnPDLGjelderBekreftet = false;
 
-        var fødselsdatoFraTps = LocalDate.now().minusDays(1);
-        var fødselsDatoFraSøknad = fødselsdatoFraTps.minusDays(10);
+        var fødselsdatoFraPDL = LocalDate.now().minusDays(1);
+        var fødselsDatoFraSøknad = fødselsdatoFraPDL.minusDays(10);
 
         // Behandling
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -127,9 +127,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .medAntallBarn(antallBarnOpprinnelig);
         scenario.medBekreftetHendelse()
             .tilbakestillBarn()
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
+            .leggTilBarn(fødselsdatoFraPDL)
+            .leggTilBarn(fødselsdatoFraPDL)
+            .leggTilBarn(fødselsdatoFraPDL)
             .medAntallBarn(3);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagre(repositoryProvider);
@@ -138,7 +138,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Dto
         var dto = new SjekkManglendeFodselDto("begrunnelse",
-            true, antallBarnTpsGjelderBekreftet, List.of(uidentifiserteBarn));
+            true, antallBarnPDLGjelderBekreftet, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
 
@@ -379,9 +379,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_oppdatere_antall_barn_basert_på_tps_dersom_flagg_satt() {
+    void skal_oppdatere_antall_barn_basert_på_pdl_dersom_flagg_satt() {
         // Arrange
-        var fødselsdatoFraTps = now.minusDays(1);
+        var fødselsdatoFraPDL = now.minusDays(1);
 
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -393,9 +393,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         scenario.medBekreftetHendelse()
             .tilbakestillBarn()
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
+            .leggTilBarn(fødselsdatoFraPDL)
+            .leggTilBarn(fødselsdatoFraPDL)
+            .leggTilBarn(fødselsdatoFraPDL)
             .medAntallBarn(3);
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
@@ -412,7 +412,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         assertThat(hendelse.getAntallBarn()).isEqualTo(3);
         var fodselsdatoOpt = hendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
         assertThat(fodselsdatoOpt).as("fodselsdatoOpt")
-            .hasValueSatisfying(fodselsdato -> assertThat(fodselsdato).as("fodselsdato").isEqualTo(fødselsdatoFraTps));
+            .hasValueSatisfying(fodselsdato -> assertThat(fodselsdato).as("fodselsdato").isEqualTo(fødselsdatoFraPDL));
     }
 
     @Test

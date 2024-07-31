@@ -109,11 +109,11 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste,
             ytelsesFordelingRepository));
 
-        var behandling = opprettBehandlingForFødselRegistrertITps(LocalDate.now(), 1, 1);
+        var behandling = opprettBehandlingForFødselRegistrertIPDL(LocalDate.now(), 1, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).isEmpty();
-        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     @Test
@@ -124,11 +124,11 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste,
             ytelsesFordelingRepository));
 
-        var behandling = opprettBehandlingForFødselRegistrertITps(LocalDate.now(), 2, 1);
+        var behandling = opprettBehandlingForFødselRegistrertIPDL(LocalDate.now(), 2, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
-        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     @Test
@@ -185,13 +185,13 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
         verify(apUtleder).erSøkerRegistrertArbeidstakerMedLøpendeArbeidsforholdIAARegisteret(param);
     }
 
-    private Behandling opprettBehandlingForFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
+    private Behandling opprettBehandlingForFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {
         var scenario = ScenarioMorSøkerForeldrepenger
             .forFødsel();
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
-        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnPDL).medAntallBarn(antallBarnPDL);
         return scenario.lagre(repositoryProvider);
     }
 
