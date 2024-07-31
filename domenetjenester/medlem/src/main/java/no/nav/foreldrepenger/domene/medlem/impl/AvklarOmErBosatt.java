@@ -60,7 +60,7 @@ public class AvklarOmErBosatt {
         if (harBrukerTilknytningHjemland(ref) == NEI) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
-        if (harBrukerUtenlandskPostadresseITps(ref, personopplysninger) == NEI) {
+        if (harBrukerUtenlandskPostadresse(ref, personopplysninger) == NEI) {
             return Optional.empty();
         }
         if (erFrivilligMedlemEllerIkkeMedlem(ref, vurderingsdato) == NEI) {
@@ -108,7 +108,7 @@ public class AvklarOmErBosatt {
         return new LocalDateSegment<>(fom, tom, true);
     }
 
-    private Utfall harBrukerUtenlandskPostadresseITps(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
+    private Utfall harBrukerUtenlandskPostadresse(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
         if (personopplysninger.getAdresserFor(ref.aktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
             !Landkoder.erNorge(adresse.getLand()))) {
             return JA;

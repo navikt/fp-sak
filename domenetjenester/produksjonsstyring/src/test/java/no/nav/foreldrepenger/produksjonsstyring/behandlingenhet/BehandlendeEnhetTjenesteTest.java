@@ -79,9 +79,9 @@ class BehandlendeEnhetTjenesteTest {
         lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(ENHET_NORMAL);
         lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
 
-        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertPDL(LocalDate.now(),1,  FAR_AKTØR_ID);
         behandlingMor.setBehandlendeEnhet(ENHET_NORMAL);
-        var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, MOR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate.now(), 1, MOR_AKTØR_ID);
         behandlingFar.setBehandlendeEnhet(ENHET_KODE_6);
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak());
@@ -113,7 +113,7 @@ class BehandlendeEnhetTjenesteTest {
         return behandling;
     }
 
-    private Behandling opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
+    private Behandling opprettBehandlingMorSøkerFødselRegistrertPDL(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
         scenario.medSøknadHendelse()
@@ -129,7 +129,7 @@ class BehandlendeEnhetTjenesteTest {
     }
 
 
-    private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, AktørId annenPart) {
+    private Behandling opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, AktørId annenPart) {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         scenario.medSøknadHendelse()

@@ -257,7 +257,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = JA
      * <p>
      * Forventet: oppfylt
@@ -283,7 +283,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = JA - bruker har avklart
      * oppholdsrett (FP VK 2.12) = JA
      * <p>
@@ -310,7 +310,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = JA - bruker har avklart
      * oppholdsrett (FP VK 2.12) = NEI
      * <p>
@@ -338,7 +338,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
      * lovlig opphold (FP VK 2.12) = NEI
      * <p>
@@ -367,7 +367,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
      * lovlig opphold (FP VK 2.12) = NEI
      * <p>
@@ -396,7 +396,7 @@ class MedlemskapsvilkårTest {
      * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
      * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
-     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i PDL
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
      * lovlig opphold (FP VK 2.12) = JA
      * <p>

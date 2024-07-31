@@ -138,11 +138,11 @@ public class FamilieHendelseTjeneste {
         return hendelse1.getGjelderFødsel() && hendelse2.getGjelderAdopsjon() || hendelse1.getGjelderAdopsjon() && hendelse2.getGjelderFødsel();
     }
 
-    public void oppdaterFødselPåGrunnlag(Long behandlingId, List<FødtBarnInfo> bekreftetTps) {
+    public void oppdaterFødselPåGrunnlag(Long behandlingId, List<FødtBarnInfo> bekreftetPdl) {
         var tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandlingId).orElse(null);
         var gjeldendeTermin = hentGjeldendeTerminbekreftelse(behandlingId); // Kun overstyrt/bekreftet
 
-        if (bekreftetTps.isEmpty()) {
+        if (bekreftetPdl.isEmpty()) {
             if (tidligereRegistrertFødselsdato != null) {
                 LOG.info("Ungt Barn Forsvunnet fra Register for sak, behandling {}", behandlingId);
             }
@@ -151,8 +151,8 @@ public class FamilieHendelseTjeneste {
 
         var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandlingId, true).tilbakestillBarn();
 
-        bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
-        hendelseBuilder.medAntallBarn(bekreftetTps.size());
+        bekreftetPdl.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
+        hendelseBuilder.medAntallBarn(bekreftetPdl.size());
         // Bruker gjeldende bekreftet termindato fra forrige behandling - ellers brukes den fra søknad implisitt
         gjeldendeTermin.ifPresent(t -> {
             var tBuilder = hendelseBuilder.getTerminbekreftelseBuilder()

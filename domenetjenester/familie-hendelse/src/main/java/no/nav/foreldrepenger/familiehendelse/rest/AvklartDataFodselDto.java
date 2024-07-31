@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AvklartDataFodselDto extends FamiliehendelseDto {
     private List<AvklartBarnDto> avklartBarn;
-    private Boolean brukAntallBarnFraTps;
+    private Boolean brukAntallBarnFraTps; //TPS = PDL
     private Boolean erOverstyrt;
     private LocalDate termindato;
     private Integer antallBarnTermin;

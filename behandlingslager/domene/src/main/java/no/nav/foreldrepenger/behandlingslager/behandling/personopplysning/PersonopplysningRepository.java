@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
  * Personopplysning graf har en rot, representert ved Søkers Personopplysning innslag. Andre innslag kan være Barn eller
  * Partner.
  * <p>
- * Hent opp og lagre innhentende Personopplysning data, fra søknad, register (TPS) eller som avklart av Saksbehandler.
+ * Hent opp og lagre innhentende Personopplysning data, fra søknad, register (PDL) eller som avklart av Saksbehandler.
  * Ved hver endring kopieres Personopplysning grafen (inklusiv Familierelasjon) som et felles
  * Aggregat (ref. Domain Driven Design - Aggregat pattern)
  * <p>

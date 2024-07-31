@@ -36,7 +36,7 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
 
     @Test
     void utland_markering_dersom_oppgitt_mor_stønad_eøs() {
-        // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i TPS
+        // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i PDL
         var fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);

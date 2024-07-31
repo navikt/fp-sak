@@ -61,11 +61,11 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             ytelsesFordelingRepository));
 
-        var behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, 1);
+        var behandling = opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate.now(), 1, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).isEmpty();
-        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling, LocalDate stp) {
@@ -84,11 +84,11 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             ytelsesFordelingRepository));
 
-        var behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 2, 1);
+        var behandling = opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate.now(), 2, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
-        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
+        verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     @Test
@@ -174,14 +174,14 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
     }
 
-    private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
+    private Behandling opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {
         var scenario = ScenarioFarSøkerForeldrepenger
             .forFødsel();
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
-        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnPDL).medAntallBarn(antallBarnPDL);
         return scenario.lagre(repositoryProvider);
     }
 

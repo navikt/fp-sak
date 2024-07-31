@@ -38,7 +38,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
-        // TPS/IdentRepository// for å vises i GUI.
+        // PDL/IdentRepository// for å vises i GUI.
         if (dto.getAktoerId() != null) {
             dto.setFnr(findFnr(dto.getAktoerId(), piDiskresjonFinder));
             dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
@@ -50,7 +50,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
-        // TPS/IdentRepository// for å vises i GUI.
+        // PDL/IdentRepository// for å vises i GUI.
         var alle = new ArrayList<>(List.of(dto.getBruker()));
         Optional.ofNullable(dto.getAnnenPart()).ifPresent(alle::add);
         alle.addAll(dto.getBarn());

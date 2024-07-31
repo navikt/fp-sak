@@ -88,7 +88,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
 
         if (!barnRelasjoner.isEmpty()) {
             // TODO TFP-5036 allMatch er litt skummel - bør sjekke kun for perioder som er aktuelle i behandlingen
-            // Utleder fra adresse pga avvik i TPS sin FR . harSammeBosted ifm overgang fra DSF til FREG
+            // Utleder fra adresse pga avvik i PDL sin FR . harSammeBosted ifm overgang fra DSF til FREG
             if (barnRelasjoner.stream().allMatch(PersonRelasjonEntitet::getHarSammeBosted)) {
                 return true;
             }

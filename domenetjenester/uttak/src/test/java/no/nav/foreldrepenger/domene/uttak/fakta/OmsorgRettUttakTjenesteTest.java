@@ -76,7 +76,7 @@ class OmsorgRettUttakTjenesteTest {
     }
 
     @Test
-    void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
+    void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_pdl() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);

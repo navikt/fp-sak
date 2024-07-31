@@ -58,7 +58,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         var vergeBuilder = new VergeEntitet.Builder()
             .gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom())
             .medVergeType(dto.getVergeType());
-        // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
+        // Verge må enten være oppgitt med fnr (hent ut fra PDL), eller orgnr
         var fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
         if (fnr != null) {
             var vergeAktørId = personinfoAdapter.hentAktørForFnr(fnr).orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
@@ -66,7 +66,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         } else if (dto.getOrganisasjonsnummer() != null) {
             vergeBuilder.medVergeOrganisasjon(opprettVergeOrganisasjon(dto));
         } else {
-            throw new IntegrasjonException("FP-905999", "Verge med fnr ikke funnet i TPS, og organisasjonsnummer er heller ikke oppgitt.");
+            throw new IntegrasjonException("FP-905999", "Verge med fnr ikke funnet i PDL, og organisasjonsnummer er heller ikke oppgitt.");
         }
 
         vergeRepository.lagreOgFlush(behandlingId, vergeBuilder);

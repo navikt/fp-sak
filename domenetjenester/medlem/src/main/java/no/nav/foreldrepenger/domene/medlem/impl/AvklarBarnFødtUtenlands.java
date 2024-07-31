@@ -35,7 +35,7 @@ public class AvklarBarnFødtUtenlands {
         if (!(erSøktPåBakgrunnAvFødselsdato(behandlingId) == JA || erFødselBekreftet(bekreftetFH) == JA)) {
             return Optional.empty();
         }
-        if (erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(bekreftetFH, behandlingId) == JA
+        if (erFødselsdatoInnenforEnOppgittUtlandsperiode(bekreftetFH, behandlingId) == JA
             || erFødselsdatoFraSøknadInnenforEnOppgittUtlandsperiode(behandlingId) == JA) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
@@ -55,7 +55,7 @@ public class AvklarBarnFødtUtenlands {
         return bekreftet != null && ! bekreftet.getBarna().isEmpty() ? JA : NEI;
     }
 
-    private Utfall erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(FamilieHendelseEntitet bekreftet, Long behandlingId) {
+    private Utfall erFødselsdatoInnenforEnOppgittUtlandsperiode(FamilieHendelseEntitet bekreftet, Long behandlingId) {
         var aggregat = medlemskapRepository.hentMedlemskap(behandlingId);
         if (aggregat.isEmpty() || bekreftet == null) {
             return NEI;

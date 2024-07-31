@@ -71,7 +71,7 @@ class BarnBorteEndringIdentifisererTest {
     }
 
     @Test
-    void barn_fjernet_fra_tps_på_ny_behandling() {
+    void barn_fjernet_fra_pdl_på_ny_behandling() {
         var behandlingOrig = førstegangsbehandling();
         var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
@@ -83,7 +83,7 @@ class BarnBorteEndringIdentifisererTest {
     }
 
     @Test
-    void barn_lagt_til_i_tps_på_ny_behandling() {
+    void barn_lagt_til_i_pdl_på_ny_behandling() {
         var behandlingOrig = førstegangsbehandling(ScenarioMorSøkerForeldrepenger.forFødsel());
         var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, false);

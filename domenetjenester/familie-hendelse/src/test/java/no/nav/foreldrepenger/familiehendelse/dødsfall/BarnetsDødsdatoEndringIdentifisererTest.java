@@ -32,7 +32,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
     }
 
     @Test
-    void test_nytt_barn_i_tps_som_ikke_var_registrert_i_TPS_orginalt() {
+    void test_nytt_barn_i_pdl_som_ikke_var_registrert_i_TPS_orginalt() {
         final LocalDate dødsdato = null;
         var personopplysningGrunnlagOrginal = opprettPersonopplysningGrunnlag(dødsdato, false);
         var personopplysningGrunnlagNy = opprettPersonopplysningGrunnlag(dødsdato, true);

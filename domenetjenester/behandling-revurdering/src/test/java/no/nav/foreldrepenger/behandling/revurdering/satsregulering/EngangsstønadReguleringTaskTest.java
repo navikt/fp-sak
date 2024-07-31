@@ -41,7 +41,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 class EngangsstønadReguleringTaskTest {
 
     @Mock
-    private PersoninfoAdapter tpsFamilieTjenesteMock;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private RevurderingTjenesteImpl revurderingTjeneste;
     @Mock
@@ -58,7 +58,7 @@ class EngangsstønadReguleringTaskTest {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
         FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, tpsFamilieTjenesteMock, behandlendeEnhetTjeneste,
+        task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, personinfoAdapter, behandlendeEnhetTjeneste,
             legacyESBeregningRepository, behandlingProsesseringTjeneste, revurderingTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
@@ -86,7 +86,7 @@ class EngangsstønadReguleringTaskTest {
         var fødselsdato = cutoff.plusDays(5);
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, fødselsdato, gammelSats);
 
-        lenient().when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(byggBaby(fødselsdato)));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(byggBaby(fødselsdato)));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
