@@ -117,15 +117,10 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     }
 
     private void oppdaterFagsakEgenskaper(Behandling behandling) {
-        var eksisterendePrioritert = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()).stream()
-            .anyMatch(FagsakMarkering::erPrioritert);
-        if (eksisterendePrioritert) {
-            return;
-        }
         var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(bat -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(bat));
         if (dødsrelatert) {
-            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(FagsakMarkering.DØD_DØDFØDSEL)); // TODO: ADD når multiple merker tillatt
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.DØD_DØDFØDSEL);
         }
     }
 

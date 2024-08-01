@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,8 +59,8 @@ public class RegistrerFagsakEgenskaper {
 
         // Har registrert en tilknytning og ikke utflyttet
         if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) == null) {
-            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(FagsakMarkering.BOSATT_UTLAND)); // TODO: ADD når multiple merker tillatt
-            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, List.of(FagsakMarkering.BOSATT_UTLAND))
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
+            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()))
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
         }
     }
@@ -71,17 +72,18 @@ public class RegistrerFagsakEgenskaper {
             return;
         }
 
-        FagsakMarkering saksmarkering = null;
+        Set<FagsakMarkering> saksmarkering = new HashSet<>();
         if (vurderOppgittUtlandsopphold(behandling.getId())) {
-            saksmarkering = FagsakMarkering.BOSATT_UTLAND;
+            saksmarkering.add(FagsakMarkering.BOSATT_UTLAND);
         } else if (oppgittRelasjonTilEØS) {
-            saksmarkering = FagsakMarkering.EØS_BOSATT_NORGE;
-        } else if (harOppgittEgenNæring(behandling.getId())) {
-            saksmarkering = FagsakMarkering.SELVSTENDIG_NÆRING;
+            saksmarkering.add(FagsakMarkering.EØS_BOSATT_NORGE);
         }
-        if (saksmarkering != null) {
-            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(behandling.getFagsakId(), List.of(saksmarkering)); // TODO tillate flere - men lagre enkeltvis
-            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, Set.of(saksmarkering))
+        if (harOppgittEgenNæring(behandling.getId())) {
+            saksmarkering.add(FagsakMarkering.SELVSTENDIG_NÆRING);
+        }
+        if (!saksmarkering.isEmpty()) {
+            saksmarkering.forEach(fsm -> fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), fsm));
+            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysning"));
         }
     }

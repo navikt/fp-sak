@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,12 +53,11 @@ public class FagsakEgenskapRepository {
     }
 
     public Collection<FagsakMarkering> finnFagsakMarkeringer(long fagsakId) {
-        var markeringer = finnEgenskaper(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING).stream()
+        return finnEgenskaper(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING).stream()
             .map(FagsakEgenskap::getEgenskapVerdi)
             .filter(Objects::nonNull)
             .map(FagsakMarkering::valueOf)
             .collect(Collectors.toSet());
-        return markeringer.isEmpty() ? Set.of(FagsakMarkering.NASJONAL) : markeringer;
     }
 
     public boolean harFagsakMarkering(long fagsakId, FagsakMarkering markering) {
@@ -89,10 +87,20 @@ public class FagsakEgenskapRepository {
         return query.getResultList();
     }
 
+    public int slettNasjonal() {
+        return entityManager.createNativeQuery("delete from fagsak_egenskap where egenskap_value = :nasjonal")
+            .setParameter("nasjonal", "NASJONAL")
+            .executeUpdate();
+    }
+
     public void lagreAlleFagsakMarkeringer(long fagsakId, Collection<FagsakMarkering> markeringer) {
         var eksisterende = finnFagsakMarkeringer(fagsakId);
-        markeringer.stream().filter(fm -> !FagsakMarkering.NASJONAL.equals(fm)).filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
+        markeringer.stream().filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
         eksisterende.stream().filter(fm -> !markeringer.contains(fm)).forEach(fm -> fjernFagsakMarkering(fagsakId, fm));
+    }
+
+    public void leggTilFagsakMarkering(long fagsakId, FagsakMarkering markering) {
+        lagreFagsakMarkering(fagsakId, markering);
     }
 
     private void lagreFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
