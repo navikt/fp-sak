@@ -303,6 +303,7 @@ public class LosBehandlingDtoTjeneste {
 
     public List<String> lagFagsakEgenskaperString(Fagsak fagsak) {
         return fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId()).stream()
+            .filter(fm -> !FagsakMarkering.NASJONAL.equals(fm))
             .map(this::mapLokalMarkering)
             .map(FagsakEgenskap::name)
             .toList();
@@ -310,6 +311,7 @@ public class LosBehandlingDtoTjeneste {
 
     private FagsakEgenskap mapLokalMarkering(FagsakMarkering markering) {
         return  switch (markering) {
+            case NASJONAL -> throw new IllegalArgumentException("Skal sende opp nasjonal som tom liste");
             case EØS_BOSATT_NORGE -> FagsakEgenskap.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> FagsakEgenskap.BOSATT_UTLAND;
             case SAMMENSATT_KONTROLL -> FagsakEgenskap.SAMMENSATT_KONTROLL;

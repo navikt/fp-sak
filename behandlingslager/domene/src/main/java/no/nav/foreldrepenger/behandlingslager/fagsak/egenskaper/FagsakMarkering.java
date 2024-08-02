@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
 
+    NASJONAL("Nasjonal", null),
     EØS_BOSATT_NORGE("EØS bosatt Norge", "EØS"),
     BOSATT_UTLAND("Bosatt utland", "Utland"),
     SAMMENSATT_KONTROLL("Sammensatt kontroll", "Kontroll"),
@@ -74,6 +75,7 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
                 throw new IllegalArgumentException("Duplikat : " + v.name());
             }
         }
+        KODER.remove(NASJONAL.navn);
     }
 
     public static Map<String, FagsakMarkering> kodeMap() {
