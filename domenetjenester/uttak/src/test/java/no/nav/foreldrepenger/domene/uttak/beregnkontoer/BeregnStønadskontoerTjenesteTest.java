@@ -74,9 +74,7 @@ class BeregnStønadskontoerTjenesteTest {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
-        var forventetRegelvalgsDato = "\"regelvalgsdato\" : \"" + LocalDate.of(2024, Month.AUGUST,2);
-        //assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null"); // TODO: Må endres i overgangsfase
-        assertThat(stønadskontoberegning.get().getRegelInput()).contains(forventetRegelvalgsDato); // TODO: Fjernes 2/8-2024 - enable den over
+        assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null");
 
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 

@@ -83,8 +83,12 @@ public class UttakCore2024 {
             // Skal ha konfig for Endring1 men ikke Endring2. ikrafttredelseDato2 kan være før eller etter DATO_FOR_PROD_DEL1
             return idag.isBefore(DATO_FOR_PROD_DEL1) ? DATO_FOR_PROD_DEL1 : idag;
         } else {
-            // Skal ha konfig for Endring1 og Endring2. ikrafttredelseDato2 kan være før eller etter DATO_FOR_PROD_DEL1/DEL2
-            return idag.isBefore(DATO_FOR_PROD_DEL2) ? DATO_FOR_PROD_DEL2 : null;
+            if (ENV.isProd()) {
+                // Skal ha konfig for Endring1 og Endring2. ikrafttredelseDato2 kan være før eller etter DATO_FOR_PROD_DEL1/DEL2
+                return idag.isBefore(DATO_FOR_PROD_DEL2) ? DATO_FOR_PROD_DEL2 : null;
+            } else {
+                return idag.isBefore(DATO_FOR_PROD_DEL2) || familieHendelseDato.isBefore(DATO_FOR_PROD_DEL2) ? DATO_FOR_PROD_DEL2 : null;
+            }
         }
     }
 
