@@ -75,6 +75,7 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
                 throw new IllegalArgumentException("Duplikat : " + v.name());
             }
         }
+        KODER.remove(NASJONAL.navn);
     }
 
     public static Map<String, FagsakMarkering> kodeMap() {

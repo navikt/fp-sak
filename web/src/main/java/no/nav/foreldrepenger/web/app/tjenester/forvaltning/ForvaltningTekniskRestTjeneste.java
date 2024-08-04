@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -50,6 +51,7 @@ public class ForvaltningTekniskRestTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -60,12 +62,14 @@ public class ForvaltningTekniskRestTjeneste {
                                           FagsakProsessTaskRepository fagsakProsessTaskRepository,
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
-                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                          FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerTjeneste = postnummerTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     @POST
@@ -159,6 +163,18 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/fjern-nasjonal-markering")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Fjern nasjonal markering", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response fjernNasjonalMarkering() {
+        fagsakEgenskapRepository.slettNasjonal();
         return Response.ok().build();
     }
 

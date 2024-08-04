@@ -45,6 +45,28 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void skal_lagre_og_oppdatere_egenskaper() {
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("9999");
+        var fagsak = opprettFagsak(saksnummer, aktørId);
+
+        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), Set.of(FagsakMarkering.BOSATT_UTLAND));
+
+        var markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
+        assertThat(markering).containsOnly(FagsakMarkering.BOSATT_UTLAND);
+
+        fagsakEgenskapRepository.leggTilFagsakMarkering(fagsak.getId(), FagsakMarkering.SELVSTENDIG_NÆRING);
+
+        markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
+        assertThat(markering).containsOnly(FagsakMarkering.BOSATT_UTLAND, FagsakMarkering.SELVSTENDIG_NÆRING);
+
+        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), Set.of(FagsakMarkering.EØS_BOSATT_NORGE));
+
+        markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
+        assertThat(markering).containsOnly(FagsakMarkering.EØS_BOSATT_NORGE);
+    }
+
+    @Test
     void skal_lagre_en_egenskap_og_endre_den() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");

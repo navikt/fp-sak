@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
@@ -54,12 +53,7 @@ class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
         if (eksisterende.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return;
         }
-        // TODO: Sjekk om aktuelt å flytte utland eller sammensatt kontroll til nasjonal kø og overstyre merking
-        if (eksisterende.stream().anyMatch(FagsakMarkering::erPrioritert)) {
-            LOG.info("FeilPraksisUtsettelse: Endrer ikke saksmerking for {} har {}", fagsak.getSaksnummer(), eksisterende);
-            return;
-        }
-        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), List.of(FagsakMarkering.PRAKSIS_UTSETTELSE)); // TODO lagre enkeltmerke
+        fagsakEgenskapRepository.leggTilFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
         if (!eksisterende.isEmpty()) {
             lagHistorikkInnslag(fagsak, eksisterende.stream().findFirst().orElseThrow(), FagsakMarkering.PRAKSIS_UTSETTELSE);
         }
