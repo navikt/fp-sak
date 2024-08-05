@@ -51,9 +51,13 @@ class SøknadMapperTest {
         registreringEngangsstonadDto.setOppholdINorge(true);
 
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
+
         assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isTrue();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isTrue();
+
         assertThat(medlemskap.getOppholdUtlandet()).isEmpty();
-        assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi skal ha opphold norge når vi ikke har utenlandsopphold.").hasSize(2);
+        assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi skal ha opphold norge når vi ikke har utenlandsopphold.").isEmpty();
     }
 
     @Test
@@ -75,11 +79,13 @@ class SøknadMapperTest {
 
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
         assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isTrue();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isFalse();
 
         // Assert tidligere opphold i norge(siden vi ikke har tidligere
         // utenlandsopphold.)
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull().hasSize(1);
+        assertThat(oppholdNorgeListe).isNotNull().isEmpty();
 
         var alleOppholdUtlandet = medlemskap.getOppholdUtlandet();
         assertThat(alleOppholdUtlandet).isNotNull().hasSize(1);
@@ -112,10 +118,12 @@ class SøknadMapperTest {
 
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
         assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isFalse();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isTrue();
 
         // Assert fremtidg opphold i norge(siden vi ikke har fremtidig utenlandsopphold.
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull().hasSize(1);
+        assertThat(oppholdNorgeListe).isNotNull().isEmpty();
 
         var oppholdUtenlandsListe = medlemskap.getOppholdUtlandet();
         assertThat(oppholdUtenlandsListe).isNotNull().hasSize(1);

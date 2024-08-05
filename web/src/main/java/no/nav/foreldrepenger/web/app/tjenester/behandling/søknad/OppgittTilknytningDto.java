@@ -45,17 +45,19 @@ public class OppgittTilknytningDto {
     }
 
     private static List<UtlandsoppholdDto> mapFør(Set<MedlemskapOppgittLandOppholdEntitet> opphold) {
-        return UtlandsoppholdDto.mapFra(opphold.stream()
+        return opphold.stream()
             .filter(MedlemskapOppgittLandOppholdEntitet::isTidligereOpphold)
             .filter(o -> !o.getLand().equals(Landkoder.NOR))
-            .toList());
+            .map(UtlandsoppholdDto::mapFra)
+            .toList();
     }
 
     private static List<UtlandsoppholdDto> mapEtter(Set<MedlemskapOppgittLandOppholdEntitet> utlandsopphold) {
-        return UtlandsoppholdDto.mapFra(utlandsopphold.stream()
+        return utlandsopphold.stream()
             .filter(o -> !o.isTidligereOpphold())
             .filter(o -> !o.getLand().equals(Landkoder.NOR))
-            .toList());
+            .map(UtlandsoppholdDto::mapFra)
+            .toList();
     }
 
     public boolean isOppholdNorgeNa() {

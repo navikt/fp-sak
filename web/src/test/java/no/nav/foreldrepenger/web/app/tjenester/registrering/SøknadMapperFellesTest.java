@@ -204,7 +204,11 @@ class SøknadMapperFellesTest {
         registreringForeldrepengerDto.setOppholdINorge(true);
 
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringForeldrepengerDto);
-        assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi skal ha opphold norge når vi ikke har utenlandsopphold.").hasSize(2);
+
+        assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isTrue();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isTrue();
+        assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi ikke skal ha opphold norge når vi ikke har utenlandsopphold.").isEmpty();
     }
 
     @Test
@@ -216,6 +220,10 @@ class SøknadMapperFellesTest {
         registreringForeldrepengerDto.setOppholdINorge(true);
 
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringForeldrepengerDto);
+
+        assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isFalse();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isFalse();
         assertThat(medlemskap.getOppholdNorge()).as("Forventer at vi ikke har opphold norge når vi har utenlandsopphold.").isEmpty();
     }
 
@@ -240,9 +248,13 @@ class SøknadMapperFellesTest {
 
         // Assert tidligere opphold i norge(siden vi ikke har tidligere
         // utenlandsopphold.)
+        assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isTrue();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isFalse();
+
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).hasSize(1);
+        assertThat(oppholdNorgeListe).isEmpty();
 
         var alleOppholdUtlandet = medlemskap.getOppholdUtlandet();
         assertThat(alleOppholdUtlandet).isNotNull();
@@ -277,9 +289,13 @@ class SøknadMapperFellesTest {
         var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
 
         // Assert fremtidg opphold i norge(siden vi ikke har fremtidig utenlandsopphold.
+        assertThat(medlemskap.isINorgeVedFoedselstidspunkt()).isTrue();
+        assertThat(medlemskap.isBoddINorgeSiste12Mnd()).isFalse();
+        assertThat(medlemskap.isBorINorgeNeste12Mnd()).isTrue();
+
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
         assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).hasSize(1);
+        assertThat(oppholdNorgeListe).isEmpty();
 
         var oppholdUtenlandsListe = medlemskap.getOppholdUtlandet();
         assertThat(oppholdUtenlandsListe).isNotNull();
