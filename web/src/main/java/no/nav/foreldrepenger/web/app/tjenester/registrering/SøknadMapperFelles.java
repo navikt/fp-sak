@@ -5,7 +5,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -36,7 +35,6 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdNorge;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdUtlandet;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Periode;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
@@ -102,31 +100,6 @@ public class SøknadMapperFelles {
         return annenForelderMedNorskIdent;
 
     }
-
-    private static List<OppholdNorge> opprettOppholdNorge(final LocalDate mottattDato, boolean fremtidigOppholdNorge, boolean tidligereOppholdNorge) {
-        List<OppholdNorge> oppholdNorgeListe = new ArrayList<>();
-        if (nonNull(mottattDato)) {
-            if (tidligereOppholdNorge) {
-                var oppholdNorgeSistePeriode = new OppholdNorge();
-                var periode = new Periode();
-                periode.setFom(mottattDato.minusYears(1));
-                periode.setTom(mottattDato);
-                oppholdNorgeSistePeriode.setPeriode(periode);
-                oppholdNorgeListe.add(oppholdNorgeSistePeriode);
-            }
-            if (fremtidigOppholdNorge) {
-                var oppholdNorgeNestePeriode = new OppholdNorge();
-                var periode = new Periode();
-                periode.setFom(mottattDato);
-                periode.setTom(mottattDato.plusYears(1));
-                oppholdNorgeNestePeriode.setPeriode(periode);
-                oppholdNorgeListe.add(oppholdNorgeNestePeriode);
-            }
-        }
-
-        return oppholdNorgeListe;
-    }
-
     static Bruker mapBruker(ForeldreType søker, NavBruker navBruker) {
         var bruker = new Bruker();
         bruker.setAktoerId(navBruker.getAktørId().getId());
@@ -186,17 +159,19 @@ public class SøknadMapperFelles {
     }
 
     private static List<OppholdUtlandet> mapUtenlandsopphold(List<UtenlandsoppholdDto> utenlandsopphold) {
-        List<OppholdUtlandet> utenlandsoppholdListe = new ArrayList<>();
-        for (var utenlandsoppholdDto : utenlandsopphold) {
-            var nyttOpphold = new OppholdUtlandet();
-            nyttOpphold.setLand(getLandkode(utenlandsoppholdDto.getLand()));
-            var periode = new Periode();
-            periode.setFom(utenlandsoppholdDto.getPeriodeFom());
-            periode.setTom(utenlandsoppholdDto.getPeriodeTom());
-            nyttOpphold.setPeriode(periode);
-            utenlandsoppholdListe.add(nyttOpphold);
-        }
-        return utenlandsoppholdListe;
+        return utenlandsopphold.stream()
+            .map(SøknadMapperFelles::mapEnkeltoppholdUtland)
+            .toList();
+    }
+
+    private static OppholdUtlandet mapEnkeltoppholdUtland(UtenlandsoppholdDto utenlandsoppholdDto) {
+        var nyttOpphold = new OppholdUtlandet();
+        nyttOpphold.setLand(getLandkode(utenlandsoppholdDto.getLand()));
+        var periode = new Periode();
+        periode.setFom(utenlandsoppholdDto.getPeriodeFom());
+        periode.setTom(utenlandsoppholdDto.getPeriodeTom());
+        nyttOpphold.setPeriode(periode);
+        return nyttOpphold;
     }
 
     static Termin mapTermin(ManuellRegistreringDto registreringDto) {
@@ -288,9 +263,10 @@ public class SøknadMapperFelles {
         var harFremtidigOppholdUtenlands = registreringDto.getHarFremtidigeOppholdUtenlands();
         var harTidligereOppholdUtenlands = registreringDto.getHarTidligereOppholdUtenlands();
 
-        var oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands, !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
-        medlemskap.getOppholdNorge().addAll(oppholdNorge);
         medlemskap.setINorgeVedFoedselstidspunkt(registreringDto.getOppholdINorge());
+        medlemskap.setBoddINorgeSiste12Mnd(!harTidligereOppholdUtenlands);
+        medlemskap.setBorINorgeNeste12Mnd(!harFremtidigOppholdUtenlands);
+
         if (harFremtidigOppholdUtenlands && !erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
             medlemskap.getOppholdUtlandet().addAll(mapUtenlandsopphold(registreringDto.getFremtidigeOppholdUtenlands()));
         }
