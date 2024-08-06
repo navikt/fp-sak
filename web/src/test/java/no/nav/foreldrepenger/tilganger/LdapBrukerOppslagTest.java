@@ -45,7 +45,7 @@ class LdapBrukerOppslagTest {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
-        attributes.put("surame", "Saksbehandler");
+        attributes.put("surname", "Saksbehandler");
         attributes.put("cn", "L999999");
         attributes.put(new BasicAttribute("memberOf"));
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
@@ -58,7 +58,7 @@ class LdapBrukerOppslagTest {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
-        attributes.put("surame", "Saksbehandler");
+        attributes.put("surname", "Saksbehandler");
         attributes.put("cn", "L999999");
         var memberOf = new BasicAttribute("memberOf");
         memberOf.add("CN=myGroup");
@@ -66,6 +66,7 @@ class LdapBrukerOppslagTest {
         attributes.put(memberOf);
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
         assertThat(new LdapBrukerOppslag(null, null).getMemberOf(resultat)).contains("CN=myGroup", "OU=ourGroup");
+        assertEquals("Lars Saksbehandler", new LdapBrukerOppslag(context, baseSearch).getFornavnEtternavn(resultat));
     }
 
     @Test
