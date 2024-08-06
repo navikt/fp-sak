@@ -49,14 +49,13 @@ public class BrukerProfilTjeneste {
         var ldapBruker = new LdapBrukerOppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
         LOG.info("LDAP bruker profil oppslag: {}ms. ", Duration.ofNanos(System.nanoTime() - før).toMillis());
-        sammenlignMedAzureGraphFailSoft(ident, ldapBruker);
+        sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
         return ldapBrukerInfo;
     }
 
-    private void sammenlignMedAzureGraphFailSoft(String ident, LdapBruker ldapBruker) {
+    private void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
         LOG.info("PROFIL Azure. Henter fra azure.");
         try {
-            var ldapBrukerInfo = getInnloggetBrukerFornavnEtternavn(ident, ldapBruker);
             var før = System.nanoTime();
             var azureBrukerInfo = mapTilDomene(ENTRA_BRUKER_OPPSLAG.brukerInfo());
             if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
@@ -81,18 +80,6 @@ public class BrukerProfilTjeneste {
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
-        var navn = ldapBruker.displayName();
-        var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
-        return new InnloggetNavAnsattDto.Builder(ident, navn)
-            .kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
-            .kanVeilede(grupper.contains(gruppenavnVeileder))
-            .kanOverstyre(grupper.contains(gruppenavnOverstyrer))
-            .kanOppgavestyre(grupper.contains(gruppenavnOppgavestyrer))
-            .kanBehandleKode6(grupper.contains(gruppenavnKode6))
-            .build();
-    }
-
-    InnloggetNavAnsattDto getInnloggetBrukerFornavnEtternavn(String ident, LdapBruker ldapBruker) {
         var navn = ldapBruker.fornavnEtternavn();
         var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
         return new InnloggetNavAnsattDto.Builder(ident, navn)

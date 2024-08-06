@@ -32,7 +32,6 @@ class EntraBrukerOppslag {
     }
 
     record BrukerInfoResponseDto(String brukernavn,
-                                        String navn,
                                         String fornavnEtternavn,
                                         boolean kanSaksbehandle,
                                         boolean kanVeilede,
