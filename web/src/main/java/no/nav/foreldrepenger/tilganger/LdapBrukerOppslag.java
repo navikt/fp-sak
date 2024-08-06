@@ -84,9 +84,13 @@ class LdapBrukerOppslag {
     }
 
     String getFornavnEtternavn(SearchResult result) {
-        var givenName = Optional.ofNullable(getAttributeAsString(result, "givenName"));
-        var surname = Optional.ofNullable(getAttributeAsString(result, "surname"));
-        return givenName.map(f -> surname.map(e -> f + " " + e).orElse(f)).or(() -> surname).orElse("");
+        try {
+            var givenName = Optional.ofNullable(getAttributeAsString(result, "givenName"));
+            var surname = Optional.ofNullable(getAttributeAsString(result, "sn"));
+            return givenName.map(f -> surname.map(e -> f + " " + e).orElse(f)).or(() -> surname).orElse("");
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private String getAttributeAsString(SearchResult result, String attributeName) {

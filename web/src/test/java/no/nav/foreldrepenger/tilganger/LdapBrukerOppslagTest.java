@@ -45,7 +45,7 @@ class LdapBrukerOppslagTest {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
-        attributes.put("surname", "Saksbehandler");
+        attributes.put("sn", "Saksbehandler");
         attributes.put("cn", "L999999");
         attributes.put(new BasicAttribute("memberOf"));
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
@@ -58,7 +58,7 @@ class LdapBrukerOppslagTest {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
-        attributes.put("surname", "Saksbehandler");
+        attributes.put("sn", "Saksbehandler");
         attributes.put("cn", "L999999");
         var memberOf = new BasicAttribute("memberOf");
         memberOf.add("CN=myGroup");
