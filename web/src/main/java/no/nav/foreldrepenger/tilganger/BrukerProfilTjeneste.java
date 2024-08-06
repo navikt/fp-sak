@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.tilganger;
 
-import java.time.Duration;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -12,11 +10,11 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+import java.time.Duration;
+
 @ApplicationScoped
 public class BrukerProfilTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(BrukerProfilTjeneste.class);
-
-    private static final EntraBrukerOppslag ENTRA_BRUKER_OPPSLAG = new EntraBrukerOppslag();
 
     private String gruppenavnSaksbehandler;
     private String gruppenavnVeileder;
@@ -49,16 +47,15 @@ public class BrukerProfilTjeneste {
         var ldapBruker = new LdapBrukerOppslag().hentBrukerinformasjon(ident);
         var ldapBrukerInfo = getInnloggetBruker(ident, ldapBruker);
         LOG.info("LDAP bruker profil oppslag: {}ms. ", Duration.ofNanos(System.nanoTime() - før).toMillis());
-        sammenlignMedAzureGraphFailSoft(ident, ldapBruker);
+        sammenlignMedAzureGraphFailSoft(ldapBrukerInfo);
         return ldapBrukerInfo;
     }
 
-    private void sammenlignMedAzureGraphFailSoft(String ident, LdapBruker ldapBruker) {
+    private static void sammenlignMedAzureGraphFailSoft(InnloggetNavAnsattDto ldapBrukerInfo) {
         LOG.info("PROFIL Azure. Henter fra azure.");
         try {
-            var ldapBrukerInfo = getInnloggetBrukerFornavnEtternavn(ident, ldapBruker);
             var før = System.nanoTime();
-            var azureBrukerInfo = mapTilDomene(ENTRA_BRUKER_OPPSLAG.brukerInfo());
+            var azureBrukerInfo = mapTilDomene(new EntraBrukerOppslag().brukerInfo());
             if (!ldapBrukerInfo.equals(azureBrukerInfo)) {
                 LOG.info("PROFIL Azure. tilganger fra ldap og azure er ikke like. Azure: {} != LDAP: {}", azureBrukerInfo, ldapBrukerInfo);
             } else {
@@ -71,7 +68,7 @@ public class BrukerProfilTjeneste {
     }
 
     private static InnloggetNavAnsattDto mapTilDomene(EntraBrukerOppslag.BrukerInfoResponseDto brukerInfo) {
-        return new InnloggetNavAnsattDto.Builder(brukerInfo.brukernavn(), brukerInfo.fornavnEtternavn())
+        return new InnloggetNavAnsattDto.Builder(brukerInfo.brukernavn(), brukerInfo.navn())
             .kanSaksbehandle(brukerInfo.kanSaksbehandle())
             .kanVeilede(brukerInfo.kanVeilede())
             .kanOverstyre(brukerInfo.kanOverstyre())
@@ -82,18 +79,6 @@ public class BrukerProfilTjeneste {
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
         var navn = ldapBruker.displayName();
-        var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
-        return new InnloggetNavAnsattDto.Builder(ident, navn)
-            .kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
-            .kanVeilede(grupper.contains(gruppenavnVeileder))
-            .kanOverstyre(grupper.contains(gruppenavnOverstyrer))
-            .kanOppgavestyre(grupper.contains(gruppenavnOppgavestyrer))
-            .kanBehandleKode6(grupper.contains(gruppenavnKode6))
-            .build();
-    }
-
-    InnloggetNavAnsattDto getInnloggetBrukerFornavnEtternavn(String ident, LdapBruker ldapBruker) {
-        var navn = ldapBruker.fornavnEtternavn();
         var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
         return new InnloggetNavAnsattDto.Builder(ident, navn)
             .kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
