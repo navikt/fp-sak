@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.tilganger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import javax.naming.InvalidNameException;
@@ -42,7 +43,7 @@ class LdapBrukerOppslag {
     LdapBruker hentBrukerinformasjon(String ident) {
         var result = ldapSearch(ident);
         //evaluerAdresse(ident, result); Testformål
-        return new LdapBruker(getDisplayName(result), getMemberOf(result));
+        return new LdapBruker(getDisplayName(result), getFornavnEtternavn(result), getMemberOf(result));
     }
 
     private SearchResult ldapSearch(String ident) {
@@ -82,20 +83,21 @@ class LdapBrukerOppslag {
         }
     }
 
-    // Denne gir korrekt enhetsId for ansattVed - fire siffer
-    private void evaluerAdresse(String ident, SearchResult result) {
+    String getFornavnEtternavn(SearchResult result) {
         try {
-            var attributeName = "streetAddress";
-            var adresse = result.getAttributes().get(attributeName);
-            if (adresse != null && adresse.get() != null && !adresse.get().toString().isBlank()) {
-                LOG.info("LDAP adresse for {} er {}", ident, adresse.get().toString());
-            } else if (adresse == null) {
-                LOG.info("LDAP adresse for {} er NULL", ident);
-            } else if (adresse.get() == null) {
-                LOG.info("LDAP adresse for {} er TOM", ident);
-            }
+            var givenName = Optional.ofNullable(getAttributeAsString(result, "givenName"));
+            var surname = Optional.ofNullable(getAttributeAsString(result, "sn"));
+            return givenName.map(f -> surname.map(e -> f + " " + e).orElse(f)).or(() -> surname).orElse("");
         } catch (Exception e) {
-            // NOTHING
+            return "";
+        }
+    }
+
+    private String getAttributeAsString(SearchResult result, String attributeName) {
+        try {
+            return result.getAttributes().get(attributeName).get().toString();
+        } catch (NamingException e) {
+            throw new TekniskException("F-314006", String.format("Kunne ikke hente ut attributtverdi %s", attributeName), e);
         }
     }
 
