@@ -45,6 +45,9 @@ import no.nav.folketrygdloven.kalkulus.beregning.v1.PerioderForKrav;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.Refusjonsperiode;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradPrAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseandel;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseperiode;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktivitetsgrad;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
@@ -175,9 +178,22 @@ class MapTilKalkulatorInput {
         if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
             // Forventer prosent her, så må gange opp. Brukes kun i forvaltning swaggerkall
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad().getVerdi()).multiply(BigDecimal.valueOf(100)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto, Collections.emptyList());
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad().getVerdi()).multiply(BigDecimal.valueOf(100)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto,
+                mapBesteberegningYtelsegrunnlag(fpGrunnlag.getBesteberegningYtelsegrunnlag()));
         }
         return null;
+    }
+
+    private static List<Ytelsegrunnlag> mapBesteberegningYtelsegrunnlag(List<no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag> ytelsegrunnlagBB) {
+        return ytelsegrunnlagBB.stream().map(yg -> new Ytelsegrunnlag(yg.ytelse(),mapYgPerioder(yg.perioder()))).toList();
+    }
+
+    private static List<Ytelseperiode> mapYgPerioder(List<no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseperiode> perioder) {
+        return perioder.stream().map(p -> new Ytelseperiode(new Periode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato()), mapYgAndeler(p.getAndeler()))).toList();
+    }
+
+    private static List<Ytelseandel> mapYgAndeler(List<no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseandel> andeler) {
+        return andeler.stream().map(a -> new Ytelseandel(a.getAktivitetStatus(), a.getInntektskategori(), a.getArbeidskategori(), a.getDagsats())).toList();
     }
 
     private static List<UtbetalingsgradPrAktivitetDto> mapUtbetalingsgradPrAktivitet(List<no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradPrAktivitetDto> utbetalingsgradPrAktivitet) {
