@@ -95,7 +95,7 @@ public class FagsakEgenskapRepository {
 
     public void lagreAlleFagsakMarkeringer(long fagsakId, Collection<FagsakMarkering> markeringer) {
         var eksisterende = finnFagsakMarkeringer(fagsakId);
-        markeringer.stream().filter(fm -> !FagsakMarkering.NASJONAL.equals(fm)).filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
+        markeringer.stream().filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
         eksisterende.stream().filter(fm -> !markeringer.contains(fm)).forEach(fm -> fjernFagsakMarkering(fagsakId, fm));
     }
 
