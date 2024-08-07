@@ -43,20 +43,17 @@ class LdapBrukerOppslagTest {
     @Test
     void skal_liste_ut_brukernavn_når_det_er_i_resultatet() {
         var attributes = new BasicAttributes();
-        attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
         attributes.put("sn", "Saksbehandler");
         attributes.put("cn", "L999999");
         attributes.put(new BasicAttribute("memberOf"));
         var resultat = new SearchResult("CN=L999999,OU=ApplAccounts", null, attributes);
-        assertEquals("Lars Saksbehandler", new LdapBrukerOppslag(context, baseSearch).getDisplayName(resultat));
         assertEquals("Lars Saksbehandler", new LdapBrukerOppslag(context, baseSearch).getFornavnEtternavn(resultat));
     }
 
     @Test
     void skal_liste_ut_gruppene_når_det_er_i_resultatet() {
         var attributes = new BasicAttributes();
-        attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("givenName", "Lars");
         attributes.put("sn", "Saksbehandler");
         attributes.put("cn", "L999999");
@@ -103,7 +100,7 @@ class LdapBrukerOppslagTest {
 
         var ldapBrukeroppslag = new LdapBrukerOppslag(context, baseSearch);
         var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
-        assertTrue(e.getMessage().contains("Resultat fra LDAP manglet påkrevet attributtnavn displayName"));
+        assertTrue(e.getMessage().contains("Resultat fra LDAP manglet påkrevet attributtnavn givenName"));
     }
 
     @Test

@@ -73,7 +73,7 @@ class BrukerProfilTjenesteTest {
     }
 
     private static LdapBruker getTestBruker(String... grupper) {
-        return new LdapBruker("Testbruker", "Test Bruker", List.of(grupper));
+        return new LdapBruker("Test Bruker", List.of(grupper));
     }
 
 }
