@@ -249,9 +249,7 @@ public class FagsakRestTjeneste {
     }
 
     private static Set<FagsakMarkering> getMarkeringer(EndreUtlandMarkeringDto dto) {
-        return Optional.ofNullable(dto.fagsakMarkeringer()).filter(l -> !l.isEmpty() || dto.fagsakMarkering() == null)
-            .or(() -> Optional.ofNullable(dto.fagsakMarkering()).map(Set::of))
-            .orElseGet(Set::of);
+        return Optional.ofNullable(dto.fagsakMarkeringer()).orElseGet(Set::of);
     }
 
     private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
