@@ -5,7 +5,6 @@
   "oraclefpsaksecret": "oracle/data/prod/creds/fpsak-fpsak",
   "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
   "fpsakserviceuser": "serviceuser/data/prod/srvfpsak",
-  "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
   "minReplicas": "3",
   "maxReplicas": "9",
   "limits": {

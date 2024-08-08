@@ -56,8 +56,6 @@ spec:
         kvPath:  {{oracledvhsecret}}
       - mountPath: /var/run/secrets/nais.io/serviceuser
         kvPath: {{fpsakserviceuser}}
-      - mountPath: /var/run/secrets/nais.io/ldap
-        kvPath: {{ldapserviceuser}}
   azure:
     application:
       enabled: true

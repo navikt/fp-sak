@@ -17,8 +17,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,8 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerV
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.tilganger.BrukerProfilTjeneste;
+import no.nav.foreldrepenger.tilganger.BrukerProfilKlient;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -70,7 +69,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     private ArbeidOgInntektsmeldingDtoTjeneste arbeidOgInntektsmeldingDtoTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste;
-    private BrukerProfilTjeneste brukerProfilTjeneste;
+    private BrukerProfilKlient brukerProfilKlient;
     private BehandlingsutredningTjeneste behandlingutredningTjeneste;
 
     ArbeidOgInntektsmeldingRestTjeneste() {
@@ -83,14 +82,14 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                ArbeidOgInntektsmeldingDtoTjeneste arbeidOgInntektsmeldingDtoTjeneste,
                                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
                                                ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste,
-                                               BrukerProfilTjeneste brukerProfilTjeneste,
+                                               BrukerProfilKlient brukerProfilKlient,
                                                BehandlingsutredningTjeneste behandlingutredningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.arbeidOgInntektsmeldingDtoTjeneste = arbeidOgInntektsmeldingDtoTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.arbeidOgInntektsmeldingProsessTjeneste = arbeidOgInntektsmeldingProsessTjeneste;
-        this.brukerProfilTjeneste = brukerProfilTjeneste;
+        this.brukerProfilKlient = brukerProfilKlient;
         this.behandlingutredningTjeneste = behandlingutredningTjeneste;
     }
 
@@ -167,7 +166,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     }
 
     private boolean erOverstyringLovlig() {
-        return brukerProfilTjeneste.innloggetBruker().kanOverstyre();
+        return brukerProfilKlient.innloggetBruker().kanOverstyre();
     }
 
     private boolean endringGjelderHelmanueltArbeidsforhold(ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
