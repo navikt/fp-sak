@@ -77,6 +77,26 @@ public class ArbeidOgInntektsmeldingMapper {
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null));
     }
 
+    // TODO: oppgi mer info?
+    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im) {
+        return new InntektsmeldingDto(
+            fraBeløp(im.getInntektBeløp()),
+            fraBeløp(im.getRefusjonBeløpPerMnd()),
+            im.getArbeidsgiver().getIdentifikator(),
+            null, // eksternarbeidsforhold
+            im.getArbeidsforholdRef().getReferanse(),
+            null,
+            null,
+            im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
+            null,
+            im.getMottattDato(),
+            im.getInnsendingstidspunkt(),
+            null,
+            null,
+            null
+        );
+    }
+
     private static Optional<ArbeidsforholdValg> finnSaksbehandlersVurderingPåInntektsmelding(Arbeidsgiver arbeidsgiver,
                                                                                              InternArbeidsforholdRef arbeidsforholdRef,
                                                                                              List<ArbeidsforholdValg> saksbehandlersVurderinger) {

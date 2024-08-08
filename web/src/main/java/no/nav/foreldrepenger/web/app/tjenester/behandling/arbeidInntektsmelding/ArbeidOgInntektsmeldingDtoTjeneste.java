@@ -78,6 +78,11 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         return Optional.of(new ArbeidOgInntektsmeldingDto(inntektsmeldinger, arbeidsforhold, inntekter, referanse.getUtledetSkjæringstidspunkt()));
     }
 
+    public List<InntektsmeldingDto> hentAlleInntektsmeldingerForFagsak(BehandlingReferanse referanse) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(referanse.saksnummer());
+        return inntektsmeldinger.stream().map(ArbeidOgInntektsmeldingMapper::mapInntektsmelding).toList();
+    }
+
     private List<InntektDto> mapInntekter(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {
         var filter = new InntektFilter(iayGrunnlag.getAktørInntektFraRegister(referanse.aktørId()));
         return ArbeidOgInntektsmeldingMapper.mapInntekter(filter, referanse.getUtledetSkjæringstidspunkt());
