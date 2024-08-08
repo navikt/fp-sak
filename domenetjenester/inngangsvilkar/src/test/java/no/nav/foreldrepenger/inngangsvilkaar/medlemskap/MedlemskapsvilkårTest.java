@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -71,6 +72,9 @@ class MedlemskapsvilkårTest {
     private InngangsvilkårMedlemskap vurderMedlemskapsvilkarEngangsstonad;
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
 
+    @Inject
+    private AvklarMedlemskapUtleder avklarMedlemskapUtleder;
+
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
     }
@@ -80,7 +84,8 @@ class MedlemskapsvilkårTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         this.oversetter = new MedlemsvilkårOversetter(repositoryProvider, personopplysningTjeneste, iayTjeneste);
-        this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap(oversetter);
+        this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap(oversetter, repositoryProvider.getBehandlingRepository(),
+            avklarMedlemskapUtleder);
     }
 
     /**

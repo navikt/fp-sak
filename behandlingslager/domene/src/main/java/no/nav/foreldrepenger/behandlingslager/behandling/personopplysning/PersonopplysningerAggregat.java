@@ -146,6 +146,10 @@ public class PersonopplysningerAggregat {
             .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
     }
 
+    public List<StatsborgerskapEntitet> getStatsborgerskap(AktørId aktørId) {
+        return statsborgerskap.getOrDefault(aktørId, List.of());
+    }
+
     public boolean harStatsborgerskap(AktørId aktørId, Landkoder land) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
             .anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
