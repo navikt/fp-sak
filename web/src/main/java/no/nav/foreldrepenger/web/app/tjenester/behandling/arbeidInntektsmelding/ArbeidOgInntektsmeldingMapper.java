@@ -78,7 +78,8 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getKildesystem(),
                 im.getStartDatoPermisjon().orElse(null),
                 im.getNaturalYtelser(),
-                im.getEndringerRefusjon()
+                im.getEndringerRefusjon(),
+                im.getInntektsmeldingInnsendingsårsak()
             );
     }
 
@@ -102,7 +103,8 @@ public class ArbeidOgInntektsmeldingMapper {
             im.getKildesystem(),
             im.getStartDatoPermisjon().orElse(null),
             im.getNaturalYtelser(),
-            im.getEndringerRefusjon()
+            im.getEndringerRefusjon(),
+            im.getInntektsmeldingInnsendingsårsak()
         );
     }
 

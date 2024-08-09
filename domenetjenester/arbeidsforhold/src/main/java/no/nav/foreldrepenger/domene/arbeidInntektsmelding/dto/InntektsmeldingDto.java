@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 
 public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  BigDecimal refusjonPrMnd,
@@ -27,5 +28,6 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  String kildeSystem,
                                  LocalDate startDatoPermisjon,
                                  List<NaturalYtelse> naturalytelser,
-                                 List<Refusjon> refusjonsperioder
+                                 List<Refusjon> refusjonsperioder,
+                                 InntektsmeldingInnsendingsårsak innsendingsårsak
                                  ){}
