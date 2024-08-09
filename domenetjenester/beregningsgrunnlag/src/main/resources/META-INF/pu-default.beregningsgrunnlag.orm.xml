@@ -29,6 +29,7 @@
     <sequence-generator name="SEQ_BESTEBEREGNING_MAANED" allocation-size="50" sequence-name="SEQ_BESTEBEREGNING_MAANED"/>
     <sequence-generator name="SEQ_BESTEBEREGNING_INNTEKT" allocation-size="50" sequence-name="SEQ_BESTEBEREGNING_INNTEKT"/>
     <sequence-generator name="SEQ_BG_AKTIVITET_STATUS" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_STATUS"/>
+    <sequence-generator name="SEQ_BG_EKSTERN_KOBLING" allocation-size="50" sequence-name="SEQ_BG_EKSTERN_KOBLING" />
 
 
     <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet" />
@@ -55,5 +56,6 @@
     <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet" />
     <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet" />
     <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet" />
+    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling" />
 
 </entity-mappings>
