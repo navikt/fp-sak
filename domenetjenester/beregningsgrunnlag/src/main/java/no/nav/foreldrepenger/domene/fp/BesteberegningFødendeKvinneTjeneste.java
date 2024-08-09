@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
@@ -145,8 +146,19 @@ public class BesteberegningFødendeKvinneTjeneste {
             return Collections.emptyList();
         }
         List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
-        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter)
+
+        // Obs: Før flere ytelser legges til her, validerer med produkteier hvordan
+        // inntekten skal fordeles under besteberegning og sjekk om eksiterende kode støtter dette
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+                RelatertYtelseType.SYKEPENGER)
             .ifPresent(grunnlag::add);
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+                RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE)
+            .ifPresent(grunnlag::add);
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+                RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
+            .ifPresent(grunnlag::add);
+
         var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
         return grunnlag;

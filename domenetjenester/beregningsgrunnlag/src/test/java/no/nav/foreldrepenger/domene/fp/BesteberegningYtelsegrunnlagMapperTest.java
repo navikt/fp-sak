@@ -38,7 +38,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
         var sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)));
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.DAGPENGER);
         var filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
-        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
+        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter, RelatertYtelseType.SYKEPENGER);
         assertThat(mappetGrunnlag).isPresent();
         assertThat(mappetGrunnlag.get().perioder()).hasSize(1);
         assertThat(mappetGrunnlag.get().perioder().getFirst().getPeriode().getFomDato()).isEqualTo(månederFørStp(15));
@@ -52,7 +52,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
         var sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)), RelatertYtelseTilstand.ÅPEN);
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.UGYLDIG);
         var filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
-        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
+        var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter, RelatertYtelseType.SYKEPENGER);
         assertThat(mappetGrunnlag).isEmpty();
     }
 
