@@ -74,26 +74,31 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getInnsendingstidspunkt(),
                 inntekstmeldingMangel.orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getBegrunnelse).orElse(null),
-                vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null));
+                vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null),
+                im.getKildesystem(),
+                im.getStartDatoPermisjon().orElse(null)
+            );
     }
 
     // TODO: oppgi mer info?
-    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im) {
+    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im, Optional<KontaktinformasjonIM> kontaktinfo) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
             im.getArbeidsgiver().getIdentifikator(),
             null, // eksternarbeidsforhold
             im.getArbeidsforholdRef().getReferanse(),
-            null,
-            null,
+            kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
+            kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
             null,
             im.getMottattDato(),
             im.getInnsendingstidspunkt(),
             null,
             null,
-            null
+            null,
+            im.getKildesystem(),
+            im.getStartDatoPermisjon().orElse(null)
         );
     }
 

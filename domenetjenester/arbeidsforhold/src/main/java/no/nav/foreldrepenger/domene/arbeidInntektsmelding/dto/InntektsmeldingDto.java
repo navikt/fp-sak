@@ -20,4 +20,7 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  LocalDateTime innsendingstidspunkt,
                                  AksjonspunktÅrsak årsak,
                                  String begrunnelse,
-                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering){}
+                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
+                                 String kildeSystem,
+                                 LocalDate startDatoPermisjon
+                                 ){}

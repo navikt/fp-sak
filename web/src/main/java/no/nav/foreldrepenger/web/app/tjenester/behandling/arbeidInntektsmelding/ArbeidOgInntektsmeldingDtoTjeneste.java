@@ -80,7 +80,14 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     public List<InntektsmeldingDto> hentAlleInntektsmeldingerForFagsak(BehandlingReferanse referanse) {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(referanse.saksnummer());
-        return inntektsmeldinger.stream().map(ArbeidOgInntektsmeldingMapper::mapInntektsmelding).toList();
+
+        var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
+
+        return inntektsmeldinger.stream().map(im -> {
+                var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
+                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo);
+            })
+            .toList();
     }
 
     private List<InntektDto> mapInntekter(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {

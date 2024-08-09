@@ -62,11 +62,12 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     private static final String LAGRE_VURDERING_PART_PATH = "/arbeid-inntektsmelding/lagre-vurdering";
     private static final String REGISTRER_ARBEIDSFORHOLD_PART_PATH = "/arbeid-inntektsmelding/lagre-arbeidsforhold";
     private static final String ÅPNE_FOR_NY_VURDERING_PART_PATH = "/arbeid-inntektsmelding/apne-for-ny-vurdering";
-    private static final String HENT_ALLE_INNTEKTSMELDINGER_FOR_SAK = "/arbeid-inntektsmelding/alle-inntektsmeldinger";
+    private static final String HENT_ALLE_INNTEKTSMELDINGER_PART_PATH = "/arbeid-inntektsmelding/alle-inntektsmeldinger";
     public static final String ARBEID_OG_INNTEKTSMELDING_PATH = BASE_PATH + ARBEID_OG_INNTEKTSMELDING_PART_PATH;
     public static final String REGISTRER_ARBEIDSFORHOLD_PATH = BASE_PATH + REGISTRER_ARBEIDSFORHOLD_PART_PATH;
     public static final String LAGRE_VURDERING_PATH = BASE_PATH + LAGRE_VURDERING_PART_PATH;
     public static final String ÅPNE_FOR_NY_VURDERING_PATH = BASE_PATH + ÅPNE_FOR_NY_VURDERING_PART_PATH;
+    public static final String HENT_ALLE_INNTEKTSMELDINGER_PATH = BASE_PATH + HENT_ALLE_INNTEKTSMELDINGER_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -108,7 +109,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     }
 
     @GET
-    @Path(HENT_ALLE_INNTEKTSMELDINGER_FOR_SAK)
+    @Path(HENT_ALLE_INNTEKTSMELDINGER_PART_PATH)
     @Operation(description = "Henter alle inntektsmeldinger som hører til en fagsak", summary = "Returnerer liste av alle inntektsmeldinger til saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<InntektsmeldingDto> getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
