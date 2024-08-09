@@ -3,10 +3,12 @@ package no.nav.foreldrepenger.domene.entiteter;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,13 +19,14 @@ import jakarta.persistence.Table;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BeregningsgrunnlagKobling")
-@Table(name = "BG_KOBLING")
+@Table(name = "BG_EKSTERN_KOBLING")
 public class BeregningsgrunnlagKobling extends BaseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_KOBLING")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_EKSTERN_KOBLING")
     private Long id;
 
     @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
@@ -40,6 +43,10 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
     @Column(name = "kobling_uuid", nullable = false, updatable = false, unique = true)
     private UUID koblingUuid;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "reguleringsbehov")
+    private Boolean reguleringsbehov;
+
     protected BeregningsgrunnlagKobling() {
         // Hibernate
     }
@@ -49,16 +56,20 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
         this.behandlingId = behandlingId;
     }
 
-    public Beløp getGrunnbeløp() {
-        return grunnbeløp;
+    public Optional<Beløp> getGrunnbeløp() {
+        return Optional.ofNullable(grunnbeløp);
     }
 
-    public LocalDate getSkjæringstidspunkt() {
-        return skjæringstidspunkt;
+    public Optional<LocalDate> getSkjæringstidspunkt() {
+        return Optional.ofNullable(skjæringstidspunkt);
     }
 
     public UUID getKoblingUuid() {
         return koblingUuid;
+    }
+
+    public Optional<Boolean> getReguleringsbehov() {
+        return Optional.ofNullable(reguleringsbehov);
     }
 
     void oppdaterMedGrunnbeløp(Beløp grunnbeløp) {
@@ -73,6 +84,13 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
             throw new IllegalArgumentException("Skjæringstidspunkt er allerede satt, skal ikke oppdateres");
         }
         this.skjæringstidspunkt = Objects.requireNonNull(skjæringstidspunkt, "skjæringstidspunkt");
+    }
+
+    void oppdaterMedReguleringsbehov(boolean reguleringsbehov) {
+        if (this.reguleringsbehov != null) {
+            throw new IllegalArgumentException("Reguleringsbehov er allerede satt, skal ikke oppdateres");
+        }
+        this.reguleringsbehov = reguleringsbehov;
     }
 
 }
