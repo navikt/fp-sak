@@ -195,6 +195,17 @@ public class OppgaveTjeneste {
         }
     }
 
+    /*
+     * Forvaltningsrelatert
+     */
+    public List<Oppgave> hentOppgaver(List<String> oppgaveTyper, String aktørId, String enhetsNr, String limit) {
+        try {
+            return restKlient.finnÅpneOppgaver(oppgaveTyper, aktørId, enhetsNr, limit);
+        } catch (Exception e) {
+            throw new TekniskException("FP-395341", "Feil ved henting av alle åpne oppgaver.");
+        }
+    }
+
     public void ferdigstillOppgaveForForvaltning(String oppgaveId) {
         var avsluttOppgaveTask = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
         AvsluttOppgaveTask.setOppgaveId(avsluttOppgaveTask, oppgaveId);
