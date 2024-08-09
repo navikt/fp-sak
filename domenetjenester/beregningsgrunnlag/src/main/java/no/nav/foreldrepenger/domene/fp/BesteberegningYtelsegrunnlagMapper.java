@@ -95,9 +95,9 @@ public class BesteberegningYtelsegrunnlagMapper {
         return Arbeidskategori.UGYLDIG.equals(kategori) && RelatertYtelseTilstand.ÅPEN.equals(sp);
     }
 
-    public static Optional<Ytelsegrunnlag> mapEksterneYtelserTilYtelsrgrunnlag(DatoIntervallEntitet periode,
-                                                                       YtelseFilter ytelseFilter,
-                                                                       RelatertYtelseType ytelse) {
+    public static Optional<Ytelsegrunnlag> mapEksterneYtelserTilBesteberegningYtelsegrunnlag(DatoIntervallEntitet periode,
+                                                                                             YtelseFilter ytelseFilter,
+                                                                                             RelatertYtelseType ytelse) {
         var ytelsevedtak = ytelseFilter.filter(y -> y.getRelatertYtelseType().equals(ytelse))
             .filter(y -> y.getPeriode().overlapper(periode))
             .getFiltrertYtelser();

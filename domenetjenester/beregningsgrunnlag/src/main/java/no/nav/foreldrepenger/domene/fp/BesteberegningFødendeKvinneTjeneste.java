@@ -149,13 +149,13 @@ public class BesteberegningFødendeKvinneTjeneste {
 
         // Obs: Før flere ytelser legges til her, validerer med produkteier hvordan
         // inntekten skal fordeles under besteberegning og sjekk om eksiterende kode støtter dette
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilYtelsrgrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
                 RelatertYtelseType.SYKEPENGER)
             .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilYtelsrgrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
                 RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE)
             .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilYtelsrgrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
                 RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
             .ifPresent(grunnlag::add);
 
