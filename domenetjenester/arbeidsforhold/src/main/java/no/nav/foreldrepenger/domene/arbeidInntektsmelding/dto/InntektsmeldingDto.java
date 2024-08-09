@@ -3,9 +3,12 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 
 public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  BigDecimal refusjonPrMnd,
@@ -22,5 +25,7 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  String begrunnelse,
                                  ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                  String kildeSystem,
-                                 LocalDate startDatoPermisjon
+                                 LocalDate startDatoPermisjon,
+                                 List<NaturalYtelse> naturalytelser,
+                                 List<Refusjon> refusjonsperioder
                                  ){}

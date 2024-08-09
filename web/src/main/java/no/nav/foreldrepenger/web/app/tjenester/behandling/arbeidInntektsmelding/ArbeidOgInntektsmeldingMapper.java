@@ -76,7 +76,9 @@ public class ArbeidOgInntektsmeldingMapper {
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getBegrunnelse).orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null),
                 im.getKildesystem(),
-                im.getStartDatoPermisjon().orElse(null)
+                im.getStartDatoPermisjon().orElse(null),
+                im.getNaturalYtelser(),
+                im.getEndringerRefusjon()
             );
     }
 
@@ -98,7 +100,9 @@ public class ArbeidOgInntektsmeldingMapper {
             null,
             null,
             im.getKildesystem(),
-            im.getStartDatoPermisjon().orElse(null)
+            im.getStartDatoPermisjon().orElse(null),
+            im.getNaturalYtelser(),
+            im.getEndringerRefusjon()
         );
     }
 
