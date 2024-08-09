@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -79,12 +80,13 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getStartDatoPermisjon().orElse(null),
                 im.getNaturalYtelser(),
                 im.getEndringerRefusjon(),
-                im.getInntektsmeldingInnsendingsårsak()
+                im.getInntektsmeldingInnsendingsårsak(),
+                List.of()
             );
     }
 
     // TODO: oppgi mer info?
-    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im, Optional<KontaktinformasjonIM> kontaktinfo) {
+    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im, Optional<KontaktinformasjonIM> kontaktinfo, List<UUID> behandlingsIder) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
@@ -104,7 +106,8 @@ public class ArbeidOgInntektsmeldingMapper {
             im.getStartDatoPermisjon().orElse(null),
             im.getNaturalYtelser(),
             im.getEndringerRefusjon(),
-            im.getInntektsmeldingInnsendingsårsak()
+            im.getInntektsmeldingInnsendingsårsak(),
+            behandlingsIder
         );
     }
 

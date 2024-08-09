@@ -3,15 +3,20 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -43,6 +48,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     ArbeidOgInntektsmeldingDtoTjeneste() {
         // CDI
@@ -53,12 +59,14 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                                               MottatteDokumentRepository mottatteDokumentRepository,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               DokumentArkivTjeneste dokumentArkivTjeneste,
-                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                              BehandlingRepository behandlingRepository) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     public Optional<ArbeidOgInntektsmeldingDto> lagDto(BehandlingReferanse referanse) {
@@ -79,13 +87,29 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     public List<InntektsmeldingDto> hentAlleInntektsmeldingerForFagsak(BehandlingReferanse referanse) {
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(referanse.saksnummer())
+            .stream()
+            .filter(Behandling::erYtelseBehandling)
+            .toList();
+
+        var mapAvInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
+            .flatMap(behandling -> inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()))
+                .stream()
+                .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
+            .collect(Collectors.groupingBy(
+                Map.Entry::getKey,
+                Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+            ));
+
+
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(referanse.saksnummer());
 
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
 
         return inntektsmeldinger.stream().map(im -> {
                 var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo);
+                var behandlingsIder = mapAvInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
+                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo, behandlingsIder);
             })
             .toList();
     }

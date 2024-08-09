@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
@@ -29,5 +30,6 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  LocalDate startDatoPermisjon,
                                  List<NaturalYtelse> naturalytelser,
                                  List<Refusjon> refusjonsperioder,
-                                 InntektsmeldingInnsendingsårsak innsendingsårsak
+                                 InntektsmeldingInnsendingsårsak innsendingsårsak,
+                                 List<UUID> behandlingsIdeer
                                  ){}
