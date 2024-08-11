@@ -137,6 +137,12 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!BehandlingType.KLAGE.equals(behandling.getType())) {
             return;
         }
+        var åpneAnkerSammeKlage = behandlingRepository.hentÅpneBehandlingerForFagsakId(behandling.getFagsakId()).stream()
+            .filter(b -> BehandlingType.ANKE.equals(b.getType()))
+            .anyMatch(a -> kabalTjeneste.gjelderÅpenAnkeDenneKlagen(a, behandling));
+        if (åpneAnkerSammeKlage) {
+            throw new IllegalStateException("Mottatt anke opprettet, men har allerede åpen ankebehandling");
+        }
         var ankeBehandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(behandling.getFagsak(), BehandlingType.ANKE);
         kabalTjeneste.opprettNyttAnkeResultat(ankeBehandling, ref, behandling);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(ankeBehandling);
@@ -160,6 +166,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-anke avsluttet men mangler utfall"));
         var ankeBehandling = kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
+        var ankeBehandlingSteg = Optional.ofNullable(ankeBehandling.getAktivtBehandlingSteg())
+            .filter(bst -> Set.of(BehandlingStegType.ANKE, BehandlingStegType.ANKE_MERKNADER).contains(bst))
+            .orElseThrow(() -> new IllegalStateException("Ankebehandling mangler aktiv tilstand " + behandlingId));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling.getId());
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
