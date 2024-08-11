@@ -166,9 +166,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-anke avsluttet men mangler utfall"));
         var ankeBehandling = kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
-        var ankeBehandlingSteg = Optional.ofNullable(ankeBehandling.getAktivtBehandlingSteg())
-            .filter(bst -> Set.of(BehandlingStegType.ANKE, BehandlingStegType.ANKE_MERKNADER).contains(bst))
-            .orElseThrow(() -> new IllegalStateException("Ankebehandling mangler aktiv tilstand " + behandlingId));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling.getId());
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
