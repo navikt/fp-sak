@@ -210,6 +210,7 @@ class SjekkDbStrukturTest {
                  and index_name not like 'PK_%' and index_name not like 'IDX_%' and index_name not like 'UIDX_%'
                  and table_name not like 'schema_%'
                  and table_name not like 'HTE_%'
+                 and table_name not like 'BIN$%'
                 """;
 
         List<String> avvik = new ArrayList<>();
