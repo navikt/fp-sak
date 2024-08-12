@@ -54,18 +54,19 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
-                                                        Collection<ArbeidsforholdReferanse> referanser,
+                                                        Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
                                                         Optional<KontaktinformasjonIM> kontaktinfo,
                                                         Optional<String> dokumentId,
                                                         List<ArbeidsforholdMangel> mangler,
-                                                        List<ArbeidsforholdValg> saksbehandlersVurderinger) {
+                                                        List<ArbeidsforholdValg> saksbehandlersVurderinger,
+                                                        List<UUID> behandlingsIder) {
         var inntekstmeldingMangel = finnIdentifisertInntektsmeldingMangel(im.getArbeidsgiver(), im.getArbeidsforholdRef(), mangler);
         var vurderingPåInntektsmelding = finnSaksbehandlersVurderingPåInntektsmelding(im.getArbeidsgiver(), im.getArbeidsforholdRef(), saksbehandlersVurderinger);
         return new InntektsmeldingDto(
                 fraBeløp(im.getInntektBeløp()),
                 fraBeløp(im.getRefusjonBeløpPerMnd()),
                 im.getArbeidsgiver().getIdentifikator(),
-                finnEksternRef(im.getArbeidsforholdRef(), referanser).orElse(null),
+                finnEksternRef(im.getArbeidsforholdRef(), arbeidsforholdReferanser).orElse(null),
                 im.getArbeidsforholdRef().getReferanse(),
                 kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
                 kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
@@ -81,37 +82,8 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getNaturalYtelser(),
                 im.getEndringerRefusjon(),
                 im.getInntektsmeldingInnsendingsårsak(),
-                List.of()
-            );
-    }
-
-    // TODO: oppgi mer info?
-    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
-                                                        Optional<KontaktinformasjonIM> kontaktinfo,
-                                                        List<UUID> behandlingsIder,
-                                                        Optional<String> dokumentId) {
-        return new InntektsmeldingDto(
-            fraBeløp(im.getInntektBeløp()),
-            fraBeløp(im.getRefusjonBeløpPerMnd()),
-            im.getArbeidsgiver().getIdentifikator(),
-            null,
-            im.getArbeidsforholdRef().getReferanse(),
-            kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
-            kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
-            im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
-            dokumentId.orElse(null),
-            im.getMottattDato(),
-            im.getInnsendingstidspunkt(),
-            null,
-            null,
-            null,
-            im.getKildesystem(),
-            im.getStartDatoPermisjon().orElse(null),
-            im.getNaturalYtelser(),
-            im.getEndringerRefusjon(),
-            im.getInntektsmeldingInnsendingsårsak(),
             behandlingsIder
-        );
+            );
     }
 
     private static Optional<ArbeidsforholdValg> finnSaksbehandlersVurderingPåInntektsmelding(Arbeidsgiver arbeidsgiver,

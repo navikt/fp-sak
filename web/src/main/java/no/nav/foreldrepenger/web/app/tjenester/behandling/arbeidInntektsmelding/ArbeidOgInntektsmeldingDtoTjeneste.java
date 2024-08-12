@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -80,43 +82,25 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             mangler.addAll(mangelPermisjon);
         }
         var saksbehandlersVurderinger = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
-        var inntektsmeldinger = mapInntektsmeldinger(iayGrunnlag, referanse, mangler, saksbehandlersVurderinger);
+        var inntektsmeldinger = hentInntektsmeldingerForIayGrunnlag(iayGrunnlag, referanse, mangler, saksbehandlersVurderinger);
         var arbeidsforhold = mapArbeidsforhold(iayGrunnlag, referanse, mangler, saksbehandlersVurderinger);
         var inntekter = mapInntekter(iayGrunnlag, referanse);
         return Optional.of(new ArbeidOgInntektsmeldingDto(inntektsmeldinger, arbeidsforhold, inntekter, referanse.getUtledetSkjæringstidspunkt()));
     }
 
+    public List<InntektsmeldingDto> hentInntektsmeldingerForIayGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse, List<ArbeidsforholdMangel> mangler, List<ArbeidsforholdValg> saksbehandlersVurderinger) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
+            .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
+            .orElse(Collections.emptyList());
+
+        return mapInntektsmeldinger(inntektsmeldinger, referanse, referanser, mangler, saksbehandlersVurderinger);
+    }
+
     public List<InntektsmeldingDto> hentAlleInntektsmeldingerForFagsak(BehandlingReferanse referanse) {
-        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(referanse.saksnummer())
-            .stream()
-            .filter(Behandling::erYtelseBehandling)
-            .toList();
-
-        var mapAvInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
-            .flatMap(behandling -> inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()))
-                .stream()
-                .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
-            .collect(Collectors.groupingBy(
-                Map.Entry::getKey,
-                Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-            ));
-
-
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(referanse.saksnummer());
 
-        var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
-
-        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer()).stream()
-            .filter(this::gjelderInntektsmelding)
-            .toList();
-
-        return inntektsmeldinger.stream().map(im -> {
-                var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
-                var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-                var behandlingsIder = mapAvInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
-                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo, behandlingsIder, dokumentId);
-            })
-            .toList();
+        return mapInntektsmeldinger(inntektsmeldinger, referanse, List.of(), List.of(), List.of());
     }
 
     private List<InntektDto> mapInntekter(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {
@@ -149,22 +133,35 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         return alleArbeidsforhold;
     }
 
-    private List<InntektsmeldingDto> mapInntektsmeldinger(InntektArbeidYtelseGrunnlag iayGrunnlag,
+    private List<InntektsmeldingDto> mapInntektsmeldinger(List<Inntektsmelding> inntektsmeldinger,
                                                           BehandlingReferanse referanse,
+                                                          Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
                                                           List<ArbeidsforholdMangel> mangler,
                                                           List<ArbeidsforholdValg> saksbehandlersVurderinger) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
-        var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
-            .orElse(Collections.emptyList());
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
         var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer()).stream()
             .filter(this::gjelderInntektsmelding)
             .toList();
+
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(referanse.saksnummer())
+            .stream()
+            .filter(Behandling::erYtelseBehandling)
+            .toList();
+
+        var mapAvInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
+            .flatMap(behandling -> inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()))
+                .stream()
+                .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
+            .collect(Collectors.groupingBy(
+                Map.Entry::getKey,
+                Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+            ));
+
         return inntektsmeldinger.stream().map(im -> {
                 var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
                 var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, referanser, kontaktinfo, dokumentId, mangler, saksbehandlersVurderinger);
+                var behandlingsIder = mapAvInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
+                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, arbeidsforholdReferanser, kontaktinfo, dokumentId, mangler, saksbehandlersVurderinger, behandlingsIder);
             })
             .toList();
     }
