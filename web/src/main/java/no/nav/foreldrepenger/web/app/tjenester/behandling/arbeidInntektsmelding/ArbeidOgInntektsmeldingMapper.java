@@ -86,17 +86,20 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     // TODO: oppgi mer info?
-    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im, Optional<KontaktinformasjonIM> kontaktinfo, List<UUID> behandlingsIder) {
+    public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
+                                                        Optional<KontaktinformasjonIM> kontaktinfo,
+                                                        List<UUID> behandlingsIder,
+                                                        Optional<String> dokumentId) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
             im.getArbeidsgiver().getIdentifikator(),
-            null, // eksternarbeidsforhold
+            null,
             im.getArbeidsforholdRef().getReferanse(),
             kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
             kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
-            null,
+            dokumentId.orElse(null),
             im.getMottattDato(),
             im.getInnsendingstidspunkt(),
             null,

@@ -28,7 +28,7 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                  String kildeSystem,
                                  LocalDate startDatoPermisjon,
-                                 List<NaturalYtelse> naturalytelser,
+                                 List<NaturalYtelse> bortfalteNaturalytelser,
                                  List<Refusjon> refusjonsperioder,
                                  InntektsmeldingInnsendingsårsak innsendingsårsak,
                                  List<UUID> behandlingsIdeer

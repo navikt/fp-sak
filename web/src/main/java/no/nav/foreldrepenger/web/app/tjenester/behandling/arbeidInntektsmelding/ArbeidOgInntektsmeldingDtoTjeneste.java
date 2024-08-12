@@ -106,10 +106,15 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
 
+        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer()).stream()
+            .filter(this::gjelderInntektsmelding)
+            .toList();
+
         return inntektsmeldinger.stream().map(im -> {
+                var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
                 var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
                 var behandlingsIder = mapAvInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
-                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo, behandlingsIder);
+                return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, kontaktinfo, behandlingsIder, dokumentId);
             })
             .toList();
     }
