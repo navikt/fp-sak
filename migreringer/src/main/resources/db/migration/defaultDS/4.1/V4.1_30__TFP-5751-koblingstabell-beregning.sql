@@ -11,7 +11,7 @@ CREATE TABLE BG_EKSTERN_KOBLING (
                                 ENDRET_AV     VARCHAR2(20 char)
 );
 
-create index IDX_BG_EKSTERN_KOBLING  on BG_EKSTERN_KOBLING (BEHANDLING_ID);
+create index IDX_BG_EKSTERN_KOBLING on BG_EKSTERN_KOBLING (BEHANDLING_ID);
 
 COMMENT ON TABLE BG_EKSTERN_KOBLING IS 'Tabell som identifiserer et beregningsgrunnlag som ligger lagret i kalkulus';
 COMMENT ON COLUMN BG_EKSTERN_KOBLING.ID IS 'Primærnøkkel';
