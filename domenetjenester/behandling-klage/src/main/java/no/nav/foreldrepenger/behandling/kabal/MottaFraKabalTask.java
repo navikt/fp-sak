@@ -137,6 +137,12 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!BehandlingType.KLAGE.equals(behandling.getType())) {
             return;
         }
+        var åpneAnkerSammeKlage = behandlingRepository.hentÅpneBehandlingerForFagsakId(behandling.getFagsakId()).stream()
+            .filter(b -> BehandlingType.ANKE.equals(b.getType()))
+            .anyMatch(a -> kabalTjeneste.gjelderÅpenAnkeDenneKlagen(a, behandling));
+        if (åpneAnkerSammeKlage) {
+            throw new IllegalStateException("Mottatt anke opprettet, men har allerede åpen ankebehandling");
+        }
         var ankeBehandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(behandling.getFagsak(), BehandlingType.ANKE);
         kabalTjeneste.opprettNyttAnkeResultat(ankeBehandling, ref, behandling);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(ankeBehandling);

@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
@@ -138,9 +139,12 @@ public class KabalTjeneste {
         var gjeldendeSendtTrygderetten = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling)
             .map(AnkeVurderingResultatEntitet::getSendtTrygderettDato);
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
+        // OBS det kan forekomme flere oversendelser til Trygderetten (retur-tilfelle). Oppdater vurdering. Behold tidligste oversendelsesdato
         // Denne er essensiell for AnkeMerknaderSteg
-        Optional.ofNullable(sendtTrygderetten).ifPresent(builder::medSendtTrygderettDato);
-        if (gjeldendeAnkeVurdering.isPresent() && gjeldendeSendtTrygderetten.isPresent()) {
+        if (sendtTrygderetten != null && (gjeldendeSendtTrygderetten.isEmpty() || sendtTrygderetten.isBefore(gjeldendeSendtTrygderetten.get()))) {
+            builder.medSendtTrygderettDato(sendtTrygderetten);
+        }
+        if (sendtTrygderetten == null && gjeldendeAnkeVurdering.isPresent() && gjeldendeSendtTrygderetten.isPresent()) {
             builder.medTrygderettVurdering(ankeVurderingFraUtfall(utfall)).medTrygderettVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
         } else {
             builder.medAnkeVurdering(ankeVurderingFraUtfall(utfall)).medAnkeVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
@@ -175,9 +179,8 @@ public class KabalTjeneste {
             // Knoteri fra Kabal
             // - AnkeOpprettet kommer med en kabalref og en direkte AnkeAvsluttet har samme kabalRef
             // - AnkeOpprettet kommer med en kabalref og AnkeTrygderett vil komme med en ny kabalRef - som presumptivt kommer i AnkeAvsluttet
-            var alleAnker = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+            var alleAnker = behandlingRepository.hentÅpneBehandlingerForFagsakId(behandling.getFagsakId()).stream()
                 .filter(b -> BehandlingType.ANKE.equals(b.getType()))
-                .filter(b -> !b.erSaksbehandlingAvsluttet())
                 .toList();
             return alleAnker.stream()
                 .filter(b -> ankeVurderingTjeneste.hentAnkeResultat(b).getPåAnketKlageBehandlingId().filter(k -> k.equals(behandlingId)).isPresent())
@@ -193,6 +196,12 @@ public class KabalTjeneste {
         } else {
             return Optional.empty();
         }
+    }
+
+    public boolean gjelderÅpenAnkeDenneKlagen(Behandling ankeBehandling, Behandling klageBehandling) {
+        var påAnketKlageForAnke = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(ankeBehandling)
+            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId).orElse(null);
+        return Objects.equals(påAnketKlageForAnke, klageBehandling.getId());
     }
 
     private String utledEnhet(Fagsak fagsak) {
@@ -230,10 +239,10 @@ public class KabalTjeneste {
     }
 
     private void opprettHistorikkinnslagAnke(Behandling behandling, KabalUtfall utfall) {
-        var klageVurdering = ankeVurderingFraUtfall(utfall);
-        var klageVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
+        var ankeVurdering = ankeVurderingFraUtfall(utfall);
+        var ankeVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
 
-        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(klageVurdering, klageVurderingOmgjør);
+        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
 
         var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.ANKE_BEH)
