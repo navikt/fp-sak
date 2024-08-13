@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +13,7 @@ import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytk
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;

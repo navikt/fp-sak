@@ -38,8 +38,6 @@ import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;

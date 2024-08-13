@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.math.BigDecimal;
@@ -15,12 +14,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
-import org.hibernate.jpa.HibernateHints;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.domene.entiteter.sporing.KopierRegelsporing;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;

@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
