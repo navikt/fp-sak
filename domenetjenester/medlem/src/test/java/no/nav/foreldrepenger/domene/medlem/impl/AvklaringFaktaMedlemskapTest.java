@@ -87,7 +87,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     private BehandlingReferanse lagRef(Behandling behandling) {
         return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO_FØDSEL)
-            .medUtledetMedlemsintervall(new LocalDateInterval(SKJÆRINGSDATO_FØDSEL.minusWeeks(4), SKJÆRINGSDATO_FØDSEL.plusWeeks(4)))
+            .medUttaksintervall(new LocalDateInterval(SKJÆRINGSDATO_FØDSEL.minusWeeks(4), SKJÆRINGSDATO_FØDSEL.plusWeeks(4)))
             .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL).build());
     }
 

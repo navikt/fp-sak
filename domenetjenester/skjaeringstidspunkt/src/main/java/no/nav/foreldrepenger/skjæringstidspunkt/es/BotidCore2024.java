@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -78,6 +79,17 @@ public class BotidCore2024 {
             return familieHendelse.getTermindato().or(familieHendelse::getFødselsdato);
         } else {
             return familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato);
+        }
+    }
+
+    public boolean ikkeBotidskrav(FamilieHendelseDato familieHendelseDato) {
+        if (familieHendelseDato == null || familieHendelseDato.familieHendelseDato() == null) {
+            return LocalDate.now().isBefore(ikrafttredelseDato);
+        }
+        if (familieHendelseDato.gjelderFødsel() && familieHendelseDato.termindato() != null) {
+            return familieHendelseDato.termindato().isBefore(ikrafttredelseDatoMedOvergangsordning);
+        } else {
+            return familieHendelseDato.familieHendelseDato().isBefore(ikrafttredelseDato);
         }
     }
 

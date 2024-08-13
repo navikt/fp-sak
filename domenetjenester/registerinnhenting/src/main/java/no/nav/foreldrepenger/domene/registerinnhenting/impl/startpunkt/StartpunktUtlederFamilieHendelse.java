@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -69,7 +70,8 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var origSkjæringstidspunkt = ref.getOriginalBehandlingId()
             .map(origId -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(origId).getUtledetSkjæringstidspunkt());
 
-        var nyBekreftetFødselsdato = ref.getSkjæringstidspunkt().getBekreftetFamiliehendelsedato().orElse(null);
+        var nyBekreftetFødselsdato = ref.getSkjæringstidspunkt().getFamilieHendelseDato()
+            .map(FamilieHendelseDato::familieHendelseDato).orElse(null);
         var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
             .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
