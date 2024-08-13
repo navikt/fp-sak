@@ -42,10 +42,10 @@ public class BeregningsgrunnlagRepository {
     }
 
     @Inject
-    public BeregningsgrunnlagRepository( EntityManager entityManager, SatsRepository satsRepository) {
+    public BeregningsgrunnlagRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
-        this.satsRepository = satsRepository;
+        this.satsRepository = new SatsRepository(entityManager);
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
