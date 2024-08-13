@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -32,21 +32,21 @@ class EngangsstønadReguleringSaksutvalgTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
-    private LegacyESBeregningRepository beregningsresultatRepository;
+    private SatsRepository satsRepository;
 
     private EngangsstønadFinnSakerTask tjeneste;
 
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        beregningsresultatRepository = new LegacyESBeregningRepository(entityManager);
-        tjeneste = new EngangsstønadFinnSakerTask(new SatsReguleringRepository(entityManager), beregningsresultatRepository, taskTjeneste);
+        satsRepository = new SatsRepository(entityManager);
+        tjeneste = new EngangsstønadFinnSakerTask(new SatsReguleringRepository(entityManager), new SatsRepository(entityManager), taskTjeneste);
     }
 
     @Test
     void skal_finne_en_sak_å_revurdere(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
         var kandidat = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats);
 
         tjeneste.doTask(lagFinnSakerTask());
@@ -61,8 +61,8 @@ class EngangsstønadReguleringSaksutvalgTest {
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
         opprettES(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats);
 
         tjeneste.doTask(lagFinnSakerTask());
@@ -72,9 +72,9 @@ class EngangsstønadReguleringSaksutvalgTest {
 
     @Test
     void skal_finne_to_saker_å_revurdere(EntityManager em) {
-        var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
+        var nySats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
         var kandidat1 = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats);
         var kandidat2 = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats); // FØR
         var kandidat3 = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats);

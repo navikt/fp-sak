@@ -15,6 +15,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
@@ -33,15 +35,17 @@ public class BeregningsgrunnlagRepository {
     private static final String BEREGNING_REFUSJON_OVERSTYRINGER = "beregningRefusjonOverstyringer";
     private static final String BUILDER = "beregningsgrunnlagGrunnlagBuilder";
     private EntityManager entityManager;
+    private SatsRepository satsRepository;
 
     protected BeregningsgrunnlagRepository() {
         // for CDI proxy
     }
 
     @Inject
-    public BeregningsgrunnlagRepository( EntityManager entityManager) {
+    public BeregningsgrunnlagRepository( EntityManager entityManager, SatsRepository satsRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
+        this.satsRepository = satsRepository;
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
@@ -166,18 +170,6 @@ public class BeregningsgrunnlagRepository {
         query.setParameter("status2", AktivitetStatus.DAGPENGER);
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
         return query.getResultList();
-    }
-
-    public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
-                " and periode.fomDato<=:dato" +
-                " and periode.tomDato>=:dato", BeregningSats.class);
-
-        query.setParameter("satsType", satsType);
-        query.setParameter("dato", dato);
-        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
-        query.getResultList();
-        return hentEksaktResultat(query);
     }
 
     public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId, BeregningsgrunnlagEntitet beregningsgrunnlag, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
@@ -348,7 +340,7 @@ public class BeregningsgrunnlagRepository {
         if (beregningsgrunnlag.isPresent()) {
             if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
                 var bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
-                var beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdato);
+                var beregningSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdato);
                 lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag.get())
                     .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
             } else {

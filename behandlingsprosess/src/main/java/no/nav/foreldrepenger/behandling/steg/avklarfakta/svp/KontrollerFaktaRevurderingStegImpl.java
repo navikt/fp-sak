@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +93,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningRepository opptjeningRepository;
+    private SatsRepository satsRepository;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -106,7 +109,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) StartpunktTjeneste startpunktTjeneste,
                                        BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
                                        SvangerskapspengerRepository svangerskapspengerRepository,
-                                       MottatteDokumentTjeneste mottatteDokumentTjeneste) {
+                                       MottatteDokumentTjeneste mottatteDokumentTjeneste, SatsRepository satsRepository) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
@@ -122,6 +125,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+        this.satsRepository = satsRepository;
     }
 
     @Override
@@ -232,7 +236,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return StartpunktType.BEREGNING;
         }
 
-        var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
+        var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
 
         if (grunnbeløp.getVerdi() - satsIBeregning > 1) {

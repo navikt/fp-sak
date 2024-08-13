@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
     private final FagsakRepository fagsakRepository;
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private final BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private final SatsRepository satsRepository;
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private final BehandlendeEnhetTjeneste enhetTjeneste;
     private final BehandlingFlytkontroll flytkontroll;
@@ -49,6 +52,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                     BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                    SatsRepository satsRepository,
                                     BehandlendeEnhetTjeneste enhetTjeneste,
                                     BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
@@ -57,6 +61,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.satsRepository = satsRepository;
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
     }
@@ -79,7 +84,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
             var grunnbeløpFraSisteVedtatt = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
                 .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
                 .map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
-            var skalBrukeGrunnbeløp = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
+            var skalBrukeGrunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
             if (grunnbeløpFraSisteVedtatt == skalBrukeGrunnbeløp) {
                 LOG.info("GrunnbeløpRegulering har rett G for saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp());
                 return;

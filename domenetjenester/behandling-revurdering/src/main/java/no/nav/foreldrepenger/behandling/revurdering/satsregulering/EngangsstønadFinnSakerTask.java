@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -29,7 +29,7 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
 
     static final String REVURDERING_KEY = "revurdering"; // Skal revurderinger opprettes?
 
-    private LegacyESBeregningRepository esBeregningRepository;
+    private SatsRepository satsRepository;
     private SatsReguleringRepository satsReguleringRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
@@ -39,10 +39,10 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
 
     @Inject
     public EngangsstønadFinnSakerTask(SatsReguleringRepository satsReguleringRepository,
-                                      LegacyESBeregningRepository esBeregningRepository,
+                                      SatsRepository satsRepository,
                                       ProsessTaskTjeneste taskTjeneste) {
         this.satsReguleringRepository = satsReguleringRepository;
-        this.esBeregningRepository = esBeregningRepository;
+        this.satsRepository = satsRepository;
         this.taskTjeneste = taskTjeneste;
     }
 
@@ -65,8 +65,8 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
     }
 
     private LocalDate finnGjeldendeSatsFomDato() {
-        var gjeldende = esBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now());
-        var forrige = esBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, gjeldende.getPeriode().getFomDato().minusDays(1));
+        var gjeldende = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now());
+        var forrige = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             LOG.warn("ESregulering Samme sats i periodene: gammel {} ny {}", forrige, gjeldende);
             return null;

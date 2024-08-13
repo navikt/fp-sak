@@ -104,10 +104,6 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(Collections.emptyList());
     }
 
-    public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        return beregningsgrunnlagRepository.finnEksaktSats(satsType, dato);
-    }
-
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
