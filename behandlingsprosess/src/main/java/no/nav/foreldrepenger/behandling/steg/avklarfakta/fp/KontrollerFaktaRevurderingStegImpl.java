@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
