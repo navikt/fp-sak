@@ -4,8 +4,11 @@ import java.util.Set;
 
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiode, Set<LocalDateInterval> registrertMedlemskapPerioder,
-                                      Personopplysninger personopplysninger, Søknad søknad) {
+record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt,
+                                      LocalDateInterval vurderingsperiodeLovligOpphold, // To forskjellige grunnlag eller to vurderingsperioder på ett stort grunnlag
+                                      Set<LocalDateInterval> registrertMedlemskapPerioder,
+                                      Personopplysninger personopplysninger,
+                                      Søknad søknad) {
 
     record Søknad(Set<LocalDateInterval> utenlandsopphold) {
     }

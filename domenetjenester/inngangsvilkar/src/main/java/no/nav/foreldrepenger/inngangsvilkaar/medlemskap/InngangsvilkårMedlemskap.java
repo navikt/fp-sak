@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,37 +65,39 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
             var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
             logDiff(behandling, nyUtledingResultat);
         } catch (Exception e) {
-            LOG.info("Medlemskap V2 feilet", e);
+            LOG.info("Medlemskap sammenligning feilet", e);
         }
 
         return vilkårData;
 
     }
 
-    private static void logDiff(Behandling behandling, Set<MedlemskapAksjonspunktÅrsak> nyUtledingResultat) {
-        var utledetAksjonspunkt = behandling.getAksjonspunkter()
+    private static void logDiff(Behandling behandling, Set<MedlemskapAksjonspunktÅrsak> nyUtledetÅrsaker) {
+        var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
             .stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
+            .map(InngangsvilkårMedlemskap::map)
             .collect(Collectors.toSet());
 
-        nyUtledingResultat.stream()
-            .filter(nyÅrsak -> !utledetAksjonspunkt.contains(map(nyÅrsak)))
-            .forEach(nyÅrsak -> LOG.info("Medlemskap V2 diff nyÅrsakManglerAp {} - {} - {}", behandling.getFagsakYtelseType().name(),
-                nyÅrsak, tilKode(utledetAksjonspunkt)));
+        var ytelse = behandling.getFagsakYtelseType();
+        if (gammelUtledetÅrsaker.isEmpty() && nyUtledetÅrsaker.isEmpty()) {
+            LOG.info("Medlemskap for ytelse {} like, ingen avklaring", ytelse);
+        } else if (gammelUtledetÅrsaker.equals(nyUtledetÅrsaker)) {
+            LOG.info("Medlemskap for ytelse {} like, samme avklaring: {}", ytelse, nyUtledetÅrsaker);
+        } else {
+            nyUtledetÅrsaker.stream()
+                .filter(nyÅrsak -> !gammelUtledetÅrsaker.contains(nyÅrsak))
+                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} diff nyÅrsakManglerGammelÅrsak {} - {}", ytelse, nyÅrsak, gammelUtledetÅrsaker));
 
-        utledetAksjonspunkt.stream()
-            .filter(ap -> !nyUtledingResultat.contains(map(ap)))
-            .forEach(ap -> LOG.info("Medlemskap V2 diff apManglerNyÅrsak {} - {} - {}", behandling.getFagsakYtelseType().name(),
-                ap.getKode(), nyUtledingResultat));
+            gammelUtledetÅrsaker.stream()
+                .filter(gammelÅrsak -> !nyUtledetÅrsaker.contains(gammelÅrsak))
+                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} diff gammelÅrsakManglerNyÅrsak {} - {}", ytelse, gammelÅrsak, nyUtledetÅrsaker));
+        }
     }
 
     private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef) {
         return avklarMedlemskapUtleder.utledFor(behandlingRef);
-    }
-
-    private static List<String> tilKode(Set<AksjonspunktDefinisjon> utledetAksjonspunkt) {
-        return utledetAksjonspunkt.stream().map(AksjonspunktDefinisjon::getKode).toList();
     }
 
     private static MedlemskapAksjonspunktÅrsak map(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
@@ -106,15 +107,6 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
             case AVKLAR_LOVLIG_OPPHOLD -> MedlemskapAksjonspunktÅrsak.OPPHOLD;
             case AVKLAR_OPPHOLDSRETT -> MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
             default -> throw new IllegalStateException("Unexpected value: " + aksjonspunktDefinisjon);
-        };
-    }
-
-    private static AksjonspunktDefinisjon map(MedlemskapAksjonspunktÅrsak årsak) {
-        return switch (årsak) {
-            case BOSATT -> AVKLAR_OM_ER_BOSATT;
-            case MEDLEMSKAPSPERIODER_FRA_REGISTER -> AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-            case OPPHOLD -> AVKLAR_LOVLIG_OPPHOLD;
-            case OPPHOLDSRETT -> AVKLAR_OPPHOLDSRETT;
         };
     }
 }

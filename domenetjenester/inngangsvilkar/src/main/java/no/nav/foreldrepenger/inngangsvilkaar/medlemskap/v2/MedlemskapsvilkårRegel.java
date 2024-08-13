@@ -4,7 +4,7 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksj
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLD;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.*;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type;
 import static no.nav.fpsak.tidsserie.LocalDateTimeline.JoinStyle;
 
 import java.util.HashSet;
@@ -24,11 +24,13 @@ final class MedlemskapsvilkårRegel {
 
     static Set<MedlemskapAksjonspunktÅrsak> kjørRegler(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var resultat = new HashSet<MedlemskapAksjonspunktÅrsak>();
+        // BOSATT
         utledMedlemskapPerioderÅrsak(grunnlag).ifPresent(resultat::add);
         utledBosattÅrsak(grunnlag).ifPresent(resultat::add);
+
+        // LOVLIG OPPHOLD
         utledOppholdÅrsak(grunnlag).ifPresent(resultat::add);
         utledOppholdsrettÅrsak(grunnlag).ifPresent(resultat::add);
-
         return resultat;
     }
 
@@ -67,7 +69,7 @@ final class MedlemskapsvilkårRegel {
         var regionTimeline = new LocalDateTimeline<>(statsborgerskapSegmenter, (datoInterval, datoSegment, datoSegment2) -> {
             var prio = datoSegment.getValue().getPrioritet() < datoSegment2.getValue().getPrioritet() ? datoSegment : datoSegment2;
             return new LocalDateSegment<>(datoInterval, prio.getValue());
-        }).intersection(grunnlag.vurderingsperiode());
+        }).intersection(grunnlag.vurderingsperiodeLovligOpphold());
 
         var oppholdstillatelseTimeline = new LocalDateTimeline<>(grunnlag.personopplysninger()
             .oppholdstillatelser()
@@ -92,7 +94,7 @@ final class MedlemskapsvilkårRegel {
         var gyldigeStatuser = Set.of(Type.BOSATT, Type.DØD);
         var personstatusTimeline = new LocalDateTimeline<>(
             personstatusPerioder.stream().map(p -> new LocalDateSegment<>(p.interval(), p.type())).collect(Collectors.toSet()));
-        return personstatusTimeline.combine(new LocalDateTimeline<>(grunnlag.vurderingsperiode(), Boolean.TRUE),
+        return personstatusTimeline.combine(new LocalDateTimeline<>(grunnlag.vurderingsperiodeLovligOpphold(), Boolean.TRUE),
             (datoInterval, datoSegment, datoSegment2) -> {
                 if (datoSegment == null) {
                     return new LocalDateSegment<>(datoInterval, Boolean.FALSE);
@@ -111,7 +113,8 @@ final class MedlemskapsvilkårRegel {
     }
 
     private static boolean sjekkOmIngenPerioderMedMedlemskapsperioder(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        var vurderingsperiode = grunnlag.vurderingsperiode();
+        //TODO hvilken vurderingsperiode??
+        var vurderingsperiode = grunnlag.vurderingsperiodeBosatt();
         var registerMedlemskapPerioder = grunnlag.registrertMedlemskapPerioder();
 
         return registerMedlemskapPerioder.stream().noneMatch(mp -> mp.overlaps(vurderingsperiode));

@@ -38,15 +38,24 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
     }
 
     MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef) {
-        var vurderingsperiode = utledVurderingsperiode(behandlingRef);
+        var vurderingsperiodeBosatt = utledVurderingsperiodeBosatt(behandlingRef);
+        var vurderingsperiodeLovligOpphold = utledVurderingsperiodeLovligOpphold(behandlingRef);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, vurderingsperiode);
         var søknad = hentSøknad(behandlingRef);
 
-        return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiode, registrertMedlemskapPerioder, personopplysningGrunnlag, søknad);
+        return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder, personopplysningGrunnlag, søknad);
     }
 
-    private LocalDateInterval utledVurderingsperiode(BehandlingReferanse behandlingRef) {
+    // TODO
+    private LocalDateInterval utledVurderingsperiodeLovligOpphold(BehandlingReferanse behandlingRef) {
+        var fom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var tom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        return new LocalDateInterval(fom, tom);
+    }
+
+    // TODO
+    private LocalDateInterval utledVurderingsperiodeBosatt(BehandlingReferanse behandlingRef) {
         var fom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var tom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
         return new LocalDateInterval(fom, tom);
