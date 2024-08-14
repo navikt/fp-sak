@@ -13,9 +13,9 @@ record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt
     record Søknad(Set<LocalDateInterval> utenlandsopphold) {
     }
 
-    record Personopplysninger(Set<RegionPeriode> regioner, Set<LocalDateInterval> oppholdstillatelser, Set<PersonstatusPeriode> personstatus) {
+    record Personopplysninger(Set<RegionPeriode> regioner, Set<LocalDateInterval> oppholdstillatelser, Set<PersonstatusPeriode> personstatus, Set<Adresse> adresser) {
 
-        record RegionPeriode(LocalDateInterval interval, Region region) {
+        record RegionPeriode(LocalDateInterval periode, Region region) {
         }
 
         enum Region {
@@ -49,5 +49,8 @@ record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt
                 UTVANDRET
             }
         }
+    }
+
+    record Adresse(LocalDateInterval periode, boolean erUtenlandsk) {
     }
 }

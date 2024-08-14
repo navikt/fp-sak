@@ -53,20 +53,19 @@ final class MedlemskapsvilkårRegel {
     }
 
     private static boolean sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        //TODO skal vi telle udefinert region som tredjeland?
         return erAllePerioderMedRegionDekketAvOppholdstillatelser(grunnlag, Personopplysninger.Region.TREDJELAND);
     }
 
     private static boolean erAllePerioderMedRegionDekketAvOppholdstillatelser(MedlemskapsvilkårRegelGrunnlag grunnlag,
                                                                               Personopplysninger.Region region) {
-        var statsborgerskapSegmenter = grunnlag.personopplysninger()
+        var regionSegmenter = grunnlag.personopplysninger()
             .regioner()
             .stream()
             .filter(srp -> srp.region().equals(region))
-            .map(rp -> new LocalDateSegment<>(rp.interval(), rp.region()))
+            .map(rp -> new LocalDateSegment<>(rp.periode(), rp.region()))
             .toList();
 
-        var regionTimeline = new LocalDateTimeline<>(statsborgerskapSegmenter, (datoInterval, datoSegment, datoSegment2) -> {
+        var regionTimeline = new LocalDateTimeline<>(regionSegmenter, (datoInterval, datoSegment, datoSegment2) -> {
             var prio = datoSegment.getValue().getPrioritet() < datoSegment2.getValue().getPrioritet() ? datoSegment : datoSegment2;
             return new LocalDateSegment<>(datoInterval, prio.getValue());
         }).intersection(grunnlag.vurderingsperiodeLovligOpphold());
@@ -86,7 +85,23 @@ final class MedlemskapsvilkårRegel {
         if (!sjekkOmBosattPersonstatus(grunnlag)) {
             return Optional.of(BOSATT);
         }
+        if (sjekkOmUtenlandsadresser(grunnlag)) {
+            return Optional.of(BOSATT);
+        }
+        //TODO Sjekke ukjent adresse, og om manglende adresse?
         return Optional.empty();
+    }
+
+    private static boolean sjekkOmUtenlandsadresser(MedlemskapsvilkårRegelGrunnlag grunnlag) {
+        var adresserSegments = grunnlag.personopplysninger()
+            .adresser()
+            .stream()
+            .map(a -> new LocalDateSegment<>(a.periode(), a.erUtenlandsk()))
+            .collect(Collectors.toSet());
+        var timeline = new LocalDateTimeline<>(adresserSegments, (datoInterval, datoSegment, datoSegment2) ->
+            Boolean.TRUE.equals(datoSegment.getValue()) || Boolean.TRUE.equals(datoSegment2.getValue()) ? new LocalDateSegment<>(datoInterval,
+                Boolean.TRUE) : new LocalDateSegment<>(datoInterval, Boolean.FALSE));
+        return !timeline.intersection(grunnlag.vurderingsperiodeBosatt()).isEmpty();
     }
 
     private static boolean sjekkOmBosattPersonstatus(MedlemskapsvilkårRegelGrunnlag grunnlag) {

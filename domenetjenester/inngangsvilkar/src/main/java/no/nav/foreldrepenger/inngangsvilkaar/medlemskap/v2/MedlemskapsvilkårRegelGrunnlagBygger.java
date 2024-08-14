@@ -41,7 +41,10 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         var vurderingsperiodeBosatt = utledVurderingsperiodeBosatt(behandlingRef);
         var vurderingsperiodeLovligOpphold = utledVurderingsperiodeLovligOpphold(behandlingRef);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
-        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, vurderingsperiode);
+        var opplysningsperiode = new LocalDateInterval(
+            LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
+            LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
+        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
 
         return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder, personopplysningGrunnlag, søknad);
@@ -68,6 +71,7 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
             .map(MedlemskapOppgittTilknytningEntitet::getOpphold)
             .orElse(Set.of())
             .stream()
+            .filter(o -> o.getLand() != Landkoder.NOR)
             .map(o -> new LocalDateInterval(o.getPeriodeFom(), o.getPeriodeTom()))
             .collect(Collectors.toSet());
         return new MedlemskapsvilkårRegelGrunnlag.Søknad(utenlandsopphold);
@@ -83,9 +87,9 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
     }
 
     private MedlemskapsvilkårRegelGrunnlag.Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
-                                                                                     LocalDateInterval opplysningsvurderingsperiode) {
+                                                                                     LocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
-                DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsvurderingsperiode.getFomDato(), opplysningsvurderingsperiode.getTomDato()))
+                DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()))
             .orElseThrow();
         var aktørId = behandlingRef.aktørId();
         var regioner = personopplysningerAggregat.getStatsborgerskap(aktørId)
@@ -97,7 +101,11 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
             .map(o -> map(o.getPeriode()))
             .collect(Collectors.toSet());
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId).stream().map(this::map).collect(Collectors.toSet());
-        return new MedlemskapsvilkårRegelGrunnlag.Personopplysninger(regioner, oppholdstillatelser, personstatus);
+        var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId())
+            .stream()
+            .map(a -> new MedlemskapsvilkårRegelGrunnlag.Adresse(map(a.getPeriode()), a.erUtlandskAdresse()))
+            .collect(Collectors.toSet());
+        return new MedlemskapsvilkårRegelGrunnlag.Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
     }
 
     private PersonstatusPeriode map(PersonstatusEntitet personstatus) {
@@ -119,8 +127,7 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         return switch (MapRegionLandkoder.mapLandkode(landkode)) {
             case NORDEN -> Region.NORDEN;
             case EOS -> Region.EØS;
-            case TREDJELANDS_BORGER -> Region.TREDJELAND;
-            case UDEFINERT -> null;
+            case TREDJELANDS_BORGER, UDEFINERT -> Region.TREDJELAND;
         };
     }
 
