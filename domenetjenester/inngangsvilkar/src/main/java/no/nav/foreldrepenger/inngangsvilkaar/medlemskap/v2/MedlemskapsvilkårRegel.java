@@ -109,14 +109,13 @@ final class MedlemskapsvilkårRegel {
     }
 
     private static boolean sjekkOmUtenlandsadresser(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        var adresserSegments = grunnlag.personopplysninger()
+        var utenlandsAdresserSegments = grunnlag.personopplysninger()
             .adresser()
             .stream()
-            .map(a -> new LocalDateSegment<>(a.periode(), a.erUtenlandsk()))
+            .filter(MedlemskapsvilkårRegelGrunnlag.Adresse::erUtenlandsk)
+            .map(a -> new LocalDateSegment<>(a.periode(), Boolean.TRUE))
             .collect(Collectors.toSet());
-        var timeline = new LocalDateTimeline<>(adresserSegments, (datoInterval, datoSegment, datoSegment2) ->
-            Boolean.TRUE.equals(datoSegment.getValue()) || Boolean.TRUE.equals(datoSegment2.getValue()) ? new LocalDateSegment<>(datoInterval,
-                Boolean.TRUE) : new LocalDateSegment<>(datoInterval, Boolean.FALSE));
+        var timeline = new LocalDateTimeline<>(utenlandsAdresserSegments, StandardCombinators::alwaysTrueForMatch);
         return !timeline.intersection(grunnlag.vurderingsperiodeBosatt()).isEmpty();
     }
 
