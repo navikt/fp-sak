@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -13,6 +12,7 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -64,13 +64,15 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -87,9 +89,9 @@ class UttakStegImplTest {
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Inject
-    private BehandlingRepositoryProvider repositoryProvider;
+    private BeregningTjenesteInMemory beregningTjenesteInMemory;
     @Inject
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private FagsakRepository fagsakRepository;
     @Inject
@@ -417,7 +419,7 @@ class UttakStegImplTest {
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(behandlingId, revurderingId);
+        beregningTjenesteInMemory.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(tidligereBehandling), BeregningsgrunnlagTilstand.FASTSATT);
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
         yfBuilder.medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build());
@@ -662,19 +664,19 @@ class UttakStegImplTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
         var arbId = InternArbeidsforholdRef.nyRef();
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .medGrunnbeløp(BigDecimal.TEN)
-                .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+                .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                         .medBeregningsgrunnlagPeriode(LocalDate.now(), LocalDate.now())
-                        .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                                .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
+                    .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
+                        .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                                         .medArbeidsforholdRef(arbId)
-                                        .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)))
-                                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+                                        .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR)).build())
+                        .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build()).build())
                 .build();
-
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, FORESLÅTT);
+        beregningTjenesteInMemory.lagre(BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(
+            BeregningsgrunnlagTilstand.FASTSATT), BehandlingReferanse.fra(behandling));
     }
 
     private Arbeidsgiver virksomhet() {

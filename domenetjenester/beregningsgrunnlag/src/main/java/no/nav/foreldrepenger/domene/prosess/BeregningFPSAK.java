@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagGUI
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 
@@ -77,6 +78,14 @@ public class BeregningFPSAK implements BeregningAPI {
             }
             return Optional.empty();
         });
+    }
+
+    @Override
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
+        if (!BeregningsgrunnlagTilstand.FASTSATT.equals(tilstand)) {
+            throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
+        }
+        beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalbehandling.behandlingId(), revurdering.behandlingId());
     }
 
     private BeregningsgrunnlagGUIInputFelles getInputTjenesteGUI(FagsakYtelseType ytelseType) {
