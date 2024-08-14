@@ -44,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -97,6 +98,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private OpptjeningRepository opptjeningRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private SatsRepository satsRepository;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -114,7 +116,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                        ForeldrepengerUttakTjeneste uttakTjeneste,
                                        KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste,
-                                       DekningsgradTjeneste dekningsgradTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                       DekningsgradTjeneste dekningsgradTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                       SatsRepository satsRepository) {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -131,6 +134,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.satsRepository = satsRepository;
     }
 
     @Override
@@ -273,7 +277,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return finnStartpunktForGRegulering(revurdering);
         }
 
-        var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
+        var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
                 .orElse(0L);
 
