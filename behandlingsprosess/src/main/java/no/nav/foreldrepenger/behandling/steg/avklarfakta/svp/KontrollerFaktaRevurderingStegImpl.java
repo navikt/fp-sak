@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -61,7 +60,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
@@ -84,12 +84,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private BehandlingRepositoryProvider repositoryProvider;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private StartpunktTjeneste startpunktTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningRepository opptjeningRepository;
@@ -102,17 +102,15 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                       BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                        HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) StartpunktTjeneste startpunktTjeneste,
                                        BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
-                                       SvangerskapspengerRepository svangerskapspengerRepository,
+                                       SvangerskapspengerRepository svangerskapspengerRepository, BeregningTjeneste beregningTjeneste,
                                        MottatteDokumentTjeneste mottatteDokumentTjeneste, SatsRepository satsRepository) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
@@ -120,6 +118,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -266,7 +265,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         kopierOpptjeningVedBehov(origBehandling, revurdering);
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
-            beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
+            beregningTjeneste.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling), BeregningsgrunnlagTilstand.FASTSATT);
         }
 
     }

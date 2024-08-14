@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)
@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningTjeneste beregningTjeneste;
 
     FastsettBeregningsgrunnlagSteg() {
@@ -31,9 +30,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public FastsettBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-                                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                           BeregningTjeneste beregningTjeneste) {
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningTjeneste = beregningTjeneste;
     }
@@ -54,8 +51,10 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER) && behandling.erRevurdering()) {
             // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
             behandling.getOriginalBehandlingId()
-                .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId,
-                    behandling.getId()));
+                .ifPresent(originalId -> {
+                    var originalBehandling = behandlingRepository.hentBehandling(originalId);
+                    beregningTjeneste.kopier(BehandlingReferanse.fra(behandling), BehandlingReferanse.fra(originalBehandling), BeregningsgrunnlagTilstand.FASTSATT);
+                });
 
         }
     }
