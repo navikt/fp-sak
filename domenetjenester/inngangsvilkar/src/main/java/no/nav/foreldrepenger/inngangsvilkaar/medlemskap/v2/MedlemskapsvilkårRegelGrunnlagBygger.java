@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -27,11 +28,15 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
 
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
+    private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
 
     @Inject
-    MedlemskapsvilkårRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste, PersonopplysningTjeneste personopplysningTjeneste) {
+    MedlemskapsvilkårRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
+                                         PersonopplysningTjeneste personopplysningTjeneste,
+                                         MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
+        this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
     }
 
     MedlemskapsvilkårRegelGrunnlagBygger() {
@@ -39,8 +44,8 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
     }
 
     MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef) {
-        var vurderingsperiodeBosatt = utledVurderingsperiodeBosatt(behandlingRef);
-        var vurderingsperiodeLovligOpphold = utledVurderingsperiodeLovligOpphold(behandlingRef);
+        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef);
+        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var opplysningsperiode = new LocalDateInterval(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
@@ -48,21 +53,8 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
 
-        return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder, personopplysningGrunnlag, søknad);
-    }
-
-    // TODO
-    private LocalDateInterval utledVurderingsperiodeLovligOpphold(BehandlingReferanse behandlingRef) {
-        var fom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var tom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        return new LocalDateInterval(fom, tom);
-    }
-
-    // TODO
-    private LocalDateInterval utledVurderingsperiodeBosatt(BehandlingReferanse behandlingRef) {
-        var fom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var tom = behandlingRef.skjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        return new LocalDateInterval(fom, tom);
+        return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
+            personopplysningGrunnlag, søknad);
     }
 
     private MedlemskapsvilkårRegelGrunnlag.Søknad hentSøknad(BehandlingReferanse behandlingRef) {
@@ -90,8 +82,7 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
     private MedlemskapsvilkårRegelGrunnlag.Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
                                                                                      LocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
-                DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()))
-            .orElseThrow();
+            DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato())).orElseThrow();
         var aktørId = behandlingRef.aktørId();
         var regioner = personopplysningerAggregat.getStatsborgerskap(aktørId)
             .stream()
