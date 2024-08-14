@@ -51,6 +51,10 @@ record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt
         }
     }
 
-    record Adresse(LocalDateInterval periode, boolean erUtenlandsk) {
+    record Adresse(LocalDateInterval periode, Type type, boolean erUtenlandsk) {
+
+        enum Type {
+            BOSTED, ANNEN
+        }
     }
 }

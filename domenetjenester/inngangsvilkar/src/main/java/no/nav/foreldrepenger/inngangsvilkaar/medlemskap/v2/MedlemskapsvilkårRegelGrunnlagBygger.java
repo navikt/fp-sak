@@ -12,6 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -103,9 +104,16 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId).stream().map(this::map).collect(Collectors.toSet());
         var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId())
             .stream()
-            .map(a -> new MedlemskapsvilkårRegelGrunnlag.Adresse(map(a.getPeriode()), a.erUtlandskAdresse()))
+            .map(a -> new MedlemskapsvilkårRegelGrunnlag.Adresse(map(a.getPeriode()), map(a.getAdresseType()), a.erUtlandskAdresse()))
             .collect(Collectors.toSet());
         return new MedlemskapsvilkårRegelGrunnlag.Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
+    }
+
+    private static MedlemskapsvilkårRegelGrunnlag.Adresse.Type map(AdresseType adresseType) {
+        return switch (adresseType) {
+            case BOSTEDSADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTED;
+            default -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.ANNEN;
+        };
     }
 
     private PersonstatusPeriode map(PersonstatusEntitet personstatus) {

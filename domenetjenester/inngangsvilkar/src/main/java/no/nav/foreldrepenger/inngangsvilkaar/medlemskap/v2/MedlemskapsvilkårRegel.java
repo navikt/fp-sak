@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksj
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLD;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Adresse.Type.*;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type;
 import static no.nav.fpsak.tidsserie.LocalDateTimeline.JoinStyle;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 //TODO reimplementeres i fp-inngangsvilkår
 final class MedlemskapsvilkårRegel {
@@ -88,8 +90,22 @@ final class MedlemskapsvilkårRegel {
         if (sjekkOmUtenlandsadresser(grunnlag)) {
             return Optional.of(BOSATT);
         }
-        //TODO Sjekke ukjent adresse, og om manglende adresse?
+        if (sjekkOmManglendeBosted(grunnlag)) {
+            return Optional.of(BOSATT);
+        }
+        //TODO Sjekke ukjent adresse?
         return Optional.empty();
+    }
+
+    private static boolean sjekkOmManglendeBosted(MedlemskapsvilkårRegelGrunnlag grunnlag) {
+        var bostedsadresserSegments = grunnlag.personopplysninger()
+            .adresser()
+            .stream()
+            .filter(a -> a.type() == BOSTED)
+            .map(a -> new LocalDateSegment<>(a.periode(), Boolean.TRUE))
+            .collect(Collectors.toSet());
+        var timeline = new LocalDateTimeline<>(bostedsadresserSegments, StandardCombinators::alwaysTrueForMatch);
+        return !new LocalDateTimeline<>(grunnlag.vurderingsperiodeBosatt(), Boolean.TRUE).disjoint(timeline).isEmpty();
     }
 
     private static boolean sjekkOmUtenlandsadresser(MedlemskapsvilkårRegelGrunnlag grunnlag) {
