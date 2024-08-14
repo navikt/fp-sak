@@ -16,10 +16,8 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdato;
     private LocalDate førsteUttaksdatoGrunnbeløp;
     private LocalDate førsteUttaksdatoSøknad;
-    private LocalDateInterval utledetMedlemsintervall;
-    private boolean gjelderFødsel = true;
-    private LocalDate familiehendelsedato;
-    private LocalDate bekreftetFamiliehendelsedato;
+    private LocalDateInterval uttaksintervall;
+    private FamilieHendelseDato familieHendelseDato;
     private boolean kreverSammenhengendeUttak;
     private boolean utenMinsterett;
     private boolean uttakSkalJusteresTilFødselsdato;
@@ -35,21 +33,15 @@ public class Skjæringstidspunkt {
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
         this.førsteUttaksdatoSøknad = other.førsteUttaksdatoSøknad;
-        this.utledetMedlemsintervall = other.utledetMedlemsintervall;
-        this.gjelderFødsel = other.gjelderFødsel;
-        this.familiehendelsedato = other.familiehendelsedato;
+        this.uttaksintervall = other.uttaksintervall;
+        this.familieHendelseDato = other.familieHendelseDato;
         this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
-        this.bekreftetFamiliehendelsedato = other.bekreftetFamiliehendelsedato;
         this.utenMinsterett = other.utenMinsterett;
         this.uttakSkalJusteresTilFødselsdato = other.uttakSkalJusteresTilFødselsdato;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
         return Optional.ofNullable(utledetSkjæringstidspunkt);
-    }
-
-    public LocalDateInterval getUtledetMedlemsintervall() {
-        return utledetMedlemsintervall;
     }
 
     public LocalDate getUtledetSkjæringstidspunkt() {
@@ -93,19 +85,19 @@ public class Skjæringstidspunkt {
         return Optional.ofNullable(førsteUttaksdatoSøknad);
     }
 
+    /** Periode fra skjæringstidspunkt til siste uttaksdag, inntil 3 år for foreldrepenger. Skal normalt være satt */
+    public Optional<LocalDateInterval> getUttaksintervall() {
+        return Optional.ofNullable(uttaksintervall);
+    }
+
     /** Sak relatert til termin/fødsel - alternativet er adopsjon/omsorgsovertagelse */
     public boolean gjelderFødsel() {
-        return this.gjelderFødsel;
+        return familieHendelseDato == null || !familieHendelseDato.gjelderAdopsjonOmsorg();
     }
 
-    /** Gjeldende dato for fødsel, termin, eller omsorgsovertagelse. Kan være null dersom behandling før søknad */
-    public LocalDate getFamiliehendelsedato() {
-        return familiehendelsedato;
-    }
-
-    /** Bekreftet dato for fødsel, termin, eller omsorgsovertagelse. */
-    public Optional<LocalDate> getBekreftetFamiliehendelsedato() {
-        return Optional.ofNullable(bekreftetFamiliehendelsedato);
+    /** Gjeldende dato for fødsel, termin, eller omsorgsovertagelse. Kan være empty dersom behandling før søknad */
+    public Optional<FamilieHendelseDato> getFamilieHendelseDato() {
+        return Optional.ofNullable(familieHendelseDato);
     }
 
     /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
@@ -172,11 +164,6 @@ public class Skjæringstidspunkt {
             return this;
         }
 
-        public Builder medUtledetMedlemsintervall(LocalDateInterval datointervall) {
-            kladd.utledetMedlemsintervall = datointervall;
-            return this;
-        }
-
         public Builder medSkjæringstidspunktOpptjening(LocalDate dato) {
             kladd.skjæringstidspunktOpptjening = dato;
             return this;
@@ -202,18 +189,13 @@ public class Skjæringstidspunkt {
             return this;
         }
 
-        public Builder medGjelderFødsel(boolean gjelderFødsel) {
-            kladd.gjelderFødsel = gjelderFødsel;
+        public Builder medUttaksintervall(LocalDateInterval uttaksperiode) {
+            kladd.uttaksintervall = uttaksperiode;
             return this;
         }
 
-        public Builder medFamiliehendelsedato(LocalDate dato) {
-            kladd.familiehendelsedato = dato;
-            return this;
-        }
-
-        public Builder medBekreftetFamiliehendelsedato(LocalDate dato) {
-            kladd.bekreftetFamiliehendelsedato = dato;
+        public Builder medFamilieHendelseDato(FamilieHendelseDato familieHendelseDato) {
+            kladd.familieHendelseDato = familieHendelseDato;
             return this;
         }
 

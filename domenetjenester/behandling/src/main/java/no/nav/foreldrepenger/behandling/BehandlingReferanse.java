@@ -97,9 +97,15 @@ public record BehandlingReferanse(Saksnummer saksnummer,
         return skjæringstidspunkt.getSkjæringstidspunktHvisUtledet();
     }
 
+    public Optional<LocalDateInterval> getUttaksintervall() {
+        sjekkSkjæringstidspunkt();
+        return skjæringstidspunkt.getUttaksintervall();
+    }
+
+
     public LocalDateInterval getUtledetMedlemsintervall() {
         sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getUtledetMedlemsintervall();
+        return skjæringstidspunkt.getUttaksintervall().orElse(null);
     }
 
     public Skjæringstidspunkt getSkjæringstidspunkt() {

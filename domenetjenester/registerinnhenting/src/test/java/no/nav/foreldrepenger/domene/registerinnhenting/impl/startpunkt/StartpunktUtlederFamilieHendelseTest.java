@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -39,7 +40,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medBekreftetFamiliehendelsedato(nyBekreftetfødselsdato)
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, nyBekreftetfødselsdato))
             .medUtledetSkjæringstidspunkt(origSkjæringsdato)
             .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
@@ -71,7 +72,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medBekreftetFamiliehendelsedato(nyBekreftetfødselsdato)
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, nyBekreftetfødselsdato))
             .medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -102,7 +103,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medBekreftetFamiliehendelsedato(skjæringsdato)
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(fødselsdato, fødselsdato))
             .medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -140,7 +141,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medBekreftetFamiliehendelsedato(fødselsdato)
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, fødselsdato))
             .medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -181,7 +182,9 @@ class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medBekreftetFamiliehendelsedato(fødselsdato).medUtledetSkjæringstidspunkt(skjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, fødselsdato))
+            .medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -229,7 +232,8 @@ class StartpunktUtlederFamilieHendelseTest {
         revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         var revurdering = revurderingScenario.lagre(repositoryProvider);
         var nySkjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medBekreftetFamiliehendelsedato(nySkjæringsdato).medUtledetSkjæringstidspunkt(nySkjæringsdato).build();
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, nySkjæringsdato))
+            .medUtledetSkjæringstidspunkt(nySkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(nySkjæringstidspunkt);
 
         // Act/Assert
@@ -262,7 +266,7 @@ class StartpunktUtlederFamilieHendelseTest {
         var nySkjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(nySkjæringsdato)
             .medUttakSkalJusteresTilFødselsdato(true)
-            .medBekreftetFamiliehendelsedato(nySkjæringsdato)
+            .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, nySkjæringsdato))
             .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(nySkjæringstidspunkt);
 

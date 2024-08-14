@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -85,8 +86,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt);
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt);
-        assertThat(stp.getFamiliehendelsedato()).isEqualTo(skjæringstidspunkt.plusWeeks(3));
-        assertThat(stp.getBekreftetFamiliehendelsedato()).hasValueSatisfying(d -> assertThat(d).isEqualTo(skjæringstidspunkt.plusWeeks(3)));
+        assertThat(stp.getFamilieHendelseDato().map(FamilieHendelseDato::familieHendelseDato).orElse(null)).isEqualTo(skjæringstidspunkt.plusWeeks(3));
     }
 
     @Test
@@ -223,7 +223,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt.minusWeeks(1));
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusWeeks(1)));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt.minusWeeks(1));
-        assertThat(stp.getFamiliehendelsedato()).isEqualTo(skjæringstidspunkt);
+        assertThat(stp.getFamilieHendelseDato().map(FamilieHendelseDato::familieHendelseDato).orElse(null)).isEqualTo(skjæringstidspunkt);
         assertThat(stp.uttakSkalJusteresTilFødselsdato()).isFalse();
     }
 
@@ -246,7 +246,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(forventetStp);
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(forventetStp);
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(forventetStp);
-        assertThat(stp.getFamiliehendelsedato()).isEqualTo(termindato.plusDays(1));
+        assertThat(stp.getFamilieHendelseDato().map(FamilieHendelseDato::familieHendelseDato).orElse(null)).isEqualTo(termindato.plusDays(1));
         assertThat(stp.uttakSkalJusteresTilFødselsdato()).isTrue();
     }
 

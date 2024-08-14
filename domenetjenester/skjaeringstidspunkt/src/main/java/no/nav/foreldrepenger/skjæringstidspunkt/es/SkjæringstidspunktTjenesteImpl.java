@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -70,18 +71,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var skjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat)
             .orElseGet(() -> utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat));
-        var gjelderFødsel = familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
-        var ytelseIntervall = skjæringstidspunkt != null ? new LocalDateInterval(skjæringstidspunkt.minusWeeks(4), skjæringstidspunkt.plusWeeks(4)) : null;
+        var uttaksperiode = Optional.ofNullable(skjæringstidspunkt).map(s -> new LocalDateInterval(s, s)).orElse(null);
 
         var builder = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
-            .medUtledetMedlemsintervall(ytelseIntervall)
-            .medGjelderFødsel(gjelderFødsel);
-        familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseAggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+            .medUttaksintervall(uttaksperiode);
+        familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+            .ifPresent(builder::medFamilieHendelseDato);
         return builder.build();
     }
 

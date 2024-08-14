@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrun
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -73,16 +74,12 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medFørsteUttaksdatoSøknad(førsteUttakSøknadOpt.orElse(null))
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
-            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
-            .medGjelderFødsel(true);
+            .medUttaksintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad));
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         try {
             familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-                .ifPresent(builder::medFamiliehendelsedato);
-            familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-                .ifPresent(builder::medBekreftetFamiliehendelsedato);
+                .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+                .ifPresent(builder::medFamilieHendelseDato);
         } catch (Exception e) {
             // Testformål
         }
@@ -101,16 +98,12 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medFørsteUttaksdatoSøknad(førsteUttak)
             .medUtledetSkjæringstidspunkt(førsteUttak)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
-            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttak))
-            .medGjelderFødsel(true);
+            .medUttaksintervall(utledYtelseintervall(behandlingId, førsteUttak));
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         try {
             familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-                .ifPresent(builder::medFamiliehendelsedato);
-            familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-                .ifPresent(builder::medBekreftetFamiliehendelsedato);
+                .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+                .ifPresent(builder::medFamilieHendelseDato);
         } catch (Exception e) {
             // Testformål
         }
@@ -218,11 +211,21 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         try {
             var antattTom = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .map(SkjæringstidspunktTjenesteImpl::datoYtelsenOpphører)
                 .orElse(skjæringstidspunkt.plusWeeks(MAX_SVANGERSKAP_UKER));
             return new LocalDateInterval(skjæringstidspunkt, antattTom);
         } catch (Exception e) {
             return new LocalDateInterval(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(MAX_SVANGERSKAP_UKER));
+        }
+    }
+
+    private static LocalDate datoYtelsenOpphører(FamilieHendelseEntitet familieHendelse) {
+        var fraTermin = familieHendelse.getTermindato().map(t -> t.minusWeeks(3)).orElse(null);
+        var fraFødsel = familieHendelse.getFødselsdato().orElse(null);
+        if (fraFødsel != null && fraTermin != null) {
+            return fraFødsel.isBefore(fraTermin) ? fraFødsel : fraTermin;
+        } else {
+            return fraFødsel != null ? fraFødsel : fraTermin;
         }
     }
 }

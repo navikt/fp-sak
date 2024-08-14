@@ -350,7 +350,7 @@ class BotidCore2024Test {
     @Test
     void skal_returnere_botidskrav_hvis_gjeldende_adopsjon_etter_ikrafttredelsedato() {
         // Arrange
-        var omsorgsdato = IKRAFT.plus(OVERGANG).plusWeeks(1);
+        var omsorgsdato = IKRAFT.plusWeeks(1);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
