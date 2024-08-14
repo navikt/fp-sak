@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -199,7 +200,8 @@ class StønadsperiodeTjenesteTest {
             );
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ur.build()));
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()))
-            .thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).medGjelderFødsel(false).build());
+            .thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato)
+                .medFamilieHendelseDato(FamilieHendelseDato.forAdopsjonOmsorg(skjæringsdato)).build());
 
         // Act/Assert
         var periode = stønadsperiodeTjeneste.stønadsperiode(behandling);

@@ -137,8 +137,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!BehandlingType.KLAGE.equals(behandling.getType())) {
             return;
         }
-        var åpneAnkerSammeKlage = behandlingRepository.hentÅpneBehandlingerForFagsakId(behandling.getFagsakId()).stream()
+        var åpneAnkerSammeKlage = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
             .filter(b -> BehandlingType.ANKE.equals(b.getType()))
+            .filter(b -> !b.erSaksbehandlingAvsluttet())
             .anyMatch(a -> kabalTjeneste.gjelderÅpenAnkeDenneKlagen(a, behandling));
         if (åpneAnkerSammeKlage) {
             throw new IllegalStateException("Mottatt anke opprettet, men har allerede åpen ankebehandling");

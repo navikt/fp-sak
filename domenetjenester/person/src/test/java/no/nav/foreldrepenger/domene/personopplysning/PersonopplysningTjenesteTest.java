@@ -39,7 +39,7 @@ class PersonopplysningTjenesteTest {
 
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
                 .medUtledetSkjæringstidspunkt(tidspunkt)
-                .medUtledetMedlemsintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
+                .medUttaksintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
                 .medFørsteUttaksdato(tidspunkt).build());
 
         // Act

@@ -367,7 +367,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     private BehandlingReferanse lagRef(Behandling behandling, LocalDate fom, LocalDate tom) {
         return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fom)
-            .medUtledetMedlemsintervall(new LocalDateInterval(fom, tom))
+            .medUttaksintervall(new LocalDateInterval(fom, tom))
             .medFørsteUttaksdato(fom)
             .medSkjæringstidspunktOpptjening(fom)
             .build());

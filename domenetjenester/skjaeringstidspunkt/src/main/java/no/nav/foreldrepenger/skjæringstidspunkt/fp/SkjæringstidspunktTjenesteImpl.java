@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
@@ -115,22 +116,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, familieHendelseGrunnlag, sammenhengendeUttak, utenMinsterett));
         var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
-        var gjelderFødsel = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medUtenMinsterett(utenMinsterett)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
-            .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null))
-            .medGjelderFødsel(gjelderFødsel);
+            .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null));
         familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+            .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+            .ifPresent(builder::medFamilieHendelseDato);
         hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
             .map(valg -> valg && !utenMinsterett)
@@ -141,7 +136,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             var skjæringstidspunktOpptjening = opptjening.get().getTom().plusDays(1);
             return builder.medSkjæringstidspunktOpptjening(skjæringstidspunktOpptjening)
                 .medUtledetSkjæringstidspunkt(skjæringstidspunktOpptjening)
-                .medUtledetMedlemsintervall(utledYtelseintervall(behandling, skjæringstidspunktOpptjening, sammenhengendeUttak))
+                .medUttaksintervall(utledYtelseintervall(behandling, skjæringstidspunktOpptjening, sammenhengendeUttak))
                 .build();
         }
 
@@ -151,7 +146,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-            .medUtledetMedlemsintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
+            .medUttaksintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
             .build();
     }
 
@@ -173,14 +168,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medUtenMinsterett(utenMinsterett)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
-            .medFørsteUttaksdatoSøknad(førsteUttaksdato)
-            .medGjelderFødsel(gjelderFødsel);
+            .medFørsteUttaksdatoSøknad(førsteUttaksdato);
         familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+            .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+            .ifPresent(builder::medFamilieHendelseDato);
         hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
             .map(valg -> valg && !utenMinsterett)
@@ -195,7 +186,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-            .medUtledetMedlemsintervall(utledYtelseintervallAvsluttetBehandling(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
+            .medUttaksintervall(utledYtelseintervallAvsluttetBehandling(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))
             .build();
     }
 
@@ -282,7 +273,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDateInterval utledYtelseintervallAvsluttetBehandling(Behandling behandling, LocalDate skjæringsTidspunkt, boolean kreverSammenhengendeUttak) {
-        var sistedato = finnSisteDatoIUttakResultat(behandling.getId(), kreverSammenhengendeUttak).orElseThrow();
+        var sistedato = finnSisteDatoIUttakResultat(behandling.getId(), kreverSammenhengendeUttak)
+            .orElseGet(() -> skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1));
         var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ?
             skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1) : sistedato;
         return new LocalDateInterval(skjæringsTidspunkt, bruktomdato.isAfter(skjæringsTidspunkt) ? bruktomdato : skjæringsTidspunkt);
