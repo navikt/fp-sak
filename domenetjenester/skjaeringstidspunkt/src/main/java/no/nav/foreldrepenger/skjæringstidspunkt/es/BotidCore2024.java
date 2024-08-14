@@ -12,11 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 
 /*
  * OBSOBSOBS: Ikrafttredelsesdato og overgangsgangsordning er vedtatt i Stortinget og sanksjonert i Statsråd
@@ -52,41 +51,17 @@ public class BotidCore2024 {
     }
 
     public boolean ikkeBotidskrav(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        if (familieHendelseGrunnlag == null || familieHendelseGrunnlag.getGjeldendeVersjon() == null) {
-            return LocalDate.now().isBefore(ikrafttredelseDato);
-        }
-        var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        var datoFraBekreftetFamilieHendelse = bekreftetFamilieHendelse.flatMap(this::getTerminEllerFamiliehendelsedato);
-        if (bekreftetFamilieHendelse.isPresent() && datoFraBekreftetFamilieHendelse.isPresent()) {
-            return skalIkkeKreveBotid(bekreftetFamilieHendelse.get(), datoFraBekreftetFamilieHendelse.get());
-        }
-        var gjeldendeFamilieHendelse = familieHendelseGrunnlag.getGjeldendeVersjon();
-        var datoFraFamilieHendelse = getTerminEllerFamiliehendelsedato(gjeldendeFamilieHendelse);
-        return datoFraFamilieHendelse.map(date -> skalIkkeKreveBotid(gjeldendeFamilieHendelse, date))
-            .orElseGet(() -> LocalDate.now().isBefore(ikrafttredelseDato));
-    }
-
-    private boolean skalIkkeKreveBotid(FamilieHendelseEntitet familieHendelse, LocalDate familieHendelseDato) {
-        if (familieHendelse.getGjelderFødsel() && familieHendelse.getTermindato().isPresent()) {
-            return familieHendelse.getTermindato().get().isBefore(ikrafttredelseDatoMedOvergangsordning);
-        } else {
-            return familieHendelseDato.isBefore(ikrafttredelseDato);
-        }
-    }
-
-    private Optional<LocalDate> getTerminEllerFamiliehendelsedato(FamilieHendelseEntitet familieHendelse) {
-        if (familieHendelse.getGjelderFødsel()) {
-            return familieHendelse.getTermindato().or(familieHendelse::getFødselsdato);
-        } else {
-            return familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato);
-        }
+        var familieHendelseDato = Optional.ofNullable(familieHendelseGrunnlag)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseMapper::mapTilFamilieHendelseDato)
+            .orElse(null);
+        return ikkeBotidskrav(familieHendelseDato);
     }
 
     public boolean ikkeBotidskrav(FamilieHendelseDato familieHendelseDato) {
         if (familieHendelseDato == null || familieHendelseDato.familieHendelseDato() == null) {
             return LocalDate.now().isBefore(ikrafttredelseDato);
-        }
-        if (familieHendelseDato.gjelderFødsel() && familieHendelseDato.termindato() != null) {
+        } else if (familieHendelseDato.gjelderFødsel() && familieHendelseDato.termindato() != null) {
             return familieHendelseDato.termindato().isBefore(ikrafttredelseDatoMedOvergangsordning);
         } else {
             return familieHendelseDato.familieHendelseDato().isBefore(ikrafttredelseDato);
@@ -101,7 +76,6 @@ public class BotidCore2024 {
         } else {
             LOG.info("BOTID CORE 2024 ikrafttredelse {}", ikrafttredelseFraKonfig);
             return ikrafttredelseFraKonfig == null ? BotidCore2024.DATO_FOR_PROD : ikrafttredelseFraKonfig;
-
         }
     }
 
