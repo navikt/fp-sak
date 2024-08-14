@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetSteg;
 import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles;
@@ -91,7 +92,7 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         if (RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType())) {
             return false;
         }
-        var søknadFHDato = stp.getFamiliehendelsedato();
+        var søknadFHDato = stp.getFamilieHendelseDato().map(FamilieHendelseDato::familieHendelseDato).orElse(null);
         var farRundtFødselTom = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(false, true, søknadFHDato, søknadFHDato)
             .map(LocalDateInterval::getTomDato).orElse(søknadFHDato);
         var farØnskerJustert = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())

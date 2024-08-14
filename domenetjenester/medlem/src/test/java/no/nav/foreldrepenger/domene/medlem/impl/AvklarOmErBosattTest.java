@@ -389,7 +389,7 @@ class AvklarOmErBosattTest {
     private BehandlingReferanse lagRef(Behandling behandling) {
         return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO)
-            .medUtledetMedlemsintervall(new LocalDateInterval(SKJÆRINGSDATO.minusWeeks(4), SKJÆRINGSDATO.plusWeeks(4)))
+            .medUttaksintervall(new LocalDateInterval(SKJÆRINGSDATO.minusWeeks(4), SKJÆRINGSDATO.plusWeeks(4)))
             .medFørsteUttaksdato(SKJÆRINGSDATO).build());
     }
 }
