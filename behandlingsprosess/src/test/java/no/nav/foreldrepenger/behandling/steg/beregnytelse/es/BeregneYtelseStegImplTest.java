@@ -10,6 +10,8 @@ import java.util.stream.IntStream;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +45,7 @@ class BeregneYtelseStegImplTest {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private SatsRepository satsRepository;
 
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -61,6 +64,7 @@ class BeregneYtelseStegImplTest {
     @BeforeEach
     public void oppsett(EntityManager em) {
         entityManager = em;
+        satsRepository = new SatsRepository(em);
         beregningRepository = new LegacyESBeregningRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -76,7 +80,7 @@ class BeregneYtelseStegImplTest {
 
         sats2017 = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
-        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder,
+        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder, satsRepository,
                 skjæringstidspunktTjeneste);
     }
 

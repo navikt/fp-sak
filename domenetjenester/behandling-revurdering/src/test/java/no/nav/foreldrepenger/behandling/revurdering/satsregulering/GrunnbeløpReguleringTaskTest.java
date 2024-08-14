@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +68,8 @@ class GrunnbeløpReguleringTaskTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    @Mock
+    private SatsRepository satsRepository;
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -76,7 +80,7 @@ class GrunnbeløpReguleringTaskTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         lenient().when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any())).thenReturn(Optional.of(BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build()));
-        lenient().when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
+        lenient().when(satsRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
             .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(TERMINDATO.minusYears(1), TERMINDATO),
                 EKSISTERENDE_G.getVerdi().longValue() + 1000));
     }
@@ -117,8 +121,7 @@ class GrunnbeløpReguleringTaskTest {
 
     private GrunnbeløpReguleringTask createTask() {
         return new GrunnbeløpReguleringTask(repositoryProvider,
-            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, enhetsTjeneste, flytkontroll);
-
+            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, satsRepository, enhetsTjeneste, flytkontroll);
     }
 
     @Test
@@ -159,7 +162,7 @@ class GrunnbeløpReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
-        when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
+        when(satsRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
             .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(EKSISTERENDE_STP_B.minusYears(1), EKSISTERENDE_STP_B),
                 EKSISTERENDE_G.getVerdi().longValue()));
 

@@ -12,6 +12,8 @@ import java.util.Collections;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,6 +73,8 @@ class AutomatiskEtterkontrollTaskTest {
 
     private LegacyESBeregningRepository legacyESBeregningRepository;
 
+    private SatsRepository satsRepository;
+
     @Mock
     private HistorikkRepository historikkRepository;
 
@@ -82,6 +86,7 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
+        satsRepository = new SatsRepository(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
@@ -280,7 +285,7 @@ class AutomatiskEtterkontrollTaskTest {
 
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
-        var sats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
+        var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
         var beregning = new LegacyESBeregning(sats, antallBarn, antallBarn * sats, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)

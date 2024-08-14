@@ -12,6 +12,8 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +52,7 @@ class EngangsstønadReguleringTaskTest {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     private LegacyESBeregningRepository legacyESBeregningRepository;
+    private SatsRepository satsRepository;
 
     private EngangsstønadReguleringTask task;
 
@@ -57,6 +60,7 @@ class EngangsstønadReguleringTaskTest {
     public void setUp(EntityManager entityManager) {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
+        satsRepository = new SatsRepository(entityManager);
         FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, personinfoAdapter, behandlendeEnhetTjeneste,
             legacyESBeregningRepository, behandlingProsesseringTjeneste, revurderingTjeneste);
@@ -66,8 +70,8 @@ class EngangsstønadReguleringTaskTest {
 
     @Test
     void skal_ikke_opprette_revurderingsbehandling_når_riktig_sats(EntityManager em) {
-        var cutoff = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
@@ -81,8 +85,8 @@ class EngangsstønadReguleringTaskTest {
     @Test
     void skal_opprette_revurderingsbehandling_med_når_avvik_sats(EntityManager em) {
 
-        var cutoff = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, cutoff.minusDays(1)).getVerdi();
         var fødselsdato = cutoff.plusDays(5);
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, fødselsdato, gammelSats);
 

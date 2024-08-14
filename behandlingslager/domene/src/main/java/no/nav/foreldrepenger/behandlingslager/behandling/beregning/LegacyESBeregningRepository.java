@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,8 +7,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
-import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -23,6 +19,7 @@ public class LegacyESBeregningRepository {
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
+    private SatsRepository satsRepository;
 
     LegacyESBeregningRepository() {
         // for CDI proxy
@@ -30,14 +27,15 @@ public class LegacyESBeregningRepository {
 
     public LegacyESBeregningRepository(EntityManager entityManager) {
         // for test
-        this(entityManager, new BehandlingRepository(entityManager));
+        this(entityManager, new BehandlingRepository(entityManager), new SatsRepository(entityManager));
     }
 
     @Inject
-    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
+    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository, SatsRepository satsRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.behandlingRepository = behandlingRepository;
         this.entityManager = entityManager;
+        this.satsRepository = satsRepository;
     }
 
     protected EntityManager getEntityManager() {
@@ -57,18 +55,6 @@ public class LegacyESBeregningRepository {
         getEntityManager().flush();
     }
 
-    public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
-                " and periode.fomDato<=:dato" +
-                " and periode.tomDato>=:dato", BeregningSats.class);
-
-        query.setParameter("satsType", satsType);
-        query.setParameter("dato", dato);
-        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
-        query.getResultList();
-        return hentEksaktResultat(query);
-    }
-
     public Optional<LegacyESBeregning> getSisteBeregning(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return getSisteBeregning(behandling);
@@ -80,7 +66,7 @@ public class LegacyESBeregningRepository {
 
     public boolean skalReberegne(Long behandlingId, LocalDate fødselsdato) {
         var vedtakSats = getSisteBeregning(behandlingId).map(LegacyESBeregning::getSatsVerdi).orElse(0L);
-        var satsVedFødsel = finnEksaktSats(BeregningSatsType.ENGANG, fødselsdato).getVerdi();
+        var satsVedFødsel = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, fødselsdato).getVerdi();
         return vedtakSats != satsVedFødsel;
     }
 

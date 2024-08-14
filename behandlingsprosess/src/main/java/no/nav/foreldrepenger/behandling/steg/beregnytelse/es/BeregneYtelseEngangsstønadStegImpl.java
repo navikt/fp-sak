@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -36,6 +37,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     private int maksStønadsalderAdopsjon;
 
     private LegacyESBeregningRepository beregningRepository;
+    private SatsRepository satsRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BehandlingRepository behandlingRepository;
@@ -51,11 +53,13 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
      */
     @Inject
     BeregneYtelseEngangsstønadStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            LegacyESBeregningRepository beregningRepository,
-            @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15") int maksStønadsalder,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                       LegacyESBeregningRepository beregningRepository,
+                                       @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15") int maksStønadsalder,
+                                       SatsRepository satsRepository,
+                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.beregningRepository = beregningRepository;
         this.maksStønadsalderAdopsjon = maksStønadsalder;
+        this.satsRepository = satsRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.resultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -71,7 +75,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
             var barnFinner = new BarnFinner(familieHendelseRepository);
             long antallBarn = barnFinner.finnAntallBarn(behandlingId, maksStønadsalderAdopsjon);
             var satsDato = getSatsDato(behandlingId);
-            var sats = beregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
+            var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
             var beregnetYtelse = sats.getVerdi() * antallBarn;
             var beregning = new LegacyESBeregning(sats.getVerdi(), antallBarn, beregnetYtelse, LocalDateTime.now());
 

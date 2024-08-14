@@ -9,20 +9,20 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.GrunnbeløpInput;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 
 @ApplicationScoped
 public class GrunnbeløpTjeneste {
 
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private SatsRepository satsRepository;
 
     public GrunnbeløpTjeneste() {
         // For CDI
     }
 
     @Inject
-    public GrunnbeløpTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+    public GrunnbeløpTjeneste(SatsRepository satsRepository) {
+        this.satsRepository = satsRepository;
     }
 
     public List<GrunnbeløpInput> mapGrunnbeløpSatser() {
@@ -38,8 +38,8 @@ public class GrunnbeløpTjeneste {
     }
 
     private GrunnbeløpInput grunnbeløpOgSnittFor(LocalDate dato) {
-        var g = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, dato);
-        var gSnitt = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GSNITT, g.getPeriode().getFomDato());
+        var g = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, dato);
+        var gSnitt = satsRepository.finnEksaktSats(BeregningSatsType.GSNITT, g.getPeriode().getFomDato());
         return new GrunnbeløpInput(g.getPeriode().getFomDato(), g.getPeriode().getTomDato(), g.getVerdi(), gSnitt.getVerdi());
     }
 
