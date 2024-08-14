@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
@@ -16,25 +17,36 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+
+import org.jboss.weld.exceptions.IllegalStateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningKalkulus.class);
 
     private KalkulusKlient klient;
     private KalkulusInputTjeneste kalkulusInputTjeneste;
+    private BeregningsgrunnlagKoblingRepository koblingRepository;
 
     BeregningKalkulus() {
         // CDI
     }
 
     @Inject
-    public BeregningKalkulus(KalkulusKlient klient, KalkulusInputTjeneste kalkulusInputTjeneste) {
+    public BeregningKalkulus(KalkulusKlient klient,
+                             KalkulusInputTjeneste kalkulusInputTjeneste,
+                             BeregningsgrunnlagKoblingRepository koblingRepository) {
         this.klient = klient;
         this.kalkulusInputTjeneste = kalkulusInputTjeneste;
+        this.koblingRepository = koblingRepository;
     }
 
     @Override
@@ -45,7 +57,7 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType) {
-        // TODO Her må vi sjekke i fpsak om vi har lagret en referanse lokalt
+        validerStegtypeOgOpprettEvtKobling(stegType, behandlingReferanse);
         var beregningSteg = mapTilBeregningStegType(stegType);
         var request = lagBeregningRequest(behandlingReferanse, beregningSteg);
         var respons = klient.beregn(request);
@@ -55,12 +67,48 @@ public class BeregningKalkulus implements BeregningAPI {
         return prosessResultat;
     }
 
-    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningSteg beregningSteg) {
-        var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
-        var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
-        var ytelse = mapSkalBeregneYtelsetype(behandlingReferanse.fagsakYtelseType());
-        var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
-        return new BeregnRequestDto(saksnummer, behandlingReferanse.behandlingUuid(), personIdent, ytelse, beregningSteg, input, null);
+    @Override
+    public Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse) {
+        var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
+        var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(referanse.behandlingUuid(), kalkulusInput);
+        return klient.hentGrunnlagGUI(hentGuiDtoRequest);
+    }
+
+    @Override
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
+        validerReferanserOgOpprettEvtKobling(revurdering, originalbehandling);
+        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
+            throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
+        }
+        var request = lagKopierRequest(revurdering, originalbehandling);
+        klient.kopierGrunnlag(request);
+    }
+
+    private void validerReferanserOgOpprettEvtKobling(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
+        if (!revurdering.saksnummer().equals(originalbehandling.saksnummer())) {
+            throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
+        }
+        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId());
+        if (originalKobling.isEmpty()) {
+            throw new IllegalStateException("Kan ikke kopiere grunnlag fra en kobling som ikke finnes!");
+        }
+        var revurderingKobling = koblingRepository.hentKobling(revurdering.behandlingId());
+        if (revurderingKobling.isEmpty()) {
+            LOG.info("Finnes ikke kobling på behandling som skal kopieres til. Opprettet kobling med ref " + revurdering.behandlingUuid());
+            koblingRepository.opprettKobling(revurdering);
+        }
+    }
+
+    private KopierBeregningsgrunnlagRequestDto lagKopierRequest(BehandlingReferanse revurdering,
+                                                                BehandlingReferanse originalbehandling) {
+
+        return new KopierBeregningsgrunnlagRequestDto(new Saksnummer(revurdering.saksnummer().getVerdi()), revurdering.behandlingUuid(),
+            originalbehandling.behandlingUuid(), BeregningSteg.FAST_BERGRUNN);
+    }
+
+    private EnkelFpkalkulusRequestDto lagEnkelKalkulusRequest(BehandlingReferanse referanse) {
+        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(),
+            new Saksnummer(referanse.saksnummer().getVerdi()));
     }
 
     private FpkalkulusYtelser mapSkalBeregneYtelsetype(FagsakYtelseType fagsakYtelseType) {
@@ -86,16 +134,23 @@ public class BeregningKalkulus implements BeregningAPI {
         };
     }
 
-    @Override
-    public Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse) {
-        var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
-        var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(referanse.behandlingUuid(), kalkulusInput);
-        return klient.hentGrunnlagGUI(hentGuiDtoRequest);
+    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningSteg beregningSteg) {
+        var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
+        var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
+        var ytelse = mapSkalBeregneYtelsetype(behandlingReferanse.fagsakYtelseType());
+        var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
+        return new BeregnRequestDto(saksnummer, behandlingReferanse.behandlingUuid(), personIdent, ytelse, beregningSteg, input, null);
     }
 
-    private EnkelFpkalkulusRequestDto lagEnkelKalkulusRequest(BehandlingReferanse referanse) {
-        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(),
-            new Saksnummer(referanse.saksnummer().getVerdi()));
+    private void validerStegtypeOgOpprettEvtKobling(BehandlingStegType stegType, BehandlingReferanse behandlingReferanse) {
+        var kobling = koblingRepository.hentKobling(behandlingReferanse.behandlingId());
+        if (kobling.isPresent()) {
+            return;
+        }
+        if (!stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
+            throw new IllegalStateException("Kan ikke opprette ny kobling uten å starte beregningen fra første steg!");
+        }
+        koblingRepository.opprettKobling(behandlingReferanse);
     }
 
 }
