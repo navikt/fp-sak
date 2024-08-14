@@ -179,13 +179,14 @@ public class KabalTjeneste {
             // Knoteri fra Kabal
             // - AnkeOpprettet kommer med en kabalref og en direkte AnkeAvsluttet har samme kabalRef
             // - AnkeOpprettet kommer med en kabalref og AnkeTrygderett vil komme med en ny kabalRef - som presumptivt kommer i AnkeAvsluttet
-            var alleAnker = behandlingRepository.hentÅpneBehandlingerForFagsakId(behandling.getFagsakId()).stream()
+            var alleÅpneAnker = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
                 .filter(b -> BehandlingType.ANKE.equals(b.getType()))
+                .filter(b -> !b.erSaksbehandlingAvsluttet())
                 .toList();
-            return alleAnker.stream()
+            return alleÅpneAnker.stream()
                 .filter(b -> ankeVurderingTjeneste.hentAnkeResultat(b).getPåAnketKlageBehandlingId().filter(k -> k.equals(behandlingId)).isPresent())
                 .findFirst()
-                .or(() -> alleAnker.stream()
+                .or(() -> alleÅpneAnker.stream()
                     .filter(b -> {
                         var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
                         return resultatReferanse == null || Objects.equals(kabalReferanse, resultatReferanse);
