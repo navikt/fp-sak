@@ -340,6 +340,40 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
+    void gradert_fellesperiode_før_fødsel_skal_beholdes_uendret_hvis_innenfor_ukene_forbeholdt_mor_og_fff_blir_redusert() {
+        var termin = LocalDate.of(2024,8, 14);
+        var fødsel = termin.minusWeeks(2);
+        var gradertFellesperiodeFørFFF = lagGradering(FELLESPERIODE, termin.minusWeeks(10), termin.minusWeeks(3).minusDays(1), BigDecimal.TEN);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var oppgittePerioder = List.of(gradertFellesperiodeFørFFF, fpff);
+
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0)).isEqualTo(gradertFellesperiodeFørFFF);
+
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(gradertFellesperiodeFørFFF.getTom().plusDays(1)));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødsel.minusDays(1)));
+    }
+
+    @Test
+    void gradert_foreldrepenger_før_fødsel_skal_beholdes_uendret_hvis_innenfor_ukene_forbeholdt_mor_og_fff_blir_redusert() {
+        var termin = LocalDate.of(2024,8, 14);
+        var fødsel = termin.minusWeeks(2);
+        var gradertFellesperiodeFørFFF = lagGradering(FORELDREPENGER, termin.minusWeeks(10), termin.minusWeeks(3).minusDays(1), BigDecimal.TEN);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var oppgittePerioder = List.of(gradertFellesperiodeFørFFF, fpff);
+
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0)).isEqualTo(gradertFellesperiodeFørFFF);
+
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(gradertFellesperiodeFørFFF.getTom().plusDays(1)));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødsel.minusDays(1)));
+    }
+
+    @Test
     void skal_ikke_slå_sammen_gradering_hvis_forskjellig_arbeidsprosent() {
         var gradering1 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20), BigDecimal.TEN);
         var gradering2 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 21), LocalDate.of(2019, 8, 21), BigDecimal.ONE);
