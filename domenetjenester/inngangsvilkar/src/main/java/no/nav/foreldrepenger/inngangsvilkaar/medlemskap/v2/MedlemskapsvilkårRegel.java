@@ -26,8 +26,8 @@ final class MedlemskapsvilkårRegel {
 
     static Set<MedlemskapAksjonspunktÅrsak> kjørRegler(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var resultat = new HashSet<MedlemskapAksjonspunktÅrsak>();
-        // BOSATT
         utledMedlemskapPerioderÅrsak(grunnlag).ifPresent(resultat::add);
+        // BOSATT
         utledBosattÅrsak(grunnlag).ifPresent(resultat::add);
 
         // LOVLIG OPPHOLD
@@ -67,10 +67,8 @@ final class MedlemskapsvilkårRegel {
             .map(rp -> new LocalDateSegment<>(rp.periode(), rp.region()))
             .toList();
 
-        var regionTimeline = new LocalDateTimeline<>(regionSegmenter, (datoInterval, datoSegment, datoSegment2) -> {
-            var prio = datoSegment.getValue().getPrioritet() < datoSegment2.getValue().getPrioritet() ? datoSegment : datoSegment2;
-            return new LocalDateSegment<>(datoInterval, prio.getValue());
-        }).intersection(grunnlag.vurderingsperiodeLovligOpphold());
+        var regionTimeline = new LocalDateTimeline<>(regionSegmenter)
+            .intersection(grunnlag.vurderingsperiodeLovligOpphold());
 
         var oppholdstillatelseTimeline = new LocalDateTimeline<>(grunnlag.personopplysninger()
             .oppholdstillatelser()
@@ -93,7 +91,6 @@ final class MedlemskapsvilkårRegel {
         if (sjekkOmManglendeBosted(grunnlag)) {
             return Optional.of(BOSATT);
         }
-        //TODO Sjekke ukjent adresse?
         return Optional.empty();
     }
 
@@ -101,7 +98,7 @@ final class MedlemskapsvilkårRegel {
         var bostedsadresserSegments = grunnlag.personopplysninger()
             .adresser()
             .stream()
-            .filter(a -> a.type() == BOSTED)
+            .filter(a -> a.type() == BOSTEDSADRESSE)
             .map(a -> new LocalDateSegment<>(a.periode(), Boolean.TRUE))
             .collect(Collectors.toSet());
         var timeline = new LocalDateTimeline<>(bostedsadresserSegments, StandardCombinators::alwaysTrueForMatch);
@@ -121,7 +118,7 @@ final class MedlemskapsvilkårRegel {
 
     private static boolean sjekkOmBosattPersonstatus(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var personstatusPerioder = grunnlag.personopplysninger().personstatus();
-        var gyldigeStatuser = Set.of(Type.BOSATT, Type.DØD);
+        var gyldigeStatuser = Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD);
         var personstatusTimeline = new LocalDateTimeline<>(
             personstatusPerioder.stream().map(p -> new LocalDateSegment<>(p.interval(), p.type())).collect(Collectors.toSet()));
         return personstatusTimeline.combine(new LocalDateTimeline<>(grunnlag.vurderingsperiodeLovligOpphold(), Boolean.TRUE),
@@ -134,19 +131,17 @@ final class MedlemskapsvilkårRegel {
     }
 
     private static boolean sjekkOmOppgittUtenlandsopphold(MedlemskapsvilkårRegelGrunnlag.Søknad søknad) {
-        //TODO Bare sjekke i vurderingsperioden?
         return !søknad.utenlandsopphold().isEmpty();
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledMedlemskapPerioderÅrsak(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        return sjekkOmIngenPerioderMedMedlemskapsperioder(grunnlag) ? Optional.empty() : Optional.of(MEDLEMSKAPSPERIODER_FRA_REGISTER);
+        return sjekkOmPerioderMedMedlemskapsperioder(grunnlag) ? Optional.of(MEDLEMSKAPSPERIODER_FRA_REGISTER) : Optional.empty();
     }
 
-    private static boolean sjekkOmIngenPerioderMedMedlemskapsperioder(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        //TODO hvilken vurderingsperiode??
+    private static boolean sjekkOmPerioderMedMedlemskapsperioder(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var vurderingsperiode = grunnlag.vurderingsperiodeBosatt();
         var registerMedlemskapPerioder = grunnlag.registrertMedlemskapPerioder();
 
-        return registerMedlemskapPerioder.stream().noneMatch(mp -> mp.overlaps(vurderingsperiode));
+        return registerMedlemskapPerioder.stream().anyMatch(mp -> mp.overlaps(vurderingsperiode));
     }
 }

@@ -1238,8 +1238,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return (S) this;
     }
 
-    public void leggTilMedlemskapPeriode(MedlemskapPerioderEntitet medlemskapPeriode) {
+    public S leggTilMedlemskapPeriode(MedlemskapPerioderEntitet medlemskapPeriode) {
         this.medlemskapPerioder.add(medlemskapPeriode);
+        return (S) this;
     }
 
     @SuppressWarnings("unchecked")

@@ -18,6 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class PersonopplysningerAggregat {
 
@@ -135,7 +138,24 @@ public class PersonopplysningerAggregat {
             .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, vurderingsdato, skjæringstidspunkt))
-            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+            .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
+    }
+
+    public LocalDateTimeline<Region> getStatsborgerskapRegionIInterval(AktørId aktørId, LocalDateInterval interval) {
+        var segments = statsborgerskap.getOrDefault(aktørId, List.of())
+            .stream()
+            .filter(s -> s.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(interval.getFomDato(), interval.getTomDato())))
+            .map(s -> {
+                var region = MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), interval.getFomDato(), skjæringstidspunkt);
+                return new LocalDateSegment<>(new LocalDateInterval(s.getPeriode().getFomDato(), s.getPeriode().getTomDato()), region);
+            })
+            .collect(Collectors.toSet());
+
+        return new LocalDateTimeline<>(segments, (datoInterval, datoSegment, datoSegment2) -> {
+            var prioritertRegion =
+                Region.COMPARATOR.compare(datoSegment.getValue(), datoSegment2.getValue()) < 0 ? datoSegment.getValue() : datoSegment2.getValue();
+            return new LocalDateSegment<>(datoInterval, prioritertRegion);
+        });
     }
 
     public Region getStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId) {
@@ -143,7 +163,7 @@ public class PersonopplysningerAggregat {
             .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, skjæringstidspunkt, skjæringstidspunkt))
-            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+            .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
     }
 
     public List<StatsborgerskapEntitet> getStatsborgerskap(AktørId aktørId) {

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.RegionPeriode;
 
 import java.util.Set;
@@ -16,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -84,9 +83,9 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
             DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato())).orElseThrow();
         var aktørId = behandlingRef.aktørId();
-        var regioner = personopplysningerAggregat.getStatsborgerskap(aktørId)
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode)
             .stream()
-            .map(s -> new RegionPeriode(map(s.getPeriode()), tilRegion(s.getStatsborgerskap())))
+            .map(s -> new RegionPeriode(s.getLocalDateInterval(), map(s.getValue())))
             .collect(Collectors.toSet());
         var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
             .stream()
@@ -100,34 +99,36 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         return new MedlemskapsvilkårRegelGrunnlag.Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
     }
 
+    private MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region map(Region region) {
+        return switch (region) {
+            case NORDEN -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.NORDEN;
+            case EOS -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.EØS;
+            case TREDJELANDS_BORGER, UDEFINERT -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.TREDJELAND;
+        };
+    }
+
     private static MedlemskapsvilkårRegelGrunnlag.Adresse.Type map(AdresseType adresseType) {
         return switch (adresseType) {
-            case BOSTEDSADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTED;
-            default -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.ANNEN;
+            case BOSTEDSADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTEDSADRESSE;
+            case POSTADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.POSTADRESSE;
+            case POSTADRESSE_UTLAND -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.POSTADRESSE_UTLAND;
+            case MIDLERTIDIG_POSTADRESSE_NORGE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.MIDLERTIDIG_POSTADRESSE_NORGE;
+            case MIDLERTIDIG_POSTADRESSE_UTLAND -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.MIDLERTIDIG_POSTADRESSE_UTLAND;
+            case UKJENT_ADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.UKJENT_ADRESSE;
         };
     }
 
     private PersonstatusPeriode map(PersonstatusEntitet personstatus) {
         return new PersonstatusPeriode(map(personstatus.getPeriode()), switch (personstatus.getPersonstatus()) {
             case ADNR -> Type.D_NUMMER;
-            case BOSA -> Type.BOSATT;
+            case BOSA -> Type.BOSATT_ETTER_FOLKEREGISTERLOVEN;
             case DØD -> Type.DØD;
             case FOSV -> Type.FORSVUNNET;
-            case FØDR -> Type.FØDSELREGISTRERT;
-            case UREG -> Type.UREGISTRERT;
-            case UTAN -> Type.UTGÅTT_ANNULLERT;
-            case UTPE -> Type.UTGÅTT;
-            case UTVA -> Type.UTVANDRET;
+            case FØDR, UTVA, UREG -> Type.IKKE_BOSATT;
+            case UTPE -> Type.OPPHØRT;
             case UDEFINERT -> null;
+            case UTAN -> throw new IllegalArgumentException("Ukjent status " + personstatus.getPersonstatus());
         });
-    }
-
-    private static Region tilRegion(Landkoder landkode) {
-        return switch (MapRegionLandkoder.mapLandkode(landkode)) {
-            case NORDEN -> Region.NORDEN;
-            case EOS -> Region.EØS;
-            case TREDJELANDS_BORGER, UDEFINERT -> Region.TREDJELAND;
-        };
     }
 
     private static LocalDateInterval map(DatoIntervallEntitet periode) {
