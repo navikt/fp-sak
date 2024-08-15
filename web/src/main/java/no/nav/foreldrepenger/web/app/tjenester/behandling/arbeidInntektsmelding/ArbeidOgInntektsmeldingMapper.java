@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -53,18 +54,19 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
-                                                        Collection<ArbeidsforholdReferanse> referanser,
+                                                        Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
                                                         Optional<KontaktinformasjonIM> kontaktinfo,
                                                         Optional<String> dokumentId,
                                                         List<ArbeidsforholdMangel> mangler,
-                                                        List<ArbeidsforholdValg> saksbehandlersVurderinger) {
+                                                        List<ArbeidsforholdValg> saksbehandlersVurderinger,
+                                                        List<UUID> behandlingsIder) {
         var inntekstmeldingMangel = finnIdentifisertInntektsmeldingMangel(im.getArbeidsgiver(), im.getArbeidsforholdRef(), mangler);
         var vurderingPåInntektsmelding = finnSaksbehandlersVurderingPåInntektsmelding(im.getArbeidsgiver(), im.getArbeidsforholdRef(), saksbehandlersVurderinger);
         return new InntektsmeldingDto(
                 fraBeløp(im.getInntektBeløp()),
                 fraBeløp(im.getRefusjonBeløpPerMnd()),
                 im.getArbeidsgiver().getIdentifikator(),
-                finnEksternRef(im.getArbeidsforholdRef(), referanser).orElse(null),
+                finnEksternRef(im.getArbeidsforholdRef(), arbeidsforholdReferanser).orElse(null),
                 im.getArbeidsforholdRef().getReferanse(),
                 kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
                 kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
@@ -74,7 +76,14 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getInnsendingstidspunkt(),
                 inntekstmeldingMangel.orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getBegrunnelse).orElse(null),
-                vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null));
+                vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null),
+                im.getKildesystem(),
+                im.getStartDatoPermisjon().orElse(null),
+                im.getNaturalYtelser(),
+                im.getEndringerRefusjon(),
+                im.getInntektsmeldingInnsendingsårsak(),
+            behandlingsIder
+            );
     }
 
     private static Optional<ArbeidsforholdValg> finnSaksbehandlersVurderingPåInntektsmelding(Arbeidsgiver arbeidsgiver,
