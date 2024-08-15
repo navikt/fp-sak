@@ -42,7 +42,7 @@ public class MedlemsunntakRestKlient implements Medlemskap {
     }
 
     @Override
-    public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
+    public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) {
         var uri = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))
             .queryParam(PARAM_FRA_OG_MED, d2s(fom))

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,9 +17,10 @@ public enum Region implements Kodeverdi {
     NORDEN("NORDEN", "Nordisk", 1),
     EOS("EOS", "EU/EØS", 2),
     TREDJELANDS_BORGER("ANNET", "3.landsborger", 3),
-
     UDEFINERT("-", "3.landsborger", 9),
     ;
+
+    public static final Comparator<Region> COMPARATOR = Comparator.comparing(Region::getRank);
 
     public static final String KODEVERK = "REGION";
     private static final Map<String, Region> KODER = new LinkedHashMap<>();
