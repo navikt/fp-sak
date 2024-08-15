@@ -1,14 +1,17 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
@@ -86,6 +89,11 @@ public class BeregningFPSAK implements BeregningAPI {
             throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
         }
         beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalbehandling.behandlingId(), revurdering.behandlingId());
+    }
+
+    @Override
+    public OppdaterBeregningsgrunnlagResultat oppdaterBeregning(List<HåndterBeregningDto> oppdateringer, BehandlingReferanse referanse) {
+        return null;
     }
 
     private BeregningsgrunnlagGUIInputFelles getInputTjenesteGUI(FagsakYtelseType ytelseType) {
