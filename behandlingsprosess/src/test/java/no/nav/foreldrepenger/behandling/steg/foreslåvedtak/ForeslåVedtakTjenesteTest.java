@@ -18,7 +18,9 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -29,6 +31,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -76,7 +80,6 @@ class ForeslåVedtakTjenesteTest {
     public void setUp(EntityManager em) {
         historikkRepository = spy(repositoryProvider.getHistorikkRepository());
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
-        em.persist(behandling.getBehandlingsresultat());
 
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
         lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
@@ -115,9 +118,57 @@ class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    void setterPåVentHvisÅpentAksjonspunktVedtakUtenTotrinnskontroll() {
+    void foreslåVedtakManueltDersomAksjonspunktLøstAvSaksbehandler() {
         // Arrange
-        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+        var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        ap.setEndretAv("saksbehandler");
+        AksjonspunktTestSupport.setTilUtført(ap, "begrunnelse");
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    }
+
+    @Test
+    void foreslåVedtakManueltDersomAvslag() {
+        // Arrange
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT))
+            .lagre(repositoryProvider);
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    }
+
+    @Test
+    void foreslåVedtakManueltDersomOpphørInngangIkkeOppfylt() {
+        // Arrange
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR))
+            .lagre(repositoryProvider);
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    }
+
+    @Test
+    void ingenAksjonspunktDersomOpphørEtterInngangsvilkår() {
+        // Arrange
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR))
+            .lagre(repositoryProvider);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -125,18 +176,6 @@ class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
-    }
-
-    @Test
-    void nullstillerBehandlingHvisDetEksistererVedtakUtenTotrinnAksjonspunkt() {
-        // Arrange
-        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
-
-        // Act
-        tjeneste.foreslåVedtak(behandling);
-
-        // Assert
-        assertThat(behandling.isToTrinnsBehandling()).isFalse();
     }
 
     @Test
