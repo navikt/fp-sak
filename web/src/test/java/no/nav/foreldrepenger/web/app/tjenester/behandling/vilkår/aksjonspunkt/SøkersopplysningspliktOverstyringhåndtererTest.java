@@ -64,7 +64,7 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
                 .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST)))
                         .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
 
-        assertThat(aksjonspunktSet).hasSize(3);
+        assertThat(aksjonspunktSet).hasSize(2);
     }
 
 }
