@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +95,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
     private OpptjeningRepository opptjeningRepository;
@@ -113,7 +116,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
                                        BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                       MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                       MottatteDokumentTjeneste mottatteDokumentTjeneste, BeregningTjeneste beregningTjeneste,
                                        ForeldrepengerUttakTjeneste uttakTjeneste,
                                        KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste,
                                        DekningsgradTjeneste dekningsgradTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
@@ -129,6 +132,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
@@ -365,7 +369,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
+            beregningTjeneste.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling), BeregningsgrunnlagTilstand.FASTSATT);
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
