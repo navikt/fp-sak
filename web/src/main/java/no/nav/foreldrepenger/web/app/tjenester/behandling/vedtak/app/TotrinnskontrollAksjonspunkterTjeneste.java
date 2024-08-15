@@ -68,9 +68,8 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
                                          Behandlingsresultat behandlingsresultat,
                                          Map<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>> skjermlenkeMap,
                                          Totrinnsvurdering vurdering) {
-        var totrinnresultatOpt = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId());
         var totrinnsAksjonspunkt = totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(vurdering,
-            behandling, totrinnresultatOpt);
+            behandling);
         var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(), behandling,
             behandlingsresultat);
         if (SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType)) {

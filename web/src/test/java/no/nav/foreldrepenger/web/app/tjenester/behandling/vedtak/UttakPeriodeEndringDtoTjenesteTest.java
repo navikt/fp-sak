@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import jakarta.inject.Inject;
 
@@ -83,8 +82,7 @@ class UttakPeriodeEndringDtoTjenesteTest {
         var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-            Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling);
 
         assertThat(uttakPeriodeEndringer).hasSize(1);
         assertThat(uttakPeriodeEndringer.get(0).getErEndret()).isTrue();
@@ -117,8 +115,7 @@ class UttakPeriodeEndringDtoTjenesteTest {
         var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-            Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling);
 
         assertThat(uttakPeriodeEndringer).hasSize(1);
         assertThat(uttakPeriodeEndringer.get(0).getErLagtTil()).isTrue();
