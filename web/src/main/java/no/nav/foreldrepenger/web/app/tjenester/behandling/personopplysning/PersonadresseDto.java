@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
+import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 
 public class PersonadresseDto {
 
@@ -11,6 +14,18 @@ public class PersonadresseDto {
     private String postNummer;
     private String poststed;
     private String land;
+
+    public static PersonadresseDto tilDto(PersonAdresseEntitet adresse) {
+        var dto = new PersonadresseDto();
+        dto.setAdresselinje1(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje1()));
+        dto.setAdresselinje2(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje2()));
+        dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
+        dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
+        dto.setPostNummer(adresse.getPostnummer());
+        dto.setLand(adresse.getLand());
+        dto.setAdresseType(adresse.getAdresseType());
+        return dto;
+    }
 
     public AdresseType getAdresseType() {
         return adresseType;
