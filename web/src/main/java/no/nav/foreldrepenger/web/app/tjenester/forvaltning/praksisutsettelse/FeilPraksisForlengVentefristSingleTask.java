@@ -54,7 +54,7 @@ class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erAvsluttet()) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Behandling er avsluttet");
-        } else if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)) {
+        } else if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Mangler vent aksjonspunkt");
         } else if (NY_VENTEFRIST.toLocalDate().isEqual(behandling.getFristDatoBehandlingPåVent())) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Frist allerede forlenget");
