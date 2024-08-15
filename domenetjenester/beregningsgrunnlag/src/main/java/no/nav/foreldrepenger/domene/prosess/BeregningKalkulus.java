@@ -63,7 +63,7 @@ public class BeregningKalkulus implements BeregningAPI {
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType) {
         var koblingOpt = koblingRepository.hentKobling(behandlingReferanse.behandlingId());
         if (koblingOpt.isEmpty() && !stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
-            throw new IllegalStateException("Kan ikke opprette ny kobling uten at dennestarter i første steg av beregning, angitt steg var " + stegType);
+            throw new IllegalStateException("Kan ikke opprette ny kobling uten at denne starter i første steg av beregning, angitt steg var " + stegType);
         }
         var kobling = koblingOpt.orElse(koblingRepository.opprettKobling(behandlingReferanse));
         var beregningSteg = mapTilBeregningStegType(stegType);
@@ -108,7 +108,7 @@ public class BeregningKalkulus implements BeregningAPI {
             originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN);
     }
 
-    private FpkalkulusYtelser mapYtelseSomSKalBeregnes(FagsakYtelseType fagsakYtelseType) {
+    private FpkalkulusYtelser mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> FpkalkulusYtelser.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FpkalkulusYtelser.SVANGERSKAPSPENGER;
@@ -134,7 +134,7 @@ public class BeregningKalkulus implements BeregningAPI {
     private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg) {
         var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
         var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
-        var ytelse = mapYtelseSomSKalBeregnes(behandlingReferanse.fagsakYtelseType());
+        var ytelse = mapYtelseSomSkalBeregnes(behandlingReferanse.fagsakYtelseType());
         var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
         return new BeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, null);
     }
