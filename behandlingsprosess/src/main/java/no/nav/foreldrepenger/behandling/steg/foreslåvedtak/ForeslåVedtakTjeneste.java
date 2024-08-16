@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,16 +13,17 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
@@ -137,8 +139,10 @@ class ForeslåVedtakTjeneste {
             fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return true;
         }
-        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()
-            && !erOpphørEllerUendretUtenAndreAksjonspunkt(behandling, aksjonspunktDefinisjoner);
+        if (harAksjonspunktUtførtAvSaksbehandler(behandling)) {
+            return true;
+        }
+        return avslagEllerOpphørInngangsvilkår(behandling);
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
@@ -146,18 +150,30 @@ class ForeslåVedtakTjeneste {
                 behandling.harAksjonspunktMedTotrinnskontroll();
     }
 
-    private boolean erOpphørEllerUendretUtenAndreAksjonspunkt(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
-        // TODO: Dra med til kon aksjonspunkt rundt tilrettelegging/vilkår.
-        var aksjonspunktSomSkalGiManueltVedtak = behandling.getAksjonspunkter().stream()
-            .filter(Aksjonspunkt::erUtført)
-            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .filter(ad -> !AksjonspunktType.AUTOPUNKT.equals(ad.getAksjonspunktType()))
-            .filter(ad -> !AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ad))
-            .toList();
-        return behandling.erRevurdering() && aksjonspunktDefinisjoner.isEmpty() && aksjonspunktSomSkalGiManueltVedtak.isEmpty() &&
-            behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-                .filter(br -> br.isBehandlingsresultatOpphørt() || br.isBehandlingsresultatIkkeEndret())
-                .isPresent();
+    private boolean harAksjonspunktUtførtAvSaksbehandler(Behandling behandling) {
+        return behandling.getAksjonspunkter().stream()
+            .anyMatch(this::aksjonspunktUtførtAvSaksbehandler);
+    }
+
+    private boolean aksjonspunktUtførtAvSaksbehandler(Aksjonspunkt aksjonspunkt) {
+        var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
+        return aksjonspunkt.erUtført() &&
+            !AksjonspunktType.AUTOPUNKT.equals(aksjonspunktDefinisjon.getAksjonspunktType()) &&
+            !AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(aksjonspunktDefinisjon) &&
+            Optional.ofNullable(aksjonspunkt.getEndretAv()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isEmpty();
+    }
+
+    private boolean avslagEllerOpphørInngangsvilkår(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(this::avslagEllerOpphørInngangsvilkår)
+            .isPresent();
+    }
+
+    // Avslag eller opphørt med ett inngangsvilkår ikke oppfylt. Ikke aksjonspunkt ved opphør pga uttaksregler
+    private boolean avslagEllerOpphørInngangsvilkår(Behandlingsresultat behandlingsresultat) {
+        return behandlingsresultat.isBehandlingsresultatAvslått() ||
+            (behandlingsresultat.isBehandlingsresultatOpphørt() &&
+                behandlingsresultat.getVilkårResultat().hentAlleGjeldendeVilkårsutfall().contains(VilkårUtfallType.IKKE_OPPFYLT));
     }
 
 }

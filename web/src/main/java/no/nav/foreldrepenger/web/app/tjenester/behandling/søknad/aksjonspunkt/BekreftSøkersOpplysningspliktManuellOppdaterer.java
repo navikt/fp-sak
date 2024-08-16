@@ -68,7 +68,6 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
                 .build();
         }
     }
