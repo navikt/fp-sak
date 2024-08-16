@@ -438,9 +438,9 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
             when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
             when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1, ttv2));
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
+            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling)))
                 .thenReturn(totrinnskontrollAksjonspunkterDto1);
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
+            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling)))
                 .thenReturn(totrinnskontrollAksjonspunkterDto2);
 
             // Act
@@ -483,7 +483,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(ttv);
         var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
         when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
-        when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(any(), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
+        when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(any(), eq(behandling)))
             .thenReturn(totrinnskontrollAksjonspunkterDto);
     }
 

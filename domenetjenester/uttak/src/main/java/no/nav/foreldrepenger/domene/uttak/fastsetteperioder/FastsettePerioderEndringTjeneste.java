@@ -30,13 +30,6 @@ public class FastsettePerioderEndringTjeneste {
         this.fpUttakRepository = fpUttakRepository;
     }
 
-    public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrt(Long uttakResultatId) {
-        var uttakResultat = fpUttakRepository.hentUttakResultatPåId(uttakResultatId)
-            .orElseThrow(
-                () -> new IllegalStateException("Fant ingen uttakresultat med id " + uttakResultatId.toString()));
-        return lagEndringDto(uttakResultat);
-    }
-
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrtForBehandling(Long behandlingId) {
         var uttakResultat = fpUttakRepository.hentUttakResultat(behandlingId);
         return lagEndringDto(uttakResultat);

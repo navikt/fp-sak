@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,17 +44,12 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
     }
 
     public List<TotrinnskontrollAktivitetDto> hentAktiviterEndretForOpptjening(Totrinnsvurdering aksjonspunkt,
-                                                                               Behandling behandling,
-                                                                               Optional<UUID> iayGrunnlagUuid) {
+                                                                               Behandling behandling) {
         if (AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
             List<OpptjeningsperiodeForSaksbehandling> aktivitetPerioder;
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
             var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-            if (iayGrunnlagUuid.isPresent()) {
-                aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse, iayGrunnlagUuid.get());
-            } else {
-                aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse);
-            }
+            aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse);
             return aktivitetPerioder.stream()
                 .filter(periode -> periode.erManueltBehandlet() || periode.getBegrunnelse() != null)
                 .map(this::lagDtoAvPeriode)

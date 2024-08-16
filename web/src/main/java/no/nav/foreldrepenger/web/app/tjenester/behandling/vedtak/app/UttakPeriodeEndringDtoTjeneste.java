@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.domene.uttak.UttakPeriodeEndringDto;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderEndringTjeneste;
@@ -47,18 +45,13 @@ public class UttakPeriodeEndringDtoTjeneste {
     }
 
     public List<UttakPeriodeEndringDto> hentEndringPåUttakPerioder(Totrinnsvurdering aksjonspunkt,
-                                                                   Behandling behandling,
-                                                                   Optional<Totrinnresultatgrunnlag> totrinnresultatgrunnlag) {
+                                                                   Behandling behandling) {
         if (PROSESS_UTTAK.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            return totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getUttakResultatEntitetId)
-                .map(urid -> fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrt(urid))
-                .orElseGet(() -> fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId()));
+            return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId());
         }
         if (FAKTA_UTTAK.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
             // Filtrer på perioder med endring som i FUFT
-            var yfAggregat = totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getYtelseFordelingGrunnlagEntitetId)
-                .map(yfid -> ytelseFordelingTjeneste.hentAggregatForGrunnlagId(yfid))
-                .orElseGet(() -> ytelseFordelingTjeneste.hentAggregat(behandling.getId()));
+            var yfAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
             if (yfAggregat == null) {
                 return List.of();
             }
