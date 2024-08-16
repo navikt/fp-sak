@@ -315,6 +315,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(new Utbetalingsgrad(BigDecimal.valueOf(100)))
             .build();
 
         periode.leggTilAktivitet(periodeAktivitet);
@@ -485,7 +486,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
     @Test
     void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_false_utbetalingen_ikke_er_redusert_med_mors_stillingsprosent() {
-
         var perioder = new UttakResultatPerioderEntitet();
         var periodeType = UttakPeriodeType.FORELDREPENGER;
         var mottattDato = LocalDate.now();
@@ -498,7 +498,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medUttakPeriodeType(periodeType)
             .medMorsAktivitet(MorsAktivitet.ARBEID)
-            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(75))))
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT))
             .medMottattDato(mottattDato)
             .build();
         var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
@@ -511,7 +511,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medErSøktGradering(false)
             .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .medUtbetalingsgrad(new Utbetalingsgrad(75))
             .build();
         periode.leggTilAktivitet(periodeAktivitet);
         perioder.leggTilPeriode(periode);
