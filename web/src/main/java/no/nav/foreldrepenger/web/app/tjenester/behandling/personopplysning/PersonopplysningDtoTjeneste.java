@@ -50,21 +50,8 @@ public class PersonopplysningDtoTjeneste {
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
         return aggregat.getAdresserFor(personopplysning.getAktørId()).stream()
-            .map(PersonopplysningDtoTjeneste::lagDto)
+            .map(PersonadresseDto::tilDto)
             .toList();
-    }
-
-    private static PersonadresseDto lagDto(PersonAdresseEntitet adresse) {
-        var dto = new PersonadresseDto();
-        dto.setAdresselinje1(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje1()));
-        dto.setAdresselinje2(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje2()));
-        dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
-        dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
-        dto.setPostNummer(adresse.getPostnummer());
-        dto.setLand(adresse.getLand());
-        dto.setAdresseType(adresse.getAdresseType());
-        return dto;
-
     }
 
     public PersonopplysningTilbakeDto lagPersonopplysningTilbakeDto(Long behandlingId) {

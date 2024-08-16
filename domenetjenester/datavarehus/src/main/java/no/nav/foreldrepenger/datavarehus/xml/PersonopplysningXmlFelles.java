@@ -112,7 +112,7 @@ public class PersonopplysningXmlFelles {
 
         person.setRegion(VedtakXmlUtil.lagStringOpplysning(aggregat.getStatsborgerskapRegionVedSkjæringstidspunkt(personopplysning.getAktørId()).getNavn()));
 
-        aggregat.getOppholdstillatelseFor(personopplysning.getAktørId()).map(OppholdstillatelseEntitet::getTillatelse)
+        aggregat.getSisteOppholdstillatelseFor(personopplysning.getAktørId()).map(OppholdstillatelseEntitet::getTillatelse)
             .map(OppholdstillatelseType::getKode).map(VedtakXmlUtil::lagStringOpplysning).ifPresent(person::setOppholdstillatelse);
     }
 

@@ -87,7 +87,7 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
             .stream()
             .map(s -> new RegionPeriode(s.getLocalDateInterval(), map(s.getValue())))
             .collect(Collectors.toSet());
-        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
+        var oppholdstillatelser = personopplysningerAggregat.getSisteOppholdstillatelseFor(aktørId)
             .stream()
             .map(o -> map(o.getPeriode()))
             .collect(Collectors.toSet());

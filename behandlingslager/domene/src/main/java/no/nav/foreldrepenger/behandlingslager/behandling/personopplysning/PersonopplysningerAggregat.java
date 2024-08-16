@@ -185,9 +185,13 @@ public class PersonopplysningerAggregat {
             .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
     }
 
-    public Optional<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {
+    public Optional<OppholdstillatelseEntitet> getSisteOppholdstillatelseFor(AktørId aktørId) {
         List<OppholdstillatelseEntitet> aktuelle = søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
         return aktuelle.stream().max(Comparator.comparing(OppholdstillatelseEntitet::getPeriode));
+    }
+
+    public List<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {
+        return søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
     }
 
     /**
