@@ -25,11 +25,6 @@ public class FastsettBeregningsgrunnlagATFLDto extends BekreftetAksjonspunktDto 
     @Max(100 * 1000 * 1000)
     private Integer inntektFrilanser;
 
-    @Valid
-    @Size(max = 100)
-    private List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder;
-
-
     FastsettBeregningsgrunnlagATFLDto() {
         // For Jackson
     }
@@ -54,13 +49,4 @@ public class FastsettBeregningsgrunnlagATFLDto extends BekreftetAksjonspunktDto 
     public List<InntektPrAndelDto> getInntektPrAndelList() {
         return inntektPrAndelList;
     }
-
-    public List<FastsattePerioderTidsbegrensetDto> getFastsatteTidsbegrensedePerioder() {
-        return fastsatteTidsbegrensedePerioder;
-    }
-
-    public boolean tidsbegrensetInntektErFastsatt() {
-        return fastsatteTidsbegrensedePerioder != null && !fastsatteTidsbegrensedePerioder.isEmpty();
-    }
-
 }
