@@ -92,13 +92,6 @@ class ForeslåVedtakTjeneste {
             }
         }
 
-        var vedtakUtenTotrinnskontroll = behandling
-                .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
-        if (vedtakUtenTotrinnskontroll.isPresent()) {
-            behandling.nullstillToTrinnsBehandling();
-            return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
-        }
-
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
@@ -146,8 +139,7 @@ class ForeslåVedtakTjeneste {
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
-        return !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL) &&
-                behandling.harAksjonspunktMedTotrinnskontroll();
+        return behandling.harAksjonspunktMedTotrinnskontroll();
     }
 
     private boolean harAksjonspunktUtførtAvSaksbehandler(Behandling behandling) {

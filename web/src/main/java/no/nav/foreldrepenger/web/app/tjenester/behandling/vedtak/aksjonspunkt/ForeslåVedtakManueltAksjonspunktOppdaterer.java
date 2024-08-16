@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.BekreftVedtakUtenTotrinnskontrollOppdaterer.utledToTrinn;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -37,5 +35,9 @@ class ForeslåVedtakManueltAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     @Override
     public OppdateringResultat oppdater(ForeslaVedtakManueltAksjonspuntDto dto, AksjonspunktOppdaterParameter param) {
         return håndter(dto, param, utledToTrinn(dto));
+    }
+
+    private static boolean utledToTrinn(VedtaksbrevOverstyringDto dto) {
+        return dto.isSkalBrukeOverstyrendeFritekstBrev();
     }
 }

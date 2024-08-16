@@ -75,7 +75,7 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
 
-    public static final String VEDTAK_UTEN_TOTRINNSKONTROLL_KODE = "5018";
+    public static final String DENNE_ER_LEDIG_OG_KAN_BRUKES = "5018";
 
     public static final String VENT_PÅ_SCANNING_KODE = "7007";
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";

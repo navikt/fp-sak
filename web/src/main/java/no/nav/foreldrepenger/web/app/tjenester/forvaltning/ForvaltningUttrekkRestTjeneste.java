@@ -174,30 +174,6 @@ public class ForvaltningUttrekkRestTjeneste {
 
     }
 
-    @POST
-    @Path("/samleEntrinnsVedtak")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Starter ny revurdering (berørt)", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response samleEntrinnsVedtak() {
-        var slett1 = entityManager.createNativeQuery("""
-            delete from aksjonspunkt
-            where aksjonspunkt_def = '5028' and aksjonspunkt_status = 'AVBR'
-            and behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = '5018')
-            """)
-            .executeUpdate();
-        var slett2 = entityManager.createNativeQuery("""
-            delete from aksjonspunkt
-            where aksjonspunkt_def = '5018' and aksjonspunkt_status = 'AVBR'
-            and behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = '5028')
-            """)
-            .executeUpdate();
-        var oppdatert = entityManager.createNativeQuery(" update aksjonspunkt set aksjonspunkt_def = '5028' where aksjonspunkt_def = '5018'")
-            .executeUpdate();
-        return Response.ok(slett1 + slett2 + oppdatert).build();
-    }
-
     @GET
     @Path("/listFagsakUtenBehandling")
     @Produces(MediaType.APPLICATION_JSON)

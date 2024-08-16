@@ -88,9 +88,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU_KODE, AksjonspunktType.MANUELL,
             "Vurder søkers opplysningsplikt ved ufullstendig/ikke-komplett søknad", BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
             VurderingspunktType.UT, VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.OPPLYSNINGSPLIKT, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VEDTAK_UTEN_TOTRINNSKONTROLL(
-            AksjonspunktKodeDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL_KODE, AksjonspunktType.MANUELL, "Foreslå vedtak uten totrinnskontroll",
-            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VEDTAK, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    // TODO? Ta i bruk 5018 for manuell vurdering av medlemskapsvilkåret - evt gruppere den sammen med en klynge medlemsvilkår-varianter
     AVKLAR_LOVLIG_OPPHOLD(AksjonspunktKodeDefinisjon.AVKLAR_LOVLIG_OPPHOLD_KODE,
             AksjonspunktType.MANUELL, "Avklar lovlig opphold.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -496,7 +494,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE, AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
 
     private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
-        AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+        AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
 
     private static final Set<AksjonspunktDefinisjon> AVVIK_I_BEREGNING = Set.of(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS,
         AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,

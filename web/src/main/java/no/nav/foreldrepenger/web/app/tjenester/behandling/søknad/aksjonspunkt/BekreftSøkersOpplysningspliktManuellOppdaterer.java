@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -50,10 +49,6 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
         if (erVilkårOk) {
-            // Reverser vedtak uten totrinnskontroll
-            behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)
-                .ifPresent(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-
             resultatBuilder.leggTilManueltOppfyltVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT);
             resultatBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
 
