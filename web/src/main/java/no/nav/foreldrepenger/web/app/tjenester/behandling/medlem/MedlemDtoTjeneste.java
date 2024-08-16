@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpendeMedlemskapEntitet;
@@ -36,8 +38,11 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class MedlemDtoTjeneste {
@@ -86,6 +91,56 @@ public class MedlemDtoTjeneste {
             dto.setBeslutningsdato(mp.getBeslutningsdato());
             return dto;
         }).toList();
+    }
+
+    public MedlemskapV3Dto lagMedlemskap(UUID behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+
+        var personopplysningerAggregat = personopplysningTjeneste
+            .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(
+                ref,
+                DatoIntervallEntitet.fraOgMedTilOgMed(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE)
+            ).orElse(null);
+
+        if (personopplysningerAggregat == null) {
+            return null;
+        }
+
+        var aktørId = ref.aktørId();
+        var adresser = personopplysningerAggregat.getAdresserFor(aktørId).stream().map(MedlemskapV3Dto.Adresse::map).collect(Collectors.toSet());
+        var medlemskap = medlemskapRepository.hentMedlemskap(ref.behandlingId());
+
+        var medlemskapsperioder = medlemskap.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder)
+            .orElse(Set.of())
+            .stream()
+            .map(MedlemskapV3Dto.MedlemskapPeriode::map)
+            .collect(Collectors.toSet());
+
+        var utenlandsopphold = medlemskap.flatMap(MedlemskapAggregat::getOppgittTilknytning)
+            .map(MedlemskapOppgittTilknytningEntitet::getOpphold)
+            .orElse(Set.of())
+            .stream()
+            .map(MedlemskapV3Dto.Utenlandsopphold::map)
+            .collect(Collectors.toSet());
+
+        var personstatuser = personopplysningerAggregat.getPersonstatuserFor(aktørId)
+            .stream()
+            .map(MedlemskapV3Dto.Personstatus::map)
+            .collect(Collectors.toSet());
+
+        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
+            .stream()
+            .map(MedlemskapV3Dto.Oppholdstillatelse::map)
+            .collect(Collectors.toSet());
+
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId,
+                new LocalDateInterval(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE))
+            .stream()
+            .map(s -> new MedlemskapV3Dto.Region(s.getFom(), s.getTom(), s.getValue()))
+            .collect(Collectors.toSet());
+
+        return new MedlemskapV3Dto(null, regioner, personstatuser, utenlandsopphold, adresser, oppholdstillatelser, medlemskapsperioder);
     }
 
     public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
