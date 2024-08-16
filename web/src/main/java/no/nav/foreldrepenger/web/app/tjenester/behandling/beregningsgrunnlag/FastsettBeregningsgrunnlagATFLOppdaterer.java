@@ -15,14 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 
 @ApplicationScoped
@@ -31,7 +27,6 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-    private FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private BeregningHåndterer beregningHåndterer;
     private BehandlingRepository behandlingRepository;
@@ -43,12 +38,10 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
     @Inject
     public FastsettBeregningsgrunnlagATFLOppdaterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                     FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste,
-                                                    FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
                                                     BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
                                                     BeregningHåndterer beregningHåndterer, BehandlingRepository behandlingRepository) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.fastsettBeregningsgrunnlagATFLHistorikkTjeneste = fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-        this.fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningHåndterer = beregningHåndterer;
         this.behandlingRepository = behandlingRepository;
@@ -60,16 +53,6 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
         var ref = param.getRef();
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.fagsakYtelseType());
         var input = tjeneste.lagInput(ref);
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
-            BeregningsgrunnlagTilstand.FORESLÅTT_UT)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        if (dto.tidsbegrensetInntektErFastsatt()) {
-            var tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(), dto.getInntektFrilanser());
-            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input, OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(tidsbegrensetDto));
-            fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtGrunnlag, forrigeGrunnlag, tidsbegrensetDto);
-            var builder = OppdateringResultat.utenTransisjon();
-            return builder.build();
-        }
         beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag);
         var builder = OppdateringResultat.utenTransisjon();
