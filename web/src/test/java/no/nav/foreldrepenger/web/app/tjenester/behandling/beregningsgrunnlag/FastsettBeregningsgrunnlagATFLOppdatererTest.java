@@ -75,7 +75,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     public void setup() {
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
-        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset,
+        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk,
                 beregningsgrunnlagInputTjeneste, beregningHåndterer, behandlingRepository);
     }
 
