@@ -35,6 +35,7 @@ public class UttakResultatPeriodeDto {
     private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
     private LocalDate tidligstMottattDato; // brukes bare i formidling, ikke i front end
+    private boolean erUtbetalingRedusertTilMorsStillingsprosent; // brukes bare i formidling, ikke i front end
 
     private UttakResultatPeriodeDto() {
 
@@ -127,6 +128,10 @@ public class UttakResultatPeriodeDto {
         return tidligstMottattDato;
     }
 
+    public boolean erUtbetalingRedusertTilMorsStillingsprosent() {
+        return erUtbetalingRedusertTilMorsStillingsprosent;
+    }
+
     public static class Builder {
 
         private final UttakResultatPeriodeDto kladd = new UttakResultatPeriodeDto();
@@ -201,8 +206,14 @@ public class UttakResultatPeriodeDto {
             kladd.mottattDato = mottattDato;
             return this;
         }
+
         public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
             kladd.tidligstMottattDato = tidligstMottattDato;
+            return this;
+        }
+
+        public Builder medErUtbetalingRedusertTilMorsStillingsprosent(boolean erUtbetalingRedusertTilMorsStillingsprosent) {
+            kladd.erUtbetalingRedusertTilMorsStillingsprosent = erUtbetalingRedusertTilMorsStillingsprosent;
             return this;
         }
 

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -13,8 +14,10 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -139,12 +142,23 @@ public class UttakPerioderDtoTjeneste {
             .medPeriodeType(periode.getSøktKonto())
             .medMottattDato(periode.getMottattDato())
             .medTidligstMottattDato(periode.getTidligstMottatttDato())
+            .medErUtbetalingRedusertTilMorsStillingsprosent(utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode))
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {
             dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag, periode.isOpprinneligSendtTilManuellBehandling()));
         }
         return dto;
+    }
+
+    private boolean utledOmUtbetalingErRedusertTilMorsStillingsprosent(ForeldrepengerUttakPeriode periode) {
+        if (periode.harRedusertUtbetaling() && MorsAktivitet.ARBEID.equals(periode.getMorsAktivitet()) && periode.getDokumentasjonVurdering().isPresent()) {
+            boolean morsAktivitetGodkjent = periode.getDokumentasjonVurdering().map(dokvurdering -> dokvurdering.type().equals(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT)).orElse(false);
+            var morsStillingsprosent = periode.getDokumentasjonVurdering().map(DokumentasjonVurdering::morsStillingsprosent).orElse(null);
+            var graderingEllerSamtidigUttak = periode.isSamtidigUttak() || periode.isGraderingInnvilget();
+            return morsStillingsprosent != null && morsStillingsprosent.decimalValue().compareTo(BigDecimal.valueOf(75)) < 0 && morsAktivitetGodkjent && !graderingEllerSamtidigUttak;
+        }
+        return false;
     }
 
     private List<UttakResultatPeriodeDto> sortedByFom(List<UttakResultatPeriodeDto> list) {
