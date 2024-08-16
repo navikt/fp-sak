@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 
 public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, Set<Personstatus> personstatuser,
                               Set<Utenlandsopphold> utenlandsopphold, Set<Adresse> adresser, Set<Oppholdstillatelse> oppholdstillatelser,
-                              Set<MedlemskapPeriode> medlemskapsperioder) {
+                              Set<MedlemskapPeriode> medlemskapsperioder) { //TODO annen part?
 
     record Region(LocalDate fom, LocalDate tom, no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
     }

@@ -217,8 +217,6 @@ class MedlemDtoTjenesteTest {
 
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
-            .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
             medlemTjenesteMock,
             personopplysningTjenesteMock, personDtoTjeneste);
