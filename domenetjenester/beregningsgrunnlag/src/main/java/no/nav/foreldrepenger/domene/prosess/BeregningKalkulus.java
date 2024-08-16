@@ -17,6 +17,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
@@ -51,15 +52,22 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        var request = lagEnkelKalkulusRequest(referanse);
-        return klient.hentGrunnlag(request).map(KalkulusTilFpsakMapper::map);
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId());
+        return kobling.flatMap(k -> {
+            var request = new EnkelFpkalkulusRequestDto(k.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()));
+            return klient.hentGrunnlag(request).map(KalkulusTilFpsakMapper::map);
+        });
     }
 
     @Override
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType) {
-        validerStegtypeOgOpprettEvtKobling(stegType, behandlingReferanse);
+        var koblingOpt = koblingRepository.hentKobling(behandlingReferanse.behandlingId());
+        if (koblingOpt.isEmpty() && !stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
+            throw new IllegalStateException("Kan ikke opprette ny kobling uten at denne starter i første steg av beregning, angitt steg var " + stegType);
+        }
+        var kobling = koblingOpt.orElse(koblingRepository.opprettKobling(behandlingReferanse));
         var beregningSteg = mapTilBeregningStegType(stegType);
-        var request = lagBeregningRequest(behandlingReferanse, beregningSteg);
+        var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg);
         var respons = klient.beregn(request);
         var prosessResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(respons.aksjonspunkter());
         // TODO Finn ut hvordan vi løser sporing av vilkåret
@@ -69,49 +77,38 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse) {
-        var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
-        var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(referanse.behandlingUuid(), kalkulusInput);
-        return klient.hentGrunnlagGUI(hentGuiDtoRequest);
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId());
+        return kobling.flatMap(k -> {
+            var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
+            var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(), kalkulusInput);
+            return klient.hentGrunnlagGUI(hentGuiDtoRequest);
+        });
     }
 
     @Override
     public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
-        validerReferanserOgOpprettEvtKobling(revurdering, originalbehandling);
-        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
-            throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
-        }
-        var request = lagKopierRequest(revurdering, originalbehandling);
-        klient.kopierGrunnlag(request);
-    }
-
-    private void validerReferanserOgOpprettEvtKobling(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
         if (!revurdering.saksnummer().equals(originalbehandling.saksnummer())) {
             throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
         }
-        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId());
-        if (originalKobling.isEmpty()) {
-            throw new IllegalStateException("Kan ikke kopiere grunnlag fra en kobling som ikke finnes!");
+        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId()).orElseThrow(() -> new IllegalStateException("Kan ikke kopiere grunnlag fra en kobling som ikke finnes!"));
+        var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
+        var kobling = koblingOpt.orElseGet(() -> {
+            LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
+            return koblingRepository.opprettKobling(revurdering);
+        });
+        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
+            throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
         }
-        var revurderingKobling = koblingRepository.hentKobling(revurdering.behandlingId());
-        if (revurderingKobling.isEmpty()) {
-            LOG.info("Finnes ikke kobling på behandling som skal kopieres til. Opprettet kobling med ref " + revurdering.behandlingUuid());
-            koblingRepository.opprettKobling(revurdering);
-        }
+        var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling);
+        klient.kopierGrunnlag(request);
     }
 
-    private KopierBeregningsgrunnlagRequestDto lagKopierRequest(BehandlingReferanse revurdering,
-                                                                BehandlingReferanse originalbehandling) {
-
-        return new KopierBeregningsgrunnlagRequestDto(new Saksnummer(revurdering.saksnummer().getVerdi()), revurdering.behandlingUuid(),
-            originalbehandling.behandlingUuid(), BeregningSteg.FAST_BERGRUNN);
+    private KopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
+        return new KopierBeregningsgrunnlagRequestDto(new Saksnummer(verdi), kobling.getKoblingUuid(),
+            originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN);
     }
 
-    private EnkelFpkalkulusRequestDto lagEnkelKalkulusRequest(BehandlingReferanse referanse) {
-        return new EnkelFpkalkulusRequestDto(referanse.behandlingUuid(),
-            new Saksnummer(referanse.saksnummer().getVerdi()));
-    }
-
-    private FpkalkulusYtelser mapSkalBeregneYtelsetype(FagsakYtelseType fagsakYtelseType) {
+    private FpkalkulusYtelser mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> FpkalkulusYtelser.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FpkalkulusYtelser.SVANGERSKAPSPENGER;
@@ -134,23 +131,11 @@ public class BeregningKalkulus implements BeregningAPI {
         };
     }
 
-    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningSteg beregningSteg) {
+    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg) {
         var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
         var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
-        var ytelse = mapSkalBeregneYtelsetype(behandlingReferanse.fagsakYtelseType());
+        var ytelse = mapYtelseSomSkalBeregnes(behandlingReferanse.fagsakYtelseType());
         var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
-        return new BeregnRequestDto(saksnummer, behandlingReferanse.behandlingUuid(), personIdent, ytelse, beregningSteg, input, null);
+        return new BeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, null);
     }
-
-    private void validerStegtypeOgOpprettEvtKobling(BehandlingStegType stegType, BehandlingReferanse behandlingReferanse) {
-        var kobling = koblingRepository.hentKobling(behandlingReferanse.behandlingId());
-        if (kobling.isPresent()) {
-            return;
-        }
-        if (!stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
-            throw new IllegalStateException("Kan ikke opprette ny kobling uten å starte beregningen fra første steg!");
-        }
-        koblingRepository.opprettKobling(behandlingReferanse);
-    }
-
 }
