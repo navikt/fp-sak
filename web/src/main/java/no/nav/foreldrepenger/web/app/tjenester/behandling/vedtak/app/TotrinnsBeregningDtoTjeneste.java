@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,8 +35,8 @@ public class TotrinnsBeregningDtoTjeneste {
             dto.setFastsattVarigEndringNaering(erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(behandling.getId()));
         }
         if (AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            var bg = hentBeregningsgrunnlag(behandling);
-            var tilfeller = bg.getFaktaOmBeregningTilfeller();
+            var bg = hentBeregningsgrunnlag(behandling.getId());
+            var tilfeller = bg.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller).orElseGet(List::of);
             dto.setFaktaOmBeregningTilfeller(mapTilfelle(tilfeller));
         }
         return dto;
@@ -45,14 +46,14 @@ public class TotrinnsBeregningDtoTjeneste {
         return tilfeller.stream().map(t -> FaktaOmBeregningTilfelle.fraKode(t.getKode())).toList();
     }
 
-    private BeregningsgrunnlagEntitet hentBeregningsgrunnlag(Behandling behandling) {
-        return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
+    private Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlag(Long behandlingId) {
+        return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(behandlingId);
     }
 
     private boolean erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(Long behandlingId) {
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
+        var beregningsgrunnlag = hentBeregningsgrunnlag(behandlingId);
 
-        return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        return beregningsgrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElseGet(List::of).stream()
             .flatMap(bgps -> bgps.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .filter(andel -> AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.equals(AktivitetStatus.fraKode(andel.getAktivitetStatus().getKode())))
             .anyMatch(andel -> andel.getOverstyrtPrÅr() != null);

@@ -47,16 +47,16 @@ public class UttakPeriodeEndringDtoTjeneste {
     public List<UttakPeriodeEndringDto> hentEndringPåUttakPerioder(Totrinnsvurdering aksjonspunkt,
                                                                    Behandling behandling) {
         if (PROSESS_UTTAK.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId());
+            var endringer = fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId());
+            if (!endringer.isEmpty()) {
+                return endringer;
+            }
         }
         if (FAKTA_UTTAK.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
             // Filtrer på perioder med endring som i FUFT
-            var yfAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-            if (yfAggregat == null) {
-                return List.of();
-            }
-            return FaktaUttakHistorikkinnslagTjeneste.utledPerioderMedEndring(yfAggregat.getOppgittFordeling().getPerioder(),
-                            yfAggregat.getGjeldendeFordeling().getPerioder());
+            return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+                .map(yf -> FaktaUttakHistorikkinnslagTjeneste.utledPerioderMedEndring(yf.getOppgittFordeling().getPerioder(), yf.getGjeldendeFordeling().getPerioder()))
+                .orElseGet(Collections::emptyList);
         }
         return Collections.emptyList();
     }
