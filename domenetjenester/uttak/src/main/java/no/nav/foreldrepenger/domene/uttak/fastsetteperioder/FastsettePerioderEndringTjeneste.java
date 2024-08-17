@@ -31,8 +31,7 @@ public class FastsettePerioderEndringTjeneste {
     }
 
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrtForBehandling(Long behandlingId) {
-        var uttakResultat = fpUttakRepository.hentUttakResultat(behandlingId);
-        return lagEndringDto(uttakResultat);
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(this::lagEndringDto).orElseGet(List::of);
     }
 
     private List<UttakPeriodeEndringDto> lagEndringDto(UttakResultatEntitet uttakResultat) {

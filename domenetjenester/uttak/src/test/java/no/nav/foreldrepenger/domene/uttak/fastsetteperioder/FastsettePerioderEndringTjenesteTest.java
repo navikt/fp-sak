@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -184,6 +185,7 @@ class FastsettePerioderEndringTjenesteTest {
     private FpUttakRepository uttakRepository(UttakResultatEntitet uttakResultat) {
         var mock = mock(FpUttakRepository.class);
         when(mock.hentUttakResultat(Mockito.any())).thenReturn(uttakResultat);
+        when(mock.hentUttakResultatHvisEksisterer(Mockito.any())).thenReturn(Optional.of(uttakResultat));
         return mock;
     }
 

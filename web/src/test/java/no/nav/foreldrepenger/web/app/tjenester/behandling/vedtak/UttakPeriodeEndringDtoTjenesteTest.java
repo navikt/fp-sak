@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -47,12 +46,10 @@ class UttakPeriodeEndringDtoTjenesteTest {
 
     private Behandling behandling;
     private LocalDate dato;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FpUttakRepository fpUttakRepository;
 
     @BeforeEach
     public void setUp() {
-        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         dato = LocalDate.of(2018, 8, 1);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
