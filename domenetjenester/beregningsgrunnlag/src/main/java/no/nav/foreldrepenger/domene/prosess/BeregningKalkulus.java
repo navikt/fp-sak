@@ -1,37 +1,33 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.List;
-import java.util.List;
 import java.util.Collections;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.jboss.weld.exceptions.IllegalStateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
-import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
-import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
 import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
-import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
-import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
