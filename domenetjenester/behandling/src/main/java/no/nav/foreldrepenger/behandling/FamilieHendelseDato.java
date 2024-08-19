@@ -20,6 +20,13 @@ public record FamilieHendelseDato(LocalDate termindato, LocalDate fødselsdato, 
             .orElse(null);
     }
 
+    public LocalDate forventetFamilieHendelseDato() {
+        return Optional.ofNullable(omsorgsovertakelse)
+            .or(() -> Optional.ofNullable(termindato))
+            .or(() -> Optional.ofNullable(fødselsdato))
+            .orElse(null);
+    }
+
     public boolean gjelderFødsel() {
         return omsorgsovertakelse == null;
     }

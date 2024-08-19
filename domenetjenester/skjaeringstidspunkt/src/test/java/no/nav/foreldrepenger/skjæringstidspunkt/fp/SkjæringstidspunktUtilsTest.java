@@ -13,8 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Hendels
 
 class SkjæringstidspunktUtilsTest {
 
-    private final SkjæringstidspunktUtils innhentingIntervall = new SkjæringstidspunktUtils();
-
     @Test
     void skal_gi_false_hvis_like() {
         var oppgitt = LocalDate.now();
@@ -23,7 +21,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
             .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
 
-        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -39,7 +37,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -56,7 +54,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medBekreftetVersjon(fhBekreftet);
 
-        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 
@@ -73,7 +71,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 }

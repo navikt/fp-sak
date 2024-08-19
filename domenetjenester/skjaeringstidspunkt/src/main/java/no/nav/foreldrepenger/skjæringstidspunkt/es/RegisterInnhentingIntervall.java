@@ -3,48 +3,33 @@ package no.nav.foreldrepenger.skjæringstidspunkt.es;
 import java.time.LocalDate;
 import java.time.Period;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
-@ApplicationScoped
 public class RegisterInnhentingIntervall {
 
-    private Period grenseverdiFør;
-    private Period grenseverdiEtter;
-
-    RegisterInnhentingIntervall() {
-        // CDI
-    }
-
     /**
-     * @param grenseverdiFørES- Maks avvik før STP for registerinnhenting før justering av perioden (Engangsstønad)
-     * @param grenseverdiPeriodeEtter Maks avvik etter STP for registerinnhenting før justering av perioden (Engangsstønad)
+     * Maks avvik før/etter STP for registerinnhenting før justering av perioden
      */
-    @Inject
-    public RegisterInnhentingIntervall(@KonfigVerdi(value="es.registerinnhenting.avvik.periode.før", defaultVerdi = "P9M") Period grenseverdiPeriodeFør,
-                                       @KonfigVerdi(value="es.registerinnhenting.avvik.periode.etter", defaultVerdi = "P6M") Period grenseverdiPeriodeEtter) {
-        this.grenseverdiFør = grenseverdiPeriodeFør;
-        this.grenseverdiEtter = grenseverdiPeriodeEtter;
+    private static final Period GRENSEVERDI_FØR = Period.ofMonths(9);
+    private static final Period GRENSEVERDI_ETTER = Period.ofMonths(6);
+
+    private RegisterInnhentingIntervall() {
     }
 
-    boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
+    static boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         if (bekreftetSkjæringstidspunkt == null) {
             return false;
         }
-        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør)
-            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
+        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt)
+            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
     }
 
-    private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
+    private static boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, grenseverdiEtter);
+        return !avstand.isNegative() && størreEnn(avstand, RegisterInnhentingIntervall.GRENSEVERDI_ETTER);
     }
 
-    private boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiFør) {
+    private static boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, grenseverdiFør);
+        return !avstand.isNegative() && størreEnn(avstand, RegisterInnhentingIntervall.GRENSEVERDI_FØR);
     }
 
     private static boolean størreEnn(Period period, Period sammenligning) {

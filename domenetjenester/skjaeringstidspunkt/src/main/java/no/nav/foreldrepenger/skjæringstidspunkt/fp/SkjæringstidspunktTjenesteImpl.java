@@ -55,7 +55,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private static final Period MAX_STØNADSPERIODE = Period.ofYears(3);
 
     private FamilieHendelseRepository familieGrunnlagRepository;
-    private SkjæringstidspunktUtils utlederUtils;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FpUttakRepository fpUttakRepository;
     private OpptjeningRepository opptjeningRepository;
@@ -72,7 +71,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
-                                          SkjæringstidspunktUtils utlederUtils,
                                           UtsettelseBehandling2021 utsettelse2021,
                                           MinsterettBehandling2022 minsterett2022) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -81,7 +79,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.utlederUtils = utlederUtils;
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
         this.utsettelse2021 = utsettelse2021;
         this.minsterett2022 = minsterett2022;
@@ -91,7 +88,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
         var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
 
-        return familieHendelseAggregat.map(utlederUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(LocalDate.now());
+        return familieHendelseAggregat.map(SkjæringstidspunktUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(LocalDate.now());
     }
 
     @Override
@@ -142,7 +139,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
             ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
-        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
+        var utledetSkjæringstidspunkt = SkjæringstidspunktUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
             familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
@@ -182,7 +179,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
             ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
-        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
+        var utledetSkjæringstidspunkt = SkjæringstidspunktUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
             familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
