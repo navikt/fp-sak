@@ -5,8 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
@@ -20,7 +19,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     private MapBeregningsgrunnlagFraVLTilRegel() {
     }
 
-    public static Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
+    public static Beregningsgrunnlag map(no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag vlBeregningsgrunnlag) {
         var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
             .map(vlBGAktivitetStatus -> AktivitetStatusMapper.fraVLTilRegel(vlBGAktivitetStatus.getAktivitetStatus()))
             .toList();
@@ -38,24 +37,24 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
         return new Beregningsgrunnlag(perioder);
     }
 
-    public static boolean arbeidstakerVedSkjæringstidspunkt(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
+    public static boolean arbeidstakerVedSkjæringstidspunkt(no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag vlBeregningsgrunnlag) {
         return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-            .min(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
-            .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
+            .min(Comparator.comparing(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
+            .map(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
             .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && Inntektskategori.girFeriepenger().contains(a.getGjeldendeInntektskategori()));
     }
 
-    private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
+    private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag vlBeregningsgrunnlag) {
         return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .map(MapBeregningsgrunnlagFraVLTilRegel::mapBeregningsgrunnlagPeriode)
             .toList();
     }
 
-    private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
         return new BeregningsgrunnlagPeriode(vlBGPeriode.getBeregningsgrunnlagPeriodeFom(), vlBGPeriode.getBeregningsgrunnlagPeriodeTom(), mapVLBGPrStatus(vlBGPeriode));
     }
 
-    private static List<BeregningsgrunnlagPrStatus> mapVLBGPrStatus(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static List<BeregningsgrunnlagPrStatus> mapVLBGPrStatus(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
         List<BeregningsgrunnlagPrStatus> liste = new ArrayList<>();
         var harATFL = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .anyMatch(a -> AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())));
@@ -78,7 +77,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     // Felles mapping av alle statuser som mapper til ATFL
-    private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
         var arbeidsforhold = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .filter(a -> AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())))
             .map(a -> BeregningsgrunnlagPrArbeidsforhold.opprett(ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(a),
