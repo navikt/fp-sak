@@ -485,7 +485,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::erUtbetalingRedusertTilMorsStillingsprosent)).isTrue();
     }
     @Test
-    void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_false_utbetalingen_ikke_er_redusert_med_mors_stillingsprosent() {
+    void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_false_når_utbetalingen_erRedusert_men_innvilget_gradering() {
         var perioder = new UttakResultatPerioderEntitet();
         var periodeType = UttakPeriodeType.FORELDREPENGER;
         var mottattDato = LocalDate.now();
@@ -498,11 +498,11 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medUttakPeriodeType(periodeType)
             .medMorsAktivitet(MorsAktivitet.ARBEID)
-            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT))
+            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(40))))
             .medMottattDato(mottattDato)
             .build();
         var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
-            .medGraderingInnvilget(false)
+            .medGraderingInnvilget(true)
             .medSamtidigUttak(false)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
@@ -510,12 +510,11 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
             .medErSøktGradering(false)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(new Utbetalingsgrad(75))
+            .medArbeidsprosent(BigDecimal.valueOf(60))
+            .medUtbetalingsgrad(new Utbetalingsgrad(40))
             .build();
         periode.leggTilAktivitet(periodeAktivitet);
         perioder.leggTilPeriode(periode);
-
 
         var behandling = morBehandlingMedUttak(perioder);
 

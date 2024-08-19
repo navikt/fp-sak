@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAkt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -153,10 +154,15 @@ public class UttakPerioderDtoTjeneste {
 
     private boolean utledOmUtbetalingErRedusertTilMorsStillingsprosent(ForeldrepengerUttakPeriode periode) {
         if (periode.harRedusertUtbetaling() && MorsAktivitet.ARBEID.equals(periode.getMorsAktivitet()) && periode.getDokumentasjonVurdering().isPresent()) {
+            var morsStillingsprosent = periode.getDokumentasjonVurdering().map(DokumentasjonVurdering::morsStillingsprosent).map(
+                MorsStillingsprosent::decimalValue).orElse(BigDecimal.ZERO);
+
+            var morsStillingsProsentErUnder75 = (morsStillingsprosent.compareTo(BigDecimal.ZERO) != 0) && morsStillingsprosent.compareTo(BigDecimal.valueOf(75)) < 0 ;
+            var minstEnPeriodeHarUtbetalingLikMorsStillingsprosent =  periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().decimalValue().compareTo(morsStillingsprosent) == 0);
             boolean morsAktivitetGodkjent = periode.getDokumentasjonVurdering().map(dokvurdering -> dokvurdering.type().equals(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT)).orElse(false);
-            var morsStillingsprosent = periode.getDokumentasjonVurdering().map(DokumentasjonVurdering::morsStillingsprosent).orElse(null);
             var graderingEllerSamtidigUttak = periode.isSamtidigUttak() || periode.isGraderingInnvilget();
-            return morsStillingsprosent != null && morsStillingsprosent.decimalValue().compareTo(BigDecimal.valueOf(75)) < 0 && morsAktivitetGodkjent && !graderingEllerSamtidigUttak;
+
+            return morsStillingsProsentErUnder75 && minstEnPeriodeHarUtbetalingLikMorsStillingsprosent && morsAktivitetGodkjent && !graderingEllerSamtidigUttak;
         }
         return false;
     }
