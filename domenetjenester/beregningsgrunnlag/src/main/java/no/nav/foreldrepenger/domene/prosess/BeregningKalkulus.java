@@ -65,7 +65,7 @@ public class BeregningKalkulus implements BeregningAPI {
         if (koblingOpt.isEmpty() && !stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
             throw new IllegalStateException("Kan ikke opprette ny kobling uten at denne starter i første steg av beregning, angitt steg var " + stegType);
         }
-        var kobling = koblingOpt.orElse(koblingRepository.opprettKobling(behandlingReferanse));
+        var kobling = koblingOpt.orElseGet(() -> koblingRepository.opprettKobling(behandlingReferanse));
         var beregningSteg = mapTilBeregningStegType(stegType);
         var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg);
         var respons = klient.beregn(request);
