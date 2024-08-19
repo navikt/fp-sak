@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.prosess;
 
 import java.util.List;
 import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -131,14 +132,13 @@ public class BeregningKalkulus implements BeregningAPI {
     }
 
     @Override
-    public OppdaterBeregningsgrunnlagResultat oppdaterBeregning(List<BekreftetAksjonspunktDto> oppdateringer, BehandlingReferanse referanse) {
-        var kalkulusDtoer = oppdateringer.stream().map(KalkulusAksjonspunktMapper::mapAksjonspunktTilKalkulusDto).toList();
+    public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
+        var kalkulusDtoer = KalkulusAksjonspunktMapper.mapAksjonspunktTilKalkulusDto(oppdatering);
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
-        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse),
-            kalkulusDtoer);
+        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
         var respons = klient.løsAvklaringsbehov(request);
-        return MapEndringsresultat.mapFraOppdateringRespons(respons);
+        return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
 
     private KopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {

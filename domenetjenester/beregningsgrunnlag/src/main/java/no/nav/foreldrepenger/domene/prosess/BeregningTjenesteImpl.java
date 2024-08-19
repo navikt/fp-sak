@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -76,11 +75,11 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
     }
 
     @Override
-    public OppdaterBeregningsgrunnlagResultat oppdaterBeregning(List<BekreftetAksjonspunktDto> oppdateringer, BehandlingReferanse referanse) {
+    public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
         if (skalKalleKalkulus) {
-            return kalkulusBeregner.oppdaterBeregning(oppdateringer, referanse);
+            return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
         } else {
-            return fpsakBeregner.oppdaterBeregning(oppdateringer, referanse);
+            return fpsakBeregner.oppdaterBeregning(oppdatering, referanse);
         }
     }
 

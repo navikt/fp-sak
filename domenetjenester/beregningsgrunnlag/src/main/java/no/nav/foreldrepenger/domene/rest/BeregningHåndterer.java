@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.rest;
 
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +28,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.input.KalkulatorHåndteringInputTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 
 /**
  * Fasadetjeneste for håndtering av aksjonspunkt
@@ -130,12 +132,15 @@ public class BeregningHåndterer {
     }
 
     public void håndterVurderVarigEndretNyoppstartetSN(BeregningsgrunnlagInput input,
-                                                       Integer bruttoBeregningsgrunnlag) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
-            AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
-        var resultat = VurderVarigEndretEllerNyoppstartetHåndterer.håndter(håndterBeregningsgrunnlagInput, bruttoBeregningsgrunnlag, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
+                                                       VurderVarigEndringEllerNyoppstartetSNDto dto) {
+        if (dto.getErVarigEndretNaering()) {
+            var bruttoSn = Objects.requireNonNull(dto.getBruttoBeregningsgrunnlag(), "næringsinntekt");
+            var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
+                input.getKoblingReferanse().getKoblingId(), input,
+                AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
+            var resultat = VurderVarigEndretEllerNyoppstartetHåndterer.håndter(håndterBeregningsgrunnlagInput, bruttoSn, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+            beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
+        }
     }
 
     private Long getBehandlingId(BeregningsgrunnlagInput input) {

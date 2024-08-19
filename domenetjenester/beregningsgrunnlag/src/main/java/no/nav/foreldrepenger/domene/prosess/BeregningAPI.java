@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.List;
 import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
@@ -22,5 +21,5 @@ public interface BeregningAPI {
 
     void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand);
 
-    OppdaterBeregningsgrunnlagResultat oppdaterBeregning(List<BekreftetAksjonspunktDto> oppdateringer, BehandlingReferanse referanse);
+    Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdateringer, BehandlingReferanse referanse);
 }
