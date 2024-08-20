@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.infobrev;
 
-import static no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.EnhetsTjeneste.MIDLERTIDIG_ENHET;
-
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -175,9 +173,9 @@ public class FeilPraksisUtsettelseRepository {
           select distinct b.FAGSAK_ID, b.ID from fpsak.BEHANDLING b
                                                join fpsak.AKSJONSPUNKT a on a.BEHANDLING_ID = b.ID
                                                join fpsak.BEHANDLING_STEG_TILSTAND steg on steg.BEHANDLING_ID = b.ID
-                                               left outer join fpsak.FAGSAK_EGENSKAP egenskap on egenskap.fagsak_id = b.FAGSAK_ID
+                                               join fpsak.BEHANDLING_ARSAK ba on ba.BEHANDLING_ID = b.ID
                           where b.id > :fraBehandlingId
-                          and (BEHANDLENDE_ENHET = :enhet or EGENSKAP_VALUE = 'PRAKSIS_UTSETTELSE')
+                          and ba.BEHANDLING_ARSAK_TYPE = 'FEIL_PRAKSIS_UTSETTELSE'
                           and a.AKSJONSPUNKT_DEF = '7013'
                           and a.AKSJONSPUNKT_STATUS = 'OPPR'
                           and a.FRIST_TID = to_date('2024-08-25', 'yyyy-mm-dd')
@@ -190,7 +188,6 @@ public class FeilPraksisUtsettelseRepository {
     public List<BehandlingMedFagsakId> finnNesteHundreBehandlingerSomErPåVentTilAugust(Long fraBehandlingId) {
         var query = entityManager.createNativeQuery(QUERY_VENTEFRIST_AUGUST, BehandlingMedFagsakId.class)
             .setParameter("fraBehandlingId", fraBehandlingId == null ? 0 : fraBehandlingId)
-            .setParameter("enhet", MIDLERTIDIG_ENHET.enhetId())
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
