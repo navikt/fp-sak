@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -48,16 +49,16 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     );
 
     private final SatsReguleringRepository satsReguleringRepository;
-    private final BeregningsresultatRepository beregningsresultatRepository;
     private final ProsessTaskTjeneste taskTjeneste;
+    private final SatsRepository satsRepository;
 
     @Inject
     public GrunnbeløpFinnSakerTask(SatsReguleringRepository satsReguleringRepository,
-                                   BeregningsresultatRepository beregningsresultatRepository,
-                                   ProsessTaskTjeneste taskTjeneste) {
+                                   ProsessTaskTjeneste taskTjeneste,
+                                   SatsRepository satsRepository) {
         this.satsReguleringRepository = satsReguleringRepository;
-        this.beregningsresultatRepository = beregningsresultatRepository;
         this.taskTjeneste = taskTjeneste;
+        this.satsRepository = satsRepository;
     }
 
     @Override
@@ -89,8 +90,8 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     }
 
     private LocalDate finnGjeldendeGrunnbeløpFomDato() {
-        var gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
-        var forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
+        var gjeldende = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
+        var forrige = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
             gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             LOG.warn("GrunnbeløpRegulering Samme sats i periodene: gammel {} ny {}", forrige, gjeldende);

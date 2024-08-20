@@ -22,13 +22,13 @@ class SatsTypeTest {
         return entityManager.createQuery(criteria).getResultList();
     }
 
-    private BeregningsresultatRepository beregningRepository;
+    private SatsRepository satsRepository;
     private EntityManager entityManager;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
         this.entityManager = entityManager;
-        beregningRepository = new BeregningsresultatRepository(entityManager);
+        satsRepository = new SatsRepository(entityManager);
     }
 
     @Test
@@ -65,7 +65,7 @@ class SatsTypeTest {
     @Test
     void skal_teste_hvert_år_mellom_1964_2018_har_gverdi_for_feb15() {
         for (var i = 1967; i <= 2018; i++) {
-            var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.of(i, 2, 15));
+            var sats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.of(i, 2, 15));
             assertThat(sats).isNotNull();
             assertThat(sats.getVerdi()).isGreaterThan(5300);
         }
@@ -75,8 +75,8 @@ class SatsTypeTest {
     void skal_teste_gverdi_stiger_hvert_år() {
         for (var i = 1967; i <= 2016; i++) {
             var localDate = LocalDate.of(i, 9, 15);
-            var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate);
-            var satsNestÅr = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate.plusYears(1));
+            var sats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate);
+            var satsNestÅr = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate.plusYears(1));
 
             assertThat(satsNestÅr.getVerdi()).isGreaterThan(sats.getVerdi());
         }

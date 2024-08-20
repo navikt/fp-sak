@@ -38,10 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
@@ -54,8 +50,6 @@ class BeregneYtelseStegImplTest {
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Inject
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -63,8 +57,6 @@ class BeregneYtelseStegImplTest {
     private FpUttakRepository fpUttakRepository;
     @Inject
     private BehandlingRepository behandlingRepository;
-    @Inject
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @Mock
     private BeregnYtelseTjeneste beregnYtelseTjeneste;
@@ -95,7 +87,7 @@ class BeregneYtelseStegImplTest {
 
         when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
 
-        var behandling = byggGrunnlag(true, true);
+        var behandling = byggGrunnlag();
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
@@ -115,7 +107,7 @@ class BeregneYtelseStegImplTest {
     @Test
     void skalSletteBeregningsresultatFPVedTilbakehopp() {
         // Arrange
-        var behandling = byggGrunnlag(true, true);
+        var behandling = byggGrunnlag();
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         beregningsresultatRepository.lagre(behandling, opprettBeregningsresultat());
 
@@ -127,7 +119,7 @@ class BeregneYtelseStegImplTest {
         assertThat(resultat).isNotPresent();
     }
 
-    private Behandling byggGrunnlag(boolean medBeregningsgrunnlag, boolean medUttaksPlanResultat) {
+    private Behandling byggGrunnlag() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -135,24 +127,9 @@ class BeregneYtelseStegImplTest {
                 .medDefaultFordeling(LocalDate.now());
 
         var behandling = lagre(scenario);
-
-        if (medBeregningsgrunnlag) {
-            medBeregningsgrunnlag(behandling);
-        }
-
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        if (medUttaksPlanResultat) {
-            byggUttakPlanResultat(behandling);
-        }
+        byggUttakPlanResultat(behandling);
         return behandling;
-    }
-
-    private void medBeregningsgrunnlag(Behandling behandling) {
-        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(LocalDate.now())
-                .medGrunnbeløp(BigDecimal.valueOf(90000));
-        var beregningsgrunnlag = beregningsgrunnlagBuilder.build();
-        beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
     private void byggUttakPlanResultat(Behandling behandling) {

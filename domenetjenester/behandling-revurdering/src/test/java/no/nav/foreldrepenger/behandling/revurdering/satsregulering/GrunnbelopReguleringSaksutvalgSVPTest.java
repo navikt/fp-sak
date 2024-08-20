@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
@@ -32,7 +32,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(JpaExtension.class)
 class GrunnbelopReguleringSaksutvalgSVPTest {
 
-    private BeregningsresultatRepository beregningsresultatRepository;
+    private SatsRepository satsRepository;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
 
@@ -41,14 +41,14 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        tjeneste = new GrunnbeløpFinnSakerTask(new SatsReguleringRepository(entityManager), beregningsresultatRepository, taskTjeneste);
+        satsRepository = new SatsRepository(entityManager);
+        tjeneste = new GrunnbeløpFinnSakerTask(new SatsReguleringRepository(entityManager), taskTjeneste, satsRepository);
     }
 
     @Test
     void skal_finne_en_sak_å_revurdere(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kandidat = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
         tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "G6"));
@@ -63,8 +63,8 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         opprettSVAT(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
         tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "G6"));
@@ -74,9 +74,9 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
 
     @Test
     void skal_finne_to_saker_å_revurdere(EntityManager em) {
-        var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var nySats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kan1 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
         var kan2 = opprettSVP(em, AktivitetStatus.ARBEIDSTAKER, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats, 0); // Ikke uttak, bare utsettelse
         var kan3 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, 6 * gammelSats); // FØR

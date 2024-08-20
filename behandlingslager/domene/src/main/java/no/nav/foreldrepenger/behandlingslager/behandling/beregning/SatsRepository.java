@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,4 +38,18 @@ public class SatsRepository {
         query.getResultList();
         return hentEksaktResultat(query);
     }
+
+    public BeregningSats finnGjeldendeSats(BeregningSatsType satsType) {
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class);
+
+        query.setParameter("satsType", satsType);
+        return query.getResultList().stream()
+            .max(Comparator.comparing(s -> s.getPeriode().getFomDato())).orElseThrow(() -> new IllegalStateException("Fant ikke nyeste sats"));
+    }
+
+    public void lagreSats(BeregningSats sats) {
+        entityManager.persist(sats);
+        entityManager.flush();
+    }
+
 }
