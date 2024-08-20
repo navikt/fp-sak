@@ -36,9 +36,17 @@ public class BeregningsgrunnlagKoblingRepository {
     }
 
     public BeregningsgrunnlagKobling opprettKobling(BehandlingReferanse behandlingReferanse) {
+        guardMotEksisterende(behandlingReferanse);
         var bgKobling = new BeregningsgrunnlagKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid());
         lagreKobling(bgKobling);
         return bgKobling;
+    }
+
+    private void guardMotEksisterende(BehandlingReferanse behandlingReferanse) {
+        var eksisterende = hentKobling(behandlingReferanse.behandlingId());
+        if (eksisterende.isPresent()) {
+            throw new IllegalStateException("Finnes allerede kobling på behandlingId " + behandlingReferanse.behandlingId());
+        }
     }
 
     public BeregningsgrunnlagKobling oppdaterKobling(BeregningsgrunnlagKobling kobling, Beløp g, LocalDate skjæringstidspunkt) {
