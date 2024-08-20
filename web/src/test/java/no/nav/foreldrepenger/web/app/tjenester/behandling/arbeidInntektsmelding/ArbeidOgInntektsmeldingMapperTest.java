@@ -52,9 +52,9 @@ class ArbeidOgInntektsmeldingMapperTest {
         var ekstrernRef = EksternArbeidsforholdRef.ref("AB-001");
 
         var im = lagIM("99999999", internRef, 50000, null);
-        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im,
-            Collections.singletonList(lagRef("99999999", internRef, ekstrernRef)),
-            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.singletonList(lagRef("99999999", internRef, ekstrernRef)),
+            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), Collections.emptyList(), Collections.emptyList(),
+            Collections.emptyList(), Collections.emptyList());
 
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
@@ -74,9 +74,12 @@ class ArbeidOgInntektsmeldingMapperTest {
         var relevantOrgnr = "999999999";
         var irrelevantOrgnr = "342352362";
         var im = lagIM(relevantOrgnr, internRef, 50000, null);
-        var relevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(relevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
-        var irrelevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING);
-        var permisjonUtenSluttdatoMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
+        var relevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(relevantOrgnr), InternArbeidsforholdRef.nullRef(),
+            AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
+        var irrelevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(),
+            AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING);
+        var permisjonUtenSluttdatoMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(),
+            AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
         var mangler = Arrays.asList(relevantMangel, irrelevantMangel, permisjonUtenSluttdatoMangel);
         var relevantValg = ArbeidsforholdValg.builder()
             .medArbeidsgiver(relevantOrgnr)
@@ -89,10 +92,9 @@ class ArbeidOgInntektsmeldingMapperTest {
             .medVurdering(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING)
             .build();
         var saksbehandlersValg = Arrays.asList(irrelevantValg, relevantValg);
-        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im,
-            Collections.singletonList(lagRef(relevantOrgnr, internRef, ekstrernRef)),
-            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(),
-            mangler, saksbehandlersValg, Collections.emptyList());
+        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.singletonList(lagRef(relevantOrgnr, internRef, ekstrernRef)),
+            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), mangler, saksbehandlersValg,
+            Collections.emptyList(), Collections.emptyList());
 
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo(relevantOrgnr);
@@ -112,9 +114,8 @@ class ArbeidOgInntektsmeldingMapperTest {
         var internRef = InternArbeidsforholdRef.nyRef();
 
         var im = lagIM("99999999", internRef, 50000, null);
-        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im,
-            Collections.emptyList(),
-            Optional.empty(), Optional.empty(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.emptyList(), Optional.empty(), Optional.empty(),
+            Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
         assertThat(mappetRes.inntektPrMnd().intValue()).isEqualTo(50000);
@@ -145,21 +146,22 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Arrange
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
-        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG), arbeidsforholdReferanse);
 
         var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
 
-        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
-            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), arbeidsforholdId,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100), LocalDate.now().minusWeeks(1),
+            LocalDate.now().plusMonths(1), arbeidsforholdId, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
         var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
         var stp = LocalDate.now().minusDays(3);
-        var mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING), new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
+        var mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
+            new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
 
         //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler, Collections.emptyList(), Collections.emptyList()).orElse(null);
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler,
+            Collections.emptyList(), Collections.emptyList()).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -173,7 +175,7 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Arrange
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
-        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG), arbeidsforholdReferanse);
 
         var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aktivitetsAvtale1 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
@@ -198,7 +200,8 @@ class ArbeidOgInntektsmeldingMapperTest {
         var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
 
         //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -210,7 +213,7 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Arrange
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
-        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG), arbeidsforholdReferanse);
 
         var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aktivitetsAvtale1 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
@@ -230,7 +233,8 @@ class ArbeidOgInntektsmeldingMapperTest {
         var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
 
         //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -243,13 +247,12 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Arrange
         var internArbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = internArbeidsforholdRef.getReferanse();
-        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG), arbeidsforholdReferanse);
 
         var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
 
-        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
-            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), internArbeidsforholdRef,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100), LocalDate.now().minusWeeks(1),
+            LocalDate.now().plusMonths(1), internArbeidsforholdRef, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
         var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
@@ -264,7 +267,8 @@ class ArbeidOgInntektsmeldingMapperTest {
             .build());
 
         //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler, Collections.emptyList(), overstyring).orElse(null);
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler,
+            Collections.emptyList(), overstyring).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -278,13 +282,12 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Arrange
         var internArbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = internArbeidsforholdRef.getReferanse();
-        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG), arbeidsforholdReferanse);
 
         var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
 
-        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
-            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), internArbeidsforholdRef,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, LocalDate.now().plusMonths(8)).build();
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100), LocalDate.now().minusWeeks(1),
+            LocalDate.now().plusMonths(1), internArbeidsforholdRef, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, LocalDate.now().plusMonths(8)).build();
 
 
         var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
@@ -292,7 +295,8 @@ class ArbeidOgInntektsmeldingMapperTest {
 
 
         //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet,
+            Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -313,9 +317,8 @@ class ArbeidOgInntektsmeldingMapperTest {
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr));
 
         while (counter.isBefore(tom)) {
-            builder.leggTilInntektspost(InntektspostBuilder.ny()
-                .medPeriode(counter.atDay(1), counter.atEndOfMonth())
-                .medBeløp(BigDecimal.valueOf(100)));
+            builder.leggTilInntektspost(
+                InntektspostBuilder.ny().medPeriode(counter.atDay(1), counter.atEndOfMonth()).medBeløp(BigDecimal.valueOf(100)));
             counter = counter.plusMonths(1);
         }
         return builder.build();
