@@ -80,7 +80,7 @@ class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
     }
 
     private void forlengVentefrist(Behandling behandling) {
-//        var aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD);
-//        aksjonspunktKontrollRepository.setFrist(behandling, aksjonspunkt, NY_VENTEFRIST, aksjonspunkt.getVenteårsak());
+        var aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD);
+        aksjonspunktKontrollRepository.setFrist(behandling, aksjonspunkt, NY_VENTEFRIST, aksjonspunkt.getVenteårsak());
     }
 }
