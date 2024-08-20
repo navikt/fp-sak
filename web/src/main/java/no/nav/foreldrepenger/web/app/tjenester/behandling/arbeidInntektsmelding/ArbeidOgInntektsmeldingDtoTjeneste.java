@@ -154,15 +154,15 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                 .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 
-        var arbeidsforholdValg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
+        var arbeidsforholdValgListe = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
 
         var mapAvAktiveInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
             .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt())
                 .stream()
-                .filter(im -> arbeidsforholdValg.stream().noneMatch(b -> {
-                    var matchendeArbeidsforhold = b.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator());
-                    var harValgtBortIM = b.getVurdering() == ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING;
-                    return matchendeArbeidsforhold && harValgtBortIM;
+                .filter(im -> arbeidsforholdValgListe.stream().noneMatch(arbeidsforholdValg -> {
+                    var matchendeArbeidsforhold = arbeidsforholdValg.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator());
+                    var harValgtFortsetteUtenIM = arbeidsforholdValg.getVurdering() == ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING;
+                    return matchendeArbeidsforhold && harValgtFortsetteUtenIM;
                 }))
                 .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));

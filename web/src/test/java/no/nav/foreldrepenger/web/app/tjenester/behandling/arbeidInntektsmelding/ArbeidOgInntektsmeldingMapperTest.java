@@ -93,8 +93,8 @@ class ArbeidOgInntektsmeldingMapperTest {
             .build();
         var saksbehandlersValg = Arrays.asList(irrelevantValg, relevantValg);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.singletonList(lagRef(relevantOrgnr, internRef, ekstrernRef)),
-            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), mangler, saksbehandlersValg,
-            Collections.emptyList(), Collections.emptyList());
+            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), mangler, saksbehandlersValg, Collections.emptyList(),
+            Collections.emptyList());
 
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo(relevantOrgnr);
