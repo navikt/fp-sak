@@ -51,7 +51,7 @@ public class KalkulusKlient {
         this.hentGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag");
         this.hentGrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui");
         this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/kopier");
-        this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/avklaringsbehov");
+        this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
         this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/deaktiver");
         this.avslutt = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/avslutt");
     }
@@ -87,7 +87,12 @@ public class KalkulusKlient {
 
     public OppdateringRespons løsAvklaringsbehov(HåndterBeregningRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, avklaringsbehov, restConfig);
-        return restClient.sendReturnOptional(restRequest, OppdateringRespons.class).orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
+        try {
+            return restClient.sendReturnOptional(restRequest, OppdateringRespons.class).orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
+        } catch (Exception e) {
+            throw new TekniskException("FP-503800", "Feil ved kall til fpkalkulus: " + e);
+        }
+
     }
 
     public void deaktiverGrunnlag(EnkelFpkalkulusRequestDto request) {
