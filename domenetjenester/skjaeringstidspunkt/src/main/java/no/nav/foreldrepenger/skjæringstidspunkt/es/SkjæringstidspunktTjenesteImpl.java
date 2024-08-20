@@ -23,17 +23,14 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste, SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private FamilieHendelseRepository familieGrunnlagRepository;
-    private RegisterInnhentingIntervall endringTjeneste;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
     }
 
     @Inject
-    public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                          RegisterInnhentingIntervall endringTjeneste) {
+    public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider) {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.endringTjeneste = endringTjeneste;
     }
 
     /**
@@ -59,7 +56,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var oppgittSkjæringstidspunkt = utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat);
         var bekreftetSkjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat);
 
-        if (endringTjeneste.erEndringIPerioden(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt.orElse(null))) {
+        if (RegisterInnhentingIntervall.erEndringIPerioden(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt.orElse(null))) {
             return bekreftetSkjæringstidspunkt.orElseThrow(IllegalStateException::new);
         }
         return oppgittSkjæringstidspunkt;

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -45,7 +44,6 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P4M"), Period.parse("P1Y"));
     private UtsettelseBehandling2021 utsettelse2021;
     private MinsterettBehandling2022 minsterett2022;
 
@@ -57,7 +55,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider,
             fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, utsettelse2021, minsterett2022);
     }
 
     @Test
@@ -274,7 +272,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
         utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, new FagsakRelasjonTjeneste(repositoryProvider));
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, utsettelse2021, minsterett2022);
 
 
         var skjæringstidspunktOriginal = VirkedagUtil.fomVirkedag(YearMonth.from(LocalDate.now()).atEndOfMonth().plusDays(1));

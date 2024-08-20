@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekre
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
@@ -46,8 +45,8 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
+        );
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
             repositoryProvider.getFamilieHendelseRepository());
     }

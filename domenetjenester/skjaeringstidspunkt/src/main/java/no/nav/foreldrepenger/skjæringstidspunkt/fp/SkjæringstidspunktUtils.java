@@ -4,9 +4,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,32 +19,22 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.LovV
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
-@ApplicationScoped
 public class SkjæringstidspunktUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
 
-    private final Period grenseverdiFør;
-    private final Period grenseverdiEtter;
-
     /**
-     *  @param grenseverdiAvvikFør - Maks avvik før/etter STP for registerinnhenting før justering av perioden
-     * @param grenseverdiAvvikEtter
+     * Maks avvik før/etter STP for registerinnhenting før justering av perioden
      */
-    @Inject
-    public SkjæringstidspunktUtils(@KonfigVerdi(value = "fp.registerinnhenting.avvik.periode.før", defaultVerdi = "P4M") Period grenseverdiAvvikFør,
-                                   @KonfigVerdi(value = "fp.registerinnhenting.avvik.periode.etter", defaultVerdi = "P1Y") Period grenseverdiAvvikEtter) {
-        this.grenseverdiFør = grenseverdiAvvikFør;
-        this.grenseverdiEtter = grenseverdiAvvikEtter;
+    private static final Period GRENSEVERDI_FØR = Period.ofMonths(4);
+    private static final Period GRENSEVERDI_ETTER = Period.ofYears(1);
+
+
+    private SkjæringstidspunktUtils() {
     }
 
-    public SkjæringstidspunktUtils() {
-        this(Period.ofMonths(4), Period.ofYears(1));
-    }
-
-    LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
+    static LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
         var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon()
             .getGjelderFødsel() ? familieHendelseAggregat.finnGjeldendeFødselsdato() : familieHendelseAggregat.getGjeldendeVersjon()
             .getSkjæringstidspunkt();
@@ -60,22 +47,22 @@ public class SkjæringstidspunktUtils {
         return oppgittHendelseDato;
     }
 
-    private boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
+    private static boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         if (bekreftetSkjæringstidspunkt == null) {
             return false;
         }
-        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiFør)
-            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt, grenseverdiEtter);
+        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt)
+            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
     }
 
-    private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
+    private static boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, grenseverdiEtter);
+        return !avstand.isNegative() && størreEnn(avstand, SkjæringstidspunktUtils.GRENSEVERDI_ETTER);
     }
 
-    private boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiFør) {
+    private static boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, grenseverdiFør);
+        return !avstand.isNegative() && størreEnn(avstand, SkjæringstidspunktUtils.GRENSEVERDI_FØR);
     }
 
     private static boolean størreEnn(Period period, Period sammenligning) {
@@ -86,7 +73,7 @@ public class SkjæringstidspunktUtils {
         return period.getDays() + period.getMonths() * 30 + period.getYears() * 12 * 30;
     }
 
-    LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
+    static LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
                                                    Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag,
                                                    Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
 
@@ -95,7 +82,7 @@ public class SkjæringstidspunktUtils {
             .orElse(førsteUttaksDato);
     }
 
-    private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
+    private static LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
                                                           FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
         var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon()
             .getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato() : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
@@ -125,7 +112,7 @@ public class SkjæringstidspunktUtils {
     }
 
     // TODO(Termitt): Håndtere MMOR, SAMB mm.
-    private RegelSøkerRolle finnFagsakSøkerRolle(Behandling behandling) {
+    private static RegelSøkerRolle finnFagsakSøkerRolle(Behandling behandling) {
         var relasjonsRolleType = behandling.getRelasjonsRolleType();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             return RegelSøkerRolle.MORA;
@@ -136,7 +123,7 @@ public class SkjæringstidspunktUtils {
         return RegelSøkerRolle.FARA;
     }
 
-    private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet gjeldendeVersjon) {
+    private static FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet gjeldendeVersjon) {
         var type = gjeldendeVersjon.getType();
         if (gjeldendeVersjon.getGjelderFødsel()) {
             return FagsakÅrsak.FØDSEL;
