@@ -21,8 +21,17 @@ public class AvklarMedlemskapUtleder {
         //CDI
     }
 
-    public Set<MedlemskapAksjonspunktÅrsak> utledFor(BehandlingReferanse behandlingRef) {
-        var grunnlag = grunnlagBygger.lagRegelGrunnlag(behandlingRef);
+    public Set<MedlemskapAksjonspunktÅrsak> utledForInngangsvilkår(BehandlingReferanse behandlingRef) {
+        var grunnlag = grunnlagBygger.lagRegelGrunnlagInngangsvilkår(behandlingRef);
+        return getKjørRegler(grunnlag);
+    }
+
+    public Set<MedlemskapAksjonspunktÅrsak> utledForFortsattMedlem(BehandlingReferanse behandlingRef) {
+        var grunnlag = grunnlagBygger.lagRegelGrunnlagFortsattMedlem(behandlingRef);
+        return getKjørRegler(grunnlag);
+    }
+
+    private static Set<MedlemskapAksjonspunktÅrsak> getKjørRegler(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         return MedlemskapsvilkårRegel.kjørRegler(grunnlag);
     }
 }

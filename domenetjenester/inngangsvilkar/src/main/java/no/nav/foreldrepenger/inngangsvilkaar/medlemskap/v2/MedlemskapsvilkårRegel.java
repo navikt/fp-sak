@@ -4,7 +4,7 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksj
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLD;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Adresse.Type.*;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTEDSADRESSE;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type;
 import static no.nav.fpsak.tidsserie.LocalDateTimeline.JoinStyle;
 
@@ -79,7 +79,7 @@ final class MedlemskapsvilkårRegel {
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledBosattÅrsak(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        if (sjekkOmOppgittUtenlandsopphold(grunnlag.søknad())) {
+        if (grunnlag.erInngangsvilkårVurdering() && sjekkOmOppgittUtenlandsopphold(grunnlag.søknad())) {
             return Optional.of(BOSATT);
         }
         if (!sjekkOmBosattPersonstatus(grunnlag)) {
@@ -118,7 +118,7 @@ final class MedlemskapsvilkårRegel {
 
     private static boolean sjekkOmBosattPersonstatus(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var personstatusPerioder = grunnlag.personopplysninger().personstatus();
-        var gyldigeStatuser = Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD);
+        var gyldigeStatuser = grunnlag.erFortsattMedlemVurdering() ? Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD, startStatus(grunnlag)) : Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD);
         var personstatusTimeline = new LocalDateTimeline<>(
             personstatusPerioder.stream().map(p -> new LocalDateSegment<>(p.interval(), p.type())).collect(Collectors.toSet()));
         return personstatusTimeline.combine(new LocalDateTimeline<>(grunnlag.vurderingsperiodeLovligOpphold(), Boolean.TRUE),
@@ -130,18 +130,28 @@ final class MedlemskapsvilkårRegel {
             }, JoinStyle.RIGHT_JOIN).stream().allMatch(s -> s.getValue() == Boolean.TRUE);
     }
 
+    private static Type startStatus(MedlemskapsvilkårRegelGrunnlag grunnlag) {
+        var dagenFørVurderingsperiode = grunnlag.vurderingsperiodeLovligOpphold().getFomDato().minusDays(1);
+        return grunnlag.personopplysninger().personstatus().stream().filter(s -> s.interval().contains(dagenFørVurderingsperiode))
+            .findFirst()
+            .orElseThrow() //Greit med throw her?
+            .type();
+    }
+
     private static boolean sjekkOmOppgittUtenlandsopphold(MedlemskapsvilkårRegelGrunnlag.Søknad søknad) {
         return !søknad.utenlandsopphold().isEmpty();
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledMedlemskapPerioderÅrsak(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        return sjekkOmPerioderMedMedlemskapsperioder(grunnlag) ? Optional.of(MEDLEMSKAPSPERIODER_FRA_REGISTER) : Optional.empty();
+        return sjekkOmPerioderMedMedlemskapsBeslutninger(grunnlag) ? Optional.of(MEDLEMSKAPSPERIODER_FRA_REGISTER) : Optional.empty();
     }
 
-    private static boolean sjekkOmPerioderMedMedlemskapsperioder(MedlemskapsvilkårRegelGrunnlag grunnlag) {
+    private static boolean sjekkOmPerioderMedMedlemskapsBeslutninger(MedlemskapsvilkårRegelGrunnlag grunnlag) {
         var vurderingsperiode = grunnlag.vurderingsperiodeBosatt();
-        var registerMedlemskapPerioder = grunnlag.registrertMedlemskapPerioder();
+        var registerMedlemskapBeslutninger = grunnlag.registrertMedlemskapBeslutning();
 
-        return registerMedlemskapPerioder.stream().anyMatch(mp -> mp.overlaps(vurderingsperiode));
+        return registerMedlemskapBeslutninger.stream()
+            .filter(b -> grunnlag.erInngangsvilkårVurdering() || vurderingsperiode.contains(b.beslutningsdato()))
+            .anyMatch(mp -> mp.interval().overlaps(vurderingsperiode));
     }
 }

@@ -42,18 +42,33 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         //CDI
     }
 
-    MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef) {
+    MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
         var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef);
         var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef);
+        var erFortsattMedlemVurdering = false;
+        return lagRegelGrunnlag(behandlingRef, vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, erFortsattMedlemVurdering);
+    }
+
+    MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
+        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
+        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
+        var erFortsattMedlemVurdering = true;
+        return lagRegelGrunnlag(behandlingRef, vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, erFortsattMedlemVurdering);
+    }
+
+    private MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef,
+                                                            LocalDateInterval vurderingsperiodeBosatt,
+                                                            LocalDateInterval vurderingsperiodeLovligOpphold,
+                                                            boolean erFortsattMedlemVurdering) {
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var opplysningsperiode = new LocalDateInterval(
-            LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
+            LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()).minusDays(1), //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
 
         return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
-            personopplysningGrunnlag, søknad);
+            personopplysningGrunnlag, søknad, erFortsattMedlemVurdering);
     }
 
     private MedlemskapsvilkårRegelGrunnlag.Søknad hentSøknad(BehandlingReferanse behandlingRef) {
@@ -69,12 +84,12 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         return new MedlemskapsvilkårRegelGrunnlag.Søknad(utenlandsopphold);
     }
 
-    private Set<LocalDateInterval> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
+    private Set<MedlemskapsvilkårRegelGrunnlag.RegisterMedlemskapBeslutning> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
         return medlemTjeneste.hentMedlemskap(behandlingRef.behandlingId())
             .orElseThrow()
             .getRegistrertMedlemskapPerioder()
             .stream()
-            .map(p -> new LocalDateInterval(p.getFom(), p.getTom()))
+            .map(p -> new MedlemskapsvilkårRegelGrunnlag.RegisterMedlemskapBeslutning(new LocalDateInterval(p.getFom(), p.getTom()), p.getBeslutningsdato()))
             .collect(Collectors.toSet());
     }
 

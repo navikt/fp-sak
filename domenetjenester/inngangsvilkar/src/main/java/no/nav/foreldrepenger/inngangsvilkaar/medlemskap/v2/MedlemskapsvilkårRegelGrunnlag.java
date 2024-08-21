@@ -1,14 +1,25 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt, LocalDateInterval vurderingsperiodeLovligOpphold,
-                                      // To forskjellige grunnlag eller to vurderingsperioder på ett stort grunnlag
-                                      Set<LocalDateInterval> registrertMedlemskapPerioder, Personopplysninger personopplysninger, Søknad søknad) {
+record MedlemskapsvilkårRegelGrunnlag(LocalDateInterval vurderingsperiodeBosatt,
+                                      LocalDateInterval vurderingsperiodeLovligOpphold,
+                                      Set<RegisterMedlemskapBeslutning> registrertMedlemskapBeslutning,
+                                      Personopplysninger personopplysninger,
+                                      Søknad søknad,
+                                      boolean erFortsattMedlemVurdering) {
+
+    public boolean erInngangsvilkårVurdering() {
+        return !erFortsattMedlemVurdering;
+    }
 
     record Søknad(Set<LocalDateInterval> utenlandsopphold) {
+    }
+
+    record RegisterMedlemskapBeslutning(LocalDateInterval interval, LocalDate beslutningsdato) {
     }
 
     record Personopplysninger(Set<RegionPeriode> regioner, Set<LocalDateInterval> oppholdstillatelser, Set<PersonstatusPeriode> personstatus,

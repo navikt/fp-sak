@@ -15,11 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
@@ -63,7 +63,13 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
             var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
 
             var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
-            logDiff(behandling, nyUtledingResultat);
+            var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
+                .stream()
+                .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+                .filter(ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
+                .map(InngangsvilkårMedlemskap::map)
+                .collect(Collectors.toSet());
+            logDiff(nyUtledingResultat, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(), "inngangsvilkår");
         } catch (Exception e) {
             LOG.info("Medlemskap sammenligning feilet", e);
         }
@@ -72,35 +78,31 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
     }
 
-    private static void logDiff(Behandling behandling, Set<MedlemskapAksjonspunktÅrsak> nyUtledetÅrsaker) {
-        var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
-            .stream()
-            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .filter(ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
-            .map(InngangsvilkårMedlemskap::map)
-            .collect(Collectors.toSet());
+    public static void logDiff(Set<MedlemskapAksjonspunktÅrsak> nyUtledetÅrsaker,
+                               Set<MedlemskapAksjonspunktÅrsak> gammelUtledetÅrsaker,
+                               FagsakYtelseType ytelse,
+                               String kontekst) {
 
-        var ytelse = behandling.getFagsakYtelseType();
         if (gammelUtledetÅrsaker.isEmpty() && nyUtledetÅrsaker.isEmpty()) {
-            LOG.info("Medlemskap for ytelse {} like, ingen avklaring", ytelse);
+            LOG.info("Medlemskap for ytelse {} {} like, ingen avklaring", ytelse, kontekst);
         } else if (gammelUtledetÅrsaker.equals(nyUtledetÅrsaker)) {
-            LOG.info("Medlemskap for ytelse {} like, samme avklaring: {}", ytelse, nyUtledetÅrsaker);
+            LOG.info("Medlemskap for ytelse {} {} like, samme avklaring: {}", ytelse, kontekst, nyUtledetÅrsaker);
         } else {
             nyUtledetÅrsaker.stream()
                 .filter(nyÅrsak -> !gammelUtledetÅrsaker.contains(nyÅrsak))
-                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} diff nyÅrsakManglerGammelÅrsak {} - {}", ytelse, nyÅrsak, gammelUtledetÅrsaker));
+                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff nyÅrsakManglerGammelÅrsak {} - {}", ytelse, kontekst, nyÅrsak, gammelUtledetÅrsaker));
 
             gammelUtledetÅrsaker.stream()
                 .filter(gammelÅrsak -> !nyUtledetÅrsaker.contains(gammelÅrsak))
-                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} diff gammelÅrsakManglerNyÅrsak {} - {}", ytelse, gammelÅrsak, nyUtledetÅrsaker));
+                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff gammelÅrsakManglerNyÅrsak {} - {}", ytelse, kontekst, gammelÅrsak, nyUtledetÅrsaker));
         }
     }
 
     private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef) {
-        return avklarMedlemskapUtleder.utledFor(behandlingRef);
+        return avklarMedlemskapUtleder.utledForInngangsvilkår(behandlingRef);
     }
 
-    private static MedlemskapAksjonspunktÅrsak map(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    public static MedlemskapAksjonspunktÅrsak map(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return switch (aksjonspunktDefinisjon) {
             case AVKLAR_OM_ER_BOSATT -> MedlemskapAksjonspunktÅrsak.BOSATT;
             case AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE -> MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;

@@ -75,7 +75,7 @@ class MedlemskapsvilkårRegelGrunnlagByggerTest {
                 .opphold(OppholdstillatelseType.MIDLERTIDIG, oppholdstillatelseFom, oppholdstillatelseTom)
                 .build())
             .lagre(repositoryProvider);
-        var resultat = regelGrunnlagBygger.lagRegelGrunnlag(BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())));
+        var resultat = regelGrunnlagBygger.lagRegelGrunnlagInngangsvilkår(BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())));
 
         assertThat(resultat.personopplysninger().adresser()).hasSize(1);
         var adresse1 = resultat.personopplysninger().adresser().stream().findFirst().orElseThrow();
@@ -110,10 +110,10 @@ class MedlemskapsvilkårRegelGrunnlagByggerTest {
         assertThat(utenlandsopphold1.getFomDato()).isEqualTo(oppgittUtenlandsopphold.getPeriodeFom());
         assertThat(utenlandsopphold1.getTomDato()).isEqualTo(oppgittUtenlandsopphold.getPeriodeTom());
 
-        assertThat(resultat.registrertMedlemskapPerioder()).hasSize(1);
-        var medl2Periode1 = resultat.registrertMedlemskapPerioder().stream().findFirst().orElseThrow();
-        assertThat(medl2Periode1.getFomDato()).isEqualTo(registerMedlemskapsperiode.getFom());
-        assertThat(medl2Periode1.getTomDato()).isEqualTo(registerMedlemskapsperiode.getTom());
+        assertThat(resultat.registrertMedlemskapBeslutning()).hasSize(1);
+        var medl2Periode1 = resultat.registrertMedlemskapBeslutning().stream().findFirst().orElseThrow();
+        assertThat(medl2Periode1.interval().getFomDato()).isEqualTo(registerMedlemskapsperiode.getFom());
+        assertThat(medl2Periode1.interval().getTomDato()).isEqualTo(registerMedlemskapsperiode.getTom());
 
     }
 
