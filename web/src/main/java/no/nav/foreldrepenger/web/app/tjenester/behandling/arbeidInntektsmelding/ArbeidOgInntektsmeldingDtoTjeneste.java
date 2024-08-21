@@ -150,7 +150,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
         var arbeidsforholdValgListe = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
 
-        var mapAvAktiveInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
+        var mapAvIMTilBehandlingIder = behandlinger.stream()
             .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger( BehandlingReferanse.fra(behandling), referanse.getUtledetSkjæringstidspunkt())
                 .stream()
                 .filter(im -> arbeidsforholdValgListe.stream().noneMatch(arbeidsforholdValg -> {
@@ -165,9 +165,9 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         return inntektsmeldinger.stream().map(im -> {
             var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
             var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-            var aktiveBehandlingsIder = mapAvAktiveInntektsmeldingerTilBehandlingsIder.get(im.getJournalpostId());
+            var tilknyttedeBehandlingIder = mapAvIMTilBehandlingIder.get(im.getJournalpostId());
             return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, arbeidsforholdReferanser, kontaktinfo, dokumentId, mangler,
-                saksbehandlersVurderinger, aktiveBehandlingsIder);
+                saksbehandlersVurderinger, tilknyttedeBehandlingIder);
         }).toList();
     }
 

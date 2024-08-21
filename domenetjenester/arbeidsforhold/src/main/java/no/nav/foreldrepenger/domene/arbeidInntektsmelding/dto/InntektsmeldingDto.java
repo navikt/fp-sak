@@ -31,5 +31,5 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  List<NaturalYtelse> bortfalteNaturalytelser,
                                  List<Refusjon> refusjonsperioder,
                                  InntektsmeldingInnsendingsårsak innsendingsårsak,
-                                 List<UUID> aktiveBehandlingsIder
+                                 List<UUID> tilknyttedeBehandlingIder
                                  ){}
