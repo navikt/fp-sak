@@ -82,7 +82,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getNaturalYtelser(),
                 im.getEndringerRefusjon(),
                 im.getInntektsmeldingInnsendingsårsak(),
-            aktiveBehandlingsIder != null ? aktiveBehandlingsIder : List.of() // TODO: sjekk null her eller før??
+            aktiveBehandlingsIder != null ? aktiveBehandlingsIder : List.of()
             );
     }
 
