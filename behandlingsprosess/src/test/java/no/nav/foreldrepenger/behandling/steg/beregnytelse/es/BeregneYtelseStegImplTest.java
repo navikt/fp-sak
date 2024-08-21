@@ -72,9 +72,9 @@ class BeregneYtelseStegImplTest {
         entityManager.persist(fagsak);
         entityManager.flush();
 
-        sats = beregningsresultatRepository.finnGjeldendeSats(BeregningSatsType.ENGANG);
+        sats = satsRepository.finnGjeldendeSats(BeregningSatsType.ENGANG);
 
-        sats2017 = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
+        sats2017 = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
         beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder, satsRepository,
                 skjæringstidspunktTjeneste);

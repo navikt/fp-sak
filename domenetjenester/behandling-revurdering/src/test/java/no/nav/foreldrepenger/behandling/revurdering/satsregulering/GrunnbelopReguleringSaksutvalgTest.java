@@ -10,6 +10,8 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,21 +34,21 @@ class GrunnbelopReguleringSaksutvalgTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
-    private BeregningsresultatRepository beregningsresultatRepository;
+    private SatsRepository satsRepository;
 
     private GrunnbeløpFinnSakerTask tjeneste;
 
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        tjeneste = new GrunnbeløpFinnSakerTask(new SatsReguleringRepository(entityManager), beregningsresultatRepository, taskTjeneste);
+        satsRepository = new SatsRepository(entityManager);
+        tjeneste = new GrunnbeløpFinnSakerTask(new SatsReguleringRepository(entityManager), taskTjeneste, satsRepository);
     }
 
     @Test
     void skal_finne_en_sak_å_revurdere(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kandidat = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
         tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP", "G6"));
@@ -61,8 +63,8 @@ class GrunnbelopReguleringSaksutvalgTest {
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         opprettFPAT(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
         tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP", "G6"));
@@ -72,9 +74,9 @@ class GrunnbelopReguleringSaksutvalgTest {
 
     @Test
     void skal_finne_to_saker_å_revurdere(EntityManager em) {
-        var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var nySats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
+        var cutoff = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kandidat1 = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
         var kandidat2 = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, 6 * gammelSats); // FØR
         var kandidat3 = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);

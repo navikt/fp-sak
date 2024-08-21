@@ -30,6 +30,8 @@ import jakarta.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +91,7 @@ public class ForvaltningBeregningRestTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
+    private SatsRepository satsRepository;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
@@ -97,7 +100,8 @@ public class ForvaltningBeregningRestTjeneste {
                                             FagsakRepository fagsakRepository,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                            InntektArbeidYtelseTjeneste iayTjeneste) {
+                                            InntektArbeidYtelseTjeneste iayTjeneste,
+                                            SatsRepository satsRepository) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
@@ -105,6 +109,7 @@ public class ForvaltningBeregningRestTjeneste {
         this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
+        this.satsRepository = satsRepository;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -119,7 +124,7 @@ public class ForvaltningBeregningRestTjeneste {
     public List<BeregningSatsDto> hentGjeldendeSatser() {
         return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT)
             .stream()
-            .map(beregningsresultatRepository::finnGjeldendeSats)
+            .map(satsRepository::finnGjeldendeSats)
             .map(BeregningSatsDto::new)
             .toList();
     }
@@ -133,7 +138,7 @@ public class ForvaltningBeregningRestTjeneste {
     public List<BeregningSatsDto> lagreNySats(@BeanParam @Valid @NotNull BeregningSatsDto dto) {
         var type = dto.getSatsType();
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
-        var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        var gjeldende = satsRepository.finnGjeldendeSats(type);
         var eksisterende = new BeregningSatsDto(gjeldende);
 
         if (Objects.equals(gjeldende.getPeriode().getFomDato(), dto.getSatsFom())) {
@@ -142,7 +147,7 @@ public class ForvaltningBeregningRestTjeneste {
                 LOG.warn("SATSJUSTERTING oppdatering: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
                 gjeldende.setVerdi(dto.getSatsVerdi());
                 gjeldende.setTomDato(brukTom);
-                beregningsresultatRepository.lagreSats(gjeldende);
+                satsRepository.lagreSats(gjeldende);
             } else {
                 throw new ForvaltningException("Ulovlige verdier " + dto);
             }
@@ -152,11 +157,11 @@ public class ForvaltningBeregningRestTjeneste {
                 throw new ForvaltningException("Ulovlige verdier " + dto);
             LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
             gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
-            beregningsresultatRepository.lagreSats(gjeldende);
+            satsRepository.lagreSats(gjeldende);
             var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
-            beregningsresultatRepository.lagreSats(nysats);
+            satsRepository.lagreSats(nysats);
         }
-        var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        var nygjeldende = satsRepository.finnGjeldendeSats(type);
         return List.of(eksisterende, new BeregningSatsDto(nygjeldende));
     }
 

@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,13 +58,13 @@ class ArenaReguleringSaksutvalgTest {
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        var beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        var satsRepo = new SatsRepository(entityManager);
         cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
-        var cutoffsats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1)).getVerdi();
+        var cutoffsats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+        gammelSats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1)).getVerdi();
         arenaFerdigRegulertDato = cutoff.plusWeeks(3).plusDays(2);
         var satsReguleringRepository = new SatsReguleringRepository(entityManager);
-        task = new GrunnbeløpFinnSakerTask(satsReguleringRepository, beregningsresultatRepository, taskTjeneste);
+        task = new GrunnbeløpFinnSakerTask(satsReguleringRepository, taskTjeneste, satsRepo);
     }
 
     @Test
