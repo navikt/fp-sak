@@ -54,7 +54,7 @@ class ArbeidOgInntektsmeldingMapperTest {
         var im = lagIM("99999999", internRef, 50000, null);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.singletonList(lagRef("99999999", internRef, ekstrernRef)),
             Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), Collections.emptyList(), Collections.emptyList(),
-            Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList());
 
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
@@ -93,7 +93,7 @@ class ArbeidOgInntektsmeldingMapperTest {
             .build();
         var saksbehandlersValg = Arrays.asList(irrelevantValg, relevantValg);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.singletonList(lagRef(relevantOrgnr, internRef, ekstrernRef)),
-            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), mangler, saksbehandlersValg, Collections.emptyList(),
+            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty(), mangler, saksbehandlersValg,
             Collections.emptyList());
 
         assertThat(mappetRes).isNotNull();
@@ -115,7 +115,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         var im = lagIM("99999999", internRef, 50000, null);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, Collections.emptyList(), Optional.empty(), Optional.empty(),
-            Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         assertThat(mappetRes).isNotNull();
         assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
         assertThat(mappetRes.inntektPrMnd().intValue()).isEqualTo(50000);

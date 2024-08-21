@@ -59,7 +59,6 @@ public class ArbeidOgInntektsmeldingMapper {
                                                         Optional<String> dokumentId,
                                                         List<ArbeidsforholdMangel> mangler,
                                                         List<ArbeidsforholdValg> saksbehandlersVurderinger,
-                                                        List<UUID> behandlingsIder,
                                                         List<UUID> aktiveBehandlingsIder) {
         var inntekstmeldingMangel = finnIdentifisertInntektsmeldingMangel(im.getArbeidsgiver(), im.getArbeidsforholdRef(), mangler);
         var vurderingPåInntektsmelding = finnSaksbehandlersVurderingPåInntektsmelding(im.getArbeidsgiver(), im.getArbeidsforholdRef(), saksbehandlersVurderinger);
@@ -83,8 +82,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getNaturalYtelser(),
                 im.getEndringerRefusjon(),
                 im.getInntektsmeldingInnsendingsårsak(),
-            behandlingsIder,
-            aktiveBehandlingsIder
+            aktiveBehandlingsIder != null ? aktiveBehandlingsIder : List.of() // TODO: sjekk null her eller før??
             );
     }
 
