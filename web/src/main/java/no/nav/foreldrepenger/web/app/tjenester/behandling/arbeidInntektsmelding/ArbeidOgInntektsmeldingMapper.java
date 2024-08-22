@@ -59,8 +59,7 @@ public class ArbeidOgInntektsmeldingMapper {
                                                         Optional<String> dokumentId,
                                                         List<ArbeidsforholdMangel> mangler,
                                                         List<ArbeidsforholdValg> saksbehandlersVurderinger,
-                                                        List<UUID> behandlingsIder,
-                                                        List<UUID> aktiveBehandlingsIder) {
+                                                        List<UUID> tilknyttedeBehandlingIder) {
         var inntekstmeldingMangel = finnIdentifisertInntektsmeldingMangel(im.getArbeidsgiver(), im.getArbeidsforholdRef(), mangler);
         var vurderingPåInntektsmelding = finnSaksbehandlersVurderingPåInntektsmelding(im.getArbeidsgiver(), im.getArbeidsforholdRef(), saksbehandlersVurderinger);
         return new InntektsmeldingDto(
@@ -83,8 +82,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getNaturalYtelser(),
                 im.getEndringerRefusjon(),
                 im.getInntektsmeldingInnsendingsårsak(),
-            behandlingsIder,
-            aktiveBehandlingsIder
+            tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of()
             );
     }
 
