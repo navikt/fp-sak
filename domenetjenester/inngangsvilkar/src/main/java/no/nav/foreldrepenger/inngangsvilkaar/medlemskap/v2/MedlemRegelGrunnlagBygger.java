@@ -69,7 +69,7 @@ class MedlemRegelGrunnlagBygger {
         var søknad = hentSøknad(behandlingRef);
         var arbeid =  inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingRef.behandlingId())
             .map(iay -> new MedlemInngangsvilkårRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef), hentInntekt(iay, behandlingRef)))
-            .orElse(null);
+            .orElse(new MedlemInngangsvilkårRegelGrunnlag.Arbeid(Set.of(), Set.of()));
         var utledetSkjæringstidspunkt = behandlingRef.getUtledetSkjæringstidspunkt();
         var behandlingsdato = LocalDate.now();
         var grunnbeløp = new MedlemInngangsvilkårRegelGrunnlag.Beløp(BigDecimal.valueOf(satsRepository.finnGjeldendeSats(BeregningSatsType.GRUNNBELØP).getVerdi()));

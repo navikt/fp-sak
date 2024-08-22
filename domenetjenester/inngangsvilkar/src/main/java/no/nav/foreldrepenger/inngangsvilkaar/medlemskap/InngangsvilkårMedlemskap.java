@@ -88,13 +88,15 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
         } else if (gammelUtledetÅrsaker.equals(nyUtledetÅrsaker)) {
             LOG.info("Medlemskap for ytelse {} {} like, samme avklaring: {}", ytelse, kontekst, nyUtledetÅrsaker);
         } else {
+
+
             nyUtledetÅrsaker.stream()
                 .filter(nyÅrsak -> !gammelUtledetÅrsaker.contains(nyÅrsak))
-                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff nyÅrsakManglerGammelÅrsak {} - {}", ytelse, kontekst, nyÅrsak, gammelUtledetÅrsaker));
+                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst, gammelUtledetÅrsaker.isEmpty() ? "Ny årsak hadde ikke noen gamle" : "Ny årsak som ikke var blant de gamle", nyÅrsak, gammelUtledetÅrsaker));
 
             gammelUtledetÅrsaker.stream()
                 .filter(gammelÅrsak -> !nyUtledetÅrsaker.contains(gammelÅrsak))
-                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff gammelÅrsakManglerNyÅrsak {} - {}", ytelse, kontekst, gammelÅrsak, nyUtledetÅrsaker));
+                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst, nyUtledetÅrsaker.isEmpty() ? "Gammel årsak hadde ikke noen nye" : "Gammel årsak som ikke var blant de nye", gammelÅrsak, nyUtledetÅrsaker));
         }
     }
 

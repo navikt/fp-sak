@@ -55,8 +55,7 @@ final class MedlemInngangsvilkårRegel {
         var inntekter = grunnlag.arbeid().inntekter();
         Set<LocalDateSegment<Beløp>> inntektSegmenter = inntekter.stream().map(i -> new LocalDateSegment<>(i.interval(), i.beløp())).collect(Collectors.toSet());
         var stpInntekt = grunnlag.skjæringstidspunkt().isAfter(grunnlag.behandlingsdato()) ? grunnlag.behandlingsdato() : grunnlag.skjæringstidspunkt();
-        var relevantInntektsInterval = new LocalDateInterval(stpInntekt.minusMonths(3).minusDays(1), stpInntekt.minusDays(1));
-
+        var relevantInntektsInterval = new LocalDateInterval(stpInntekt.minusMonths(3), stpInntekt.minusDays(1)); //3 hele måneder med inntekt
         var inntektTimeline = new LocalDateTimeline<>(inntektSegmenter,
             (datoInterval, datoSegment, datoSegment2) -> new LocalDateSegment<>(datoInterval, datoSegment.getValue().add(datoSegment2.getValue())))
             .intersection(relevantInntektsInterval);

@@ -42,14 +42,10 @@ final class MedlemFortsattRegel {
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
-        if (sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(grunnlag)) {
+        if (sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiode(), grunnlag.personopplysninger())) {
             return Optional.empty();
         }
         return Optional.of(OPPHOLD);
-    }
-
-    private static boolean sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(MedlemFortsattRegelGrunnlag grunnlag) {
-        return sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiode(), grunnlag.personopplysninger());
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledBosattÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
