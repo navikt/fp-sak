@@ -29,20 +29,17 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private BehandlingRepository behandlingRepository;
-    private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
                                              BehandlingsresultatRepository behandlingsresultatRepository,
                                              HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                              VedtakTjeneste vedtakTjeneste,
-                                             BehandlingDokumentRepository behandlingDokumentRepository,
-                                             OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag) {
+                                             BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.behandlingRepository = behandlingRepository;
-        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
     }
 
     AbstractVedtaksbrevOverstyringshåndterer() {
@@ -64,7 +61,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         opprettHistorikkinnslag(behandling, toTrinn);
         if (toTrinn) {
             opprettAksjonspunktForFatterVedtak(behandling, builder);
-            opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
             behandling.setToTrinnsBehandling();
         } else {
             behandling.nullstillToTrinnsBehandling();
