@@ -4,6 +4,8 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysni
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.RegionPeriode;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,10 +14,16 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -28,14 +36,20 @@ class MedlemRegelGrunnlagBygger {
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private SatsRepository satsRepository;
 
     @Inject
     MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
-                              MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
+                              MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste,
+                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                              SatsRepository satsRepository) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.satsRepository = satsRepository;
     }
 
     MedlemRegelGrunnlagBygger() {
@@ -45,24 +59,53 @@ class MedlemRegelGrunnlagBygger {
     MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
         var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef);
         var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef);
-        var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
+        var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef)
+            .stream().map(MedlemFortsattRegelGrunnlag.RegisterMedlemskapBeslutning::interval)
+            .collect(Collectors.toSet());
         var opplysningsperiode = new LocalDateInterval(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
+        var arbeid =  inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingRef.behandlingId())
+            .map(iay -> new MedlemInngangsvilkårRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef), hentInntekt(iay, behandlingRef)))
+            .orElse(null);
+        var utledetSkjæringstidspunkt = behandlingRef.getUtledetSkjæringstidspunkt();
+        var behandlingsdato = LocalDate.now();
+        var grunnbeløp = new MedlemInngangsvilkårRegelGrunnlag.Beløp(BigDecimal.valueOf(satsRepository.finnGjeldendeSats(BeregningSatsType.GRUNNBELØP).getVerdi()));
 
         return new MedlemInngangsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
-            personopplysningGrunnlag, søknad);
+            personopplysningGrunnlag, søknad, arbeid, utledetSkjæringstidspunkt, behandlingsdato, grunnbeløp);
     }
 
     MedlemFortsattRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
         var vurderingsperiode = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
-        var opplysningsperiode = new LocalDateInterval(vurderingsperiode.getFomDato().minusDays(1), vurderingsperiode.getTomDato()); //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
+        var opplysningsperiode = new LocalDateInterval(vurderingsperiode.getFomDato().minusDays(1),
+            vurderingsperiode.getTomDato()); //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
+        var iay = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingRef.behandlingId());
+        var arbeid = new MedlemFortsattRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef));
 
-        return new MedlemFortsattRegelGrunnlag(vurderingsperiode, registrertMedlemskapPerioder, personopplysningGrunnlag);
+        return new MedlemFortsattRegelGrunnlag(vurderingsperiode, registrertMedlemskapPerioder, personopplysningGrunnlag, arbeid);
+    }
+
+    private static Set<LocalDateInterval> hentAnsettelsePerioder(InntektArbeidYtelseGrunnlag iay, BehandlingReferanse referanse) {
+        var filter = new YrkesaktivitetFilter(iay.getArbeidsforholdInformasjon(), iay.getAktørArbeidFraRegister(referanse.aktørId()));
+
+        return filter.getAnsettelsesPerioder()
+            .stream()
+            .map(ap -> new LocalDateInterval(ap.getPeriode().getFomDato(), ap.getPeriode().getTomDato()))
+            .collect(Collectors.toSet());
+    }
+
+    private static Set<MedlemInngangsvilkårRegelGrunnlag.Arbeid.Inntekt> hentInntekt(InntektArbeidYtelseGrunnlag iay, BehandlingReferanse referanse) {
+        var inntektFilter = new InntektFilter(iay.getAktørInntektFraRegister(referanse.aktørId()));
+        return inntektFilter.getInntektsposterPensjonsgivende()
+            .stream()
+            .map(p -> new MedlemInngangsvilkårRegelGrunnlag.Arbeid.Inntekt(map(p.getPeriode()),
+                new MedlemInngangsvilkårRegelGrunnlag.Beløp(p.getBeløp().getVerdi())))
+            .collect(Collectors.toSet());
     }
 
     private MedlemInngangsvilkårRegelGrunnlag.Søknad hentSøknad(BehandlingReferanse behandlingRef) {
@@ -78,17 +121,16 @@ class MedlemRegelGrunnlagBygger {
         return new MedlemInngangsvilkårRegelGrunnlag.Søknad(utenlandsopphold);
     }
 
-    private Set<RegisterMedlemskapBeslutning> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
+    private Set<MedlemFortsattRegelGrunnlag.RegisterMedlemskapBeslutning> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
         return medlemTjeneste.hentMedlemskap(behandlingRef.behandlingId())
             .orElseThrow()
             .getRegistrertMedlemskapPerioder()
             .stream()
-            .map(p -> new RegisterMedlemskapBeslutning(new LocalDateInterval(p.getFom(), p.getTom()), p.getBeslutningsdato()))
+            .map(p -> new MedlemFortsattRegelGrunnlag.RegisterMedlemskapBeslutning(new LocalDateInterval(p.getFom(), p.getTom()), p.getBeslutningsdato()))
             .collect(Collectors.toSet());
     }
 
-    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
-                                                      LocalDateInterval opplysningsperiode) {
+    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, LocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
             DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato())).orElseThrow();
         var aktørId = behandlingRef.aktørId();

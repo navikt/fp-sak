@@ -16,16 +16,9 @@ final class MedlemFellesRegler {
     }
 
 
-    static boolean erAllePerioderMedRegionDekketAvOppholdstillatelser(LocalDateInterval vurderingsperiode,
-                                                                      Personopplysninger.Region region,
-                                                                      Personopplysninger personopplysninger) {
-        var regionSegmenter = personopplysninger.regioner()
-            .stream()
-            .filter(srp -> srp.region().equals(region))
-            .map(rp -> new LocalDateSegment<>(rp.periode(), rp.region()))
-            .toList();
-
-        var regionTimeline = new LocalDateTimeline<>(regionSegmenter).intersection(vurderingsperiode);
+    static boolean sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(LocalDateInterval vurderingsperiode,
+                                                                               Personopplysninger personopplysninger) {
+        var regionTimeline = regionTimelineIVurderingsperiode(personopplysninger.regioner(), Personopplysninger.Region.TREDJELAND, vurderingsperiode);
 
         var oppholdstillatelseTimeline = new LocalDateTimeline<>(
             personopplysninger.oppholdstillatelser().stream().map(o -> new LocalDateSegment<>(o, Boolean.TRUE)).collect(Collectors.toSet()),
@@ -65,5 +58,28 @@ final class MedlemFellesRegler {
             }
             return new LocalDateSegment<>(datoInterval, gyldigeStatuser.contains(datoSegment.getValue()) ? Boolean.TRUE : Boolean.FALSE);
         }, LocalDateTimeline.JoinStyle.RIGHT_JOIN).stream().allMatch(s -> s.getValue() == Boolean.TRUE);
+    }
+
+    static boolean sjekkOmAnsettelseIHelePeriodenMedEøsRegion(Set<LocalDateInterval> ansettelsePerioder,
+                                                              Personopplysninger personopplysninger,
+                                                              LocalDateInterval vurderingsperiode) {
+        var ansettelseTimeline = new LocalDateTimeline<>(
+            ansettelsePerioder.stream().map(ap -> new LocalDateSegment<>(ap.getFomDato(), ap.getTomDato(), Boolean.TRUE)).collect(Collectors.toSet()),
+            StandardCombinators::alwaysTrueForMatch);
+
+        var regionTimeline = regionTimelineIVurderingsperiode(personopplysninger.regioner(), Personopplysninger.Region.EØS, vurderingsperiode);
+
+        return regionTimeline.disjoint(ansettelseTimeline).isEmpty();
+    }
+
+    private static LocalDateTimeline<Personopplysninger.Region> regionTimelineIVurderingsperiode(Set<Personopplysninger.RegionPeriode> regioner,
+                                                                                                 Personopplysninger.Region region,
+                                                                                                 LocalDateInterval vurderingsperiode) {
+        var regionSegmenter = regioner.stream()
+            .filter(srp -> srp.region().equals(region))
+            .map(rp -> new LocalDateSegment<>(rp.periode(), rp.region()))
+            .toList();
+
+        return new LocalDateTimeline<>(regionSegmenter).intersection(vurderingsperiode);
     }
 }

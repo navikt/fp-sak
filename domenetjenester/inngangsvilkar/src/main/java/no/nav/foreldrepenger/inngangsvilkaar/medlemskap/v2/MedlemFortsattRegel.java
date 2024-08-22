@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.erAllePerioderMedRegionDekketAvOppholdstillatelser;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmAnsettelseIHelePeriodenMedEøsRegion;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmBosattPersonstatus;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmManglendeBosted;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmUtenlandsadresser;
@@ -33,7 +34,8 @@ final class MedlemFortsattRegel {
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdsrettÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
-        if (sjekkOmAllePerioderMedEøsErDekketAvPerioderMedOppholdstillatelser(grunnlag)) {
+        if (sjekkOmAnsettelseIHelePeriodenMedEøsRegion(grunnlag.arbeid().ansettelsePerioder(), grunnlag.personopplysninger(),
+            grunnlag.vurderingsperiode())) {
             return Optional.empty();
         }
         return Optional.of(OPPHOLDSRETT);
@@ -46,14 +48,8 @@ final class MedlemFortsattRegel {
         return Optional.of(OPPHOLD);
     }
 
-    private static boolean sjekkOmAllePerioderMedEøsErDekketAvPerioderMedOppholdstillatelser(MedlemFortsattRegelGrunnlag grunnlag) {
-        return erAllePerioderMedRegionDekketAvOppholdstillatelser(grunnlag.vurderingsperiode(),
-            Personopplysninger.Region.EØS, grunnlag.personopplysninger());
-    }
-
     private static boolean sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(MedlemFortsattRegelGrunnlag grunnlag) {
-        return erAllePerioderMedRegionDekketAvOppholdstillatelser(grunnlag.vurderingsperiode(), Personopplysninger.Region.TREDJELAND,
-            grunnlag.personopplysninger());
+        return sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiode(), grunnlag.personopplysninger());
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledBosattÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
@@ -72,7 +68,10 @@ final class MedlemFortsattRegel {
 
     private static Type startStatus(MedlemFortsattRegelGrunnlag grunnlag) {
         var dagenFørVurderingsperiode = grunnlag.vurderingsperiode().getFomDato().minusDays(1);
-        return grunnlag.personopplysninger().personstatus().stream().filter(s -> s.interval().contains(dagenFørVurderingsperiode))
+        return grunnlag.personopplysninger()
+            .personstatus()
+            .stream()
+            .filter(s -> s.interval().contains(dagenFørVurderingsperiode))
             .findFirst()
             .orElseThrow() //Greit med throw her?
             .type();

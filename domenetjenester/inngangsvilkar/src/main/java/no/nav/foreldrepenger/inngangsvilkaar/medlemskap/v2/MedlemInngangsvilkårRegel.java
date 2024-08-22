@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.erAllePerioderMedRegionDekketAvOppholdstillatelser;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmAnsettelseIHelePeriodenMedEøsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmBosattPersonstatus;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmManglendeBosted;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmUtenlandsadresser;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.BOSATT;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;
@@ -10,9 +11,17 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksj
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemInngangsvilkårRegelGrunnlag.Beløp;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 //TODO reimplementeres i fp-inngangsvilkår
 final class MedlemInngangsvilkårRegel {
@@ -33,27 +42,34 @@ final class MedlemInngangsvilkårRegel {
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdsrettÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
-        if (sjekkOmAllePerioderMedEøsErDekketAvPerioderMedOppholdstillatelser(grunnlag)) {
-            return Optional.empty();
+        if (sjekkOmAnsettelseIHelePeriodenMedEøsRegion(grunnlag.arbeid().ansettelsePerioder(), grunnlag.personopplysninger(),
+            grunnlag.vurderingsperiodeLovligOpphold())) {
+            if (sjekkOmInntektSiste3mndFørStp(grunnlag)) {
+                return Optional.empty();
+            }
         }
         return Optional.of(OPPHOLDSRETT);
     }
 
+    private static boolean sjekkOmInntektSiste3mndFørStp(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
+        var inntekter = grunnlag.arbeid().inntekter();
+        Set<LocalDateSegment<Beløp>> inntektSegmenter = inntekter.stream().map(i -> new LocalDateSegment<>(i.interval(), i.beløp())).collect(Collectors.toSet());
+        var stpInntekt = grunnlag.skjæringstidspunkt().isAfter(grunnlag.behandlingsdato()) ? grunnlag.behandlingsdato() : grunnlag.skjæringstidspunkt();
+        var relevantInntektsInterval = new LocalDateInterval(stpInntekt.minusMonths(3).minusDays(1), stpInntekt.minusDays(1));
+
+        var inntektTimeline = new LocalDateTimeline<>(inntektSegmenter,
+            (datoInterval, datoSegment, datoSegment2) -> new LocalDateSegment<>(datoInterval, datoSegment.getValue().add(datoSegment2.getValue())))
+            .intersection(relevantInntektsInterval);
+
+        var godkjentSamletInntekt = grunnlag.grunnbeløp().divide(new Beløp(BigDecimal.valueOf(4)), RoundingMode.DOWN);
+        return inntektTimeline.stream().map(LocalDateSegment::getValue).reduce(Beløp.ZERO, Beløp::add).erMerEnn(godkjentSamletInntekt);
+    }
+
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
-        if (sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(grunnlag)) {
+        if (sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiodeLovligOpphold(), grunnlag.personopplysninger())) {
             return Optional.empty();
         }
         return Optional.of(OPPHOLD);
-    }
-
-    private static boolean sjekkOmAllePerioderMedEøsErDekketAvPerioderMedOppholdstillatelser(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
-        return erAllePerioderMedRegionDekketAvOppholdstillatelser(grunnlag.vurderingsperiodeLovligOpphold(), Personopplysninger.Region.EØS,
-            grunnlag.personopplysninger());
-    }
-
-    private static boolean sjekkOmAllePerioderMedTredjelandRegionErDekketAvPerioderMedOppholdstillatelser(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
-        return erAllePerioderMedRegionDekketAvOppholdstillatelser(grunnlag.vurderingsperiodeLovligOpphold(), Personopplysninger.Region.TREDJELAND,
-            grunnlag.personopplysninger());
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledBosattÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
@@ -83,8 +99,8 @@ final class MedlemInngangsvilkårRegel {
 
     private static boolean sjekkOmPerioderMedMedlemskapsBeslutninger(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
         var vurderingsperiode = grunnlag.vurderingsperiodeBosatt();
-        var registerMedlemskapBeslutninger = grunnlag.registrertMedlemskapBeslutning();
+        var registerMedlemskapBeslutninger = grunnlag.registrertMedlemskapPerioder();
 
-        return registerMedlemskapBeslutninger.stream().anyMatch(mp -> mp.interval().overlaps(vurderingsperiode));
+        return registerMedlemskapBeslutninger.stream().anyMatch(mp -> mp.overlaps(vurderingsperiode));
     }
 }
