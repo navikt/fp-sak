@@ -227,11 +227,13 @@ class MedlemDtoTjenesteTest {
     void skal_lage_medlemskap_v3() {
         var fødselsdato = LocalDate.of(2024, 10, 15);
         var stp = fødselsdato.minusWeeks(3);
+        var annenPartAktørid = AktørId.dummy();
         var registerMedlemskapsperiode = new MedlemskapPerioderBuilder().medPeriode(fødselsdato.minusYears(2), null).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medDefaultFordeling(stp)
             .leggTilMedlemskapPeriode(registerMedlemskapsperiode);
+        scenario.medSøknadAnnenPart().medAktørId(annenPartAktørid).medNavn("Ola Dunk").build();
         var personInformasjonBuilder = scenario.opprettBuilderForRegisteropplysninger();
         var adresse = PersonAdresse.builder()
             .adresseType(AdresseType.BOSTEDSADRESSE)
@@ -298,5 +300,11 @@ class MedlemDtoTjenesteTest {
         assertThat(medl2Periode1.tom()).isEqualTo(registerMedlemskapsperiode.getTom());
         assertThat(medl2Periode1.dekningType()).isEqualTo(registerMedlemskapsperiode.getDekningType());
         assertThat(medl2Periode1.beslutningsdato()).isEqualTo(registerMedlemskapsperiode.getBeslutningsdato());
+
+        // TODO verifiser til annenpart
+        var annenpart = dto.annenpart();
+        assertThat(annenpart.adresser()).hasSize(1);
+        assertThat(annenpart.personstatuser()).hasSize(1);
+        assertThat(annenpart.regioner()).hasSize(1);
     }
 }

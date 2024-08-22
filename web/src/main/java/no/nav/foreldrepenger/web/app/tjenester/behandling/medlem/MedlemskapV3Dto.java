@@ -16,9 +16,25 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
-public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, Set<Personstatus> personstatuser,
-                              Set<Utenlandsopphold> utenlandsopphold, Set<Adresse> adresser, Set<Oppholdstillatelse> oppholdstillatelser,
-                              Set<MedlemskapPeriode> medlemskapsperioder) { //TODO annen part?
+public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt,
+                              Vurderinger vurderinger,
+                              Set<Region> regioner,
+                              Set<Personstatus> personstatuser,
+                              Set<Utenlandsopphold> utenlandsopphold,
+                              Set<Adresse> adresser, Set<Oppholdstillatelse> oppholdstillatelser,
+                              Set<MedlemskapPeriode> medlemskapsperioder,
+                              Annenpart annenpart) {
+
+    record Aksjonspunkt(Set<MedlemskapAksjonspunktÅrsak> årsaker) {
+    }
+
+    // TODO: Legge inn i aksjonspunkt eller være ute for seg selv?
+    record Vurderinger(LocalDate vurderingsdato, Set<MedlemskapAksjonspunktÅrsak> årsaker, Vurdering vurdering, String begrunnelse) {
+        public enum Vurdering {
+            MEDLEM,
+            IKKE_MEDLEM
+        }
+    }
 
     record Region(LocalDate fom, LocalDate tom, no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
     }
@@ -35,9 +51,6 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
         }
     }
 
-    record Aksjonspunkt(Set<MedlemskapAksjonspunktÅrsak> årsaker) { //TODO resultat
-    }
-
     record Adresse(LocalDate fom, LocalDate tom, PersonadresseDto adresse) {
         public static Adresse map(PersonAdresseEntitet personAdresseEntitet) {
             return new Adresse(personAdresseEntitet.getPeriode().getFomDato(), personAdresseEntitet.getPeriode().getTomDato(),
@@ -46,7 +59,6 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
     }
 
     record Oppholdstillatelse(LocalDate fom, LocalDate tom, OppholdstillatelseType type) {
-
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
             return new Oppholdstillatelse(oe.getPeriode().getFomDato(), oe.getPeriode().getTomDato(), oe.getTillatelse());
         }
@@ -57,7 +69,8 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
         public static MedlemskapPeriode map(MedlemskapPerioderEntitet mpe) {
             return new MedlemskapPeriode(mpe.getFom(), mpe.getTom(), mpe.getMedlemskapType(), mpe.getDekningType(), mpe.getBeslutningsdato());
         }
-
     }
+
+    record Annenpart(Set<Adresse> adresser, Set<Region> regioner, Set<Personstatus> personstatuser){ }
 }
 
