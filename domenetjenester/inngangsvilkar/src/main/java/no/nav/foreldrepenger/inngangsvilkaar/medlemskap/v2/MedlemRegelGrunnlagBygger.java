@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapsvilkårRegelGrunnlag.Personopplysninger.RegionPeriode;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.PersonstatusPeriode;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.RegionPeriode;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,55 +23,49 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
-class MedlemskapsvilkårRegelGrunnlagBygger {
+class MedlemRegelGrunnlagBygger {
 
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
 
     @Inject
-    MedlemskapsvilkårRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
-                                         PersonopplysningTjeneste personopplysningTjeneste,
-                                         MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
+    MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
+                              PersonopplysningTjeneste personopplysningTjeneste,
+                              MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
     }
 
-    MedlemskapsvilkårRegelGrunnlagBygger() {
+    MedlemRegelGrunnlagBygger() {
         //CDI
     }
 
-    MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
+    MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
         var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef);
         var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef);
-        var erFortsattMedlemVurdering = false;
-        return lagRegelGrunnlag(behandlingRef, vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, erFortsattMedlemVurdering);
-    }
-
-    MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
-        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
-        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
-        var erFortsattMedlemVurdering = true;
-        return lagRegelGrunnlag(behandlingRef, vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, erFortsattMedlemVurdering);
-    }
-
-    private MedlemskapsvilkårRegelGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef,
-                                                            LocalDateInterval vurderingsperiodeBosatt,
-                                                            LocalDateInterval vurderingsperiodeLovligOpphold,
-                                                            boolean erFortsattMedlemVurdering) {
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var opplysningsperiode = new LocalDateInterval(
-            LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()).minusDays(1), //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
+            LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
 
-        return new MedlemskapsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
-            personopplysningGrunnlag, søknad, erFortsattMedlemVurdering);
+        return new MedlemInngangsvilkårRegelGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
+            personopplysningGrunnlag, søknad);
     }
 
-    private MedlemskapsvilkårRegelGrunnlag.Søknad hentSøknad(BehandlingReferanse behandlingRef) {
+    MedlemFortsattRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
+        var vurderingsperiode = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
+        var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
+        var opplysningsperiode = new LocalDateInterval(vurderingsperiode.getFomDato().minusDays(1), vurderingsperiode.getTomDato()); //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
+        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
+
+        return new MedlemFortsattRegelGrunnlag(vurderingsperiode, registrertMedlemskapPerioder, personopplysningGrunnlag);
+    }
+
+    private MedlemInngangsvilkårRegelGrunnlag.Søknad hentSøknad(BehandlingReferanse behandlingRef) {
         var utenlandsopphold = medlemTjeneste.hentMedlemskap(behandlingRef.behandlingId())
             .orElseThrow()
             .getOppgittTilknytning()
@@ -81,20 +75,20 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
             .filter(o -> o.getLand() != Landkoder.NOR)
             .map(o -> new LocalDateInterval(o.getPeriodeFom(), o.getPeriodeTom()))
             .collect(Collectors.toSet());
-        return new MedlemskapsvilkårRegelGrunnlag.Søknad(utenlandsopphold);
+        return new MedlemInngangsvilkårRegelGrunnlag.Søknad(utenlandsopphold);
     }
 
-    private Set<MedlemskapsvilkårRegelGrunnlag.RegisterMedlemskapBeslutning> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
+    private Set<RegisterMedlemskapBeslutning> hentMedlemskapPerioder(BehandlingReferanse behandlingRef) {
         return medlemTjeneste.hentMedlemskap(behandlingRef.behandlingId())
             .orElseThrow()
             .getRegistrertMedlemskapPerioder()
             .stream()
-            .map(p -> new MedlemskapsvilkårRegelGrunnlag.RegisterMedlemskapBeslutning(new LocalDateInterval(p.getFom(), p.getTom()), p.getBeslutningsdato()))
+            .map(p -> new RegisterMedlemskapBeslutning(new LocalDateInterval(p.getFom(), p.getTom()), p.getBeslutningsdato()))
             .collect(Collectors.toSet());
     }
 
-    private MedlemskapsvilkårRegelGrunnlag.Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
-                                                                                     LocalDateInterval opplysningsperiode) {
+    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
+                                                      LocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
             DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato())).orElseThrow();
         var aktørId = behandlingRef.aktørId();
@@ -109,27 +103,27 @@ class MedlemskapsvilkårRegelGrunnlagBygger {
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId).stream().map(this::map).collect(Collectors.toSet());
         var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId())
             .stream()
-            .map(a -> new MedlemskapsvilkårRegelGrunnlag.Adresse(map(a.getPeriode()), map(a.getAdresseType()), a.erUtlandskAdresse()))
+            .map(a -> new Personopplysninger.Adresse(map(a.getPeriode()), map(a.getAdresseType()), a.erUtlandskAdresse()))
             .collect(Collectors.toSet());
-        return new MedlemskapsvilkårRegelGrunnlag.Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
+        return new Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
     }
 
-    private MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region map(Region region) {
+    private Personopplysninger.Region map(Region region) {
         return switch (region) {
-            case NORDEN -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.NORDEN;
-            case EOS -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.EØS;
-            case TREDJELANDS_BORGER, UDEFINERT -> MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.TREDJELAND;
+            case NORDEN -> Personopplysninger.Region.NORDEN;
+            case EOS -> Personopplysninger.Region.EØS;
+            case TREDJELANDS_BORGER, UDEFINERT -> Personopplysninger.Region.TREDJELAND;
         };
     }
 
-    private static MedlemskapsvilkårRegelGrunnlag.Adresse.Type map(AdresseType adresseType) {
+    private static Personopplysninger.Adresse.Type map(AdresseType adresseType) {
         return switch (adresseType) {
-            case BOSTEDSADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTEDSADRESSE;
-            case POSTADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.POSTADRESSE;
-            case POSTADRESSE_UTLAND -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.POSTADRESSE_UTLAND;
-            case MIDLERTIDIG_POSTADRESSE_NORGE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.MIDLERTIDIG_POSTADRESSE_NORGE;
-            case MIDLERTIDIG_POSTADRESSE_UTLAND -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.MIDLERTIDIG_POSTADRESSE_UTLAND;
-            case UKJENT_ADRESSE -> MedlemskapsvilkårRegelGrunnlag.Adresse.Type.UKJENT_ADRESSE;
+            case BOSTEDSADRESSE -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
+            case POSTADRESSE -> Personopplysninger.Adresse.Type.POSTADRESSE;
+            case POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.POSTADRESSE_UTLAND;
+            case MIDLERTIDIG_POSTADRESSE_NORGE -> Personopplysninger.Adresse.Type.MIDLERTIDIG_POSTADRESSE_NORGE;
+            case MIDLERTIDIG_POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.MIDLERTIDIG_POSTADRESSE_UTLAND;
+            case UKJENT_ADRESSE -> Personopplysninger.Adresse.Type.UKJENT_ADRESSE;
         };
     }
 

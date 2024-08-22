@@ -29,10 +29,10 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest
-class MedlemskapsvilkårRegelGrunnlagByggerTest {
+class MedlemRegelGrunnlagByggerTest {
 
     @Inject
-    private MedlemskapsvilkårRegelGrunnlagBygger regelGrunnlagBygger;
+    private MedlemRegelGrunnlagBygger regelGrunnlagBygger;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -82,18 +82,18 @@ class MedlemskapsvilkårRegelGrunnlagByggerTest {
         assertThat(adresse1.periode().getFomDato()).isEqualTo(adresse.getPeriode().getFomDato());
         assertThat(adresse1.periode().getTomDato()).isEqualTo(adresse.getPeriode().getTomDato());
         assertThat(adresse1.erUtenlandsk()).isFalse();
-        assertThat(adresse1.type()).isEqualTo(MedlemskapsvilkårRegelGrunnlag.Adresse.Type.BOSTEDSADRESSE);
+        assertThat(adresse1.type()).isEqualTo(Personopplysninger.Adresse.Type.BOSTEDSADRESSE);
 
         assertThat(resultat.personopplysninger().personstatus()).hasSize(1);
         var personstatus1 = resultat.personopplysninger().personstatus().stream().findFirst().orElseThrow();
         assertThat(personstatus1.interval().getFomDato()).isEqualTo(personstatusFom);
         assertThat(personstatus1.interval().getTomDato()).isEqualTo(personstatusTom);
-        assertThat(personstatus1.type()).isEqualTo(MedlemskapsvilkårRegelGrunnlag.Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN);
+        assertThat(personstatus1.type()).isEqualTo(Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN);
 
 
         assertThat(resultat.personopplysninger().regioner()).hasSize(1);
         var regionPeriode1 = resultat.personopplysninger().regioner().stream().findFirst().orElseThrow();
-        assertThat(regionPeriode1.region()).isEqualTo(MedlemskapsvilkårRegelGrunnlag.Personopplysninger.Region.NORDEN); //Norden prioriteres
+        assertThat(regionPeriode1.region()).isEqualTo(Personopplysninger.Region.NORDEN); //Norden prioriteres
         assertThat(regionPeriode1.periode().getFomDato()).isEqualTo(statsborgerFom);
         assertThat(regionPeriode1.periode().getTomDato()).isEqualTo(statsborgerTom);
 

@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 @ApplicationScoped
 public class AvklarMedlemskapUtleder {
 
-    private MedlemskapsvilkårRegelGrunnlagBygger grunnlagBygger;
+    private MedlemRegelGrunnlagBygger grunnlagBygger;
 
     @Inject
-    AvklarMedlemskapUtleder(MedlemskapsvilkårRegelGrunnlagBygger grunnlagBygger) {
+    AvklarMedlemskapUtleder(MedlemRegelGrunnlagBygger grunnlagBygger) {
         this.grunnlagBygger = grunnlagBygger;
     }
 
@@ -23,15 +23,12 @@ public class AvklarMedlemskapUtleder {
 
     public Set<MedlemskapAksjonspunktÅrsak> utledForInngangsvilkår(BehandlingReferanse behandlingRef) {
         var grunnlag = grunnlagBygger.lagRegelGrunnlagInngangsvilkår(behandlingRef);
-        return getKjørRegler(grunnlag);
+        return MedlemInngangsvilkårRegel.kjørRegler(grunnlag);
     }
 
     public Set<MedlemskapAksjonspunktÅrsak> utledForFortsattMedlem(BehandlingReferanse behandlingRef) {
         var grunnlag = grunnlagBygger.lagRegelGrunnlagFortsattMedlem(behandlingRef);
-        return getKjørRegler(grunnlag);
+        return MedlemFortsattRegel.kjørRegler(grunnlag);
     }
 
-    private static Set<MedlemskapAksjonspunktÅrsak> getKjørRegler(MedlemskapsvilkårRegelGrunnlag grunnlag) {
-        return MedlemskapsvilkårRegel.kjørRegler(grunnlag);
-    }
 }
