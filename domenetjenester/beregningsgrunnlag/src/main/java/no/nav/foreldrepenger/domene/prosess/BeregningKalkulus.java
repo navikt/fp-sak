@@ -25,6 +25,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
+import no.nav.foreldrepenger.domene.typer.Beløp;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,19 @@ public class BeregningKalkulus implements BeregningAPI {
         var prosessResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(respons.aksjonspunkter());
         // TODO Finn ut hvordan vi løser sporing av vilkåret
         prosessResultat.setVilkårOppfylt(respons.erVilkårOppfylt(), null, null, null);
+        oppdaterKoblingMedData(behandlingReferanse, stegType, kobling);
         return prosessResultat;
+    }
+
+    private void oppdaterKoblingMedData(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType, BeregningsgrunnlagKobling kobling) {
+        if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
+            var bg = hent(behandlingReferanse).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).orElseThrow();
+            koblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(bg.getGrunnbeløp().getVerdi()), bg.getSkjæringstidspunkt());
+        } else if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
+            var gr = hent(behandlingReferanse).orElseThrow();
+            var kanVærePåvirketAvRegulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+            koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, kanVærePåvirketAvRegulering);
+        }
     }
 
     @Override

@@ -49,9 +49,15 @@ public class BeregningsgrunnlagKoblingRepository {
         }
     }
 
-    public BeregningsgrunnlagKobling oppdaterKobling(BeregningsgrunnlagKobling kobling, Beløp g, LocalDate skjæringstidspunkt) {
+    public BeregningsgrunnlagKobling oppdaterKoblingMedStpOgGrunnbeløp(BeregningsgrunnlagKobling kobling, Beløp g, LocalDate skjæringstidspunkt) {
         kobling.oppdaterMedGrunnbeløp(g);
         kobling.oppdaterMedSkjæringstidspunkt(skjæringstidspunkt);
+        lagreKobling(kobling);
+        return kobling;
+    }
+
+    public BeregningsgrunnlagKobling oppdaterKoblingMedReguleringsbehov(BeregningsgrunnlagKobling kobling, boolean erKandidatForGregulering) {
+        kobling.oppdaterMedReguleringsbehov(erKandidatForGregulering);
         lagreKobling(kobling);
         return kobling;
     }
