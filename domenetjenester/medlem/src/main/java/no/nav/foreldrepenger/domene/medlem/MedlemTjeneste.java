@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.medlem;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
@@ -48,15 +46,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class MedlemTjeneste {
-
-    private static final Map<MedlemResultat, AksjonspunktDefinisjon> RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP = new EnumMap<>(MedlemResultat.class);
-
-    static {
-        RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP.put(MedlemResultat.AVKLAR_OM_ER_BOSATT, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT);
-        RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP.put(MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
-        RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP.put(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD);
-        RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP.put(MedlemResultat.AVKLAR_OPPHOLDSRETT, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT);
-    }
 
     private MedlemskapRepository medlemskapRepository;
     private HentMedlemskapFraRegister hentMedlemskapFraRegister;
@@ -159,7 +148,7 @@ public class MedlemTjeneste {
     }
 
     private VurderMedlemskap mapTilVurderMeldemspa(Set<MedlemResultat> vurderinger, Set<VurderingsÅrsak> vurderingsÅrsaks) {
-        var aksjonspunkter = vurderinger.stream().map(RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP::get).filter(Objects::nonNull).collect(Collectors.toSet());
+        var aksjonspunkter = vurderinger.stream().map(MedlemResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
         return new VurderMedlemskap(aksjonspunkter, vurderingsÅrsaks);
     }
 
