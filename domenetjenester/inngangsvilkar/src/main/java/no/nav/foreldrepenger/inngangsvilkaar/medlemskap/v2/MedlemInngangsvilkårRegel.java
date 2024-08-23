@@ -14,6 +14,7 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysni
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +76,7 @@ final class MedlemInngangsvilkårRegel {
         if (sjekkOmOppgittUtenlandsopphold(grunnlag.søknad())) {
             return Optional.of(BOSATT);
         }
-        var gyldigeStatuser = Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD);
+        var gyldigeStatuser = List.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD);
         if (!sjekkOmBosattPersonstatus(gyldigeStatuser, grunnlag.personopplysninger(), grunnlag.vurderingsperiodeLovligOpphold())) {
             return Optional.of(BOSATT);
         }

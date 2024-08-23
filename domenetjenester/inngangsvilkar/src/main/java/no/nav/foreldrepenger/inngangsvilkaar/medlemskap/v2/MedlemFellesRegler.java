@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ final class MedlemFellesRegler {
         return !timeline.intersection(vurderingsperiode).isEmpty();
     }
 
-    static boolean sjekkOmBosattPersonstatus(Set<Personopplysninger.PersonstatusPeriode.Type> gyldigeStatuser,
+    static boolean sjekkOmBosattPersonstatus(List<Personopplysninger.PersonstatusPeriode.Type> gyldigeStatuser,
                                              Personopplysninger personopplysninger,
                                              LocalDateInterval vurderingsperiode) {
         var personstatusPerioder = personopplysninger.personstatus();
