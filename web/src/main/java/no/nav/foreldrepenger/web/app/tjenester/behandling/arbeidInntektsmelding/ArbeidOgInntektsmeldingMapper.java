@@ -67,7 +67,7 @@ public class ArbeidOgInntektsmeldingMapper {
         var refusjonsEndringer = im.getEndringerRefusjon();
 
         // Representer opphøring av refusjon som en periode med 0 som refusjon
-        if (im.getRefusjonOpphører() != null) {
+        if (im.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(im.getRefusjonOpphører() )) {
             refusjonsEndringer = new ArrayList<>(refusjonsEndringer);
             refusjonsEndringer.add(new Refusjon(new BigDecimal(0), im.getRefusjonOpphører().plusDays(1)));
         }
