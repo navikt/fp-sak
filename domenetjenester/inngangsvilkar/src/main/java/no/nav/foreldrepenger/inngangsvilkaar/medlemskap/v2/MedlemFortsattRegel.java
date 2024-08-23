@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.harRegionIPeriode;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmAnsettelseIHelePeriodenMedEøsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmBosattPersonstatus;
@@ -29,12 +30,15 @@ final class MedlemFortsattRegel {
         utledBosattÅrsak(grunnlag).ifPresent(resultat::add);
 
         // LOVLIG OPPHOLD
-        utledOppholdÅrsak(grunnlag).ifPresent(resultat::add);
+        utledLovligOppholdÅrsak(grunnlag).ifPresent(resultat::add);
         utledOppholdsrettÅrsak(grunnlag).ifPresent(resultat::add);
         return resultat;
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdsrettÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
+        if (!harRegionIPeriode(grunnlag.personopplysninger(), Personopplysninger.Region.EØS, grunnlag.vurderingsperiode())) {
+            return Optional.empty();
+        }
         if (sjekkOmAnsettelseIHelePeriodenMedEøsRegion(grunnlag.arbeid().ansettelsePerioder(), grunnlag.personopplysninger(),
             grunnlag.vurderingsperiode())) {
             return Optional.empty();
@@ -42,7 +46,10 @@ final class MedlemFortsattRegel {
         return Optional.of(OPPHOLDSRETT);
     }
 
-    private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
+    private static Optional<MedlemskapAksjonspunktÅrsak> utledLovligOppholdÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
+        if (!harRegionIPeriode(grunnlag.personopplysninger(), Personopplysninger.Region.TREDJELAND, grunnlag.vurderingsperiode())) {
+            return Optional.empty();
+        }
         if (sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiode(), grunnlag.personopplysninger())) {
             return Optional.empty();
         }

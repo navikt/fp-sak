@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -140,6 +141,7 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
         var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
             .stream()
+            .filter(o -> !OppholdstillatelseType.UDEFINERT.equals(o.getTillatelse()))
             .map(o -> map(o.getPeriode()))
             .collect(Collectors.toSet());
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId).stream().map(this::map).collect(Collectors.toSet());
@@ -161,10 +163,10 @@ class MedlemRegelGrunnlagBygger {
     private static Personopplysninger.Adresse.Type map(AdresseType adresseType) {
         return switch (adresseType) {
             case BOSTEDSADRESSE -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
-            case POSTADRESSE -> Personopplysninger.Adresse.Type.POSTADRESSE;
-            case POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.POSTADRESSE_UTLAND;
-            case MIDLERTIDIG_POSTADRESSE_NORGE -> Personopplysninger.Adresse.Type.MIDLERTIDIG_POSTADRESSE_NORGE;
-            case MIDLERTIDIG_POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.MIDLERTIDIG_POSTADRESSE_UTLAND;
+            case POSTADRESSE -> Personopplysninger.Adresse.Type.KONTAKTADRESSE;
+            case POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.KONTAKTADRESSE_UTLAND;
+            case MIDLERTIDIG_POSTADRESSE_NORGE -> Personopplysninger.Adresse.Type.OPPHOLDSADRESSE_NORGE;
+            case MIDLERTIDIG_POSTADRESSE_UTLAND -> Personopplysninger.Adresse.Type.OPPHOLDSADRESSE_UTLAND;
             case UKJENT_ADRESSE -> Personopplysninger.Adresse.Type.UKJENT_ADRESSE;
         };
     }
