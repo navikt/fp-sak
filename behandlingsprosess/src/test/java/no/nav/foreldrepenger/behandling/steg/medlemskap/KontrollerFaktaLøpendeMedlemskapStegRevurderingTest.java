@@ -58,6 +58,7 @@ import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTje
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
@@ -85,6 +86,8 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     private SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
+    @Inject
+    private AvklarMedlemskapUtleder avklarMedlemskapUtleder;
 
     private KontrollerFaktaLøpendeMedlemskapStegRevurdering steg;
 
@@ -102,7 +105,7 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     @BeforeEach
     public void setUp() {
         steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste,
-                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste);
+                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste, avklarMedlemskapUtleder);
     }
 
     @Test
