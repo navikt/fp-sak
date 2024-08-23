@@ -34,12 +34,7 @@ import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilF
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-
 import no.nav.foreldrepenger.domene.typer.Beløp;
-
-import org.jboss.weld.exceptions.IllegalStateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {
