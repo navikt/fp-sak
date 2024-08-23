@@ -5,10 +5,13 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
@@ -19,6 +22,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
+import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {
@@ -27,6 +32,7 @@ public class BeregningFPSAK implements BeregningAPI {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private BeregningsgrunnlagInputProvider inputTjenesteProvider;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
+    private BeregningHåndterer beregningHåndterer;
 
     BeregningFPSAK() {
         // CDI
@@ -37,12 +43,14 @@ public class BeregningFPSAK implements BeregningAPI {
                           BeregningDtoTjeneste beregningDtoTjeneste,
                           InntektArbeidYtelseTjeneste iayTjeneste,
                           BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste) {
+                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                          BeregningHåndterer beregningHåndterer) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.beregningDtoTjeneste = beregningDtoTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.inputTjenesteProvider = inputTjenesteProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
+        this.beregningHåndterer = beregningHåndterer;
     }
 
     @Override
@@ -86,6 +94,22 @@ public class BeregningFPSAK implements BeregningAPI {
             throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
         }
         beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalbehandling.behandlingId(), revurdering.behandlingId());
+    }
+
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdateringer, BehandlingReferanse referanse) {
+        var tjeneste = inputTjenesteProvider.getTjeneste(referanse.fagsakYtelseType());
+        var input = tjeneste.lagInput(referanse);
+        return oppdater(oppdateringer, input);
+    }
+
+    private Optional<OppdaterBeregningsgrunnlagResultat> oppdater(BekreftetAksjonspunktDto oppdatering, BeregningsgrunnlagInput input) {
+        if (oppdatering instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
+            beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, dto);
+        } else {
+            throw new IllegalStateException();
+        }
+        return Optional.empty();
     }
 
     private BeregningsgrunnlagGUIInputFelles getInputTjenesteGUI(FagsakYtelseType ytelseType) {
