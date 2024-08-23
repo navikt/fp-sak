@@ -12,6 +12,7 @@ import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksj
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ final class MedlemFortsattRegel {
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledBosattÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
-        var gyldigePersonStatus = Set.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD, startStatus(grunnlag));
+        var gyldigePersonStatus = List.of(Type.BOSATT_ETTER_FOLKEREGISTERLOVEN, Type.DØD, startStatus(grunnlag));
         if (!sjekkOmBosattPersonstatus(gyldigePersonStatus, grunnlag.personopplysninger(), grunnlag.vurderingsperiode())) {
             return Optional.of(BOSATT);
         }
