@@ -148,33 +148,26 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .filter(Behandling::erYtelseBehandling)
             .toList();
 
-        var mapAvInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
-            .flatMap(behandling -> inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()))
-                .stream()
-                .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
-            .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
-
         var arbeidsforholdValgListe = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
 
-        var mapAvAktiveInntektsmeldingerTilBehandlingsIder = behandlinger.stream()
-            .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt())
+        var mapAvIMTilBehandlingIder = behandlinger.stream()
+            .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger( BehandlingReferanse.fra(behandling), referanse.getUtledetSkjæringstidspunkt())
                 .stream()
                 .filter(im -> arbeidsforholdValgListe.stream().noneMatch(arbeidsforholdValg -> {
                     var matchendeArbeidsforhold = arbeidsforholdValg.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator());
-                    var harValgtFortsetteUtenIM = arbeidsforholdValg.getVurdering() == ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING;
+                    var harValgtFortsetteUtenIM = arbeidsforholdValg.getVurdering() == ArbeidsforholdKomplettVurderingType.IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING;
                     return matchendeArbeidsforhold && harValgtFortsetteUtenIM;
                 }))
-                .map(im -> Map.entry(im.getIndexKey(), behandling.getUuid())))
+                .map(im -> Map.entry(im.getJournalpostId(), behandling.getUuid())))
             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 
 
         return inntektsmeldinger.stream().map(im -> {
             var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
             var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
-            var behandlingsIder = mapAvInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
-            var aktiveBehandlingsIder = mapAvAktiveInntektsmeldingerTilBehandlingsIder.get(im.getIndexKey());
+            var tilknyttedeBehandlingIder = mapAvIMTilBehandlingIder.get(im.getJournalpostId());
             return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, arbeidsforholdReferanser, kontaktinfo, dokumentId, mangler,
-                saksbehandlersVurderinger, behandlingsIder, aktiveBehandlingsIder);
+                saksbehandlersVurderinger, tilknyttedeBehandlingIder);
         }).toList();
     }
 
