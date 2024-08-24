@@ -33,10 +33,10 @@ record Personopplysninger(Set<RegionPeriode> regioner,
 
         enum Type {
             BOSTEDSADRESSE,
-            POSTADRESSE,
-            POSTADRESSE_UTLAND,
-            MIDLERTIDIG_POSTADRESSE_NORGE,
-            MIDLERTIDIG_POSTADRESSE_UTLAND,
+            KONTAKTADRESSE,
+            KONTAKTADRESSE_UTLAND,
+            OPPHOLDSADRESSE_NORGE,
+            OPPHOLDSADRESSE_UTLAND,
             UKJENT_ADRESSE,
         }
     }

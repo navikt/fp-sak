@@ -73,6 +73,10 @@ final class MedlemFellesRegler {
         return regionTimeline.disjoint(ansettelseTimeline).isEmpty();
     }
 
+    static boolean harRegionIPeriode(Personopplysninger personopplysninger, Personopplysninger.Region region, LocalDateInterval vurderingsperiode) {
+        return !regionTimelineIVurderingsperiode(personopplysninger.regioner(), region, vurderingsperiode).isEmpty();
+    }
+
     private static LocalDateTimeline<Personopplysninger.Region> regionTimelineIVurderingsperiode(Set<Personopplysninger.RegionPeriode> regioner,
                                                                                                  Personopplysninger.Region region,
                                                                                                  LocalDateInterval vurderingsperiode) {

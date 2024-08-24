@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.harRegionIPeriode;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmAnsettelseIHelePeriodenMedEøsRegion;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmBosattPersonstatus;
 import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemFellesRegler.sjekkOmManglendeBosted;
@@ -37,12 +38,15 @@ final class MedlemInngangsvilkårRegel {
         utledBosattÅrsak(grunnlag).ifPresent(resultat::add);
 
         // LOVLIG OPPHOLD
-        utledOppholdÅrsak(grunnlag).ifPresent(resultat::add);
+        utledLovligOppholdÅrsak(grunnlag).ifPresent(resultat::add);
         utledOppholdsrettÅrsak(grunnlag).ifPresent(resultat::add);
         return resultat;
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdsrettÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
+        if (!harRegionIPeriode(grunnlag.personopplysninger(), Personopplysninger.Region.EØS, grunnlag.vurderingsperiodeLovligOpphold())) {
+            return Optional.empty();
+        }
         if (sjekkOmAnsettelseIHelePeriodenMedEøsRegion(grunnlag.arbeid().ansettelsePerioder(), grunnlag.personopplysninger(),
             grunnlag.vurderingsperiodeLovligOpphold())) {
             if (sjekkOmInntektSiste3mndFørStp(grunnlag)) {
@@ -65,7 +69,10 @@ final class MedlemInngangsvilkårRegel {
         return inntektTimeline.stream().map(LocalDateSegment::getValue).reduce(Beløp.ZERO, Beløp::add).erMerEnn(godkjentSamletInntekt);
     }
 
-    private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
+    private static Optional<MedlemskapAksjonspunktÅrsak> utledLovligOppholdÅrsak(MedlemInngangsvilkårRegelGrunnlag grunnlag) {
+        if (!harRegionIPeriode(grunnlag.personopplysninger(), Personopplysninger.Region.TREDJELAND, grunnlag.vurderingsperiodeLovligOpphold())) {
+            return Optional.empty();
+        }
         if (sjekkOmOppholdstillatelserIHelePeriodenMedTredjelandsRegion(grunnlag.vurderingsperiodeLovligOpphold(), grunnlag.personopplysninger())) {
             return Optional.empty();
         }
