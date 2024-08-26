@@ -21,7 +21,7 @@ class OpplysningsperiodeFPTest {
             .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
             .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
 
-        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
+        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -37,7 +37,7 @@ class OpplysningsperiodeFPTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
+        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -54,7 +54,7 @@ class OpplysningsperiodeFPTest {
             .medSøknadVersjon(fhOppgitt)
             .medBekreftetVersjon(fhBekreftet);
 
-        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
+        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 
@@ -71,7 +71,7 @@ class OpplysningsperiodeFPTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
+        var resultat = OpplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhentingFraFamilieHendelse(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 }

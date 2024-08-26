@@ -116,27 +116,25 @@ public class OpplysningsPeriodeTjeneste {
     public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId,
                                                                            Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(fha -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(fha, gjeldende))
+            .map(OpplysningsPeriodeTjeneste::utledFikspunktForRegisterInnhentingFraFamilieHendelse)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: finner ikke fikspunkt for registerinnhenting behandling " + behandlingId));
     }
 
-    public static LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(FamilieHendelseGrunnlagEntitet familieHendelseAggregat,
-                                                                                  Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
+    public static LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
         var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
-        var gjeldendeHendelseDato = gjeldende.apply(familieHendelseAggregat).map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+        var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon().getSkjæringstidspunkt();
 
-        return gjeldendeHendelseDato.filter(bs -> erEndringIPerioden(oppgittHendelseDato, bs))
-            .orElse(oppgittHendelseDato);
+        return erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato) ? gjeldendeHendelseDato : oppgittHendelseDato;
     }
 
     public static boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
         var intervall = new LocalDateInterval(oppgittSkjæringstidspunkt.minus(GRENSEVERDI), oppgittSkjæringstidspunkt.plus(GRENSEVERDI));
         if (bekreftetSkjæringstidspunkt != null && !intervall.contains(bekreftetSkjæringstidspunkt)) {
-            LOG.info("Opplysningsperiode: endring i periode foroppgitt {} bekreftet {}",
-                oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
+            LOG.info("Opplysningsperiode: endring i periode foroppgitt {} bekreftet {}", oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
+            return true;
+        } else {
+            return false;
         }
-        return bekreftetSkjæringstidspunkt != null && !intervall.contains(bekreftetSkjæringstidspunkt);
-
     }
 
     public LocalDate utledFikspunktRegisterinnhentingForSVP(Long behandlingId) {

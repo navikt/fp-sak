@@ -208,6 +208,7 @@ public class AksjonspunktTjeneste {
         if (Objects.equals(tidligereRegisterFikspunkt, nyttRegisterFikspunkt)) {
             behandlingsprosessTjeneste.asynkKjørProsess(behandling);
         } else {
+            // Fikspunkt for opplysningsperiode er endret så mye at opplysninger må hentes på nytt
             behandlingsprosessTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
         }
     }
