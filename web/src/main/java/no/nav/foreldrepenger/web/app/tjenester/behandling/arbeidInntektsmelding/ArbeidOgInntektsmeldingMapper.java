@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
@@ -62,6 +63,15 @@ public class ArbeidOgInntektsmeldingMapper {
                                                         List<UUID> tilknyttedeBehandlingIder) {
         var inntekstmeldingMangel = finnIdentifisertInntektsmeldingMangel(im.getArbeidsgiver(), im.getArbeidsforholdRef(), mangler);
         var vurderingPåInntektsmelding = finnSaksbehandlersVurderingPåInntektsmelding(im.getArbeidsgiver(), im.getArbeidsforholdRef(), saksbehandlersVurderinger);
+
+        var refusjonsEndringer = im.getEndringerRefusjon();
+
+        // Representer opphøring av refusjon som en periode med 0 som refusjon
+        if (im.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(im.getRefusjonOpphører() )) {
+            refusjonsEndringer = new ArrayList<>(refusjonsEndringer);
+            refusjonsEndringer.add(new Refusjon(new BigDecimal(0), im.getRefusjonOpphører().plusDays(1)));
+        }
+
         return new InntektsmeldingDto(
                 fraBeløp(im.getInntektBeløp()),
                 fraBeløp(im.getRefusjonBeløpPerMnd()),
@@ -80,7 +90,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getKildesystem(),
                 im.getStartDatoPermisjon().orElse(null),
                 im.getNaturalYtelser(),
-                im.getEndringerRefusjon(),
+                refusjonsEndringer,
                 im.getInntektsmeldingInnsendingsårsak(),
             tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of()
             );

@@ -1,22 +1,32 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.jboss.weld.exceptions.IllegalStateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
+import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
+import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
@@ -24,10 +34,7 @@ import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilF
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-
-import org.jboss.weld.exceptions.IllegalStateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {
@@ -72,7 +79,19 @@ public class BeregningKalkulus implements BeregningAPI {
         var prosessResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(respons.aksjonspunkter());
         // TODO Finn ut hvordan vi løser sporing av vilkåret
         prosessResultat.setVilkårOppfylt(respons.erVilkårOppfylt(), null, null, null);
+        oppdaterKoblingMedData(behandlingReferanse, stegType, kobling);
         return prosessResultat;
+    }
+
+    private void oppdaterKoblingMedData(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType, BeregningsgrunnlagKobling kobling) {
+        if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
+            var bg = hent(behandlingReferanse).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).orElseThrow();
+            koblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(bg.getGrunnbeløp().getVerdi()), bg.getSkjæringstidspunkt());
+        } else if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
+            var gr = hent(behandlingReferanse).orElseThrow();
+            var kanVærePåvirketAvRegulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+            koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, kanVærePåvirketAvRegulering);
+        }
     }
 
     @Override
@@ -101,6 +120,16 @@ public class BeregningKalkulus implements BeregningAPI {
         }
         var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling);
         klient.kopierGrunnlag(request);
+    }
+
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
+        var kalkulusDtoer = KalkulusAksjonspunktMapper.mapAksjonspunktTilKalkulusDto(oppdatering);
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId())
+            .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
+        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
+        var respons = klient.løsAvklaringsbehov(request);
+        return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
 
     private KopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {

@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemskap.logDiff;
+import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemskap.map;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -36,7 +39,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
+import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP)
@@ -55,6 +60,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
     private BehandlingFlytkontroll flytkontroll;
     private SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
+    private AvklarMedlemskapUtleder avklarMedlemskapUtleder;
 
     @Inject
     public KontrollerFaktaLøpendeMedlemskapStegRevurdering(UtledVurderingsdatoerForMedlemskapTjeneste vurderingsdatoer,
@@ -63,7 +69,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                            BehandlingFlytkontroll flytkontroll,
                                                            SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
-                                                           UttakInputTjeneste uttakInputTjeneste) {
+                                                           UttakInputTjeneste uttakInputTjeneste,
+                                                           AvklarMedlemskapUtleder avklarMedlemskapUtleder) {
         this.tjeneste = vurderingsdatoer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -72,6 +79,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
         this.flytkontroll = flytkontroll;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.avklarMedlemskapUtleder = avklarMedlemskapUtleder;
     }
 
     KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
@@ -95,12 +103,20 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
             var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
             var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(ref);
-            var resultat = new HashSet<>();
+            var resultat = new HashSet<MedlemResultat>();
             if (!finnVurderingsdatoer.isEmpty()) {
                 finnVurderingsdatoer.forEach(dato -> resultat.addAll(vurderMedlemskapTjeneste.vurderMedlemskap(ref, dato)));
             }
             if (!resultat.isEmpty()) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
+            }
+            try {
+                var årsaker = avklarMedlemskapUtleder.utledForFortsattMedlem(ref);
+                var gammelUtledetÅrsaker = resultat.stream().map(mr -> map(mr.getAksjonspunktDefinisjon())).collect(Collectors.toSet());
+                logDiff(årsaker, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(),
+                    "fortsattMedlem");
+            } catch (Exception e) {
+                LOG.info("Medlemskap sammenligning feilet", e);
             }
         }
         var uttakInput = uttakInputTjeneste.lagInput(behandlingId);

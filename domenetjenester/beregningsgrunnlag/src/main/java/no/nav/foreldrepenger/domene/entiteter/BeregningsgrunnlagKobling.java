@@ -73,16 +73,10 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
     }
 
     void oppdaterMedGrunnbeløp(Beløp grunnbeløp) {
-        if (this.grunnbeløp != null) {
-            throw new IllegalArgumentException("Grunnbeløp er allerede satt, skal ikke oppdateres");
-        }
         this.grunnbeløp = Objects.requireNonNull(grunnbeløp, "grunnbeløp");
     }
 
     void oppdaterMedSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
-        if (this.skjæringstidspunkt != null) {
-            throw new IllegalArgumentException("Skjæringstidspunkt er allerede satt, skal ikke oppdateres");
-        }
         this.skjæringstidspunkt = Objects.requireNonNull(skjæringstidspunkt, "skjæringstidspunkt");
     }
 

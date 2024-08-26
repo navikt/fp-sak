@@ -84,7 +84,7 @@ class BeregningKalkulusTest {
         when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), true));
 
         // Act
-        beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
+        beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
 
         // Assert
         verify(koblingRepository, times(0)).opprettKobling(behandlingReferanse);
