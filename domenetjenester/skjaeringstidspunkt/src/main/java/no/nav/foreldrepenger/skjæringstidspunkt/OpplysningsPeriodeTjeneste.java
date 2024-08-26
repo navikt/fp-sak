@@ -31,6 +31,17 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
+/**
+ * Tjenester for å bestemme tidsperiode for innhenting og lagring av behandlingsgrunnlag
+ * Det er ønskelig med et fikspunkt som er stabilt gjennom behandlingen - med mindre saksbehandlervurdering/hendelser tilsier et nytt fikspunkt
+ * Tjenesten må være robust og kunne gi en dato før registerinnhenting - må derfor være basert på søknadsopplysninger (på godt og vondt)
+ * - Vil hente inn data 12mnd før vanlig skjæringstidspunkt (STP) og som dekker stønadsperioden (uttaket inntil 3år, 37 uker eller 1 dag)
+ * - Forutgående medlemskap for ES tilsier data som dekker 12 måneder før termindato (uansett når fødsel skjer)
+ * - Innhentingsperioden må tåle behandling/vedtak foregår før STP og at fødsel kan gi tidligere STP (eller for SVP kortere stønadsperiode)
+ * - Bruker termin/fødsel/omsorg fra søknad for å utlede fikspunkt for sakskomplekset. Inntil videre brukes tilretteleggingsbehov for SVP.
+ * - Legger på et vindu på 5 måneder for å dekke tidlig fødsel (18,5 u før termin) og mindre endringer gjort av skasbehandler
+ * - Dersom saksbehandler korrigerer søknadsdata mer enn 5 måneder legges det opp til at korrigert dato brukes som fikspunkt
+ */
 @ApplicationScoped
 public class OpplysningsPeriodeTjeneste {
 
@@ -62,9 +73,6 @@ public class OpplysningsPeriodeTjeneste {
         // CDI
     }
 
-    /**
-     * Konfig angir perioden med registerinnhenting før/etter skjæringstidspunktet (for en gitt ytelse)
-     */
     @Inject
     public OpplysningsPeriodeTjeneste(BehandlingRepository behandlingRepository, FamilieHendelseRepository familieGrunnlagRepository, OpptjeningRepository opptjeningRepository, SvangerskapspengerRepository svangerskapspengerRepository,
                                       YtelsesFordelingRepository ytelsesFordelingRepository) {
@@ -78,10 +86,6 @@ public class OpplysningsPeriodeTjeneste {
     /**
      * Beregner opplysningsperioden (Perioden vi ber om informasjon fra registerne) for en gitt behandling.
      *
-     * Benytter konfig-verdier for å setter lengden på intervallene på hver side av skjæringstidspunkt for registerinnhenting.
-     *
-     * @param behandling behandlingen
-     * @return intervallet
      */
     public SimpleLocalDateInterval beregn(Long behandlingId, FagsakYtelseType ytelseType) {
         return beregning(behandlingId, ytelseType, false);
@@ -92,8 +96,8 @@ public class OpplysningsPeriodeTjeneste {
     }
 
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
-        var skjæringstidspunkt = utledSkjæringstidspunktForRegisterInnhenting(behandlingId, ytelseType);
-        var intervall = beregnInterval(skjæringstidspunkt.minus(FØR.get(ytelseType)), skjæringstidspunkt.plus(ETTER.get(ytelseType)), tilOgMedIdag);
+        var fikspunkt = utledFikspunktForRegisterInnhenting(behandlingId, ytelseType);
+        var intervall = beregnInterval(fikspunkt.minus(FØR.get(ytelseType)), fikspunkt.plus(ETTER.get(ytelseType)), tilOgMedIdag);
         return vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall);
     }
 
@@ -101,23 +105,23 @@ public class OpplysningsPeriodeTjeneste {
         return SimpleLocalDateInterval.fraOgMedTomNotNull(fom, tilOgMedIdag && tom.isBefore(LocalDate.now()) ? LocalDate.now() : tom);
     }
 
-    public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId, FagsakYtelseType ytelseType) {
+    public LocalDate utledFikspunktForRegisterInnhenting(Long behandlingId, FagsakYtelseType ytelseType) {
         return switch (ytelseType) {
-            case ENGANGSTØNAD -> utledKjernedatoForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
-            case FORELDREPENGER -> utledKjernedatoForRegisterInnhentingFraFamilieHendelse(behandlingId, fha -> Optional.of(fha.getGjeldendeVersjon()));
-            case SVANGERSKAPSPENGER -> utledSkjæringstidspunktRegisterinnhentingForSVP(behandlingId);
+            case ENGANGSTØNAD -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
+            case FORELDREPENGER -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, fha -> Optional.of(fha.getGjeldendeVersjon()));
+            case SVANGERSKAPSPENGER -> utledFikspunktRegisterinnhentingForSVP(behandlingId);
             default -> throw new IllegalStateException("Utvikler-feil: mangler ytelsetype " + ytelseType);
         };
     }
-    public LocalDate utledKjernedatoForRegisterInnhentingFraFamilieHendelse(Long behandlingId,
-                                                                            Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
+    public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId,
+                                                                           Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(fha -> utledKjernedatoForRegisterInnhentingFraFamilieHendelse(fha, gjeldende))
+            .map(fha -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(fha, gjeldende))
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: finner ikke fikspunkt for registerinnhenting behandling " + behandlingId));
     }
 
-    public static LocalDate utledKjernedatoForRegisterInnhentingFraFamilieHendelse(FamilieHendelseGrunnlagEntitet familieHendelseAggregat,
-                                                                                   Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
+    public static LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(FamilieHendelseGrunnlagEntitet familieHendelseAggregat,
+                                                                                  Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
         var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
         var gjeldendeHendelseDato = gjeldende.apply(familieHendelseAggregat).map(FamilieHendelseEntitet::getSkjæringstidspunkt);
 
@@ -135,10 +139,10 @@ public class OpplysningsPeriodeTjeneste {
 
     }
 
-    public LocalDate utledSkjæringstidspunktRegisterinnhentingForSVP(Long behandlingId) {
+    public LocalDate utledFikspunktRegisterinnhentingForSVP(Long behandlingId) {
         // Logger for å vurdere om vi skal gå over til å bruke termindato som baseline. Man bekrefter termin sammen med behovFom og tilretteleggingFom
-        var familiehendelse = utledKjernedatoForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
-        var tilrettelegging = utledSkjæringstidspunktRegisterinnhentingFraTilretteleggingsbehov(behandlingId);
+        var familiehendelse = utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
+        var tilrettelegging = utledFikspunktRegisterinnhentingFraTilretteleggingsbehov(behandlingId);
         var avstand1 = ChronoUnit.DAYS.between(tilrettelegging, familiehendelse);
         var avstand2 = ChronoUnit.DAYS.between(familiehendelse.minusWeeks(42), tilrettelegging);
         var terminIntervall = new LocalDateInterval(familiehendelse.minusWeeks(42), familiehendelse);
@@ -153,7 +157,7 @@ public class OpplysningsPeriodeTjeneste {
         return tilrettelegging;
     }
 
-    public LocalDate utledSkjæringstidspunktRegisterinnhentingFraTilretteleggingsbehov(Long behandlingId) {
+    public LocalDate utledFikspunktRegisterinnhentingFraTilretteleggingsbehov(Long behandlingId) {
         var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId)
             .or(() -> svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandlingId)));
 

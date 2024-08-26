@@ -111,7 +111,7 @@ public class AksjonspunktTjeneste {
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
+        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
 
         var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling, skjæringstidspunkter);
 
@@ -187,7 +187,7 @@ public class AksjonspunktTjeneste {
         // Tilbakestill gjeldende steg før fremføring
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
-        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
+        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
 
         var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
 
@@ -204,7 +204,7 @@ public class AksjonspunktTjeneste {
     }
 
     private void fortsettBehandlingen(Behandling behandling, LocalDate tidligereRegisterFikspunkt) {
-        var nyttRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandling.getId(), behandling.getFagsakYtelseType());
+        var nyttRegisterFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), behandling.getFagsakYtelseType());
         if (Objects.equals(tidligereRegisterFikspunkt, nyttRegisterFikspunkt)) {
             behandlingsprosessTjeneste.asynkKjørProsess(behandling);
         } else {
