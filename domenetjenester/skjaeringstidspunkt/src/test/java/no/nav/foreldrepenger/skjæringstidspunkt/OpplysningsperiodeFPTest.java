@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.skjæringstidspunkt.fp;
+package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 
-class SkjæringstidspunktUtilsTest {
+class OpplysningsperiodeFPTest {
 
     @Test
     void skal_gi_false_hvis_like() {
@@ -21,7 +21,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
             .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
 
-        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = OpplysningsPeriodeTjeneste.utledKjernedatoForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -37,7 +37,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = OpplysningsPeriodeTjeneste.utledKjernedatoForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
@@ -54,7 +54,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medBekreftetVersjon(fhBekreftet);
 
-        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = OpplysningsPeriodeTjeneste.utledKjernedatoForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
         assertThat(resultat).isEqualTo(bekreftet);
     }
 
@@ -71,7 +71,7 @@ class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        var resultat = SkjæringstidspunktUtils.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = OpplysningsPeriodeTjeneste.utledKjernedatoForRegisterInnhentingFraFamilieHendelse(builder.build(), fha -> Optional.of(fha.getGjeldendeVersjon()));
         assertThat(resultat).isEqualTo(bekreftet);
     }
 }

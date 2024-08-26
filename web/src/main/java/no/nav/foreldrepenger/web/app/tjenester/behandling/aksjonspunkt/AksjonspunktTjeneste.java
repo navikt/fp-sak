@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static java.util.stream.Collectors.toList;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -72,6 +74,7 @@ public class AksjonspunktTjeneste {
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
     public AksjonspunktTjeneste() {
@@ -85,6 +88,7 @@ public class AksjonspunktTjeneste {
                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                 HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                 HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                                OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                 BehandlingEventPubliserer behandlingEventPubliserer) {
 
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
@@ -94,6 +98,7 @@ public class AksjonspunktTjeneste {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
@@ -106,6 +111,7 @@ public class AksjonspunktTjeneste {
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
 
         var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling, skjæringstidspunkter);
 
@@ -120,7 +126,7 @@ public class AksjonspunktTjeneste {
             // Skal ikke fortsette behandling dersom behandling ble satt på vent
             return;
         }
-        fortsettBehandlingen(behandling, overhoppResultat);// skal ikke reinnhente her, avgjøres i steg?
+        fortsettBehandlingen(behandling, tidligereRegisterFikspunkt);// skal ikke reinnhente her, avgjøres i steg?
     }
 
     protected void setAnsvarligSaksbehandler(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Behandling behandling) {
@@ -181,6 +187,8 @@ public class AksjonspunktTjeneste {
         // Tilbakestill gjeldende steg før fremføring
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
+        var tidligereRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId, behandling.getFagsakYtelseType());
+
         var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
 
         lagreHistorikkInnslag(behandling, overstyrteAksjonspunkter);
@@ -192,14 +200,15 @@ public class AksjonspunktTjeneste {
             // Skal ikke fortsette behandling dersom behandling ble satt på vent
             return;
         }
-        fortsettBehandlingen(behandling, overhoppForOverstyring);// skal ikke reinnhente her, avgjøres i steg?
+        fortsettBehandlingen(behandling, tidligereRegisterFikspunkt);// skal ikke reinnhente her, avgjøres i steg?
     }
 
-    private void fortsettBehandlingen(Behandling behandling, OverhoppResultat overhoppResultat) {
-        if (overhoppResultat.skalOppdatereGrunnlag()) {
-            behandlingsprosessTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
-        } else {
+    private void fortsettBehandlingen(Behandling behandling, LocalDate tidligereRegisterFikspunkt) {
+        var nyttRegisterFikspunkt = opplysningsPeriodeTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandling.getId(), behandling.getFagsakYtelseType());
+        if (Objects.equals(tidligereRegisterFikspunkt, nyttRegisterFikspunkt)) {
             behandlingsprosessTjeneste.asynkKjørProsess(behandling);
+        } else {
+            behandlingsprosessTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
         }
     }
 
