@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,8 +66,7 @@ public class MedlemDtoTjeneste {
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                             MedlemTjeneste medlemTjeneste,
-                             PersonopplysningTjeneste personopplysningTjeneste,
+                             MedlemTjeneste medlemTjeneste, PersonopplysningTjeneste personopplysningTjeneste,
                              PersonopplysningDtoTjeneste personopplysningDtoTjeneste) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
@@ -107,6 +107,9 @@ public class MedlemDtoTjeneste {
         var personopplysningerAggregat = po.get();
         var forPeriode = SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE);
 
+        var manuellBehandling = manuellBehandling(ref);
+        var legacyManuellBehandling = manuellBehandling.isEmpty() ? legacyManuellBehandling(ref, stp).orElse(null) : null;
+
         var aktørId = ref.aktørId();
         var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, forPeriode, stp.getUtledetSkjæringstidspunkt())
             .stream()
@@ -143,7 +146,42 @@ public class MedlemDtoTjeneste {
 
         var annenpart = annenpart(personopplysningerAggregat, forPeriode, stp).orElse(null);
 
-        return new MedlemskapV3Dto(null, null, regioner, personstatuser, utenlandsopphold, adresser, oppholdstillatelser, medlemskapsperioder, annenpart);
+        return new MedlemskapV3Dto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, utenlandsopphold, adresser, oppholdstillatelser, medlemskapsperioder, annenpart);
+    }
+
+    private Optional<MedlemskapV3Dto.LegacyManuellBehandling> legacyManuellBehandling(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var medlemskapOpt = medlemskapRepository.hentMedlemskap(ref.behandlingId());
+        if (medlemskapOpt.isEmpty() || medlemskapOpt.get().getVurdertMedlemskap().isEmpty()) {
+            return Optional.empty();
+        }
+
+        var medlemskapAggregat = medlemskapOpt.get();
+        var vurdertMedlemskap = medlemskapAggregat.getVurdertMedlemskap().get();
+        var perioder = new HashSet<MedlemskapV3Dto.LegacyManuellBehandling.MedlemPeriode>();
+        perioder.add(tilLegacyManuellBehandligPeriode(vurdertMedlemskap, stp.getUtledetSkjæringstidspunkt()));
+
+        if (medlemskapAggregat.getVurderingLøpendeMedlemskap().isPresent()) {
+            perioder.addAll(medlemskapAggregat.getVurderingLøpendeMedlemskap().get().getPerioder().stream()
+                .map(v -> tilLegacyManuellBehandligPeriode(v, v.getVurderingsdato()))
+                .collect(Collectors.toSet()));
+        }
+
+        return Optional.of(new MedlemskapV3Dto.LegacyManuellBehandling(perioder));
+    }
+
+    private static MedlemskapV3Dto.LegacyManuellBehandling.MedlemPeriode tilLegacyManuellBehandligPeriode(VurdertMedlemskap vurdertMedlemskap, LocalDate vurderingsdato) {
+        return new MedlemskapV3Dto.LegacyManuellBehandling.MedlemPeriode(
+            vurderingsdato,
+            vurdertMedlemskap.getOppholdsrettVurdering(),
+            vurdertMedlemskap.getErEøsBorger(),
+            vurdertMedlemskap.getLovligOppholdVurdering(),
+            vurdertMedlemskap.getBosattVurdering(),
+            vurdertMedlemskap.getMedlemsperiodeManuellVurdering(),
+            vurdertMedlemskap.getBegrunnelse());
+    }
+
+    private Optional<MedlemskapV3Dto.ManuellBehandling> manuellBehandling(BehandlingReferanse ref) {
+        return Optional.empty(); // TODO: Hent regelresutlat fra databasen. Utledningen er allerede gjort?
     }
 
     private static Optional<MedlemskapV3Dto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,
@@ -315,5 +353,10 @@ public class MedlemDtoTjeneste {
     //TODO(OJR) Hack!!! kan fjernes hvis man ønsker å utføre en migrerning(kompleks) av gamle medlemskapvurdering i produksjon
     private String hentBegrunnelseFraAksjonspuntk(Set<Aksjonspunkt> aksjonspunkter) {
         return aksjonspunkter.stream().filter(a -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(a.getAksjonspunktDefinisjon().getVilkårType())).findFirst().map(Aksjonspunkt::getBegrunnelse).orElse(null);
+    }
+
+    public enum Kontekst {
+        INNGANGSVILKÅR,
+        FORSATT;
     }
 }

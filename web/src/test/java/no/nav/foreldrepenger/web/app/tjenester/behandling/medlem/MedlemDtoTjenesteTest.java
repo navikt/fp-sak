@@ -262,7 +262,7 @@ class MedlemDtoTjenesteTest {
 
         var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());
 
-        assertThat(dto.aksjonspunkt()).isNull();
+        assertThat(dto.manuellBehandling()).isNull();
 
         assertThat(dto.personstatuser()).hasSize(1);
         var personstatus1 = dto.personstatuser().stream().findFirst().orElseThrow();
