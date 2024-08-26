@@ -82,6 +82,11 @@
       "app": "infotrygd-feed-proxy-v2",
       "namespace": "infotrygd",
       "cluster": "prod-fss"
+    },
+    {
+      "app": "arena",
+      "namespace": "teamarenanais",
+      "cluster": "prod-fss"
     }
   ]
 }
