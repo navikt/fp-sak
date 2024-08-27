@@ -488,4 +488,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         return false;
     }
 
+    @Override
+    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
+        return false;
+    }
 }

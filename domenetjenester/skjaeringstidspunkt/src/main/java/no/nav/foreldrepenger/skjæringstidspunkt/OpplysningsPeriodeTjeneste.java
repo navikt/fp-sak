@@ -2,90 +2,60 @@ package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.TekniskException;
 
-/**
- * Tjenester for å bestemme tidsperiode for innhenting og lagring av behandlingsgrunnlag
- * Det er ønskelig med et fikspunkt som er stabilt gjennom behandlingen - med mindre saksbehandlervurdering/hendelser tilsier et nytt fikspunkt
- * Tjenesten må være robust og kunne gi en dato før registerinnhenting - må derfor være basert på søknadsopplysninger (på godt og vondt)
- * - Vil hente inn data 12mnd før vanlig skjæringstidspunkt (STP) og som dekker stønadsperioden (uttaket inntil 3år, 37 uker eller 1 dag)
- * - Forutgående medlemskap for ES tilsier data som dekker 12 måneder før termindato (uansett når fødsel skjer)
- * - Innhentingsperioden må tåle behandling/vedtak foregår før STP og at fødsel kan gi tidligere STP (eller for SVP kortere stønadsperiode)
- * - Bruker termin/fødsel/omsorg fra søknad for å utlede fikspunkt for sakskomplekset. Inntil videre brukes tilretteleggingsbehov for SVP.
- * - Legger på et vindu på 5 måneder for å dekke tidlig fødsel (18,5 u før termin) og mindre endringer gjort av skasbehandler
- * - Dersom saksbehandler korrigerer søknadsdata mer enn 5 måneder legges det opp til at korrigert dato brukes som fikspunkt
- */
 @ApplicationScoped
 public class OpplysningsPeriodeTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpplysningsPeriodeTjeneste.class);
+    private Period periodeFørFP;
+    private Period periodeEtterFP;
+    private Period periodeFørES;
+    private Period periodeEtterES;
+    private Period periodeFørSVP;
+    private Period periodeEtterSVP;
 
-    private static final Map<FagsakYtelseType, Period> FØR = Map.of(
-        FagsakYtelseType.ENGANGSTØNAD, Period.ofMonths(17),
-        FagsakYtelseType.FORELDREPENGER, Period.ofMonths(17),
-        FagsakYtelseType.SVANGERSKAPSPENGER, Period.ofMonths(17));
-
-    private static final Map<FagsakYtelseType, Period> ETTER = Map.of(
-        FagsakYtelseType.ENGANGSTØNAD, Period.ofMonths(6),
-        FagsakYtelseType.FORELDREPENGER, Period.ofYears(4),
-        FagsakYtelseType.SVANGERSKAPSPENGER, Period.ofMonths(15));
-
-    /**
-     * Maks avvik før/etter STP for registerinnhenting før justering av perioden.
-     * Basert på behov for innhenting siste 12mnd før min(behandlingsdato, stp), padding i FØR, samt fødsel fom uke 22.
-     */
-    private static final Period GRENSEVERDI = Period.ofMonths(5);
-
-    private BehandlingRepository behandlingRepository;
-    private FamilieHendelseRepository familieGrunnlagRepository;
-    private OpptjeningRepository opptjeningRepository;
-    private SvangerskapspengerRepository svangerskapspengerRepository;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
 
     OpplysningsPeriodeTjeneste() {
         // CDI
     }
 
+    /**
+     * Konfig angir perioden med registerinnhenting før/etter skjæringstidspunktet (for en gitt ytelse)
+     */
     @Inject
-    public OpplysningsPeriodeTjeneste(BehandlingRepository behandlingRepository, FamilieHendelseRepository familieGrunnlagRepository, OpptjeningRepository opptjeningRepository, SvangerskapspengerRepository svangerskapspengerRepository,
-                                      YtelsesFordelingRepository ytelsesFordelingRepository) {
-        this.behandlingRepository = behandlingRepository;
-        this.familieGrunnlagRepository = familieGrunnlagRepository;
-        this.opptjeningRepository = opptjeningRepository;
-        this.svangerskapspengerRepository = svangerskapspengerRepository;
-        this.ytelsesFordelingRepository = ytelsesFordelingRepository;
+    public OpplysningsPeriodeTjeneste(SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
+                                      // TODO: Dette bør splittes i ulike konfig klasser
+                                      @KonfigVerdi(value = "es.registerinnhenting.opplysningsperiode.før", defaultVerdi = "P12M") Period periodeFørES,
+                                      @KonfigVerdi(value = "es.registerinnhenting.opplysningsperiode.etter", defaultVerdi = "P6M") Period periodeEtterES,
+                                      @KonfigVerdi(value = "fp.registerinnhenting.opplysningsperiode.før", defaultVerdi = "P17M") Period periodeFørFP,
+                                      @KonfigVerdi(value = "fp.registerinnhenting.opplysningsperiode.etter", defaultVerdi = "P4Y") Period periodeEtterFP,
+                                      @KonfigVerdi(value = "svp.registerinnhenting.opplysningsperiode.før", defaultVerdi = "P17M") Period periodeFørSVP,
+                                      @KonfigVerdi(value = "svp.registerinnhenting.opplysningsperiode.etter", defaultVerdi = "P4Y") Period periodeEtterSVP) {
+
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.periodeFørES = periodeFørES;
+        this.periodeEtterES = periodeEtterES;
+        this.periodeFørFP = periodeFørFP;
+        this.periodeEtterFP = periodeEtterFP;
+        this.periodeFørSVP = periodeFørSVP;
+        this.periodeEtterSVP = periodeEtterSVP;
     }
 
     /**
      * Beregner opplysningsperioden (Perioden vi ber om informasjon fra registerne) for en gitt behandling.
      *
+     * Benytter konfig-verdier for å setter lengden på intervallene på hver side av skjæringstidspunkt for registerinnhenting.
+     *
+     * @param behandling behandlingen
+     * @return intervallet
      */
     public SimpleLocalDateInterval beregn(Long behandlingId, FagsakYtelseType ytelseType) {
         return beregning(behandlingId, ytelseType, false);
@@ -96,105 +66,34 @@ public class OpplysningsPeriodeTjeneste {
     }
 
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
-        var fikspunkt = utledFikspunktForRegisterInnhenting(behandlingId, ytelseType);
-        var intervall = beregnInterval(fikspunkt.minus(FØR.get(ytelseType)), fikspunkt.plus(ETTER.get(ytelseType)), tilOgMedIdag);
-        return vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            return beregnIntervalFP(behandlingId, skjæringstidspunkt, tilOgMedIdag);
+        }
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+            return beregnIntervalES(skjæringstidspunkt, tilOgMedIdag);
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+            return beregnIntervalSVP(skjæringstidspunkt, tilOgMedIdag);
+        }
+        throw new TekniskException("FP-783491", "Kan ikke utlede opplysningsperiode for %s");
+    }
+
+    private SimpleLocalDateInterval beregnIntervalES(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+        return beregnInterval(skjæringstidspunkt.minus(periodeFørES), skjæringstidspunkt.plus(periodeEtterES), tilOgMedIdag);
+    }
+
+    private SimpleLocalDateInterval beregnIntervalFP(Long behandlingId, LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+        var intervall = beregnInterval(skjæringstidspunkt.minus(periodeFørFP), skjæringstidspunkt.plus(periodeEtterFP), tilOgMedIdag);
+        // Ekstra padding der man begynner sent ift familiehendelsedato
+        return skjæringstidspunktTjeneste.vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall);
+    }
+
+    private SimpleLocalDateInterval beregnIntervalSVP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+        return beregnInterval(skjæringstidspunkt.minus(periodeFørSVP), skjæringstidspunkt.plus(periodeEtterSVP), tilOgMedIdag);
     }
 
     private SimpleLocalDateInterval beregnInterval(LocalDate fom, LocalDate tom, boolean tilOgMedIdag) {
         return SimpleLocalDateInterval.fraOgMedTomNotNull(fom, tilOgMedIdag && tom.isBefore(LocalDate.now()) ? LocalDate.now() : tom);
-    }
-
-    public LocalDate utledFikspunktForRegisterInnhenting(Long behandlingId, FagsakYtelseType ytelseType) {
-        return switch (ytelseType) {
-            case ENGANGSTØNAD -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
-            case FORELDREPENGER -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, fha -> Optional.of(fha.getGjeldendeVersjon()));
-            case SVANGERSKAPSPENGER -> utledFikspunktRegisterinnhentingForSVP(behandlingId);
-            default -> throw new IllegalStateException("Utvikler-feil: mangler ytelsetype " + ytelseType);
-        };
-    }
-    public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId,
-                                                                           Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
-        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(OpplysningsPeriodeTjeneste::utledFikspunktForRegisterInnhentingFraFamilieHendelse)
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: finner ikke fikspunkt for registerinnhenting behandling " + behandlingId));
-    }
-
-    public static LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
-        var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
-        var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon().getSkjæringstidspunkt();
-
-        return erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato) ? gjeldendeHendelseDato : oppgittHendelseDato;
-    }
-
-    public static boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
-        var intervall = new LocalDateInterval(oppgittSkjæringstidspunkt.minus(GRENSEVERDI), oppgittSkjæringstidspunkt.plus(GRENSEVERDI));
-        if (bekreftetSkjæringstidspunkt != null && !intervall.contains(bekreftetSkjæringstidspunkt)) {
-            LOG.info("Opplysningsperiode: endring i periode foroppgitt {} bekreftet {}", oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public LocalDate utledFikspunktRegisterinnhentingForSVP(Long behandlingId) {
-        // Logger for å vurdere om vi skal gå over til å bruke termindato som baseline. Man bekrefter termin sammen med behovFom og tilretteleggingFom
-        var familiehendelse = utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
-        var tilrettelegging = utledFikspunktRegisterinnhentingFraTilretteleggingsbehov(behandlingId);
-        var avstand1 = ChronoUnit.DAYS.between(tilrettelegging, familiehendelse);
-        var avstand2 = ChronoUnit.DAYS.between(familiehendelse.minusWeeks(42), tilrettelegging);
-        var terminIntervall = new LocalDateInterval(familiehendelse.minusWeeks(42), familiehendelse);
-        if (!terminIntervall.contains(tilrettelegging)) {
-            LOG.info("Opplysningsperiode: SVP ukurant avstand for behandling {} tilrettelegging {} og termin {} behov-termin {} terminf42-behov {}",
-                behandlingId, tilrettelegging, familiehendelse, avstand1, avstand2);
-        } else {
-            LOG.info("Opplysningsperiode: SVP kurant avstand for behandling {} tilrettelegging {} og termin {} behov-termin {} terminf42-behov {}",
-                behandlingId, tilrettelegging, familiehendelse, avstand1, avstand2);
-        }
-
-        return tilrettelegging;
-    }
-
-    public LocalDate utledFikspunktRegisterinnhentingFraTilretteleggingsbehov(Long behandlingId) {
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId)
-            .or(() -> svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandlingId)));
-
-        var tidligsteTilretteleggingsDatoOpt = svpGrunnlagOpt
-            .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
-            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
-            .min(Comparator.naturalOrder());
-
-        var gjeldendeTilretteleggingsDatoOpt = svpGrunnlagOpt
-            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
-            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
-            .min(Comparator.naturalOrder());
-
-        if (tidligsteTilretteleggingsDatoOpt.isPresent() && gjeldendeTilretteleggingsDatoOpt.isPresent()) {
-            var intervallBehovFom = new LocalDateInterval(tidligsteTilretteleggingsDatoOpt.get().minus(GRENSEVERDI),
-                tidligsteTilretteleggingsDatoOpt.get().plus(GRENSEVERDI));
-            return intervallBehovFom.contains(gjeldendeTilretteleggingsDatoOpt.get()) ?
-                tidligsteTilretteleggingsDatoOpt.get() : gjeldendeTilretteleggingsDatoOpt.get();
-        }
-        LOG.info("Opplysningsperiode: SVP mangler tilrettelegginger, behandling {}", behandlingId);
-        // Har ikke tilgjengelig data om tilrettelegginger - bør ikke skje
-        return opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1))
-            .orElseGet(LocalDate::now);
-    }
-
-    private Long originalBehandling(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return behandling.erRevurdering() ? behandling.getOriginalBehandlingId().orElseThrow() : behandlingId;
-    }
-
-    public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
-        // Avklart startdato foreldrepenger er svært sent i stønadsperioden
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
-            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
-            .filter(ovs -> intervall.getTomDato().isBefore(ovs.plusYears(1)))
-            .map(ovs -> SimpleLocalDateInterval.fraOgMedTomNotNull(intervall.getFomDato(), ovs.plusYears(1)))
-            .orElse(intervall);
     }
 }

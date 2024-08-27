@@ -29,6 +29,8 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
 
@@ -36,12 +38,15 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
     private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
             repositoryProvider.getFamilieHendelseRepository());
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
+        );
     }
 
     @Test
@@ -73,7 +78,7 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
             bekreftedeFødselsdatoer);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste)
+        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
