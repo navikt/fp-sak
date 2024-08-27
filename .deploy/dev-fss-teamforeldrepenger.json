@@ -103,6 +103,11 @@
       "app": "infotrygd-feed-proxy-v2",
       "namespace": "infotrygd",
       "cluster": "dev-fss"
+    },
+    {
+      "app": "arena",
+      "namespace": "teamarenanais",
+      "cluster": "dev-fss"
     }
   ]
 }
