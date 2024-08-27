@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -63,6 +64,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private StønadsperioderInnhenter stønadsperioderInnhenter;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingRepository behandlingRepository;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     BekreftSvangerskapspengerOppdaterer() {
         //CDI
@@ -74,7 +76,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                                StønadsperioderInnhenter stønadsperioderInnhenter,
                                                ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                               BehandlingRepository behandlingRepository) {
+                                               BehandlingRepository behandlingRepository,
+                                               OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -82,6 +85,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         this.stønadsperioderInnhenter = stønadsperioderInnhenter;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
@@ -89,6 +93,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         verifiserUnikeDatoer(dto);
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), param.getRef().fagsakYtelseType());
         var termindatoEndret = oppdaterFamiliehendelse(dto, behandling);
         var tilretteleggingEndret = oppdaterTilrettelegging(dto, behandling);
         oppdaterPermisjonVedBehov(dto, param);
@@ -98,7 +103,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             historikkAdapter.tekstBuilder()
                 .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
                 .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
-            return OppdateringResultat.utenTransisjon().medTotrinn().build();
+            var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), param.getRef().fagsakYtelseType());
+            if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+                return OppdateringResultat.utenTransisjon().medTotrinn().build();
+            } else {
+                return OppdateringResultat.utenTransisjon().medTotrinn().medOppdaterGrunnlag().build();
+            }
         }
 
         return OppdateringResultat.utenTransisjon().build();

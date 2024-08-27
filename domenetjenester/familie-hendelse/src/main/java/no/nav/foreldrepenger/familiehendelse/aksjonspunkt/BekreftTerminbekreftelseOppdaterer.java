@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -27,23 +28,28 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     private BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     BekreftTerminbekreftelseOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter, FamilieHendelseTjeneste familieHendelseTjeneste,
-                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
+    public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                              FamilieHendelseTjeneste familieHendelseTjeneste,
+                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator,
+                                              OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
 
         var orginalTermindato = getTermindato(grunnlag);
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
@@ -88,8 +94,11 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
                 .medAntallBarn(dto.getAntallBarn());
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
-
         var builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (!Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            builder.medOppdaterGrunnlag().build();
+        }
 
         return builder.build();
     }

@@ -74,7 +74,10 @@ public class OpplysningsPeriodeTjeneste {
     }
 
     @Inject
-    public OpplysningsPeriodeTjeneste(BehandlingRepository behandlingRepository, FamilieHendelseRepository familieGrunnlagRepository, OpptjeningRepository opptjeningRepository, SvangerskapspengerRepository svangerskapspengerRepository,
+    public OpplysningsPeriodeTjeneste(BehandlingRepository behandlingRepository,
+                                      FamilieHendelseRepository familieGrunnlagRepository,
+                                      OpptjeningRepository opptjeningRepository,
+                                      SvangerskapspengerRepository svangerskapspengerRepository,
                                       YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.behandlingRepository = behandlingRepository;
         this.familieGrunnlagRepository = familieGrunnlagRepository;

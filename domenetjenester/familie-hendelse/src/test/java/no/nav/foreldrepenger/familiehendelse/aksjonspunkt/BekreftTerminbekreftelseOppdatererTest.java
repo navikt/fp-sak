@@ -1,10 +1,13 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +76,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")), mock(OpplysningsPeriodeTjeneste.class));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
@@ -116,7 +119,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")), mock(OpplysningsPeriodeTjeneste.class));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
@@ -162,7 +165,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")), mock(OpplysningsPeriodeTjeneste.class));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
@@ -195,7 +198,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")), mock(OpplysningsPeriodeTjeneste.class));
 
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
@@ -207,7 +210,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
         // Act
         oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")), mock(OpplysningsPeriodeTjeneste.class));
 
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto,
             aksjonspunkt));
@@ -217,7 +220,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

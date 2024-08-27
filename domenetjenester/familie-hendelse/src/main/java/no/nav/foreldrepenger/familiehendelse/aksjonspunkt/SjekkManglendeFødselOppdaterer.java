@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -37,21 +38,26 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     SjekkManglendeFødselOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter, FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                          FamilieHendelseTjeneste familieHendelseTjeneste,
+                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(SjekkManglendeFodselDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         var totrinn = håndterEndringHistorikk(dto, param.getRef(), param, grunnlag);
         var utledetResultat = utledFødselsdata(dto, grunnlag);
 
@@ -65,7 +71,12 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
 
-        return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+        } else {
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
+        }
     }
 
     private boolean håndterEndringHistorikk(SjekkManglendeFodselDto dto,

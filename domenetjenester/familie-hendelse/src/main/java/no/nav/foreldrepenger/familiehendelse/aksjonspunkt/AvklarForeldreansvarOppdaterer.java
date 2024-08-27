@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -10,27 +12,36 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForForeldreansvarAksjonspunktDto;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarFaktaForForeldreansvarAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<AvklarFaktaForForeldreansvarAksjonspunktDto> {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     AvklarForeldreansvarOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public AvklarForeldreansvarOppdaterer(FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public AvklarForeldreansvarOppdaterer(FamilieHendelseTjeneste familieHendelseTjeneste, OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         oppdaterAksjonspunktGrunnlag(dto, behandlingId);
-        return OppdateringResultat.utenTransisjon().build();
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            return OppdateringResultat.utenTransisjon().build();
+        } else {
+            return OppdateringResultat.utenTransisjon().medOppdaterGrunnlag().build();
+        }
     }
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Long behandlingId) {
