@@ -34,8 +34,6 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarOmsorgOgForeldre
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest {
 
@@ -44,13 +42,11 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
     private final VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
     }
 
@@ -94,7 +90,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, familieHendelseTjeneste, lagMockHistory())
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, familieHendelseTjeneste, lagMockHistory())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
@@ -114,7 +110,6 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         // Arrange
         var forelderId = AktørId.dummy();
         var dødsdato = LocalDate.now();
-        var oppdatertDødsdato = dødsdato.plusDays(1);
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now()));

@@ -27,8 +27,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
@@ -39,14 +37,11 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
     private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
             repositoryProvider.getFamilieHendelseRepository());
     }
@@ -77,9 +72,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             avklartTermindato, avklartUtstedtDato, avklartAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste,
-            familieHendelseTjeneste,
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
             new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
@@ -122,9 +115,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             opprinneligTermindato, opprinneligUtstedtDato, opprinneligAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste,
-            familieHendelseTjeneste,
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
             new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
@@ -170,9 +161,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             "Begrunnelse", now.plusDays(30), now.minusDays(3), 1);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste,
-            familieHendelseTjeneste,
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
             new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
@@ -205,9 +194,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("Begrunnelse", now.plusDays(30), now.minusDays(3), 2);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste,
-            familieHendelseTjeneste,
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
             new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
@@ -219,9 +206,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
-        oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste,
-            familieHendelseTjeneste,
+        oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), familieHendelseTjeneste,
             new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto,
