@@ -45,6 +45,8 @@ spec:
       memory: "{{requests.mem}}"
   kafka:
       pool: {{kafkaPool}}
+  secureLogs:
+    enabled: true
   vault:
     enabled: true
     paths:
