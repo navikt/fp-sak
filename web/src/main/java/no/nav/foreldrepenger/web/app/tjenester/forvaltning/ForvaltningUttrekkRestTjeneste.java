@@ -275,7 +275,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response samleEntrinnsVedtak() {
         var oppdatert = entityManager.createNativeQuery(
-            " update HISTORIKKINNSLAG_FELT set til_verdi = '5028' where historikkinnslag_felt_type ='AKSJONSPUNKT_KODE' and til_verdi = '5018'")
+            " update TOTRINNSVURDERING set aksjonspunkt_def = '5028' where aksjonspunkt_def = '5018'")
             .executeUpdate();
         return Response.ok(oppdatert).build();
     }
