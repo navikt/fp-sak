@@ -205,15 +205,6 @@ public class OppdateringResultat {
         }
 
         /*
-         * Brukes KUN ved behov for oppdatering av registerdata, fx dersom kjernedato
-         * for registerinnhenting flyttes mer enn 12M
-         */
-        public Builder medOppdaterGrunnlag() {
-            resultat.overhoppKontroll = OverhoppKontroll.OPPDATER;
-            return this;
-        }
-
-        /*
          * Sentral håndtering av totrinn.
          */
         public Builder medTotrinn() {

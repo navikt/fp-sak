@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import jakarta.inject.Inject;
@@ -33,6 +34,7 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
