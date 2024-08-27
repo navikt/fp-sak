@@ -147,6 +147,9 @@ public class SvpArbeidsforholdDto {
     public void setAvklarteOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder) {
         this.avklarteOppholdPerioder = avklarteOppholdPerioder;
     }
+    public void leggTilAvklarteOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder) {
+        avklarteOppholdPerioder.forEach(oppholdPeriode -> this.avklarteOppholdPerioder.add(oppholdPeriode));
+    }
 
     public String getArbeidsgiverReferanse() {
         return arbeidsgiverReferanse;
