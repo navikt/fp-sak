@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import jakarta.inject.Inject;
@@ -35,8 +34,6 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now().plusWeeks(1)));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN,
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårUtfallType.OPPFYLT);
