@@ -28,15 +28,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
@@ -46,7 +42,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.Ak
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.FatterVedtakAksjonspunktOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktOppdaterer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
 
 class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
@@ -61,7 +56,6 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
     private LagretVedtakRepository lagretVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
@@ -86,13 +80,6 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
                 totrinnTjeneste);
         historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), mock(DokumentArkivTjeneste.class), behandlingRepository);
-
-        opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
-                new HentOgLagreBeregningsgrunnlagTjeneste(em),
-                new YtelsesFordelingRepository(em),
-                new FpUttakRepository(em),
-                totrinnTjeneste,
-                new AbakusInMemoryInntektArbeidYtelseTjeneste());
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
                 totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
     }
@@ -108,7 +95,6 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
                 behandlingDokumentRepository);
 
@@ -140,7 +126,6 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, historikkAdapter,
-                opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
                 behandlingDokumentRepository);
 
