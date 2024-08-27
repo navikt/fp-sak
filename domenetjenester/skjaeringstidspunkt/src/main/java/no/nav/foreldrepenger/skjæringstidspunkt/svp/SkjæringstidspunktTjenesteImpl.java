@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
@@ -33,7 +34,7 @@ import no.nav.vedtak.konfig.Tid;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
-public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste {
+public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste, SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private static final int MAX_SVANGERSKAP_UKER = 42;
 
@@ -109,6 +110,11 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return builder.build();
     }
 
+    @Override
+    public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
+        return utledSkjæringstidspunktRegisterinnhenting(behandlingId);
+    }
+
     private LocalDate førsteØnskedeUttaksdag(Behandling behandling) {
         var førsteUttakSøknad = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .map(SkjæringstidspunktTjenesteImpl::utledBasertPåGrunnlag);
@@ -176,17 +182,29 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
     }
 
-    private Long originalBehandling(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return behandling.erRevurdering() ? originalBehandling(behandling) : behandlingId;
-    }
-
     private boolean finnesPerioderMedUtbetaling(List<BeregningsresultatPeriode> perioder) {
         return perioder.stream().anyMatch(p -> p.getDagsats() > 0);
     }
 
     private LocalDate utledTidligste(LocalDate første, LocalDate andre) {
         return første.isBefore(andre) ? første :  andre;
+    }
+
+    private LocalDate utledSkjæringstidspunktRegisterinnhenting(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId)
+            .or(() -> BehandlingType.REVURDERING.equals(behandling.getType()) ?
+                svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling)) : Optional.empty());
+
+        var tidligsteTilretteleggingsDatoOpt = svpGrunnlagOpt
+            .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
+            .min(Comparator.naturalOrder());
+
+        return tidligsteTilretteleggingsDatoOpt
+            .or(() -> opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)))
+            .orElseGet(LocalDate::now);
     }
 
     private LocalDateInterval utledYtelseintervall(Long behandlingId, LocalDate skjæringstidspunkt) {
