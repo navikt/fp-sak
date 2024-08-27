@@ -7,19 +7,18 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FordelBeregningsgrunnlagDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<FordelBeregningsgrunnlagDto>  {
 
     private FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-    private BeregningHåndterer beregningHåndterer;
+    private FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     FordelBeregningsgrunnlagOppdaterer() {
         // for CDI proxy
@@ -27,19 +26,21 @@ public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdatere
 
     @Inject
     public FordelBeregningsgrunnlagOppdaterer(FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste,
-                                              BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                              BeregningHåndterer beregningHåndterer) {
+                                              FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkKalkulusTjeneste,
+                                              BeregningTjeneste beregningTjeneste) {
         this.fordelBeregningsgrunnlagHistorikkTjeneste = fordelBeregningsgrunnlagHistorikkTjeneste;
-        this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
-        this.beregningHåndterer = beregningHåndterer;
+        this.fordelBeregningsgrunnlagHistorikkKalkulusTjeneste = fordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(FordelBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
-        var input = tjeneste.lagInput(param.getRef());
-        beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
-        fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
+        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, param.getRef());
+        if (endringsaggregat.isPresent()) {
+            fordelBeregningsgrunnlagHistorikkKalkulusTjeneste.lagHistorikk(dto, endringsaggregat, param);
+        } else {
+            fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
+        }
         return OppdateringResultat.utenOverhopp();
     }
 

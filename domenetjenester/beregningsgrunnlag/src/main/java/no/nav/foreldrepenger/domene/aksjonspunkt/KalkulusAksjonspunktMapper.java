@@ -26,7 +26,10 @@ public class KalkulusAksjonspunktMapper {
 
 
     public static HåndterBeregningDto mapAksjonspunktTilKalkulusDto(BekreftetAksjonspunktDto dto) {
-        return mapSpesifikkDto(dto);
+        var kalkulusDto = mapSpesifikkDto(dto);
+        // Begrunnelse lagres uansett i fpsak, men kalkulus vil gjerne ha den for å vise saksbehandler i beregningsbildene
+        kalkulusDto.setBegrunnelse(dto.getBegrunnelse());
+        return kalkulusDto;
     }
 
     private static HåndterBeregningDto mapSpesifikkDto(BekreftetAksjonspunktDto dto) {
