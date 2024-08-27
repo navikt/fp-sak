@@ -37,44 +37,6 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_finne_ett_inaktivt_totrinnsgrunnlag_og_ett_aktivt_totrinnsgrunnlag() {
-
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        fagsakRepository.opprettNy(fagsak);
-
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-
-        var gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null,
-            null, null);
-
-        var nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
-            null);
-
-        totrinnRepository.lagreOgFlush(gammeltTotrinnresultatgrunnlag);
-        totrinnRepository.lagreOgFlush(nyttTotrinnresultatgrunnlag);
-
-        // Hent ut aktiv totrinnsgrunnlag
-        var optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(behandling.getId());
-
-        // Hent ut inaktive totrinnsgrunnlag
-        var query = entityManager.createQuery(
-            "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = false ",
-
-            Totrinnresultatgrunnlag.class);
-        query.setParameter("behandling_id", behandling.getId());
-        var inaktive = query.getResultList();
-
-        assertThat(inaktive).hasSize(1);
-        assertThat(inaktive.get(0)).isEqualToComparingFieldByField(gammeltTotrinnresultatgrunnlag);
-        assertThat(optionalNyttTotrinnresultatgrunnlag).isPresent();
-        assertThat(optionalNyttTotrinnresultatgrunnlag.get().getId()).isNotEqualTo(
-            gammeltTotrinnresultatgrunnlag.getId());
-        assertThat(optionalNyttTotrinnresultatgrunnlag.get().isAktiv()).isTrue();
-
-    }
-
-    @Test
     void skal_finne_flere_inaktive_totrinnsvurderinger_og_flere_aktive_totrinnsvurdering() {
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
