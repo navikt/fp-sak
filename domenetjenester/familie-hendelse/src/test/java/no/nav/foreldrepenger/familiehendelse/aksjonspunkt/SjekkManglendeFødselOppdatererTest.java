@@ -137,7 +137,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
 
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -173,7 +173,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -221,11 +221,12 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Ulovlig dato
-        assertThrows(FunksjonellException.class, () -> new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        assertThrows(FunksjonellException.class, () -> new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class),
+            familieHendelseTjeneste)
             .oppdater(dtoFeil, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dtoFeil, aksjonspunkt)));
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -263,7 +264,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -292,7 +293,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -325,7 +326,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -335,7 +336,8 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
-        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class),
+            familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -361,7 +363,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -398,7 +400,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
@@ -430,7 +432,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
-        var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class));
+        var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt);
         assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer.oppdater(dto, param));
     }

@@ -93,8 +93,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, familieHendelseTjeneste, lagMockHistory(),
-            mock(OpplysningsPeriodeTjeneste.class))
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, lagMockHistory())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;

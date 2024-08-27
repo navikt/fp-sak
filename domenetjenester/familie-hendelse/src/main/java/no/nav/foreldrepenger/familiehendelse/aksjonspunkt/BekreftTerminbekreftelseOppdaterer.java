@@ -36,9 +36,9 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
     @Inject
     public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                              OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                               FamilieHendelseTjeneste familieHendelseTjeneste,
-                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator,
-                                              OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
         this.historikkAdapter = historikkAdapter;
         this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
         this.familieHendelseTjeneste = familieHendelseTjeneste;

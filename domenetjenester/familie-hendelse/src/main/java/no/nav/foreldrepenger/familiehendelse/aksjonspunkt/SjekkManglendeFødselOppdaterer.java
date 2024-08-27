@@ -46,8 +46,8 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     @Inject
     public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;

@@ -53,9 +53,9 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
     @Inject
     public AvklarOmsorgOgForeldreansvarOppdaterer(BehandlingRepositoryProvider repositoryProvider,
+                                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                                   FamilieHendelseTjeneste familieHendelseTjeneste,
-                                                  HistorikkTjenesteAdapter historikkAdapter,
-                                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+                                                  HistorikkTjenesteAdapter historikkAdapter) {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkAdapter = historikkAdapter;
