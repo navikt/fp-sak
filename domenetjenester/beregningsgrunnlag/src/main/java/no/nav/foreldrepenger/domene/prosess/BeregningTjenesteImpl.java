@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -80,6 +81,15 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
             return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
         } else {
             return fpsakBeregner.oppdaterBeregning(oppdatering, referanse);
+        }
+    }
+
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
+        if (skalKalleKalkulus) {
+            return kalkulusBeregner.overstyrBeregning(overstyring, referanse);
+        } else {
+            return fpsakBeregner.overstyrBeregning(overstyring, referanse);
         }
     }
 

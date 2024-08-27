@@ -7,21 +7,20 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.VurderRefusjonBeregningsgrunnlagHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderRefusjonBeregningsgrunnlagDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<VurderRefusjonBeregningsgrunnlagDto>  {
 
     private VurderRefusjonBeregningsgrunnlagHistorikkTjeneste vurderRefusjonBeregningsgrunnlagHistorikkTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-    private BeregningHåndterer beregningHåndterer;
+    private VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste vurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     VurderRefusjonBeregningsgrunnlagOppdaterer() {
@@ -30,27 +29,26 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
 
     @Inject
     public VurderRefusjonBeregningsgrunnlagOppdaterer(VurderRefusjonBeregningsgrunnlagHistorikkTjeneste vurderRefusjonBeregningsgrunnlagHistorikkTjeneste,
-                                                      BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                      BeregningHåndterer beregningHåndterer,
+                                                      VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste vurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste,
+                                                      BeregningTjeneste beregningTjeneste,
                                                       HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
         this.vurderRefusjonBeregningsgrunnlagHistorikkTjeneste = vurderRefusjonBeregningsgrunnlagHistorikkTjeneste;
-        this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
-        this.beregningHåndterer = beregningHåndterer;
+        this.vurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste = vurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingRef = param.getRef();
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.fagsakYtelseType());
-        var input = tjeneste.lagInput(behandlingRef);
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                behandlingRef.behandlingId(),
-                behandlingRef.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
-        beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
-        vurderRefusjonBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param, forrigeGrunnlag);
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+            param.getRef().behandlingId(), param.getRef().getOriginalBehandlingId(), BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
+        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, behandlingRef);
+        if (endringsaggregat.isPresent()) {
+            vurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste.lagHistorikk(dto, param, endringsaggregat.get());
+        } else {
+            vurderRefusjonBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param, forrigeGrunnlag);
+        }
         return OppdateringResultat.utenOverhopp();
     }
 

@@ -9,55 +9,61 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FastsettBGTidsbegrensetArbeidsforholdDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FastsettBGTidsbegrensetArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<FastsettBGTidsbegrensetArbeidsforholdDto> {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-    private BeregningHåndterer beregningHåndterer;
+    private FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste;
     private BehandlingRepository behandlingRepository;
+    private BeregningTjeneste beregningTjeneste;
+    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     FastsettBGTidsbegrensetArbeidsforholdOppdaterer() {
         // CDI
     }
 
     @Inject
-    public FastsettBGTidsbegrensetArbeidsforholdOppdaterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                           FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
-                                                           BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                           BeregningHåndterer beregningHåndterer, BehandlingRepository behandlingRepository) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+    public FastsettBGTidsbegrensetArbeidsforholdOppdaterer(FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
+                                                           FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste,
+                                                           BehandlingRepository behandlingRepository,
+                                                           BeregningTjeneste beregningTjeneste,
+                                                           HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
         this.fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-        this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
-        this.beregningHåndterer = beregningHåndterer;
+        this.fastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.beregningTjeneste = beregningTjeneste;
+        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(FastsettBGTidsbegrensetArbeidsforholdDto dto, AksjonspunktOppdaterParameter param) {
+        var referanse = param.getRef();
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
-        var aktivtBG = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_UT)
+        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, referanse);
+        var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId())
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
-        beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(tjeneste.lagInput(param.getRef()), OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
-        fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtBG, forrigeGrunnlag, dto);
+
+        if (endringsaggregat.isPresent()) {
+            fastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste.lagHistorikk(param, endringsaggregat.get(), dto);
+        } else {
+            var gammeltGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_UT)
+                .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+            fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag.orElseThrow(), gammeltGrunnlag);
+        }
         var builder = OppdateringResultat.utenTransisjon();
         håndterEventueltOverflødigAksjonspunkt(behandling)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));

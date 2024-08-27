@@ -65,9 +65,9 @@ public class FaktaBeregningHistorikkHåndterer {
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
                              VurderFaktaOmBeregningDto dto,
                              BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
         var tekstBuilder = historikkAdapter.tekstBuilder();
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId());
         håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
             tekstBuilder, inntektArbeidYtelseGrunnlag);
         lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, param.erBegrunnelseEndret());

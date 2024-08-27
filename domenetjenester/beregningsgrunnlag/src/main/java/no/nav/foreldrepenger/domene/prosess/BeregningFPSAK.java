@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
@@ -18,12 +19,21 @@ import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTil
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsaktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {
@@ -103,10 +113,41 @@ public class BeregningFPSAK implements BeregningAPI {
         return oppdater(oppdateringer, input);
     }
 
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
+        var tjeneste = inputTjenesteProvider.getTjeneste(referanse.fagsakYtelseType());
+        var input = tjeneste.lagInput(referanse);
+        return overstyr(overstyring, input);
+    }
+
     private Optional<OppdaterBeregningsgrunnlagResultat> oppdater(BekreftetAksjonspunktDto oppdatering, BeregningsgrunnlagInput input) {
-        if (oppdatering instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
+        if (oppdatering instanceof AvklarteAktiviteterDto dto) {
+            beregningHåndterer.håndterAvklarAktiviteter(input, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
+        } else if (oppdatering instanceof VurderFaktaOmBeregningDto dto) {
+            beregningHåndterer.håndterVurderFaktaOmBeregning(input, OppdatererDtoMapper.mapTilFaktaOmBeregningLagreDto(dto.getFakta()));
+        } else if (oppdatering instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
             beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, dto);
+        } else if (oppdatering instanceof FastsettBeregningsgrunnlagATFLDto dto) {
+            beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
+        } else if (oppdatering instanceof FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
+            beregningHåndterer.håndterFastsettBruttoForSNNyIArbeidslivet(input, OppdatererDtoMapper.mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto));
+        } else if (oppdatering instanceof FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input, OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
+        } else if (oppdatering instanceof VurderRefusjonBeregningsgrunnlagDto dto) {
+            beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
+        } else if (oppdatering instanceof FordelBeregningsgrunnlagDto dto) {
+            beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
         } else {
+            throw new IllegalStateException();
+        }
+        return Optional.empty();
+    }
+
+    private Optional<OppdaterBeregningsgrunnlagResultat> overstyr(OverstyringAksjonspunktDto overstyring, BeregningsgrunnlagInput input) {
+        if (overstyring instanceof OverstyrBeregningsaktiviteterDto dto) {
+            beregningHåndterer.håndterBeregningAktivitetOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
+        }
+        else {
             throw new IllegalStateException();
         }
         return Optional.empty();

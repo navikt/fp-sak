@@ -6,6 +6,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +127,16 @@ public class BeregningKalkulus implements BeregningAPI {
     @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
         var kalkulusDtoer = KalkulusAksjonspunktMapper.mapAksjonspunktTilKalkulusDto(oppdatering);
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId())
+            .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
+        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
+        var respons = klient.løsAvklaringsbehov(request);
+        return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
+    }
+
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
+        var kalkulusDtoer = KalkulusAksjonspunktMapper.mapOverstyringAksjonspunktTilKalkulusDto(overstyring);
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
         var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));

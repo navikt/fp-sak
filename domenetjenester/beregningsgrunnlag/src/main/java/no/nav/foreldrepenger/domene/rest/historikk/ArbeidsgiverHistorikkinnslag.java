@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
+import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -64,6 +65,16 @@ public class ArbeidsgiverHistorikkinnslag {
             return lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, arbeidsforholdRef, arbeidsforholdOverstyringer);
         }
         return beregningAktivitet.getOpptjeningAktivitetType().getNavn();
+    }
+
+    public String lagHistorikkinnslagTekstForBeregningaktivitet(BeregningAktivitetEndring beregningAktivitet,
+                                                                List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        var arbeidsgiver = beregningAktivitet.getAktivitetNøkkel().getArbeidsgiver();
+        var arbeidsforholdRef = beregningAktivitet.getAktivitetNøkkel().getArbeidsforholdRef();
+        if (arbeidsgiver != null) {
+            return lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, arbeidsforholdRef, arbeidsforholdOverstyringer);
+        }
+        return beregningAktivitet.getAktivitetNøkkel().getOpptjeningAktivitetType().getNavn();
     }
 
     private String lagTekstMedArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {

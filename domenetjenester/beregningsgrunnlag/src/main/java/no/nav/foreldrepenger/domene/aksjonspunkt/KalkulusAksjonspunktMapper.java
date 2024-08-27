@@ -9,10 +9,13 @@ import no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBeregning
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBeregningsgrunnlagSNNyIArbeidslivetHåndteringDto;
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetSNHåndteringDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsaktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
@@ -24,9 +27,26 @@ public class KalkulusAksjonspunktMapper {
         // Hindrer instansiering
     }
 
+    public static HåndterBeregningDto mapOverstyringAksjonspunktTilKalkulusDto(OverstyringAksjonspunktDto dto) {
+        var kalkulusDto = mapSpesifikOverstyringDto(dto);
+        kalkulusDto.setBegrunnelse(dto.getBegrunnelse());
+        return kalkulusDto;
+    }
 
     public static HåndterBeregningDto mapAksjonspunktTilKalkulusDto(BekreftetAksjonspunktDto dto) {
-        return mapSpesifikkDto(dto);
+        var kalkulusDto = mapSpesifikkDto(dto);
+        kalkulusDto.setBegrunnelse(dto.getBegrunnelse());
+        return kalkulusDto;
+    }
+
+    private static HåndterBeregningDto mapSpesifikOverstyringDto(OverstyringAksjonspunktDto dto) {
+        if (dto instanceof OverstyrBeregningsaktiviteterDto overstyrBeregningsaktiviteterDto) {
+            return new no.nav.folketrygdloven.kalkulus.håndtering.v1.overstyring.OverstyrBeregningsaktiviteterDto(OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(overstyrBeregningsaktiviteterDto.getBeregningsaktivitetLagreDtoList()));
+        }
+        if (dto instanceof OverstyrBeregningsgrunnlagDto overstyrBeregningsgrunnlagDto) {
+            return new no.nav.folketrygdloven.kalkulus.håndtering.v1.overstyring.OverstyrBeregningsaktiviteterDto(OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(overstyrBeregningsgrunnlagDto.getBeregningsaktivitetLagreDtoList()));
+        }
+        throw new IllegalStateException("Overstyring er ikke mappet i kalkulus for aksjonspunkt " + dto.getAksjonspunktDefinisjon());
     }
 
     private static HåndterBeregningDto mapSpesifikkDto(BekreftetAksjonspunktDto dto) {
@@ -54,6 +74,6 @@ public class KalkulusAksjonspunktMapper {
         if (dto instanceof VurderRefusjonBeregningsgrunnlagDto) {
             return OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag((VurderRefusjonBeregningsgrunnlagDto) dto);
         }
-        throw new IllegalStateException("Aksjonspunkt er ikke mappet i kalkulus");
+        throw new IllegalStateException("Aksjonspunkt er ikke mappet i kalkulus for aksjonspunkt " + dto.getAksjonspunktDefinisjon());
     }
 }
