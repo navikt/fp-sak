@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import jakarta.inject.Inject;
@@ -31,9 +30,7 @@ class AbstractOverstyringshåndtererTest {
 
     @Test
     void skal_reaktivere_inaktivt_aksjonspunkt() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
-        var behandling = scenario.lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
         var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(ap, "OK");
 

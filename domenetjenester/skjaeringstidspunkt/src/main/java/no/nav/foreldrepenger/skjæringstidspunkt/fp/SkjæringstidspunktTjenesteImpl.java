@@ -33,8 +33,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
@@ -46,7 +48,7 @@ import no.nav.vedtak.konfig.Tid;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste {
+public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste , SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
 
@@ -80,6 +82,25 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
         this.utsettelse2021 = utsettelse2021;
         this.minsterett2022 = minsterett2022;
+    }
+
+    @Override
+    public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
+        var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
+
+        return familieHendelseAggregat.map(SkjæringstidspunktUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(LocalDate.now());
+    }
+
+    @Override
+    public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
+        var overstyrtStartdato = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
+        if (overstyrtStartdato != null && intervall.getTomDato().isBefore(overstyrtStartdato.plusYears(1))) {
+            return SimpleLocalDateInterval.fraOgMedTomNotNull(intervall.getFomDato(), overstyrtStartdato.plusYears(1));
+        } else {
+            return intervall;
+        }
     }
 
     @Override
@@ -136,6 +157,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttaksdato = finnFørsteDatoIUttakResultat(behandlingId, sammenhengendeUttak).orElseThrow(() -> finnerIkkeStpException(behandlingId));
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
+        var gjelderFødsel = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
