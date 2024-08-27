@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.skjæringstidspunkt.es;
+package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,14 +6,14 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-class RegisterinnhentingElastisiTest {
+class OpplysningsperiodeESTest {
 
     @Test
     void skal_gi_false_hvis_like() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now();
 
-        var resultat = RegisterInnhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = OpplysningsPeriodeTjeneste.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isFalse();
     }
 
@@ -22,7 +22,7 @@ class RegisterinnhentingElastisiTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(1);
 
-        var resultat = RegisterInnhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = OpplysningsPeriodeTjeneste.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isFalse();
     }
 
@@ -31,7 +31,7 @@ class RegisterinnhentingElastisiTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().minusYears(1);
 
-        var resultat = RegisterInnhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = OpplysningsPeriodeTjeneste.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isTrue();
     }
 
@@ -40,7 +40,7 @@ class RegisterinnhentingElastisiTest {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusYears(1);
 
-        var resultat = RegisterInnhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = OpplysningsPeriodeTjeneste.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isTrue();
     }
 }
