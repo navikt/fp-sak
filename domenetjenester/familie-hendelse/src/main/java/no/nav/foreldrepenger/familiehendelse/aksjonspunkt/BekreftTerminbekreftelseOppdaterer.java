@@ -99,6 +99,10 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         if (!Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
             builder.medOppdaterGrunnlag().build();
         }
+        if (FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(familieHendelseTjeneste.hentAggregat(behandlingId))) {
+            // Må kontrollere fakta på nytt for å sjekke om fødsel skulle ha inntruffet.
+            builder.medOppdaterGrunnlag();
+        }
 
         return builder.build();
     }

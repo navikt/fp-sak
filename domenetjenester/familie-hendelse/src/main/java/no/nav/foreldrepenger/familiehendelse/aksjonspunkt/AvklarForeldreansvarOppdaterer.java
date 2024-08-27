@@ -26,7 +26,8 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     @Inject
-    public AvklarForeldreansvarOppdaterer(OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste, FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public AvklarForeldreansvarOppdaterer(OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }

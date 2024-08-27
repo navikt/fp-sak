@@ -197,7 +197,6 @@ public class AksjonspunktTjeneste {
 
     private void fortsettBehandlingen(Behandling behandling, OverhoppResultat overhoppResultat) {
         if (overhoppResultat.skalOppdatereGrunnlag()) {
-            // Fikspunkt for opplysningsperiode er endret så mye at opplysninger må hentes på nytt
             behandlingsprosessTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
         } else {
             behandlingsprosessTjeneste.asynkKjørProsess(behandling);
