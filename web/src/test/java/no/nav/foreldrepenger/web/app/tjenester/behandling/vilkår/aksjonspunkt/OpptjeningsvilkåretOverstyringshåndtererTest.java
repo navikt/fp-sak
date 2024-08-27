@@ -112,6 +112,7 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Arrange
         // Behandling
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);

@@ -19,10 +19,6 @@ public class OverhoppResultat {
         oppdatereResultater.add(delresultat);
     }
 
-    public boolean skalOppdatereGrunnlag() {
-        return oppdatereResultater.stream().anyMatch(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.OPPDATER));
-    }
-
     public boolean finnTotrinn() {
         return oppdatereResultater.stream().anyMatch(OppdateringResultat::kreverTotrinnsKontroll);
     }
