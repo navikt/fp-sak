@@ -213,7 +213,7 @@ public class SvangerskapspengerTjeneste {
         svpTilrettelegging.getArbeidsgiver()
             .flatMap(arbeidsgiver -> finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver,
                 svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef())))
-            .ifPresent(im -> arbeidsforholdDto.setAvklarteOppholdPerioder(hentFerieFraIM(im)));
+            .ifPresent(im -> arbeidsforholdDto.leggTilAvklarteOppholdPerioder(hentFerieFraIM(im)));
         arbeidsforholdDto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         arbeidsforholdDto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         arbeidsforholdDto.setBegrunnelse(svpTilrettelegging.getBegrunnelse().orElse(null));
