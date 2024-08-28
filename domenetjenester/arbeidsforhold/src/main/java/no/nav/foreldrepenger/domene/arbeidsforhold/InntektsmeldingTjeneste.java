@@ -75,7 +75,7 @@ public class InntektsmeldingTjeneste {
             InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
         var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
             !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ||
-            ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
+            ref.getSkjæringstidspunkt().kreverSammenhengendeUttakV2();
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())

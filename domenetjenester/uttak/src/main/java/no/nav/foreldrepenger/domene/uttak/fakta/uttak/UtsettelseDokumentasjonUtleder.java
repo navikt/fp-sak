@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 final class UtsettelseDokumentasjonUtleder {
 
@@ -16,13 +17,11 @@ final class UtsettelseDokumentasjonUtleder {
     }
 
     static Optional<DokumentasjonVurderingBehov.Behov> utledBehov(OppgittPeriodeEntitet oppgittPeriode,
-                                                                  LocalDate gjeldendeFamilieHendelse,
-                                                                  boolean kreverSammenhengendeUttak,
-                                                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+                                                                  LocalDate gjeldendeFamilieHendelse, List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         if (!oppgittPeriode.isUtsettelse()) {
             return Optional.empty();
         }
-        var årsak = utledBehovÅrsak(oppgittPeriode, gjeldendeFamilieHendelse, kreverSammenhengendeUttak, pleiepengerInnleggelser);
+        var årsak = utledBehovÅrsak(oppgittPeriode, gjeldendeFamilieHendelse, pleiepengerInnleggelser);
         if (årsak == null) {
             return Optional.empty();
         }
@@ -30,10 +29,8 @@ final class UtsettelseDokumentasjonUtleder {
     }
 
     private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsak(OppgittPeriodeEntitet oppgittPeriode,
-                                                                           LocalDate gjeldendeFamilieHendelse,
-                                                                           boolean kreverSammenhengendeUttak,
-                                                                           List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        if (kreverSammenhengendeUttak) {
+                                                                           LocalDate gjeldendeFamilieHendelse, List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(oppgittPeriode)) {
             return utledBehovÅrsakForSammenhengendeUttak(oppgittPeriode, pleiepengerInnleggelser);
         }
         return utledBehovÅrsakForFrittUttak(oppgittPeriode, gjeldendeFamilieHendelse, pleiepengerInnleggelser);

@@ -123,7 +123,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, new ForeldrepengerGrunnlag()));
@@ -150,7 +151,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -181,7 +183,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -212,7 +215,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -246,7 +250,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -278,7 +283,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -314,7 +320,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -355,7 +362,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
@@ -395,7 +403,8 @@ class FpUtledeAvslutningsdatoTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
-            .medKreverSammenhengendeUttak(false);
+            .medKreverSammenhengendeUttak(false)
+            .medKreverSammenhengendeUttakV2(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));

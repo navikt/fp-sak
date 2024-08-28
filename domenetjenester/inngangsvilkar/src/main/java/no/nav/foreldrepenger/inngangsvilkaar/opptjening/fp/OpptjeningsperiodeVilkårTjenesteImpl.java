@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.LovVersjoner;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -60,14 +61,15 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         var behandlingId = ref.behandlingId();
         var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
         var hendelse = hendelseAggregat.getGjeldendeVersjon();
-        var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var førsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
         var lovversjon = ref.getSkjæringstidspunkt().utenMinsterett() ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122;
 
         var fagsakÅrsak = finnFagsakÅrsak(hendelse);
         var søkerRolle = finnFagsakSøkerRolle(ref);
-        Optional<LocalDate> morsMaksdato = !sammenhengendeUttak ? Optional.empty() : ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.saksnummer(),
-            ref.relasjonRolle());
+        Optional<LocalDate> morsMaksdato = UtsettelseCore2021.kreverSammenhengendeUttak(hendelseAggregat) ?
+            ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.saksnummer(), ref.relasjonRolle())
+                .filter(UtsettelseCore2021::kreverSammenhengendeUttakMorsMaxdato) : Optional.empty();
+
         Optional<LocalDate> termindato;
         LocalDate hendelsedato;
         if (FagsakÅrsak.FØDSEL.equals(fagsakÅrsak)) {

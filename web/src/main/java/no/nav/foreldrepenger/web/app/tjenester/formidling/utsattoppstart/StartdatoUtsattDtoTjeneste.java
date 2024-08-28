@@ -35,7 +35,7 @@ public class StartdatoUtsattDtoTjeneste {
         }
         var oppgitt = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(YtelseFordelingAggregat::getOppgittFordeling);
-        var tidligsteUttaksperiode = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgitt, false);
+        var tidligsteUttaksperiode = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgitt);
         return new StartdatoUtsattDto(true, tidligsteUttaksperiode.orElse(null));
     }
 

@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
@@ -92,8 +93,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
                 justertePerioder = fjernPerioderFørEndringsdato(justertePerioder, endringsdatoRevurdering);
-                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId,
-                    input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() || input.isBehandlingManueltOpprettet());
+                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId);
             } else {
                 justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
@@ -105,11 +105,8 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
 
-        if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
-            justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
-        } else {
-            justertePerioder = fjernOppholdsperioder(justertePerioder);
-        }
+        justertePerioder = fjernOppholdsperioderFriEllerLiggendeTilSlutt(justertePerioder);
+
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
@@ -179,16 +176,15 @@ public class FastsettUttaksgrunnlagTjeneste {
         return true;
     }
 
-    private List<OppgittPeriodeEntitet> fjernOppholdsperioder(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream().filter(p -> !p.isOpphold()).toList();
-    }
-
     private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
         return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder);
     }
 
-    private List<OppgittPeriodeEntitet> fjernOppholdsperioderLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
-        var sortertePerioder = perioder.stream()
+    private List<OppgittPeriodeEntitet> fjernOppholdsperioderFriEllerLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
+        var perioderUtenFriOpphold = perioder.stream()
+            .filter(p -> !p.isOpphold() || UtsettelseCore2021.kreverSammenhengendeUttak(p))
+            .toList();
+        var sortertePerioder = perioderUtenFriOpphold.stream()
                 .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
                 .collect(Collectors.toList());
 
@@ -196,7 +192,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             sortertePerioder.remove(sortertePerioder.size() - 1);
         }
         if (sortertePerioder.isEmpty()) {
-            return perioder;
+            return perioderUtenFriOpphold;
         }
         return sortertePerioder;
     }
@@ -241,12 +237,11 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                              LocalDate endringsdato,
-                                                                             Long forrigeBehandling,
-                                                                             boolean kreverSammenhengendeUttak) {
+                                                                             Long forrigeBehandling) {
         LOG.info("Kopierer vedtaksperioder fom endringsdato {} {}", endringsdato, forrigeBehandling);
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, kreverSammenhengendeUttak);
+        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, false);
     }
 
     private static Optional<LocalDate> gjeldenedFamiliehendelsedatoFraOrginalbehandling(ForeldrepengerGrunnlag fpGrunnlag) {

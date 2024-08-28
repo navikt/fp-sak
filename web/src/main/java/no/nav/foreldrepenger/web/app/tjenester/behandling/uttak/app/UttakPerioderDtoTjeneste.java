@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
@@ -60,7 +61,7 @@ public class UttakPerioderDtoTjeneste {
     }
 
     public UttakResultatPerioderDto mapFra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett());
+        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttakV2(), skjæringstidspunkt.utenMinsterett());
     }
 
     private UttakResultatPerioderDto mapFra(Behandling behandling, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {
@@ -85,7 +86,7 @@ public class UttakPerioderDtoTjeneste {
         }
 
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
-        var filter = new UttakResultatPerioderDto.FilterDto(kreverSammenhengendeUttak, utenMinsterett,
+        var filter = new UttakResultatPerioderDto.FilterDto(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed(), kreverSammenhengendeUttak, utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
         var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);

@@ -44,8 +44,12 @@ public class UtsettelseCore2021 {
         return uttakResultatPeriode.getFom().isBefore(IKRAFT_FRA_DATO);
     }
 
-    public static boolean kreverSammenhengendeUttak(LocalDate morsMaksdato) {
-        return morsMaksdato.isBefore(IKRAFT_FRA_DATO);
+    public static boolean kreverSammenhengendeUttak(LocalDate skjæringstidspunkt) {
+        return skjæringstidspunkt.isBefore(IKRAFT_FRA_DATO);
+    }
+
+    public static boolean kreverSammenhengendeUttakMorsMaxdato(LocalDate morsMaxdato) {
+        return morsMaxdato.isBefore(IKRAFT_FRA_DATO.minusDays(1));
     }
 
     public static boolean kreverSammenhengendeUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -81,46 +85,53 @@ public class UtsettelseCore2021 {
         return VirkedagUtil.fomVirkedag(senesteStartdatoMor);
     }
 
-    public static Optional<LocalDate> finnFørsteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder, boolean kreverSammenhengendeUttak) {
+    public static Optional<LocalDate> finnFørsteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder) {
         if (erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(perioder)) {
             // TODO: Håndtering av tomt Uttak (OBS på allmatch nedenfor). Dagens dato kan være like god som noen annen dato.
             return perioder.stream()
-                .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+                .filter(p -> kreverSammenhengendeUttak(p) || frittUttakErPeriodeMedUttak(p))
                 .map(UttakResultatPeriodeEntitet::getFom)
                 .min(Comparator.naturalOrder());
         }
         return perioder.stream()
             .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
-            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .filter(p -> kreverSammenhengendeUttak(p) || frittUttakErPeriodeMedUttak(p))
             .map(UttakResultatPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
 
-    public static Optional<LocalDate> finnSisteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder, boolean kreverSammenhengendeUttak) {
+    public static Optional<LocalDate> finnSisteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
             .filter(UttakResultatPeriodeEntitet::isInnvilget)
-            .filter(it -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(it))
+            .filter(it -> kreverSammenhengendeUttak(it) || frittUttakErPeriodeMedUttak(it))
             .map(UttakResultatPeriodeEntitet::getTom)
             .max(Comparator.naturalOrder());
     }
 
-    public static Optional<LocalDate> finnFørsteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
+    public static Optional<LocalDate> finnFørsteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling) {
+        return finnFørsteDatoFra(oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()));
+    }
+
+    public static Optional<LocalDate> finnFørsteDatoFra(List<OppgittPeriodeEntitet> perioder) {
+        return finnFørsteOppgittPeriodeFra(perioder).map(OppgittPeriodeEntitet::getFom);
+    }
+
+    public static Optional<OppgittPeriodeEntitet> finnFørsteOppgittPeriodeFra(List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream()
+            .filter(p -> kreverSammenhengendeUttak(p) || frittUttakErPeriodeMedUttak(p))
+            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+    }
+
+    public static Optional<LocalDate> finnFørsteUtsettelseDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling) {
         return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
-            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .filter(p -> !kreverSammenhengendeUttak(p) && !frittUttakErPeriodeMedUttak(p))
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
 
-    public static Optional<LocalDate> finnFørsteUtsettelseDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
+    public static Optional<LocalDate> finnSisteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling) {
         return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
-            .filter(p -> !kreverSammenhengendeUttak && !frittUttakErPeriodeMedUttak(p))
-            .map(OppgittPeriodeEntitet::getFom)
-            .min(Comparator.naturalOrder());
-    }
-
-    public static Optional<LocalDate> finnSisteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
-        return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
-            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .filter(p -> kreverSammenhengendeUttak(p) || frittUttakErPeriodeMedUttak(p))
             .map(OppgittPeriodeEntitet::getTom)
             .max(Comparator.naturalOrder());
     }

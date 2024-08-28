@@ -43,6 +43,13 @@ public class UtsettelseBehandling2021 {
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
+    public boolean kreverSammenhengendeUttakV2(Behandling behandling) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
+            .map(UtsettelseCore2021::kreverSammenhengendeUttak)
+            .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
+    }
+
     public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
         var sammenhengendeGrunnlag1 = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
         var sammenhengendeGrunnlag2 = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag2);

@@ -79,7 +79,7 @@ public class FaktaUttakPeriodeDtoTjeneste {
                 var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
                     behandlingReferanse.getUtledetSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
                 perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
-                    fraDato, behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak()));
+                    fraDato, false));
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));

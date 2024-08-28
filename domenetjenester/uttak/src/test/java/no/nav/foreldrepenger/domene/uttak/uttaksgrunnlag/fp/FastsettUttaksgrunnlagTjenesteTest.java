@@ -94,6 +94,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var stp = Skjæringstidspunkt.builder()
                 .medUtledetSkjæringstidspunkt(LocalDate.now())
                 .medKreverSammenhengendeUttak(sammenhengendeUttak)
+                .medKreverSammenhengendeUttakV2(sammenhengendeUttak)
                 .build();
         var ref = BehandlingReferanse.fra(behandling, stp);
         return new UttakInput(ref, InntektArbeidYtelseGrunnlagBuilder.nytt().build(), ytelsespesifiktGrunnlag);

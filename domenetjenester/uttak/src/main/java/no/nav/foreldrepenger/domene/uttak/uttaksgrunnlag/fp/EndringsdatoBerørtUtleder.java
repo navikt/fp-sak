@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTje
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -43,7 +44,6 @@ public final class EndringsdatoBerørtUtleder {
                                                                            String loggPrefix) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
-        var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var utenMinsterett = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett();
         if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak, berørtUttakOpt.get()).isEmpty()) {
             return Optional.empty();
@@ -92,13 +92,22 @@ public final class EndringsdatoBerørtUtleder {
             }
         }
 
-        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato).isEmpty() &&
-            !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
-        if (opprett) {
-            var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
-            var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
-            LOG.info("{}: Sammenhengende etter uke 6 gap fom {} endringsdato {}", loggPrefix, tidligsteGap, endringsdato);
-            berørtBehovDatoer.add(tidligsteGap);
+        var sammenhengendeUttakTom = UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed();
+        if (!endringsdato.isAfter(sammenhengendeUttakTom)) {
+            var sisteDatoSammenhengendeUttak = periodeTom.isAfter(
+                UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed()) ? UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed() : periodeTom;
+            var periodeFomEndringsdatoSammenhengendeUttak = new LocalDateInterval(endringsdato, sisteDatoSammenhengendeUttak);
+
+            var opprett = !fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdatoSammenhengendeUttak).isEmpty()
+                && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdatoSammenhengendeUttak);
+            if (opprett) {
+                var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdatoSammenhengendeUttak);
+                var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity())
+                    .map(LocalDateInterval::getFomDato)
+                    .orElse(endringsdato);
+                LOG.info("{}: Sammenhengende etter uke 6 gap fom {} endringsdato {}", loggPrefix, tidligsteGap, endringsdato);
+                berørtBehovDatoer.add(tidligsteGap);
+            }
         }
         return berørtBehovDatoer.stream().min(Comparator.naturalOrder());
     }

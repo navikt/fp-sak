@@ -191,7 +191,8 @@ class BerørtBehandlingTjenesteTest {
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medUtenMinsterett(true)
-            .medKreverSammenhengendeUttak(true);
+            .medKreverSammenhengendeUttak(true)
+            .medKreverSammenhengendeUttakV2(true);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1)));
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, fpGrunnlag);

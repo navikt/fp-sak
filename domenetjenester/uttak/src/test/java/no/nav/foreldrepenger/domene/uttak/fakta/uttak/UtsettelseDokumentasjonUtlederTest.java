@@ -97,12 +97,12 @@ class UtsettelseDokumentasjonUtlederTest {
     }
 
     private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehovSammenhengendeUttak(OppgittPeriodeEntitet oppgittPeriode) {
-        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, oppgittPeriode.getFom().minusMonths(2), true, List.of());
+        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, oppgittPeriode.getFom().minusMonths(2), List.of());
     }
 
     private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, LocalDate familiehendelse,
                                                                             List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, false, pleiepengerInnleggelser);
+        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, pleiepengerInnleggelser);
     }
 
     private OppgittPeriodeEntitet periodeMedUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {

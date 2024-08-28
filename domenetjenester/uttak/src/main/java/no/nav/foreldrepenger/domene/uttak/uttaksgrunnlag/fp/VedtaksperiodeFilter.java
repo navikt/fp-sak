@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -37,7 +38,7 @@ public final class VedtaksperiodeFilter {
     public static List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Long behandlingId,
                                                                                          List<OppgittPeriodeEntitet> nysøknad,
                                                                                          UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                                                         boolean kreverSammenhengendeUttak) {
+                                                                                         boolean beholdSenestePeriode) {
         if (nysøknad.isEmpty() || uttakResultatFraForrigeBehandling == null || uttakResultatFraForrigeBehandling.getGjeldendePerioder().getPerioder().isEmpty()) {
             return nysøknad;
         }
@@ -55,8 +56,8 @@ public final class VedtaksperiodeFilter {
 
         // Alle periodene er like eller eksisterende vedtak har perioder etter ny søknad -> returner seneste periode i søknaden inntil videre.
         if (førsteNyhet == null || førsteNyhet.isAfter(senesteTom)) {
-            if (kreverSammenhengendeUttak) {
-                var sistePeriodeFraSøknad = nysøknad.stream().max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
+            var sistePeriodeFraSøknad = nysøknad.stream().max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
+            if (beholdSenestePeriode || UtsettelseCore2021.kreverSammenhengendeUttak(sistePeriodeFraSøknad)) {
                 LOG.info("VPERIODER FILTER: behandling {} søkt fom {} kan forkaste alle perioder men returnerer periode med fom {}", behandlingId, tidligsteFom, sistePeriodeFraSøknad.getFom());
                 return List.of(sistePeriodeFraSøknad);
             } else {
@@ -72,9 +73,9 @@ public final class VedtaksperiodeFilter {
             LOG.info("VPERIODER FILTER: behandling {} søkt fom {} beholder perioder fom {}", behandlingId, tidligsteFom, førsteNyhet);
             return nysøknad.stream().filter(p -> !p.getTom().isBefore(førsteNyhet)).toList();
         } else if (nysøknad.stream().noneMatch(p -> p.getTidsperiode().inkluderer(førsteNyhet))) {  // Hull i søknad rundt første nyhet. Ta fom perioden før
-            if (kreverSammenhengendeUttak) {
-                var sistePeriodeFørHull = nysøknad.stream().filter(p -> !p.getFom().isAfter(førsteNyhet))
-                    .max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
+            var sistePeriodeFørHull = nysøknad.stream().filter(p -> !p.getFom().isAfter(førsteNyhet))
+                .max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
+            if (beholdSenestePeriode || UtsettelseCore2021.kreverSammenhengendeUttak(sistePeriodeFørHull)) {
                 LOG.info("VPERIODER FILTER: behandling {} søkt fom {} hull i søknad beholder perioder fom {}", behandlingId, tidligsteFom, sistePeriodeFørHull.getFom());
                 return nysøknad.stream().filter(p -> !p.getTom().isBefore(sistePeriodeFørHull.getTom())).toList();
             } else {
