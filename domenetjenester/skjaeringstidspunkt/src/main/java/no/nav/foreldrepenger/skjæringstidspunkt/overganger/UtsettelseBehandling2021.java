@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 @ApplicationScoped
 public class UtsettelseBehandling2021 {
 
-    private final UtsettelseCore2021 utsettelseCore2021 = new UtsettelseCore2021();
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -40,13 +39,13 @@ public class UtsettelseBehandling2021 {
     public boolean kreverSammenhengendeUttak(Behandling behandling) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
-            .map(utsettelseCore2021::kreverSammenhengendeUttak)
+            .map(UtsettelseCore2021::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
     public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
-        var sammenhengendeGrunnlag1 = utsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
-        var sammenhengendeGrunnlag2 = utsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
+        var sammenhengendeGrunnlag1 = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
+        var sammenhengendeGrunnlag2 = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
         var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.behandlingId());
         return sammenhengendeGrunnlag1 != sammenhengendeGrunnlag2 || sammenhengendeBehandling != sammenhengendeGrunnlag1;
     }
@@ -54,7 +53,7 @@ public class UtsettelseBehandling2021 {
     boolean kreverSammenhengendeUttak(Long behandlingId) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
-            .map(utsettelseCore2021::kreverSammenhengendeUttak)
+            .map(UtsettelseCore2021::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 

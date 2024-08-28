@@ -28,27 +28,37 @@ public class UtsettelseCore2021 {
 
     public static final LocalDate IKRAFT_FRA_DATO = LocalDate.of(2021, Month.OCTOBER,1); // LA STÅ.
 
-    private final LocalDate ikrafttredelseDato;
-
-    public UtsettelseCore2021() {
-        this(IKRAFT_FRA_DATO);
+    private UtsettelseCore2021() {
     }
 
-    UtsettelseCore2021(LocalDate ikrafttredelseDato) {
-        this.ikrafttredelseDato = ikrafttredelseDato;
+    // Input til uttaksregler
+    public static LocalDate kreverSammenhengendeUttakTilOgMed() {
+        return IKRAFT_FRA_DATO.minusDays(1);
     }
 
-    public boolean kreverSammenhengendeUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    public static boolean kreverSammenhengendeUttak(OppgittPeriodeEntitet oppgittPeriode) {
+        return oppgittPeriode.getFom().isBefore(IKRAFT_FRA_DATO);
+    }
+
+    public static boolean kreverSammenhengendeUttak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
+        return uttakResultatPeriode.getFom().isBefore(IKRAFT_FRA_DATO);
+    }
+
+    public static boolean kreverSammenhengendeUttak(LocalDate morsMaksdato) {
+        return morsMaksdato.isBefore(IKRAFT_FRA_DATO);
+    }
+
+    public static boolean kreverSammenhengendeUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag == null) return true;
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
         if (bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).isPresent()) {
-            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
+            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(IKRAFT_FRA_DATO)).isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
-        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
-        return LocalDate.now().isBefore(ikrafttredelseDato);
+        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(IKRAFT_FRA_DATO)) return true;
+        return LocalDate.now().isBefore(IKRAFT_FRA_DATO);
     }
 
     public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag, LocalDate førsteUttaksdato) {

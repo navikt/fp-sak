@@ -26,7 +26,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isTrue();
     }
 
     @Test
@@ -44,7 +44,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -63,7 +63,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -82,7 +82,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -101,7 +101,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -119,7 +119,7 @@ class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -137,7 +137,7 @@ class Utsettelse2021CoreTest {
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+        assertThat(UtsettelseCore2021.kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
 }
