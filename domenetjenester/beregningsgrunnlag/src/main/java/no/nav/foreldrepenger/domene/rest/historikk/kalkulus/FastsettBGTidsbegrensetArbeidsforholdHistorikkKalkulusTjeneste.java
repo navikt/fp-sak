@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.dto.FastsatteAndelerTidsbegrensetDto;
-import no.nav.foreldrepenger.domene.rest.dto.FastsattePerioderTidsbegrensetDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -64,8 +63,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                 .filter(p -> !p.getPeriode().getFom().isBefore(periode.getPeriodeFom()))
                 .toList();
             var fastatteAndeler = periode.getFastsatteTidsbegrensedeAndeler();
-            fastatteAndeler.forEach(andel -> lagEndretHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, periode,
-                bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));
+            fastatteAndeler.forEach(andel -> lagEndretHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));
         }
 
         var andelerIFørstePeriode = endredePerioder.stream()
@@ -82,9 +80,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
         lagHistorikkInnslag(dto, param, arbeidsforholdInntekterMap, forrigeOverstyrtFrilansinntekt);
     }
 
-    private void lagEndretHistorikkForAndelIPeriode(Map<String, List<Integer>> arbeidsforholdInntekterMap,
-                                                    FastsattePerioderTidsbegrensetDto periode,
-                                                    List<BeregningsgrunnlagPeriodeEndring> bgPerioderSomSkalFastsettesAvDennePerioden,
+    private void lagEndretHistorikkForAndelIPeriode(Map<String, List<Integer>> arbeidsforholdInntekterMap, List<BeregningsgrunnlagPeriodeEndring> bgPerioderSomSkalFastsettesAvDennePerioden,
                                                     FastsatteAndelerTidsbegrensetDto andel,
                                                     List<ArbeidsforholdOverstyring> overstyringer) {
         bgPerioderSomSkalFastsettesAvDennePerioden.forEach(p -> {
@@ -92,10 +88,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                 .stream()
                 .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER))
                 .toList();
-            atAndeler.forEach(endretAndel -> {
-                mapArbeidsforholdInntekter(andel, arbeidsforholdInntekterMap, endretAndel, overstyringer);
-
-            });
+            atAndeler.forEach(endretAndel -> mapArbeidsforholdInntekter(andel, arbeidsforholdInntekterMap, endretAndel, overstyringer));
         });
 
     }
