@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSøker,
@@ -10,5 +11,5 @@ public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSø
                                        boolean oppgittAnnenForelderRettEØS,
                                        FilterDto årsakFilter) {
 
-    public record FilterDto(boolean kreverSammenhengendeUttak, boolean utenMinsterett, boolean søkerErMor) {}
+    public record FilterDto(LocalDate kreverSammenhengendeUttakTom, boolean kreverSammenhengendeUttak, boolean utenMinsterett, boolean søkerErMor) {}
 }

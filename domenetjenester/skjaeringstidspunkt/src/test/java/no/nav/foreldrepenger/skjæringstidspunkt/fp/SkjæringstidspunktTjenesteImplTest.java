@@ -38,13 +38,11 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private UtsettelseBehandling2021 utsettelse2021;
     private MinsterettBehandling2022 minsterett2022;
 
     @BeforeEach
@@ -52,10 +50,8 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
-        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider,
-            fagsakRelasjonTjeneste);
         minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, utsettelse2021, minsterett2022);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, minsterett2022);
     }
 
     @Test
@@ -271,8 +267,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
-        utsettelse2021 = new UtsettelseBehandling2021(repositoryProvider, new FagsakRelasjonTjeneste(repositoryProvider));
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, utsettelse2021, minsterett2022);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, minsterett2022);
 
 
         var skjæringstidspunktOriginal = VirkedagUtil.fomVirkedag(YearMonth.from(LocalDate.now()).atEndOfMonth().plusDays(1));

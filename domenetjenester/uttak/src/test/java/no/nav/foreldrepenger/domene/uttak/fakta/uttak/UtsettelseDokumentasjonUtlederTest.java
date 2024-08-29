@@ -64,6 +64,15 @@ class UtsettelseDokumentasjonUtlederTest {
     void utsettelse_sykdom_trenger_ikke_vurdering_etter_uke_6() {
         var utsettelseSykdom = periodeMedUtsettelse(UtsettelseÅrsak.SYKDOM);
         var vurderingBehov = utledVurderingBehov(utsettelseSykdom, utsettelseSykdom.getFom().minusMonths(2), List.of());
+        assertThat(vurderingBehov).isPresent();
+        assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER);
+    }
+
+    @Test
+    void fri_utsettelse_sykdom_trenger_ikke_vurdering_etter_uke_6() {
+        var utsettelseSykdom = periodeMedUtsettelseFrittUttak(UtsettelseÅrsak.SYKDOM);
+        var vurderingBehov = utledVurderingBehov(utsettelseSykdom, utsettelseSykdom.getFom().minusMonths(2), List.of());
         assertThat(vurderingBehov).isEmpty();
     }
 
@@ -97,12 +106,12 @@ class UtsettelseDokumentasjonUtlederTest {
     }
 
     private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehovSammenhengendeUttak(OppgittPeriodeEntitet oppgittPeriode) {
-        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, oppgittPeriode.getFom().minusMonths(2), true, List.of());
+        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, oppgittPeriode.getFom().minusMonths(2), List.of());
     }
 
     private Optional<DokumentasjonVurderingBehov.Behov> utledVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, LocalDate familiehendelse,
                                                                             List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, false, pleiepengerInnleggelser);
+        return UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, pleiepengerInnleggelser);
     }
 
     private OppgittPeriodeEntitet periodeMedUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
@@ -110,6 +119,13 @@ class UtsettelseDokumentasjonUtlederTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medÅrsak(utsettelseÅrsak)
             .medPeriode(LocalDate.of(2018, 3, 15), LocalDate.of(2018, 3, 15)).build();
+    }
+
+    private OppgittPeriodeEntitet periodeMedUtsettelseFrittUttak(UtsettelseÅrsak utsettelseÅrsak) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medÅrsak(utsettelseÅrsak)
+            .medPeriode(LocalDate.of(2022, 3, 15), LocalDate.of(2022, 3, 15)).build();
     }
 
 }

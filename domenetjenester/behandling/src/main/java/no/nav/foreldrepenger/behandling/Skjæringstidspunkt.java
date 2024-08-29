@@ -100,10 +100,11 @@ public class Skjæringstidspunkt {
         return Optional.ofNullable(familieHendelseDato);
     }
 
-    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
+    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler. V2 betyr eldre versjon av 14-6 opptjening */
     public boolean kreverSammenhengendeUttak() {
         return this.kreverSammenhengendeUttak;
     }
+
 
     /** Skal behandles etter nytt regelverk for balansert arbeids/familieliv 2022. True = gamle regler */
     public boolean utenMinsterett() {

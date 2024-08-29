@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +60,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
@@ -71,6 +70,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA)
 @BehandlingTypeRef(BehandlingType.REVURDERING)
@@ -252,7 +252,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     .map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList());
             var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
             return oppgittPerioder.stream()
-                .filter(p -> ref.getSkjæringstidspunkt().kreverSammenhengendeUttak() || frittUttakErPeriodeMedUttak(p))
+                .filter(p -> UtsettelseCore2021.kreverSammenhengendeUttak(p) || frittUttakErPeriodeMedUttak(p))
                 .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(skjæringstidspunkt));
         }
         return false;

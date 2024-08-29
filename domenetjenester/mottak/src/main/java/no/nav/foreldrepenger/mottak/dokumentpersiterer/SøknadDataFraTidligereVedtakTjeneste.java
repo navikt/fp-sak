@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.DokVurderingKopierer
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeFilter;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ApplicationScoped
 public class SøknadDataFraTidligereVedtakTjeneste {
@@ -28,16 +27,13 @@ public class SøknadDataFraTidligereVedtakTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FpUttakRepository uttakRepository;
     private BehandlingRepository behandlingRepository;
-    private UtsettelseBehandling2021 utsettelseBehandling;
 
     @Inject
     public SøknadDataFraTidligereVedtakTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                                 FpUttakRepository uttakRepository,
-                                                BehandlingRepository behandlingRepository,
-                                                UtsettelseBehandling2021 utsettelseBehandling) {
+                                                BehandlingRepository behandlingRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uttakRepository = uttakRepository;
-        this.utsettelseBehandling = utsettelseBehandling;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -54,10 +50,9 @@ public class SøknadDataFraTidligereVedtakTjeneste {
         var foreldrepenger = nysøknad.stream().map(OppgittPeriodeEntitet::getPeriodeType).anyMatch(UttakPeriodeType.FORELDREPENGER::equals) ||
             forrigeUttak.getGjeldendePerioder().getPerioder().stream()
                 .anyMatch(p -> p.getAktiviteter().stream().map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto).anyMatch(UttakPeriodeType.FORELDREPENGER::equals));
-        // Skal ikke legge inn utsettelse for BFHR
-        var kreverSammenhengendeUttak = !behandling.erRevurdering() || utsettelseBehandling.kreverSammenhengendeUttak(behandling)
-            || foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType());
-        return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, kreverSammenhengendeUttak);
+        // Skal ikke legge inn fri utsettelse for å markere start på endring i søknaden for førstegangsbehandlinger eller BFHR
+        var beholdSenestePeriode = !behandling.erRevurdering() || foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType());
+        return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, beholdSenestePeriode);
     }
 
     public List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(Behandling behandling, LocalDate mottattDato, List<OppgittPeriodeEntitet> nysøknad) {

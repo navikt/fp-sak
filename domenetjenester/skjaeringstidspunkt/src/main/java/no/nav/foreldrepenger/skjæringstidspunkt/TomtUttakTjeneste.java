@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
@@ -20,25 +19,22 @@ public class TomtUttakTjeneste {
 
     private FpUttakRepository fpUttakRepository;
     private BehandlingRepository behandlingRepository;
-    private UtsettelseBehandling2021 utsettelseBehandling2021;
 
     TomtUttakTjeneste() {
         // CDI
     }
 
     @Inject
-    public TomtUttakTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                             UtsettelseBehandling2021 utsettelseBehandling2021) {
+    public TomtUttakTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
-        this.utsettelseBehandling2021 = utsettelseBehandling2021;
     }
 
     public Optional<LocalDate> startdatoUttakResultatFrittUttak(Fagsak fagsak) {
         return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .filter(b -> FagsakYtelseType.FORELDREPENGER.equals(b.getFagsakYtelseType()))
-            .filter(b -> !utsettelseBehandling2021.kreverSammenhengendeUttak(b))
             .flatMap(b -> fpUttakRepository.hentUttakResultatHvisEksisterer(b.getId()))
-            .flatMap(ur -> UtsettelseCore2021.finnFørsteDatoFraUttakResultat(ur.getGjeldendePerioder().getPerioder(), false));
+            .flatMap(ur -> UtsettelseCore2021.finnFørsteDatoFraUttakResultat(ur.getGjeldendePerioder().getPerioder()))
+            .filter(startdato -> !UtsettelseCore2021.kreverSammenhengendeUttak(startdato));
     }
 }

@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
@@ -53,7 +52,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
             fagsakRelasjonTjeneste);
         mockMinsterett = mock(MinsterettBehandling2022.class);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, mock(UtsettelseBehandling2021.class), mockMinsterett);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, mockMinsterett);
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt

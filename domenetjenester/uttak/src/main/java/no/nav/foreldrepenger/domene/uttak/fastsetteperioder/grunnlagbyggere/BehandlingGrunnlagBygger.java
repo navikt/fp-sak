@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Behandling;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
 public class BehandlingGrunnlagBygger {
@@ -17,7 +18,7 @@ public class BehandlingGrunnlagBygger {
         return new Behandling.Builder()
             .berørtBehandling(fpGrunnlag.isBerørtBehandling())
             .søkerErMor(søkerErMor(ref))
-            .kreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
+            .sammenhengendeUttakTomDato(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
     }
 
     public static boolean søkerErMor(BehandlingReferanse ref) {

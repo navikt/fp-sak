@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
 public class FaktaUttakAksjonspunktUtleder {
@@ -68,11 +69,10 @@ public class FaktaUttakAksjonspunktUtleder {
             graderingPåAktivitetIkkeIIay(aktørArbeidFraRegister, perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
-        var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
-            RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
+        var erMor = RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
         ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
-            .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, sammenhengendeEllerMor, fud))
+            .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, erMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
         return list;
     }
@@ -82,10 +82,12 @@ public class FaktaUttakAksjonspunktUtleder {
             oppgittPeriodeEntitet -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriodeEntitet.getFom(), avklartFUD)).orElse(true);
     }
 
-    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeEllerMor) {
-        return perioder.stream()
-            .filter(p -> sammenhengendeEllerMor || !(p.isUtsettelse() || p.isOpphold()))
-            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean erMor) {
+        if (erMor) {
+            return perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
+        } else {
+            return UtsettelseCore2021.finnFørsteOppgittPeriodeFra(perioder);
+        }
     }
 
     private static boolean graderingPåAktivitetIkkeIIay(Optional<AktørArbeid> aktørArbeid,

@@ -52,9 +52,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
         var tidligereVurdering = oppgittPeriode.getDokumentasjonVurdering();
         var familiehendelse = finnGjeldendeFamiliehendelse(input);
         var behandlingReferanse = input.getBehandlingReferanse();
-        var kreverSammenhengendeUttak = behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        var utsettelseDokBehov = UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, kreverSammenhengendeUttak,
-            finnPerioderMedPleiepengerInnleggelse(input));
+        var utsettelseDokBehov = UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, finnPerioderMedPleiepengerInnleggelse(input));
         if (utsettelseDokBehov.isPresent()) {
             return Optional.of(new DokumentasjonVurderingBehov(oppgittPeriode, utsettelseDokBehov.get(), tidligereVurdering));
         }

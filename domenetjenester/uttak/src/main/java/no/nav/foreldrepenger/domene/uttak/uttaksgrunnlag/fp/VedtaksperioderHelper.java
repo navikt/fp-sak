@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøkn
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 public class VedtaksperioderHelper {
 
@@ -43,10 +44,10 @@ public class VedtaksperioderHelper {
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
                                                                       LocalDate fomDato,
-                                                                      boolean kreverSammenhengendeUttak) {
+                                                                      boolean beholdAvslåttePerioderFrittUttak) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
         var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
-            fomDato, førsteSøknadsdato, kreverSammenhengendeUttak);
+            fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -64,12 +65,12 @@ public class VedtaksperioderHelper {
     private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
                                                                   LocalDate fraDato,
                                                                   Optional<LocalDate> førsteSøknadsdato,
-                                                                  boolean kreverSammenhengendeUttak) {
+                                                                  boolean beholdAvslåttePerioderFrittUttak) {
         return uttakResultat.getGjeldendePerioder()
             .getPerioder()
             .stream()
             .filter(p -> !p.getTom().isBefore(fraDato))
-            .filter(p -> kreverSammenhengendeUttak || !avslåttIngenTrekkdager(p))
+            .filter(p -> beholdAvslåttePerioderFrittUttak || UtsettelseCore2021.kreverSammenhengendeUttak(p) || !avslåttIngenTrekkdager(p))
             .filter(p -> !avslåttPgaAvTaptPeriodeTilAnnenpart(p))
             .filter(p -> filtrerFørsteSøknadsdato(p, førsteSøknadsdato))
             .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
