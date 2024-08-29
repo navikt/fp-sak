@@ -90,7 +90,7 @@ final class MedlemFortsattRegel {
         var registerMedlemskapBeslutninger = grunnlag.registrertMedlemskapBeslutning();
 
         return registerMedlemskapBeslutninger.stream()
-            .filter(b -> vurderingsperiode.contains(b.beslutningsdato()))
+            .filter(b -> b.beslutningsdato() == null || vurderingsperiode.contains(b.beslutningsdato()))
             .anyMatch(mp -> mp.interval().overlaps(vurderingsperiode));
     }
 }
