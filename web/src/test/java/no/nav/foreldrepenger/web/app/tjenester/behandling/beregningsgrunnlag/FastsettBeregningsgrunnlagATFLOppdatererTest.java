@@ -13,14 +13,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -28,18 +24,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private FastsettBeregningsgrunnlagATFLOppdaterer oppdaterer;
 
     @Mock
-    private FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste historikkTidsbegrenset;
+    private FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste historikkKalkulusTjeneste;
+
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
 
     @Mock
     private FastsettBeregningsgrunnlagATFLHistorikkTjeneste historikk;
@@ -57,18 +58,6 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private Aksjonspunkt ap;
 
     @Mock
-    private BeregningHåndterer beregningHåndterer;
-
-    @Mock
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-
-    @Mock
-    private BeregningsgrunnlagInputFelles beregningsgrunnlagInputFelles;
-
-    @Mock
-    private BeregningsgrunnlagInput input;
-
-    @Mock
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
@@ -76,19 +65,19 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk,
-                beregningsgrunnlagInputTjeneste, beregningHåndterer, behandlingRepository);
+                behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
     }
 
     @Test
     void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
         // Arrange
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong()))
-                .thenReturn(BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build());
+        var bg = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build();
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(anyLong()))
+                .thenReturn(Optional.of(gr));
 
         when(behandling.getÅpentAksjonspunktMedDefinisjonOptional(any())).thenReturn(Optional.of(ap));
         when(ap.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
-        when(beregningsgrunnlagInputTjeneste.getTjeneste(Mockito.any())).thenReturn(beregningsgrunnlagInputFelles);
-        when(beregningsgrunnlagInputFelles.lagInput(any(BehandlingReferanse.class))).thenReturn(input);
 
         // Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
