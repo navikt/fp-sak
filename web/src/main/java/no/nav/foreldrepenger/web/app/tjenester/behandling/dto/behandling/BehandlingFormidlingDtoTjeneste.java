@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
@@ -207,6 +208,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
 
                 dto.setKreverSammenhengendeUttak(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).kreverSammenhengendeUttak());
+                dto.setKreverSammenhengendeUttakTom(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
 
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
