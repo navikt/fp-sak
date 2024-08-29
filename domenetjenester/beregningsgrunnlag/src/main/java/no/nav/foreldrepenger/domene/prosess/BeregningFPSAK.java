@@ -24,6 +24,9 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
@@ -107,8 +110,14 @@ public class BeregningFPSAK implements BeregningAPI {
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> oppdater(BekreftetAksjonspunktDto oppdatering, BeregningsgrunnlagInput input) {
-        if (oppdatering instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
+        if (oppdatering instanceof FastsettBeregningsgrunnlagATFLDto dto) {
+            beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
+        } else if (oppdatering instanceof FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
+            beregningHåndterer.håndterFastsettBruttoForSNNyIArbeidslivet(input, OppdatererDtoMapper.mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto));
+        } else if (oppdatering instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
             beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, dto);
+        } else if (oppdatering instanceof FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input, OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
         } else if (oppdatering instanceof VurderRefusjonBeregningsgrunnlagDto dto) {
             beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
         } else if (oppdatering instanceof FordelBeregningsgrunnlagDto dto) {
