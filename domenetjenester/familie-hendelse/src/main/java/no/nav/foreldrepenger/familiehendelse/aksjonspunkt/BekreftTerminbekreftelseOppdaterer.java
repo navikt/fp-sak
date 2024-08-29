@@ -19,16 +19,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<BekreftTerminbekreftelseAksjonspunktDto> {
 
-    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     BekreftTerminbekreftelseOppdaterer() {
         // for CDI proxy
@@ -36,24 +36,20 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
     @Inject
     public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                              SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
+                                              OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                               FamilieHendelseTjeneste familieHendelseTjeneste,
                                               BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
         this.historikkAdapter = historikkAdapter;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-    }
-
-    @Override
-    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId).equals(forrigeSkjæringstidspunkt);
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
 
         var orginalTermindato = getTermindato(grunnlag);
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
@@ -98,17 +94,12 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
                 .medAntallBarn(dto.getAntallBarn());
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
-
-        var oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
-
-        var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        var skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
-
         var builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
-        if (skalReinnhente) {
-            builder.medOppdaterGrunnlag();
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (!Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            builder.medOppdaterGrunnlag().build();
         }
-        if (FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(oppdatertGrunnlag)) {
+        if (FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(familieHendelseTjeneste.hentAggregat(behandlingId))) {
             // Må kontrollere fakta på nytt for å sjekke om fødsel skulle ha inntruffet.
             builder.medOppdaterGrunnlag();
         }

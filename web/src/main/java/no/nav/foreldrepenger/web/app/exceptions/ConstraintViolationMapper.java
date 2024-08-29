@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.web.app.exceptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.validation.ConstraintViolation;
@@ -22,11 +24,15 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.OverstyrteAksjonspunkterDto;
+import no.nav.vedtak.util.InputValideringRegex;
 
 @Provider
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
+
+    private static final Pattern FRITEKST_PATTERN = Pattern.compile(InputValideringRegex.FRITEKST);
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
@@ -38,7 +44,32 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var aksjonspunktKoder = finnAksjonspunktKoder(exception);
         //De fleste innkommende dto er klyttet til et aksjonspunkt
         var constraints = constraints(exception);
+        var invalidInputs = getInputs(exception);
         LOG.warn("Det oppstod en valideringsfeil: Aksjonspunkt {} {}", aksjonspunktKoder, constraints);
+        logUnicodeAvTegnSonFeilerValidering(invalidInputs);
+        SECURE_LOG.warn("Det oppstod en valideringsfeil: Aksjonspunkt {} - {} - {}", aksjonspunktKoder, constraints, invalidInputs);
+    }
+
+    private static void logUnicodeAvTegnSonFeilerValidering(Set<String> invalidInputs) {
+        invalidInputs.forEach(input -> {
+            for (var i = 0; i < input.length(); i++) {
+                var c = input.charAt(i);
+                var charAsString = String.valueOf(c);
+                var matcher = FRITEKST_PATTERN.matcher(charAsString);
+                if (!matcher.matches()) {
+                    LOG.warn("Tegnet '{}' matcher ikke. Unicode: {}", c, (int) c);
+                }
+            }
+        });
+    }
+
+    private static Set<String> getInputs(ConstraintViolationException exception) {
+        return exception.getConstraintViolations()
+            .stream()
+            .map(ConstraintViolation::getInvalidValue)
+            .filter(Objects::nonNull)
+            .map(Object::toString)
+            .collect(Collectors.toSet());
     }
 
     private static Response lagResponse(ConstraintViolationException exception) {
@@ -49,20 +80,16 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), koder.toString()));
         }
         var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).toList();
-        var feilmelding = String.format(
-            "Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
+        var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
             feltNavn);
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(new FeilDto(feilmelding, feilene))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feilmelding, feilene)).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Set<String> constraints(ConstraintViolationException exception) {
         return exception.getConstraintViolations()
             .stream()
-            .map(cv -> cv.getRootBeanClass().getSimpleName() + "." + cv.getLeafBean().getClass().getSimpleName()
-                + "." + fieldName(cv) + " - " + cv.getMessage())
+            .map(cv -> cv.getRootBeanClass().getSimpleName() + "." + cv.getLeafBean().getClass().getSimpleName() + "." + fieldName(cv) + " - "
+                + cv.getMessage())
             .collect(Collectors.toSet());
     }
 

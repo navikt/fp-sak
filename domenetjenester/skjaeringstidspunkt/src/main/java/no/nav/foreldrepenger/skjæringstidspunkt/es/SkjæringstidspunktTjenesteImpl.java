@@ -14,13 +14,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
-public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste, SkjæringstidspunktRegisterinnhentingTjeneste {
+public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste {
 
     private FamilieHendelseRepository familieGrunnlagRepository;
 
@@ -49,18 +48,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
     }
 
-    @Override
-    public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
-        var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
-
-        var oppgittSkjæringstidspunkt = utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat);
-        var bekreftetSkjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat);
-
-        if (RegisterInnhentingIntervall.erEndringIPerioden(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt.orElse(null))) {
-            return bekreftetSkjæringstidspunkt.orElseThrow(IllegalStateException::new);
-        }
-        return oppgittSkjæringstidspunkt;
-    }
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {

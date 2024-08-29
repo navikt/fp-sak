@@ -482,7 +482,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = morBehandlingMedUttak(perioder);
 
         var result = tjeneste().mapFra(behandling);
-        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::erUtbetalingRedusertTilMorsStillingsprosent)).isTrue();
+        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::getErUtbetalingRedusertTilMorsStillingsprosent)).isTrue();
     }
     @Test
     void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_false_når_utbetalingen_erRedusert_men_innvilget_gradering() {
@@ -519,6 +519,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = morBehandlingMedUttak(perioder);
 
         var result = tjeneste().mapFra(behandling);
-        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::erUtbetalingRedusertTilMorsStillingsprosent)).isFalse();
+        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::getErUtbetalingRedusertTilMorsStillingsprosent)).isFalse();
     }
 }

@@ -267,17 +267,4 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    @POST
-    @Path("/samleEntrinnsVedtak")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Starter ny revurdering (berørt)", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response samleEntrinnsVedtak() {
-        var oppdatert = entityManager.createNativeQuery(
-            " update HISTORIKKINNSLAG_FELT set til_verdi = '5028' where historikkinnslag_felt_type ='AKSJONSPUNKT_KODE' and til_verdi = '5018'")
-            .executeUpdate();
-        return Response.ok(oppdatert).build();
-    }
-
 }

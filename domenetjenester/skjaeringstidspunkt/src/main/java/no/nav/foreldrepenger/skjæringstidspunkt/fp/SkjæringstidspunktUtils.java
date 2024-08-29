@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,53 +23,7 @@ public class SkjæringstidspunktUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
 
-    /**
-     * Maks avvik før/etter STP for registerinnhenting før justering av perioden
-     */
-    private static final Period GRENSEVERDI_FØR = Period.ofMonths(4);
-    private static final Period GRENSEVERDI_ETTER = Period.ofYears(1);
-
-
     private SkjæringstidspunktUtils() {
-    }
-
-    static LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
-        var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon()
-            .getGjelderFødsel() ? familieHendelseAggregat.finnGjeldendeFødselsdato() : familieHendelseAggregat.getGjeldendeVersjon()
-            .getSkjæringstidspunkt();
-        var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
-
-        if (erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato)) {
-            LOG.info("STP registerinnhenting endring i perioden for fhgrunnlag {}", familieHendelseAggregat.getId());
-            return gjeldendeHendelseDato;
-        }
-        return oppgittHendelseDato;
-    }
-
-    private static boolean erEndringIPerioden(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
-        if (bekreftetSkjæringstidspunkt == null) {
-            return false;
-        }
-        return vurderEndringFør(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt)
-            || vurderEndringEtter(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
-    }
-
-    private static boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
-        var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, SkjæringstidspunktUtils.GRENSEVERDI_ETTER);
-    }
-
-    private static boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt) {
-        var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
-        return !avstand.isNegative() && størreEnn(avstand, SkjæringstidspunktUtils.GRENSEVERDI_FØR);
-    }
-
-    private static boolean størreEnn(Period period, Period sammenligning) {
-        return tilDager(period) > tilDager(sammenligning);
-    }
-
-    private static int tilDager(Period period) {
-        return period.getDays() + period.getMonths() * 30 + period.getYears() * 12 * 30;
     }
 
     static LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,

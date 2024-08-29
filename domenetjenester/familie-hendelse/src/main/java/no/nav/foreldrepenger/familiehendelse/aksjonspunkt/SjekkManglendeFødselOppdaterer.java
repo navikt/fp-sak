@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -36,9 +36,9 @@ import no.nav.vedtak.exception.TekniskException;
 @DtoTilServiceAdapter(dto = SjekkManglendeFodselDto.class, adapter = AksjonspunktOppdaterer.class)
 public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<SjekkManglendeFodselDto> {
 
-    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     SjekkManglendeFødselOppdaterer() {
         // for CDI proxy
@@ -46,27 +46,20 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     @Inject
     public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
+                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                           FamilieHendelseTjeneste familieHendelseTjeneste) {
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-    }
-
-    @Override
-    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId)
-            .equals(forrigeSkjæringstidspunkt);
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(SjekkManglendeFodselDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         var totrinn = håndterEndringHistorikk(dto, param.getRef(), param, grunnlag);
         var utledetResultat = utledFødselsdata(dto, grunnlag);
-
-        var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         oppdatertOverstyrtHendelse.tilbakestillBarn()
@@ -78,12 +71,12 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
 
-        var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
-
-        if (skalReinnhenteRegisteropplysninger) {
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+        } else {
             return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
         }
-        return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
     private boolean håndterEndringHistorikk(SjekkManglendeFodselDto dto,

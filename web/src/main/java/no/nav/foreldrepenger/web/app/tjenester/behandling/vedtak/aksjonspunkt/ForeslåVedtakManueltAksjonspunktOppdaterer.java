@@ -21,11 +21,9 @@ class ForeslåVedtakManueltAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     public ForeslåVedtakManueltAksjonspunktOppdaterer(BehandlingRepository behandlingRepository,
                                                       BehandlingsresultatRepository behandlingsresultatRepository,
                                                       HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                                      OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
                                                       VedtakTjeneste vedtakTjeneste,
                                                       BehandlingDokumentRepository behandlingDokumentRepository) {
-        super(behandlingRepository, behandlingsresultatRepository, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository,
-            opprettToTrinnsgrunnlag);
+        super(behandlingRepository, behandlingsresultatRepository, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
     }
 
     ForeslåVedtakManueltAksjonspunktOppdaterer() {

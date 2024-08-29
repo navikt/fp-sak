@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
@@ -41,11 +41,11 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD
     );
 
-    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     AvklarOmsorgOgForeldreansvarOppdaterer() {
         // for CDI proxy
@@ -53,39 +53,32 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
     @Inject
     public AvklarOmsorgOgForeldreansvarOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                                  SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
+                                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                                   FamilieHendelseTjeneste familieHendelseTjeneste,
                                                   HistorikkTjenesteAdapter historikkAdapter) {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkAdapter = historikkAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-    }
-
-    @Override
-    public boolean skalReinnhenteRegisteropplysninger(Long behandlingId, LocalDate forrigeSkjæringstidspunkt) {
-        return !skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId).equals(forrigeSkjæringstidspunkt);
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         var totrinn = håndterEndringHistorikk(dto, param);
-
-        var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
         var builder = OppdateringResultat.utenTransisjon();
 
         oppdaterAksjonspunktGrunnlag(dto, behandlingId);
 
-        var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
-
         // Aksjonspunkter
         settNyttVilkårOgAvbrytAndreOmsorgsovertakelseVilkårOgAksjonspunkter(dto, builder, behandlingId);
 
-        if (skalReinnhenteRegisteropplysninger) {
-            return builder.medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        if (!Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
+            builder.medOppdaterGrunnlag();
         }
         return builder.medTotrinnHvis(totrinn).build();
     }

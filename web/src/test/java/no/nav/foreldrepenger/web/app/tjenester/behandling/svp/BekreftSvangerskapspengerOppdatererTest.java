@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,7 +85,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
             inntektArbeidYtelseTjeneste);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
-            repositoryProvider.getBehandlingRepository());
+            repositoryProvider.getBehandlingRepository(), mock(OpplysningsPeriodeTjeneste.class));
     }
 
     @Test
