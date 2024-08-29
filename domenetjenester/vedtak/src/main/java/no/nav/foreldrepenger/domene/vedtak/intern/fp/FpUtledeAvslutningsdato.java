@@ -123,7 +123,7 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                                                   int stønadRest,
                                                   LocalDate sisteUttaksdatoFraBeggeParterMedRestOgEnDag,
                                                   LocalDate maksDatoFraStp) {
-        var friUtsettelse = !uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttakV2();
+        var friUtsettelse = !uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         if (friUtsettelse) {
             if (stønadRest <= 0)
             {

@@ -19,7 +19,6 @@ public class Skjæringstidspunkt {
     private LocalDateInterval uttaksintervall;
     private FamilieHendelseDato familieHendelseDato;
     private boolean kreverSammenhengendeUttak;
-    private boolean kreverSammenhengendeUttakV2;
     private boolean utenMinsterett;
     private boolean uttakSkalJusteresTilFødselsdato;
 
@@ -37,7 +36,6 @@ public class Skjæringstidspunkt {
         this.uttaksintervall = other.uttaksintervall;
         this.familieHendelseDato = other.familieHendelseDato;
         this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
-        this.kreverSammenhengendeUttakV2 = other.kreverSammenhengendeUttakV2;
         this.utenMinsterett = other.utenMinsterett;
         this.uttakSkalJusteresTilFødselsdato = other.uttakSkalJusteresTilFødselsdato;
     }
@@ -102,14 +100,9 @@ public class Skjæringstidspunkt {
         return Optional.ofNullable(familieHendelseDato);
     }
 
-    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
+    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler. V2 betyr eldre versjon av 14-6 opptjening */
     public boolean kreverSammenhengendeUttak() {
         return this.kreverSammenhengendeUttak;
-    }
-
-    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler. V2 betyr eldre versjon av 14-6 opptjening */
-    public boolean kreverSammenhengendeUttakV2() {
-        return this.kreverSammenhengendeUttakV2;
     }
 
 
@@ -209,11 +202,6 @@ public class Skjæringstidspunkt {
 
         public Builder medKreverSammenhengendeUttak(boolean sammenhengendeUttak) {
             kladd.kreverSammenhengendeUttak = sammenhengendeUttak;
-            return this;
-        }
-
-        public Builder medKreverSammenhengendeUttakV2(boolean sammenhengendeUttak) {
-            kladd.kreverSammenhengendeUttakV2 = sammenhengendeUttak;
             return this;
         }
 

@@ -61,7 +61,7 @@ public class UttakPerioderDtoTjeneste {
     }
 
     public UttakResultatPerioderDto mapFra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttakV2(), skjæringstidspunkt.utenMinsterett());
+        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett());
     }
 
     private UttakResultatPerioderDto mapFra(Behandling behandling, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {

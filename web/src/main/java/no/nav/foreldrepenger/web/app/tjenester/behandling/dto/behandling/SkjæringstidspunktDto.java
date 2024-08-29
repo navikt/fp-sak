@@ -12,6 +12,6 @@ public record SkjæringstidspunktDto(LocalDate dato, boolean kreverSammenhengend
 
     public static Optional<SkjæringstidspunktDto> fraSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
         var dato = Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet);
-        return dato.map(d -> new SkjæringstidspunktDto(d, skjæringstidspunkt.kreverSammenhengendeUttakV2(), skjæringstidspunkt.utenMinsterett()));
+        return dato.map(d -> new SkjæringstidspunktDto(d, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett()));
     }
 }

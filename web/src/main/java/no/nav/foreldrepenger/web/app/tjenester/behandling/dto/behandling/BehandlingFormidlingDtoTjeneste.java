@@ -206,7 +206,7 @@ public class BehandlingFormidlingDtoTjeneste {
                     .isPresent();
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
 
-                dto.setKreverSammenhengendeUttak(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).kreverSammenhengendeUttakV2());
+                dto.setKreverSammenhengendeUttak(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).kreverSammenhengendeUttak());
 
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));

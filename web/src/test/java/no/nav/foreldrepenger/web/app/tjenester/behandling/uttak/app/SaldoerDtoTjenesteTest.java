@@ -196,8 +196,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(true)
-            .medKreverSammenhengendeUttak(false)
-            .medKreverSammenhengendeUttakV2(false);
+            .medKreverSammenhengendeUttak(false);
         return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart, skjæringstidspunkt, antallBarn));
     }
@@ -207,8 +206,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(true)
-            .medKreverSammenhengendeUttak(false)
-            .medKreverSammenhengendeUttakV2(false);
+            .medKreverSammenhengendeUttak(false);
         return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }
@@ -218,8 +216,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(false)
-            .medKreverSammenhengendeUttak(false)
-            .medKreverSammenhengendeUttakV2(false);
+            .medKreverSammenhengendeUttak(false);
         return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }

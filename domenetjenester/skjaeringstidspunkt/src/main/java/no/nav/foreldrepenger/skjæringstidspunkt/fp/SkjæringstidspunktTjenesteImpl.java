@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
@@ -59,7 +58,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
-    private UtsettelseBehandling2021 utsettelse2021;
     private MinsterettBehandling2022 minsterett2022;
 
     SkjæringstidspunktTjenesteImpl() {
@@ -69,7 +67,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
-                                          UtsettelseBehandling2021 utsettelse2021,
                                           MinsterettBehandling2022 minsterett2022) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -78,7 +75,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
-        this.utsettelse2021 = utsettelse2021;
         this.minsterett2022 = minsterett2022;
     }
 
@@ -86,7 +82,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
         var utenMinsterett = minsterett2022.utenMinsterett(behandling);
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
         var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, familieHendelseGrunnlag, utenMinsterett));
@@ -95,7 +90,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
 
         var builder = Skjæringstidspunkt.builder()
-            .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medUtenMinsterett(utenMinsterett)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
@@ -107,7 +101,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkterForAvsluttetBehandling(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
         var utenMinsterett = minsterett2022.utenMinsterett(behandling);
 
         var førsteUttaksdato = finnFørsteDatoIUttakResultat(behandlingId).orElseThrow(() -> finnerIkkeStpException(behandlingId));
@@ -115,7 +108,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
 
         var builder = Skjæringstidspunkt.builder()
-            .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medUtenMinsterett(utenMinsterett)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
@@ -142,7 +134,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             return builder.medSkjæringstidspunktOpptjening(skjæringstidspunktOpptjening)
                 .medUtledetSkjæringstidspunkt(skjæringstidspunktOpptjening)
                 .medUttaksintervall(utledYtelseintervall(behandling, skjæringstidspunktOpptjening))
-                .medKreverSammenhengendeUttakV2(UtsettelseCore2021.kreverSammenhengendeUttak(skjæringstidspunktOpptjening))
+                .medKreverSammenhengendeUttak(UtsettelseCore2021.kreverSammenhengendeUttak(skjæringstidspunktOpptjening))
                 .build();
         } else {
             Optional<LocalDate> morsMaksdato = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag.orElse(null)) ?
@@ -153,7 +145,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
             return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
                 .medUttaksintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt))
-                .medKreverSammenhengendeUttakV2(UtsettelseCore2021.kreverSammenhengendeUttak(utledetSkjæringstidspunkt))
+                .medKreverSammenhengendeUttak(UtsettelseCore2021.kreverSammenhengendeUttak(utledetSkjæringstidspunkt))
                 .build();
         }
     }

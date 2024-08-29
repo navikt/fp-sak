@@ -182,7 +182,6 @@ class FastsettePerioderTjenesteTest {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medKreverSammenhengendeUttak(false)
-            .medKreverSammenhengendeUttakV2(false)
             .medUtenMinsterett(true).build());
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 0);

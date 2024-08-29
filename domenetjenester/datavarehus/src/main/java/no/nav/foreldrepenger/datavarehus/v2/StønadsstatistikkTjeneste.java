@@ -405,7 +405,7 @@ public class StønadsstatistikkTjeneste {
                 .max(Comparator.comparing(LovVersjon::getDatoFom)).orElseThrow();
         }
         if (stp.utenMinsterett()) {
-            return stp.kreverSammenhengendeUttakV2() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
+            return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
         }
         var familieHendelseDato = stp.getFamilieHendelseDato().map(FamilieHendelseDato::familieHendelseDato).orElse(null);
         if (familieHendelseDato != null && familieHendelseDato.isBefore(FORELDREPENGER_UTJEVNE80_2024_07_01.getDatoFom())) {

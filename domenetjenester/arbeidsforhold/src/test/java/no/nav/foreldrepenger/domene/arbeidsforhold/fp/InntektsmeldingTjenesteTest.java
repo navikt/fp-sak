@@ -79,7 +79,7 @@ class InntektsmeldingTjenesteTest {
     private static BigDecimal LØNNSPOST = BigDecimal.TEN;
 
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(I_DAG)
-        .medKreverSammenhengendeUttak(false).medKreverSammenhengendeUttakV2(false).build();
+        .medKreverSammenhengendeUttak(false).build();
     private final AtomicLong journalpostIdInc = new AtomicLong(123);
     private IAYRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;

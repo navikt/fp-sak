@@ -269,7 +269,6 @@ class FastsettePerioderRegelAdapterTest {
         var utledetStp = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusMonths(3);
         var stp = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(kreverSammenhengendeUttak)
-            .medKreverSammenhengendeUttakV2(kreverSammenhengendeUttak)
             .medUtenMinsterett(utledetStp.isBefore(LocalDate.of(2022,8,2)))
             //Stp ikke relevant for testene, må bare være fom første søkte periode
             .medUtledetSkjæringstidspunkt(utledetStp)
