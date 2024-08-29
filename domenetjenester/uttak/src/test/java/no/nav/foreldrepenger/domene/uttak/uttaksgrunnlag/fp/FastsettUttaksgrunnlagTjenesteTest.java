@@ -340,7 +340,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
 
     @Test
     void skal_fjerne_oppholdsperioder() {
-        var søknadFom = LocalDate.of(2019, 7, 31);
+        var søknadFom = LocalDate.of(2022, 7, 31);
         var periode1 = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
                 .medPeriodeType(FELLESPERIODE)
