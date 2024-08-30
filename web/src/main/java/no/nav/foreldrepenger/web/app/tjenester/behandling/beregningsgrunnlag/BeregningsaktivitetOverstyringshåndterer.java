@@ -55,26 +55,33 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
                                                   BehandlingskontrollKontekst kontekst) {
 
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
-        var input = tjeneste.lagInput(BehandlingReferanse.fra(behandling));
+        var ref = BehandlingReferanse.fra(behandling);
+        var input = tjeneste.lagInput(ref);
         beregningHåndterer.håndterBeregningAktivitetOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
+        lagHistorikk(ref, dto);
         return OppdateringResultat.utenOverhopp();
     }
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsaktiviteterDto dto) {
-        var grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
+        // Håndteres sammen med overstyringen
+    }
+
+    protected void lagHistorikk(BehandlingReferanse referanse, OverstyrBeregningsaktiviteterDto dto) {
+        var grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler BeregningsgrunnlagGrunnlagEntitet"));
-        var originalBehandlingId = behandling.getOriginalBehandlingId();
-        var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), originalBehandlingId,
-            BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
+        var originalBehandlingId = referanse.getOriginalBehandlingId();
+        var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(referanse.behandlingId(), originalBehandlingId,
+                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
             .map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
         var registerAktiviteter = grunnlag.getRegisterAktiviteter();
         var overstyrteAktiviteter = grunnlag.getGjeldendeAktiviteter();
-        beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandling.getId(),
+        beregningsaktivitetHistorikkTjeneste.lagHistorikk(referanse.behandlingId(),
             getHistorikkAdapter().tekstBuilder().medHendelse(HistorikkinnslagType.OVERSTYRT),
             registerAktiviteter,
             overstyrteAktiviteter,
             dto.getBegrunnelse(),
             forrige);
     }
+
 }

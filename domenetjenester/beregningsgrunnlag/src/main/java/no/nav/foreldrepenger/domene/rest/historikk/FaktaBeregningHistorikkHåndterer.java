@@ -8,8 +8,8 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
@@ -76,22 +76,22 @@ public class FaktaBeregningHistorikkHåndterer {
     /**
      * Lager historikk for overstyring av inntekter i fakta om beregning. Lager også historikk for tilfeller ettersom disse også blir lagret når man overstyrer.
      *
-     * @param behandling      Aktuell behandling
+     * @param referanse      Aktuell referanse
      * @param dto             Dto for bekreftelse av overstyringsaksjonspunk for fakta om beregning (overstyring av innekter)
      * @param aktivtGrunnlag  Det aktive og oppdaterte beregningsgrunnlaget
      * @param forrigeGrunnlag Det forrige grunnlaget som ble lagret i fakta om beregning
      */
-    public void lagHistorikkOverstyringInntekt(Behandling behandling,
+    public void lagHistorikkOverstyringInntekt(BehandlingReferanse referanse,
                                                OverstyrBeregningsgrunnlagDto dto,
                                                BeregningsgrunnlagEntitet aktivtGrunnlag,
                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
 
         var tekstBuilder = historikkAdapter.tekstBuilder();
         var endretBegrunnelse = true;
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        håndterTilfelleHistorikk(behandling.getId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder,
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.behandlingId());
+        håndterTilfelleHistorikk(referanse.behandlingId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder,
             iayGrunnlag);
-        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag,
+        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(referanse.behandlingId(), dto, tekstBuilder, aktivtGrunnlag,
             forrigeGrunnlag, iayGrunnlag);
         lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, endretBegrunnelse);
     }

@@ -54,24 +54,32 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
     public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto,
                                                   Behandling behandling, BehandlingskontrollKontekst kontekst) {
         var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
-        var input = tjeneste.lagInput(BehandlingReferanse.fra(behandling));
+        var ref = BehandlingReferanse.fra(behandling);
+        var input = tjeneste.lagInput(ref);
         beregningHåndterer.håndterBeregningsgrunnlagOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsgrunnlagDto(dto));
-        // Lag historikk
+
+        lagHistorikk(ref, dto);
+
         var builder = OppdateringResultat.utenTransisjon();
         fjernOverstyrtAksjonspunkt(behandling)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }
 
+    @Override
+    protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
+        // Håndteres sammen med overstyringen
+    }
+
     private Optional<Aksjonspunkt> fjernOverstyrtAksjonspunkt(Behandling behandling) {
         return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
     }
 
-    @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.FORESLÅTT);
-        var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
-        faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
+    private void lagHistorikk(BehandlingReferanse referanse, OverstyrBeregningsgrunnlagDto dto) {
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(referanse.behandlingId(), referanse.getOriginalBehandlingId(),
+            BeregningsgrunnlagTilstand.FORESLÅTT);
+        var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(referanse.behandlingId());
+        faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(referanse, dto, aktivtGrunnlag, forrigeGrunnlag);
     }
+
 }
