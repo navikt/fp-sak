@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeDto;
 
 class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
@@ -127,7 +128,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
         assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttakTom()).isEqualTo(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
     }
 
     private Behandling morBehandlingMedUttak(UttakResultatPerioderEntitet perioder) {
@@ -189,7 +190,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(2);
         assertThat(result.perioderSøker().get(1).getAktiviteter()).hasSize(1);
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr) {
@@ -243,7 +243,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderAnnenpart()).hasSize(1);
         assertThat(result.perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -285,7 +284,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderAnnenpart()).hasSize(1);
         assertThat(result.perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private ArbeidsforholdInformasjonBuilder lagFiktivtArbeidsforholdOverstyring(InternArbeidsforholdRef internArbeidsforholdRef) {
@@ -331,7 +329,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
         assertThat(result.perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -348,7 +345,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.annenForelderRettEØS()).isFalse();
         assertThat(result.oppgittAnnenForelderRettEØS()).isFalse();
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -438,7 +434,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.annenForelderHarRett()).isTrue();
         assertThat(result.aleneomsorg()).isTrue();
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
