@@ -73,7 +73,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
     }
 
     private PersonopplysningerAggregat tilAggregat(Behandling behandling, PersonopplysningGrunnlagEntitet grunnlag) {
-        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(),LocalDate.now(), LocalDate.now());
+        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId());
     }
 
     private Personinfo lagPerson() {

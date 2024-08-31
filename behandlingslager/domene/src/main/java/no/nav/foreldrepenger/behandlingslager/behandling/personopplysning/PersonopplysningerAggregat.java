@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.stream.Stream;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -25,11 +24,8 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public class PersonopplysningerAggregat {
 
     private final AktørId søkerAktørId;
-    private final LocalDate skjæringstidspunkt;
     private final List<PersonRelasjonEntitet> alleRelasjoner;
     private final List<PersonstatusEntitet> aktuellePersonstatus;
-    private final List<PersonstatusEntitet> overstyrtPersonstatus;
-    private final List<PersonstatusEntitet> orginalPersonstatus;
     private final List<OppholdstillatelseEntitet> oppholdstillatelser;
 
     private final Map<AktørId, PersonopplysningEntitet> personopplysninger;
@@ -38,62 +34,30 @@ public class PersonopplysningerAggregat {
 
     private final OppgittAnnenPartEntitet oppgittAnnenPart;
 
-    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, LocalDate forDato, LocalDate skjæringstidspunkt) {
-        this(grunnlag, aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(forDato, forDato.plusDays(1)), skjæringstidspunkt);
-    }
-
-    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode, LocalDate skjæringstidspunkt) {
+    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId) {
         this.søkerAktørId = aktørId;
-        this.skjæringstidspunkt = skjæringstidspunkt;
         this.oppgittAnnenPart = grunnlag.getOppgittAnnenPart().orElse(null);
-        var registerversjon = grunnlag.getRegisterVersjon().orElse(null);
-        if (registerversjon != null) {
-            this.alleRelasjoner = registerversjon.getRelasjoner();
-            this.personopplysninger = registerversjon.getPersonopplysninger().stream().collect(Collectors.toMap(PersonopplysningEntitet::getAktørId, Function.identity()));
-            this.adresser = registerversjon.getAdresser().stream()
-                    .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
-            overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus)
-                    .orElse(Collections.emptyList());
-            var registerPersonstatus = registerversjon.getPersonstatus()
-                .stream()
-                .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                .toList();
-            this.orginalPersonstatus = registerversjon.getPersonstatus()
-                    .stream()
-                    .filter(it -> !finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                    .toList();
-            this.aktuellePersonstatus = Stream.concat(
-                registerPersonstatus.stream(),
-                overstyrtPersonstatus.stream())
-                    .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, st.getPeriode()))
-                    .toList();
-            this.statsborgerskap = registerversjon.getStatsborgerskap().stream()
-                    .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
-                        erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
-            this.oppholdstillatelser = registerversjon.getOppholdstillatelser().stream()
-                .filter(adr -> erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                .toList();
-        } else {
-            this.alleRelasjoner = Collections.emptyList();
-            this.personopplysninger = Map.of();
-            this.oppholdstillatelser = List.of();
-            this.aktuellePersonstatus = Collections.emptyList();
-            this.adresser = Map.of();
-            this.statsborgerskap = Map.of();
-            this.orginalPersonstatus = Collections.emptyList();
-            this.overstyrtPersonstatus = Collections.emptyList();
-        }
+        this.personopplysninger = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonopplysninger).orElse(List.of()).stream()
+            .collect(Collectors.toMap(PersonopplysningEntitet::getAktørId, Function.identity()));
+        this.alleRelasjoner = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getRelasjoner).orElse(List.of());
+        this.oppholdstillatelser = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of());
+        this.adresser =  grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getAdresser).orElse(List.of()).stream()
+            .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
+        this.statsborgerskap = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(List.of()).stream()
+            .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
+        var overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(List.of());
+        var registerPersonstatus = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(List.of()).stream()
+            .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
+            .toList();
+        this.aktuellePersonstatus = Stream.concat(registerPersonstatus.stream(), overstyrtPersonstatus.stream())
+            .toList();
     }
 
     private boolean finnesIkkeIOverstyrt(PersonstatusEntitet status, List<PersonstatusEntitet> overstyrt) {
         return overstyrt.stream().noneMatch(it -> it.getAktørId().equals(status.getAktørId()) && it.getPeriode().equals(status.getPeriode()));
     }
 
-    private boolean erGyldigIPeriode(DatoIntervallEntitet forPeriode, DatoIntervallEntitet periode) {
+    private boolean erGyldigIPeriode(AbstractLocalDateInterval forPeriode, AbstractLocalDateInterval periode) {
         return periode.overlapper(forPeriode);
     }
 
@@ -109,31 +73,34 @@ public class PersonopplysningerAggregat {
         return Collections.unmodifiableList(alleRelasjoner);
     }
 
-    public List<PersonstatusEntitet> getPersonstatuserFor(AktørId aktørId) {
+    public List<PersonstatusEntitet> getPersonstatuserFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
         return aktuellePersonstatus.stream()
-                .filter(ss -> ss.getAktørId().equals(aktørId))
-                .toList();
+            .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
+            .filter(ss -> ss.getAktørId().equals(aktørId))
+            .toList();
     }
 
-    public PersonstatusEntitet getPersonstatusFor(AktørId aktørId) {
-        return aktuellePersonstatus.stream()
-            .filter(ss -> ss.getAktørId().equals(aktørId)).max(Comparator.comparing(PersonstatusEntitet::getPeriode)).orElse(null);
+    public PersonstatusEntitet getPersonstatusFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+        return getPersonstatuserFor(aktørId, forPeriode).stream()
+            .max(Comparator.comparing(PersonstatusEntitet::getPeriode)).orElse(null);
     }
 
     public PersonopplysningEntitet getSøker() {
         return personopplysninger.get(søkerAktørId);
     }
 
-    public List<StatsborgerskapEntitet> getStatsborgerskapFor(AktørId aktørId) {
-        return Collections.unmodifiableList(statsborgerskap.getOrDefault(aktørId, List.of()));
+    public List<StatsborgerskapEntitet> getStatsborgerskapFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+                .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) || erGyldigIPeriode(forPeriode, adr.getPeriode()))
+                .toList();
     }
 
-    public Optional<StatsborgerskapEntitet> getRangertStatsborgerskapVedSkjæringstidspunktFor(AktørId aktørId) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+    public Optional<StatsborgerskapEntitet> getRangertStatsborgerskapVedSkjæringstidspunktFor(AktørId aktørId, LocalDate skjæringstidspunkt) {
+        return getStatsborgerskapFor(aktørId, SimpleLocalDateInterval.enDag(skjæringstidspunkt)).stream()
             .min(Comparator.comparing(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt).getRank()));
     }
 
-    public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato) {
+    public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato, LocalDate skjæringstidspunkt) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
             .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
@@ -141,10 +108,10 @@ public class PersonopplysningerAggregat {
             .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
     }
 
-    public LocalDateTimeline<Region> getStatsborgerskapRegionIInterval(AktørId aktørId, LocalDateInterval interval) {
+    public LocalDateTimeline<Region> getStatsborgerskapRegionIInterval(AktørId aktørId, AbstractLocalDateInterval interval, LocalDate skjæringstidspunkt) {
         var segments = statsborgerskap.getOrDefault(aktørId, List.of())
             .stream()
-            .filter(s -> s.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(interval.getFomDato(), interval.getTomDato())))
+            .filter(s -> s.getPeriode().overlapper(interval))
             .map(s -> {
                 var region = MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), interval.getFomDato(), skjæringstidspunkt);
                 return new LocalDateSegment<>(new LocalDateInterval(s.getPeriode().getFomDato(), s.getPeriode().getTomDato()), region);
@@ -158,7 +125,7 @@ public class PersonopplysningerAggregat {
         });
     }
 
-    public Region getStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId) {
+    public Region getStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, LocalDate skjæringstidspunkt) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
             .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
@@ -166,48 +133,37 @@ public class PersonopplysningerAggregat {
             .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
     }
 
-    public List<StatsborgerskapEntitet> getStatsborgerskap(AktørId aktørId) {
-        return statsborgerskap.getOrDefault(aktørId, List.of());
-    }
-
-    public boolean harStatsborgerskap(AktørId aktørId, Landkoder land) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+    public boolean harStatsborgerskap(AktørId aktørId, Landkoder land, AbstractLocalDateInterval forPeriode) {
+        return getStatsborgerskapFor(aktørId, forPeriode).stream()
             .anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
     }
 
-    public boolean harStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, Region region) {
+    public boolean harStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, Region region, LocalDate skjæringstidspunkt) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+            .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
             .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)));
     }
 
-    public boolean harStatsborgerskapRegionVedTidspunkt(AktørId aktørId, Region region, LocalDate vurderingsdato) {
+    public boolean harStatsborgerskapRegionVedTidspunkt(AktørId aktørId, Region region, LocalDate vurderingsdato, LocalDate skjæringstidspunkt) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+            .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
             .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
     }
 
-    public Optional<OppholdstillatelseEntitet> getSisteOppholdstillatelseFor(AktørId aktørId) {
-        List<OppholdstillatelseEntitet> aktuelle = søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
-        return aktuelle.stream().max(Comparator.comparing(OppholdstillatelseEntitet::getPeriode));
+    public Optional<OppholdstillatelseEntitet> getSisteOppholdstillatelseFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+        return getOppholdstillatelseFor(aktørId, forPeriode).stream().max(Comparator.comparing(OppholdstillatelseEntitet::getPeriode));
     }
 
-    public List<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {
-        return søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
+    public List<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+        List<OppholdstillatelseEntitet> liste = søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
+        return liste.stream()
+            .filter(ot -> erGyldigIPeriode(forPeriode, ot.getPeriode()))
+            .toList();
     }
 
-    /**
-     * Returnerer opprinnelig personstatus der hvor personstatus har blitt overstyrt
-     *
-     * @return personstatus
-     * @param søkerAktørId
-     */
-    public Optional<PersonstatusEntitet> getOrginalPersonstatusFor(AktørId søkerAktørId) {
-        return orginalPersonstatus.stream()
-            .filter(ss -> ss.getAktørId().equals(søkerAktørId))
-            .max(Comparator.comparing(PersonstatusEntitet::getPeriode));
-    }
-
-    public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId) {
+    public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
         return adresser.getOrDefault(aktørId, List.of()).stream()
+            .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) || erGyldigIPeriode(forPeriode, adr.getPeriode()))
             .sorted(Comparator.comparing(PersonAdresseEntitet::getPeriode).reversed())
             .toList();
     }
@@ -218,16 +174,6 @@ public class PersonopplysningerAggregat {
 
     public List<PersonopplysningEntitet> getBarnaTil(AktørId aktørId) {
         return getTilPersonerFor(aktørId, RelasjonsRolleType.BARN);
-    }
-
-    public List<PersonopplysningEntitet> getFellesBarn() {
-        var annenPart = getAnnenPart();
-        List<PersonopplysningEntitet> fellesBarn = new ArrayList<>();
-        if (annenPart.isPresent()) {
-            fellesBarn.addAll(getBarna());
-            fellesBarn.retainAll(getBarnaTil(annenPart.get().getAktørId()));
-        }
-        return fellesBarn;
     }
 
     public Optional<PersonopplysningEntitet> getAnnenPart() {
@@ -250,7 +196,7 @@ public class PersonopplysningerAggregat {
         return Collections.unmodifiableMap(personopplysninger);
     }
 
-    public List<PersonopplysningEntitet> getTilPersonerFor(AktørId fraAktørId, RelasjonsRolleType relasjonsRolleType) {
+    private List<PersonopplysningEntitet> getTilPersonerFor(AktørId fraAktørId, RelasjonsRolleType relasjonsRolleType) {
         return alleRelasjoner.stream()
             .filter(e -> e.getRelasjonsrolle().equals(relasjonsRolleType) && e.getAktørId().equals(fraAktørId))
             .map(PersonRelasjonEntitet::getTilAktørId)
@@ -265,7 +211,7 @@ public class PersonopplysningerAggregat {
                 .findFirst();
     }
 
-    public List<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId) {
+    private List<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId) {
         return getRelasjoner().stream()
                 .filter(e -> e.getAktørId().equals(fraAktørId))
                 .toList();
@@ -281,7 +227,7 @@ public class PersonopplysningerAggregat {
                 .toList();
     }
 
-    public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle) {
+    public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle, AbstractLocalDateInterval forPeriode) {
         var ektefelleRelasjon = getRelasjoner().stream()
                 .filter(familierelasjon -> familierelasjon.getAktørId().equals(søkerAktørId) &&
                     familierelasjon.getTilAktørId().equals(aktørId) &&
@@ -290,16 +236,16 @@ public class PersonopplysningerAggregat {
         if (ektefelleRelasjon.filter(PersonRelasjonEntitet::getHarSammeBosted).isPresent()) {
             return true;
         }
-        return harSammeAdresseSom(aktørId);
+        return harSammeAdresseSom(aktørId, forPeriode);
     }
 
-    private boolean harSammeAdresseSom(AktørId aktørId) {
+    private boolean harSammeAdresseSom(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
         if (personopplysninger.get(aktørId) == null) {
             return false;
         }
 
-        for (var opplysningAdresseSøker : getAdresserFor(søkerAktørId)) {
-            for (var opplysningAdresseAnnenpart : getAdresserFor(aktørId)) {
+        for (var opplysningAdresseSøker : getAdresserFor(søkerAktørId, forPeriode)) {
+            for (var opplysningAdresseAnnenpart : getAdresserFor(aktørId, forPeriode)) {
                 var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseAnnenpart.getPeriode());
                 if (sammeperiode && PersonAdresseEntitet.likeAdresser(opplysningAdresseSøker, opplysningAdresseAnnenpart)) {
                     return true;

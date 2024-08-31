@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class PersonopplysningTjenesteTest {
@@ -43,9 +44,9 @@ class PersonopplysningTjenesteTest {
                 .medFørsteUttaksdato(tidspunkt).build());
 
         // Act
-        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, tidspunkt);
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
         // Assert
-        assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId())).isNotEmpty();
+        assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId(), SimpleLocalDateInterval.enDag(tidspunkt))).isNotEmpty();
     }
 
 }

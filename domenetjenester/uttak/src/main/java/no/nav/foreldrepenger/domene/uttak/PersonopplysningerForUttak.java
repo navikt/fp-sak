@@ -9,8 +9,6 @@ public interface PersonopplysningerForUttak {
 
     Optional<LocalDate> søkersDødsdato(BehandlingReferanse ref);
 
-    Optional<LocalDate> søkersDødsdatoGjeldendePåDato(BehandlingReferanse ref, LocalDate dato);
-
     boolean harOppgittAnnenpartMedNorskID(BehandlingReferanse ref);
 
     boolean ektefelleHarSammeBosted(BehandlingReferanse ref);

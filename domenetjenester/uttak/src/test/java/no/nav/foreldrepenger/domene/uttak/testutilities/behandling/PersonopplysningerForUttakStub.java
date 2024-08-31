@@ -14,11 +14,6 @@ public class PersonopplysningerForUttakStub implements PersonopplysningerForUtta
     }
 
     @Override
-    public Optional<LocalDate> søkersDødsdatoGjeldendePåDato(BehandlingReferanse ref, LocalDate dato) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean harOppgittAnnenpartMedNorskID(BehandlingReferanse ref) {
         return true;
     }

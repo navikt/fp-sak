@@ -115,18 +115,18 @@ public class MedlemTjeneste {
         if (revurderingBehandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(revurderingBehandling.getFagsakYtelseType())) {
             var aktørId = revurderingBehandling.getAktørId();
             var intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
-            var historikkAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall);
+            var historikkAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
 
             historikkAggregat.ifPresent(historikk -> {
-                sjekkEndringer(historikk.getStatsborgerskapFor(aktørId)
+                sjekkEndringer(historikk.getStatsborgerskapFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getStatsborgerskap(), e.getPeriode())), builder);
 
-                sjekkEndringer(historikk.getPersonstatuserFor(aktørId)
+                sjekkEndringer(historikk.getPersonstatuserFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getPersonstatus(), e.getPeriode())), builder);
 
-                sjekkEndringer(historikk.getAdresserFor(aktørId)
+                sjekkEndringer(historikk.getAdresserFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getAdresseType(), e.getPeriode())), builder);
             });

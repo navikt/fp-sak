@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.Medlemskapsperiode;
@@ -57,10 +59,10 @@ public class PersonopplysningXmlFelles {
         return personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId).map(PersoninfoArbeidsgiver::getNavn).orElse("Ukjent navn");
     }
 
-    public PersonIdentifiserbar lagBruker(PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
+    public PersonIdentifiserbar lagBruker(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
         var person = personopplysningObjectFactory.createPersonIdentifiserbar();
 
-        populerPerson(aggregat, personopplysning, person);
+        populerPerson(stp, aggregat, personopplysning, person);
 
         var navn = VedtakXmlUtil.lagStringOpplysning(personopplysning.getNavn());
         person.setNavn(navn);
@@ -76,10 +78,10 @@ public class PersonopplysningXmlFelles {
         return person;
     }
 
-    public PersonUidentifiserbar lagUidentifiserbarBruker(PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
+    public PersonUidentifiserbar lagUidentifiserbarBruker(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
         var person = personopplysningObjectFactory.createPersonUidentifiserbar();
 
-        populerPerson(aggregat, personopplysning, person);
+        populerPerson(stp, aggregat, personopplysning, person);
 
         if (personopplysning.getAktørId() != null) {
             person.setAktoerId(VedtakXmlUtil.lagStringOpplysning(personopplysning.getAktørId().getId()));
@@ -91,7 +93,7 @@ public class PersonopplysningXmlFelles {
         return person;
     }
 
-    private void populerPerson(PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning, PersonUidentifiserbar person) {
+    private void populerPerson(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning, PersonUidentifiserbar person) {
         var dødsdato = VedtakXmlUtil.lagDateOpplysning(personopplysning.getDødsdato());
         dødsdato.ifPresent(person::setDoedsdato);
 
@@ -101,18 +103,20 @@ public class PersonopplysningXmlFelles {
         var kjønn = personopplysning.getKjønn();
         person.setKjoenn(VedtakXmlUtil.lagStringOpplysning(kjønn.getNavn()));
 
-        var personstatus = Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId()))
+        var forPeriode = SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt());
+
+        var personstatus = Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId(), forPeriode))
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
         person.setPersonstatus(VedtakXmlUtil.lagKodeverksOpplysning(personstatus));
 
-        var statsborgerskap = aggregat.getRangertStatsborgerskapVedSkjæringstidspunktFor(personopplysning.getAktørId())
+        var statsborgerskap = aggregat.getRangertStatsborgerskapVedSkjæringstidspunktFor(personopplysning.getAktørId(), stp.getUtledetSkjæringstidspunkt())
             .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.UDEFINERT);
 
         person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(statsborgerskap));
 
-        person.setRegion(VedtakXmlUtil.lagStringOpplysning(aggregat.getStatsborgerskapRegionVedSkjæringstidspunkt(personopplysning.getAktørId()).getNavn()));
+        person.setRegion(VedtakXmlUtil.lagStringOpplysning(aggregat.getStatsborgerskapRegionVedSkjæringstidspunkt(personopplysning.getAktørId(), stp.getUtledetSkjæringstidspunkt()).getNavn()));
 
-        aggregat.getSisteOppholdstillatelseFor(personopplysning.getAktørId()).map(OppholdstillatelseEntitet::getTillatelse)
+        aggregat.getSisteOppholdstillatelseFor(personopplysning.getAktørId(), forPeriode).map(OppholdstillatelseEntitet::getTillatelse)
             .map(OppholdstillatelseType::getKode).map(VedtakXmlUtil::lagStringOpplysning).ifPresent(person::setOppholdstillatelse);
     }
 

@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
@@ -40,12 +41,6 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     @Override
-    public Optional<LocalDate> søkersDødsdatoGjeldendePåDato(BehandlingReferanse ref, LocalDate dato) {
-        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, dato);
-        return Optional.ofNullable(personopplysningerAggregat.getSøker().getDødsdato());
-    }
-
-    @Override
     public boolean harOppgittAnnenpartMedNorskID(BehandlingReferanse ref) {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
         return personopplysningerAggregat.getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId).isPresent();
@@ -53,36 +48,37 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
 
     @Override
     public boolean ektefelleHarSammeBosted(BehandlingReferanse ref) {
-        var personopplysningerAggregat = Optional.ofNullable(ref.getSkjæringstidspunkt())
+        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
             .flatMap(Skjæringstidspunkt::getUttaksintervall)
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .flatMap(intervall -> personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall))
-            .orElseGet(() -> personopplysningTjeneste.hentPersonopplysninger(ref));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
+
 
         var søker = personopplysningerAggregat.getSøker();
-        return harSivilstatusGift(søker) && harEktefelleSammeBosted(personopplysningerAggregat);
+        return harSivilstatusGift(søker) && harEktefelleSammeBosted(personopplysningerAggregat, forPeriode);
     }
 
     @Override
     public boolean annenpartHarSammeBosted(BehandlingReferanse ref) {
-        var personopplysningerAggregat = Optional.ofNullable(ref.getSkjæringstidspunkt())
+        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
             .flatMap(Skjæringstidspunkt::getUttaksintervall)
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .flatMap(intervall -> personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall))
-            .orElseGet(() -> personopplysningTjeneste.hentPersonopplysninger(ref));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElseThrow();
 
         var annenPart = personopplysningerAggregat.getAnnenPart().map(PersonopplysningEntitet::getAktørId);
         // ANNEN PART HAR IKKE RELASJON
-        return annenPart.filter(apAktør -> personopplysningerAggregat.søkerHarSammeAdresseSom(apAktør, RelasjonsRolleType.UDEFINERT)).isPresent();
+        return annenPart.filter(apAktør -> personopplysningerAggregat.søkerHarSammeAdresseSom(apAktør, RelasjonsRolleType.UDEFINERT, forPeriode)).isPresent();
     }
 
     @Override
     public boolean barnHarSammeBosted(BehandlingReferanse ref) {
-        var personopplysningerAggregat = Optional.ofNullable(ref.getSkjæringstidspunkt())
+        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
             .flatMap(Skjæringstidspunkt::getUttaksintervall)
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .flatMap(intervall -> personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall))
-            .orElseGet(() -> personopplysningTjeneste.hentPersonopplysninger(ref));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElseThrow();
         var barnRelasjoner = personopplysningerAggregat.getSøkersRelasjoner()
             .stream()
             .filter(familierelasjon -> familierelasjon.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
@@ -96,9 +92,9 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
             if (barnRelasjoner.stream().allMatch(PersonRelasjonEntitet::getHarSammeBosted)) {
                 return true;
             }
-            return harSammeAdresseSomBarn(personopplysningerAggregat);
+            return harSammeAdresseSomBarn(personopplysningerAggregat, forPeriode);
         }
-        return harSammeAdresseSomBarn(personopplysningerAggregat);
+        return harSammeAdresseSomBarn(personopplysningerAggregat, forPeriode);
     }
 
     @Override
@@ -116,21 +112,21 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
         return personopplysningerAggregat.getPersonopplysning(rel.getTilAktørId()).getDødsdato() == null;
     }
 
-    private boolean harSammeAdresseSomBarn(PersonopplysningerAggregat personopplysningerAggregat) {
-        return personopplysningerAggregat.getAdresserFor(personopplysningerAggregat.getSøker().getAktørId())
+    private boolean harSammeAdresseSomBarn(PersonopplysningerAggregat personopplysningerAggregat, AbstractLocalDateInterval forPeriode) {
+        return personopplysningerAggregat.getAdresserFor(personopplysningerAggregat.getSøker().getAktørId(), forPeriode)
             .stream()
             .anyMatch(opplysningAdresseSøker -> personopplysningerAggregat.getBarna()
                 .stream()
-                .anyMatch(barn -> harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn)));
+                .anyMatch(barn -> harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn, forPeriode)));
     }
 
     private boolean harBarnetSammeAdresse(PersonopplysningerAggregat personopplysningerAggregat,
                                           PersonAdresseEntitet opplysningAdresseSøker,
-                                          PersonopplysningEntitet barn) {
+                                          PersonopplysningEntitet barn, AbstractLocalDateInterval forPeriode) {
         if (barn.getDødsdato() != null) {
             return true;
         }
-        for (var opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(barn.getAktørId())) {
+        for (var opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(barn.getAktørId(), forPeriode)) {
             var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseBarn.getPeriode());
             if (sammeperiode && PersonAdresseEntitet.likeAdresser(opplysningAdresseSøker, opplysningAdresseBarn)) {
                 return true;
@@ -143,8 +139,8 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
         return søker.getSivilstand().equals(SivilstandType.GIFT);
     }
 
-    private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
+    private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat, AbstractLocalDateInterval forPeriode) {
         var ektefelle = personopplysningerAggregat.getEktefelle().map(PersonopplysningEntitet::getAktørId);
-        return ektefelle.filter(ektefelleAktør -> personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelleAktør, RelasjonsRolleType.EKTE)).isPresent();
+        return ektefelle.filter(ektefelleAktør -> personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelleAktør, RelasjonsRolleType.EKTE, forPeriode)).isPresent();
     }
 }

@@ -94,7 +94,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
@@ -116,7 +116,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
         lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
 

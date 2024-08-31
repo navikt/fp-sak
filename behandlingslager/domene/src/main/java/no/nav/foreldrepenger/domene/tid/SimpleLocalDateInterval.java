@@ -21,6 +21,10 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
         return tomDato != null ? new SimpleLocalDateInterval(fomDato, tomDato) : new SimpleLocalDateInterval(fomDato, Tid.TIDENES_ENDE);
     }
 
+    public static SimpleLocalDateInterval enDag(LocalDate fomTomDato) {
+        return new SimpleLocalDateInterval(fomTomDato, fomTomDato);
+    }
+
     @Override
     public LocalDate getFomDato() {
         return fomDato;

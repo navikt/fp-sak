@@ -38,10 +38,9 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -96,19 +95,16 @@ public class MedlemDtoTjeneste {
     public MedlemskapV3Dto lagMedlemskap(UUID behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var forPeriode = SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE);
 
-        var personopplysningerAggregat = personopplysningTjeneste
-            .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(
-                ref,
-                DatoIntervallEntitet.fraOgMedTilOgMed(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE)
-            ).orElse(null);
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElse(null);
 
         if (personopplysningerAggregat == null) {
             return null;
         }
 
         var aktørId = ref.aktørId();
-        var adresser = personopplysningerAggregat.getAdresserFor(aktørId).stream().map(MedlemskapV3Dto.Adresse::map).collect(Collectors.toSet());
+        var adresser = personopplysningerAggregat.getAdresserFor(aktørId, forPeriode).stream().map(MedlemskapV3Dto.Adresse::map).collect(Collectors.toSet());
         var medlemskap = medlemskapRepository.hentMedlemskap(ref.behandlingId());
 
         var medlemskapsperioder = medlemskap.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder)
@@ -124,18 +120,17 @@ public class MedlemDtoTjeneste {
             .map(MedlemskapV3Dto.Utenlandsopphold::map)
             .collect(Collectors.toSet());
 
-        var personstatuser = personopplysningerAggregat.getPersonstatuserFor(aktørId)
+        var personstatuser = personopplysningerAggregat.getPersonstatuserFor(aktørId, forPeriode)
             .stream()
             .map(MedlemskapV3Dto.Personstatus::map)
             .collect(Collectors.toSet());
 
-        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
+        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, forPeriode)
             .stream()
             .map(MedlemskapV3Dto.Oppholdstillatelse::map)
             .collect(Collectors.toSet());
 
-        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId,
-                new LocalDateInterval(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE))
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, forPeriode, ref.getUtledetSkjæringstidspunkt())
             .stream()
             .map(s -> new MedlemskapV3Dto.Region(s.getFom(), s.getTom(), s.getValue()))
             .collect(Collectors.toSet());
@@ -178,12 +173,12 @@ public class MedlemDtoTjeneste {
             if (!endredeAttributter.isEmpty()) {
                 return endringerIPersonopplysninger.getGjeldendeFra();
             }
-
+            var forPeriode = SimpleLocalDateInterval.enDag(ref.getUtledetSkjæringstidspunkt());
             /* Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode),
             så vi setter gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022 */
-            if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()) != null
-                && fom.get().isBefore(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()).getPeriode().getFomDato())) {
-                    return Optional.ofNullable(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()).getPeriode().getFomDato());
+            if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId(), forPeriode) != null
+                && fom.get().isBefore(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId(), forPeriode).getPeriode().getFomDato())) {
+                    return Optional.ofNullable(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId(), forPeriode).getPeriode().getFomDato());
 
             }
         }

@@ -50,15 +50,15 @@ public class AvklaringFaktaMedlemskap {
             ? medlemskap.get().getRegistrertMedlemskapPerioder()
             : Collections.emptySet();
 
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
+        var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
 
         if (harDekningsgrad(vurderingsdato, medlemskapPerioder) == JA) {
             if (erFrivilligMedlem(vurderingsdato, medlemskapPerioder) == JA) {
                 return Optional.empty();
             }
             if (erUnntatt(vurderingsdato, medlemskapPerioder) == JA) {
-                if (harStatsborgerskapUSAellerPNG(personopplysninger) == JA) {
-                    if (harStatusUtvandret(personopplysninger) == JA) {
+                if (harStatsborgerskapUSAellerPNG(personopplysninger, ref.getUtledetSkjæringstidspunkt()) == JA) {
+                    if (harStatusUtvandret(personopplysninger, vurderingsdato) == JA) {
                         return Optional.empty();
                     }
                     return Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
@@ -71,14 +71,14 @@ public class AvklaringFaktaMedlemskap {
         } else if (erUavklart(vurderingsdato, medlemskapPerioder) == JA) {
             return Optional.of(MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
         } else {
-            if (harStatusUtvandret(personopplysninger) == JA) {
+            if (harStatusUtvandret(personopplysninger, vurderingsdato) == JA) {
                 return Optional.empty();
             }
             if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
                 return Optional.empty();
             }
             var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
-            var region = statsborgerskap(personopplysninger, vurderingsdato);
+            var region = statsborgerskap(personopplysninger, vurderingsdato, ref.getUtledetSkjæringstidspunkt());
             return switch (region) {
                 case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
                 case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
@@ -88,8 +88,8 @@ public class AvklaringFaktaMedlemskap {
         throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta");
     }
 
-    Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker, LocalDate vurderingsdato) {
-        var region = søker.getStatsborgerskapRegionVedTidspunkt(søker.getSøker().getAktørId(), vurderingsdato);
+    Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker, LocalDate vurderingsdato, LocalDate skjæringstidspunkt) {
+        var region = søker.getStatsborgerskapRegionVedTidspunkt(søker.getSøker().getAktørId(), vurderingsdato, skjæringstidspunkt);
         return switch (region) {
             case NORDEN -> Statsborgerskapsregioner.NORDISK;
             case EOS -> Statsborgerskapsregioner.EØS;
@@ -131,12 +131,12 @@ public class AvklaringFaktaMedlemskap {
         return medlemskapPerioderTjeneste.erRegistrertSomUavklartMedlemskap(medlemskapDekningTyper) ? JA : NEI;
     }
 
-    private Utfall harStatusUtvandret(PersonopplysningerAggregat bruker) {
-        return medlemskapPerioderTjeneste.erStatusUtvandret(bruker) ? JA : NEI;
+    private Utfall harStatusUtvandret(PersonopplysningerAggregat bruker, LocalDate vurderingsdato) {
+        return medlemskapPerioderTjeneste.erStatusUtvandret(bruker, vurderingsdato) ? JA : NEI;
     }
 
-    private Utfall harStatsborgerskapUSAellerPNG(PersonopplysningerAggregat bruker) {
-        return medlemskapPerioderTjeneste.harStatsborgerskapUsaEllerPng(bruker) ? JA : NEI;
+    private Utfall harStatsborgerskapUSAellerPNG(PersonopplysningerAggregat bruker, LocalDate skjæringstidspunkt) {
+        return medlemskapPerioderTjeneste.harStatsborgerskapUsaEllerPng(bruker, skjæringstidspunkt) ? JA : NEI;
     }
 
     /**

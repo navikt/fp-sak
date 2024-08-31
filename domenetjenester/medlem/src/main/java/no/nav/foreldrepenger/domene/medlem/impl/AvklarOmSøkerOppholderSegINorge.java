@@ -50,7 +50,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         if (harNordiskStatsborgerskap(region) == JA || harAnnetStatsborgerskap(region) == JA) {
             return Optional.empty();
         }
-        if (erGiftMedNordiskBorger(personopplysninger) == JA || erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger) == JA) {
+        if (erGiftMedNordiskBorger(personopplysninger, vurderingstidspunkt) == JA || erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
         if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
@@ -88,21 +88,21 @@ public class AvklarOmSøkerOppholderSegINorge {
         return region == null || Region.TREDJELANDS_BORGER.equals(region) || Region.UDEFINERT.equals(region) ? JA : NEI;
     }
 
-    private Utfall erGiftMedNordiskBorger(PersonopplysningerAggregat personopplysninger) {
-        return erGiftMed(personopplysninger, Region.NORDEN);
+    private Utfall erGiftMedNordiskBorger(PersonopplysningerAggregat personopplysninger, LocalDate vurderingstidspunkt) {
+        return erGiftMed(personopplysninger, Region.NORDEN, vurderingstidspunkt);
     }
 
-    private Utfall erGiftMedBorgerMedANNETStatsborgerskap(PersonopplysningerAggregat personopplysninger) {
-        var utfall = erGiftMed(personopplysninger, Region.TREDJELANDS_BORGER);
+    private Utfall erGiftMedBorgerMedANNETStatsborgerskap(PersonopplysningerAggregat personopplysninger, LocalDate vurderingstidspunkt) {
+        var utfall = erGiftMed(personopplysninger, Region.TREDJELANDS_BORGER, vurderingstidspunkt);
         if (utfall == NEI) {
-            utfall = erGiftMed(personopplysninger, Region.UDEFINERT);
+            utfall = erGiftMed(personopplysninger, Region.UDEFINERT, vurderingstidspunkt);
         }
         return utfall;
     }
 
-    private Utfall erGiftMed(PersonopplysningerAggregat personopplysninger, Region region) {
+    private Utfall erGiftMed(PersonopplysningerAggregat personopplysninger, Region region, LocalDate vurderingstidspunkt) {
         var ektefelleHarRegion = personopplysninger.getEktefelle()
-            .map(e -> personopplysninger.harStatsborgerskapRegionVedSkjæringstidspunkt(e.getAktørId(), region)).orElse(Boolean.FALSE);
+            .map(e -> personopplysninger.harStatsborgerskapRegionVedSkjæringstidspunkt(e.getAktørId(), region, vurderingstidspunkt)).orElse(Boolean.FALSE);
         if (ektefelleHarRegion) {
             return JA;
         }
@@ -143,6 +143,6 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Region getRegion(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.aktørId());
+        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.aktørId(), ref.getUtledetSkjæringstidspunkt());
     }
 }

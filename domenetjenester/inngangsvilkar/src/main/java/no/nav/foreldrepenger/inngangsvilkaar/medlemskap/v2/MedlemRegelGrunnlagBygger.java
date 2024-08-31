@@ -28,7 +28,9 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -63,7 +65,7 @@ class MedlemRegelGrunnlagBygger {
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef)
             .stream().map(MedlemFortsattRegelGrunnlag.RegisterMedlemskapBeslutning::interval)
             .collect(Collectors.toSet());
-        var opplysningsperiode = new LocalDateInterval(
+        var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
@@ -82,7 +84,7 @@ class MedlemRegelGrunnlagBygger {
     MedlemFortsattRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
         var vurderingsperiode = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
-        var opplysningsperiode = new LocalDateInterval(vurderingsperiode.getFomDato().minusDays(1),
+        var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(vurderingsperiode.getFomDato().minusDays(1),
             vurderingsperiode.getTomDato()); //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
         var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
         var iay = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingRef.behandlingId());
@@ -131,21 +133,20 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
     }
 
-    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, LocalDateInterval opplysningsperiode) {
-        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingRef,
-            DatoIntervallEntitet.fraOgMedTilOgMed(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato())).orElseThrow();
+    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, AbstractLocalDateInterval opplysningsperiode) {
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingRef).orElseThrow();
         var aktørId = behandlingRef.aktørId();
-        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode)
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode, behandlingRef.getUtledetSkjæringstidspunkt())
             .stream()
             .map(s -> new RegionPeriode(s.getLocalDateInterval(), map(s.getValue())))
             .collect(Collectors.toSet());
-        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId)
+        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, opplysningsperiode)
             .stream()
             .filter(o -> !OppholdstillatelseType.UDEFINERT.equals(o.getTillatelse()))
             .map(o -> map(o.getPeriode()))
             .collect(Collectors.toSet());
-        var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId).stream().map(this::map).collect(Collectors.toSet());
-        var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId())
+        var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId, opplysningsperiode).stream().map(this::map).collect(Collectors.toSet());
+        var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId(), opplysningsperiode)
             .stream()
             .map(a -> new Personopplysninger.Adresse(map(a.getPeriode()), map(a.getAdresseType()), a.erUtlandskAdresse()))
             .collect(Collectors.toSet());

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 
@@ -80,9 +82,9 @@ public class MedlemsvilkårOversetter {
         var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.aktørId());
 
         return new MedlemskapsvilkårGrunnlag(
-            tilPersonStatusType(personopplysninger), // FP VK 2.1
-            brukerNorskNordisk(personopplysninger), // FP VK 2.11
-            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger), // FP VIK 2.12
+            tilPersonStatusType(personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VK 2.1
+            brukerNorskNordisk(personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VK 2.11
+            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VIK 2.12
             harOppholdstillatelse,
             harArbeidInntekt,
             vurdertErMedlem,
@@ -141,21 +143,21 @@ public class MedlemsvilkårOversetter {
         return !(erAvklartMaskineltSomIkkeMedlem || erAvklartManueltSomIkkeMedlem);
     }
 
-    private static boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
+    private static boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat, LocalDate vurderingsdato) {
         // Tar det første for det er det som er prioritert høyest rangert på region
-        var eosBorger = aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.EOS);
+        var eosBorger = aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.EOS, vurderingsdato);
         return medlemskap
             .map(VurdertMedlemskap::getErEøsBorger)
             .orElse(eosBorger);
     }
 
-    private static boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {
-        return aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.NORDEN);
+    private static boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat, LocalDate vurderingsdato) {
+        return aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.NORDEN, vurderingsdato);
     }
 
-    private static RegelPersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {
+    private static RegelPersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger, LocalDate vurderingsdato) {
         // Bruker overstyrt personstatus hvis det finnes
-        return Optional.ofNullable(personopplysninger.getPersonstatusFor(personopplysninger.getSøker().getAktørId()))
+        return Optional.ofNullable(personopplysninger.getPersonstatusFor(personopplysninger.getSøker().getAktørId(), SimpleLocalDateInterval.enDag(vurderingsdato)))
             .map(PersonstatusEntitet::getPersonstatus)
             .map(MAP_PERSONSTATUS_TYPE::get)
             .orElse(null);

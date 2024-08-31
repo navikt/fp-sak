@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemEndringssjekker;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -120,14 +121,13 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         var relevantPeriodeEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
 
-        var personopplysningerOpt = personopplysningTjeneste
-            .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, relevantPeriodeEntitet);
+        var personopplysningerOpt = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         if (personopplysningerOpt.isPresent()) {
             var personopplysningerAggregat = personopplysningerOpt.get();
 
-            utledetResultat.putAll(hentEndringForStatsborgerskap(personopplysningerAggregat, ref));
-            mergeResultat(utledetResultat, hentEndringForPersonstatus(personopplysningerAggregat, ref));
-            mergeResultat(utledetResultat, hentEndringForAdresse(personopplysningerAggregat, ref));
+            utledetResultat.putAll(hentEndringForStatsborgerskap(personopplysningerAggregat, ref, relevantPeriodeEntitet));
+            mergeResultat(utledetResultat, hentEndringForPersonstatus(personopplysningerAggregat, ref, relevantPeriodeEntitet));
+            mergeResultat(utledetResultat, hentEndringForAdresse(personopplysningerAggregat, ref, relevantPeriodeEntitet));
             mergeResultat(utledetResultat, hentEndringForOppholdstillatelse(ref));
         }
         return utledetResultat;
@@ -175,8 +175,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL gir en del samtidige adresser
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForAdresse(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        var adresseSegmenter = personopplysningerAggregat.getAdresserFor(ref.aktørId()).stream()
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForAdresse(PersonopplysningerAggregat personopplysningerAggregat,
+                                                                       BehandlingReferanse ref, AbstractLocalDateInterval intervall) {
+        var adresseSegmenter = personopplysningerAggregat.getAdresserFor(ref.aktørId(), intervall).stream()
             .filter(PersonAdresseEntitet::erUtlandskAdresse)
             .map(PersonAdresseEntitet::getPeriode)
             .toList();
@@ -194,8 +195,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL gir strengt periodisert informasjon om personstatus
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.aktørId())
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat,
+                                                                            BehandlingReferanse ref, AbstractLocalDateInterval intervall) {
+        var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.aktørId(), intervall)
             .stream().sorted(Comparator.comparing(s -> s.getPeriode().getFomDato()))
             .toList();
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
@@ -214,8 +216,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL har flere samtidige statsborgerskap - dermed må man sjekke region ved hvert brudd
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref) {
-        var statsborgerskapene = aggregat.getStatsborgerskapFor(ref.aktørId());
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref, AbstractLocalDateInterval intervall) {
+        var statsborgerskapene = aggregat.getStatsborgerskapFor(ref.aktørId(), intervall);
         var statsborgerskapDatoer = statsborgerskapene.stream()
             .map(StatsborgerskapEntitet::getPeriode).map(DatoIntervallEntitet::getFomDato)
             .collect(Collectors.toSet());
@@ -228,8 +230,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
             if (i != max) { // sjekker om det er siste element
                 var førsteElement = statsborgerskap.get(i);
                 var nesteElement = statsborgerskap.get(i + 1);
-                if (!aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), førsteElement)
-                    .equals(aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), nesteElement))) {
+                if (!aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), førsteElement, ref.getUtledetSkjæringstidspunkt())
+                    .equals(aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), nesteElement, ref.getUtledetSkjæringstidspunkt()))) {
                     utledetResultat.put(nesteElement, Set.of(VurderingsÅrsak.STATSBORGERSKAP));
                 }
             }
