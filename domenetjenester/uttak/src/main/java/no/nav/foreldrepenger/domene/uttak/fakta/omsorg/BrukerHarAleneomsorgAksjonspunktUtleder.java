@@ -47,7 +47,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
 
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
-        return trengerAvklaring(ref, input.getSkjæringstidspunkt(), ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
+        return trengerAvklaring(ref, input.getSkjæringstidspunkt().orElseThrow(), ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
     }
 
     private boolean trengerAvklaring(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt, YtelseFordelingAggregat ytelseFordelingAggregat) {
