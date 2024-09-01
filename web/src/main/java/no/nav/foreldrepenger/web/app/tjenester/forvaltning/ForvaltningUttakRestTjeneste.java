@@ -8,7 +8,9 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -17,7 +19,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -106,11 +110,22 @@ public class ForvaltningUttakRestTjeneste {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Setter overstyrt startdato for saken (ved manglende uttak)", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response settStartdato(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                    @NotNull @Valid LocalDate startdato) {
+    public Response settStartdato(@BeanParam @Valid StartdatoDto dto) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
-        forvaltningUttakTjeneste.setStartdato(dto.getBehandlingUuid(), startdato);
+        forvaltningUttakTjeneste.setStartdato(dto.getBehandlingUuid(), LocalDate.parse(dto.getStartdato()));
         return Response.noContent().build();
+    }
+
+    public static class StartdatoDto extends ForvaltningBehandlingIdDto {
+        @NotNull
+        @Parameter(description = "YYYY-MM-DD")
+        @Pattern(regexp = InputValideringRegexDato.DATO_PATTERN)
+        @FormParam("startdato")
+        private String startdato;
+
+        public String getStartdato() {
+            return startdato;
+        }
     }
 }
